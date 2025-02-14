@@ -21,7 +21,7 @@ migrate over from Docusaurus.
 - [x] Check for broken links
 - [ ] Enable link checking in CI
 - [ ] Display the Changelog
-- [ ] Integrate release notes as a blog
+- [ ] Add release notes as a [blog](https://github.com/HiDeoo/starlight-blog)
 
 ### Style
 
