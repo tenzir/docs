@@ -10,7 +10,7 @@ export const sidebar = [
       },
       {
         label: 'Tutorials',
-        items: [{ label: 'Map Data to OCSF', slug: 'tutorials/map-data-to-ocsf' }],
+        autogenerate: { directory: 'tutorials' },
       },
       {
         label: 'Explanations',

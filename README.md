@@ -37,9 +37,12 @@ migrate over from Docusaurus.
 - [x] FAQs
 - [ ] Integrations
 - [ ] Explanations
-- [ ] Tutorials
+- [x] Tutorials
 - [ ] Guides
+- [ ] + Quickstart
 - [ ] Reference
+
+- [ ] Fix all broken links
 
 ## ✊ Usage
 
