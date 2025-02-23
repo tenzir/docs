@@ -1,4 +1,4 @@
-# Tenzir Documenation
+# Tenzir Documentation
 
 This repository hosts the documentation of Tenzir.
 
