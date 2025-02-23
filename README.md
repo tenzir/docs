@@ -39,7 +39,7 @@ migrate over from Docusaurus.
 - [x] Landing page
 - [x] FAQs
 - [x] Integrations
-- [ ] Explanations
+- [x] Explanations
 - [x] Tutorials
 - [ ] Guides
 - [ ] Reference
