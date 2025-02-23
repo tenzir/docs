@@ -50,10 +50,7 @@ export const sidebar = [
     label: 'navbar',
     items: [
       { label: 'Docs', link: '/' },
-      // FIXME: we currently point to the first entry. This isn't particularly pretty
-      // when hovering over the tab.gIdeally, we just have a link to /integrations, but
-      // when we add an /integrations.mdx file, the wrong sidebar gets shown.
-      { label: 'Integrations', link: '/integrations/amazon/msk' },
+      { label: 'Integrations', link: '/integrations' },
     ],
   },
 ];
