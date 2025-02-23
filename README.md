@@ -19,7 +19,6 @@ migrate over from Docusaurus.
 - [x] Publish to GitHub Pages
 - [x] Implement broken links check
 - [ ] Create consolidated Node & Platform changelog
-- [ ] Add release notes as a [blog](https://github.com/HiDeoo/starlight-blog)
 
 ### CI / Automation
 
