@@ -15,13 +15,16 @@ migrate over from Docusaurus.
 
 - [x] Split nav at the top
 - [x] Render API docs based on OpenAPI spec
-- [ ] Auto-update OpenAPI spec via CI
 - [x] Generate a sitemap at build time
 - [x] Publish to GitHub Pages
-- [x] Check for broken links
-- [ ] Enable link checking in CI
-- [ ] Display the Changelog
+- [x] Implement broken links check
+- [ ] Create consolidated Node & Platform changelog
 - [ ] Add release notes as a [blog](https://github.com/HiDeoo/starlight-blog)
+
+### CI / Automation
+
+- [ ] Update OpenAPI spec via CI
+- [ ] Update changelog from tenzir/tenzir and tenzir/platform repos
 
 ### Style
 
@@ -35,14 +38,22 @@ migrate over from Docusaurus.
 
 - [x] Landing page
 - [x] FAQs
-- [ ] Integrations
+- [x] Integrations
 - [ ] Explanations
 - [x] Tutorials
 - [ ] Guides
-- [ ] + Quickstart
 - [ ] Reference
 
-- [ ] Fix all broken links
+### 🚀 Relaunch
+
+- [ ] Fix all broken links and uncomment link checking in CI
+- [ ] Replace `site` and `base` in `astro.config.mjs`
+
+### Stretch
+
+These don't have to be addressed prior to the relaunch, but would be nice:
+
+- [ ] New Quickstart guide
 
 ## ✊ Usage
 
