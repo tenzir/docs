@@ -1,13 +1,15 @@
 # Tenzir Documentation
 
-This repository hosts the documentation of Tenzir.
+This repository hosts the documentation of [Tenzir](https://tenzir.com).
 
 ## 🚧 WORK IN PROGRESS 🚧  
 
-The content in this repository is not authoritative. If you look for the Tenzir
-documentation, go to [docs.tenzir.com](https://docs.tenzir.com). We are
-currently testing Starlight as documentation framework, and if successful,
-migrate over from Docusaurus.
+The content in this repository is not yet authoritative. If you look for the
+Tenzir documentation, go to [docs.tenzir.com](https://docs.tenzir.com).
+
+We are in the process of migrating our docs from Docusaurus to Starlight. You
+can find a preview of the new documentation at
+[tenzir.github.io/docs](https://tenzir.github.io/docs).
 
 ## ☑️ TODOs
 
