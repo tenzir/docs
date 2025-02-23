@@ -29,12 +29,11 @@ export const sidebar = [
   },
   {
     label: 'Integrations',
-    items: [
-      {
-        label: 'Amazon',
-        autogenerate: { directory: 'integrations/amazon' },
-      },
-    ],
+    // FIXME: there are two issues that needs to be resolved:
+    // 1. Intermediate directories are still lower-cased.
+    // 2. A directory foo/ with a foo.mdx at the same level causes the foo.mdx
+    // See also: https://github.com/withastro/starlight/discussions/972
+    autogenerate: { directory: 'integrations' },
   },
   {
     label: 'API',
