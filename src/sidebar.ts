@@ -23,6 +23,10 @@ export const sidebar = [
             label: 'Language',
             autogenerate: { directory: 'reference/language' },
           },
+          {
+            label: 'API',
+            items: openAPISidebarGroups,
+          },
         ],
       },
     ],
@@ -35,18 +39,16 @@ export const sidebar = [
     // See also: https://github.com/withastro/starlight/discussions/972
     autogenerate: { directory: 'integrations' },
   },
-  {
-    label: 'API',
-    items: openAPISidebarGroups,
-  },
   // NB: this needs to come *last* in the array. Otherwise, the auto-switching
   // isn't working!
   {
     label: 'navbar',
     items: [
       { label: 'Docs', link: '/' },
-      { label: 'Integrations', link: 'integrations/amazon/security-lake' },
-      { label: 'API', link: 'api/node' },
+      // FIXME: we currently point to the first entry. This isn't particularly pretty
+      // when hovering over the tab.gIdeally, we just have a link to /integrations, but
+      // when we add an /integrations.mdx file, the wrong sidebar gets shown.
+      { label: 'Integrations', link: '/integrations/amazon/msk' },
     ],
   },
 ];

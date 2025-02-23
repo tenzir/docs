@@ -51,14 +51,14 @@ export default defineConfig({
         starlightOpenAPI([
           {
             base: 'api/node',
-            label: 'Node API',
+            label: 'Node',
             // TODO: Something should auto-generate the spec and update this
             // file automatically.
             schema: './src/content/apis/openapi.node.yaml',
           },
           //{
           //  base: 'api/platform',
-          //  label: 'Platform API',
+          //  label: 'Platform',
           //  schema: './src/content/apis/openapi.platform.yaml',
           //},
         ]),
