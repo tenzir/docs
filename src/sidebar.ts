@@ -34,13 +34,61 @@ export const sidebar = [
   {
     label: 'Integrations',
     items: [
-      // FIXME: there are two issues that needs to be resolved:
-      // 1. Intermediate directories are still lower-cased.
-      // 2. A directory foo/ with a foo.mdx at the same level causes the foo.mdx
-      // See also: https://github.com/withastro/starlight/discussions/972
+      { label: 'Overview', slug: 'integrations' },
       {
         label: 'Integrations',
-        autogenerate: { directory: 'integrations' },
+        items: [
+          {
+            label: 'Amazon',
+            items: [
+              { label: 'MSK', slug: 'integrations/amazon/msk' },
+              { label: 'S3', slug: 'integrations/amazon/s3' },
+              { label: 'Security Lake', slug: 'integrations/amazon/security-lake' },
+              { label: 'SQS', slug: 'integrations/amazon/sqs' },
+            ],
+          },
+          {
+            label: 'Google',
+            items: [
+              { label: 'Cloud Storage', slug: 'integrations/google/cloud-storage' },
+              { label: 'Pub/Sub', slug: 'integrations/google/pubsub' },
+            ],
+          },
+          {
+            label: 'Microsoft',
+            items: [
+              {
+                label: 'Azure',
+                items: [
+                  { label: 'Blob Storage', slug: 'integrations/microsoft/azure/blob-storage' },
+                  { label: 'Log Analytics', slug: 'integrations/microsoft/azure/log-analytics' },
+                ],
+              },
+              { label: 'Defender', slug: 'integrations/microsoft/defender' },
+              { label: 'Windows Event Logs', slug: 'integrations/microsoft/windows-event-logs' },
+            ],
+          },
+          { label: 'AMQP', slug: 'integrations/amqp' },
+          { label: 'Elasticsearch', slug: 'integrations/elasticsearch' },
+          { label: 'Email', slug: 'integrations/email' },
+          { label: 'File', slug: 'integrations/file' },
+          { label: 'Fluent Bit', slug: 'integrations/fluent-bit' },
+          { label: 'FTP', slug: 'integrations/ftp' },
+          { label: 'Graylog', slug: 'integrations/graylog' },
+          { label: 'HTTP(S)', slug: 'integrations/http' },
+          { label: 'Kafka', slug: 'integrations/kafka' },
+          { label: 'Network Interface', slug: 'integrations/nic' },
+          { label: 'OpenSearch', slug: 'integrations/opensearch' },
+          { label: 'Snowflake', slug: 'integrations/snowflake' },
+          { label: 'Splunk', slug: 'integrations/splunk' },
+          { label: 'Suricata', slug: 'integrations/suricata' },
+          { label: 'TCP', slug: 'integrations/tcp' },
+          { label: 'UDP', slug: 'integrations/udp' },
+          { label: 'Velociraptor', slug: 'integrations/velociraptor' },
+          { label: 'Zeek', slug: 'integrations/zeek' },
+          { label: 'ZeroMQ', slug: 'integrations/zeromq' },
+          { label: 'Zscaler', slug: 'integrations/zscaler' },
+        ],
       }
     ]
   },
