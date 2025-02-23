@@ -33,11 +33,16 @@ export const sidebar = [
   },
   {
     label: 'Integrations',
-    // FIXME: there are two issues that needs to be resolved:
-    // 1. Intermediate directories are still lower-cased.
-    // 2. A directory foo/ with a foo.mdx at the same level causes the foo.mdx
-    // See also: https://github.com/withastro/starlight/discussions/972
-    autogenerate: { directory: 'integrations' },
+    items: [
+      // FIXME: there are two issues that needs to be resolved:
+      // 1. Intermediate directories are still lower-cased.
+      // 2. A directory foo/ with a foo.mdx at the same level causes the foo.mdx
+      // See also: https://github.com/withastro/starlight/discussions/972
+      {
+        label: 'Integrations',
+        autogenerate: { directory: 'integrations' },
+      }
+    ]
   },
   // NB: this needs to come *last* in the array. Otherwise, the auto-switching
   // isn't working!
