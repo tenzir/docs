@@ -14,7 +14,16 @@ export const sidebar = [
       },
       {
         label: 'Explanations',
-        autogenerate: { directory: 'explanations' },
+        items: [
+          {
+            label: 'Architecture',
+            autogenerate: { directory: 'explanations/architecture' },
+          },
+          { label: 'Enrichment', slug: 'explanations/enrichment' },
+          { label: 'Packages', slug: 'explanations/packages' },
+          { label: 'Glossary', slug: 'explanations/glossary' },
+          { label: 'FAQs', slug: 'explanations/faqs' },
+        ],
       },
       {
         label: 'Reference',
