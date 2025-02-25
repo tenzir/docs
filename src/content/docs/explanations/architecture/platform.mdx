@@ -4,22 +4,37 @@ sidebar:
   order: 3
 ---
 
-The **platform** is the management plane for [nodes](../node). As an API and web
-interface, it offers user and workspace administration, authentication via
-external identity providers (IdP), and dashboards consisting of pipeline-powered
-charts.
+The **platform** provides *fleet management* for [nodes](../node). With an API
+and web interface, the platform offers user and workspace administration,
+authentication via external identity providers (IdP), and dashboards consisting
+of pipeline-powered charts.
+
+There exist three primary entities in the platform:
+
+1. **Users**: Authenticated by an Identity Provider (IdP)
+2. **Organizations**: Manage billing/licencse, members, and workspaces
+3. **Workspace**: A logical grouping of nodes, secretes, and dashboards.
+
+The diagram below illustrates their relationship.
+
+![Platform Components](platform/platform-components.svg)
+
+A user inside an organization is called a **member**. The organization
+configures what members have access to what workspaces.
+
+:::note[Organizations]
+Organizations are not available in the free **Community Edition**. Please see
+[tenzir.com/pricing](https://tenzir.com/pricing) for a detailed
+feature comparison.
+:::
 
 ## Data Model
 
-The platform consists of the following logical components:
-
-1. **Organization**: A company, tenant, customer, or company. Organizations have
-   users and workspaces.
-2. **Workspace**: A grouping of nodes and users. A workspace to belongs to
-   exactly one organization.
-3. **User**: A person with access to the platform. Every user is part of at
-   least one organization.
-
-The following diagram shows the platform's data model in yellow:
+The following diagram visualizes the platform's data model (yellow) and how the
+entities relate to each other with respect to their multiplicities.
 
 ![Platform Data Model](platform/platform-data-model.svg)
+
+It's important to note that every node can only be part of a single workspace.
+There is no support for "multi-homing" as it would create non-trivial questions
+about how to reconcile secrets and permissions from multiple workspaces.
