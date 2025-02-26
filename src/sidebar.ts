@@ -50,6 +50,7 @@ export const sidebar = [
           {
             label: 'Amazon',
             items: [
+              { label: 'Overview', slug: 'integrations/amazon' },
               { label: 'MSK', slug: 'integrations/amazon/msk' },
               { label: 'S3', slug: 'integrations/amazon/s3' },
               { label: 'Security Lake', slug: 'integrations/amazon/security-lake' },
