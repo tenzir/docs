@@ -45,6 +45,11 @@ can find a preview of the new documentation at
 - [ ] Guides
 - [ ] Reference
 
+### Legal
+
+- [ ] SBOM at `/sbom`
+- [ ] Privacy Statement (or link to it)
+
 ### 🚀 Relaunch
 
 - [ ] Fix all broken links and uncomment link checking in CI
