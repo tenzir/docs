@@ -6,7 +6,15 @@ export const sidebar = [
     items: [
       {
         label: 'Guides',
-        items: [{ label: 'Quickstart', slug: 'guides/quickstart' }],
+        items: [
+          'guides/quickstart',
+          {
+            label: 'Setup',
+            items: [
+              'guides/setup/start-the-node-api'
+            ],
+          },
+        ],
       },
       {
         label: 'Tutorials',
@@ -19,19 +27,18 @@ export const sidebar = [
             label: 'Architecture',
             autogenerate: { directory: 'explanations/architecture' },
           },
-          { label: 'Enrichment', slug: 'explanations/enrichment' },
-          { label: 'Packages', slug: 'explanations/packages' },
-          { label: 'Glossary', slug: 'explanations/glossary' },
-          { label: 'FAQs', slug: 'explanations/faqs' },
+          'explanations/enrichment',
+          'explanations/packages',
+          'explanations/glossary',
+          'explanations/faqs',
         ],
       },
       {
         label: 'Reference',
         items: [
-          {
-            label: 'Language',
-            autogenerate: { directory: 'reference/language' },
-          },
+          'reference/language/statements',
+          'reference/language/expressions',
+          'reference/language/types',
           {
             label: 'API',
             items: openAPISidebarGroups,
@@ -43,25 +50,28 @@ export const sidebar = [
   {
     label: 'Integrations',
     items: [
-      { label: 'Overview', slug: 'integrations' },
+      {
+        label: 'Overview',
+        slug: 'integrations'
+      },
       {
         label: 'Integrations',
         items: [
           {
             label: 'Amazon',
             items: [
-              { label: 'Overview', slug: 'integrations/amazon' },
-              { label: 'MSK', slug: 'integrations/amazon/msk' },
-              { label: 'S3', slug: 'integrations/amazon/s3' },
-              { label: 'Security Lake', slug: 'integrations/amazon/security-lake' },
-              { label: 'SQS', slug: 'integrations/amazon/sqs' },
+              'integrations/amazon',
+              'integrations/amazon/msk',
+              'integrations/amazon/s3',
+              'integrations/amazon/security-lake',
+              'integrations/amazon/sqs',
             ],
           },
           {
             label: 'Google',
             items: [
-              { label: 'Cloud Storage', slug: 'integrations/google/cloud-storage' },
-              { label: 'Pub/Sub', slug: 'integrations/google/pubsub' },
+              'integrations/google/cloud-storage',
+              'integrations/google/pubsub',
             ],
           },
           {
@@ -70,37 +80,37 @@ export const sidebar = [
               {
                 label: 'Azure',
                 items: [
-                  { label: 'Blob Storage', slug: 'integrations/microsoft/azure/blob-storage' },
-                  { label: 'Log Analytics', slug: 'integrations/microsoft/azure/log-analytics' },
+                  'integrations/microsoft/azure/blob-storage',
+                  'integrations/microsoft/azure/log-analytics',
                 ],
               },
-              { label: 'Defender', slug: 'integrations/microsoft/defender' },
-              { label: 'Windows Event Logs', slug: 'integrations/microsoft/windows-event-logs' },
+              'integrations/microsoft/defender',
+              'integrations/microsoft/windows-event-logs',
             ],
           },
-          { label: 'AMQP', slug: 'integrations/amqp' },
-          { label: 'Elasticsearch', slug: 'integrations/elasticsearch' },
-          { label: 'Email', slug: 'integrations/email' },
-          { label: 'File', slug: 'integrations/file' },
-          { label: 'Fluent Bit', slug: 'integrations/fluent-bit' },
-          { label: 'FTP', slug: 'integrations/ftp' },
-          { label: 'Graylog', slug: 'integrations/graylog' },
-          { label: 'HTTP(S)', slug: 'integrations/http' },
-          { label: 'Kafka', slug: 'integrations/kafka' },
-          { label: 'Network Interface', slug: 'integrations/nic' },
-          { label: 'OpenSearch', slug: 'integrations/opensearch' },
-          { label: 'Snowflake', slug: 'integrations/snowflake' },
-          { label: 'Splunk', slug: 'integrations/splunk' },
-          { label: 'Suricata', slug: 'integrations/suricata' },
-          { label: 'TCP', slug: 'integrations/tcp' },
-          { label: 'UDP', slug: 'integrations/udp' },
-          { label: 'Velociraptor', slug: 'integrations/velociraptor' },
-          { label: 'Zeek', slug: 'integrations/zeek' },
-          { label: 'ZeroMQ', slug: 'integrations/zeromq' },
-          { label: 'Zscaler', slug: 'integrations/zscaler' },
+          'integrations/amqp',
+          'integrations/elasticsearch',
+          'integrations/email',
+          'integrations/file',
+          'integrations/fluent-bit',
+          'integrations/ftp',
+          'integrations/graylog',
+          'integrations/http',
+          'integrations/kafka',
+          'integrations/nic',
+          'integrations/opensearch',
+          'integrations/snowflake',
+          'integrations/splunk',
+          'integrations/suricata',
+          'integrations/tcp',
+          'integrations/udp',
+          'integrations/velociraptor',
+          'integrations/zeek',
+          'integrations/zeromq',
+          'integrations/zscaler',
         ],
-      }
-    ]
+      },
+    ],
   },
   // NB: this needs to come *last* in the array. Otherwise, the auto-switching
   // isn't working!
