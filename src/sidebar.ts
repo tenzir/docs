@@ -13,6 +13,12 @@ export const sidebar = [
             items: [
               'guides/setup/create-an-account',
               'guides/setup/size-a-node',
+              'guides/setup/provision-a-node',
+              {
+                label: "Deploy a node",
+                autogenerate: { directory: 'guides/setup/deploy-a-node' },
+              },
+              'guides/setup/configure-a-node',
               'guides/setup/start-the-node-api',
             ],
           },
