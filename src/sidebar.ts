@@ -10,6 +10,7 @@ export const sidebar = [
           'guides/quickstart',
           {
             label: 'Setup',
+            collapsed: true,
             items: [
               'guides/setup/create-an-account',
               'guides/setup/size-a-node',
