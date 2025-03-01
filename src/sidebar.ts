@@ -54,9 +54,14 @@ export const sidebar = [
       {
         label: 'Reference',
         items: [
-          'reference/language/statements',
-          'reference/language/expressions',
-          'reference/language/types',
+          {
+            label: 'Language',
+            items: [
+              'reference/language/statements',
+              'reference/language/expressions',
+              'reference/language/types',
+            ],
+          },
           {
             label: 'API',
             items: openAPISidebarGroups,
