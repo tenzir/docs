@@ -11,7 +11,9 @@ export const sidebar = [
           {
             label: 'Setup',
             items: [
-              'guides/setup/start-the-node-api'
+              'guides/setup/create-an-account',
+              'guides/setup/size-a-node',
+              'guides/setup/start-the-node-api',
             ],
           },
         ],

@@ -31,6 +31,7 @@ can find a preview of the new documentation at
 
 - [x] Hoist SVGs and apply auto-darkmode
 - [x] TQL syntax highlighting
+- [ ] Fixing sizing calculator iframe height (CSS?)
 - [ ] Fix github-{light,dark} syntax theme selection
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
 - [ ] Apply Tailwind CSS and get a facelift
