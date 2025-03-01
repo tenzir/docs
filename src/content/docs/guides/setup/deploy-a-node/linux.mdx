@@ -9,6 +9,10 @@ instructions below to deploy a node on Linux.
 
 Second, choose the Linux tab and proceed as follows:
 
+import { Steps } from '@astrojs/starlight/components';
+
+<Steps>
+
 1. Download the config for your node.
 1. Create a directory for the platform configuration.
    ```bash
@@ -23,6 +27,7 @@ Second, choose the Linux tab and proceed as follows:
    ```bash
    curl https://get.tenzir.app | sh
    ```
+</Steps>
 
 The installer script asks for confirmation before performing the installation.
 If you prefer a manual installation you can also perform the installer steps
@@ -125,8 +130,12 @@ Visit https://app.tenzir.com to get started.
 
 There exist two ways stop a server:
 
+<Steps>
+
 1. Hit CTRL+C in the same TTY where you ran `tenzir-node`.
 2. Send the process a SIGINT or SIGTERM signal, e.g., via
    `pkill -2 tenzir-node`.
+
+</Steps>
 
 Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
