@@ -24,6 +24,13 @@ export const sidebar = [
               'guides/setup/deploy-the-platform',
             ],
           },
+          {
+            label: 'Usage',
+            collapsed: true,
+            items: [
+              'guides/usage/install-a-package',
+            ],
+          },
         ],
       },
       {
