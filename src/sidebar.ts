@@ -21,6 +21,7 @@ export const sidebar = [
               },
               'guides/setup/configure-a-node',
               'guides/setup/start-the-node-api',
+              'guides/setup/deploy-the-platform',
             ],
           },
         ],
