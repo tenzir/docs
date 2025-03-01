@@ -44,6 +44,10 @@ can find a preview of the new documentation at
 - [x] Explanations
 - [x] Tutorials
 - [ ] Guides
+    - [x] Installation
+    - [ ] Usage
+    - [ ] Contribution
+    - [ ] Development
 - [ ] Reference
 
 ### Legal
