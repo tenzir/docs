@@ -3,7 +3,8 @@ title: Configuration
 ---
 
 There exist multiple options to configure the behavior of the Tenzir pipeline
-executor (`tenzir`) and node (`tenzir-node`) that ship with a Tenzir package:
+executor (`tenzir`) and Tenzir Node (`tenzir-node`) that ship with a Tenzir
+package:
 
 1. Command-line arguments
 2. Environment variables
@@ -98,6 +99,10 @@ be inferred. For example, `TENZIR_PLUGINS=` will not be considered.
 Tenzir's configuration file is in YAML format. On startup, Tenzir attempts to
 read configuration files from the following places, in order:
 
+import { Steps } from '@astrojs/starlight/components';
+
+<Steps>
+
 1. `<sysconfdir>/tenzir/tenzir.yaml` for system-wide configuration, where
    `sysconfdir` is the platform-specific directory for configuration files,
    e.g., `<install-prefix>/etc`.
@@ -106,6 +111,8 @@ read configuration files from the following places, in order:
    respects the XDG base directory specification and its environment variables.
 
 3. A path to a configuration file passed via `--config=/path/to/tenzir.yaml`.
+
+</Steps>
 
 If there exist configuration files in multiple locations, options from all
 configuration files are merged in order, with the latter files receiving a
