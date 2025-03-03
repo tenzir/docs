@@ -50,6 +50,12 @@ can find a preview of the new documentation at
     - [ ] Contribution
     - [ ] Development
 - [ ] Reference
+  - [x] Language
+  - [ ] Operators
+  - [ ] Functions
+  - [x] Configuration
+  - [x] Platform CLI
+  - [x] Glossary
 
 ### Legal
 
