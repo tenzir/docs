@@ -64,6 +64,7 @@ export const sidebar = [
             ],
           },
           'reference/configuration',
+          'reference/platform-cli',
           {
             label: 'API',
             items: openAPISidebarGroups,
