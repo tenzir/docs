@@ -45,6 +45,7 @@ export const sidebar = [
             label: 'Architecture',
             autogenerate: { directory: 'explanations/architecture' },
           },
+          'explanations/configuration',
           'explanations/enrichment',
           'explanations/packages',
           'explanations/glossary',
@@ -62,6 +63,7 @@ export const sidebar = [
               'reference/language/types',
             ],
           },
+          'reference/configuration',
           {
             label: 'API',
             items: openAPISidebarGroups,

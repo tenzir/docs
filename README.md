@@ -24,6 +24,7 @@ can find a preview of the new documentation at
 
 ### CI / Automation
 
+- [ ] Update `tenzir.yaml.example` via CI
 - [ ] Update OpenAPI spec via CI
 - [ ] Update changelog from tenzir/tenzir and tenzir/platform repos
 
@@ -31,7 +32,7 @@ can find a preview of the new documentation at
 
 - [x] Hoist SVGs and apply auto-darkmode
 - [x] TQL syntax highlighting
-- [ ] Fixing sizing calculator iframe height (CSS?)
+- [ ] Fix sizing calculator iframe height (CSS?)
 - [ ] Fix github-{light,dark} syntax theme selection
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
 - [ ] Apply Tailwind CSS and get a facelift

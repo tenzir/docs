@@ -3,15 +3,17 @@ title: Configure a node
 ---
 
 See the documentation on [configuration
-files](../../configuration.md#configuration-files) along with the example
-configuration to understand how you can configure yoru node.
+files](../../explanations/configuration#configuration-files) along with the
+example configuration to understand how you can configure yoru node.
 
-:::note[Accepting incoming connections]
+## Accept incoming connections
+
 When your node starts it will listen for node-to-node connections on the TCP
 endpoint `127.0.0.1:5158`. Select a different endpoint via the `tenzir.endpoint`
 option. For example, to bind to an IPv6 address use `[::1]:42000`.
 
+## Refuse incoming connections
+
 Set `tenzir.endpoint` to `false` to disable the endpoint, making the node
 exclusively accessible through the Tenzir Platform. This effectively prevents
 connections from other `tenzir` or `tenzir-node` processes.
-:::
