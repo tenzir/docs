@@ -20,12 +20,7 @@ export default defineConfig({
   site: 'https://tenzir.github.io',
   base: 'docs',
   integrations: [
-    sitemap({
-      serialize(item) {
-        item.lastmod = new Date().toISOString();
-        return item;
-      },
-    }),
+    sitemap(),
     starlight({
       pagination: false,
       plugins: [
