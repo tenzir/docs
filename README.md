@@ -36,6 +36,7 @@ can find a preview of the new documentation at
 - [x] TQL syntax highlighting
 - [ ] Fix sizing calculator iframe height (CSS?)
 - [ ] Fix github-{light,dark} syntax theme selection
+- [ ] Fix Integrations tab not being bold font inside
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
 - [ ] Apply Tailwind CSS and get a facelift
 
