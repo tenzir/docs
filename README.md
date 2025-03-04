@@ -46,7 +46,7 @@ can find a preview of the new documentation at
 - [x] Tutorials
 - [ ] Guides
     - [x] Installation
-    - [ ] Usage
+    - [x] Usage
     - [ ] Contribution
     - [ ] Development
 - [ ] Reference

@@ -2,8 +2,8 @@
 title: Install a package
 ---
 
-A [package](../../explanations/packages) bundles pipelines and contexts, making
-it easy to deploy them as a single unit.
+A [package](../../../explanations/packages) bundles pipelines and contexts,
+making it easy to deploy them as a single unit.
 
 ## Install from the Tenzir Library
 
@@ -25,6 +25,14 @@ import { Steps } from '@astrojs/starlight/components';
 
 To install a package interactively, use the
 [`package::add`](../tql2/operators/package/add.md) operator:
+
+```tql
+package::add "demo-node"
+```
+
+This installs the package named `demo-node` from the [Community
+Library on GitHub](https://github.com/tenzir/library). To install a local
+package, just provide the filename instead:
 
 ```tql
 package::add "package.yaml"
@@ -81,7 +89,7 @@ convention, the directory name is the package ID.
 The node search path for packages consists of the following locations:
 
 1. The `packages` directory in all [configuration
-   directories](../configuration.md#configuration-files).
+   directories](../../../explanations/configuration#configuration-files).
 2. All directories specified in the `tenzir.package-dirs` configuration option.
 
 As an alternative way to specify inputs visually in the app, or setting them

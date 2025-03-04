@@ -29,7 +29,40 @@ export const sidebar = [
             label: 'Usage',
             collapsed: true,
             items: [
-              'guides/usage/install-a-package',
+              {
+                label: 'Basics',
+                items: [
+                  'guides/usage/basics/run-pipelines',
+                  'guides/usage/basics/manage-a-pipeline',
+                  'guides/usage/basics/install-a-package',
+                  'guides/usage/basics/collect-metrics',
+                ]
+              },
+              {
+                label: 'Data',
+                items: [
+                  'guides/usage/data/shape-data',
+                  'guides/usage/data/parse-nested-data',
+                  'guides/usage/data/deduplicate-events',
+                ]
+              },
+              {
+                label: 'Storage',
+                items: [
+                  'guides/usage/storage/import-into-a-node',
+                  'guides/usage/storage/export-from-a-node',
+                  'guides/usage/storage/show-available-schemas',
+                  'guides/usage/storage/transform-data-at-rest',
+                ]
+              },
+              {
+                label: 'Security',
+                items: [
+                  'guides/usage/security/enrich-with-network-inventory',
+                  'guides/usage/security/enrich-with-threat-intel',
+                  'guides/usage/security/execute-sigma-rules',
+                ]
+              },
             ],
           },
         ],
