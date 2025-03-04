@@ -65,6 +65,19 @@ export const sidebar = [
               },
             ],
           },
+          {
+            label: 'Contribution',
+            collapsed: true,
+            items: [
+              'guides/contribution/code-of-conduct',
+              'guides/contribution/workflow',
+              'guides/contribution/coding-style',
+              'guides/contribution/build-environment',
+              'guides/contribution/changelog',
+              'guides/contribution/documentation',
+              'guides/contribution/security',
+            ],
+          },
         ],
       },
       {

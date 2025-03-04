@@ -47,7 +47,7 @@ can find a preview of the new documentation at
 - [ ] Guides
     - [x] Installation
     - [x] Usage
-    - [ ] Contribution
+    - [x] Contribution
     - [ ] Development
 - [ ] Reference
   - [x] Language
@@ -75,7 +75,14 @@ These don't have to be addressed prior to the relaunch, but would be nice:
 
 ## ✊ Usage
 
-Begin with installing the dependencies:
+Fetch external content, such as Markdown files from [our .github
+repo](http://github.com/tenzir/.github):
+
+```bash
+make
+```
+
+Install the web framework dependencies:
 
 ```bash
 pnpm install
