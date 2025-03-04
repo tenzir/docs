@@ -12,25 +12,31 @@ it](../run-pipelines):
 - **Paused**: the user interrupted execution, keeping in-memory state.
 - **Stopped**: the user interrupted execution, resetting all in-memory state.
 
-The [app](https://app.tenzir.com/) or [API](/api) allow you to manage the
-pipeline lifecycles.
+The [app](https://app.tenzir.com/) or [API](../../../reference/api/node) allow
+you to manage the pipeline lifecycles.
 
 ## Change the state of a pipeline
 
 In the [app](https://app.tenzir.com/overview), an icon visualizes the current
 pipeline state. Change a state as follows:
 
+import { Steps } from '@astrojs/starlight/components'
+
+<Steps>
+
 1. Click the checkbox on the left next to the pipeline, or the checkbox in the
    column header to select all pipelines.
-2. Click the button corresponding to the desired action, i.e., *Start*, *Pause*,
+1. Click the button corresponding to the desired action, i.e., *Start*, *Pause*,
    *Stop*, or *Delete*.
-3. Confirm your selection.
+1. Confirm your selection.
 
-For the [API](/api), use the following endpoints based on the desired actions:
+</Steps>
 
-- Start, pause, and stop:
-  [`/pipeline/update`](/api#/paths/~1pipeline~1update/post)
-- Delete: [`/pipeline/delete`](/api#/paths/~1pipeline~1delete/post)
+For the [API](../../../reference/api/node), use the following endpoints based on
+the desired actions:
+
+- Start, pause, and stop: `/pipeline/update`
+- Delete: `/pipeline/delete`
 
 ## Understand pipeline state transitions
 
