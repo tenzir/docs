@@ -78,6 +78,15 @@ export const sidebar = [
               'guides/contribution/security',
             ],
           },
+          {
+            label: 'Development',
+            collapsed: true,
+            items: [
+              'guides/development/build-from-source',
+              'guides/development/build-the-docker-image',
+              'guides/development/write-a-node-plugin',
+            ],
+          },
         ],
       },
       {

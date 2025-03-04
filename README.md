@@ -20,13 +20,15 @@ can find a preview of the new documentation at
 - [x] Generate a sitemap at build time
 - [x] Publish to GitHub Pages
 - [x] Implement broken links check
-- [ ] Create consolidated Node & Platform changelog
 
 ### CI / Automation
 
 - [ ] Update `tenzir.yaml.example` via CI
 - [ ] Update OpenAPI spec via CI
-- [ ] Update changelog from tenzir/tenzir and tenzir/platform repos
+- [ ] Create consolidated Node & Platform changelog
+  - [ ] Creat CI job in tenzir/tenzir
+  - [ ] Creat CI job in tenzir/platform
+  - [ ] Update `changelog.mdx` in this repo
 
 ### Style
 
@@ -44,11 +46,7 @@ can find a preview of the new documentation at
 - [x] Integrations
 - [x] Explanations
 - [x] Tutorials
-- [ ] Guides
-    - [x] Installation
-    - [x] Usage
-    - [x] Contribution
-    - [ ] Development
+- [x] Guides
 - [ ] Reference
   - [x] Language
   - [ ] Operators
