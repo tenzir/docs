@@ -96,7 +96,8 @@ export default defineConfig({
       ],
     },
   },
-  // Disable built-in image optimization.
+  // Disable built-in image optimization. We need this so that our SVG hoisting
+  // works.
   image: {
     service: passthroughImageService(),
   },
