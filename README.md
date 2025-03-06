@@ -20,6 +20,8 @@ can find a preview of the new documentation at
 - [x] Generate a sitemap at build time
 - [x] Publish to GitHub Pages
 - [x] Implement broken links check
+- [ ] Upgrade to Starlight 0.32 and re-implement Starlight Utils
+  - [ ] As we override SiteTitle.astro, make logo href be tenzir.com
 
 ### CI / Automation
 
