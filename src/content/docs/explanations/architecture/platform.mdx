@@ -38,3 +38,29 @@ entities relate to each other with respect to their multiplicities.
 It's important to note that every node can only be part of a single workspace.
 There is no support for "multi-homing" as it would create non-trivial questions
 about how to reconcile secrets and permissions from multiple workspaces.
+
+## Deployment Modes
+
+Based on the [edition](https://tenzir.com/pricing) of Tenzir, you have different
+deployment modes of the platform. The below diagram illustrates the variants.
+
+![Deployment Modes](platform/deployment-modes.svg)
+
+- **Community Edition**: geared towards single-user deployments, the Community
+  Edition only associates a personal workspace with every user.
+- **Professional Edition**: geared towards small-business deployments, the
+  Professional Edition features organizations for allowing multiple users to
+  collaborate.
+- **Enterprise Edition**: geared towards large enterprise deployments, the
+  Enterprise Edition supports multiple workspaces for managing what users have
+  access to what nodes.
+- **Sovereign Edition**: geared towards on-prem deployments, the Sovereign
+  Edition allows for multiple platform instances and multiple organizations
+  within each platform.
+
+The Sovereign Edition is best suited for service providers that need strict data
+segregation, either by deploying one platform instance per customer or by
+instantiating one organization per customer. Dedicated platforms per customer
+provide physical data separation at the cost of higher management overhead,
+whereas an organization-based multi tenancy approach is a logical separation
+method with shared underlying resources, yet easier to manage.
