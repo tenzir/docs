@@ -1,12 +1,12 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import sitemap from "@astrojs/sitemap";
-import starlightUtils from "@lorenzo_lewis/starlight-utils";
-import starlightLinksValidator from 'starlight-links-validator'
+import sitemap from '@astrojs/sitemap';
+import starlightLinksValidator from 'starlight-links-validator';
+import starlightUtils from '@lorenzo_lewis/starlight-utils';
 import starlightOpenAPI from 'starlight-openapi'
-import inlineSVGs from "./astro-inline-svgs.mjs";
-import { sidebar } from "./src/sidebar";
+import inlineSVGs from './astro-inline-svgs.mjs'
+import { sidebar } from './src/sidebar';
 import { bundledLanguages } from 'shiki'
 
 // TODO: make this a submodule and track the latest version.
