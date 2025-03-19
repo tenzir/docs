@@ -13,20 +13,46 @@ export const sidebar = [
             collapsed: true,
             items: [
               'guides/setup/create-an-account',
-              'guides/setup/size-a-node',
-              'guides/setup/provision-a-node',
               {
-                label: "Deploy a node",
-                autogenerate: { directory: 'guides/setup/deploy-a-node' },
+                label: 'Node',
+                collapsed: true,
+                items: [
+                  'guides/setup/node/provision-a-node',
+                  'guides/setup/node/size-a-node',
+                  {
+                    label: "Deploy a node",
+                    autogenerate: { directory: 'guides/setup/node/deploy-a-node' },
+                  },
+                  'guides/setup/node/configure-a-node',
+                  'guides/setup/node/start-the-node-api',
+                  'guides/setup/node/tune-node-performance',
+                ],
               },
-              'guides/setup/configure-a-node',
-              'guides/setup/start-the-node-api',
-              'guides/setup/tune-node-performance',
-              'guides/setup/deploy-the-platform',
+              {
+                label: 'Platform',
+                collapsed: true,
+                items: [
+                  'guides/setup/platform/manage-the-platform',
+                  'guides/setup/platform/deploy-the-platform',
+                  {
+                    label: 'Configure an Identity Provider',
+                    items: [
+                      'guides/setup/platform/configure-an-identity-provider/keycloak',
+                      'guides/setup/platform/configure-an-identity-provider/microsoft-entra-id',
+                    ],
+                  },
+                ],
+              },
             ],
           },
+        ],
+      },
+      {
+        label: 'Usage',
+        collapsed: true,
+        items: [
           {
-            label: 'Usage',
+            label: 'Basics',
             collapsed: true,
             items: [
               {
