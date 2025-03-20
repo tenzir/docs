@@ -64,7 +64,11 @@ export default defineConfig({
         dark: './src/assets/tenzir-dark.svg',
         replacesTitle: true,
       },
-      customCss: ['./src/assets/styles.css'],
+      customCss: [
+        "@fontsource-variable/jetbrains-mono",
+        "@fontsource-variable/inter",
+        "./src/assets/styles.css",
+      ],
       social: {
         github: 'https://github.com/tenzir/tenzir',
         discord: 'https://discord.tenzir.com',
