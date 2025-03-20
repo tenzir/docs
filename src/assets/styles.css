@@ -1,6 +1,165 @@
 /* Dark mode styling for inlined SVGs */
-html[data-theme='dark'] {
+html[data-theme="dark"] {
   .inline-svg {
     filter: invert(100%) hue-rotate(180deg);
   }
+}
+
+:root {
+  --sl-font: "Inter";
+  --sl-font-mono: "Jetbrains Mono";
+}
+
+/* The dark mode colors were generated using
+   * https://starlight.astro.build/guides/css-and-tailwind/#color-theme-editor
+   * with the colors #0E1017 (neutral 800) as gray and #0A54FF (priamry 500) as accent, after converting
+   * them to OKLCH using this https://oklch.com/ and copying the hue and chroma to the above tool.
+  */
+/* Dark mode colors. */
+:root {
+  --sl-color-accent-low: #0c214d;
+  --sl-color-accent: #0351fb;
+  --sl-color-accent-high: #acc9ff;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #ecedf2;
+  --sl-color-gray-2: #c0c2c7;
+  --sl-color-gray-3: #888b95;
+  --sl-color-gray-4: #555861;
+  --sl-color-gray-5: #353840;
+  --sl-color-gray-6: #24262e;
+  --sl-color-black: #17181c;
+}
+
+/* The light mode colors were taken from our design system */
+/* Light mode colors. */
+:root[data-theme="light"] {
+  --sl-color-accent-low: #adc6ff; /* primary-300 */
+  --sl-color-accent: #0a54ff; /* primary-500 */
+  --sl-color-accent-high: #0043e0; /* primary-600 */
+
+  --sl-color-white: #0e1017; /* neutral-800 */
+  --sl-color-gray-1: #262e40; /* neutral-700 */
+  --sl-color-gray-2: #414b62; /* neutral-600 */
+  --sl-color-gray-3: #68738d; /* neutral-500 */
+  --sl-color-gray-4: #959db1; /* neutral-400 */
+  --sl-color-gray-5: #ced3de; /* neutral-300 */
+  --sl-color-gray-6: #f0f1f5; /* neutral-200 */
+  --sl-color-gray-7: #f5f6f8; /* neutral-100 */
+  --sl-color-black: #fdfdfe; /* neutral-50 */
+}
+
+.starlight-aside {
+  border: 1px solid var(--sl-color-asides-border);
+  border-radius: 5px;
+  color: var(--sl-color-asides-text-accent);
+}
+
+.sl-markdown-content .card {
+  --sl-text-h1: var(--sl-text-4xl);
+  --sl-text-h2: var(--sl-text-3xl);
+  --sl-text-h3: var(--sl-text-2xl);
+  --sl-text-h4: var(--sl-text-xl);
+  --sl-text-h5: var(--sl-text-lg);
+
+  border-radius: 5px;
+  padding: clamp(1rem, calc(0.125rem + 1.5vw), 2.5rem);
+}
+
+.sl-markdown-content code:not(:where(.not-content *)) {
+  border-radius: 5px;
+}
+
+/* This is handled by expressive code */
+:root {
+  --ec-brdRad: 5px !important;
+}
+
+.sl-link-button {
+  height: 36px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  outline-offset: 2px;
+  gap: 0.5rem;
+  font-size: var(--sl-text-sm);
+  padding: 0.4375rem 1.125rem;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.sl-link-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+/* Variant styles */
+.sl-link-button.primary {
+  background-color: var(--sl-color-text-accent);
+  color: var(--sl-color-black);
+  border-color: transparent;
+}
+.sl-link-button.primary:hover {
+  background-color: var(--sl-color-accent-high);
+  color: var(--sl-color-black);
+}
+.sl-link-button.primary:active {
+  background-color: var(--sl-color-accent-high);
+}
+
+.sl-link-button.secondary {
+  background-color: transparent;
+  border-color: var(--sl-color-gray-3);
+  color: var(--sl-color-white);
+}
+.sl-link-button.secondary:hover {
+  border-color: var(--sl-color-accent-low);
+  color: var(--sl-color-accent);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+.sl-link-button.secondary:active {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent-high);
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.sl-link-button.minimal {
+  background-color: transparent;
+  color: var(--sl-color-white);
+  padding-inline: 0;
+  border-color: transparent;
+}
+.sl-link-button.minimal:hover {
+  color: var(--sl-color-accent);
+}
+.sl-link-button.minimal:active {
+  color: var(--sl-color-accent-high);
+}
+
+.sl-link-button :global(svg) {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 50rem) {
+  .sl-link-button {
+    font-size: var(--sl-text-base);
+    padding: 0.6875rem 1.25rem;
+  }
+}
+
+:global(.sl-markdown-content) .sl-link-button {
+  margin-inline-end: 1rem;
+}
+:global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
+  margin-block: 1rem;
 }
