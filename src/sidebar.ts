@@ -29,13 +29,13 @@ export const docs_sidebar = [
             label: 'Platform',
             collapsed: true,
             items: [
-              'guides/setup/platform/manage-the-platform',
               'guides/setup/platform/deploy-the-platform',
+              'guides/setup/platform/manage-the-platform',
               {
-                label: 'Configure an Identity Provider',
+                label: 'Configure the IdP',
                 items: [
-                  'guides/setup/platform/configure-an-identity-provider/keycloak',
-                  'guides/setup/platform/configure-an-identity-provider/microsoft-entra-id',
+                  'guides/setup/platform/configure-the-idp/keycloak',
+                  'guides/setup/platform/configure-the-idp/microsoft-entra-id',
                 ],
               },
             ],
