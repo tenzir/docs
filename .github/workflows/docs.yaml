@@ -1,4 +1,4 @@
-name: Build
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
@@ -6,15 +6,17 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build:
-    name: Build
+  build-deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -36,16 +38,16 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build with Astro
-        # TODO: enable before going live.
-        #env:
-        #  RUN_LINK_CHECK: true
         run: |
           pnpm astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: github-pages
-          path: ./dist
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          user_name: tenzir-bot
+          user_email: engineering@tenzir.com
