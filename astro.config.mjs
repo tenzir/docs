@@ -40,6 +40,10 @@ export default defineConfig({
       },
       lastUpdated: true,
       pagination: false,
+      components: {
+        Sidebar: './src/components/Sidebar.astro',
+        SiteTitle: './src/components/SiteTitle.astro',
+      },
       plugins: [
         ...(runLinkCheck
           ? [
