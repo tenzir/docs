@@ -8,9 +8,6 @@ on:
 permissions:
   contents: read
 
-env:
-  BUILD_PATH: "."
-
 jobs:
   build:
     name: Build
@@ -30,11 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        working-directory: ${{ env.BUILD_PATH }}
 
       - name: Fetch and prepare external content
         run: make
-        working-directory: ${{ env.BUILD_PATH }}
 
       - name: Setup GitHub Pages
         id: pages
@@ -48,10 +43,9 @@ jobs:
           pnpm astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
-        working-directory: ${{ env.BUILD_PATH }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: site
-          path: ${{ env.BUILD_PATH }}/dist
+          name: github-pages
+          path: ./dist
