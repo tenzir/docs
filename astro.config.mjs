@@ -3,10 +3,10 @@ import { defineConfig, passthroughImageService } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import starlightLinksValidator from 'starlight-links-validator';
-import starlightUtils from '@lorenzo_lewis/starlight-utils';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightOpenAPI from 'starlight-openapi'
 import inlineSVGs from './astro-inline-svgs.mjs'
-import { sidebar } from './src/sidebar';
+import { docs_sidebar, integrations_sidebar } from './src/sidebar';
 import { bundledLanguages } from 'shiki'
 
 // TODO: make this a submodule and track the latest version.
@@ -22,42 +22,6 @@ export default defineConfig({
   integrations: [
     sitemap(),
     starlight({
-      pagination: false,
-      plugins: [
-        ...(runLinkCheck
-          ? [
-            starlightLinksValidator({
-              //errorOnInvalidHashes: false,
-              //errorOnLocalLinks: false,
-              exclude: [
-                "/api/",
-              ],
-            }),
-          ]
-          : []),
-        starlightUtils({
-          multiSidebar: {
-            switcherStyle: 'hidden'
-          },
-          navLinks: {
-            leading: { useSidebarLabelled: 'navbar' }
-          }
-        }),
-        starlightOpenAPI([
-          {
-            base: 'reference/api/node',
-            label: 'Node',
-            // TODO: Something should auto-generate the spec and update this
-            // file automatically.
-            schema: './src/content/apis/openapi.node.yaml',
-          },
-          //{
-          //  base: 'reference/api/platform',
-          //  label: 'Platform',
-          //  schema: './src/content/apis/openapi.platform.yaml',
-          //},
-        ]),
-      ],
       title: 'Tenzir',
       logo: {
         light: './src/assets/tenzir-light.svg',
@@ -74,8 +38,61 @@ export default defineConfig({
         discord: 'https://discord.tenzir.com',
         linkedin: 'https://linkedin.com/company/tenzir',
       },
-      sidebar,
       lastUpdated: true,
+      pagination: false,
+      components: {
+        Sidebar: './src/components/Sidebar.astro',
+        SiteTitle: './src/components/SiteTitle.astro',
+      },
+      plugins: [
+        ...(runLinkCheck
+          ? [
+            starlightLinksValidator({
+              //errorOnInvalidHashes: false,
+              //errorOnLocalLinks: false,
+              exclude: [
+                "/api/",
+              ],
+            }),
+          ]
+          : []),
+        starlightOpenAPI([
+          {
+            base: 'reference/api/node',
+            label: 'Node',
+            // TODO: Something should auto-generate the spec and update this
+            // file automatically.
+            schema: './src/content/apis/openapi.node.yaml',
+          },
+          //{
+          //  base: 'reference/api/platform',
+          //  label: 'Platform',
+          //  schema: './src/content/apis/openapi.platform.yaml',
+          //},
+        ]),
+        starlightSidebarTopics([
+          {
+            label: 'Documentation',
+            id: 'documentation',
+            link: '/',
+            icon: 'open-book',
+            items: docs_sidebar,
+          },
+          {
+            label: 'Integrations',
+            link: '/integrations',
+            icon: 'information',
+            items: integrations_sidebar,
+          },
+        ],
+        {
+          topics: {
+            // Associate all pages under `/reference/api/` directory with the
+            // "Documentation" topic having the ID `documentation`.
+            documentation: ["/reference/api", "/reference/api/**/*"],
+          },
+        }),
+      ],
     }),
     inlineSVGs(),
   ],
