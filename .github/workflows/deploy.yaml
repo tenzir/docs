@@ -1,8 +1,10 @@
 name: Deploy
 
 on:
-  push:
-    branches: ["main"]
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
 
 permissions:
   pages: write
@@ -10,11 +12,20 @@ permissions:
 
 jobs:
   deploy:
+    if: github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: site
