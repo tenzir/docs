@@ -20,8 +20,8 @@ can find a preview of the new documentation at
 - [x] Generate a sitemap at build time
 - [x] Publish to GitHub Pages
 - [x] Implement broken links check
-- [ ] Upgrade to Starlight 0.32 and re-implement Starlight Utils
-  - [ ] As we override SiteTitle.astro, make logo href be tenzir.com
+- [x] Upgrade to Starlight 0.32 and re-implement Starlight Utils
+- [ ] Make logo href be tenzir.com
 
 ### CI / Automation
 
@@ -39,9 +39,9 @@ can find a preview of the new documentation at
 - [ ] Fix sliding top nav bar on Firefox
 - [ ] Fix sizing calculator iframe height (CSS?)
 - [ ] Fix github-{light,dark} syntax theme selection
-- [ ] Fix Integrations tab not being bold font inside
+- [x] Fix Integrations tab not being bold font inside
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
-- [ ] Apply Tailwind CSS and get a facelift
+- [x] Apply CSS and get a facelift
 
 ### Content
 
