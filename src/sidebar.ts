@@ -110,6 +110,28 @@ export const docs_sidebar = [
           },
         ],
       },
+      {
+        label: 'Contribution',
+        collapsed: true,
+        items: [
+          'guides/contribution/code-of-conduct',
+          'guides/contribution/workflow',
+          'guides/contribution/coding-style',
+          'guides/contribution/build-environment',
+          'guides/contribution/changelog',
+          'guides/contribution/documentation',
+          'guides/contribution/security',
+        ],
+      },
+      {
+        label: 'Development',
+        collapsed: true,
+        items: [
+          'guides/development/build-from-source',
+          'guides/development/build-the-docker-image',
+          'guides/development/write-a-node-plugin',
+        ],
+      },
     ],
   },
   {
