@@ -25,8 +25,8 @@ can find a preview of the new documentation at
 
 ### CI / Automation
 
-- [ ] Update `tenzir.yaml.example` via CI
-- [ ] Update OpenAPI spec via CI
+- [x] Update `tenzir.yaml.example` via CI
+- [x] Update OpenAPI spec via CI
 - [ ] Create consolidated Node & Platform changelog
   - [ ] Create CI job in tenzir/tenzir
   - [ ] Create CI job in tenzir/platform
