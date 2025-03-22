@@ -153,10 +153,6 @@ export const docs_sidebar = [
 
 export const integrations_sidebar = [
   {
-    label: 'Overview',
-    slug: 'integrations'
-  },
-  {
     label: 'Integrations',
     items: [
       {
