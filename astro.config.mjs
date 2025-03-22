@@ -6,7 +6,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightOpenAPI from 'starlight-openapi'
 import inlineSVGs from './astro-inline-svgs.mjs'
-import { docs_sidebar, integrations_sidebar } from './src/sidebar';
+import { docs_sidebar, integrations_sidebar, releases_sidebar } from './src/sidebar';
 import { bundledLanguages } from 'shiki'
 
 // A GitHub Actions workflow pushes upstream changes in tenzir/vscode-tql
@@ -83,6 +83,11 @@ export default defineConfig({
             link: '/integrations',
             icon: 'information',
             items: integrations_sidebar,
+          },
+          {
+            label: 'Releases',
+            link: '/releases',
+            items: releases_sidebar,
           },
         ],
         {

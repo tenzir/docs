@@ -231,3 +231,14 @@ export const integrations_sidebar = [
     ],
   },
 ];
+
+export const releases_sidebar = [
+  {
+    label: 'Node',
+    autogenerate: { directory: 'releases/node' },
+  },
+  {
+    label: 'Platform',
+    autogenerate: { directory: 'releases/platform' },
+  },
+];
