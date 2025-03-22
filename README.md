@@ -27,6 +27,7 @@ can find a preview of the new documentation at
 
 - [x] Update `tenzir.yaml.example` via CI
 - [x] Update OpenAPI spec via CI
+- [ ] Update `tql.tmLanguage.json` via CI
 - [ ] Create consolidated Node & Platform changelog
   - [ ] Create CI job in tenzir/tenzir
   - [ ] Create CI job in tenzir/platform
