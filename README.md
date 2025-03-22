@@ -28,8 +28,8 @@ can find a preview of the new documentation at
 - [ ] Update `tenzir.yaml.example` via CI
 - [ ] Update OpenAPI spec via CI
 - [ ] Create consolidated Node & Platform changelog
-  - [ ] Creat CI job in tenzir/tenzir
-  - [ ] Creat CI job in tenzir/platform
+  - [ ] Create CI job in tenzir/tenzir
+  - [ ] Create CI job in tenzir/platform
   - [ ] Update `changelog.mdx` in this repo
 
 ### Style
