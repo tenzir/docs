@@ -21,7 +21,7 @@ can find a preview of the new documentation at
 - [x] Publish to GitHub Pages
 - [x] Implement broken links check
 - [x] Upgrade to Starlight 0.32 and re-implement Starlight Utils
-- [ ] Make logo href be tenzir.com
+- [x] Make logo href be tenzir.com
 
 ### CI / Automation
 

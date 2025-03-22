@@ -28,11 +28,6 @@ export default defineConfig({
         dark: './src/assets/tenzir-dark.svg',
         replacesTitle: true,
       },
-      customCss: [
-        "@fontsource-variable/jetbrains-mono",
-        "@fontsource-variable/inter",
-        "./src/assets/styles.css",
-      ],
       social: {
         github: 'https://github.com/tenzir/tenzir',
         discord: 'https://discord.tenzir.com',
@@ -40,10 +35,16 @@ export default defineConfig({
       },
       lastUpdated: true,
       pagination: false,
+      customCss: [
+        "@fontsource-variable/jetbrains-mono",
+        "@fontsource-variable/inter",
+        "./src/assets/styles.css",
+      ],
       components: {
         Sidebar: './src/components/Sidebar.astro',
         SiteTitle: './src/components/SiteTitle.astro',
       },
+      routeMiddleware: './src/routeData.ts',
       plugins: [
         ...(runLinkCheck
           ? [
