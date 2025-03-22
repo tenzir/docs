@@ -1,12 +1,19 @@
-name: Build and Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
     branches: ["main"]
   pull_request:
+    workflow_dispatch:
 
-permissions:
-  contents: write
+      permissions:
+        contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-deploy:
@@ -39,15 +46,27 @@ jobs:
 
       - name: Build with Astro
         run: |
+          # TODO: enable before going live.
+          #env:
+          #  RUN_LINK_CHECK: true
           pnpm astro build \
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
 
-      - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          user_name: tenzir-bot
-          user_email: engineering@tenzir.com
+          path: ./dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
