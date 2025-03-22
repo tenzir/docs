@@ -52,6 +52,7 @@ can find a preview of the new documentation at
 - [x] Explanations
 - [x] Tutorials
 - [x] Guides
+  - [ ] Quickstart
 - [ ] Reference
   - [x] Language
   - [ ] Operators
@@ -69,12 +70,6 @@ can find a preview of the new documentation at
 
 - [ ] Fix all broken links and uncomment link checking in CI
 - [ ] Replace `site` and `base` in `astro.config.mjs`
-
-### Stretch
-
-These don't have to be addressed prior to the relaunch, but would be nice:
-
-- [ ] New Quickstart guide
 
 ## ✊ Usage
 
