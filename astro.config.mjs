@@ -75,13 +75,11 @@ export default defineConfig({
             label: 'Documentation',
             id: 'documentation',
             link: '/',
-            icon: 'open-book',
             items: docs_sidebar,
           },
           {
             label: 'Integrations',
             link: '/integrations',
-            icon: 'information',
             items: integrations_sidebar,
           },
           {
