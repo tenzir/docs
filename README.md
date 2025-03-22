@@ -37,7 +37,7 @@ can find a preview of the new documentation at
 - [x] Hoist SVGs and apply auto-darkmode
 - [x] TQL syntax highlighting
 - [ ] Fix sliding top nav bar on Firefox
-- [ ] Fix sizing calculator iframe height (CSS?)
+- [x] Fix sizing calculator iframe height (CSS?)
 - [ ] Fix github-{light,dark} syntax theme selection
 - [x] Fix Integrations tab not being bold font inside
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
