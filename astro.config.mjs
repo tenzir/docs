@@ -61,8 +61,6 @@ export default defineConfig({
           {
             base: 'reference/api/node',
             label: 'Node',
-            // TODO: Something should auto-generate the spec and update this
-            // file automatically.
             schema: './src/content/apis/openapi.node.yaml',
           },
           //{
