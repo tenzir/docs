@@ -74,13 +74,6 @@ can find a preview of the new documentation at
 
 ## ✊ Usage
 
-Fetch external content, such as Markdown files from [our .github
-repo](http://github.com/tenzir/.github):
-
-```bash
-make
-```
-
 Install the web framework dependencies:
 
 ```bash
