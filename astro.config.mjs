@@ -9,7 +9,8 @@ import inlineSVGs from './astro-inline-svgs.mjs'
 import { docs_sidebar, integrations_sidebar } from './src/sidebar';
 import { bundledLanguages } from 'shiki'
 
-// TODO: make this a submodule and track the latest version.
+// A GitHub Actions workflow pushes upstream changes in tenzir/vscode-tql
+// directly into this repository, keeping this file up to date.
 import tqlLang from './tql.tmLanguage.json' assert { type: 'json' };
 
 const runLinkCheck = process.env.RUN_LINK_CHECK || false;
