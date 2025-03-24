@@ -84,7 +84,7 @@ html[data-theme="dark"] {
   font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: 5px !important;
   outline-offset: 2px;
   gap: 0.5rem;
   font-size: var(--sl-text-sm);
@@ -162,6 +162,11 @@ html[data-theme="dark"] {
 }
 :global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
   margin-block: 1rem;
+}
+
+/* Something adds position: relative only in the built app, not in the dev server! */
+#header {
+  position: fixed !important;
 }
 
 /* Stay monochrome for social icons. */
