@@ -22,6 +22,8 @@ can find a preview of the new documentation at
 - [x] Implement broken links check
 - [x] Upgrade to Starlight 0.32 and re-implement Starlight Utils
 - [x] Make logo href be tenzir.com
+- [ ] Rename *Documentation* to *Docs* in header
+- [ ] Tweak `index.mdx` title
 
 ### CI / Automation
 
