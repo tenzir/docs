@@ -9,7 +9,7 @@ const { topics } = Astro.locals.starlightSidebarTopics;
 // Find the current topic
 const currentTopic = topics.find((topic) => topic.isCurrent);
 if (!currentTopic) {
-  throw new Error('No current topic found');
+  console.warn('No current topic found — skipping topic-specific rendering');
 }
 
 // If current is a root → show its children
