@@ -75,8 +75,8 @@ export default defineConfig({
           {
             topics: {
               // Associate all pages under `/reference/api/` directory with the
-              // "Documentation" topic having the ID `documentation`.
-              docs: ["/reference/api", "/reference/api/**/*"],
+              // Reference topic.
+              reference: ["/reference/api", "/reference/api/**/*"],
             },
           }),
       ],
