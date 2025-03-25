@@ -22,15 +22,16 @@ can find a preview of the new documentation at
 - [x] Implement broken links check
 - [x] Upgrade to Starlight 0.32 and re-implement Starlight Utils
 - [x] Make logo href be tenzir.com
-- [ ] Rename *Documentation* to *Docs* in header
-- [ ] Tweak `index.mdx` title
+- [x] Rename *Documentation* to *Docs* in header
+- [x] Tweak `index.mdx` title
 
 ### CI / Automation
 
 - [x] Update `tenzir.yaml.example` via CI
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
-- [ ] Create consolidated Node & Platform changelog
+- [x] Create consolidated Node & Platform changelog
+  - [ ] Figure out how to use changesets
   - [ ] Create CI job in tenzir/tenzir
   - [ ] Create CI job in tenzir/platform
   - [ ] Update `changelog.mdx` in this repo
