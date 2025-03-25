@@ -1,4 +1,4 @@
-import { guides, tutorials, explanations, reference, integrations } from './src/sidebar';
+import { guides, tutorials, explanations, reference, integrations } from './sidebar';
 
 export const topics = [
 	{
