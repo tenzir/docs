@@ -1,0 +1,89 @@
+---
+import { pathWithBase } from '..//utils/base';
+import {
+  topicParents,
+  rootTopics,
+  childTopics,
+} from '../topics.ts';
+
+const { topics: sidebarTopics } = Astro.locals.starlightSidebarTopics;
+
+// Find the current topic
+const currentTopic = sidebarTopics.find((topic) => topic.isCurrent);
+if (!currentTopic) {
+  throw new Error('No current topic found');
+}
+
+// Build navbar topics: always show the root topics
+const navbarTopics = rootTopics();
+
+// Determine if a given topic is "current" or an ancestor of the current one
+function isTopicCurrentOrAncestor(label) {
+  if (label === currentTopic.label) return true;
+
+  let cursor = currentTopic.label;
+  while (cursor) {
+    const parent = topicParents[cursor];
+    if (parent === label) return true;
+    cursor = parent;
+  }
+
+  return false;
+}
+---
+
+{navbarTopics.length > 0 && (
+  <nav>
+    <ul>
+      {
+      navbarTopics.map((topic) => (
+      <li>
+        <a
+          href={pathWithBase(topic.link)}
+          aria-current={isTopicCurrentOrAncestor(topic.label) ? 'page' : undefined}
+          >
+          {topic.label}
+        </a>
+      </li>
+      ))
+      }
+    </ul>
+  </nav>
+)}
+
+<style>
+  nav {
+    display: flex;
+    align-items: center;
+  }
+
+  ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    gap: var(--sl-nav-gap);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--sl-color-gray-1);
+  }
+
+  a:hover,
+  a:focus {
+    color: var(--sl-color-white);
+  }
+
+  [aria-current="page"],
+  [aria-current="page"]:hover,
+  [aria-current="page"]:focus {
+    font-weight: 600;
+  }
+
+  @media (min-width: 50rem) {
+    a {
+      font-size: var(--sl-text-sm);
+    }
+  }
+</style>

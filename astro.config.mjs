@@ -6,7 +6,7 @@ import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightOpenAPI from 'starlight-openapi'
 import inlineSVGs from './astro-inline-svgs.mjs'
-import { docs_sidebar, integrations_sidebar } from './src/sidebar';
+import { topics } from './src/topics';
 import { bundledLanguages } from 'shiki'
 
 // A GitHub Actions workflow pushes upstream changes in tenzir/vscode-tql
@@ -70,28 +70,15 @@ export default defineConfig({
           //  schema: './src/content/apis/openapi.platform.yaml',
           //},
         ]),
-        starlightSidebarTopics([
+        starlightSidebarTopics(
+          topics,
           {
-            label: 'Documentation',
-            id: 'documentation',
-            link: '/',
-            icon: 'open-book',
-            items: docs_sidebar,
-          },
-          {
-            label: 'Integrations',
-            link: '/integrations',
-            icon: 'information',
-            items: integrations_sidebar,
-          },
-        ],
-        {
-          topics: {
-            // Associate all pages under `/reference/api/` directory with the
-            // "Documentation" topic having the ID `documentation`.
-            documentation: ["/reference/api", "/reference/api/**/*"],
-          },
-        }),
+            topics: {
+              // Associate all pages under `/reference/api/` directory with the
+              // "Documentation" topic having the ID `documentation`.
+              docs: ["/reference/api", "/reference/api/**/*"],
+            },
+          }),
       ],
     }),
     inlineSVGs(),
