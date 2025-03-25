@@ -1,4 +1,4 @@
-import { guides, tutorials, explanations, reference, integrations } from './sidebar';
+import { guides, tutorials, explanations, reference, integrations, changelog_node, changelog_platform } from './sidebar';
 
 export const topics = [
   {
@@ -44,6 +44,23 @@ export const topics = [
     icon: 'open-book',
     items: reference,
   },
+  {
+    label: 'Changelog',
+    link: '/changelog/',
+    items: changelog_node,
+  },
+  {
+    label: 'Node',
+    link: '/changelog/node',
+    icon: 'open-book',
+    items: changelog_node,
+  },
+  {
+    label: 'Platform',
+    link: '/changelog/platform',
+    icon: 'open-book',
+    items: changelog_platform,
+  },
 ]
 
 export const topicParents = {
@@ -53,6 +70,9 @@ export const topicParents = {
   'Reference': 'Docs',
   'Docs': null,
   'Integrations': null,
+  'Node': 'Changelog',
+  'Platform': 'Changelog',
+  'Changelog': null,
 };
 
 export function rootTopics(): typeof topics {
