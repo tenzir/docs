@@ -131,10 +131,8 @@ export const guides = [
 ];
 
 export const tutorials = [
-  {
-    label: 'Tutorials',
-    autogenerate: { directory: 'tutorials' },
-  },
+  'tutorials/map-data-to-ocsf',
+  'tutorials/write-a-package',
 ];
 
 export const explanations = [
