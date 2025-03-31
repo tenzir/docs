@@ -2,31 +2,115 @@
 title: Changelog
 ---
 
-:::caution[WIP]
-This page needs to be rewritten after we've consolidated our changelog from the
-`tenzir/tenzir` and `tenzir/platform` repos.
-:::
+We maintain automatically generated [changelog](../../../changelog) with
+*user-facing* change descriptions.
 
-We maintain automatically generated changelog with *user-facing* change
-descriptions.
+The source for this generated page is a set of Markdown files in the
+[`/changelog`](https://github.com/tenzir/docs/tree/main/changelog) directory of
+our docs repo. There exists a directory for `node` and `platform` with the
+following structure:
 
-The procedure for adding a changelog entry looks as follows.
+import { FileTree } from '@astrojs/starlight/components';
 
-1. Open your pull request with your proposed changes
-2. Go to the [`changelog`](https://github.com/tenzir/tenzir/tree/main/changelog)
-   directory in the top-level repository directory and navigate to the
-   `next` sub-directory.
-3. Choose a category for your changes and go to the corresponding sub-directory:
-   - **Feature** → `features`
-   - **Bug Fix** → `bug-fixes`
-   - **Change** → `changes`
-   - **Breaking Change** → `breaking-changes`
-4. Add a file with the following filename structure: `X1[-X2-...-Xn][--Y].md`.
-   where `X` is either a PR number in the tenzir/tenzir repository or a GitHub
-   account name. We only include account names for external contributions
-   outside from the Tenzir core team. Everything after the two dashes `--` is an
-   optional description to clarify what the change was about.
+<FileTree>
+- changelog
+  - node
+    - next
+      - 2uwQMJ50ob7ijy9NS9XdWh5yfsc.md
+      - 2uwQnMTpRSDe8bB0mJXFkyujped.md
+    - v5.0.0
+      - some-feature.md
+  - platform
+    - next
+      - 2uwac8f6MEARnzJ9mORKqtm9pwA.md
+</FileTree>
 
-Every installation and build of Tenzir contains the amalgamated CHANGELOG.md
-file. To view that directly, open `path/to/build/CHANGELOG.md` for your Tenzir
-build.
+Each product (`node`, `platform`) has subdirectories for each version (e.g.,
+`v5.0.0`), with `next` referring to the currently unreleased version
+accumulating changes on the main branch. Within each version directory exists a
+set of `.md` files representing individual changelog entries.
+
+## Write a changelog entry
+
+To add an entry to the changelog, follow these steps:
+
+1. **Navigate to the correct directory:** Go into the `changelog/` directory,
+   then the appropriate product subdirectory (`node` or `platform`), and finally
+   the version subdirectory corresponding to the release your change will be
+   part of. For changes currently on the `main` branch that haven't been
+   released yet, use the `next` directory.
+
+   - Example: A feature for the upcoming Node release goes into
+      `changelog/node/next/`.
+   - Example: A bug fix for Platform v1.2.0 would go into
+      `changelog/platform/v1.2.0/`.
+
+2. **Create a new Markdown file:** Create a new file ending in `.md`. While the
+   exact filename doesn't impact the final output (our examples use IDs), using
+   a descriptive name can be helpful (e.g., `add-frobnication-widget.md`).
+
+3. **Add Frontmatter and Content:** Each file must start with YAML frontmatter,
+   followed by the Markdown description of the change.
+
+    ```markdown
+    ---
+    title: "Add Frobnication Widget" # Required: Short title for the entry
+    type: feature                    # Required: One of 'feature', 'change', 'bugfix'
+    authors: [alice, bob]            # Optional: GitHub username(s) (or use 'author')
+    prs: [101, 105]                  # Optional: GitHub PR number(s) (or use 'pr')
+    ---
+
+    Users can now frobnicate widgets directly from the dashboard. This enhances
+    workflow efficiency by providing direct access...
+    ```
+
+4. **Fill in the Frontmatter Fields:**
+   - `title` (*Required*): A concise title describing the change. This will
+     appear as a heading (`###`) in the generated changelog.
+   - `type` (*Required*): The category of the change. This determines which
+     section the entry appears under ("Features", "Changes", or "Bug Fixes").
+     Must be one of:
+       - `feature`: For new functionality.
+       - `change`: For modifications to existing functionality.
+       - `bugfix`: For bug fixes.
+   - `authors` / `author` (*Required*): The GitHub username(s) of the author(s).
+     You can provide a single username as a string or multiple usernames as a
+     YAML list (`[user1, user2]`). You can use either the key `author` or
+     `authors` for a single author, but prefer `authors` for lists. **Do not use
+     both `author` and `authors` in the same file**, as this will cause an
+     error. The script generates links like `[@username](...)`.
+   - `prs` / `pr` (*Optional*): The relevant GitHub Pull Request number(s). You
+     can provide a single number or multiple numbers as a YAML list (`[123,
+     456]`). You can use either `pr` or `prs` for a single PR number, but prefer
+     `prs` for lists. **Do not use both `pr` and `prs` in the same file**, as
+     this will cause an error. The script generates links like `[#123](...)`.
+
+5. **Write the Description:** Below the closing `---` of the frontmatter, write
+   the description of the change using Markdown.
+   - **Focus on the user:** Explain the change from a user's perspective. What
+     is the impact? How does it affect usage?
+   - Be clear and concise.
+   - You can use standard Markdown formatting (lists, code blocks, links,
+      etc.).
+
+6. **Commit and Push:** Commit the new `.md` file to the appropriate branch
+   (usually `main` for `next` entries, or a release branch if backporting).
+
+## Automation
+
+Once a change involving files in the `/changelog` directory is pushed to the
+`main` branch, a GitHub Actions workflow automatically executes the
+`changelog.py` script. This script performs the following actions:
+
+- Aggregates all `.md` entries for each product and version.
+- Generates the corresponding versioned `.mdx` pages (e.g.,
+  `mdx/changelog/node/next.mdx`, `mdx/changelog/node/v5-0-0.mdx`).
+- Generates/updates the `index.mdx` file within each product's changelog
+  directory (e.g., `mdx/changelog/node/index.mdx`) with sorted links to the
+  version pages.
+- Generates/updates the TypeScript sidebar file (`sidebar-changelog.ts` by
+  default, if the `--sidebar-file` flag is used).
+- Commits these generated/updated files back to the `main` branch with a `[skip
+  ci]` message.
+
+The deployed documentation site will then reflect these updated changelog pages.
