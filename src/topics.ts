@@ -1,4 +1,5 @@
-import { guides, tutorials, explanations, reference, integrations, changelog_node, changelog_platform } from './sidebar';
+import { guides, tutorials, explanations, reference, integrations } from './sidebar';
+import { changelog_node, changelog_platform } from './sidebar-changelog';
 
 export const topics = [
   {
@@ -50,13 +51,13 @@ export const topics = [
     items: changelog_node,
   },
   {
-    label: 'Node',
+    label: 'Tenzir Node',
     link: '/changelog/node',
     icon: 'open-book',
     items: changelog_node,
   },
   {
-    label: 'Platform',
+    label: 'Tenzir Platform',
     link: '/changelog/platform',
     icon: 'open-book',
     items: changelog_platform,
@@ -70,8 +71,8 @@ export const topicParents = {
   'Reference': 'Docs',
   'Docs': null,
   'Integrations': null,
-  'Node': 'Changelog',
-  'Platform': 'Changelog',
+  'Tenzir Node': 'Changelog',
+  'Tenzir Platform': 'Changelog',
   'Changelog': null,
 };
 

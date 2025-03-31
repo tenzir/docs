@@ -222,21 +222,3 @@ export const integrations = [
     ],
   },
 ];
-
-export const changelog_node = [
-  {
-    label: 'Node',
-    items: [
-      'changelog/node/v5-0'
-    ],
-  },
-];
-
-export const changelog_platform = [
-  {
-    label: 'Platform',
-    items: [
-      'changelog/platform/v2-0'
-    ],
-  },
-];
