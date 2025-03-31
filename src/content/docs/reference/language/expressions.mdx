@@ -107,11 +107,11 @@ The numeric types `int64`, `uint64`, and `double` support all arithmetic
 operations. If the types of the left- and right-hand side differ, the return
 type will be the one capable of holding the most values.
 
-Operation | Result
-|:---|:---
-`int64` + `int64` | `int64`
-`int64` + `uint64` | `int64`
-`int64` + `double` | `double`
+| Operation          | Result   |
+| :----------------- | :------- |
+| `int64` + `int64`  | `int64`  |
+| `int64` + `uint64` | `int64`  |
+| `int64` + `double` | `double` |
 
 The same applies to the other arithmetic operators: `-`, `*`, and `/`.
 
@@ -123,15 +123,15 @@ produces `null`.
 
 The `time` and `duration` types support specific operations:
 
-Operation | Result
-|:---|:---
-`time + duration` | `time`
-`time - duration` | `time`
-`time - time` | `duration`
-`duration + duration` | `duration`
-`duration / duration` | `double`
-`duration * number` | `duration`
-`duration / number` | `duration`
+| Operation             | Result     |
+| :-------------------- | :--------- |
+| `time + duration`     | `time`     |
+| `time - duration`     | `time`     |
+| `time - time`         | `duration` |
+| `duration + duration` | `duration` |
+| `duration / duration` | `double`   |
+| `duration * number`   | `duration` |
+| `duration / number`   | `duration` |
 
 ### String Operations
 
@@ -303,14 +303,34 @@ area = radius * radius * pi
 { radius: 1, area: 3 }
 ```
 
-## `if` Expression
+## `if` and `else` Expressions
 
-:::note
-This functionality is not implemented yet.
-:::
+TQL supports conditional expressions using the `if` and `else` keywords.
 
-The `if` keyword can also be used in an expression context, e.g.,
-`if foo == 42 { "yes" } else { "no" }`.
+You can use `if` in a ternary expression form:
+
+```tql
+"yes" if foo == 42 else "no"
+```
+
+This returns `"yes"` when `foo` equals `42`, and `"no"` otherwise.
+
+The `else` clause is optional. If omitted, the expression evaluates to `null`
+when the condition is false:
+
+```tql
+"yes" if foo == 42
+```
+
+This returns `"yes"` if `foo` equals `42`, and `null` otherwise.
+
+The `else` keyword can also be used in a standalone fallback expression:
+
+```tql
+foo else "fallback"
+```
+
+This returns the value of `foo` if it is not `null`, and `"fallback"` otherwise.
 
 ## `match` Expression
 
