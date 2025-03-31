@@ -44,67 +44,39 @@ export const guides = [
     items: [
       {
         label: 'Basics',
-        collapsed: true,
         items: [
-          {
-            label: 'Basics',
-            items: [
-              'guides/usage/basics/run-pipelines',
-              'guides/usage/basics/manage-a-pipeline',
-              'guides/usage/basics/install-a-package',
-              'guides/usage/basics/collect-metrics',
-            ]
-          },
-          {
-            label: 'Data',
-            items: [
-              'guides/usage/data/shape-data',
-              'guides/usage/data/parse-nested-data',
-              'guides/usage/data/deduplicate-events',
-            ]
-          },
-          {
-            label: 'Storage',
-            items: [
-              'guides/usage/storage/import-into-a-node',
-              'guides/usage/storage/export-from-a-node',
-              'guides/usage/storage/show-available-schemas',
-              'guides/usage/storage/transform-data-at-rest',
-            ]
-          },
-          {
-            label: 'Security',
-            items: [
-              'guides/usage/security/enrich-with-network-inventory',
-              'guides/usage/security/enrich-with-threat-intel',
-              'guides/usage/security/execute-sigma-rules',
-            ]
-          },
-        ],
+          'guides/usage/basics/run-pipelines',
+          'guides/usage/basics/manage-a-pipeline',
+          'guides/usage/basics/install-a-package',
+          'guides/usage/basics/collect-metrics',
+        ]
       },
       {
-        label: 'Contribution',
-        collapsed: true,
+        label: 'Data',
         items: [
-          'guides/contribution/code-of-conduct',
-          'guides/contribution/workflow',
-          'guides/contribution/coding-style',
-          'guides/contribution/build-environment',
-          'guides/contribution/changelog',
-          'guides/contribution/documentation',
-          'guides/contribution/security',
-        ],
+          'guides/usage/data/shape-data',
+          'guides/usage/data/parse-nested-data',
+          'guides/usage/data/deduplicate-events',
+        ]
       },
       {
-        label: 'Development',
-        collapsed: true,
+        label: 'Storage',
         items: [
-          'guides/development/build-from-source',
-          'guides/development/build-the-docker-image',
-          'guides/development/write-a-node-plugin',
-        ],
+          'guides/usage/storage/import-into-a-node',
+          'guides/usage/storage/export-from-a-node',
+          'guides/usage/storage/show-available-schemas',
+          'guides/usage/storage/transform-data-at-rest',
+        ]
       },
-    ],
+      {
+        label: 'Security',
+        items: [
+          'guides/usage/security/enrich-with-network-inventory',
+          'guides/usage/security/enrich-with-threat-intel',
+          'guides/usage/security/execute-sigma-rules',
+        ]
+      },
+],
   },
   {
     label: 'Contribution',
