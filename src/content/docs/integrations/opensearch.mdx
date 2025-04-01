@@ -59,9 +59,11 @@ This pipeline accepts data on port 9200 and publishes all received events on the
 
 #### Ship data via Logstash
 
-To send data to the OpenSearch endpoint, use the standard Logstash configuration
-with the OpenSearch output plugin. Here's an example of your
-`pipeline.conf`:
+To send data to the OpenSearch via [Logstash][ship-via-logstash], use the
+standard Logstash configuration with the OpenSearch output plugin. Here's an
+example of your `pipeline.conf`:
+
+[ship-via-logstash]: https://opensearch.org/docs/latest/tools/logstash/ship-to-opensearch/
 
 ```javascript
 output {
@@ -75,6 +77,5 @@ output {
 }
 ```
 
-When adapting an existing Logstash configuration, it often suffices to just
-exchange the endpoint, i.e., change `hosts` to the endpoint of the corresponding
-Tenzir pipeline.
+When adapting an existing Logstash configuration, it suffices to exchange the
+value of `hosts` with the endpoint of the corresponding Tenzir pipeline.
