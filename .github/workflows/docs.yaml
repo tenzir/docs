@@ -27,22 +27,22 @@ jobs:
           submodules: recursive
 
       - name: Set up Python
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Poetry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         run: pipx install poetry
 
       - name: Install changelog dependencies
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         working-directory: ./changelog
         run: poetry install --no-root
 
       - name: Generate changelog MDX and sidebar
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         working-directory: ./changelog
         run: |
           poetry run ./changelog.py \
@@ -50,7 +50,7 @@ jobs:
             --sidebar-file ../src/sidebar-changelog.ts
 
       - name: Commit and push changes
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
