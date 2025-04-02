@@ -34,7 +34,7 @@ set of `.md` files representing individual changelog entries.
 Each individual changelog entry must be a Markdown file (`.md`) structured with
 YAML frontmatter followed by the description of the change.
 
-**File Structure:**
+A changelog has the following structure:
 
 ```markdown
 ---
@@ -48,7 +48,7 @@ Detailed description of the change using Markdown, focusing on the user impact.
 Explain what changed, why, and how users might interact with it.
 ```
 
-**Frontmatter Fields:**
+The frontmatter supports these fields:
 
 - `title` (**Required**): A concise title describing the change. This will
     appear as a heading (`###`) in the generated changelog page for that
@@ -72,18 +72,15 @@ Explain what changed, why, and how users might interact with it.
     cause an error. The script generates links like `[#123](...)` for products
     configured with a `pr_base_url` (currently enabled for `node`).
 
-**Content Body:**
-
-- Below the closing `---` of the frontmatter, write the description using
-    standard Markdown.
-- **Focus on the user:** Explain the change from their perspective. What is
-    the impact? How does it affect usage or behavior?
-- Be clear and concise.
+Below the closing `---` of the frontmatter, write the description using standard
+Markdown. **Focus on the user:** Explain the change from their perspective. What
+is the impact? How does it affect usage or behavior? Examples go a long way. Be
+clear and concise.
 
 ## Adding an Entry Manually
 
 If you have written a changelog entry file (`.md`) according to the format
-above, here's how to manually add it to the `tenzir/docs` repository:
+above, here's how to add it to the `tenzir/docs` repository:
 
 import { Steps } from '@astrojs/starlight/components';
 
@@ -111,7 +108,6 @@ import { Steps } from '@astrojs/starlight/components';
     ```
 
 </Steps>
-
 
 ## Adding an Entry via CI from another Repository
 
