@@ -2,13 +2,12 @@
 title: Changelog
 ---
 
-We maintain automatically generated [changelog](../../../changelog) with
-*user-facing* change descriptions.
+We maintain automatically generated [changelog pages](../../../changelog/) with
+*user-facing* change descriptions for Tenzir Node and Tenzir Platform.
 
-The source for this generated page is a set of Markdown files in the
-[`/changelog`](https://github.com/tenzir/docs/tree/main/changelog) directory of
-our docs repo. There exists a directory for `node` and `platform` with the
-following structure:
+The source for these generated pages is a set of Markdown files located within
+the [`/changelog`](https://github.com/tenzir/docs/tree/main/changelog)
+directory of this repository.
 
 import { FileTree } from '@astrojs/starlight/components';
 
@@ -16,13 +15,13 @@ import { FileTree } from '@astrojs/starlight/components';
 - changelog
   - node
     - next
-      - 2uwQMJ50ob7ijy9NS9XdWh5yfsc.md
-      - 2uwQnMTpRSDe8bB0mJXFkyujped.md
-    - v5.0.0
       - some-feature.md
+      - another-change.md
+    - v5.0.0
+      - important-fix.md
   - platform
     - next
-      - 2uwac8f6MEARnzJ9mORKqtm9pwA.md
+      - initial-entry.md
 </FileTree>
 
 Each product (`node`, `platform`) has subdirectories for each version (e.g.,
@@ -30,87 +29,151 @@ Each product (`node`, `platform`) has subdirectories for each version (e.g.,
 accumulating changes on the main branch. Within each version directory exists a
 set of `.md` files representing individual changelog entries.
 
-## Write a changelog entry
+## Changelog Entry Format
 
-To add an entry to the changelog, follow these steps:
+Each individual changelog entry must be a Markdown file (`.md`) structured with
+YAML frontmatter followed by the description of the change.
 
-1. **Navigate to the correct directory:** Go into the `changelog/` directory,
-   then the appropriate product subdirectory (`node` or `platform`), and finally
-   the version subdirectory corresponding to the release your change will be
-   part of. For changes currently on the `main` branch that haven't been
-   released yet, use the `next` directory.
+**File Structure:**
 
-   - Example: A feature for the upcoming Node release goes into
-      `changelog/node/next/`.
-   - Example: A bug fix for Platform v1.2.0 would go into
-      `changelog/platform/v1.2.0/`.
+```markdown
+---
+title: Concise Title of the Change  # Required
+type: feature                       # Required: 'feature', 'change', or 'bugfix'
+authors: [github_username]          # Required: GitHub username(s) (or use 'author')
+prs: [1234]                         # Optional: GitHub PR number(s) (or use 'pr')
+---
 
-2. **Create a new Markdown file:** Create a new file ending in `.md`. While the
-   exact filename doesn't impact the final output (our examples use IDs), using
-   a descriptive name can be helpful (e.g., `add-frobnication-widget.md`).
+Detailed description of the change using Markdown, focusing on the user impact.
+Explain what changed, why, and how users might interact with it.
+```
 
-3. **Add Frontmatter and Content:** Each file must start with YAML frontmatter,
-   followed by the Markdown description of the change.
+**Frontmatter Fields:**
 
-    ```markdown
-    ---
-    title: "Add Frobnication Widget" # Required: Short title for the entry
-    type: feature                    # Required: One of 'feature', 'change', 'bugfix'
-    authors: [alice, bob]            # Optional: GitHub username(s) (or use 'author')
-    prs: [101, 105]                  # Optional: GitHub PR number(s) (or use 'pr')
-    ---
-
-    Users can now frobnicate widgets directly from the dashboard. This enhances
-    workflow efficiency by providing direct access...
-    ```
-
-4. **Fill in the Frontmatter Fields:**
-   - `title` (*Required*): A concise title describing the change. This will
-     appear as a heading (`###`) in the generated changelog.
-   - `type` (*Required*): The category of the change. This determines which
-     section the entry appears under ("Features", "Changes", or "Bug Fixes").
-     Must be one of:
+- `title` (**Required**): A concise title describing the change. This will
+    appear as a heading (`###`) in the generated changelog page for that
+    version.
+- `type` (**Required**): The category of the change. This determines which
+    section the entry appears under ("Features", "Changes", or "Bug Fixes").
+    Must be one of:
        - `feature`: For new functionality.
        - `change`: For modifications to existing functionality.
        - `bugfix`: For bug fixes.
-   - `authors` / `author` (*Required*): The GitHub username(s) of the author(s).
-     You can provide a single username as a string or multiple usernames as a
-     YAML list (`[user1, user2]`). You can use either the key `author` or
-     `authors` for a single author, but prefer `authors` for lists. **Do not use
-     both `author` and `authors` in the same file**, as this will cause an
-     error. The script generates links like `[@username](...)`.
-   - `prs` / `pr` (*Optional*): The relevant GitHub Pull Request number(s). You
-     can provide a single number or multiple numbers as a YAML list (`[123,
-     456]`). You can use either `pr` or `prs` for a single PR number, but prefer
-     `prs` for lists. **Do not use both `pr` and `prs` in the same file**, as
-     this will cause an error. The script generates links like `[#123](...)`.
+- `authors` / `author` (**Required**): The GitHub username(s) of the
+    author(s). Provide a single username as a string or multiple usernames as a
+    YAML list (`[user1, user2]`). You can use either `author` or `authors` for
+    a single author, but prefer `authors` for lists. **Do not use both `author`
+    and `authors` in the same file**, as this will cause an error. The script
+    generates links like `[@username](...)`.
+- `prs` / `pr` (Optional): The relevant GitHub Pull Request number(s). Provide
+    a single number or multiple numbers as a YAML list (`[123, 456]`). You can
+    use either `pr` or `prs` for a single PR number, but prefer `prs` for
+    lists. **Do not use both `pr` and `prs` in the same file**, as this will
+    cause an error. The script generates links like `[#123](...)` for products
+    configured with a `pr_base_url` (currently enabled for `node`).
 
-5. **Write the Description:** Below the closing `---` of the frontmatter, write
-   the description of the change using Markdown.
-   - **Focus on the user:** Explain the change from a user's perspective. What
-     is the impact? How does it affect usage?
-   - Be clear and concise.
-   - You can use standard Markdown formatting (lists, code blocks, links,
-      etc.).
+**Content Body:**
 
-6. **Commit and Push:** Commit the new `.md` file to the appropriate branch
-   (usually `main` for `next` entries, or a release branch if backporting).
+- Below the closing `---` of the frontmatter, write the description using
+    standard Markdown.
+- **Focus on the user:** Explain the change from their perspective. What is
+    the impact? How does it affect usage or behavior?
+- Be clear and concise.
 
-## Automation
+## Adding an Entry Manually
 
-Once a change involving files in the `/changelog` directory is pushed to the
-`main` branch, a GitHub Actions workflow automatically executes the
-`changelog.py` script. This script performs the following actions:
+If you have written a changelog entry file (`.md`) according to the format
+above, here's how to manually add it to the `tenzir/docs` repository:
 
-- Aggregates all `.md` entries for each product and version.
-- Generates the corresponding versioned `.mdx` pages (e.g.,
-  `mdx/changelog/node/next.mdx`, `mdx/changelog/node/v5-0-0.mdx`).
-- Generates/updates the `index.mdx` file within each product's changelog
-  directory (e.g., `mdx/changelog/node/index.mdx`) with sorted links to the
-  version pages.
-- Generates/updates the TypeScript sidebar file (`sidebar-changelog.ts` by
-  default, if the `--sidebar-file` flag is used).
-- Commits these generated/updated files back to the `main` branch with a `[skip
-  ci]` message.
+import { Steps } from '@astrojs/starlight/components';
 
-The deployed documentation site will then reflect these updated changelog pages.
+<Steps>
+
+1. **Clone the Repository:** If you haven't already, clone the `tenzir/docs`
+   repository:
+   ```bash
+   git clone git@github.com:tenzir/docs.git
+   cd docs
+   ```
+2. **Navigate to the Correct Directory:** Change into the appropriate product and
+   version subdirectory within the `changelog/` directory. Use `next` for
+   unreleased changes going into the next version.
+    - Example (Upcoming Node feature): `cd changelog/node/next/`
+    - Example (Platform v1.2.0 fix): `cd changelog/platform/v1.2.0/`
+3. **Place Your File:** Copy or move your new `.md` changelog entry file into
+   this directory.
+4. **Commit and Push:** Stage the new file, commit it, and push it to the `main`
+   branch (or the relevant branch if targeting a specific release).
+    ```bash
+    git add <your-changelog-file>.md
+    git commit -m "Add changelog entry for <brief description>"
+    git push origin main
+    ```
+
+</Steps>
+
+
+## Adding an Entry via CI from another Repository
+
+Changelog entries related to changes in other repositories (like
+`tenzir/tenzir`) can be automatically added to this `docs` repository via GitHub
+Actions in the *source* repository.
+
+The CI workflow in the source repository (e.g., `tenzir/tenzir`) needs to
+perform these general steps:
+
+<Steps>
+
+1. **Generate Entry:** Create the content of the `.md` changelog file
+   (frontmatter + description) based on the change (e.g., from PR metadata).
+   Ensure it follows the [Changelog Entry Format](#changelog-entry-format).
+2. **Checkout `docs` Repo:** Use `actions/checkout` to check out the
+   `tenzir/docs` repository into a separate path. This requires a token or
+   deploy key with write permissions to `tenzir/docs`, stored as a secret in the
+   source repository.
+3. **Create File:** Create the new `.md` file within the checked-out `docs`
+   repository structure at the correct path
+   (`changelog/<product>/<version>/<filename>.md`). The `<version>` should
+   typically be `next`.
+4. **Commit and Push:** Use `git` commands within the workflow to:
+    - Configure the git user (`user.name`, `user.email`).
+    - Stage the newly created file (`git add`).
+    - Commit the file (`git commit -m "Add changelog for <feature/fix> from <source-repo> [skip ci]"`).
+      Remember to include `[skip ci]` in the commit message to prevent CI loops.
+    - Push the commit to the `main` branch of `tenzir/docs`.
+
+</Steps>
+
+For a concrete example of checking out and pushing to the `docs` repository
+using a secret token, refer to the [`Documentation`
+workflow](https://github.com/tenzir/tenzir/blob/main/.github/workflows/documentation.yaml)
+within the `tenzir/tenzir` repository.
+
+## Publishing Process
+
+Once a new changelog entry (`.md` file) lands on the `main` branch of the
+`tenzir/docs` repository, whether added manually or via CI from another repo, a
+GitHub Actions workflow  executes the `changelog.py` script located in the
+`/changelog` directory. The script performs the following actions:
+
+<Steps>
+
+1. Aggregates all `.md` entries for each product and version.
+2. Generates the corresponding versioned `.mdx` pages within the
+   `mdx/changelog/` directory (e.g., `mdx/changelog/node/next.mdx`,
+   `mdx/changelog/node/v5-0-0.mdx`). The output directory can be configured via
+   the `--output-dir` flag (defaulting to `mdx`).
+3. Generates or updates the `index.mdx` file within each product's generated
+   changelog directory (e.g., `mdx/changelog/node/index.mdx`) with sorted
+   links to the version pages.
+4. If the `--sidebar-file` flag is used in the workflow, it generates or
+   updates the specified TypeScript sidebar file (defaulting to
+   `sidebar-changelog.ts`).
+5. Commits these generated/updated files back to the `main` branch with a
+   `[skip ci]` message.
+
+</Steps>
+
+The deployed documentation site is built using the contents of the repository
+*after* these generated files are committed, ensuring the latest changelogs are
+always published.
