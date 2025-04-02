@@ -64,11 +64,11 @@ export default defineConfig({
             label: 'Node',
             schema: './src/content/apis/openapi.node.yaml',
           },
-          //{
-          //  base: 'reference/api/platform',
-          //  label: 'Platform',
-          //  schema: './src/content/apis/openapi.platform.yaml',
-          //},
+          {
+            base: 'reference/api/platform',
+            label: 'Platform',
+            schema: './src/content/apis/openapi.platform.json',
+          },
         ]),
         starlightSidebarTopics(
           topics,
