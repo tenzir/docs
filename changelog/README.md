@@ -2,7 +2,7 @@
 
 This directory accumulates changelog files from our various repositories.
 
-For every new commit to `main`, a GitHub Action workflow looks for changes in
+For every new commit to `main`, a GitHub Actions workflow looks for changes in
 this directory and—on change—re-creates the changelog that we serve at
 `/changelog`.
 
