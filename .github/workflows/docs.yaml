@@ -4,10 +4,10 @@ on:
   push:
     branches: ["main"]
   pull_request:
-    workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # needed for committing changes
   pages: write
   id-token: write
 
@@ -23,7 +23,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0 # needed for checking changes and pushing
           submodules: recursive
+
+      - name: Set up Python
+        if: github.event_name == 'push'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        if: github.event_name == 'push'
+        run: pipx install poetry
+
+      - name: Install changelog dependencies
+        if: github.event_name == 'push'
+        working-directory: ./changelog
+        run: poetry install --no-root
+
+      - name: Generate changelog MDX and sidebar
+        if: github.event_name == 'push'
+        working-directory: ./changelog
+        run: |
+          poetry run ./changelog.py \
+            --output-dir ../src/content/docs/changelog/ \
+            --sidebar-file ../src/sidebar-changelog.ts
+
+      - name: Commit and push changes
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/docs/changelog/ src/sidebar-changelog.ts
+          if ! git diff --cached --quiet; then
+            git commit -m "Update changelog [skip ci]"
+            git push origin main
+            echo "✅ Changes committed and pushed"
+          else
+            echo "ℹ️ No effective changes to commit after git add"
+          fi
 
       - name: Install pnpm
         run: npm install -g pnpm
