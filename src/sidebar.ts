@@ -185,6 +185,7 @@ export const integrations = [
       'integrations/snowflake',
       'integrations/splunk',
       'integrations/suricata',
+      'integrations/syslog',
       'integrations/tcp',
       'integrations/udp',
       'integrations/velociraptor',
