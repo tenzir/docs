@@ -24,7 +24,7 @@ can find a preview of the new documentation at
 - [x] Make logo href be tenzir.com
 - [x] Rename *Documentation* to *Docs* in header
 - [x] Tweak `index.mdx` title
-- [ ] Consider https://github.com/rehypejs/rehype-external-links
+- [x] Consider https://github.com/rehypejs/rehype-external-links
 
 ### CI / Automation
 

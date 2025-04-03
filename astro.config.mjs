@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import starlightLinksValidator from 'starlight-links-validator';
 import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightOpenAPI from 'starlight-openapi'
+import rehypeExternalLinks from 'rehype-external-links';
 import inlineSVGs from './astro-inline-svgs.mjs'
 import { topics } from './src/topics';
 import { bundledLanguages } from 'shiki'
@@ -98,6 +99,12 @@ export default defineConfig({
         ...Object.keys(bundledLanguages),
       ],
     },
+    rehypePlugins: [
+      [
+        rehypeExternalLinks,
+        { target: '_blank', rel: ['noopener', 'noreferrer'] }
+      ]
+    ]
   },
   // Disable built-in image optimization. We need this so that our SVG hoisting
   // works.
