@@ -15,19 +15,32 @@ import { FileTree } from '@astrojs/starlight/components';
 - changelog
   - node
     - next
-      - some-feature.md
-      - another-change.md
+      - 0195fc99-14a9-79d0-bc25-9f81d405f096.md
+      - 0195fc9d-815f-71e2-b372-08811f4834e5.md
     - v5.0.0
-      - important-fix.md
+      - 0195fc9d-cb72-7f51-88b9-20adff54aadb.md
   - platform
     - next
-      - initial-entry.md
+      - 0195fc9d-ebde-7020-b312-72b405c50742.md
 </FileTree>
 
 Each product (`node`, `platform`) has subdirectories for each version (e.g.,
 `v5.0.0`), with `next` referring to the currently unreleased version
 accumulating changes on the main branch. Within each version directory exists a
 set of `.md` files representing individual changelog entries.
+
+The basename of every file is a [UUID v7][uuidv7]. Because the first 48 bit
+encode a Unix timestamp, the changelog entries are implicitly sorted by time.
+
+[uuidv7]: https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_7_(timestamp_and_random)
+
+Here's an example of you can generate a UUID v7:
+
+```sh
+❯ cargo install kodumaro-uuid-cli
+❯ uuid v7
+urn:uuid:0195fc9b-a69c-72e3-b91c-4a00ee6f49c6
+```
 
 ## Changelog Entry Format
 
@@ -73,9 +86,12 @@ The frontmatter supports these fields:
     configured with a `pr_base_url` (currently enabled for `node`).
 
 Below the closing `---` of the frontmatter, write the description using standard
-Markdown. **Focus on the user:** Explain the change from their perspective. What
-is the impact? How does it affect usage or behavior? Examples go a long way. Be
-clear and concise.
+Markdown.
+
+:::tip[Focus on the user]
+Explain the change from their perspective. What is the impact? How does it
+affect usage or behavior? Examples go a long way. Be clear and concise.
+:::
 
 ## Adding an Entry Manually
 
