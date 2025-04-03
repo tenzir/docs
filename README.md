@@ -32,10 +32,10 @@ can find a preview of the new documentation at
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
 - [x] Create consolidated Node & Platform changelog
-  - [ ] Figure out how to use changesets
+  - [x] Figure out how to use changesets
+  - [x] Update `changelog.mdx` in this repo
   - [ ] Create CI job in tenzir/tenzir
   - [ ] Create CI job in tenzir/platform
-  - [ ] Update `changelog.mdx` in this repo
 
 ### Style
 
