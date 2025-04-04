@@ -155,6 +155,7 @@ export const integrations = [
         items: [
           'integrations/google/cloud-storage',
           'integrations/google/pubsub',
+          'integrations/google/secops',
         ],
       },
       {
