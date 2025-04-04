@@ -314,22 +314,20 @@ unique, and later values overwrite earlier ones.
 
 ```tql title="Lifting nested fields"
 from {
-  nested: {
-    severity: 4,
-    type: "source"
+  type: "alert",
+  context: {
+    severity: "high",
+    source: 1.2.3.4,
   }
 }
-this = {...this, ...nested}
+this = {type: type, ...context}
 ```
 
 ```tql
 {
-  nested: {
-    severity: 4,
-    type: "source"
-  },
-  severity: 4,
-  type: "source"
+ type: "alert",
+ severity: "high",
+ source: 1.2.3.4,
 }
 ```
 
