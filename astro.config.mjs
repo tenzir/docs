@@ -30,11 +30,11 @@ export default defineConfig({
         dark: './src/assets/tenzir-dark.svg',
         replacesTitle: true,
       },
-      social: {
-        github: 'https://github.com/tenzir/tenzir',
-        discord: 'https://discord.tenzir.com',
-        linkedin: 'https://linkedin.com/company/tenzir',
-      },
+      social: [
+        {icon: 'github', label: 'GitHub', href: 'https://github.com/tenzir/tenzir'},
+        {icon: 'discord', label: 'Discord', href: 'https://discord.tenzir.com'},
+        {icon: 'linkedin', label: 'LinkedIn', href: 'https://linkedin.com/company/tenzir'},
+      ],
       lastUpdated: true,
       pagination: false,
       customCss: [
