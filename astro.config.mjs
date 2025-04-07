@@ -7,6 +7,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightOpenAPI from 'starlight-openapi'
 import rehypeExternalLinks from 'rehype-external-links';
 import inlineSVGs from './astro-inline-svgs.mjs'
+import markdoc from '@astrojs/markdoc';
 import { topics } from './src/topics';
 import { bundledLanguages } from 'shiki'
 
@@ -83,6 +84,7 @@ export default defineConfig({
       ],
     }),
     inlineSVGs(),
+    markdoc(),
   ],
   markdown: {
     shikiConfig: {
