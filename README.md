@@ -25,17 +25,13 @@ can find a preview of the new documentation at
 - [x] Rename *Documentation* to *Docs* in header
 - [x] Tweak `index.mdx` title
 - [x] Consider https://github.com/rehypejs/rehype-external-links
+- [ ] Fix Markdoc partial support (https://github.com/withastro/astro/issues/13575)
 
 ### CI / Automation
 
 - [x] Update `tenzir.yaml.example` via CI
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
-- [x] Create consolidated Node & Platform changelog
-  - [x] Figure out how to use changesets
-  - [x] Update `changelog.mdx` in this repo
-  - [ ] Create CI job in tenzir/tenzir
-  - [ ] Create CI job in tenzir/platform
 
 ### Style
 
@@ -49,11 +45,20 @@ can find a preview of the new documentation at
 - [x] Apply CSS and get a facelift
 - [ ] Style Asides to match design system
 
+### Changelog
+
+- [x] Figure out if changesets work
+- [x] Come up with a distributed changelog editing workflow
+- [x] Write script to update Changelog pages in this repo
+- [ ] Create CI job in tenzir/tenzir
+- [ ] Create CI job in tenzir/platform
+
 ### Content
 
 - [x] Landing page
 - [x] FAQs
-- [x] Integrations
+- [ ] Integrations
+  - [ ] Rewrite Elasticsearch/OpenSearch with Markdoc partials
 - [x] Explanations
 - [x] Tutorials
 - [x] Guides
