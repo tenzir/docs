@@ -246,3 +246,21 @@ sort -x
 ```
 
 Prepending the field with `-` reverses the sort order.
+
+## Invert event ordering with `reverse`
+
+Use `reverse` to invert the order of a stream of events:
+
+```tql
+from {x: 1},
+     {x: 2},
+     {x: 3}
+reverse
+```
+
+```tql
+{x: 3}
+{x: 2}
+{x: 1}
+```
+
