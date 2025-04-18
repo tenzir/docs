@@ -259,8 +259,7 @@ this = { zeek: this }
 ocsf.activity_id: activity_id,
 ...
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts // <--------------- drop fields immediately after mapping
+move ocsf.time = zeek.ts // <--- remove source field while mapping
 ...
 // === Context ===
 ocsf.metadata = {
@@ -273,7 +272,7 @@ ocsf.src_endpoint = {
   port: zeek.id.orig_p,
   ...
 }
-drop zeek.id
+drop zeek.id // <--- remove source field after mapping
 
 // (3) Make all nested fields in the `ocsf` record the new top-level, and keep
 // all unmapped fields in the `unmapped` attribute.
@@ -294,9 +293,9 @@ Let's unpack this:
    new fields in the next steps. Because we are mapping Zeek logs, we chose a
    matching record name to make the subsequent mappings almost self-explanatory.
 2. The main work takes place here. Our approach is structured: for every field
-   in the source event, (1) map it, and (2) remove it (via `drop`). For better
-   categorization of the entire OCSF mapping, we group the mappings by OCSF
-   attribute group.
+   in the source event, (1) map it, and (2) remove it (via `drop`). Or do (1)
+   and (2) together via `move`. For better categorization of the entire OCSF
+   mapping, we group the mappings by OCSF attribute group.
 3. The assignment `this = {...ocsf, unmapped: zeek}` means that we move all
    fields from the `ocsf` record into the top-level record (`this`), and at the
    same time add a new field `unmapped` that contains everything that we didn't
@@ -336,10 +335,8 @@ Let's tackle the next group: Occurrence. These attributes are all about time.
 
 ```tql
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts
-ocsf.duration = zeek.duration
-drop zeek.duration
+move ocsf.time = zeek.ts
+move ocsf.duration = zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 ```
@@ -367,8 +364,7 @@ ocsf.metadata = {
   version: "1.4.0",
 }
 drop zeek._path, zeek._write_ts, zeek.uid
-ocsf.app_name = zeek.service
-drop zeek.service
+move ocsf.app_name = zeek.service
 ```
 
 #### Primary Attributes
@@ -420,8 +416,7 @@ if zeek.local_orig and zeek.local_resp {
 }
 drop zeek.community_id, zeek.proto, zeek.local_orig, zeek.local_resp,
 ocsf.status = "Other"
-ocsf.status_code = zeek.conn_state
-drop zeek.conn_state
+move ocsf.status_code = zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,
@@ -473,10 +468,8 @@ ocsf.severity_id = 1
 ocsf.severity = "Informational"
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts
-ocsf.duration = zeek.duration
-drop zeek.duration
+move ocsf.time = zeek.ts
+move ocsf.duration = zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 // === Context ===
@@ -492,8 +485,7 @@ ocsf.metadata = {
   version: "1.4.0",
 }
 drop zeek._write_ts, zeek.uid
-ocsf.app_name = zeek.service
-drop zeek.service
+move ocsf.app_name = zeek.service
 // === Primary ===
 ocsf.src_endpoint = {
   ip: zeek.id.orig_h,
@@ -529,8 +521,7 @@ if zeek.local_orig and zeek.local_resp {
 }
 drop zeek.community_id, zeek.proto, zeek.local_orig, zeek.local_resp
 ocsf.status = "Other"
-ocsf.status_code = zeek.conn_state
-drop zeek.conn_state
+move ocsf.status_code = zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,
