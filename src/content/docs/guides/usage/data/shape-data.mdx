@@ -146,6 +146,27 @@ taste 1
 {y: "foo"}
 ```
 
+### Relocate fields with `move`
+
+Use the `move` operator to combine `set` and `drop`. This pipeline
+
+```tql
+from {old: 42}
+move new = old
+```
+
+produces the same output as this one:
+
+```tql
+from {old: 42}
+set new = old
+drop old
+```
+
+```tql
+{new: 42}
+```
+
 ### Add and rename fields with `set` assignment
 
 Use the [`set`](../../tql2/operators/set.md) operator to add new fields to the
@@ -182,7 +203,7 @@ Similarly, you can rename and project at the same time with
 
 ```tql
 from {x: 1, y: "foo"},
-    {x: 2, y: "bar"}
+     {x: 2, y: "bar"}
 select y=x
 ```
 
