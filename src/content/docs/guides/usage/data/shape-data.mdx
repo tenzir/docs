@@ -121,6 +121,27 @@ drop x
 {y: "baz"}
 ```
 
+## Relocate fields with `move`
+
+Use the `move` operator to combine `set` and `drop`. This pipeline
+
+```tql
+from {old: 42}
+move new = old
+```
+
+produces the same output as this one:
+
+```tql
+from {old: 42}
+set new = old
+drop old
+```
+
+```tql
+{new: 42}
+```
+
 ## Sample schemas with `taste`
 
 The [`taste`](../../tql2/operators/taste.md) operator provides a sample of the
@@ -177,7 +198,7 @@ Similarly, you can rename and project at the same time with
 
 ```tql
 from {x: 1, y: "foo"},
-    {x: 2, y: "bar"}
+     {x: 2, y: "bar"}
 select y=x
 ```
 
@@ -225,3 +246,21 @@ sort -x
 ```
 
 Prepending the field with `-` reverses the sort order.
+
+## Invert event ordering with `reverse`
+
+Use `reverse` to invert the order of a stream of events:
+
+```tql
+from {x: 1},
+     {x: 2},
+     {x: 3}
+reverse
+```
+
+```tql
+{x: 3}
+{x: 2}
+{x: 1}
+```
+
