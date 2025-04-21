@@ -2,19 +2,24 @@
 title: Shape data
 ---
 
-Tenzir comes with numerous transformation [operators](../../operators.md) that
-do change the the shape of their input and produce a new output. Here is a
-visual overview of transformations that you can perform over a data frame:
+TQL comes with numerous transformation [operators](../../operators.md) that
+change the shape of events. tQL has [functions](../../functions.md) that work on
+values within a single event.
+
+This guides showcases the operators and functions that you need for day-to-day
+data shaping tasks.
+
+## Use operators to reshape data flows
+
+Operators work on streams of events and—unlike functions—can keep state between
+multiple events. Here is a visual overview of transformations that you can
+perform over a stream of events:
 
 ![Shaping Overview](shape-data.svg)
 
-We'll walk through examples for each depicted operator, using the
-[M57](../../installation.md) dataset. All examples assume that you have imported
-the M57 sample data into a node, as explained in the
-[quickstart](../../tutorials/quickstart/README.md). We therefore start every pipeline with
-[`export`](../../tql2/operators/export.md).
+Let's dive right in.
 
-## Filter events with `where`
+### Filter events with `where`
 
 Use [`where`](../../tql2/operators/where.md) to filter events in the
 input with an [expression](../../tql2/language/expressions.md):
@@ -30,7 +35,7 @@ where x != 2 and y.starts_with("b")
 {x: 3, y: "baz"}
 ```
 
-## Slice events with `head`, `tail`, and `slice`
+### Slice events with `head`, `tail`, and `slice`
 
 Use the [`head`](../../tql2/operators/head.md) and
 [`tail`](../../tql2/operators/tail.md) operators to get the first or
@@ -87,7 +92,7 @@ slice begin=3, stride=2
 {x: 6, y: "grault"}
 ```
 
-## Pick fields with `select` and `drop`
+### Pick fields with `select` and `drop`
 
 Use the [`select`](../../tql2/operators/select.md) operator to
 pick fields:
@@ -121,7 +126,7 @@ drop x
 {y: "baz"}
 ```
 
-## Sample schemas with `taste`
+### Sample schemas with `taste`
 
 The [`taste`](../../tql2/operators/taste.md) operator provides a sample of the
 first N events of every unique schemas. For example, to get 3 unique samples:
@@ -141,7 +146,7 @@ taste 1
 {y: "foo"}
 ```
 
-## Add and rename fields with `set` assignment
+### Add and rename fields with `set` assignment
 
 Use the [`set`](../../tql2/operators/set.md) operator to add new fields to the
 output.
@@ -186,7 +191,7 @@ select y=x
 {y: 2}
 ```
 
-## Aggreate events with `summarize`
+### Aggreate events with `summarize`
 
 Use [`summarize`](../../tql2/operators/summarize.md) to group and aggregate
 data.
@@ -206,7 +211,7 @@ summarize y, x=sum(x)
 A variety of [aggregation functions](../../tql2/functions.md#aggregation) make
 it possible to combine grouped data.
 
-## Reorder events with `sort`
+### Reorder events with `sort`
 
 Use [`sort`](../../tql2/operators/sort.md) to arrange the output records
 according to the order of a specific field.
@@ -225,3 +230,54 @@ sort -x
 ```
 
 Prepending the field with `-` reverses the sort order.
+
+## Use functions to change single events
+
+Functions work on single values, including the top-level event that you can
+reference with the `this` keyword.
+
+### Combine records with `merge`
+
+Use the `merge` function to combine two records:
+
+```tql
+from {
+  foo: {
+    bar: 1,
+    baz: 2,
+  },
+  qux: {
+    fred: 3,
+    george: 4,
+    bar: 5,
+  }
+}
+this = merge(foo, qux)
+```
+
+```tql
+{
+  bar: 5,
+  baz: 2,
+  fred: 3,
+  george: 4
+}
+```
+
+Note that the field `bar`, which is present in both record `foo` and `qux`, has
+the value `5` in the output because *fields from the second argument to `merge`
+overwrite fields from the first if they have the have the same name*.
+
+Instead of writing
+
+```tql
+this = merge(foo, qux)
+```
+you can also write
+
+```tql
+this = {...foo, ...qux}
+```
+
+as an idiomatic shorthand. The *spread* expression `...` expands records in the
+exact same was as `merge`.
