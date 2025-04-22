@@ -2,18 +2,26 @@
 title: Parse nested data
 ---
 
-Logs are often a mess. There's no other way to put it. Here's an example that we
-found in the wild just recently:
+Logs are often a mess. Long lines of text without structure. Especially when
+onboarding data from Syslog feeds or other dump-everything-in-here data streams.
 
-```
+This guide shows you how to deconstruct such messy log lines into its atomic
+data values, so that you can begin proceed working with them in a structured
+fashion.
+
+## Deconstruct Syslog messages into atomic values
+
+Here's a Syslog example:
+
+```txt
 2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png
 ```
 
-Let's take this apart. First, we notice that this looks like Syslog. Let's throw the Syslog parser at it.
+The prefix looks like Syslog, so we'll attempt to parse it as Syslog parser.
 
 ```tql
-load_file "sample.txt"
-read_syslog
+from {line: "2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png"}
+this = line.parse_syslog()
 ```
 
 ```tql
@@ -28,18 +36,29 @@ read_syslog
 }
 ```
 
-The `content` field appears to contain the actual log message. It has four sections:
+:::tip[Receiving Syslog over TCP & UDP]
+In this guide we start with `from {line: "..."}` to make it easier to follow
+along. In practice you're likely accepting Syslog from TCP or UDP sockets and
+would thus start your pipeline with something along the lines of `from
+"udp://0.0.0.0:514" { read_syslog }`. Check
+out our [Syslog integration page](../../../../integrations/syslog) for further
+details.
+:::
+
+After parsing the Syslog framing, we can see that `content` field contains the
+actual log message. It has four sections:
 
 - `I103` looks like some identifier.
 - `1703182696` looks like a Unix timestamp in seconds.
 - `request` looks like it specified an action.
 - `baddr=194.1.1.1 bport=58630 …` looks like a list of key-value pairs.
 
-Let's start by taking the `content` field apart:
+To parse an arbitrary string into values, the `parse_grok` function comes in
+handy. Let's take apart the `content`:
 
 ```tql
-load_file "sample.txt"
-read_syslog
+from {line: "2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png"}
+this = line.parse_syslog()
 content = content.parse_grok("%{DATA:id} %{DATA:ts} %{DATA:action} %{GREEDYDATA:params}")
 ```
 
@@ -60,11 +79,12 @@ content = content.parse_grok("%{DATA:id} %{DATA:ts} %{DATA:action} %{GREEDYDATA:
 }
 ```
 
-Let's further take apart the `content.params`:
+The `params` field follows a key-value pair pattern. The `parse_kv` function
+fits this pattern best:
 
 ```tql
-load_file "sample.txt"
-read_syslog
+from {line: "2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png"}
+this = line.parse_syslog()
 content = content.parse_grok("%{DATA:id} %{DATA:ts} %{DATA:action} %{GREEDYDATA:params}")
 content.params = content.params.parse_kv()
 ```
@@ -112,11 +132,18 @@ content.params = content.params.parse_kv()
 }
 ```
 
-Let's fix up a few types:
+The above output still has several values that we can improve in terms of
+typing: 
+
+- `content.ts`: numeric value instead of timestamp
+- `content.params.duration`: numeric value instead of duration
+- `content.params.forwarded_for`: string instead of list of IP addresses
+
+Let's fix those up:
 
 ```tql
-load_file "sample.txt"
-read_syslog
+from {line: "2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png"}
+this = line.parse_syslog()
 content = content.parse_grok("%{DATA:id} %{DATA:ts} %{DATA:action} %{GREEDYDATA:params}")
 content.params = content.params.parse_kv()
 // Interpret the timestamp as a seconds since Unix epoch.
@@ -173,69 +200,49 @@ content.params.forwarded_for = content.params.forwarded_for.split(", ").map(x, x
 }
 ```
 
-Let's now reshape the data, keeping only the fields we're interested in:
+## Reconstruct values into the desired form
+
+We've now reached an important state: all data is deconstructed into atomic
+values with proper types. We can't take the data apart any further. This is the
+inflection point where we shift from disassembly of the original data into
+reassembly into the desired form. For example, you could [map your events to
+OCSF](../../../../tutorials/map-data-to-ocsf).
+
+In our toy example, we'll just create a slightly flatter structure:
 
 ```tql
-load_file "sample.txt"
-read_syslog
+from {line: "2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png"}
+this = line.parse_syslog()
 content = content.parse_grok("%{DATA:id} %{DATA:ts} %{DATA:action} %{GREEDYDATA:params}")
 content.params = content.params.parse_kv()
-// Interpret the timestamp as a seconds since Unix epoch.
 content.ts = from_epoch(content.ts * 1s)
-// Interpret the duration parameter as seconds.
 content.params.duration = content.params.duration * 1s
-// Split the forwarded_for field into an array of IP addresses.
 content.params.forwarded_for = content.params.forwarded_for.split(", ").map(x, x.ip())
 this = {
   // We keep both timestamps, labelling the one from the message `time` and the
   // one from Syslog itself `forwarded_time`:
   time: content.ts,
   forwarded_time: timestamp,
-  // Copy the other id and the action from the Syslog message:
+  host: hostname,
   id: content.id,
   action: content.action,
-  // Lastly, take all the params:
-  ...content.params,
+  source: content.params.caddr,
+  destination: content.params.saddr,
 }
 ```
 
 ```tql
 {
-  time: 2023-12-21T18:18:16Z,
+  time: 2023-12-21T18:18:16.000Z,
   forwarded_time: 2023-06-09T05:51:36.433Z,
+  host: "mrs",
   id: "I103",
   action: "request",
-  baddr: 194.1.1.1,
-  bport: 58630,
-  c_ctype: "image/png",
-  caddr: 194.1.1.1,
-  cin: 860,
-  cout: 898,
-  cport: 58630,
-  duration: 0ns,
-  forwarded_for: [
-    192.1.1.1,
-    191.1.1.1,
-  ],
-  laddr: 127.128.11.145,
-  lport: 1,
-  method: "GET",
-  paddr: 172.0.0.1,
-  pport: 80,
-  proto: 6,
-  relay_name: "wwwserver",
-  response_code: 200,
-  rnum: 6489895,
-  s_ctype: "image/png",
-  saddr: 172.0.0.1,
-  sin: 898,
-  sout: 819,
-  sport: 80,
-  status: "OK",
-  url: "http://test.de/images/icons/144x144.png",
+  source: 194.1.1.1,
+  destination: 172.0.0.1
 }
 ```
 
-Now we just need to switch from reading from a file to accepting Syslog over UDP
-directly, and we're done. That's as simple as replacing `load_file "…"` with
-`load_udp "…"` or `load_tcp "…"`.
+This pipeline structure is very common, except that we would perform the data
+shaping on live input as opposed to a single synthetic log line. Check out our
+[Syslog integration page](../../../../integrations/syslog) for further related topics.
