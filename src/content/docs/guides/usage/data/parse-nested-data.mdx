@@ -11,7 +11,7 @@ fashion.
 
 ## Deconstruct Syslog messages into atomic values
 
-Here's an common Syslog example:
+Here's a Syslog example:
 
 ```txt
 2023-06-09T05:51:36.433Z mrs www[929]: I103 1703182696 request baddr=194.1.1.1 bport=58630 c_ctype=image/png caddr=194.1.1.1 cin=860 cout=898 cport=58630 duration=0.00 forwarded_for='192.1.1.1, 191.1.1.1' laddr=127.128.11.145 lport=1 method=GET paddr=172.0.0.1 pport=80 proto=6 relay_name=wwwserver response_code=200 rnum=6489895 s_ctype=image/png saddr=172.0.0.1 sin=898 sout=819 sport=80 status=OK url=http://test.de/images/icons/144x144.png
@@ -226,7 +226,7 @@ this = {
   host: hostname,
   id: content.id,
   action: content.action,
-  source: content.params.saddr,
+  source: content.params.caddr,
   destination: content.params.saddr,
 }
 ```
@@ -238,7 +238,7 @@ this = {
   host: "mrs",
   id: "I103",
   action: "request",
-  source: 172.0.0.1,
+  source: 194.1.1.1,
   destination: 172.0.0.1
 }
 ```
