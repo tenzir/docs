@@ -279,5 +279,68 @@ you can also write
 this = {...foo, ...qux}
 ```
 
-as an idiomatic shorthand. The *spread* expression `...` expands records in the
+as an idiomatic shorthand. The spread expression `...` expands records in the
 exact same was as `merge`.
+
+### Combine lists with `concatenate`
+
+Use `concatenate` to add one list add the end of another:
+
+```tql
+from {
+  xs: [1,2,3],
+  ys: [4,5,6],
+}
+select result = concatenate(xs, ys)'
+```
+
+```tql
+{
+  result: [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+  ],
+}
+```
+
+The spread expression `...` also works for lists. You can rewrite the above
+example
+
+```tql
+select result = concatenate(xs, ys)'
+```
+
+more idiomatically as
+
+```tql
+select result = [...xs, ...ys]'
+```
+
+and get the same result.
+
+### Add values to lists with `append` and `prepend`
+
+To add a single value to a list, use `append` to add it to the back and
+`prepend` to add it to the front:
+
+```tql
+from {
+  xs: [2],
+}
+xs = append(xs, 3)
+xs = prepend(xs, 1)
+```
+
+```tql
+{
+  result: [
+    1,
+    2,
+    3,
+  ],
+}
+```
