@@ -72,7 +72,7 @@
       "patterns": [
         {
           "name": "keyword",
-          "match": "(?<=\\b)(_|is|as|use|return|def|function|pipeline|let|and|or|in|not|let|this|meta|super|for|if|while|match|else)(?=\\b)",
+          "match": "(?<=\\b)(_|is|as|use|return|def|function|let|and|or|in|not|let|this|meta|super|for|if|while|match|else)(?=\\b)",
           "comment": "type|"
         }
       ]
@@ -118,7 +118,7 @@
           "patterns": [
             {
               "name": "tql.record_detected",
-              "begin": "(?=\\w+:)",
+              "begin": "(?=\\w+:(?!:))",
               "patterns": [
                 {
                   "include": "#keywords"
@@ -176,6 +176,11 @@
           }
         },
         {
+          "name": "string.quoted.double.tql",
+          "begin": "r#\"",
+          "end": "\"#"
+        },
+        {
           "name": "entity.name",
           "match": "\\w+(?='|\\$|#)",
           "comment": "\\w+(?=:|'|\\$|#)"
@@ -205,6 +210,11 @@
               "match": "\\\\."
             }
           ]
+        },
+        {
+          "name": "string.quoted.double.tql",
+          "begin": "r\"",
+          "end": "\""
         },
         {
           "name": "keyword.operator",
