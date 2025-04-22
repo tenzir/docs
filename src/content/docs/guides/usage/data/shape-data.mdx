@@ -185,6 +185,49 @@ drop old
 {new: 42}
 ```
 
+Moving multiple fields is also possible. The pipeline
+
+```tql
+from {foo: 1, bar: 2}
+move foo=bar, qux=foo
+```
+
+is equivalent to
+
+```tql
+from {foo: 1, bar: 2}
+set foo=bar, qux=foo
+drop bar, foo
+```
+
+and produces:
+
+```tql
+{
+  foo: 2,
+  qux: 1,
+}
+```
+
+However, it is not equivalent to the following pipeline containing single
+assignments:
+
+```tql
+from {foo: 1, bar: 2}
+set foo=bar
+drop bar
+set qux=foo
+drop foo
+```
+
+which yields:
+
+```tql
+{
+  qux: 2,
+}
+```
+
 ### Add and rename fields with `set` assignment
 
 Use the [`set`](../../../../reference/operators/set) operator to add new fields
