@@ -231,6 +231,37 @@ sort -x
 
 Prepending the field with `-` reverses the sort order.
 
+### Break up lists of records with `unroll`
+
+Working with lists of can be cumbersome. To break up a list into a sequence of
+events, use the `unroll` operator:
+
+```tql
+from {
+  xs: [{a: 1}, {a: 2}],
+  y: "foo",
+}
+unroll xs
+```
+
+```tql
+{
+  xs: {
+    a: 1,
+  },
+  y: "foo",
+}
+{
+  xs: {
+    a: 2,
+  },
+  y: "foo",
+}
+```
+
+Note that `unroll` produces as many events as there are elements in the
+unrolled list. All other fields are simply copied over.
+
 ## Use functions to change single events
 
 Functions work on single values, including the top-level event that you can
