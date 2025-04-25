@@ -78,7 +78,11 @@ export default defineConfig({
             topics: {
               // Associate all pages under `/reference/api/` directory with the
               // Reference topic.
-              reference: ["/reference/api", "/reference/api/**/*"],
+              reference: [
+                "/reference/api",
+                "/reference/api/**/*",
+                "/reference/functions/*",
+              ],
             },
           }),
       ],
