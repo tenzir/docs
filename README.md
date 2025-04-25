@@ -66,7 +66,7 @@ can find a preview of the new documentation at
 - [ ] Reference
   - [x] Language
   - [ ] Operators
-  - [ ] Functions
+  - [x] Functions
   - [x] Configuration
   - [x] Platform CLI
   - [x] Glossary
