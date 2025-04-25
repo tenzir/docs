@@ -14,7 +14,7 @@ The `context::create_geoip` operator constructs a new context of type
 [GeoIP](../../../enrichment/README.md#geoip).
 
 You must either provide a database with the `db_path` argument or use
-[`context::load`](load.md) to populate the context after creation.
+[`context::load`](load) to populate the context after creation.
 
 You can also create a GeoIP context as code by adding it to `tenzir.contexts` in
 your `tenzir.yaml`:
@@ -60,14 +60,14 @@ context::load "ctx"
 
 ## See Also
 
-[`context::create_lookup_table`](create_lookup_table.md),
-[`context::create_bloom_filter`](create_bloom_filter.md),
-[`context::enrich`](enrich.md),
-[`context::erase`](erase.md),
-[`context::inspect`](inspect.md),
-[`context::list`](list.md),
-[`context::load`](load.md),
-[`context::remove`](remove.md),
-[`context::reset`](update.md),
-[`context::save`](save.md),
-[`context::update`](update.md),
+[`context::create_lookup_table`](create_lookup_table),
+[`context::create_bloom_filter`](create_bloom_filter),
+[`context::enrich`](enrich),
+[`context::erase`](erase),
+[`context::inspect`](inspect),
+[`context::list`](list),
+[`context::load`](load),
+[`context::remove`](remove),
+[`context::reset`](update),
+[`context::save`](save),
+[`context::update`](update)

@@ -94,4 +94,5 @@ package::list
 
 ## See Also
 
-[`package::add`](add.md), [`package::remove`](remove.md)
+[`package::add`](add),
+[`package::remove`](remove)

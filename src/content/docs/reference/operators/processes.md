@@ -1,4 +1,6 @@
 ---
+title: processes
+---
 
 Shows a snapshot of running processes.
 

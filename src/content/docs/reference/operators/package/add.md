@@ -45,4 +45,5 @@ package::add "https://github.com/tenzir/library/raw/main/zeek/package.yaml",
 
 ## See Also
 
-[`package::remove`](remove.md), [`package::list`](list.md)
+[`package::list`](list),
+[`package::remove`](remove)
