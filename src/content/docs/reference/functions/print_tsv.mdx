@@ -2,22 +2,27 @@
 title: print_tsv
 ---
 
-import Docs from './_print_csv_common.mdx'
-
-Prints a record has a tab separated string of values.
+Prints a record as a tab-separated string of values.
 
 ```tql
 print_tsv(input:record, [list_separator=str, null_value=str]) -> string
 ```
+
+import Docs from '../../.../../../../partials/functions/PrintCSV.mdx';
 
 <Docs operator="print_tsv" separator_text="tab" list_sep="," null_value="-"/>
 
 ## Examples
 
 ```tql
-from {x:1, y:true, z: "String"}
+from {
+  x:1,
+  y:true,
+  z: "String"
+}
 output = this.print_tsv()
 ```
+
 ```tql
 {
   x: 1,
@@ -29,4 +34,5 @@ output = this.print_tsv()
 
 ## See Also
 
-[`parse_tsv`](./parse_tsv.mdx), [`write_tsv`](../operators/write_tsv.md)
+[`parse_tsv`](parse_tsv),
+[`write_tsv`](../operators/write_tsv)

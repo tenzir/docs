@@ -2,7 +2,7 @@
 title: print_kv
 ---
 
-Prints records in a Key-Value format.
+Prints records in a key-value format.
 
 ```tql
 print_kv( input:record, [field_separator=str, value_separator=str,
@@ -13,8 +13,8 @@ print_kv( input:record, [field_separator=str, value_separator=str,
 ## Description
 
 Prints records in a Key-Value format. Nested data will be flattend, keys or
-values containing the given separators will be quoted and
-the special characters `\n`, `\r`, `\` and `"` will be escaped.
+values containing the given separators will be quoted and the special characters
+`\n`, `\r`, `\` and `"` will be escaped.
 
 ### `input: record`
 
@@ -57,12 +57,15 @@ Defaults to the empty string.
 
 ## Examples
 
-### Conditionally quoted strings
+### Format a record as key-value pair
 
 ```tql
-from { input: { key:"value" } }
+from {
+  input: {key: "value"}
+}
 output = input.print_kv()
 ```
+
 ```tql
 {
   input: {

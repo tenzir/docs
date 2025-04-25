@@ -2,8 +2,6 @@
 title: parse_tsv
 ---
 
-import CommonOptions from './_common_parsing_options.mdx';
-
 Parses a string as tab separated values.
 
 ```tql
@@ -16,7 +14,8 @@ parse_tsv(input:string, header=list<string>|string,
 
 ## Description
 
-The `parse_tsv` function parses a string as [TSV](https://en.wikipedia.org/wiki/Tab-separated_values).
+The `parse_tsv` function parses a string as
+[TSV](https://en.wikipedia.org/wiki/Tab-separated_values).
 
 ### `input: string`
 
@@ -24,8 +23,8 @@ The string to parse.
 
 ### `header = list<string>|string`
 
-A list of strings to be used as the column names, or a `string` to be parsed
-as the `header` for the parsed values.
+A list of strings to be used as the column names, or a `string` to be parsed as
+the `header` for the parsed values.
 
 ### `list_separator = string (optional)`
 
@@ -50,13 +49,17 @@ A string of not escaped characters that are supposed to be considered as quotes.
 
 Defaults to the characters `"'`.
 
-<CommonOptions />
+import ParsingOptions from '../../.../../../../partials/functions/ParsingOptions.mdx';
 
+<ParsingOptions />
 
 ```tql
-from { input: "1\t2\t3" }
+from {
+  input: "1\t2\t3"
+}
 output = input.parse_tsv(header=["a","b","c"])
 ```
+
 ```tql
 {
   input: "1\t2\t3",
@@ -70,5 +73,5 @@ output = input.parse_tsv(header=["a","b","c"])
 
 ## See Also
 
-[`read_tsv`](../operators/read_tsv.mdx), [`parse_csv`](parse_csv.mdx),
-[`parse_ssv`](parse_ssv.mdx), [`parse_xsv`](parse_xsv.mdx)
+[`read_tsv`](../operators/read_tsv), [`parse_csv`](parse_csv),
+[`parse_ssv`](parse_ssv), [`parse_xsv`](parse_xsv)

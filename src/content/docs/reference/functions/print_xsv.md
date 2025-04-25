@@ -35,12 +35,17 @@ The string denoting an absent value.
 ## Examples
 
 ```tql
-from {x:1, y:true, z: "String"}
+from {
+  x:1,
+  y:true,
+  z: "String",
+}
 output = this.print_xsv(
   field_separator=",",
   list_selarator=";",
   null_value="null")
 ```
+
 ```tql
 {
   x: 1,

@@ -2,8 +2,6 @@
 title: print_ndjson
 ---
 
-import Docs from './_print_json_common.mdx'
-
 Transforms a value into a single-line JSON string.
 
 ```tql
@@ -16,6 +14,8 @@ print_ndjson(input:any, [strip=bool, color=bool, arrays_of_objects=bool,
 
 Transforms a value into a single-line JSON string.
 
+import Docs from '../../.../../../../partials/functions/PrintJSONx';
+
 <Docs test="print_json" />
 
 ## Examples
@@ -23,9 +23,13 @@ Transforms a value into a single-line JSON string.
 ### Print without null fields
 
 ```tql
-from {x: 0}, {x:null}, {x: { x: 0, y: 1 } }, { x: [0,1,2,] }
+from {x: 0},
+     {x:null},
+     {x: {x: 0, y: 1}},
+     {x: [0,1,2,]}
 x = x.print_ndjson(strip_null_fields=true)
 ```
+
 ```tql
 {
   x: "0",
@@ -43,4 +47,6 @@ x = x.print_ndjson(strip_null_fields=true)
 
 ## See also
 
-[`write_ndjson`](../operators/write_ndjson.md), [`print_json`](./print_json.mdx),  [`parse_json`](parse_json.mdx)
+[`write_ndjson`](../operators/write_ndjson),
+[`print_json`](print_json),
+[`parse_json`](parse_json)

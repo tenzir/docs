@@ -143,28 +143,28 @@ but often resort to the method style when it is more idiomatic.
 
 | Function                                     | Description                              | Example                                            |
 | :------------------------------------------- | :--------------------------------------- | :------------------------------------------------- |
-| [`parse_cef`](parse_cefx)       | Parses a string as a CEF message         | `string.parse_cef()`                               |
-| [`parse_csv`](parse_csvx)       | Parses a string as CSV                   | `string.parse_csv(header=["a","b"])`               |
-| [`parse_grok`](parse_grokx)     | Parses a string following a grok pattern | `string.parse_grok("%{IP:client} …")`              |
-| [`parse_json`](parse_jsonx)     | Parses a string as a JSON value          | `string.parse_json()`                              |
-| [`parse_kv`](parse_kvx)         | Parses a string as key-value pairs       | `string.parse_kv()`                                |
-| [`parse_leef`](parse_leefx)     | Parses a string as a LEEF message        | `string.parse_leef()`                              |
-| [`parse_ssv`](parse_ssvx)       | Parses a string as SSV                   | `string.parse_ssv(header=["a","b"])`               |
-| [`parse_syslog`](parse_syslogx) | Parses a string as a syslog message      | `string.parse_syslog()`                            |
-| [`parse_tsv`](parse_tsvx)       | Parses a string as TSV                   | `string.parse_tsv(header=["a","b"])`               |
-| [`parse_xsv`](parse_xsvx)       | Parses a string as XSV                   | `string.parse_xsv(",", ";", "", header=["a","b"])` |
-| [`parse_yaml`](parse_yamlx)     | Parses a string as YAML                  | `string.parse_yaml()`                              |
+| [`parse_cef`](parse_cef)       | Parses a string as a CEF message         | `string.parse_cef()`                               |
+| [`parse_csv`](parse_csv)       | Parses a string as CSV                   | `string.parse_csv(header=["a","b"])`               |
+| [`parse_grok`](parse_grok)     | Parses a string following a grok pattern | `string.parse_grok("%{IP:client} …")`              |
+| [`parse_json`](parse_json)     | Parses a string as a JSON value          | `string.parse_json()`                              |
+| [`parse_kv`](parse_kv)         | Parses a string as key-value pairs       | `string.parse_kv()`                                |
+| [`parse_leef`](parse_leef)     | Parses a string as a LEEF message        | `string.parse_leef()`                              |
+| [`parse_ssv`](parse_ssv)       | Parses a string as SSV                   | `string.parse_ssv(header=["a","b"])`               |
+| [`parse_syslog`](parse_syslog) | Parses a string as a syslog message      | `string.parse_syslog()`                            |
+| [`parse_tsv`](parse_tsv)       | Parses a string as TSV                   | `string.parse_tsv(header=["a","b"])`               |
+| [`parse_xsv`](parse_xsv)       | Parses a string as XSV                   | `string.parse_xsv(",", ";", "", header=["a","b"])` |
+| [`parse_yaml`](parse_yaml)     | Parses a string as YAML                  | `string.parse_yaml()`                              |
 
 ## Printing
 
 | Function                                     | Description                                   | Example                 |
 | :------------------------------------------- | :-------------------------------------------- | :---------------------- |
-| [`print_csv`](print_csvx)       | Prints a record as comma separated values     | `record.print_csv()`    |
+| [`print_csv`](print_csv)       | Prints a record as comma separated values     | `record.print_csv()`    |
 | [`print_kv`](print_kv)          | Prints a record as Key-Value pairs            | `record.print_kv()`     |
-| [`print_json`](print_jsonx)     | Prints a record as a JSON string              | `record.print_json()`   |
-| [`print_ndjson`](print_ndjsonx) | Prints a record as NDJSON string              | `record.print_ndjson()` |
-| [`print_ssv`](print_ssvx)       | Prints a record as space separated values     | `record.print_ssv()`    |
-| [`print_tsv`](print_tsvx)       | Prints a record as tab separated values       | `record.print_tsv()`    |
+| [`print_json`](print_json)     | Prints a record as a JSON string              | `record.print_json()`   |
+| [`print_ndjson`](print_ndjson) | Prints a record as NDJSON string              | `record.print_ndjson()` |
+| [`print_ssv`](print_ssv)       | Prints a record as space separated values     | `record.print_ssv()`    |
+| [`print_tsv`](print_tsv)       | Prints a record as tab separated values       | `record.print_tsv()`    |
 | [`print_xsv`](print_xsv)        | Prints a record as delimited separated values | `record.print_tsv()`    |
 | [`print_yaml`](print_yaml)      | Prints a value as a YAML document             | `record.print_yaml()`   |
 
@@ -177,26 +177,26 @@ but often resort to the method style when it is more idiomatic.
 | [`now`](now)                                | Gets the current wallclock time                   | `now()`                               |
 | [`since_epoch`](since_epoch)                | Turns a time into a duration since the Unix epoch | `since_epoch(2021-02-24)`             |
 | [`parse_time`](parse_time)                  | Parses a timestamp following a given format       | `"10/11/2012".parse_time("%d/%m/%Y")` |
-| [`years`](yearsx)                           | Converts a number to equivalent years             | `years(100)`                          |
-| [`months`](monthsx)                         | Converts a number to equivalent months            | `months(100)`                         |
-| [`weeks`](weeksx)                           | Converts a number to equivalent weeks             | `weeks(100)`                          |
-| [`days`](daysx)                             | Converts a number to equivalent days              | `days(100)`                           |
-| [`hours`](hoursx)                           | Converts a number to equivalent hours             | `hours(100)`                          |
-| [`minutes`](minutesx)                       | Converts a number to equivalent minutes           | `minutes(100)`                        |
-| [`seconds`](secondsx)                       | Converts a number to equivalent seconds           | `seconds(100)`                        |
-| [`milliseconds`](millisecondsx)             | Converts a number to equivalent milliseconds      | `milliseconds(100)`                   |
-| [`microseconds`](microsecondsx)             | Converts a number to equivalent microseconds      | `microseconds(100)`                   |
-| [`nanoseconds`](nanosecondsx)               | Converts a number to equivalent nanoseconds       | `nanoseconds(100)`                    |
-| [`count_years`](count_yearsx)               | Counts the number of years in a duration          | `count_years(100d)`                   |
-| [`count_months`](count_monthsx)             | Counts the number of months in a duration         | `count_months(100d)`                  |
-| [`count_weeks`](count_weeksx)               | Counts the number of weeks in a duration          | `count_weeks(100d)`                   |
-| [`count_days`](count_daysx)                 | Counts the number of days in a duration           | `count_days(100d)`                    |
-| [`count_hours`](count_hoursx)               | Counts the number of hours in a duration          | `count_hours(100d)`                   |
-| [`count_minutes`](count_minutesx)           | Counts the number of minutes in a duration        | `count_minutes(100d)`                 |
-| [`count_seconds`](count_secondsx)           | Counts the number of seconds in a duration        | `count_seconds(100d)`                 |
-| [`count_milliseconds`](count_millisecondsx) | Counts the number of milliseconds in a duration   | `count_milliseconds(100d)`            |
-| [`count_microseconds`](count_microsecondsx) | Counts the number of microseconds in a duration   | `count_microseconds(100d)`            |
-| [`count_nanoseconds`](count_nanosecondsx)   | Counts the number of nanoseconds in a duration    | `count_nanoseconds(100d)`             |
+| [`years`](years)                           | Converts a number to equivalent years             | `years(100)`                          |
+| [`months`](months)                         | Converts a number to equivalent months            | `months(100)`                         |
+| [`weeks`](weeks)                           | Converts a number to equivalent weeks             | `weeks(100)`                          |
+| [`days`](days)                             | Converts a number to equivalent days              | `days(100)`                           |
+| [`hours`](hours)                           | Converts a number to equivalent hours             | `hours(100)`                          |
+| [`minutes`](minutes)                       | Converts a number to equivalent minutes           | `minutes(100)`                        |
+| [`seconds`](seconds)                       | Converts a number to equivalent seconds           | `seconds(100)`                        |
+| [`milliseconds`](milliseconds)             | Converts a number to equivalent milliseconds      | `milliseconds(100)`                   |
+| [`microseconds`](microseconds)             | Converts a number to equivalent microseconds      | `microseconds(100)`                   |
+| [`nanoseconds`](nanoseconds)               | Converts a number to equivalent nanoseconds       | `nanoseconds(100)`                    |
+| [`count_years`](count_years)               | Counts the number of years in a duration          | `count_years(100d)`                   |
+| [`count_months`](count_months)             | Counts the number of months in a duration         | `count_months(100d)`                  |
+| [`count_weeks`](count_weeks)               | Counts the number of weeks in a duration          | `count_weeks(100d)`                   |
+| [`count_days`](count_days)                 | Counts the number of days in a duration           | `count_days(100d)`                    |
+| [`count_hours`](count_hours)               | Counts the number of hours in a duration          | `count_hours(100d)`                   |
+| [`count_minutes`](count_minutes)           | Counts the number of minutes in a duration        | `count_minutes(100d)`                 |
+| [`count_seconds`](count_seconds)           | Counts the number of seconds in a duration        | `count_seconds(100d)`                 |
+| [`count_milliseconds`](count_milliseconds) | Counts the number of milliseconds in a duration   | `count_milliseconds(100d)`            |
+| [`count_microseconds`](count_microseconds) | Counts the number of microseconds in a duration   | `count_microseconds(100d)`            |
+| [`count_nanoseconds`](count_nanoseconds)   | Counts the number of nanoseconds in a duration    | `count_nanoseconds(100d)`             |
 
 <!--
 This is hidden because there is an issue with the timezone DB.
