@@ -59,8 +59,7 @@ can find a preview of the new documentation at
 
 - [x] Landing page
 - [x] FAQs
-- [ ] Integrations
-  - [ ] Rewrite Elasticsearch/OpenSearch with Markdoc partials
+- [x] Integrations
 - [x] Explanations
 - [x] Tutorials
 - [x] Guides
