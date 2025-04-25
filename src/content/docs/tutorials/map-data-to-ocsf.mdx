@@ -404,7 +404,7 @@ let $proto_nums = {
 ocsf.connection_info = {
   community_uid: move zeek.community_id?,
   protocol_name: move zeek.proto,
-  protocol_num: $proto_nums[zeek.proto] else -1
+  protocol_num: $proto_nums[zeek.proto]? else -1
 }
 if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
@@ -507,7 +507,7 @@ ocsf.dst_endpoint = {
   port: zeek.id.resp_p,
 }
 ocsf.connection_info = {
-  community_uid: move zeek.?community_id,
+  community_uid: move zeek.community_id?,
   protocol_name: move zeek.proto,
   protocol_num: $proto_nums[zeek.proto]? else -1
 }

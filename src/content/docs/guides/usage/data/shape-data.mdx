@@ -164,6 +164,36 @@ reverse
 {x: 1}
 ```
 
+### Add fields with `set` assignment
+
+Use the [`set`](../../../../reference/operators/set) operator to add new fields
+to the output.
+
+```tql
+from {x: 1},
+     {x: 2}
+set y = x + 1
+```
+
+```tql
+{x: 1, y: 2}
+{x: 2, y: 3}
+```
+
+You can assign a field name name and project at the same time with an assignment
+in [`select`](../../../../reference/operators/select):
+
+```tql
+from {x: 1, y: "foo"},
+     {x: 2, y: "bar"}
+select y=x
+```
+
+```tql
+{y: 1}
+{y: 2}
+```
+
 ### Relocate fields with `move`
 
 Use the `move` operator to combine `set` and `drop`. This pipeline
@@ -226,36 +256,6 @@ which yields:
 {
   qux: 2,
 }
-```
-
-### Add fields with `set` assignment
-
-Use the [`set`](../../../../reference/operators/set) operator to add new fields
-to the output.
-
-```tql
-from {x: 1},
-     {x: 2}
-set y = x + 1
-```
-
-```tql
-{x: 1, y: 2}
-{x: 2, y: 3}
-```
-
-You can assign a field name name and project at the same time with an assignment
-in [`select`](../../../../reference/operators/select):
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"}
-select y=x
-```
-
-```tql
-{y: 1}
-{y: 2}
 ```
 
 ### Aggreate events with `summarize`
