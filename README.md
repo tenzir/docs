@@ -26,6 +26,8 @@ can find a preview of the new documentation at
 - [x] Tweak `index.mdx` title
 - [x] Consider https://github.com/rehypejs/rehype-external-links
 - [ ] Fix Markdoc partial support (https://github.com/withastro/astro/issues/13575)
+- [ ] Use [breadcrumbs](https://docs.astro-breadcrumbs.kasimir.dev/) for
+      functions and operators
 
 ### CI / Automation
 
