@@ -34,6 +34,7 @@ can find a preview of the new documentation at
 - [x] Update `tenzir.yaml.example` via CI
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
+- [ ] Add Markdown linting CI job
 
 ### Style
 
