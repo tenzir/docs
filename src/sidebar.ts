@@ -120,6 +120,7 @@ export const explanations = [
 ];
 
 export const reference = [
+  'reference/operators',
   'reference/functions',
   {
     label: 'Language',
