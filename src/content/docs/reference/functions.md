@@ -43,8 +43,8 @@ but often resort to the method style when it is more idiomatic.
 
 ## Aggregation
 
-| Function                                        | Description                                                  | Example                      |
-| :---------------------------------------------- | :----------------------------------------------------------- | :--------------------------- |
+| Function                           | Description                                                  | Example                      |
+| :--------------------------------- | :----------------------------------------------------------- | :--------------------------- |
 | [`all`](all)                       | Computes the conjunction (AND) of all boolean values         | `all([true,true,false])`     |
 | [`any`](any)                       | Computes the disjunction (OR) of all boolean values          | `any([true,false,true])`     |
 | [`collect`](collect)               | Creates a list of all non-null values, preserving duplicates | `collect([1,2,2,3])`         |
@@ -66,8 +66,8 @@ but often resort to the method style when it is more idiomatic.
 
 ## Record
 
-| Function                      | Description                         | Example                                    |
-| :---------------------------- | :---------------------------------- | :----------------------------------------- |
+| Function         | Description                         | Example                                    |
+| :--------------- | :---------------------------------- | :----------------------------------------- |
 | [`get`](get)     | Accesses a field of a record        | `record.get("field", default)`             |
 | [`has`](has)     | Checks whether a record has a field | `record.has("field")`                      |
 | [`merge`](merge) | Merges two records                  | `merge(foo, bar)`                          |
@@ -75,8 +75,8 @@ but often resort to the method style when it is more idiomatic.
 
 ## List
 
-| Function                                  | Description                                | Example                    |
-| :---------------------------------------- | :----------------------------------------- | :------------------------- |
+| Function                     | Description                                | Example                    |
+| :--------------------------- | :----------------------------------------- | :------------------------- |
 | [`append`](append)           | Inserts an element at the back of a list   | `xs.append(y)`             |
 | [`prepend`](prepend)         | Inserts an element at the front of a list  | `xs.prepend(y)`            |
 | [`concatenate`](concatenate) | Merges two lists                           | `concatenate(xs, ys)`      |
@@ -89,16 +89,16 @@ but often resort to the method style when it is more idiomatic.
 
 ## Subnet
 
-| Function                          | Description                               | Example                |
-| :-------------------------------- | :---------------------------------------- | :--------------------- |
+| Function             | Description                               | Example                |
+| :------------------- | :---------------------------------------- | :--------------------- |
 | [`network`](network) | Retrieves the network address of a subnet | `10.0.0.0/8.network()` |
 
 ## String
 
 ### Inspection
 
-| Function                                    | Description                                               | Example                         |
-| :------------------------------------------ | :-------------------------------------------------------- | :------------------------------ |
+| Function                       | Description                                               | Example                         |
+| :----------------------------- | :-------------------------------------------------------- | :------------------------------ |
 | [`length_bytes`](length_bytes) | Returns the length of a string in bytes                   | `"hello".length_bytes()`        |
 | [`length_chars`](length_chars) | Returns the length of a string in characters              | `"hello".length_chars()`        |
 | [`starts_with`](starts_with)   | Checks if a string starts with a substring                | `"hello".starts_with("he")`     |
@@ -115,8 +115,8 @@ but often resort to the method style when it is more idiomatic.
 
 ### Transformation
 
-| Function                                      | Description                                  | Example                       |
-| :-------------------------------------------- | :------------------------------------------- | :---------------------------- |
+| Function                         | Description                                  | Example                       |
+| :------------------------------- | :------------------------------------------- | :---------------------------- |
 | [`trim`](trim)                   | Trims whitespace from both ends of a string  | `" hello ".trim()`            |
 | [`trim_start`](trim_start)       | Trims whitespace from the start of a string  | `" hello".trim_start()`       |
 | [`trim_end`](trim_end)           | Trims whitespace from the end of a string    | `"hello ".trim_end()`         |
@@ -133,16 +133,16 @@ but often resort to the method style when it is more idiomatic.
 
 ### Filesystem
 
-| Function                                      | Description                                    | Example                           |
-| :-------------------------------------------- | :--------------------------------------------- | :-------------------------------- |
+| Function                         | Description                                    | Example                           |
+| :------------------------------- | :--------------------------------------------- | :-------------------------------- |
 | [`file_contents`](file_contents) | Reads a file's contents                        | `file_contents("/path/to/file")`  |
 | [`file_name`](file_name)         | Extracts the file name from a file path        | `file_name("/path/to/log.json")`  |
 | [`parent_dir`](parent_dir)       | Extracts the parent directory from a file path | `parent_dir("/path/to/log.json")` |
 
 ## Parsing
 
-| Function                                     | Description                              | Example                                            |
-| :------------------------------------------- | :--------------------------------------- | :------------------------------------------------- |
+| Function                       | Description                              | Example                                            |
+| :----------------------------- | :--------------------------------------- | :------------------------------------------------- |
 | [`parse_cef`](parse_cef)       | Parses a string as a CEF message         | `string.parse_cef()`                               |
 | [`parse_csv`](parse_csv)       | Parses a string as CSV                   | `string.parse_csv(header=["a","b"])`               |
 | [`parse_grok`](parse_grok)     | Parses a string following a grok pattern | `string.parse_grok("%{IP:client} …")`              |
@@ -157,26 +157,26 @@ but often resort to the method style when it is more idiomatic.
 
 ## Printing
 
-| Function                                     | Description                                   | Example                 |
-| :------------------------------------------- | :-------------------------------------------- | :---------------------- |
+| Function                       | Description                                   | Example                 |
+| :----------------------------- | :-------------------------------------------- | :---------------------- |
 | [`print_csv`](print_csv)       | Prints a record as comma separated values     | `record.print_csv()`    |
-| [`print_kv`](print_kv)          | Prints a record as Key-Value pairs            | `record.print_kv()`     |
+| [`print_kv`](print_kv)         | Prints a record as Key-Value pairs            | `record.print_kv()`     |
 | [`print_json`](print_json)     | Prints a record as a JSON string              | `record.print_json()`   |
 | [`print_ndjson`](print_ndjson) | Prints a record as NDJSON string              | `record.print_ndjson()` |
 | [`print_ssv`](print_ssv)       | Prints a record as space separated values     | `record.print_ssv()`    |
 | [`print_tsv`](print_tsv)       | Prints a record as tab separated values       | `record.print_tsv()`    |
-| [`print_xsv`](print_xsv)        | Prints a record as delimited separated values | `record.print_tsv()`    |
-| [`print_yaml`](print_yaml)      | Prints a value as a YAML document             | `record.print_yaml()`   |
+| [`print_xsv`](print_xsv)       | Prints a record as delimited separated values | `record.print_tsv()`    |
+| [`print_yaml`](print_yaml)     | Prints a value as a YAML document             | `record.print_yaml()`   |
 
 ## Time & Date
 
-| Function                                                 | Description                                       | Example                               |
-| :------------------------------------------------------- | :------------------------------------------------ | :------------------------------------ |
-| [`as_secs`](as_secs)                        | Converts a duration into seconds                  | `as_secs(42ms)`                       |
-| [`from_epoch`](from_epoch)                  | Interprets a duration as Unix time                | `from_epoch(time_ms * 1ms)`           |
-| [`now`](now)                                | Gets the current wallclock time                   | `now()`                               |
-| [`since_epoch`](since_epoch)                | Turns a time into a duration since the Unix epoch | `since_epoch(2021-02-24)`             |
-| [`parse_time`](parse_time)                  | Parses a timestamp following a given format       | `"10/11/2012".parse_time("%d/%m/%Y")` |
+| Function                                   | Description                                       | Example                               |
+| :----------------------------------------- | :------------------------------------------------ | :------------------------------------ |
+| [`as_secs`](as_secs)                       | Converts a duration into seconds                  | `as_secs(42ms)`                       |
+| [`from_epoch`](from_epoch)                 | Interprets a duration as Unix time                | `from_epoch(time_ms * 1ms)`           |
+| [`now`](now)                               | Gets the current wallclock time                   | `now()`                               |
+| [`since_epoch`](since_epoch)               | Turns a time into a duration since the Unix epoch | `since_epoch(2021-02-24)`             |
+| [`parse_time`](parse_time)                 | Parses a timestamp following a given format       | `"10/11/2012".parse_time("%d/%m/%Y")` |
 | [`years`](years)                           | Converts a number to equivalent years             | `years(100)`                          |
 | [`months`](months)                         | Converts a number to equivalent months            | `months(100)`                         |
 | [`weeks`](weeks)                           | Converts a number to equivalent weeks             | `weeks(100)`                          |
@@ -218,8 +218,8 @@ This is hidden because there is an issue with the timezone DB.
 
 ## Math
 
-| Function                        | Description                | Example                        |
-| :------------------------------ | :------------------------- | :----------------------------- |
+| Function           | Description                | Example                        |
+| :----------------- | :------------------------- | :----------------------------- |
 | [`ceil`](ceil)     | Takes the ceiling          | `ceil(4.2)`, `ceil(3.2s, 1m)`  |
 | [`floor`](floor)   | Takes the floor            | `floor(4.2)`, `floor(32h, 1d)` |
 | [`random`](random) | Generates a random number  | `random()`                     |
@@ -228,8 +228,8 @@ This is hidden because there is an issue with the timezone DB.
 
 ## Networking
 
-| Function                                              | Description                 | Example                                                     |
-| :---------------------------------------------------- | :-------------------------- | :---------------------------------------------------------- |
+| Function                                 | Description                 | Example                                                     |
+| :--------------------------------------- | :-------------------------- | :---------------------------------------------------------- |
 | [`community_id`](community_id)           | Computes a Community ID     | `community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")` |
 | [`decapsulate`](decapsulate)             | Decapsulates PCAP packets   | `decapsulate(this)`                                         |
 | [`encrypt_cryptopan`](encrypt_cryptopan) | Encrypts IPs via Crypto-PAn | `encrypt_cryptopan(1.2.3.4)`                                |
@@ -238,8 +238,8 @@ This is hidden because there is an issue with the timezone DB.
 
 ## Hashing
 
-| Function                                  | Description                   | Example              |
-| :---------------------------------------- | :---------------------------- | :------------------- |
+| Function                     | Description                   | Example              |
+| :--------------------------- | :---------------------------- | :------------------- |
 | [`hash_md5`](hash_md5)       | Computes a MD5 hash digest    | `hash_md5("foo")`    |
 | [`hash_sha1`](hash_sha1)     | Computes a SHA1 hash digest   | `hash_sha1("foo")`   |
 | [`hash_sha224`](hash_sha224) | Computes a SHA224 hash digest | `hash_sha224("foo")` |
@@ -250,8 +250,8 @@ This is hidden because there is an issue with the timezone DB.
 
 ## Bit Operations
 
-| Function                                  | Description                                | Example                 |
-| :---------------------------------------- | :----------------------------------------- | :---------------------- |
+| Function                     | Description                                | Example                 |
+| :--------------------------- | :----------------------------------------- | :---------------------- |
 | [`bit_and`](bit_and)         | Computes the bit-wise AND of its arguments | `bit_and(lhs, rhs)`     |
 | [`bit_not`](bit_not)         | Computes the bit-wise NOT of its argument  | `bit_not(x)`            |
 | [`bit_or`](bit_or)           | Computes the bit-wise OR of its arguments  | `bit_or(lhs, rhs)`      |
@@ -261,15 +261,15 @@ This is hidden because there is an issue with the timezone DB.
 
 ## Encoding
 
-| function                                      | description                                       | example                   |
-| :-------------------------------------------- | :------------------------------------------------ | :------------------------ |
+| Function                         | Description                                       | Example                   |
+| :------------------------------- | :------------------------------------------------ | :------------------------ |
 | [`encode_base64`](encode_base64) | Encodes bytes as Base64                           | `encode_base64("Tenzir")` |
 | [`encode_hex`](encode_hex)       | Encodes bytes as their hexadecimal representation | `encode_hex("Tenzir")`    |
 
 ## Decoding
 
-| function                                      | description                                         | example                     |
-| :-------------------------------------------- | :-------------------------------------------------- | :-------------------------- |
+| Function                         | Description                                         | Example                     |
+| :------------------------------- | :-------------------------------------------------- | :-------------------------- |
 | [`decode_base64`](decode_base64) | Decodes bytes as Base64                             | `decode_base64("VGVuemly")` |
 | [`decode_hex`](decode_hex)       | Decodes bytes from their hexadecimal representation | `decode_hex("4e6f6E6365")`  |
 
@@ -277,15 +277,15 @@ This is hidden because there is an issue with the timezone DB.
 
 ### Introspection
 
-| Function                          | Description                                    | Example            |
-| :-------------------------------- | :--------------------------------------------- | :----------------- |
+| Function             | Description                                    | Example            |
+| :------------------- | :--------------------------------------------- | :----------------- |
 | [`type_id`](type_id) | Retrieves the type id of an expression         | `type_id(1 + 3.2)` |
 | [`type_of`](type_of) | Retrieves the type definition of an expression | `type_of(this)`    |
 
 ### Conversion
 
-| Function                            | Description                                | Example                |
-| :---------------------------------- | :----------------------------------------- | :--------------------- |
+| Function               | Description                                | Example                |
+| :--------------------- | :----------------------------------------- | :--------------------- |
 | [`int`](int)           | Casts an expression to a signed integer    | `int(-4.2)`            |
 | [`uint`](uint)         | Casts an expression to an unsigned integer | `uint(4.2)`            |
 | [`float`](float)       | Casts an expression to a float             | `float(42)`            |
@@ -297,15 +297,15 @@ This is hidden because there is an issue with the timezone DB.
 
 ### Transposition
 
-| Function                              | Description                  | Example           |
-| :------------------------------------ | :--------------------------- | :---------------- |
+| Function                 | Description                  | Example           |
+| :----------------------- | :--------------------------- | :---------------- |
 | [`flatten`](flatten)     | Flattens nested data         | `flatten(this)`   |
 | [`unflatten`](unflatten) | Unflattens nested structures | `unflatten(this)` |
 
 ## Runtime
 
 | Function                        | Description                   | Example          |
-| :------------------------------ | :---------------------------- | :--------------- |
+| :----------------- | :---------------------------- | :--------------- |
 | [`config`](config) | Reads the configuration file  | `config()`       |
 | [`env`](env)       | Reads an environment variable | `env("PATH")`    |
 | [`secret`](secret) | Reads a secret from a store   | `secret("KEY")`  |
