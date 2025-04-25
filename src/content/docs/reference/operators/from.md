@@ -69,7 +69,7 @@ connector attempts to load from the filesystem.
 ### Decompressing
 
 The compression is inferred from the "file-ending" in the URI. Under the hood,
-this uses the [`decompress_*` operators](../operators.md#encode--decode).
+this uses the [`decompress_*` operators](../operators#encode--decode).
 Supported compressions can be found in the [list of compression
 extensions](#compression).
 
@@ -82,7 +82,7 @@ the decompression manually.
 
 The format to read is, just as the compression, inferred from the file-ending.
 Supported file formats are the common file endings for our [`read_*`
-operators](operators.md#parsing).
+operators](../operators#parsing).
 
 If you want to provide additional arguments to the parser, you can use the
 [pipeline argument](#---optional) to specify the parsing manually. This can be

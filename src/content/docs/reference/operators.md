@@ -67,7 +67,7 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | :------------------------------------ | :------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
 | [`from`](from)                        | Reads events from an URI<br/>Creates events from records | `from "http://example.org/file.csv.gz"`<br/>`from {key: "value"}…` <!--at the top because its important--> |
 | [`from_http`](from_http)              | Accepts or sends HTTP/1.1 requests                       | `from_http "0.0.0.0:8080`                                                                                  |
-| [`from_fluent_bit`](from_fluent_bitx) | Returns results from Fluent Bit                          | `from_fluent_bit "opentelemetry"`                                                                          |
+| [`from_fluent_bit`](from_fluent_bit) | Returns results from Fluent Bit                          | `from_fluent_bit "opentelemetry"`                                                                          |
 | [`from_opensearch`](from_opensearch)  | Accepts requests for OpenSearch Bulk API                 | `from_opensearch`                                                                                          |
 | [`from_velocira…`](from_velociraptor) | Returns results from a Velociraptor server               | `from_velociraptor subscribe="Windows"`                                                                    |
 
@@ -78,16 +78,16 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | [`load_amqp`](load_amqp)                      | Loads bytes from an AMQP server                | `load_amqp`                              |
 | [`load_azure_blob…`](load_azure_blob_storage) | Load bytes from an Azure Blob Storage          | `load_azure_blob_storage "abfs://…`      |
 | [`load_file`](load_file)                      | Loads bytes from a file                        | `load_file "/tmp/data.json"`             |
-| [`load_ftp`](load_ftpx)                       | Loads bytes via FTP                            | `load_ftp "ftp.example.org"`             |
+| [`load_ftp`](load_ftp)                        | Loads bytes via FTP                            | `load_ftp "ftp.example.org"`             |
 | [`load_google_c…`](load_google_cloud_pubsub)  | Listen to a Google Cloud Pub/Sub subscription  | `load_google_cloud_pubsub project_id=…`  |
 | [`load_gcs`](load_gcs)                        | Loads bytes from a Google Cloud Storage object | `load_gcs "gs://bucket/object.json"`     |
-| [`load_http`](load_httpx)                     | Receives bytes from a HTTP request             | `load_http "example.org", params={n: 5}` |
+| [`load_http`](load_http)                      | Receives bytes from a HTTP request             | `load_http "example.org", params={n: 5}` |
 | [`load_kafka`](load_kafka)                    | Receives bytes from an Apache Kafka topic      | `load_kafka topic="example"`             |
 | [`load_nic`](load_nic)                        | Receives bytes from a Network Interface Card   | `load_nic "eth0"`                        |
 | [`load_s3`](load_s3)                          | Receives bytes from an Amazon S3 object        | `load_s3 "s3://my-bucket/obj.csv"`       |
 | [`load_stdin`](load_stdin)                    | Receives bytes standard input                  | `load_stdin`                             |
 | [`load_sqs`](load_sqs)                        | Receives bytes from an Amazon SQS queue        | `load_sqs "sqs://tenzir"`                |
-| [`load_tcp`](load_tcpx)                       | Loads bytes from a TCP or TLS connection       | `load_tcp "0.0.0.0:8090" { read_json }`  |
+| [`load_tcp`](load_tcp)                        | Loads bytes from a TCP or TLS connection       | `load_tcp "0.0.0.0:8090" { read_json }`  |
 | [`load_udp`](load_udp)                        | Loads bytes from a UDP socket                  | `load_udp "0.0.0.0:8090"`                |
 | [`load_zmq`](load_zmq)                        | Receives bytes from ZeroMQ messages            | `load_zmq`                               |
 
@@ -100,14 +100,14 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | [`to`](to)                                    | Writes events to an URI                          | `to "s3://examplebucket/obj.json.gz"` <!--at the top because its important--> |
 | [`to_asl`](to_asl)                            | Sends OCSF events to an Amazon Security Lake     | `to_asl "s3://…"`                                                             |
 | [`to_azure_log_ana…`](to_azure_log_analytics) | Sends events to Azure Log Analytics              | `to_azure_log_analytics tenant_id=…`                                          |
-| [`to_clickhouse`](to_clickhousex)             | Sends events to a ClickHouse Table               | `to_clickhouse table="my_table"`                                              |
-| [`to_fluent_bit`](to_fluent_bitx)             | Sends events to Fluent Bit                       | `to_fluent_bit "elasticsearch" …`                                             |
+| [`to_clickhouse`](to_clickhouse)              | Sends events to a ClickHouse Table               | `to_clickhouse table="my_table"`                                              |
+| [`to_fluent_bit`](to_fluent_bit)              | Sends events to Fluent Bit                       | `to_fluent_bit "elasticsearch" …`                                             |
 | [`to_google_secops`](to_google_secops)        | Sends events to Google SecOps                    | `to_google_secops …`                                                          |
 | [`to_google_cloud_logging`](to_google_cloud_logging) | Sends events to Google Cloud Logging      | `to_google_cloud_logging …`                                                   |
 | [`to_hive`](to_hive)                          | Writes events using hive partitioning            | `to_hive "s3://…", partition_by=[x]`                                          |
-| [`to_opensearch`](to_opensearchx)             | Sends incoming events to the OpenSearch Bulk API | `to_opensearch 'localhost:9200", …`                                           |
+| [`to_opensearch`](to_opensearch)              | Sends incoming events to the OpenSearch Bulk API | `to_opensearch 'localhost:9200", …`                                           |
 | [`to_snowflake`](to_snowflake)                | Sends incoming events to a Snowflake database    | `to_snowflake account_identifier="…`                                          |
-| [`to_splunk`](to_splunkx)                     | Sends incoming events to a Splunk HEC            | `to_splunk "localhost:8088", …`                                               |
+| [`to_splunk`](to_splunk)                      | Sends incoming events to a Splunk HEC            | `to_splunk "localhost:8088", …`                                               |
 
 #### Bytes
 
@@ -115,45 +115,45 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | :----------------------------------------------- | :---------------------------------------------- | :----------------------------------- |
 | [`save_amqp`](save_amqp)                         | Saves incoming bytes to an AMQP server          | `save_amqp`                          |
 | [`save_azure_blob…`](save_azure_blob_storage)    | Saves to an Azure Blob Storage                  | `save_azure_blob_storage "abfs://…`  |
-| [`save_email`](save_emailx)                      | Saves incoming bytes through an SMTP server     | `save_email "user@example.org"`      |
+| [`save_email`](save_email)                       | Saves incoming bytes through an SMTP server     | `save_email "user@example.org"`      |
 | [`save_file`](save_file)                         | Saves incoming bytes into a file                | `save_file "/tmp/out.json"`          |
-| [`save_ftp`](save_ftpx)                          | Saves incoming bytes via FTP                    | `save_ftp "ftp.example.org"`         |
+| [`save_ftp`](save_ftp)                           | Saves incoming bytes via FTP                    | `save_ftp "ftp.example.org"`         |
 | [`save_google_cloud…`](save_google_cloud_pubsub) | Publishes to a Google Cloud Pub/Sub topic       | `save_google_cloud_pubsub project…`  |
 | [`save_gcs`](save_gcs)                           | Saves bytes to a Google Cloud Storage object    | `save_gcs "gs://bucket/object.json"` |
-| [`save_http`](save_httpx)                        | Sends incoming bytes over a HTTP connection     | `save_http "example.org/api"`        |
+| [`save_http`](save_http)                         | Sends incoming bytes over a HTTP connection     | `save_http "example.org/api"`        |
 | [`save_kafka`](save_kafka)                       | Saves incoming bytes to an Apache Kafka topic   | `save_kafka topic="example"`         |
 | [`save_s3`](save_s3)                             | Saves incoming bytes to an Amazon S3 object     | `save_s3 "s3://my-bucket/obj.csv"`   |
 | [`save_stdout`](save_stdout)                     | Saves incoming bytes to standard output         | `save_stdout`                        |
 | [`save_sqs`](save_sqs)                           | Saves incoming bytes to an Amazon SQS queue     | `save_sqs "sqs://tenzir"`            |
-| [`save_tcp`](save_tcpx)                          | Saves incoming bytes to a TCP or TLS connection | `save_tcp "0.0.0.0:8090", tls=true`  |
+| [`save_tcp`](save_tcp)                           | Saves incoming bytes to a TCP or TLS connection | `save_tcp "0.0.0.0:8090", tls=true`  |
 | [`save_udp`](save_udp)                           | Saves incoming bytes to a UDP socket            | `save_udp "0.0.0.0:8090"`            |
 | [`save_zmq`](save_zmq)                           | Saves incoming bytes to ZeroMQ messages         | `save_zmq`                           |
 
 ## Parsing
 
-| Operator                            | Description                               | Example                                   |
-| :---------------------------------- | :---------------------------------------- | :---------------------------------------- |
-| [`read_bitz`](read_bitz)            | Parses Tenzir's internal wire format      | `read_bitz`                               |
-| [`read_cef`](read_cefx)             | Parses the Common Event Format            | `read_cef`                                |
-| [`read_csv`](read_csvx)             | Parses comma-separated values             | `read_csv null_value="-"`                 |
-| [`read_feather`](read_feather)      | Parses Feather format                     | `read_feather`                            |
-| [`read_gelf`](read_gelfx)           | Parses the Graylog Extended Log Format    | `read_gelf`                               |
-| [`read_grok`](read_grokx)           | Parses events using a Grok pattern        | `read_grok "%{IP:client} %{WORD:action}"` |
-| [`read_json`](read_jsonx)           | Parses JSON objects                       | `read_json arrays_of_objects=true`        |
-| [`read_kv`](read_kvx)               | Parses key-value pairs                    | `read_kv r"(\s+)[A-Z_]+:", r":\s*"`       |
-| [`read_leef`](read_leefx)           | Parses the Log Event Extended Format      | `read_leef`                               |
-| [`read_lines`](read_lines)          | Parses each line into a separate event    | `read_lines`                              |
-| [`read_ndjson`](read_ndjsonx)       | Parses newline-delimited JSON             | `read_ndjson`                             |
-| [`read_pcap`](read_pcap)            | Parses raw network packets in PCAP format | `read_pcap`                               |
-| [`read_parquet`](read_parquet)      | Parses Parquet format                     | `read_parquet`                            |
-| [`read_ssv`](read_ssvx)             | Parses space-separated values             | `read_ssv header="name count"`            |
-| [`read_suricata`](read_suricatax)   | Parses Suricata's Eve format              | `read_suricata`                           |
-| [`read_syslog`](read_syslogx)       | Parses syslog                             | `read_syslog`                             |
-| [`read_tsv`](read_tsvx)             | Parses tab-separated values               | `read_tsv auto_expand=true`               |
-| [`read_xsv`](read_xsvx)             | Parses custom-separated values            | `read_xsv ";", ":", "N/A"`                |
-| [`read_yaml`](read_yamlx)           | Parses YAML                               | `read_yaml`                               |
-| [`read_zeek_json`](read_zeek_jsonx) | Parses Zeek JSON                          | `read_zeek_json`                          |
-| [`read_zeek_tsv`](read_zeek_tsv)    | Parses Zeek TSV                           | `read_zeek_tsv`                           |
+| Operator                           | Description                               | Example                                   |
+| :--------------------------------- | :---------------------------------------- | :---------------------------------------- |
+| [`read_bitz`](read_bitz)           | Parses Tenzir's internal wire format      | `read_bitz`                               |
+| [`read_cef`](read_cef)             | Parses the Common Event Format            | `read_cef`                                |
+| [`read_csv`](read_csv)             | Parses comma-separated values             | `read_csv null_value="-"`                 |
+| [`read_feather`](read_feather)     | Parses Feather format                     | `read_feather`                            |
+| [`read_gelf`](read_gelf)           | Parses the Graylog Extended Log Format    | `read_gelf`                               |
+| [`read_grok`](read_grok)           | Parses events using a Grok pattern        | `read_grok "%{IP:client} %{WORD:action}"` |
+| [`read_json`](read_json)           | Parses JSON objects                       | `read_json arrays_of_objects=true`        |
+| [`read_kv`](read_kv)               | Parses key-value pairs                    | `read_kv r"(\s+)[A-Z_]+:", r":\s*"`       |
+| [`read_leef`](read_leef)           | Parses the Log Event Extended Format      | `read_leef`                               |
+| [`read_lines`](read_lines)         | Parses each line into a separate event    | `read_lines`                              |
+| [`read_ndjson`](read_ndjson)       | Parses newline-delimited JSON             | `read_ndjson`                             |
+| [`read_pcap`](read_pcap)           | Parses raw network packets in PCAP format | `read_pcap`                               |
+| [`read_parquet`](read_parquet)     | Parses Parquet format                     | `read_parquet`                            |
+| [`read_ssv`](read_ssv)             | Parses space-separated values             | `read_ssv header="name count"`            |
+| [`read_suricata`](read_suricata)   | Parses Suricata's Eve format              | `read_suricata`                           |
+| [`read_syslog`](read_syslog)       | Parses syslog                             | `read_syslog`                             |
+| [`read_tsv`](read_tsv)             | Parses tab-separated values               | `read_tsv auto_expand=true`               |
+| [`read_xsv`](read_xsv)             | Parses custom-separated values            | `read_xsv ";", ":", "N/A"`                |
+| [`read_yaml`](read_yaml)           | Parses YAML                               | `read_yaml`                               |
+| [`read_zeek_json`](read_zeek_json) | Parses Zeek JSON                          | `read_zeek_json`                          |
+| [`read_zeek_tsv`](read_zeek_tsv)   | Parses Zeek TSV                           | `read_zeek_tsv`                           |
 
 ## Printing
 

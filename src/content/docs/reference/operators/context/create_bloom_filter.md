@@ -11,16 +11,16 @@ context::create_bloom_filter name:string, capacity=int, fp_probability=float
 ## Description
 
 The `context::create_bloom_filter` operator constructs a new context of type
-[Bloom filter](../../../enrichment/README.md#bloom-filter).
+[Bloom filter](../../../explanations/enrichment#bloom-filter).
 
-To find suitable values for the capacity and false-positive probability, Consult
+To find suitable values for the capacity and false-positive probability, consult
 Thomas Hurst's [Bloom Filter Calculator](https://hur.st/bloomfilter/). The
-parameter `p` corresponds to `capacity` and `p` to `fp_probability`.
+parameter `n` corresponds to `capacity` and `p` to `fp_probability`.
 
 You can also create a Bloom filter context as code by adding it to
 `tenzir.contexts` in your `tenzir.yaml`:
 
-```yaml {0} title="<prefix>/etc/tenzir/tenzir.yaml"
+```yaml title="<prefix>/etc/tenzir/tenzir.yaml"
 tenzir:
   contexts:
     my-iocs:

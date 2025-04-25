@@ -11,7 +11,7 @@ context::create_geoip name:string, [db_path=string]
 ## Description
 
 The `context::create_geoip` operator constructs a new context of type
-[GeoIP](../../../enrichment/README.md#geoip).
+[GeoIP](../../../explanations/enrichment#geoip-database).
 
 You must either provide a database with the `db_path` argument or use
 [`context::load`](load) to populate the context after creation.
@@ -19,7 +19,7 @@ You must either provide a database with the `db_path` argument or use
 You can also create a GeoIP context as code by adding it to `tenzir.contexts` in
 your `tenzir.yaml`:
 
-```yaml {0} title="<prefix>/etc/tenzir/tenzir.yaml"
+```yaml title="<prefix>/etc/tenzir/tenzir.yaml"
 tenzir:
   contexts:
     my-geoips:

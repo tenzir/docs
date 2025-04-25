@@ -17,11 +17,6 @@ The implementation uses the official [librdkafka][librdkafka] from Confluent and
 supports all [configuration options][librdkafka-options]. You can specify them
 via `options` parameter as `{key: value, ...}`.
 
-We recommend putting your Kafka options into the dedicated `kafka.yaml` [plugin
-config file](../../configuration.md#load-plugins). This way you can configure
-your all your environment-specific options once, independent of the
-per-connector invocations.
-
 [librdkafka]: https://github.com/confluentinc/librdkafka
 [librdkafka-options]: https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md
 

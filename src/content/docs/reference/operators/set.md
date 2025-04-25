@@ -24,8 +24,8 @@ The `set` operator is implied whenever a direct assignment is written. We
 recommend to use the implicit version. For example, use `test = 42` instead of
 `set test=42`.
 
-A more detailed description of assignments can be found
-[here](../language/statements.md#assignment).
+Read our [language reference](../language/statements#assignment) for a more
+detailed description.
 :::
 
 ## Examples
