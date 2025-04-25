@@ -1,0 +1,21 @@
+---
+title: Cloud Logging
+---
+
+[Google Cloud Logging](https://cloud.google.com/logging) is Google's log
+management solution. Tenzir can send events to Google Cloud Logging.
+
+![Google Cloud Logging](cloud-logging.svg)
+
+## Examples
+
+### Send an event to Google Cloud Logging
+
+```tql
+from {log: "31-Mar-2025 01:35:02.187 client 0.0.0.0#4238: query: tenzir.com IN A + (255.255.255.255)"}
+to_google_cloud_logging payload=log_text,
+      name="projects/PROJECT_ID/logs/LOG_ID",
+      resource=resource,
+      service_credentials=file_contents("/path/to/credentials.json")
+
+```

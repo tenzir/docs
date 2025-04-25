@@ -155,6 +155,7 @@ export const integrations = [
       {
         label: 'Google',
         items: [
+          'integrations/google/cloud-logging',
           'integrations/google/cloud-storage',
           'integrations/google/pubsub',
           'integrations/google/secops',
