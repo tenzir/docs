@@ -260,8 +260,7 @@ this = { zeek: this }
 ocsf.activity_id: activity_id,
 ...
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts // <--------------- drop fields immediately after mapping
+move ocsf.time = zeek.ts // <--- remove source field while mapping
 ...
 // === Context ===
 ocsf.metadata = {
@@ -274,7 +273,7 @@ ocsf.src_endpoint = {
   port: zeek.id.orig_p,
   ...
 }
-drop zeek.id
+drop zeek.id // <--- remove source field after mapping
 
 // (3) Make all nested fields in the `ocsf` record the new top-level, and keep
 // all unmapped fields in the `unmapped` attribute.
@@ -295,9 +294,9 @@ Let's unpack this:
    new fields in the next steps. Because we are mapping Zeek logs, we chose a
    matching record name to make the subsequent mappings almost self-explanatory.
 2. The main work takes place here. Our approach is structured: for every field
-   in the source event, (1) map it, and (2) remove it (via `drop`). For better
-   categorization of the entire OCSF mapping, we group the mappings by OCSF
-   attribute group.
+   in the source event, (1) map it, and (2) remove it (via `drop`). Or do (1)
+   and (2) together via `move`. For better categorization of the entire OCSF
+   mapping, we group the mappings by OCSF attribute group.
 3. The assignment `this = {...ocsf, unmapped: zeek}` means that we move all
    fields from the `ocsf` record into the top-level record (`this`), and at the
    same time add a new field `unmapped` that contains everything that we didn't
@@ -337,10 +336,8 @@ Let's tackle the next group: Occurrence. These attributes are all about time.
 
 ```tql
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts
-ocsf.duration = zeek.duration
-drop zeek.duration
+move ocsf.time = zeek.ts
+move ocsf.duration = zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 ```
@@ -358,19 +355,29 @@ The Context attributes provide enhancing information. Most notably, the
 // === Context ===
 ocsf.metadata = {
   log_name: "conn.log",
-  logged_time: zeek._write_ts,
+  logged_time: move zeek.?_write_ts,
   product: {
     name: "Zeek",
     vendor_name: "Zeek",
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
-  uid: zeek.uid,
+  uid: move zeek.uid,
   version: "1.4.0",
 }
-drop zeek._path, zeek._write_ts, zeek.uid
-ocsf.app_name = zeek.service
-drop zeek.service
+drop zeek.?_path // implied in metadata.log_name
+move ocsf.app_name = zeek.service
 ```
+
+A few noteworthy things:
+
+- We use `.?` for the field access `zeek.?_write_ts` because not all Zeek logs
+  have the `_write_ts` field. If we just used `.` then the absence of
+  `_write_ts` would emit a warning.
+- We use the `move` key word during record assignment, e.g., `uid: move
+  zeek.uid`. The consequence is that `zeek.uid` is gone after the assignment.
+- We use the `move` operator outside of record expressions, e.g., `move
+  ocsf.app_name = zeek.service`. Think of `move x=y` as the equivalent to `set
+  x=y | drop y`. It allows for more concise relocation of fields.
 
 #### Primary Attributes
 
@@ -396,9 +403,9 @@ let $proto_nums = {
   ipv6: 41,
 }
 ocsf.connection_info = {
-  community_uid: zeek.community_id,
-  protocol_name: zeek.proto,
-  protocol_num: $proto_nums[zeek.proto].otherwise(-1),
+  community_uid: move zeek.?community_id,
+  protocol_name: move zeek.proto,
+  protocol_num: $proto_nums.get(zeek.proto, -1),
 }
 if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
@@ -419,10 +426,9 @@ if zeek.local_orig and zeek.local_resp {
   ocsf.connection_info.direction = "Unknown"
   ocsf.connection_info.direction_id = 0
 }
-drop zeek.community_id, zeek.proto, zeek.local_orig, zeek.local_resp,
+drop zeek.local_orig, zeek.local_resp
 ocsf.status = "Other"
-ocsf.status_code = zeek.conn_state
-drop zeek.conn_state
+move ocsf.status_code = zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,
@@ -437,10 +443,11 @@ drop zeek.resp_bytes, zeek.orig_bytes, zeek.resp_pkts, zeek.orig_pkts
 
 There's a lot more going on here:
 
-- The expression `$proto_nums[zeek.proto].otherwise(-1)` takes the value of the
+- The expression `$proto_nums.get(zeek.proto, -1)` takes the value of Zeek's
   `proto` field (e.g., `tcp`) and uses it as index into a static record
-  `$proto_nums`. Since we encounter weird values that we didn't account for, the
-  `otherwise(-1)` makes sure we always fall back to something OCSF-compliant.
+  `$proto_nums`. The `get` function has a second argument that represents the
+  value in case the lookup fails. Use `get` in this way when you want to avoid
+  generating warnings when a field does not exist.
 - To check whether we have an IPv4 or an IPv6 connection, we call
   `zeek.id.orig_h.is_v6()` on the IPs of the connection record. TQL comes with
   numerous [functions](../../tql2/functions.md) that make mapping a breeze.
@@ -475,27 +482,23 @@ ocsf.severity_id = 1
 ocsf.severity = "Informational"
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 // === Occurrence ===
-ocsf.time = zeek.ts
-drop zeek.ts
-ocsf.duration = zeek.duration
-drop zeek.duration
+move ocsf.time = zeek.ts
+move ocsf.duration = zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 // === Context ===
 ocsf.metadata = {
   log_name: "conn.log",
-  logged_time: zeek._write_ts,
+  logged_time: move zeek.?_write_ts,
   product: {
     name: "Zeek",
     vendor_name: "Zeek",
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
-  uid: zeek.uid,
+  uid: move zeek.uid,
   version: "1.4.0",
 }
-drop zeek._write_ts, zeek.uid
-ocsf.app_name = zeek.service
-drop zeek.service
+move ocsf.app_name = zeek.service
 // === Primary ===
 ocsf.src_endpoint = {
   ip: zeek.id.orig_h,
@@ -506,9 +509,9 @@ ocsf.dst_endpoint = {
   port: zeek.id.resp_p,
 }
 ocsf.connection_info = {
-  community_uid: zeek.community_id,
+  community_uid: move zeek.?community_id,
   protocol_name: zeek.proto,
-  protocol_num: $proto_nums[zeek.proto].otherwise(-1),
+  protocol_num: $proto_nums.get(zeek.proto, -1)
 }
 if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
@@ -529,10 +532,9 @@ if zeek.local_orig and zeek.local_resp {
   ocsf.connection_info.direction = "Unknown"
   ocsf.connection_info.direction_id = 0
 }
-drop zeek.community_id, zeek.proto, zeek.local_orig, zeek.local_resp
+drop zeek.proto, zeek.local_orig, zeek.local_resp
 ocsf.status = "Other"
-ocsf.status_code = zeek.conn_state
-drop zeek.conn_state
+move ocsf.status_code = zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,

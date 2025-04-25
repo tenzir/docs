@@ -146,6 +146,87 @@ taste 1
 {y: "foo"}
 ```
 
+### Invert event ordering with `reverse`
+
+Use `reverse` to invert the order of a stream of events:
+
+```tql
+from {x: 1},
+     {x: 2},
+     {x: 3}
+reverse
+```
+
+```tql
+{x: 3}
+{x: 2}
+{x: 1}
+```
+
+### Relocate fields with `move`
+
+Use the `move` operator to combine `set` and `drop`. This pipeline
+
+```tql
+from {old: 42}
+move new = old
+```
+
+produces the same output as this one:
+
+```tql
+from {old: 42}
+set new = old
+drop old
+```
+
+```tql
+{new: 42}
+```
+
+Moving multiple fields is also possible. The pipeline
+
+```tql
+from {foo: 1, bar: 2}
+move foo=bar, qux=foo
+```
+
+is equivalent to
+
+```tql
+from {foo: 1, bar: 2}
+set foo=bar, qux=foo
+drop bar, foo
+```
+
+and produces:
+
+```tql
+{
+  foo: 2,
+  qux: 1,
+}
+```
+
+However, it is not equivalent to the following pipeline containing single
+assignments:
+
+```tql
+from {foo: 1, bar: 2}
+set foo=bar
+drop bar
+set qux=foo
+drop foo
+```
+
+which yields:
+
+```tql
+{
+  qux: 2,
+}
+```
+
 ### Add and rename fields with `set` assignment
 
 Use the [`set`](../../tql2/operators/set.md) operator to add new fields to the
@@ -182,7 +263,7 @@ Similarly, you can rename and project at the same time with
 
 ```tql
 from {x: 1, y: "foo"},
-    {x: 2, y: "bar"}
+     {x: 2, y: "bar"}
 select y=x
 ```
 
