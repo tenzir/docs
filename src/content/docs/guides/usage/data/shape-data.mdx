@@ -228,7 +228,7 @@ which yields:
 }
 ```
 
-### Add and rename fields with `set` assignment
+### Add fields with `set` assignment
 
 Use the [`set`](../../../../reference/operators/set) operator to add new fields
 to the output.
@@ -244,23 +244,8 @@ set y = x + 1
 {x: 2, y: 3}
 ```
 
-Rename fields by combining [`set`](../../../../reference/operators/set) with
-[`drop`](../../../../reference/operators/drop):
-
-```tql
-from {x: 1},
-     {x: 2}
-set y=x
-drop x
-```
-
-```tql
-{y: 1}
-{y: 2}
-```
-
-Similarly, you can rename and project at the same time with
-[`select`](../../../../reference/operators/select):
+You can assign a field name name and project at the same time with an assignment
+in [`select`](../../../../reference/operators/select):
 
 ```tql
 from {x: 1, y: "foo"},
