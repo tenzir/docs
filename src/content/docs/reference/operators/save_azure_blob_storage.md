@@ -58,4 +58,4 @@ save_azure_blob_storage "abfss://tenzirdev@container/obj.json"
 
 ## See Also
 
-[`load_azure_blog_storage`](load_azure_blog_storage)
+[`load_azure_blob_storage`](load_azure_blob_storage)

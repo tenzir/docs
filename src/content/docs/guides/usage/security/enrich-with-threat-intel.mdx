@@ -25,12 +25,11 @@ After creating a context, we load data into the context. In our example, we load
 data from the [ThreatFox](https://threatfox.abuse.ch/) API:
 
 ```tql
-load_http "https://threatfox-api.abuse.ch/api/v1/",
-  data={query: "get_iocs", days: 1}
+load_http "https://threatfox-api.abuse.ch/api/v1/", data={query: "get_iocs", days: 1}
 read_json
 unroll data
 where data.ioc_type == "domain"
-context::update "threatfox", key="ioc", value=data
+context::update "threatfox", key=ioc, value=data
 ```
 
 ```tql
@@ -42,8 +41,10 @@ That is, 57 entries have been added successfully to the `threatfox` context.
 <details>
 <summary>Example data for context updating</summary>
 
-If we replace `context::update` in the above pipeline with `head 5`, we get
-output similar to the following, depending on the current state of the API:
+If we replace
+[`context::update`](../../../../reference/operators/context/update) in the above
+pipeline with `head 5`, we get output similar to the following, depending on the
+current state of the API:
 
 ```json
 {
@@ -159,12 +160,12 @@ in the data of that type.
 The following pipeline subscribes to the import feed of all data arriving at the
 node via `export live=true` and applies the `threatfox` context to Suricata DNS
 requests in field `dns.rrname` via
-[`context::enrich`](../../tql2/operators/context/enrich.md).
+[`context::enrich`](../../../../reference/operators/context/enrich).
 
 ```tql
 export live=true
 where @name == "suricata.dns"
-context::enrich "threatfox", key="dns.rrname"
+context::enrich "threatfox", key=dns.rrname
 ```
 
 Here is a sample of an event that the above pipeline yields:

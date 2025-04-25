@@ -13,9 +13,10 @@ with the `$HOME` environment variable.
 
 :::tip[URL Support]
 The URL scheme `file://` dispatches to
-[`load_file`](../../tql2/operators/load_file.md) and
-[`save_file`](../../tql2/operators/save_file.md) for seamless URL-style use via
-[`from`](../../tql2/operators/from.md) and [`to`](../../tql2/operators/to.md).
+[`load_file`](../../reference/operators/load_file) and
+[`save_file`](../../reference/operators/save_file) for seamless URL-style use via
+[`from`](../../reference/operators/from) and
+[`to`](../../reference/operators/to).
 :::
 
 ## Examples
@@ -28,16 +29,16 @@ Read from a file and parse it in the format applied by the file extension:
 from "/tmp/file.json"
 ```
 
-The [`from`](../../tql2/operators/from.md) operator automatically decompresses the
+The [`from`](../../reference/operators/from) operator automatically decompresses the
 file, if the suffix list contains a [supported compression
-algorithm](../../tql2/operators/from.md#compression):
+algorithm](../../reference/operators/from#compression):
 
 ```tql
 from "/tmp/file.json.gz"
 ```
 
 Some operators perform better when the entire file arrives as a single block of
-bytes, such as the [`yara`](../../tql2/operators/yara.md) operator. In this
+bytes, such as the [`yara`](../../reference/operators/yara) operator. In this
 case, passing `mmap=true` runs more efficiently:
 
 ```tql
@@ -66,9 +67,9 @@ version
 to "/tmp/tenzir-version.json"
 ```
 
-The [`to`](../../tql2/operators/to.md) operator automatically compresses the
+The [`to`](../../reference/operators/to) operator automatically compresses the
 file, if the suffix list contains a [supported compression
-algorithm](../../tql2/operators/to.md#compression):
+algorithm](../../reference/operators/to#compression):
 
 ```tql
 version

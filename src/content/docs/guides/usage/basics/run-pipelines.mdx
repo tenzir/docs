@@ -19,8 +19,7 @@ The diagram below illustrates these mechanics:
 
 ![Pipeline in the Browser](run-pipelines/pipeline-browser.svg)
 
-For example, write [`version`](../../tql2/operators/version.md) and click *Run*
-to see a single event arrive.
+For example, write `from {x: 42}` and click *Run* to see a single event show up.
 
 ## On the command line
 
@@ -37,21 +36,26 @@ The diagram below illustrates these mechanics:
 
 ![Pipeline on the command line](run-pipelines/pipeline-cli.svg)
 
-For example, run [`tenzir 'version | drop
-dependencies'`](../../tql2/operators/version.md) to see a single event in the
-terminal:
+For example, run `tenzir 'version | drop dependencies'` to see a single event in
+the terminal:
 
 ```tql
 {
-  version: "4.22.1+g324214e6de",
-  tag: "g324214e6de",
-  major: 4,
-  minor: 22,
+  version: "5.0.1+g847fcc6334",
+  tag: "g847fcc6334",
+  major: 5,
+  minor: 0,
   patch: 1,
-  features: [],
+  features: [
+    "chart_limit",
+    "modules",
+    "tql2_from",
+    "exact_schema",
+    "tql2_only",
+  ],
   build: {
     type: "Release",
-    tree_hash: "c4c37acb5f9dc1ce3806f40bbde17a08",
+    tree_hash: "ef28a81eb124cc46a646250d1fb17390",
     assertions: false,
     sanitizers: {
       address: false,

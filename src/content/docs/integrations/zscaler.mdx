@@ -2,8 +2,6 @@
 title: Zscaler
 ---
 
-import { Steps } from '@astrojs/starlight/components';
-
 Zscaler's [Nanolog Streaming Service (NSS)][nss] is a family of products that
 enable Zscaler cloud communication with third-party security solution devices
 for exchanging event logs. You can either use Zscaler's Cloud NSS or deploy an
@@ -18,8 +16,7 @@ case.
 
 ### Configure Tenzir
 
-First, spin up a Tenzir pipeline that mimics a [Splunk HEC
-endpoint](../splunk/README.md):
+First, spin up a Tenzir pipeline that mimics a [Splunk HEC endpoint](../splunk):
 
 ```tql
 from_fluent_bit "splunk", options={
@@ -36,6 +33,8 @@ available.
 ### Create a Cloud NSS Feed
 
 Perform the following steps to create a Cloud NSS feed:
+
+import { Steps } from '@astrojs/starlight/components';
 
 <Steps>
 
@@ -89,8 +88,8 @@ that the NSS server is on premises next to the receiver.
 
 ### Configure Tenzir
 
-Spin up a Tenzir pipeline that accepts [TCP](../tcp/README.md) connection and
-parses Syslog:
+Spin up a Tenzir pipeline that accepts [TCP](../tcp) connection and parses
+[Syslog](../syslog):
 
 ```tql
 from "tcp://0.0.0.0:514" {

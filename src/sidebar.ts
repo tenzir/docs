@@ -18,7 +18,7 @@ export const guides = [
           },
           'guides/setup/node/configure-a-node',
           'guides/setup/node/start-the-node-api',
-          'guides/setup/node/tune-node-performance',
+          'guides/setup/node/tune-performance',
         ],
       },
       {

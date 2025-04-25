@@ -74,7 +74,7 @@ The central component of Tenzir's storage engine is the *catalog*. It owns the
 partitions, keeps metadata about them, and maintains a set of sparse secondary
 indexes to identify relevant partitions for a given query.
 
-![Catalog Indexes](tune-node-performance/catalog-indexes.svg)
+![Catalog Indexes](tune-performance/catalog-indexes.svg)
 
 The catalog's secondary indexes are space-efficient sketch data structures
 (e.g., Bloom filters, min-max summaries) that have a low memory footprint but
@@ -171,13 +171,6 @@ tenzir:
 
 Currently, the default value is taken from Apache Arrow itself.
 
-:::tip
-We have a [blog post][parquet-and-feather-2] that does an in-depth
-comparison of various compression levels and storage formats.
-:::
-
-[parquet-and-feather-2]: /blog/parquet-and-feather-writing-security-telemetry/
-
 ### Rebuild partitions
 
 The `rebuild` command re-ingests events from existing partitions and replaces
@@ -186,7 +179,7 @@ a newer version, or recreate persistent state after changing configuration
 parameters, e.g., switching from the Feather to the Parquet store backend. The
 following diagram illustrates this "defragmentation" process:
 
-![Rebuild](tune-node-performance/rebuild.svg)
+![Rebuild](tune-performance/rebuild.svg)
 
 Rebuilding partitions also recreates their sketches. The process takes place
 asynchronously in the background. Control this behavior in your `tenzir.yaml`
@@ -261,7 +254,7 @@ to 1M messages for servers, and 100 for clients. The option
 
 Tenzir Nodes cache results for results for pipelines used in the Tenzir
 Platform's Explorer. Internally, this utilizes the
-[`cache`](/tql2/operators/cache.md) operator.
+[`cache`](../../../../reference/operators/cache) operator.
 
 Caches have two primary tuning knobs:
 

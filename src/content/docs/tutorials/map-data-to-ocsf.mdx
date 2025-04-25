@@ -77,10 +77,9 @@ example of a connection log in TSV format:
 ### Step 1: Parse the input
 
 We first need to parse the log file into structured form that we can work with
-the individual fields. Thanks to Tenzir's [Zeek
-support](../../integrations/zeek/README.md), we can get quickly turn TSV logs
-into structured data using the
-[`read_zeek_tsv`](../../tql2/operators/read_zeek_tsv.md) operator:
+the individual fields. Thanks to Tenzir's [Zeek support](../integrations/zeek),
+we can get quickly turn TSV logs into structured data using the
+[`read_zeek_tsv`](../../reference/operators/read_zeek_tsv) operator:
 
 ```bash
 tenzir 'read_zeek_tsv' < conn.log
@@ -443,7 +442,7 @@ There's a lot more going on here:
   `otherwise(-1)` makes sure we always fall back to something OCSF-compliant.
 - To check whether we have an IPv4 or an IPv6 connection, we call
   `zeek.id.orig_h.is_v6()` on the IPs of the connection record. TQL comes with
-  numerous [functions](../../tql2/functions.md) that make mapping a breeze.
+  numerous [functions](../../reference/functions) that make mapping a breeze.
 
 #### Recap
 
@@ -453,7 +452,6 @@ Phew, that's a wrap. Here's the entire pipeline in a single piece:
 <summary>Complete pipeline definition</summary>
 
 ```tql title="conn-to-ocsf.tql"
-// tql2
 let $proto_nums = {
   tcp: 6,
   udp: 17,
@@ -628,8 +626,8 @@ types, and we need to write one mapping pipeline for each. But how do we combine
 the individual pipelines?
 
 Tenzir's answer for this is topic-based publish-subscribe. The
-[`publish`](../../tql2/operators/publish.md) and
-[`subscribe`](../../tql2/operators/subscribe.md) operators send events to, and
+[`publish`](../../reference/operators/publish) and
+[`subscribe`](../../reference/operators/subscribe) operators send events to, and
 read events from a topic, respectively. Here's an illustration of the conceptual
 approach we are going to use:
 

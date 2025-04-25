@@ -12,8 +12,10 @@ connectors on AWS without becoming experts in operating Apache Kafka.
 
 ## Sending and Receiving
 
-Tenzir's Kafka connectors `load_kafka` and `save_kafka` can be used to send and
-receive events from Amazon MSK Clusters.
+Tenzir's Kafka connectors
+[`load_kafka`](../../../reference/operators/load_kafka) and
+[`save_kafka`](../../../reference/operators/save_kafka) can send and receive
+events from Amazon MSK Clusters.
 
 ## Authentication
 
@@ -21,18 +23,20 @@ Provisioned MSK Clusters support different authentication mechanisms such as
 mTLS, SASL/SCRAM, IAM etc. However Serverless MSK instances currently only
 support IAM Authentication.
 
-The `load_kafka` and `save_kafka` operators can authenticate with MSK using AWS
-IAM by simply specifying the `aws_iam` option with a record of configuration
-values such as:
+The [`load_kafka`](../../../reference/operators/load_kafka) and
+[`save_kafka`](../../../reference/operators/save_kafka) operators can
+authenticate with MSK using AWS IAM by simply specifying the `aws_iam` option
+with a record of configuration values such as:
 
 ```tql
 load_kafka "kafkaesque-data", aws_iam={region: "eu-west-1"}
 ```
 
 The above pipeline will try to fetch credentials from [various different
-locations](/next/tql2/operators/load_kafka#aws_iam--record-optional) including
-the Instance Metadata Services. This means you can attach a role with the
-necessary permissions directly to an EC2 instance and Tenzir will automatically
+locations]((../../../reference/operators/load_kafka#aws_iam--record-optional))
+including the Instance Metadata Services. This means you can attach a role with
+the necessary permissions directly to an EC2 instance and Tenzir will
+automatically
 pick it up.
 
 :::tip[Other Authentication methods]

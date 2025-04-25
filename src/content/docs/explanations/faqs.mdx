@@ -174,19 +174,19 @@ data analysis.
 Tenzir does not rely on a third-party database.
 
 Tenzir nodes include a light-weight storage engine on top of Feather or Parquet
-files, accessible via the [`import`](tql2/operators/import.md) and
-[`export`](tql2/operators/export.md) operators.
+files, accessible via the [`import`](../../reference/operators/import) and
+[`export`](../../reference/operators/export) operators.
 
 The storage engine comes with a catalog that tracks schema meta data and a thin
 layer of indexing to accelerate queries.
 
-Our [tuning guide](installation/tune-performance/README.md) has further details
+Our [tuning guide](../../guides/setup/node/tune-performance) has further details
 on the inner workings.
 
 ## Does a Tenzir node run on platform *X*?
 
 We support the platforms that we mention in our [deployment
-instructions](installation/deploy-a-node/README.md).
+instructions](../../guides/setup/node/provision-a-node).
 
 For any other platform, the answer is most likely *no*. Please [talk to
 us](/discord) to let us know what is missing, or dive right in by contributing
@@ -194,38 +194,54 @@ to our [open source repository](https://github.com/tenzir/tenzir).
 
 ## Do you have an integration for *X*?
 
-Tenzir has several layers where integrations can occur. If you cannot find an
-[existing integration](integrations.md) for *X*, then we need to find out at
-what level it should be.
+Tenzir has multiple layers where integrations can occur. If you cannot find *X*
+in the list of [existing integration](../../integrations), .
 
-1. **Application**. If *X* is a specific tool and you'd like to get data in from
-   *X* or send data to *X*, then the best place to start is our [Community
-   Library](https://github.com/tenzir/library) where we package integrations for
-   applications and use cases. Application-level integrations are often just a
-   composition of existing pipeline operators.
+import { Steps } from '@astrojs/starlight/components';
 
+<Steps>
+
+1. **Application**. If *X* does not require a built-in integration, our [Community
+   Library](https://github.com/tenzir/library) may contain a package for it.
+   Many integration to specific tools are just thin API wrappers that only
+   require composing a few operators.
 2. **Format**. If your *X* is a wire format, either text-based like JSON or
-   binary like PCAP, then look for `read_*` and `write_*`
-   [operators](tql2/operators.md).
-
-3. **Fluent Bit**. Tenzir ships with all of Fluent Bit's
-   [inputs][fluentbit-inputs] and [outputs][fluentbit-outputs], since the Fluent
-   Bit library is baked into every Tenzir binary. Use the
-   [`from_fluent_bit`](tql2/operators/from_fluent_bit.mdx) operator to get events
-   from Fluent Bit and the `to_fluent_bit`(tql2/operators/to_fluent_bit.md)
-   operator to send events to Fluent Bit.
-
+   binary like PCAP, then look for [parsing
+   operators](../../reference/operators#parsing) and [printing
+   operators](../../reference/operators#printing). Those start
+   with `read_*` and `write_*`, respectively. Similarly, there exist [parsing
+   functions](../../reference/functions#parsing) and [printing
+   functions](../../reference/functions#printing) that start with `parse_*` and
+   `print_*`.
+3. **Fluent Bit**. Sometimes we can compensate for the lack of an existing
+   integration by going through one level of indirection. Tenzir ships with all
+   of Fluent Bit's [inputs][fluentbit-inputs] and [outputs][fluentbit-outputs],
+   because the Fluent Bit library is baked into every Tenzir binary. Use the
+   [`from_fluent_bit`](../../reference/operators/from_fluent_bit) operator to
+   get events in via Fluent Bit and the
+   [`to_fluent_bit`](../../reference/operators/to_fluent_bit)
+   operator to send events via Fluent Bit.
 4. **Escape Hatches**. As last resort, you can bring in Shell and Python scripts
-   to compensate for native support for *X*. The
-   [`shell`](tql2/operators/shell.md) operator brings byte streams via standard
-   input and output into a pipeline, and the
-   [`python`](tql2/operators/python.md) operator allows you to perform arbitrary
-   event-to-event transformation using the full power of Python.
+   to make up for native support for *X*. The
+   [`shell`](../../reference/operators/shell) operator brings byte streams via
+   standard input and output into a pipeline, and the
+   [`python`](../../reference/operators/python) operator allows you to perform
+   arbitrary event-to-event transformation using the full power of Python.
+5. **Community**. Still unlucky? Then please let us know in our friendly
+   [Discord server](/discord). Perhaps we are already working on an integration
+   for *X* or it is somewhere on the roadmap. If you're feeling adventurous and
+   want to contribute to our open source core, let us know beforehand! We're
+   happy to guide you such that your contribution gets successfully into our
+   code base.
 
 [fluentbit-inputs]: https://docs.fluentbit.io/manual/pipeline/inputs/
 [fluentbit-outputs]: https://docs.fluentbit.io/manual/pipeline/outputs/
 
+</Steps>
+
+:::tip[Don't be shy!]
 Please do not hesitate to reach out to us if you think something is missing, by
 [opening a GitHub
 Discussion](https://github.com/orgs/tenzir/discussions/new/choose) or asking us
-directly in our [Discord server](/discord).
+directly in our [Discord server](/discord). All questions are welcome.
+:::

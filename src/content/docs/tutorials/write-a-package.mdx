@@ -2,10 +2,11 @@
 title: Write a Package
 ---
 
-This tutorial walks you through the creation of a [package](packages.md), which
+This tutorial walks you through the creation of a
+[package](../../explanations/packages), which
 is a bundle of related pipelines and contexts. You can [install
-packages](installation/install-a-package.md) with a few clicks from the [Tenzir
-Library](https://app.tenzir.com/library) or deploy them as code.
+packages](../guides/usage/basics/install-a-package) with a few clicks from the
+[Tenzir Library](https://app.tenzir.com/library) or deploy them as code.
 
 ## Map the use case
 
@@ -20,8 +21,8 @@ the idea is as follows:
 3. We generate a detection finding when we encounter a match.
 
 Given this idea, we have to it to the building blocks we have in Tenzir:
-[pipelines](pipelines/README.md) and [contexts](enrichment/README.md). We can
-model it as follows.
+[pipelines](../../explanations/architecture/pipeline) and
+[contexts](../../explanations/enrichment). We can model it as follows.
 
 1. A lookup table that includes a copy of the SSLBL data.
 2. A pipeline that synchronizes the SSLBL data with the lookup table.
@@ -91,7 +92,7 @@ Okay, a simple CSV table with comments. We can write a pipeline for reading
 that:
 
 ```tql
-load_http "from https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
+load_http "https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
 read_csv comments=true, header="timestamp,SHA1,reason"
 ```
 
@@ -99,9 +100,9 @@ Now that we have onboarded the data into a pipeline, we just need to push it
 into the context by piping it to `context::update`:
 
 ```tql
-load_http "from https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
+load_http "https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
 read_csv comments=true, header="timestamp,SHA1,reason"
-context::update "sslbl", key="SHA1"
+context::update "sslbl", key=SHA1
 ```
 
 With `context::inspect "sslbl"` we can list the table contents, keyed by SHA1
@@ -117,10 +118,10 @@ To this end, we do the data onboarding periodically with `every`:
 
 ```tql
 every 1h {
-  load_http "from https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
+  load_http "https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
   read_csv comments=true, header="timestamp,SHA1,reason"
 }
-context::update sslbl key="SHA1"
+context::update sslbl key=SHA1
 ```
 
 :::tip[Why not wrap the entire pipeline in `every`?]
@@ -143,7 +144,7 @@ pipelines:
       A pipeline that periodically refreshes the SSLBL lookup table.
     definition: |
       every 1h {
-        load_http "from https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
+        load_http "https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
         read_csv comments=true, header="timestamp,SHA1,reason"
       }
       context::update "sslbl", key=SHA1
@@ -176,7 +177,7 @@ examples:
       subscribe "suricata"
       where @name == "suricata.tls"
       sha1 = tls.fingerprint.replace(":", "")
-      context::enrich "sslbl", key="sha1"
+      context::enrich "sslbl", key=sha1
 
   - name: Display top-10 listing reasons
     description: |
@@ -229,9 +230,9 @@ pipelines:
       A pipeline that periodically refreshes the SSLBL lookup table.
     definition: |
       every {{ inputs.refresh-interval }} {
-        load_http "from https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
+        load_http "https://sslbl.abuse.ch/blacklist/sslblacklist.csv"
         read_csv comments=true, header="timestamp,SHA1,reason"
-        context::update "sslbl", key="SHA1"
+        context::update "sslbl", key=SHA1
       }
     restart-on-error: 1 hour
 ```
@@ -250,9 +251,9 @@ and if you do as well, please swing by our [Community Discord](/discord) and
 discuss it with us.
 :::
 
-[Installing a package](installation/install-a-package.md) given a `package.yaml`
-file is easiest with the [`package::add`](tql2/operators/package/add.md)
-operator, since a package is just data:
+Installing a package given a `package.yaml` file is easiest with the
+[`package::add`](../../reference/operators/package/add) operator, since a
+package is just data:
 
 ```tql
 package::add "/path/to/package.yaml"
