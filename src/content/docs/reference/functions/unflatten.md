@@ -13,7 +13,7 @@ unflatten(x:record, [separator=string]) -> record
 The `unflatten` function creates nested records out of fields whose names
 include a separator.
 
-:::info
+:::note
 `unflatten` uses a heuristic to determine the unflattened schema. Thus, the
 schema of a record that has been flattened using [`flatten`](flatten) and
 unflattened afterwards may not be identical to the schema of the unmodified

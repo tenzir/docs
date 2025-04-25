@@ -82,6 +82,8 @@ export default defineConfig({
                 "/reference/api",
                 "/reference/api/**/*",
                 "/reference/functions/*",
+                "/reference/operators/**/*",
+                "/reference/operators/*",
               ],
             },
           }),
