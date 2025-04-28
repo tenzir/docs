@@ -49,6 +49,9 @@
           "end": "(?=})|(?<!,\\s*)(?<!\\\\\\s*)(?=$)"
         },
         {
+          "include": "#expression_keywords"
+        },
+        {
           "name": "tql.expression_mode",
           "begin": "(=|\\.)",
           "beginCaptures": {
@@ -72,8 +75,15 @@
       "patterns": [
         {
           "name": "keyword",
-          "match": "(?<=\\b)(_|is|as|use|return|def|function|let|and|or|in|not|let|this|meta|super|for|if|while|match|else)(?=\\b)",
-          "comment": "type|"
+          "match": "(?<=\\b)(_|is|as|use|return|def|function|let|and|or|in|not|let|this|meta|super|for|if|while|match|else)(?=\\b)"
+        }
+      ]
+    },
+    "expression_keywords": {
+      "patterns": [
+        {
+          "name": "keyword",
+          "match": "(?<=\\b)(move)(?=\\b)"
         }
       ]
     },
@@ -81,6 +91,9 @@
       "patterns": [
         {
           "include": "#keywords"
+        },
+        {
+          "include": "#expression_keywords"
         },
         {
           "name": "comment.line",
