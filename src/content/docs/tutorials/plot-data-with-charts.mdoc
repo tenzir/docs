@@ -23,31 +23,31 @@ Tenzir supports four types of charts, each with a dedicated operator:
 
 Plotting data in the Explorer involves three steps:
 
+{% steps %}
+
 1. [Run a pipeline](../.../guides/usage/basics/run-pipelines) to prepare the
    data.
 2. Add a `chart_*` operator to render the plot.
 3. View the chart below the Editor.
 
+{% /steps %}
+
 ![Pipeline to Chart](./plot-data-with-charts/pipeline-to-chart.svg)
 
 After generating a chart, you can **download it** or **add it to a dashboard**
-to refresh it automatically.
+to make it permanent refresh it periodically.
 
-### Download a chart
+**Example**: Here's how you generate a pie chart that shows the application
+breakdown from Zeek connection logs:
 
-To download a chart:
-
-{% steps %}
-
-1. Click the download button in the top-right corner.
-
-   ![Download Chart](./plot-data-with-charts/download-chart.png)
-
-2. Choose **PNG** or **SVG** to save the chart as an image.
-
-{% /steps %}
-
-⬇️ You have now successfully save the chart to your computer. Enjoy.
+```tql
+export
+where @name == "zeek.conn"
+where service != null
+top service
+head
+chart_pie label=service, value=count
+```
 
 ### Add a chart to a dashboard
 
@@ -71,6 +71,36 @@ To make a chart permanent:
 
 🎉 Congratulations! Your chart is now saved and will automatically reload when
 you open the dashboard.
+
+### Download a chart
+
+Download a chart in the Explorer as follows:
+
+{% steps %}
+
+1. Click the download button in the top-right corner.
+
+   ![Download Chart](./plot-data-with-charts/download-chart-explorer.png)
+
+2. Choose **PNG** or **SVG** to save the chart as an image.
+
+{% /steps %}
+
+You can also download a chart on a dashboard:
+
+{% steps %}
+
+1. Click the three-dot menu in the top-right corner of the chart.
+
+2. Click **Download**
+
+   ![Download Chart](./plot-data-with-charts/download-chart-dashboard.png)
+
+3. Choose **PNG** or **SVG** to save the chart as an image.
+
+{% /steps %}
+
+⬇️ You have now successfully save the chart to your computer. Enjoy.
 
 ## Master essential charting techniques
 
@@ -113,9 +143,7 @@ understanding of the data at hand.
    chart_bar x=outcome, y=n
    ```
 
-   {% aside type="danger" title="TODO" %}
-   Insert chart here.
-   {% /aside %}
+   ![Bar chart](./plot-data-with-charts/chart-bar.png)
 
 {% /steps %}
 
@@ -136,7 +164,7 @@ from {outcome: "tails", n: 9, time: "Morning"},
 chart_bar x=outcome, y=n, group=time
 ```
 
-_(TODO: Insert grouped bar chart.)_
+![Grouped bar chart](./plot-data-with-charts/chart-bar-grouped.png)
 
 To **stack** the grouped bars, add `position="stacked"`:
 
@@ -150,9 +178,7 @@ from {outcome: "tails", n: 9, time: "Morning"},
 chart_bar x=outcome, y=n, group=time, position="stacked"
 ```
 
-{% aside type="danger" title="TODO" %}
-Insert chart here.
-{% /aside %}
+![Stacked bar chart](./plot-data-with-charts/chart-bar-stacked.png)
 
 #### Scale the y-axis logarithmically
 
@@ -170,9 +196,7 @@ from {outcome: "A", n: 3},
 chart_bar x=outcome, y=n
 ```
 
-{% aside type="danger" title="TODO" %}
-Insert chart here.
-{% /aside %}
+![Unscaled bar chart](./plot-data-with-charts/chart-bar-nolog.png)
 
 The large value (`E`) dominates the chart, hiding the smaller categories.
 
@@ -187,9 +211,7 @@ from {outcome: "A", n: 3},
 chart_bar x=outcome, y=n, y_log=true
 ```
 
-{% aside type="danger" title="TODO" %}
-Insert chart here.
-{% /aside %}
+![Log-scaled bar chart](./plot-data-with-charts/chart-bar-log.png)
 
 Now, you can clearly see all the values! 👀
 
@@ -213,9 +235,7 @@ from {category: "A", percentage: 40},
 chart_pie label=category, value=percentage
 ```
 
-{% aside type="danger" title="TODO" %}
-Insert chart here.
-{% /aside %}
+![Pie chart](./plot-data-with-charts/chart-pie.png)
 
 {% aside type="note" title="Bar Charts > Pie Charts" %}
 **Use bar charts when you can and pie charts when you must**. Why? Pie charts
@@ -345,6 +365,9 @@ from {time: 1, a: 10, b: 20},
      {time: 5, a: 18, b: 40}
 chart_area x=time, y={a: a, b: b}
 ```
+
+![Area chart](./plot-data-with-charts/chart-area.png)
+
 The area under the curve gives you a strong visual impression of the total
 event volume over time.
 
@@ -365,9 +388,7 @@ from {time: 1, a: 10, b: 20},
 chart_area x=time, y={a: a, b: b}, position="stacked"
 ```
 
-{% aside type="danger" title="TODO" %}
-Insert chart here.
-{% /aside %}
+![Stacked area chart](./plot-data-with-charts/chart-area-stacked.png)
 
 Notice the difference in the y-axis interpretation:
 
