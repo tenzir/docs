@@ -287,9 +287,7 @@ such as time series data.
    chart_line x=timestamp, y=current_memory_usage
    ```
 
-   {% aside type="danger" title="TODO" %}
-   Insert chart here.
-   {% /aside %}
+   ![Line chart](./plot-data-with-charts/chart-line.png)
 
 2. **Aggregate to reduce the resolution**: Plotting metrics with a 1-second
    granularity over the course of a full day can make a line chart very noisy.
@@ -305,9 +303,7 @@ such as time series data.
    chart_line x=timestamp, y=mem
    ```
 
-   {% aside type="danger" title="TODO" %}
-   Insert chart here.
-   {% /aside %}
+   ![Line chart with summarize](./plot-data-with-charts/chart-line-summarize.png)
 
    This looks a lot smoother! You can go one step further and move the
    aggregation into the chart operator call:
@@ -317,6 +313,8 @@ such as time series data.
    where timestamp > now() - 1d
    chart_line x=timestamp, y=mean(current_memory_usage), resolution=15min
    ```
+
+   ![Line chart with resolution](./plot-data-with-charts/chart-line-resolution.png)
 
    Not only does this make the pipeline more succinct, it also takes care of
    some subtle issues:
