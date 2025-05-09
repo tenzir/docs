@@ -155,12 +155,14 @@ into a single plot.
 Example with a `time` dimension:
 
 ```tql
-from {outcome: "tails", n: 9, time: "Morning"},
-     {outcome: "heads", n: 11, time: "Morning"},
-     {outcome: "tails", n: 14, time: "Afternoon"},
-     {outcome: "heads", n: 15, time: "Afternoon"},
-     {outcome: "tails", n: 4, time: "Evening"},
-     {outcome: "heads", n: 12, time: "Evening"}
+from (
+  {outcome: "tails", n: 9, time: "Morning"},
+  {outcome: "heads", n: 11, time: "Morning"},
+  {outcome: "tails", n: 14, time: "Afternoon"},
+  {outcome: "heads", n: 15, time: "Afternoon"},
+  {outcome: "tails", n: 4, time: "Evening"},
+  {outcome: "heads", n: 12, time: "Evening"},
+)
 chart_bar x=outcome, y=n, group=time
 ```
 
@@ -169,12 +171,14 @@ chart_bar x=outcome, y=n, group=time
 To **stack** the grouped bars, add `position="stacked"`:
 
 ```tql
-from {outcome: "tails", n: 9, time: "Morning"},
-     {outcome: "heads", n: 11, time: "Morning"},
-     {outcome: "tails", n: 14, time: "Afternoon"},
-     {outcome: "heads", n: 15, time: "Afternoon"},
-     {outcome: "tails", n: 4, time: "Evening"},
-     {outcome: "heads", n: 12, time: "Evening"}
+from (
+  {outcome: "tails", n: 9, time: "Morning"},
+  {outcome: "heads", n: 11, time: "Morning"},
+  {outcome: "tails", n: 14, time: "Afternoon"},
+  {outcome: "heads", n: 15, time: "Afternoon"},
+  {outcome: "tails", n: 4, time: "Evening"},
+  {outcome: "heads", n: 12, time: "Evening"},
+)
 chart_bar x=outcome, y=n, group=time, position="stacked"
 ```
 
@@ -188,11 +192,13 @@ values visible.
 Example without log scaling:
 
 ```tql
-from {outcome: "A", n: 3},
-     {outcome: "B", n: 5},
-     {outcome: "C", n: 10},
-     {outcome: "D", n: 21},
-     {outcome: "E", n: 10000}
+from (
+  {outcome: "A", n: 3},
+  {outcome: "B", n: 5},
+  {outcome: "C", n: 10},
+  {outcome: "D", n: 21},
+  {outcome: "E", n: 10000},
+)
 chart_bar x=outcome, y=n
 ```
 
@@ -203,11 +209,13 @@ The large value (`E`) dominates the chart, hiding the smaller categories.
 Enable log scaling via `y_log=true` to reveal them:
 
 ```tql
-from {outcome: "A", n: 3},
-     {outcome: "B", n: 5},
-     {outcome: "C", n: 10},
-     {outcome: "D", n: 21},
-     {outcome: "E", n: 10000}
+from (
+  {outcome: "A", n: 3},
+  {outcome: "B", n: 5},
+  {outcome: "C", n: 10},
+  {outcome: "D", n: 21},
+  {outcome: "E", n: 10000},
+)
 chart_bar x=outcome, y=n, y_log=true
 ```
 
@@ -227,11 +235,13 @@ Let's plot some synthetic data with the
 [`chart_pie`](../../reference/operators/chart_pie) operator:
 
 ```tql
-from {category: "A", percentage: 40},
-     {category: "B", percentage: 25},
-     {category: "C", percentage: 20},
-     {category: "D", percentage: 10},
-     {category: "E", percentage: 5}
+from (
+  {category: "A", percentage: 40},
+  {category: "B", percentage: 25},
+  {category: "C", percentage: 20},
+  {category: "D", percentage: 10},
+  {category: "E", percentage: 5},
+)
 chart_pie label=category, value=percentage
 ```
 
@@ -359,11 +369,13 @@ In the above section about line charts, you can exchange every call to
 plot.
 
 ```tql
-from {time: 1, a: 10, b: 20},
-     {time: 2, a: 8, b: 25},
-     {time: 3, a: 14, b: 30},
-     {time: 4, a: 10, b: 25},
-     {time: 5, a: 18, b: 40}
+from (
+  {time: 1, a: 10, b: 20},
+  {time: 2, a: 8, b: 25},
+  {time: 3, a: 14, b: 30},
+  {time: 4, a: 10, b: 25},
+  {time: 5, a: 18, b: 40},
+)
 chart_area x=time, y={a: a, b: b}
 ```
 
@@ -381,11 +393,13 @@ groups while still highlighting the overall cumulative shape.
 Pass `position="stacked" to see the difference`:
 
 ```tql
-from {time: 1, a: 10, b: 20},
-     {time: 2, a: 8, b: 25},
-     {time: 3, a: 14, b: 30},
-     {time: 4, a: 10, b: 25},
-     {time: 5, a: 18, b: 40}
+from (
+  {time: 1, a: 10, b: 20},
+  {time: 2, a: 8, b: 25},
+  {time: 3, a: 14, b: 30},
+  {time: 4, a: 10, b: 25},
+  {time: 5, a: 18, b: 40},
+)
 chart_area x=time, y={a: a, b: b}, position="stacked"
 ```
 
