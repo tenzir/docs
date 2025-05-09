@@ -315,23 +315,9 @@ such as time series data.
 
    ![Line chart with summarize](./plot-data-with-charts/chart-line-summarize.png)
 
-   This looks a lot smoother! You can go one step further and move the
-   aggregation into the chart operator call:
-
-   ```tql
-   metrics "process"
-   where timestamp > now() - 1d
-   chart_line x=timestamp, y=mean(current_memory_usage), resolution=15min
-   ```
-
-   ![Line chart with resolution](./plot-data-with-charts/chart-line-resolution.png)
-
-   Not only does this make the pipeline more succinct, it also takes care of
-   some subtle issues:
-
-   1. A
-   2. B
-   3. C
+   This looks a lot smoother! **Pro tip**: you can even further [optimize the
+   above pipeline](#optimize-plotting-with-inline-expressions) by using
+   additional operator arguments.
 
 {% /steps %}
 
@@ -425,3 +411,61 @@ Notice the difference in the y-axis interpretation:
 - Without stacking, the areas *overlap* each other.
 - With stacking, the areas become *disjoint* and *cumulatively add up* to the
   total height.
+
+## Optimize Plotting with Inline Expressions
+
+While it's intuitive to *first* prepare your data and *then* start thinking
+about how to parameterize your chart operator, this leaves some opportunities
+for optimization and better results on the table. That's why the `chart_*`
+operators offer additional options for inline filtering, rounding, and
+summarization. These options allow you often to immediately jump to charting
+without having to think too much about data prepping.
+
+To appreciate these optimization, let's start with our metrics pipeline from the
+above line chart example:
+
+```tql
+metrics "process"
+where timestamp > now() - 1d                         // filtering
+set timestamp = timestamp.round(15min)               // rounding
+summarize timestamp, mem=mean(current_memory_usage)  // aggregation
+chart_line x=timestamp, y=mem
+```
+
+![Line chart with summarize](./plot-data-with-charts/chart-line-summarize.png)
+
+You can push the filtering, rounding, and aggregation into the chart operator:
+
+```tql
+metrics "process"
+chart_line (
+  x=timestamp,
+  y=mean(current_memory_usage), // aggregation
+  resolution=15min,             // rounding (= flooring)
+  x_min=now() - 1d,             // filtering
+)
+```
+
+![Line chart with resolution](./plot-data-with-charts/chart-line-resolution.png)
+
+Note how this make the pipeline more succinct by removing the extra `where`,
+`set`, and `summarize` operators.
+
+Here are some important details to remember:
+
+- The `x_min`/`x_max` (also `y_min`/`y_max`) options set the visible axis domain
+  to fixed interval. Use these options to crop or expand the viewport.
+- When using the `x_min` (also `x_max`) options, the chart operator implicitly
+  pushes up a `where` predicate, making it obsolete to restrict your charting
+  data via `where`.
+- Specifying a duration with `resolution` option creates nicer buckets than
+  naïve rounding, as it uses a dynamic floor for the minimum and a ceiling for
+  the maximum value in the respective bucket. This results in nicer axis ticks
+  that align on the bucket boundary, e.g., hourly or daily.
+- The combination of `resolution` with an [aggregation
+  function](../../reference/functions#aggregation) for the `y` series is equivalent
+  to the manual `summarize`.
+- When you use `resolution`, you can additionally use the `fill` option to patch
+  up missing values with a provided value, e.g., `fill=0` replaces otherwise
+  empty buckets with a data point in the plot.
+  
