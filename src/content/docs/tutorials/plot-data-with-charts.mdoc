@@ -345,10 +345,11 @@ single value to a record that represents the series.
 ```tql
 metrics "process"
 where timestamp > now() - 1d
-chart_line \
-   x=timestamp,
-   y={current: mean(current_memory_usage), peak: max(peak_memory_usage * 1Ki)},
-   resolution=15min
+chart_line (
+  x=timestamp,
+  y={current: mean(current_memory_usage), peak: max(peak_memory_usage * 1Ki)},
+  resolution=15min
+)
 ```
 
 ![Line chart with multiple series](./plot-data-with-charts/chart-line-multiple.png)
@@ -356,6 +357,20 @@ chart_line \
 Because `current_memory_usage` comes in gigabytes and `peak_memory_usage` in
 megabytes, we cannot compare them directly. Hence we normalized the peak
 usage to gigabytes to make them comparable in a single plot.
+
+If you cannot enumerate the series to plot statically in a record, use the
+`group` option to specify a field that contains a unique identifier per series.
+Here's an example that plots the number of events per pipeline:
+
+```tql
+metrics "publish"
+chart_line (
+  x=timestamp,
+  y=sum(events),
+  x_min=now()-1d,
+  group=pipeline_id,
+  resolution=30min,
+```
 
 ### Plot distributions as area chart
 
