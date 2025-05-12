@@ -47,6 +47,7 @@ can find a preview of the new documentation at
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
 - [x] Apply CSS and get a facelift
 - [ ] Style Asides to match design system
+- [ ] Add our favicon
 
 ### Changelog
 

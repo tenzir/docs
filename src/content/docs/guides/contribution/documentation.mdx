@@ -6,7 +6,7 @@ The Tenzir documentation resides at https://github.com/tenzir/docs.
 We use [Astro](https://astro.build) with
 [Starlight](https://starlight.astro.build) as website framework.
 
-## Develop and view locally
+## Develop and View Locally
 
 Install web framework dependencies:
 
@@ -22,7 +22,7 @@ pnpm dev
 
 Then browse to http://localhost:4321/ to view the site.
 
-## Build for production
+## Build for Production
 
 Create a production build as follows:
 
@@ -42,7 +42,50 @@ We create a production build in CI. Check out our [GitHub
 workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/docs.yaml)
 for the gory details.
 
-## Edit diagrams
+## Optimize Images
+
+To keep the repository size manageable, always optimize image files *before*
+committing them. This is especially important for formats like PNG, which can
+contain unnecessary metadata or use inefficient compression.
+
+### PNG Images
+
+We recommend using [pngquant](https://pngquant.org/), a command-line utility
+for lossy compression of PNG files. It significantly reduces file size while
+preserving image quality.
+
+To compress a PNG file in-place:
+
+```bash
+pngquant --ext .png --force --quality=65-80 image.png
+```
+
+### JPEG Images
+
+Use [jpegoptim](https://github.com/tjko/jpegoptim), a utility for optimizing
+JPEGs without perceptible quality loss:
+
+```bash
+jpegoptim --strip-all --max=80 image.jpg
+```
+
+Alternatively, you can use [mozjpeg](https://github.com/mozilla/mozjpeg) for
+even better compression ratios.
+
+### SVG Images
+
+Use [svgo](https://github.com/svg/svgo), a Node-based tool to optimize SVG files
+by removing unnecessary data:
+
+
+```bash
+svgo image.svg
+```
+
+This automatically rewrites the file in-place with redundant code removed and
+optimized structure.
+
+## Edit Diagrams
 
 We use [Excalidraw](https://excalidraw.com) as primary tool to create sketches
 of architectural diagrams.
@@ -51,7 +94,7 @@ When exporting Excalidraw scenes, always **use light mode** and **choose SVG**
 as export format, as we have some CSS magic in place that automatically inverts
 colors SVGs so that they also look nicely when using dark mode.
 
-Tenzir developers have access to our Exalidraw [Documentation
+Tenzir developers have access to our Excalidraw [Documentation
 collection](https://app.excalidraw.com/o/6dBWEFf9h1l/9RErQkL9e2v). For everyone
-else, we encourage to reach out to us on our [Discord server](/discord) to
-request changes to existing SVGs.
+else, please reach out to us on our [Discord server](/discord) to request
+changes to existing SVGs.
