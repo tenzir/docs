@@ -456,9 +456,11 @@ Here are some important details to remember:
 
 - The `x_min`/`x_max` (also `y_min`/`y_max`) options set the visible axis domain
   to fixed interval. Use these options to crop or expand the viewport.
-- When using the `x_min` (also `x_max`) options, the chart operator implicitly
-  pushes up a `where` predicate, making it obsolete to restrict your charting
-  data via `where`.
+- When using the `x_min` or `x_max` options, the chart operator implicitly
+  filters your data for the correct time range, just as if you had specified
+  `where x >= floor(x_min, resolution) and x < ceil(x_max, resolution)`.
+  This avoids needing to specify the ranges twice, and makes sure that the
+  resolution is taken into account correctly.
 - Specifying a duration with `resolution` option creates nicer buckets than
   naïve rounding, as it uses a dynamic floor for the minimum and a ceiling for
   the maximum value in the respective bucket. This results in nicer axis ticks
