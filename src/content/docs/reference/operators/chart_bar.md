@@ -5,9 +5,9 @@ title: chart_bar
 Plots events on an bar chart.
 
 ```tql
-chart_bar x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
-                          resolution=duration, fill=any, x_log=bool, y_log=bool,
-                          group=any, position=string]
+chart_bar x|label=field, y|value=any,
+          [x_min=any, x_max=any, y_min=any, y_max=any, resolution=duration,
+          fill=any, x_log=bool, y_log=bool, group=any, position=string]
 ```
 
 ## Description
@@ -15,11 +15,11 @@ chart_bar x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
 Visualizes events with an bar chart on the [Tenzir
 Platform](https://app.tenzir.com).
 
-### `x = field`
+### `x|label = field`
 
 Label for each bar.
 
-### `y = any`
+### `y|value = any`
 
 Positions on the y-axis for each data point.
 Multiple data points for the same group can be be aggregated using an
@@ -83,6 +83,7 @@ Optional expression to group the aggregations with.
 ### `position = string (optional)`
 
 Determines how the `y` values are displayed. Possible values:
+
 - `grouped`
 - `stacked`
 

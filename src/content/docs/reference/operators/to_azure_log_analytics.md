@@ -7,7 +7,8 @@ Sends events to the [Microsoft Azure Logs Ingestion API][api].
 [api]: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview
 
 ```tql
-to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string, dce=string, dcr=string, table=string
+to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string,
+      dce=string, dcr=string, stream=string, [batch_timeout=duration]
 ```
 
 ## Description
@@ -43,13 +44,19 @@ The data collection endpoint URL.
 
 The data collection rule ID, written as `dcr-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
 
-### `table = string`
+### `stream = string`
 
-The table to upload events to.
+The stream to upload events to.
+
+### `batch_timeout = duration`
+
+Maximum duration to wait for new events before sending a batch.
+
+Defaults to `5s`.
 
 ## Examples
 
-### Upload `custom.mydata` events to a table `Custom-MyData`
+### Upload `custom.mydata` events to the stream `Custom-MyData`
 
 ```tql
 export
@@ -59,5 +66,5 @@ to_azure_log_analytics tenant_id="00a00a00-0a00-0a00-00aa-000aa0a0a000",
   client_secret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   dce="https://my-stuff-a0a0.westeurope-1.ingest.monitor.azure.com",
   dcr="dcr-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  table="Custom-MyData"
+  stream="Custom-MyData"
 ```

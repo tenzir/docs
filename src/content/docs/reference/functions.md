@@ -265,6 +265,7 @@ This is hidden because there is an issue with the timezone DB.
 | :------------------------------- | :------------------------------------------------ | :------------------------ |
 | [`encode_base64`](encode_base64) | Encodes bytes as Base64                           | `encode_base64("Tenzir")` |
 | [`encode_hex`](encode_hex)       | Encodes bytes as their hexadecimal representation | `encode_hex("Tenzir")`    |
+| [`encode_url`](encode_url)       | Encodes strings using URL encoding                | `encode_url("Hello World")` |
 
 ## Decoding
 
@@ -272,6 +273,7 @@ This is hidden because there is an issue with the timezone DB.
 | :------------------------------- | :-------------------------------------------------- | :-------------------------- |
 | [`decode_base64`](decode_base64) | Decodes bytes as Base64                             | `decode_base64("VGVuemly")` |
 | [`decode_hex`](decode_hex)       | Decodes bytes from their hexadecimal representation | `decode_hex("4e6f6E6365")`  |
+| [`decode_url`](decode_url)       | Decodes URL encoded strings                         | `decode_url("Hello%20World")` |
 
 ## Type System
 

@@ -5,7 +5,7 @@ title: chart_pie
 Plots events on an pie chart.
 
 ```tql
-chart_pie label=field, value=any, [group=any]
+chart_pie x|label=field, y|value=any, [group=any]
 ```
 
 ## Description
@@ -13,11 +13,11 @@ chart_pie label=field, value=any, [group=any]
 Visualizes events with an pie chart on the [Tenzir
 Platform](https://app.tenzir.com).
 
-### `label = field`
+### `x|label = field`
 
 Name of each slice on the chart.
 
-### `value = any`
+### `y|value = any`
 
 Value of each slice on the chart.
 Multiple data points for the same group can be be aggregated using an

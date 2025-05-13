@@ -243,6 +243,7 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | [`measure`](measure)     | Returns events describing the incoming batches      | `measure`                       |
 | [`remote`](remote)       | Forces a pipeline to run remotely at a node         | `remote { version }`            |
 | [`serve`](serve)         | Makes events available at `/serve`                  | `serve "abcde12345"`            |
+| [`strict`](strict)       | Treats all warnings as errors                       | `strict { assert false }`       |
 | [`unordered`](unordered) | Remove ordering assumptions in a pipeline           | `unordered { read_ndjson }`     |
 
 ## Encode & Decode
@@ -264,7 +265,9 @@ Tenzir comes with a wide range of built-in pipeline operators.
 
 | Operator                          | Description             | Example         |
 | :-------------------------------- | :---------------------- | :-------------- |
-| [`pipeline::list`](pipeline/list) | Shows managed pipelines | `package::list` |
+| [`pipeline::activity`](pipeline/activity) | Summarizes the activity of pipelines | `pipeline::activity range=1d, interval=1h` |
+| [`pipeline::detach`](pipeline/detach) | Starts a pipeline in the node | `pipeline::detach { version }` |
+| [`pipeline::list`](pipeline/list) | Shows managed pipelines | `pipeline::list` |
 
 ## Contexts
 
