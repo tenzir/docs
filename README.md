@@ -83,7 +83,7 @@ can find a preview of the new documentation at
 ### 🚀 Relaunch
 
 - [ ] Fix all broken links and uncomment link checking in CI
-- [ ] Replace `site` and `base` in `astro.config.mjs`
+- [ ] Remove `new.` subdomain in `site` variable in `astro.config.mjs`
 
 ## ✊ Usage
 
