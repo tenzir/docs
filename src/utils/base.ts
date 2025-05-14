@@ -2,13 +2,19 @@
 // but we do need in combination with generating link in our overridden
 // components. :-/
 
-const base = import.meta.env.BASE_URL ?? '/';
-
 function stripLeadingSlash(path: string): string {
   return path.replace(/^\/+/, '');
 }
 
-export function pathWithBase(path: string): string {
+function stripTrailingSlash(path: string): string {
+  return path.replace(/\/+$/, '');
+}
+
+export function pathWithBase(path: NonNullable<string>): string {
+  let base = import.meta.env.BASE_URL;
   path = stripLeadingSlash(path);
-  return path ? base + '/' + path : base + '/';
+  if (!base) {
+    return path;
+  }
+  return stripTrailingSlash(base) + '/' + path;
 }
