@@ -232,8 +232,8 @@ tenzir 'read_zeek_tsv' < conn.log
 
 Now that we have structured data to work with, our objective is to map the
 fields from the Zeek conn.log to OCSF. The corresponding event class in OCSF
-is [Network Activity](https://schema.ocsf.io/1.3.0/classes/network_activity).
-We will be using OCSF v1.3.0 throughout this tutorial.
+is [Network Activity](https://schema.ocsf.io/1.5.0/classes/network_activity).
+We will be using OCSF v1.5.0 throughout this tutorial.
 
 To make the mapping process more organized, we map per attribute group:
 
@@ -361,7 +361,7 @@ ocsf.metadata = {
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
   uid: move zeek.uid,
-  version: "1.4.0",
+  version: "1.5.0",
 }
 drop zeek._path? // implied in metadata.log_name
 move ocsf.app_name = zeek.service
@@ -494,7 +494,7 @@ ocsf.metadata = {
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
   uid: move zeek.uid,
-  version: "1.4.0",
+  version: "1.5.0",
 }
 move ocsf.app_name = zeek.service
 // === Primary ===
@@ -581,7 +581,7 @@ You should get the following output:
       cpe_name: "cpe:2.3:a:zeek:zeek",
     },
     uid: "C1UE8M1G6ok0h7OrJi",
-    version: "1.4.0",
+    version: "1.5.0",
   },
   app_name: null,
   src_endpoint: {
