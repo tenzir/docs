@@ -7,7 +7,7 @@ export const topics = [
     id: 'docs',
     link: '',
     icon: 'open-book',
-    items: guides,
+    items: [],
   },
   {
     label: 'Integrations',
