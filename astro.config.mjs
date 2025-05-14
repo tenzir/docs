@@ -22,6 +22,7 @@ export default defineConfig({
   site: 'https://new.docs.tenzir.com',
   redirects: {
     '/discord': 'https://discord.gg/xqbDgVTCxZ',
+    '/sbom': 'https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json',
   },
   integrations: [
     sitemap(),

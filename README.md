@@ -76,7 +76,7 @@ can find a preview of the new documentation at
 
 ### Legal
 
-- [ ] SBOM at `/sbom`
+- [x] SBOM at `/sbom`
 - [ ] Privacy Statement (or link to it)
 
 ### 🚀 Relaunch
