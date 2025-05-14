@@ -20,6 +20,9 @@ const runLinkCheck = process.env.RUN_LINK_CHECK || false;
 // https://astro.build/config
 export default defineConfig({
   site: 'https://new.docs.tenzir.com',
+  redirects: {
+    '/discord': 'https://discord.gg/xqbDgVTCxZ',
+  },
   integrations: [
     sitemap(),
     starlight({
@@ -31,7 +34,7 @@ export default defineConfig({
       },
       social: [
         {icon: 'github', label: 'GitHub', href: 'https://github.com/tenzir/tenzir'},
-        {icon: 'discord', label: 'Discord', href: 'https://discord.tenzir.com'},
+        {icon: 'discord', label: 'Discord', href: '/discord'},
         {icon: 'linkedin', label: 'LinkedIn', href: 'https://linkedin.com/company/tenzir'},
       ],
       lastUpdated: true,
