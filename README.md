@@ -86,31 +86,7 @@ can find a preview of the new documentation at
 
 ## ✊ Usage
 
-Install the web framework dependencies:
-
-```bash
-pnpm install
-```
-
-Then view the docs locally:
-
-```bash
-pnpm dev
-```
-
-Here's an summary about frequently used commands:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`            | Installs dependencies                            |
-| `pnpm dev`                | Starts local dev server at `localhost:4321`      |
-| `pnpm build`              | Build your production site to `./dist/`          |
-| `pnpm preview`            | Preview your build locally, before deploying     |
-| `pnpm astro ...`          | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help`    | Get help using the Astro CLI                     |
-
-## 🙋 Help
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [Astro's
-documentation](https://docs.astro.build), or jump into [Tenzir's Discord
-server](https://docs.tenzir.com/discord).
+Our
+[documentation](https://new.docs.tenzir.com/guides/contribution/documentation/)
+has up-to-date instructions on how to build, view, and edit content in this
+repository.
