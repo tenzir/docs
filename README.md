@@ -28,7 +28,7 @@ can find a preview of the new documentation at
 - [ ] Fix Markdoc partial support (https://github.com/withastro/astro/issues/13575)
 - [ ] Use [breadcrumbs](https://docs.astro-breadcrumbs.kasimir.dev/) for
       functions and operators
-- [ ] Add [Plausible analytics](https://plausible.io/docs.tenzir.com/installation)
+- [x] Add Plausible analytics
 
 ### CI / Automation
 

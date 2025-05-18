@@ -33,6 +33,16 @@ export default defineConfig({
         dark: './src/assets/tenzir-dark.svg',
         replacesTitle: true,
       },
+      head: [
+        {
+          tag: 'script',
+          attrs: {
+            defer: true,
+            'data-domain': 'docs.tenzir.com',
+            src: 'https://plausible.io/js/script.js',
+          },
+        },
+      ],
       social: [
         {icon: 'github', label: 'GitHub', href: 'https://github.com/tenzir/tenzir'},
         {icon: 'discord', label: 'Discord', href: '/discord'},
