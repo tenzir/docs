@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
+import { execSync } from 'node:child_process';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import starlightLinksValidator from 'starlight-links-validator';
@@ -16,6 +17,7 @@ import { bundledLanguages } from 'shiki'
 import tqlLang from './tql.tmLanguage.json' assert { type: 'json' };
 
 const runLinkCheck = process.env.RUN_LINK_CHECK || false;
+const isProd = process.env.NODE_ENV === 'production';
 
 // https://astro.build/config
 export default defineConfig({
@@ -34,14 +36,14 @@ export default defineConfig({
         replacesTitle: true,
       },
       head: [
-        {
+        ...(isProd ? [{
           tag: 'script',
           attrs: {
             defer: true,
             'data-domain': 'docs.tenzir.com',
             src: 'https://plausible.io/js/script.js',
           },
-        },
+        }] : []),
       ],
       social: [
         {icon: 'github', label: 'GitHub', href: 'https://github.com/tenzir/tenzir'},
