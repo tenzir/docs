@@ -1,0 +1,35 @@
+---
+title: Overview
+---
+
+The **Tenzir Platform** is the fleet management control plane for Tenzir Nodes.
+The platform also provides a web interface to explore data, create pipelines,
+and build dashboards.
+
+{% aside type="tip" title="Sovereign Edition required" %}
+This guide explains how you setup the platform on your own premises using the
+[Sovereign Edition](https://tenzir.com/pricing). We also offer a cloud-hosted
+version of the Platform at [app.tenzir.com](https://app.tenzir.com).
+{% /aside %}
+
+Setting up the platform involves the following steps:
+
+{% steps %}
+
+1. [**Choose a scenario**](choose-a-scenario): You can deploy the platform in
+  various ways. We provide a few scenarios that match common use cases.
+2. **Configure the services**: The platform consists of a few services that
+   implement various functions, such as a
+   [reverse proxy](configure-the-services/reverse-proxy),
+   [identity provider](configure-the-services/identity-provider), and
+   [database](configure-the-services/database) for persistent state.
+3. **Define static workspaces and dashboards**: You can optionally define
+   pre-configured workspaces a dashboards as part of the configuration. This
+   comes in handy for IaC-style deployments.
+4. [**Run the platform**](run-the-platform): Once you've created a
+   configuration, start the platform. This can be as easy as `docker compose
+   up`.
+5. **Manage a platform**: After a platform is up and running, you can manage it
+   via the API and accompanying command line utility.
+
+{% /steps %}

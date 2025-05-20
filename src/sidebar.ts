@@ -25,14 +25,30 @@ export const guides = [
         label: 'Platform',
         collapsed: true,
         items: [
-          'guides/setup/platform/deploy-the-platform',
-          'guides/setup/platform/manage-the-platform',
+          'guides/setup/platform',
+          'guides/setup/platform/choose-a-scenario',
           {
-            label: 'Configure the IdP',
-            collapsed: true,
+            label: 'Configure the Services',
             items: [
-              'guides/setup/platform/configure-the-idp/keycloak',
-              'guides/setup/platform/configure-the-idp/microsoft-entra-id',
+              'guides/setup/platform/configure-the-services/reverse-proxy',
+              'guides/setup/platform/configure-the-services/database',
+              {
+                label: 'Identity Provider',
+                items: [
+                  'guides/setup/platform/configure-the-services/identity-provider',
+                  'guides/setup/platform/configure-the-services/identity-provider/keycloak',
+                  'guides/setup/platform/configure-the-services/identity-provider/microsoft-entra-id',
+                ],
+              },
+            ],
+          },
+          'guides/setup/platform/adjust-tls-settings',
+          'guides/setup/platform/run-the-platform',
+          {
+            label: "Manage the platform",
+            items: [
+              'guides/setup/platform/manage-the-platform/dynamic-via-cli',
+              'guides/setup/platform/manage-the-platform/static-as-code',
             ],
           },
         ],
