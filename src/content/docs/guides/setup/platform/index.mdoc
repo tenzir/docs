@@ -12,24 +12,45 @@ This guide explains how you setup the platform on your own premises using the
 version of the Platform at [app.tenzir.com](https://app.tenzir.com).
 {% /aside %}
 
+## Services
+
+The platform consists of three types of several services, as illustrated in the
+diagram below:
+
+![Platform Services](./platform-services.svg)
+
+There are three types of services:
+
+1. **Internal**: The (gray) Tenzir services are internal to the workings of
+   platform. You do not need to configure them.
+2. **External**: The (blue) services are external. We do not ship with them and
+   you have to bring them to the table.
+3. **Configurable**: The (yellow) services can be both internal and external.
+   You can either bring your own or use the bundled services that we ship.
+
+## Get Started
+
 Setting up the platform involves the following steps:
 
 {% steps %}
 
 1. [**Choose a scenario**](choose-a-scenario): You can deploy the platform in
   various ways. We provide a few scenarios that match common use cases.
-2. **Configure the services**: The platform consists of a few services that
-   implement various functions, such as a
-   [reverse proxy](configure-the-services/reverse-proxy),
-   [identity provider](configure-the-services/identity-provider), and
-   [database](configure-the-services/database) for persistent state.
-3. **Define static workspaces and dashboards**: You can optionally define
-   pre-configured workspaces a dashboards as part of the configuration. This
-   comes in handy for IaC-style deployments.
+2. **Configure the services**: You must configure at least the
+   [reverse proxy](configure-the-services/reverse-proxy). Optionally, configure
+   the [database](configure-the-services/database), and the
+   [blob storage](configure-the-services/blob-storage), and the
+   [identity provider](configure-the-services/identity-provider).
+3. [**Adjust TLS Settings**](adjust-tls-settings): Optionally, tweak the TLS
+   settings to match your needs.
 4. [**Run the platform**](run-the-platform): Once you've created a
    configuration, start the platform. This can be as easy as `docker compose
    up`.
-5. **Manage a platform**: After a platform is up and running, you can manage it
-   via the API and accompanying command line utility.
 
 {% /steps %}
+
+{% aside type="note" title="Usage Guides" %}
+The above guides are about deploying the platform. Check out our user-centric
+guides on how to use the platform CLI, how to configure shared workspaces with
+auth rules, and how to define static workspaces for IaC-style deployments.
+{% /aside %}
