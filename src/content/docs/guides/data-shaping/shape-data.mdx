@@ -446,3 +446,31 @@ xs = prepend(xs, 1)
   ],
 }
 ```
+
+### Perform bitwise operations
+
+TQL comes with bitwise functions on numeric data types:
+
+```tql
+from {
+  band: bit_and(5, 3),
+  bor: bit_or(5, 3),
+  bxor: bit_xor(5, 3),
+  bnot: bit_not(5),
+  shl: shift_left(5, 2),
+  shr: shift_right(5, 1),
+}
+```
+
+```tql
+{
+  band: 1,  // (0101 & 0011 = 0001)
+  bor: 7,   // (0101 | 0011 = 0111)
+  bxor: 6,  // (0101 ^ 0011 = 0110)
+  bnot: -6, // (~0101 = 1010)
+  shl: 20,  // (0101 << 2 = 10100)
+  shr: 2,   // (0101 >> 1 = 0010)
+}
+```
+
+Note that integral types in Tenzir have 64 bits, and we're only showing the least significant bits for brevity.
