@@ -1,0 +1,42 @@
+---
+title: Choose a Scenario
+---
+
+We provide several examples of possible platform deployment scenarios. Pick one
+that best suits your needs.
+
+## Download the Platform Files
+
+Start with downloading the [latest Tenzir Platform
+release](https://github.com/tenzir/platform/releases/latest) and unpack the
+archive.
+
+## Choose a Scenario
+
+The `examples` directory contains example scenarios in the form of Docker
+Compose configurations. Choose from the following options:
+
+1. **localdev**: This scenario is designed for local development and testing
+   purposes. It operates as a "Tenzir-in-a-box," meaning all necessary
+   components are bundled together for a quick and easy setup, making it ideal
+   for single-user exploration and experimentation. Due to its simplified nature
+   and focus on ease of use, it has a low barrier to entry. However, it is not
+   optimized for performance, security, or scalability, making it ill-suited for
+   production environments.
+2. **keycloak**: The `keycloak` scenario provides a minimal yet complete setup
+   for multi-user environments. It integrates Keycloak for robust authentication
+   and authorization, enabling secure access for multiple users. This
+   configuration includes all essential Tenzir services and is designed to be
+   readily usable, especially when deployed behind a reverse proxy, which can
+   handle TLS termination and provide an additional layer of security and load
+   balancing.
+3. **onprem**: Our `onprem` scenario represents an enterprise-grade deployment.
+   It is structured with the assumption that critical services such as Kafka,
+   S3, and the identity provider (like Keycloak) are already established and
+   managed externally within your on-premises infrastructure. This allows Tenzir
+   to integrate seamlessly into existing robust, production-ready environments,
+   leveraging your organization's established operational practices and
+   infrastructure investments.
+
+In order to customize a scenario to your needs, configure the services by
+populating a `.env` file with your settings as environment variables.
