@@ -1,0 +1,53 @@
+---
+title: Use ephemeral nodes
+---
+
+An **ephemeral node** is ideal for temporary or auto-scaling deployments. It
+is a temporary node that you do not have to provision manually first, and
+it disappears from the workspace when the connection to the platform ends.
+
+Using ephemeral nodes requires that you define a *workspace token*, a shared
+secret that you pass to the node so that it can self-register. You can define a
+workspace token in your workspace configuration:
+
+```yaml title="workspaces.yaml"
+workspaces:
+  static0:
+    name: Tenzir
+    # Other configuration...
+    token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+```
+
+:::caution
+Workspace tokens have a specific format. Do not create them manually!
+Use the `tenzir-platform tools generate-workspace-token` command to create
+valid tokens.
+:::
+
+For improved security, store the token in a separate file:
+
+```yaml title="workspaces.yaml"
+workspaces:
+  static0:
+    name: Tenzir
+    # Other configuration...
+    token-file: /run/secrets/workspace_token
+```
+
+This approach works well when you use Docker or Kubernetes secrets.
+
+### Deploy an ephemeral node
+
+To spawn an ephemeral node, create configuration file with the workspace token:
+
+```yaml title="config.yaml"
+tenzir:
+  token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+  platform-control-endpoint: http://tenzir-platform.example.org:3001
+```
+
+Then run the node with this configuration:
+
+```bash
+tenzir-node --config=config.yaml
+```

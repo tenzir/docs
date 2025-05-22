@@ -2,90 +2,76 @@ import { openAPISidebarGroups } from "starlight-openapi";
 
 export const guides = [
   "guides/quickstart",
+  "guides/account-creation",
   {
-    label: "Setup",
+    label: "Node Setup",
+    collapsed: true,
     items: [
-      "guides/setup/create-an-account",
+      "guides/node-setup/provision-a-node",
+      "guides/node-setup/size-a-node",
       {
-        label: "Node",
-        collapsed: true,
-        items: [
-          "guides/setup/node/provision-a-node",
-          "guides/setup/node/size-a-node",
-          {
-            label: "Deploy a node",
-            autogenerate: { directory: "guides/setup/node/deploy-a-node" },
-          },
-          "guides/setup/node/configure-a-node",
-          "guides/setup/node/start-the-node-api",
-          "guides/setup/node/tune-performance",
-        ],
+        label: "Deploy a node",
+        autogenerate: { directory: "guides/node-setup/deploy-a-node" },
       },
-      {
-        label: "Platform",
-        collapsed: true,
-        items: [
-          "guides/setup/platform",
-          "guides/setup/platform/choose-a-scenario",
-          {
-            label: "Configure the Services",
-            items: [
-              "guides/setup/platform/configure-the-services/reverse-proxy",
-              "guides/setup/platform/configure-the-services/database",
-              "guides/setup/platform/configure-the-services/blob-storage",
-              "guides/setup/platform/configure-the-services/identity-provider",
-            ],
-          },
-          "guides/setup/platform/adjust-tls-settings",
-          "guides/setup/platform/run-the-platform",
-        ],
-      },
+      "guides/node-setup/configure-a-node",
+      "guides/node-setup/start-the-node-api",
+      "guides/node-setup/tune-performance",
     ],
   },
   {
-    label: "Usage",
+    label: "Platform Setup",
+    collapsed: true,
     items: [
-      {
-        label: "Basics",
-        items: [
-          "guides/usage/basics/run-pipelines",
-          "guides/usage/basics/manage-a-pipeline",
-          "guides/usage/basics/install-a-package",
-          "guides/usage/basics/collect-metrics",
-        ],
-      },
-      {
-        label: "Data",
-        items: [
-          "guides/usage/data/shape-data",
-          "guides/usage/data/parse-nested-data",
-          "guides/usage/data/deduplicate-events",
-        ],
-      },
-      {
-        label: "Storage",
-        items: [
-          "guides/usage/storage/import-into-a-node",
-          "guides/usage/storage/export-from-a-node",
-          "guides/usage/storage/show-available-schemas",
-          "guides/usage/storage/transform-data-at-rest",
-        ],
-      },
-      {
-        label: "Security",
-        items: [
-          "guides/usage/security/enrich-with-network-inventory",
-          "guides/usage/security/enrich-with-threat-intel",
-          "guides/usage/security/execute-sigma-rules",
-        ],
-      },
-      {
-        label: "Management",
-        items: [
-          "guides/usage/management/use-the-platform-cli",
-          "guides/usage/management/define-static-workspaces",
-        ],
-      },
+      "guides/platform-setup",
+      "guides/platform-setup/choose-a-scenario",
+      "guides/platform-setup/configure-reverse-proxy",
+      "guides/platform-setup/configure-identity-provider",
+      "guides/platform-setup/configure-database",
+      "guides/platform-setup/configure-blob-storage",
+      "guides/platform-setup/adjust-tls-settings",
+      "guides/platform-setup/run-the-platform",
+    ],
+  },
+  {
+    label: "Basic Usage",
+    items: [
+      "guides/basic-usage/run-pipelines",
+      "guides/basic-usage/manage-a-pipeline",
+      "guides/basic-usage/install-a-package",
+      "guides/basic-usage/collect-metrics",
+    ],
+  },
+  {
+    label: "Data Shaping",
+    items: [
+      "guides/data-shaping/shape-data",
+      "guides/data-shaping/parse-nested-data",
+      "guides/data-shaping/deduplicate-events",
+    ],
+  },
+  {
+    label: "Edge Storage",
+    items: [
+      "guides/edge-storage/import-into-a-node",
+      "guides/edge-storage/export-from-a-node",
+      "guides/edge-storage/show-available-schemas",
+      "guides/edge-storage/transform-data-at-rest",
+    ],
+  },
+  {
+    label: "Enrichment",
+    items: [
+      "guides/enrichment/enrich-with-network-inventory",
+      "guides/enrichment/enrich-with-threat-intel",
+      "guides/enrichment/execute-sigma-rules",
+    ],
+  },
+  {
+    label: "Platform Management",
+    items: [
+      "guides/platform-management/configure-workspaces",
+      "guides/platform-management/configure-dashboards",
+      "guides/platform-management/use-ephemeral-nodes",
     ],
   },
   {
