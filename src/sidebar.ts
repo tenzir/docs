@@ -33,14 +33,7 @@ export const guides = [
               "guides/setup/platform/configure-the-services/reverse-proxy",
               "guides/setup/platform/configure-the-services/database",
               "guides/setup/platform/configure-the-services/blob-storage",
-              {
-                label: "Identity Provider",
-                items: [
-                  "guides/setup/platform/configure-the-services/identity-provider",
-                  "guides/setup/platform/configure-the-services/identity-provider/keycloak",
-                  "guides/setup/platform/configure-the-services/identity-provider/microsoft-entra-id",
-                ],
-              },
+              "guides/setup/platform/configure-the-services/identity-provider",
             ],
           },
           "guides/setup/platform/adjust-tls-settings",
@@ -90,7 +83,6 @@ export const guides = [
         label: "Management",
         items: [
           "guides/usage/management/use-the-platform-cli",
-          "guides/usage/management/configure-shared-workspaces",
           "guides/usage/management/define-static-workspaces",
         ],
       },
