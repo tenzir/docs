@@ -117,6 +117,7 @@ export const explanations = [
     autogenerate: { directory: "explanations/architecture" },
   },
   "explanations/configuration",
+  "explanations/secrets",
   "explanations/enrichment",
   "explanations/packages",
   "explanations/glossary",

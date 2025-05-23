@@ -64,11 +64,12 @@ Tenzir comes with a wide range of built-in pipeline operators.
 
 #### Events
 
-| Operator                              | Description                                              | Example                                                                                                    |
-| :------------------------------------ | :------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| Operator                              | Description                                               | Example                                                                                                     |
+| :------------------------------------ | :-------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- |
 | [`from`](from)                        | Reads events from an URI<br/>Creates events from records | `from "http://example.org/file.csv.gz"`<br/>`from {key: "value"}…` <!--at the top because its important--> |
+| [`from_file`](from_file)              | Reads one or multiple files from a filesystem            | `from_file "s3://data/**.json"`                                                                            |
 | [`from_http`](from_http)              | Accepts or sends HTTP/1.1 requests                       | `from_http "0.0.0.0:8080`                                                                                  |
-| [`from_fluent_bit`](from_fluent_bit) | Returns results from Fluent Bit                          | `from_fluent_bit "opentelemetry"`                                                                          |
+| [`from_fluent_bit`](from_fluent_bit)  | Returns results from Fluent Bit                          | `from_fluent_bit "opentelemetry"`                                                                          |
 | [`from_opensearch`](from_opensearch)  | Accepts requests for OpenSearch Bulk API                 | `from_opensearch`                                                                                          |
 | [`from_velocira…`](from_velociraptor) | Returns results from a Velociraptor server               | `from_velociraptor subscribe="Windows"`                                                                    |
 
