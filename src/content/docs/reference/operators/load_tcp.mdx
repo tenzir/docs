@@ -5,8 +5,8 @@ title: load_tcp
 Loads bytes from a TCP or TLS connection.
 
 ```tql
-load_tcp endpoint:string, [parallel=int, tls=bool, cacert=string, certifle=string,
-                           keyfile=string, skip_peer_verification=bool,
+load_tcp endpoint:string, [parallel=int, peer_field=field, tls=bool,
+                           cacert=string, certifle=string,
                            max_buffered_chunks=int { … }]
 ```
 
@@ -27,6 +27,12 @@ Number of threads to use for reading from connections.
 Defaults to 1.
 
 import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+
+### `peer_field = field (optional)`
+
+Write a record with the fields `ip`, `port`, and `hostname` resembling the peer
+endpoint of the respective TCP connection into the specified field at the end of
+the nested pipeline.
 
 <TLSOptions tls_default="false"/>
 

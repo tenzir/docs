@@ -25,6 +25,10 @@ without having to manually write the separate steps of data ingestion manually.
 
 The URI to load from.
 
+:::note
+The URI for `from` must be a constant string and cannot be a `secret`.
+:::
+
 ### `loader_args… (optional)`
 
 An optional set of arguments passed to the loader.

@@ -70,6 +70,7 @@ but often resort to the method style when it is more idiomatic.
 | :--------------- | :---------------------------------- | :----------------------------------------- |
 | [`get`](get)     | Accesses a field of a record        | `record.get("field", default)`             |
 | [`has`](has)     | Checks whether a record has a field | `record.has("field")`                      |
+| [`keys`](keys)   | Gets all field names from a record  | `record.keys()`                            |
 | [`merge`](merge) | Merges two records                  | `merge(foo, bar)`                          |
 | [`sort`](sort)   | Sorts a record by field names       | `xs.sort()`                                |
 
@@ -172,11 +173,17 @@ but often resort to the method style when it is more idiomatic.
 
 | Function                                   | Description                                       | Example                               |
 | :----------------------------------------- | :------------------------------------------------ | :------------------------------------ |
-| [`as_secs`](as_secs)                       | Converts a duration into seconds                  | `as_secs(42ms)`                       |
 | [`from_epoch`](from_epoch)                 | Interprets a duration as Unix time                | `from_epoch(time_ms * 1ms)`           |
 | [`now`](now)                               | Gets the current wallclock time                   | `now()`                               |
 | [`since_epoch`](since_epoch)               | Turns a time into a duration since the Unix epoch | `since_epoch(2021-02-24)`             |
 | [`parse_time`](parse_time)                 | Parses a timestamp following a given format       | `"10/11/2012".parse_time("%d/%m/%Y")` |
+| [`format_time`](format_time)               | Formats a timestamp following a given format      | `ts.format_time("%d/ %m/%Y")`         |
+| [`year`](year)                             | Extracts the year component from a timestamp      | `ts.year()`                           |
+| [`month`](month)                           | Extracts the month component from a timestamp     | `ts.month()`                          |
+| [`day`](day)                               | Extracts the day component from a timestamp       | `ts.day()`                            |
+| [`hour`](hour)                             | Extracts the hour component from a timestamp      | `ts.hour()`                           |
+| [`minute`](minute)                         | Extracts the minute component from a timestamp    | `ts.minute()`                         |
+| [`second`](second)                         | Extracts the second component from a timestamp    | `ts.second()`                         |
 | [`years`](years)                           | Converts a number to equivalent years             | `years(100)`                          |
 | [`months`](months)                         | Converts a number to equivalent months            | `months(100)`                         |
 | [`weeks`](weeks)                           | Converts a number to equivalent weeks             | `weeks(100)`                          |
@@ -198,24 +205,11 @@ but often resort to the method style when it is more idiomatic.
 | [`count_microseconds`](count_microseconds) | Counts the number of microseconds in a duration   | `count_microseconds(100d)`            |
 | [`count_nanoseconds`](count_nanoseconds)   | Counts the number of nanoseconds in a duration    | `count_nanoseconds(100d)`             |
 
-<!--
-This is hidden because there is an issue with the timezone DB.
-[`format_time`](format_time) | Format a timestamp following a given format | `2012-11-10.format_time("%d/%m/%Y")`
--->
+## IP
 
-<!--
-
-- `year`
-- `month`
-- `week` (?)
-- `day`
-- `hour`
-- `minute`
-- `second`
-- `tz` (?)
-
--->
-
+| Function             | Description                               | Example                |
+| :------------------- | :---------------------------------------- | :--------------------- |
+| [`network`](network) | Retrieves the network address of a subnet | `10.0.0.0/8.network()` |
 ## Math
 
 | Function           | Description                | Example                        |

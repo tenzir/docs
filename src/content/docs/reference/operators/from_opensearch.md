@@ -7,7 +7,7 @@ API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).
 
 ```tql
 from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
-                certfile=string, keyfile=string, password=string]
+                 certfile=string, keyfile=string, password=string]
 ```
 
 ## Description
@@ -25,7 +25,7 @@ Defaults to `"0.0.0.0:9200"`.
 
 ### `keep_actions = bool (optional)`
 
-If to keep the command objects such as `{"create": ...}`.
+Whether to keep the command objects such as `{"create": ...}`.
 
 Defaults to `false`.
 
