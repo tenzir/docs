@@ -1,0 +1,331 @@
+---
+title: Fetch data from APIs
+---
+
+This guide covers how to fetch data from HTTP APIs using the `http` operator.
+Whether you make simple GET requests, handle authentication, or implement
+pagination, the `http` operator provides flexible HTTP client capabilities for
+API integration.
+
+## Basic API Requests
+
+Start with these fundamental patterns for making HTTP requests to APIs.
+
+### Simple GET Requests
+
+To fetch data from an API endpoint, pass the URL as the first parameter to the
+`http` operator:
+
+```tql
+from {}
+http "https://api.example.com/data"
+```
+
+The operator makes a GET request by default and forwards the response as an
+event. Since `http` is a transformation, you can also specify the URL as a field
+by referencing an event field that contains the URL:
+
+```tql
+from {url: "https://api.example.com/data"}
+http url
+```
+
+This pattern is useful when processing multiple URLs or when URLs are generated dynamically.
+
+### Parsing JSON Responses
+
+Most APIs return JSON data. Parse JSON responses by providing a parsing
+pipeline with the `read_json` operator:
+
+```tql
+from {url: "https://api.example.com/users"}
+http url {
+  read_json
+}
+```
+
+This parses the JSON response into structured events that you can process
+further.
+
+### POST Requests with Data
+
+Send data to APIs by specifying the `method` parameter as "post" and providing
+the request body in the `payload` parameter:
+
+```tql
+from {
+  url: "https://api.example.com/users",
+  method: "post",
+  payload: '{"name": "John", "email": "john@example.com"}'
+}
+http url,
+  method=method,
+  payload=payload
+```
+
+You can also parameterize the entire HTTP request using event fields by
+referencing field values for each parameter:
+
+```tql
+from {
+  url: "https://api.example.com/users",
+  method: "post",
+  data: {
+    name: "John",
+    email: "john@example.com"
+  }
+}
+http url, method=method, payload=data
+```
+
+The operator automatically uses POST method when you specify a payload.
+
+## Request Configuration
+
+Configure requests with headers, authentication, and other options for
+different API requirements.
+
+### Adding Headers
+
+Include custom headers by providing the `headers` parameter as a record
+containing key-value pairs:
+
+```tql
+from {
+  url: "https://api.example.com/data",
+  headers: {
+    "Authorization": "Bearer your-token-here",
+    "Content-Type": "application/json"
+  }
+}
+http url, headers=headers
+```
+
+Headers help you authenticate with APIs and specify request formats.
+
+### TLS and Security
+
+Enable TLS by setting the `tls` parameter to `true` and configure client
+certificates using the `certfile` and `keyfile` parameters:
+
+```tql
+from {
+  url: "https://secure-api.example.com/data",
+  tls: true,
+  certfile: "/path/to/client.crt",
+  keyfile: "/path/to/client.key"
+}
+http url, tls=tls, certfile=certfile, keyfile=keyfile
+```
+
+Use these options when APIs require client certificate authentication.
+
+### Timeout and Retry Configuration
+
+Configure timeouts and retry behavior by setting the `connection_timeout`,
+`max_retry_count`, and `retry_delay` parameters:
+
+```tql
+from {
+  url: "https://api.example.com/data",
+  timeout: 10s,
+  max_retries: 3,
+  retry_delay: 2s
+}
+http url,
+  connection_timeout=timeout,
+  max_retry_count=max_retries,
+  retry_delay=retry_delay
+```
+
+These settings help handle network issues and API rate limiting gracefully.
+
+## Data Enrichment
+
+Use HTTP requests to enrich existing data with information from external APIs.
+
+### Preserving Input Context
+
+Keep original event data while adding API responses by specifying the
+`response_field` parameter to control where the response is stored:
+
+```tql
+from {
+  domain: "example.com",
+  severity: "HIGH",
+  api_url: "https://threat-intel.example.com/lookup",
+  response_field: "threat_data"
+}
+http api_url + "?domain=" + domain, response_field=response_field
+```
+
+This approach preserves your original data and adds API responses in a specific
+field.
+
+### Adding Metadata
+
+Capture HTTP response metadata by specifying the `metadata_field` parameter to
+store status codes and headers separately from the response body:
+
+```tql
+from {
+  url: "https://api.example.com/status",
+  response_field: "data",
+  metadata_field: "http_meta"
+}
+http url, response_field=response_field, metadata_field=metadata_field
+```
+
+The metadata includes status codes and response headers for debugging and
+monitoring.
+
+## Pagination and Bulk Processing
+
+Handle APIs that return large datasets across multiple pages.
+
+### Simple Pagination
+
+Implement automatic pagination by providing an expression to the `paginate`
+parameter that extracts the next page URL from the response:
+
+```tql
+from {
+  url: "https://api.example.com/search?q=query"
+}
+http url,
+  paginate="next_page_url" if has_more {
+  read_json
+}
+```
+
+The operator continues making requests as long as the pagination expression
+returns a valid URL.
+
+### Complex Pagination Logic
+
+Handle APIs with custom pagination schemes by building pagination URLs
+dynamically using expressions that reference response data:
+
+```tql
+let $base_url = "https://api.example.com/items"
+from {
+  url: $base_url + "?page=1",
+  paginate_delay: 1s
+}
+http url,
+  paginate=$base_url + "?page=" + (page + 1) if page < total_pages,
+  paginate_delay=paginate_delay
+```
+
+This example builds pagination URLs dynamically based on response data.
+
+### Rate Limiting
+
+Control request frequency by configuring the `paginate_delay` parameter to add
+delays between requests and the `parallel` parameter to limit concurrent
+requests:
+
+```tql
+from {
+  url: "https://api.example.com/data",
+  paginate_delay: 500ms,
+  parallel: 2
+}
+http url,
+  paginate="next_url" if has_next,
+  paginate_delay=paginate_delay,
+  parallel=parallel
+```
+
+Use `paginate_delay` and `parallel` to manage request rates appropriately.
+
+## Practical Examples
+
+These examples demonstrate typical use cases for API integration in real-world
+scenarios.
+
+### API Monitoring
+
+Monitor API health and response times:
+
+```tql
+from {
+  url: "https://api.example.com/health",
+  metadata_field: "response_meta"
+}
+http url, metadata_field=metadata_field {
+  read_json
+}
+response_meta.response_time = now() - response_meta.timestamp
+```
+
+### Webhook Processing
+
+Process incoming webhook data and make follow-up API calls:
+
+```tql
+from {
+  webhook_id: "12345",
+  user_id: "user123",
+  api_base: "https://api.example.com/users/",
+  response_field: "user_details"
+}
+http api_base + user_id, response_field=response_field {
+  read_json
+}
+```
+
+## Error Handling
+
+Handle API errors and failures gracefully in your data pipelines.
+
+### Retry Configuration
+
+Configure automatic retries by setting the `max_retry_count` parameter to
+specify the number of retry attempts and `retry_delay` to control the time
+between retries:
+
+```tql
+from {
+  url: "https://unreliable-api.example.com/data",
+  max_retries: 5,
+  retry_delay: 2s
+}
+http url,
+  max_retry_count=max_retries,
+  retry_delay=retry_delay {
+  read_json
+}
+```
+
+### Status Code Handling
+
+Check HTTP status codes by capturing metadata and filtering based on the
+`code` field to handle different response types:
+
+```tql
+from {
+  url: "https://api.example.com/data",
+  metadata_field: "meta"
+}
+http url, metadata_field=metadata_field {
+  read_json
+}
+where meta.code >= 200 and meta.code < 300
+```
+
+## Best Practices
+
+Follow these practices for reliable and efficient API integration:
+
+1. **Use appropriate timeouts** - Set reasonable connection timeouts for your
+   use case
+2. **Implement retry logic** - Configure retries for handling transient
+   failures
+3. **Respect rate limits** - Use `parallel` and `paginate_delay` to control
+   request rates
+4. **Handle errors gracefully** - Check status codes and implement fallback
+   logic
+5. **Secure credentials** - Store API keys and tokens securely, not in code
+6. **Monitor API usage** - Track response times and error rates for
+   performance

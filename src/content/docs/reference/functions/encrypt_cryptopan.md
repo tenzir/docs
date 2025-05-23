@@ -4,8 +4,6 @@ title: encrypt_cryptopan
 
 Encrypts an IP address via Crypto-PAn.
 
-## Synopsis
-
 ```tql
 encrypt_cryptopan(address:ip, [seed=string])
 ```

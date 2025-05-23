@@ -5,8 +5,6 @@ title: from_opensearch
 Receives events via [Opensearch Bulk
 API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).
 
-## Synopsis
-
 ```tql
 from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
                 certfile=string, keyfile=string, password=string]

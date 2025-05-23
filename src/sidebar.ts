@@ -45,6 +45,7 @@ export const guides = [
     label: "Data Loading",
     items: [
       "guides/data-loading/read-and-watch-files",
+      "guides/data-loading/fetch-data-from-apis",
     ],
   },
   {

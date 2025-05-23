@@ -4,8 +4,6 @@ title: hash_md5
 
 Computes an MD5 hash digest.
 
-## Synopsis
-
 ```tql
 hash_md5(x:any, [seed=string])
 ```

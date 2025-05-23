@@ -12,6 +12,7 @@ Tenzir comes with a wide range of built-in pipeline operators.
 | [`select`](select)       | Selects some values and discard the rest                        | `select name, id=metadata.id`    |
 | [`drop`](drop)           | Removes fields from the event                                   | `drop name, metadata.id`         |
 | [`enumerate`](enumerate) | Adds a field with the number of the event                       | `enumerate num`                  |
+| [`http`](http)           | Sends HTTP/1.1 requests per event and forwards response         | `http "example.com"`                             |
 | [`move`](move)           | Moves a field to another                                        | `move id=parsed_id, ctx.message=incoming.status` |
 | [`timeshift`](timeshift) | Adjusts timestamps relative to a given start time               | `timeshift ts, start=2020-01-01` |
 | [`unroll`](unroll)       | Unrolls a field of type list, duplicating the surrounding event | `unroll names`                   |
