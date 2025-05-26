@@ -64,6 +64,15 @@ from_file "/path/to/directory/*.csv.zst"
 This example processes all Zstd-compressed CSV files in the specified
 directory.
 
+You can also use glob patterns to consume files regardless of their format:
+
+```tql
+from_file "~/data/**"
+```
+
+This processes all files in the `~/data` directory and its subdirectories,
+automatically detecting and parsing each file format.
+
 ### Recursive Directory Processing
 
 Use `**` to match files recursively through subdirectories:
@@ -123,6 +132,12 @@ Access S3 buckets directly using `s3://` URLs:
 from_file "s3://bucket/path/to/file.csv"
 ```
 
+Glob patterns work with S3 as well:
+
+```tql
+from_file "s3://bucket/data/**/*.parquet"
+```
+
 ### Google Cloud Storage
 
 Access GCS buckets using `gs://` URLs:
@@ -132,7 +147,8 @@ from_file "gs://bucket/path/to/file.csv"
 ```
 
 Cloud storage integration uses Apache Arrow's filesystem APIs and supports the
-same glob patterns and options as local files.
+same glob patterns and options as local files, including recursive globbing
+across cloud storage hierarchies.
 
 ## Common Patterns
 

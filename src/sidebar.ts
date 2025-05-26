@@ -137,10 +137,7 @@ export const reference = [
   },
   "reference/configuration",
   "reference/platform-cli",
-  {
-    label: "API",
-    items: openAPISidebarGroups,
-  },
+  ...openAPISidebarGroups,
 ];
 
 export const integrations = [
