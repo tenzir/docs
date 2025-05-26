@@ -60,6 +60,7 @@ export default defineConfig({
       components: {
         Sidebar: './src/components/Sidebar.astro',
         SiteTitle: './src/components/SiteTitle.astro',
+        ThemeSelect: './src/components/ThemeSelect.astro',
       },
       routeMiddleware: './src/routeData.ts',
       plugins: [
