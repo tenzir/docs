@@ -77,14 +77,14 @@ export default defineConfig({
           : []),
         starlightOpenAPI([
           {
-            base: 'reference/api/node',
-            label: 'Node',
-            schema: './src/content/apis/openapi.node.yaml',
+            base: 'reference/platform-api',
+            label: 'Platform API',
+            schema: './src/content/apis/openapi.platform.json',
           },
           {
-            base: 'reference/api/platform',
-            label: 'Platform',
-            schema: './src/content/apis/openapi.platform.json',
+            base: 'reference/node-api',
+            label: 'Node API',
+            schema: './src/content/apis/openapi.node.yaml',
           },
         ]),
         starlightSidebarTopics(
@@ -94,8 +94,10 @@ export default defineConfig({
               // Associate all pages under `/reference/api/` directory with the
               // Reference topic.
               reference: [
-                "/reference/api",
-                "/reference/api/**/*",
+                "/reference/node-api",
+                "/reference/node-api/**/*",
+                "/reference/platform-api",
+                "/reference/platform-api/**/*",
                 "/reference/functions/*",
                 "/reference/operators/**/*",
                 "/reference/operators/*",
