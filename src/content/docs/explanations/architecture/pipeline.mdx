@@ -30,18 +30,18 @@ void-to-void operator sequence a **closed pipeline**. Only closed pipelines
 can execute.
 
 If a pipeline is not closed, Tenzir attempts to auto-complete missing input and
-output operators. When you [run a pipeline](../usage/run-pipeline/README.md) on
+output operators. When you [run a pipeline](/guides/basic-usage/run-pipelines) on
 the command line, we implicitly read JSON from stdin and write JSON to stdout.
 When you run a pipeline in the app and do not provide a sink, we only append
-[`serve`](../../../reference/operators/serve) to make the pipeline a REST API
+[`serve`](/references/operators/serve) to make the pipeline a REST API
 and extract data piecemeal through your browser.
 
 Operators can be *polymorphic* in that they can have more than a single upstream
 and downstream type. For example,
-[`buffer`](../../../reference/operators/buffer) accepts both bytes and events.
+[`buffer`](/references/operators/buffer) accepts both bytes and events.
 
-Many Tenzir pipelines use the [`from`](../../../reference/operators/from) and
-[`to`](../../../reference/operators/to) operators to get data in and out,
+Many Tenzir pipelines use the [`from`](/references/operators/from) and
+[`to`](/references/operators/to) operators to get data in and out,
 respectively. For example, to load data from a local JSON file system, filter
 events where a certain field matches a predicate, and store the result to an S3
 bucket in Parquet format, you can write the following pipeline:
@@ -56,10 +56,10 @@ This pipelines consists of three operators:
 
 ![Operator Composition Example 1](pipeline/operator-composition-example-1.svg)
 
-The operator [`from`](../../../reference/operators/from) is a void-to-events
-input operator, [`where`](../../../reference/operators/where) an
+The operator [`from`](/references/operators/from) is a void-to-events
+input operator, [`where`](/references/operators/where) an
 events-to-events transformation operator, and
-[`to`](../../../reference/operators/to) an events-to-void output operator.
+[`to`](/references/operators/to) an events-to-void output operator.
 
 Other inputs provide bytes first and you need to interpret them in order to
 transform them as events.
@@ -105,14 +105,14 @@ pushdown, Tenzir operators support "ordering pushdown" to signal to upstream
 operators that the event order only matters intra-schema but not inter-schema.
 In this case the operator transparently "demultiplex" a heterogeneous event
 stream into N homogeneous streams. The
-[`sort`](../../../reference/operators/sort) operator is an example of such an
+[`sort`](/references/operators/sort) operator is an example of such an
 operator; it pushes its ordering requirements upstream, allowing parsers to
 efficiently create multiple streams events in parallel.
 
 ![Multi-schema Example](pipeline/multi-schema-example.svg)
 
 Some operators only work with exactly one instance per schema internally, such
-as [`write_csv`](../../../reference/operators/write_csv), which first writes a
+as [`write_csv`](/references/operators/write_csv), which first writes a
 header and then all subsequent rows have to adhere to the emitted schema. Such
 operators cannot handle events with changing schemas.
 
@@ -138,9 +138,9 @@ Our desired user experience for interacting with historical data looks like
 this:
 
 1. **Ingest**: to store data at a node, create a pipeline that ends with
-   [`import`](../../../reference/operators/import).
+   [`import`](/references/operators/import).
 2. **Query**: to run a historical query over data at the node, create a pipeline
-   that begins with [`export`](../../../reference/operators/export).
+   that begins with [`export`](/references/operators/export).
 
 For example, to ingest JSON from a Kafka, you write `from "kafka://topic |
 import`. To query the stored data, you write `export | where file == 42`.
@@ -184,14 +184,14 @@ single-machine processing. There are two types of network connections:
 
 An implicit network connection exists, for example, when you use the `tenzir`
 binary on the command line to run a pipeline that ends in
-[`import`](../../../reference/operators/import):
+[`import`](/references/operators/import):
 
 ```tql
 from "/file/eve.json"
 where tag != "foo"
 import
 ```
-Or one that begins with [`export`](../../../reference/operators/export):
+Or one that begins with [`export`](/references/operators/export):
 
 ```tql
 export
@@ -207,8 +207,8 @@ throughput, which results in the following operator placement for the above exam
 The executor generally transfers ownership of operators between
 processes as late as possible to prefer local, high-bandwidth communication. For
 maximum control over placement of computation, you can override the automatic
-operator location with the [`local`](../../../reference/operators/local) and
-[`remote`](../../../reference/operators/remote) operators.
+operator location with the [`local`](/references/operators/local) and
+[`remote`](/references/operators/remote) operators.
 
 The above examples are implicit network connections because they're not visible
 in the pipeline definition. An explicit network connection terminates a pipeline

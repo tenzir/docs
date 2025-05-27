@@ -80,7 +80,7 @@ Edition](https://tenzir.com/pricing) and [Enterprise
 Edition](https://tenzir.com/pricing) are backed by a Tenzir-hosted instance of
 the platform in the public cloud (AWS in Europe).
 
-Read more on [how Tenzir works](../how-tenzir-works) to understand what
+Read more on [how Tenzir works](/explanations/architecture) to understand what
 component of Tenzir runs where.
 
 ## Does Tenzir offer cloud-native nodes?
@@ -174,19 +174,19 @@ data analysis.
 Tenzir does not rely on a third-party database.
 
 Tenzir nodes include a light-weight storage engine on top of Feather or Parquet
-files, accessible via the [`import`](../../reference/operators/import) and
-[`export`](../../reference/operators/export) operators.
+files, accessible via the [`import`](/references/operators/import) and
+[`export`](/references/operators/export) operators.
 
 The storage engine comes with a catalog that tracks schema meta data and a thin
 layer of indexing to accelerate queries.
 
-Our [tuning guide](../../guides/setup/node/tune-performance) has further details
+Our [tuning guide](/guides/node-setup/tune-performance) has further details
 on the inner workings.
 
 ## Does a Tenzir node run on platform *X*?
 
 We support the platforms that we mention in our [deployment
-instructions](../../guides/setup/node/provision-a-node).
+instructions](/guides/node-setup/provision-a-node).
 
 For any other platform, the answer is most likely *no*. Please [talk to
 us](/discord) to let us know what is missing, or dive right in by contributing
@@ -195,7 +195,7 @@ to our [open source repository](https://github.com/tenzir/tenzir).
 ## Do you have an integration for *X*?
 
 Tenzir has multiple layers where integrations can occur. If you cannot find *X*
-in the list of [existing integration](../../integrations), .
+in the list of [existing integration](/integrations), .
 
 import { Steps } from '@astrojs/starlight/components';
 
@@ -207,25 +207,25 @@ import { Steps } from '@astrojs/starlight/components';
    require composing a few operators.
 2. **Format**. If your *X* is a wire format, either text-based like JSON or
    binary like PCAP, then look for [parsing
-   operators](../../reference/operators#parsing) and [printing
-   operators](../../reference/operators#printing). Those start
+   operators](/references/operators#parsing) and [printing
+   operators](/references/operators#printing). Those start
    with `read_*` and `write_*`, respectively. Similarly, there exist [parsing
-   functions](../../reference/functions#parsing) and [printing
-   functions](../../reference/functions#printing) that start with `parse_*` and
+   functions](/references/functions#parsing) and [printing
+   functions](/references/functions#printing) that start with `parse_*` and
    `print_*`.
 3. **Fluent Bit**. Sometimes we can compensate for the lack of an existing
    integration by going through one level of indirection. Tenzir ships with all
    of Fluent Bit's [inputs][fluentbit-inputs] and [outputs][fluentbit-outputs],
    because the Fluent Bit library is baked into every Tenzir binary. Use the
-   [`from_fluent_bit`](../../reference/operators/from_fluent_bit) operator to
+   [`from_fluent_bit`](/references/operators/from_fluent_bit) operator to
    get events in via Fluent Bit and the
-   [`to_fluent_bit`](../../reference/operators/to_fluent_bit)
+   [`to_fluent_bit`](/references/operators/to_fluent_bit)
    operator to send events via Fluent Bit.
 4. **Escape Hatches**. As last resort, you can bring in Shell and Python scripts
    to make up for native support for *X*. The
-   [`shell`](../../reference/operators/shell) operator brings byte streams via
+   [`shell`](/references/operators/shell) operator brings byte streams via
    standard input and output into a pipeline, and the
-   [`python`](../../reference/operators/python) operator allows you to perform
+   [`python`](/references/operators/python) operator allows you to perform
    arbitrary event-to-event transformation using the full power of Python.
 5. **Community**. Still unlucky? Then please let us know in our friendly
    [Discord server](/discord). Perhaps we are already working on an integration
