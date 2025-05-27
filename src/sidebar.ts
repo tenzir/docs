@@ -178,6 +178,7 @@ export const integrations = [
         ],
       },
       "integrations/amqp",
+      "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/email",
       "integrations/file",
