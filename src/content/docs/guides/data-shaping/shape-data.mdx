@@ -3,8 +3,8 @@ title: Shape data
 ---
 
 TQL comes with numerous transformation
-[operators](../../../../reference/operators) that change the shape of events.
-TQL has [functions](../../../../reference/functions) that work on values within
+[operators](/references/operators) that change the shape of events.
+TQL has [functions](/references/functions) that work on values within
 a single event.
 
 This guides showcases the operators and functions that you need for day-to-day
@@ -22,8 +22,8 @@ Let's dive right in.
 
 ### Filter events with `where`
 
-Use [`where`](../../../../reference/operators/where) to filter events in the
-input with an [expression](../../../../reference/language/expressions):
+Use [`where`](/references/operators/where) to filter events in the
+input with an [expression](/references/language/expressions):
 
 ```tql
 from {x: 1, y: "foo"},
@@ -38,8 +38,8 @@ where x != 2 and y.starts_with("b")
 
 ### Slice events with `head`, `tail`, and `slice`
 
-Use the [`head`](../../../../reference/operators/head) and
-[`tail`](../../../../reference/operators/tail) operators to get the first or
+Use the [`head`](/references/operators/head) and
+[`tail`](/references/operators/tail) operators to get the first or
 last N records of the input.
 
 Get the first event:
@@ -74,7 +74,7 @@ immediately after the first `N` records have arrived. Use `head` for the
 majority of use cases and `tail` only when you have to.
 :::
 
-The [`slice`](../../../../reference/operators/slice) operator generalizes `head` and
+The [`slice`](/references/operators/slice) operator generalizes `head` and
 `tail` by allowing for more flexible slicing. For example, to return every
 other event starting from the third:
 
@@ -95,7 +95,7 @@ slice begin=3, stride=2
 
 ### Pick fields with `select` and `drop`
 
-Use the [`select`](../../../../reference/operators/select) operator to pick
+Use the [`select`](/references/operators/select) operator to pick
 fields:
 
 ```tql
@@ -111,7 +111,7 @@ select x
 {x: 3}
 ```
 
-The [`drop`](../../../../reference/operators/drop) operator is the dual to `select` and
+The [`drop`](/references/operators/drop) operator is the dual to `select` and
 removes the specified fields:
 
 ```tql
@@ -129,7 +129,7 @@ drop x
 
 ### Sample schemas with `taste`
 
-The [`taste`](../../../../reference/operators/taste) operator provides a sample of the
+The [`taste`](/references/operators/taste) operator provides a sample of the
 first N events of every unique schemas. For example, to get 3 unique samples:
 
 ```tql
@@ -166,7 +166,7 @@ reverse
 
 ### Add fields with `set` assignment
 
-Use the [`set`](../../../../reference/operators/set) operator to add new fields
+Use the [`set`](/references/operators/set) operator to add new fields
 to the output.
 
 ```tql
@@ -181,7 +181,7 @@ set y = x + 1
 ```
 
 You can assign a field name name and project at the same time with an assignment
-in [`select`](../../../../reference/operators/select):
+in [`select`](/references/operators/select):
 
 ```tql
 from {x: 1, y: "foo"},
@@ -260,7 +260,7 @@ which yields:
 
 ### Aggreate events with `summarize`
 
-Use [`summarize`](../../../../reference/operators/summarize) to group and
+Use [`summarize`](/references/operators/summarize) to group and
 aggregate data.
 
 ```tql
@@ -276,12 +276,12 @@ summarize y, x=sum(x)
 ```
 
 A variety of [aggregation
-functions](../../../../reference/functions#aggregation) make it possible to
+functions](/references/functions#aggregation) make it possible to
 combine grouped data.
 
 ### Reorder events with `sort`
 
-Use [`sort`](../../../../reference/operators/sort) to arrange the output records
+Use [`sort`](/references/operators/sort) to arrange the output records
 according to the order of a specific field.
 
 ```tql
@@ -302,7 +302,7 @@ Prepending the field with `-` reverses the sort order.
 ### Break up lists of records with `unroll`
 
 Working with lists of can be cumbersome. To break up a list into a sequence of
-events, use the [`unroll`](../../../../reference/operators/unroll) operator:
+events, use the [`unroll`](/references/operators/unroll) operator:
 
 ```tql
 from {
@@ -337,7 +337,7 @@ reference with the `this` keyword.
 
 ### Combine records with `merge`
 
-Use the [`merge`](../../../../reference/functions/merge) function to combine two
+Use the [`merge`](/references/functions/merge) function to combine two
 records:
 
 ```tql
@@ -384,7 +384,7 @@ exact same was as `merge`.
 
 ### Combine lists with `concatenate`
 
-Use [`concatenate`](../../../../reference/functions/concatenate) to add one list
+Use [`concatenate`](/references/functions/concatenate) to add one list
 add the end of another:
 
 ```tql
@@ -426,8 +426,8 @@ and get the same result.
 ### Add values to lists with `append` and `prepend`
 
 To add a single value to a list, use
-[`append`](../../../../reference/functions/append) to add it to the back and
-[`prepend`](../../../../reference/functions/prepend) to add it to the front:
+[`append`](/references/functions/append) to add it to the back and
+[`prepend`](/references/functions/prepend) to add it to the front:
 
 ```tql
 from {
