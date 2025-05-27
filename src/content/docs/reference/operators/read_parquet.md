@@ -39,6 +39,6 @@ read_parquet
 
 ## See Also
 
-[`read_feather`](read_feather),
-[`to_hive`](to_hive),
-[`write_parquet`](write_parquet)
+[`read_feather`](/reference/operators/read_feather),
+[`to_hive`](/reference/operators/to_hive),
+[`write_parquet`](/reference/operators/write_parquet)

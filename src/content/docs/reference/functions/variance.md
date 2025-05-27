@@ -31,4 +31,5 @@ summarize variance_value=variance(x)
 
 ## See Also
 
-[`stddev`](stddev), [`mean`](mean)
+[`stddev`](/reference/functions/stddev),
+[`mean`](/reference/functions/mean)

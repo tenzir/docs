@@ -38,4 +38,5 @@ from {x: "👻".length_chars()}
 
 ## See Also
 
-[`length`](length), [`length_bytes`](length_bytes)
+[`length`](/reference/functions/length),
+[`length_bytes`](/reference/functions/length_bytes)

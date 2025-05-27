@@ -31,4 +31,4 @@ summarize last_value=last(x)
 
 ## See Also
 
-[`first`](first)
+[`first`](/reference/functions/first)

@@ -28,4 +28,4 @@ remote {
 
 ## See Also
 
-[`local`](local)
+[`local`](/reference/operators/local)

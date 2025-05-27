@@ -36,4 +36,5 @@ summarize median_value=quantile(x, q=0.5)
 
 ## See Also
 
-[`median`](median), [`mean`](mean)
+[`median`](/reference/functions/median),
+[`mean`](/reference/functions/mean)

@@ -26,4 +26,4 @@ from {x: type_id(1 + 3.2)}
 
 ## See also
 
-[`type_of`](type_of)
+[`type_of`](/reference/functions/type_of)

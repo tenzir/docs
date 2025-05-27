@@ -90,4 +90,4 @@ where severity == "error"
 
 ## See Also
 
-[`metrics`](metrics)
+[`metrics`](/reference/operators/metrics)

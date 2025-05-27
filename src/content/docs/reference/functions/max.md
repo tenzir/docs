@@ -31,4 +31,6 @@ summarize max_value=max(x)
 
 ## See Also
 
-[`min`](min), [`mean`](mean), [`sum`](sum)
+[`min`](/reference/functions/min),
+[`mean`](/reference/functions/mean),
+[`sum`](/reference/functions/sum)

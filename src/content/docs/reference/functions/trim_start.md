@@ -26,4 +26,5 @@ from {x: " hello".trim_start()}
 
 ## See Also
 
-[`trim`](trim), [`trim_end`](trim_end)
+[`trim`](/reference/functions/trim),
+[`trim_end`](/reference/functions/trim_end)

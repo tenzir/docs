@@ -24,7 +24,7 @@ The `set` operator is implied whenever a direct assignment is written. We
 recommend to use the implicit version. For example, use `test = 42` instead of
 `set test=42`.
 
-Read our [language reference](../language/statements#assignment) for a more
+Read our [language reference](/references/language/statements#assignment) for a more
 detailed description.
 :::
 
@@ -65,4 +65,4 @@ b = move a
 
 ## See Also
 
-[`move`](move)
+[`move`](/reference/operators/move)

@@ -34,4 +34,4 @@ reverse
 
 ## See Also
 
-[`sort`](sort)
+[`sort`](/reference/operators/sort)

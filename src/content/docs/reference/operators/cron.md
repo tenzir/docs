@@ -64,4 +64,4 @@ publish "api"
 
 ## See Also
 
-[`every`](every)
+[`every`](/reference/operators/every)

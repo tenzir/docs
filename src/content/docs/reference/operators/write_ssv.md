@@ -44,9 +44,9 @@ x y z
 
 ## See Also
 
-[`print_ssv`](../functions/print_ssv),
-[`read_ssv`](read_ssv),
-[`write_csv`](write_csv),
-[`write_lines`](write_lines),
-[`write_tsv`](write_tsv),
-[`write_xsv`](write_xsv)
+[`print_ssv`](/reference/functions/print_ssv),
+[`read_ssv`](/reference/operators/read_ssv),
+[`write_csv`](/reference/operators/write_csv),
+[`write_lines`](/reference/operators/write_lines),
+[`write_tsv`](/reference/operators/write_tsv),
+[`write_xsv`](/reference/operators/write_xsv)

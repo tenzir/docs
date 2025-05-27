@@ -27,4 +27,6 @@ from {x: "hello".is_lower()}
 
 ## See Also
 
-[`to_lower`](to_lower), [`is_upper`](is_upper)
+[`is_alpha`](/reference/functions/is_alpha),
+[`is_upper`](/reference/functions/is_upper),
+[`to_lower`](/reference/functions/to_lower)

@@ -75,4 +75,4 @@ select result = merge(x, y)
 
 ## See Also
 
-[`concatenate`](concatenate)
+[`concatenate`](/reference/functions/concatenate)

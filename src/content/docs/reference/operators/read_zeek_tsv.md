@@ -56,6 +56,6 @@ read_zeek_tsv
 
 ## See Also
 
-[`read_zeek_json`](read_zeek_json),
-[`write_zeek_json`](write_zeek_json),
-[`write_zeek_tsv`](write_zeek_tsv)
+[`read_zeek_json`](/reference/operators/read_zeek_json),
+[`write_zeek_json`](/reference/operators/write_zeek_json),
+[`write_zeek_tsv`](/reference/operators/write_zeek_tsv)

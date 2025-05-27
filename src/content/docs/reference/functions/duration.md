@@ -27,4 +27,4 @@ dur = duration(str)
 
 ## See Also
 
-[time](time)
+[time](/reference/functions/time)

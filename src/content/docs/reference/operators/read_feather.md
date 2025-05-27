@@ -28,5 +28,5 @@ pulish "log"
 
 ## See Also
 
-[`read_parquet`](read_parquet),
-[`write_feather`](write_feather)
+[`read_parquet`](/reference/operators/read_parquet),
+[`write_feather`](/reference/operators/write_feather)

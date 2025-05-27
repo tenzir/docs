@@ -47,3 +47,6 @@ select x = x.get("x", -1), y = y.get("y", -1)
 {x: 1, y: 2}
 {x: 3, y: -1}
 ```
+## See Also
+
+[`keys`](/reference/functions/keys)

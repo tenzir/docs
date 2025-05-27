@@ -24,5 +24,5 @@ write_yaml
 
 ## See Also
 
-[`api`](api),
-[`serve`](serve)
+[`api`](/reference/operators/api),
+[`serve`](/reference/operators/serve)

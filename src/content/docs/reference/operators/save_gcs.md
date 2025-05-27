@@ -44,4 +44,4 @@ save_gcs "gs://bucket/test.json?endpoint_override=gcs.mycloudservice.com"
 
 ## See Also
 
-[`load_gcs`](load_gcs)
+[`load_gcs`](/reference/operators/load_gcs)

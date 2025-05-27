@@ -32,4 +32,5 @@ summarize counts=value_counts(x)
 
 ## See Also
 
-[`mode`](mode), [`distinct`](distinct)
+[`mode`](/reference/functions/mode),
+[`distinct`](/reference/functions/distinct)

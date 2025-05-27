@@ -32,4 +32,5 @@ summarize unique=count_distinct(x)
 
 ## See Also
 
-[`count`](count), [`distinct`](distinct)
+[`count`](/reference/functions/count),
+[`distinct`](/reference/functions/distinct)

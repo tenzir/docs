@@ -27,4 +27,8 @@ from {x: "hello".is_alpha()}
 
 ## See Also
 
-[`is_alnum`](is_alnum), [`is_lower`](is_lower), [`is_upper`](is_upper)
+[`is_alnum`](/reference/functions/is_alnum),
+[`is_lower`](/reference/functions/is_lower),
+[`is_numeric`](/reference/functions/is_numeric),
+[`is_printable`](/reference/functions/is_printable),
+[`is_upper`](/reference/functions/is_upper)

@@ -32,4 +32,4 @@ save_file "eve.json"
 
 ## See Also
 
-[`remote`](remote)
+[`remote`](/reference/operators/remote)

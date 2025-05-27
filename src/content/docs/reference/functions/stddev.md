@@ -32,4 +32,5 @@ summarize stddev_value=stddev(x)
 
 ## See Also
 
-[`variance`](variance), [`mean`](mean)
+[`variance`](/reference/functions/variance),
+[`mean`](/reference/functions/mean)

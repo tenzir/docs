@@ -30,4 +30,9 @@ from {x: subnet("1.2.3.4/16")}
 
 ## See Also
 
-[ip](ip), [int](int), [uint](uint), [float](float), [time](time), [string](string)
+[`int`](/reference/functions/int),
+[`ip`](/reference/functions/ip),
+[`time`](/reference/functions/time),
+[`uint`](/reference/functions/uint),
+[float](/reference/functions/float),
+[string](/reference/functions/string)

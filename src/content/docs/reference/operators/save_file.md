@@ -42,6 +42,6 @@ save_file "/tmp/out.txt"
 
 ## See Also
 
-[`files`](files),
-[`load_file`](load_file),
-[`save_stdout`](save_stdout)
+[`files`](/reference/operators/files),
+[`load_file`](/reference/operators/load_file),
+[`save_stdout`](/reference/operators/save_stdout)

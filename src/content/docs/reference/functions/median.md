@@ -32,4 +32,6 @@ summarize median_value=median(x)
 
 ## See Also
 
-[`mean`](mean), [`quantile`](quantile)
+[`mean`](/reference/functions/mean),
+[`mode`](/reference/functions/mode),
+[`quantile`](/reference/functions/quantile)

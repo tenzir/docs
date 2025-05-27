@@ -61,5 +61,5 @@ head 20
 
 ## See Also
 
-[`import`](import),
-[`subscribe`](subscribe)
+[`import`](/reference/operators/import),
+[`subscribe`](/reference/operators/subscribe)

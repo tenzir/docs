@@ -42,4 +42,4 @@ pipeline::detach {
 
 ## See also
 
-[`pipeline::run`](run)
+[`run`](/reference/operators/pipeline/run)

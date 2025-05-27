@@ -52,6 +52,6 @@ head 5
 
 ## See Also
 
-[`summarize`](summarize),
-[`rare`](rare),
-[`sort`](sort)
+[`summarize`](/reference/operators/summarize),
+[`rare`](/reference/operators/rare),
+[`sort`](/reference/operators/sort)

@@ -42,5 +42,5 @@ select pid, local_addr, remote_addr
 
 ## See Also
 
-[`files`](files),
-[`processes`](processes)
+[`files`](/reference/operators/files),
+[`processes`](/reference/operators/processes)

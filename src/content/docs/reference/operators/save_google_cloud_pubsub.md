@@ -52,4 +52,4 @@ save_google_cloud_pubsub project_id="amazing-project-123456", topic_id="alerts-t
 
 ## See Also
 
-[`load_google_cloud_pubsub`](load_google_cloud_pubsub)
+[`load_google_cloud_pubsub`](/reference/operators/load_google_cloud_pubsub)

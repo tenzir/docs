@@ -42,4 +42,4 @@ xs = xs.where(x, x > 3)
 
 ## See Also
 
-[`map`](map)
+[`map`](/reference/functions/map)

@@ -62,5 +62,5 @@ select id=name.to_upper(), pos.x, added=true
 
 ## See Also
 
-[`drop`](drop),
-[`where`](where)
+[`drop`](/reference/operators/drop),
+[`where`](/reference/operators/where)

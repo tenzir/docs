@@ -35,4 +35,5 @@ subscribe "zeek-conn"
 
 ## See Also
 
-[`publish`](publish)
+[`export`](/reference/operators/export),
+[`publish`](/reference/operators/publish)

@@ -11,7 +11,7 @@ context::create_geoip name:string, [db_path=string]
 ## Description
 
 The `context::create_geoip` operator constructs a new context of type
-[GeoIP](../../../explanations/enrichment#geoip-database).
+[GeoIP](/explanations/enrichment#geoip-database).
 
 You must either provide a database with the `db_path` argument or use
 [`context::load`](load) to populate the context after creation.
@@ -60,14 +60,14 @@ context::load "ctx"
 
 ## See Also
 
-[`context::create_lookup_table`](create_lookup_table),
-[`context::create_bloom_filter`](create_bloom_filter),
-[`context::enrich`](enrich),
-[`context::erase`](erase),
-[`context::inspect`](inspect),
-[`context::list`](list),
-[`context::load`](load),
-[`context::remove`](remove),
-[`context::reset`](update),
-[`context::save`](save),
-[`context::update`](update)
+[`context::create_bloom_filter`](/reference/operators/context/create_bloom_filter),
+[`context::create_lookup_table`](/reference/operators/context/create_lookup_table),
+[`context::inspect`](/reference/operators/context/inspect),
+[`context::load`](/reference/operators/context/load),
+[`context::remove`](/reference/operators/context/remove),
+[`context::save`](/reference/operators/context/save),
+[`enrich`](/reference/operators/context/enrich),
+[`erase`](/reference/operators/context/erase),
+[`list`](/reference/operators/context/list),
+[`reset`](/reference/operators/context/reset),
+[`update`](/reference/operators/context/update)

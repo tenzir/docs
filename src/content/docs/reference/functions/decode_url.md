@@ -35,4 +35,4 @@ decoded = input.decode_url()
 
 ## See Also
 
-[`encode_url`](encode_url)
+[`encode_url`](/reference/functions/encode_url)

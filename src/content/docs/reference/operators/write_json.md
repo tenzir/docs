@@ -15,7 +15,7 @@ write_json [strip=bool, color=bool, arrays_of_objects=bool,
 Transforms the input event stream to a JSON byte stream.
 
 :::tip[Newline-Delimited JSON (NDJSON)]
-Use [`write_ndjson` operator](write_ndjson) to write Newline-Delimited JSON.
+Use [`write_ndjson` operator](/references/operators/write_ndjson) to write Newline-Delimited JSON.
 :::
 
 ### `strip = bool (optional)`
@@ -87,6 +87,7 @@ write_json strip_null_fields=true
 
 ## See Also
 
-[`read_json`](read_json),
-[`parse_json`](../functions/parse_json),
-[`print_json`](../functions/print_json)
+[`parse_json`](/reference/functions/parse_json),
+[`print_json`](/reference/functions/print_json),
+[`read_json`](/reference/operators/read_json),
+[`write_tql`](/reference/operators/write_tql)

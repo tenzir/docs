@@ -35,5 +35,8 @@ from {x: bit_and(5, 3)}
 
 ## See Also
 
-[`bit_or`](bit_or), [`bit_xor`](bit_xor), [`bit_not`](bit_not),
-[`shift_left`](shift_left), [`shift_right`](shift_right)
+[`bit_or`](/reference/functions/bit_or),
+[`bit_xor`](/reference/functions/bit_xor),
+[`bit_not`](/reference/functions/bit_not),
+[`shift_left`](/reference/functions/shift_left),
+[`shift_right`](/reference/functions/shift_right)

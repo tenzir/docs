@@ -23,13 +23,13 @@ Positions on the x-axis for each data point.
 
 Positions on the y-axis for each data point.
 Multiple data points for the same group can be be aggregated using an
-[aggregation function](../functions#aggregations).
+[aggregation function](/references/functions#aggregation).
 
 Multiple `y` values and their labels can be specified by using the record
 syntax: `{name: value, ...}`.
 
 For example, `y = {"Avg. Load": mean(load)}` calculates the
-[mean](../functions/mean) of the `load` field and labels it as `Avg. Load`.
+[mean](/references/functions/mean) of the `load` field and labels it as `Avg. Load`.
 
 ### `x_min = any (optional)`
 
@@ -106,6 +106,6 @@ chart_area x=timestamp,
 
 ## See Also
 
-[`chart_bar`](chart_bar),
-[`chart_line`](chart_line),
-[`chart_pie`](chart_pie)
+[`chart_bar`](/reference/operators/chart_bar),
+[`chart_line`](/reference/operators/chart_line),
+[`chart_pie`](/reference/operators/chart_pie)

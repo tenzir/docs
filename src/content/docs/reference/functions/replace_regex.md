@@ -56,4 +56,4 @@ from {x: replace_regex("hellolo", "l+", "y", max=1)}
 
 ## See Also
 
-[`replace`](replace)
+[`replace`](/reference/functions/replace)

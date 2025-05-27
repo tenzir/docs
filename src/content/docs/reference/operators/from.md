@@ -73,7 +73,7 @@ connector attempts to load from the filesystem.
 ### Decompressing
 
 The compression is inferred from the "file-ending" in the URI. Under the hood,
-this uses the [`decompress_*` operators](../operators#encode--decode).
+this uses the [`decompress_*` operators](/references/operators#encode--decode).
 Supported compressions can be found in the [list of compression
 extensions](#compression).
 
@@ -86,7 +86,7 @@ the decompression manually.
 
 The format to read is, just as the compression, inferred from the file-ending.
 Supported file formats are the common file endings for our [`read_*`
-operators](../operators#parsing).
+operators](/references/operators#parsing).
 
 If you want to provide additional arguments to the parser, you can use the
 [pipeline argument](#---optional) to specify the parsing manually. This can be
@@ -160,15 +160,15 @@ The `from` operator can deduce the file format based on these file-endings:
 
 | Format | File Endings | Operator  |
 |:------ |:------------ |:--------- |
-|  CSV  | `.csv` | [`read_csv`](read_csv) |
-|  Feather  | `.feather`, `.arrow` | [`read_feather`](read_feather) |
-|  JSON  | `.json` | [`read_json`](read_json) |
-|  NDJSON  | `.ndjson`, `.jsonl` | [`read_ndjson`](read_ndjson) |
-|  Parquet  | `.parquet` | [`read_parquet`](read_parquet) |
-|  Pcap  | `.pcap` | [`read_pcap`](read_pcap) |
-|  SSV  | `.ssv` | [`read_ssv`](read_ssv) |
-|  TSV  | `.tsv` | [`read_tsv`](read_tsv) |
-|  YAML  | `.yaml` | [`read_yaml`](read_yaml) |
+|  CSV  | `.csv` | [`read_csv`](/references/operators/read_csv) |
+|  Feather  | `.feather`, `.arrow` | [`read_feather`](/references/operators/read_feather) |
+|  JSON  | `.json` | [`read_json`](/references/operators/read_json) |
+|  NDJSON  | `.ndjson`, `.jsonl` | [`read_ndjson`](/references/operators/read_ndjson) |
+|  Parquet  | `.parquet` | [`read_parquet`](/references/operators/read_parquet) |
+|  Pcap  | `.pcap` | [`read_pcap`](/references/operators/read_pcap) |
+|  SSV  | `.ssv` | [`read_ssv`](/references/operators/read_ssv) |
+|  TSV  | `.tsv` | [`read_tsv`](/references/operators/read_tsv) |
+|  YAML  | `.yaml` | [`read_yaml`](/references/operators/read_yaml) |
 
 #### Compression
 
@@ -256,4 +256,5 @@ from {message: "Value", endpoint: {ip: 127.0.0.1, port: 42}},
 
 ## See Also
 
-[`to`](to)
+[`from_file`](/reference/operators/from_file),
+[`to`](/reference/operators/to)

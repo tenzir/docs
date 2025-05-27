@@ -49,4 +49,4 @@ save_sqs "tenzir"
 
 ## See Also
 
-[`load_sqs`](load_sqs)
+[`load_sqs`](/reference/operators/load_sqs)

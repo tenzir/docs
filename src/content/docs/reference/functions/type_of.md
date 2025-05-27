@@ -58,4 +58,4 @@ this = type_of(this)
 
 ## See also
 
-[`type_id`](type_id)
+[`type_id`](/reference/functions/type_id)

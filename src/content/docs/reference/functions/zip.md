@@ -37,4 +37,5 @@ select zs = zip(xs, ys)
 
 ## See Also
 
-[`concatenate`](concatenate), [`map`](map)
+[`concatenate`](/reference/functions/concatenate),
+[`map`](/reference/functions/map)

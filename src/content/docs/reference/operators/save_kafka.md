@@ -99,4 +99,4 @@ save_kafka "data"
 
 ## See Also
 
-[`load_kafka`](load_kafka)
+[`load_kafka`](/reference/operators/load_kafka)

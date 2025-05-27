@@ -42,4 +42,5 @@ from {x: from_epoch(50y + 12w + 20m)}
 
 ## See Also
 
-[`now`](now), [`since_epoch`](since_epoch)
+[`now`](/reference/functions/now),
+[`since_epoch`](/reference/functions/since_epoch)

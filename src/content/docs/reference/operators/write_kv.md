@@ -73,6 +73,7 @@ x.y.z=0 y.y2=42 a=string
 
 ## See Also
 
-[`parse_kv`](../functions/parse_kv),
-[`print_kv`](../functions/print_kv),
-[`read_kv`](read_kv)
+[`parse_kv`](/reference/functions/parse_kv),
+[`print_kv`](/reference/functions/print_kv),
+[`read_kv`](/reference/operators/read_kv),
+[`write_lines`](/reference/operators/write_lines)

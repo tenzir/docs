@@ -42,4 +42,4 @@ decoded = bytes.decode_hex()
 
 ## See Also
 
-[`encode_hex`](encode_hex)
+[`encode_hex`](/reference/functions/encode_hex)

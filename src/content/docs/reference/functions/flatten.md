@@ -146,4 +146,4 @@ this = flatten(this)
 
 ## See Also
 
-[`unflatten`](unflatten)
+[`unflatten`](/reference/functions/unflatten)

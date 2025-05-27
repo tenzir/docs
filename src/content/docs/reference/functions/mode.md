@@ -32,4 +32,5 @@ summarize mode_value=mode(x)
 
 ## See Also
 
-[`median`](median), [`value_counts`](value_counts)
+[`median`](/reference/functions/median),
+[`value_counts`](/reference/functions/value_counts)

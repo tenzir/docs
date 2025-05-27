@@ -26,5 +26,5 @@ package::remove "suricata-ocsf"
 
 ## See Also
 
-[`package::add`](add),
-[`package::list`](list)
+[`list`](/reference/operators/package/list),
+[`package::add`](/reference/operators/package/add)

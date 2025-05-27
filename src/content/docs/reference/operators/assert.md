@@ -40,5 +40,5 @@ assert @name == "ocsf.network_activity"
 
 ## See Also
 
-[`assert_throughput`](assert_throughput),
-[`where`](where)
+[`assert_throughput`](/reference/operators/assert_throughput),
+[`where`](/reference/operators/where)

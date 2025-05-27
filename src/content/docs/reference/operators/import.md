@@ -24,5 +24,5 @@ import
 
 ## See Also
 
-[`export`](export),
-[`publish`](publish)
+[`export`](/reference/operators/export),
+[`publish`](/reference/operators/publish)

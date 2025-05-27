@@ -25,4 +25,4 @@ assert_throughput 1k, within=1s, retries=30
 
 ## See Also
 
-[`assert`](assert)
+[`assert`](/reference/operators/assert)

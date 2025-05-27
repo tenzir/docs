@@ -54,7 +54,7 @@ The `to` operator tries to infer all three steps from the given URI.
 ### Writing
 
 The format to write inferred from the file-ending. Supported file formats are
-the common file endings for our [`read_*` operators](../operators#parsing).
+the common file endings for our [`read_*` operators](/references/operators#parsing).
 
 If you want to provide additional arguments to the writer, you can use the
 [pipeline argument](#---optional) to specify the parsing manually.
@@ -63,7 +63,7 @@ If you want to provide additional arguments to the writer, you can use the
 
 The compression, just as the format, is inferred from the "file-ending" in the
 URI. Under the hood, this uses the [`decompress_*`
-operators](../operators#encode--decode). Supported compressions can be found
+operators](/references/operators#encode--decode). Supported compressions can be found
 in the [list of compression extensions](#compression).
 
 The compression step is optional and will only happen if a compression could be inferred.
@@ -110,15 +110,15 @@ The `to` operator can deduce the file format based on these file-endings:
 
 | Format | File Endings | Operator  |
 |:------ |:------------ |:--------- |
-|  CSV  | `.csv` | [`write_csv`](write_csv) |
-|  Feather  | `.feather`, `.arrow` | [`write_feather`](write_feather) |
-|  JSON  | `.json` | [`write_json`](write_json) |
-|  NDJSON  | `.ndjson`, `.jsonl` | [`write_ndjson`](write_ndjson) |
-|  Parquet  | `.parquet` | [`write_parquet`](write_parquet) |
-|  Pcap  | `.pcap` | [`write_pcap`](write_pcap) |
-|  SSV  | `.ssv` | [`write_ssv`](write_ssv) |
-|  TSV  | `.tsv` | [`write_tsv`](write_tsv) |
-|  YAML  | `.yaml` | [`write_yaml`](write_yaml) |
+|  CSV  | `.csv` | [`write_csv`](/references/operators/write_csv) |
+|  Feather  | `.feather`, `.arrow` | [`write_feather`](/references/operators/write_feather) |
+|  JSON  | `.json` | [`write_json`](/references/operators/write_json) |
+|  NDJSON  | `.ndjson`, `.jsonl` | [`write_ndjson`](/references/operators/write_ndjson) |
+|  Parquet  | `.parquet` | [`write_parquet`](/references/operators/write_parquet) |
+|  Pcap  | `.pcap` | [`write_pcap`](/references/operators/write_pcap) |
+|  SSV  | `.ssv` | [`write_ssv`](/references/operators/write_ssv) |
+|  TSV  | `.tsv` | [`write_tsv`](/references/operators/write_tsv) |
+|  YAML  | `.yaml` | [`write_yaml`](/references/operators/write_yaml) |
 
 #### Compression
 
@@ -160,4 +160,4 @@ to "path/to/my/output.csv.bz2"
 
 ## See Also
 
-[from](from)
+[from](/reference/operators/from)

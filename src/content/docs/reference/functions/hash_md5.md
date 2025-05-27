@@ -34,6 +34,9 @@ from { x: hash_md5("foo") }
 
 ## See Also
 
-[hash_sha1](hash_sha1), [hash_sha224](hash_sha224),
-[hash_sha256](hash_sha256), [hash_sha384](hash_sha384),
-[hash_sha512](hash_sha512), [hash_xxh3](hash_xxh3)
+[`hash_sha1`](/reference/functions/hash_sha1),
+[`hash_sha224`](/reference/functions/hash_sha224),
+[`hash_sha256`](/reference/functions/hash_sha256),
+[`hash_sha512`](/reference/functions/hash_sha512),
+[hash_sha384](/reference/functions/hash_sha384),
+[hash_xxh3](/reference/functions/hash_xxh3)

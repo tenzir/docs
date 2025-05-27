@@ -39,8 +39,8 @@ save_file "out.bz2"
 
 ## See Also
 
-[`compress_brotli`](compress_brotli),
-[`compress_gzip`](compress_gzip),
-[`compress_lz4`](compress_lz4),
-[`compress_zstd`](compress_zstd),
-[`decompress_bz2`](decompress_bz2)
+[`compress_brotli`](/reference/operators/compress_brotli),
+[`compress_gzip`](/reference/operators/compress_gzip),
+[`compress_lz4`](/reference/operators/compress_lz4),
+[`compress_zstd`](/reference/operators/compress_zstd),
+[`decompress_bz2`](/reference/operators/decompress_bz2)

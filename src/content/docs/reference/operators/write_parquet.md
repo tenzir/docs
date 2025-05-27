@@ -53,7 +53,8 @@ write_parquet
 
 ## See Also
 
-[`to_hive`](to_hive),
-[`read_parquet`](read_parquet),
-[`write_bitz`](write_bitz),
-[`write_feather`](write_feather)
+[`read_bitz`](/reference/operators/read_bitz),
+[`read_parquet`](/reference/operators/read_parquet),
+[`to_hive`](/reference/operators/to_hive),
+[`write_bitz`](/reference/operators/write_bitz),
+[`write_feather`](/reference/operators/write_feather)

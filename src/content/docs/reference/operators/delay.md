@@ -95,4 +95,4 @@ delay ts, start=now()+2h
 ```
 ## See Also
 
-[`timeshift`](timeshift)
+[`timeshift`](/reference/operators/timeshift)

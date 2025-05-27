@@ -59,4 +59,5 @@ from {xs: split_regex("a1b2c3", r"\d", max=1)}
 
 ## See Also
 
-[`split`](split), [`join`](join)
+[`split`](/reference/functions/split),
+[`join`](/reference/functions/join)

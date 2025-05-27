@@ -94,5 +94,6 @@ package::list
 
 ## See Also
 
-[`package::add`](add),
-[`package::remove`](remove)
+[`list`](/reference/operators/pipeline/list),
+[`package::add`](/reference/operators/package/add),
+[`package::remove`](/reference/operators/package/remove)

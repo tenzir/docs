@@ -58,4 +58,4 @@ read_json
 
 ## See Also
 
-[`save_google_cloud_pubsub`](save_google_cloud_pubsub)
+[`save_google_cloud_pubsub`](/reference/operators/save_google_cloud_pubsub)

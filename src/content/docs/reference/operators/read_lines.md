@@ -52,7 +52,7 @@ this = line.parse_syslog()
 
 ## See Also
 
-[`read_ssv`](read_ssv),
-[`read_tsv`](read_tsv),
-[`read_xsv`](read_xsv),
-[`write_lines`](write_lines)
+[`read_ssv`](/reference/operators/read_ssv),
+[`read_tsv`](/reference/operators/read_tsv),
+[`read_xsv`](/reference/operators/read_xsv),
+[`write_lines`](/reference/operators/write_lines)

@@ -28,4 +28,5 @@ xs = xs.prepend(3)
 
 ## See Also
 
-[`append`](append), [`concatenate`](concatenate)
+[`append`](/reference/functions/append),
+[`concatenate`](/reference/functions/concatenate)

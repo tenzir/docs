@@ -35,5 +35,5 @@ from {x: secret("geheim")}
 
 ## See also
 
-[`config`](config),
-[`env`](env)
+[`config`](/reference/functions/config),
+[`env`](/reference/functions/env)

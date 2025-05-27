@@ -43,5 +43,5 @@ api "/pipeline/create", {
 
 ## See Also
 
-[`openapi`](openapi),
-[`serve`](serve)
+[`openapi`](/reference/operators/openapi),
+[`serve`](/reference/operators/serve)

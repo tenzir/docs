@@ -37,5 +37,8 @@ hour = ts.hour()
 
 ## See also
 
-[`year`](year), [`month`](month), [`day`](day), [`minute`](minute),
-[`second`](second)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`day`](/reference/functions/day),
+[`minute`](/reference/functions/minute),
+[`second`](/reference/functions/second)

@@ -55,4 +55,5 @@ from {
 
 ## See Also
 
-[`ceil`](ceil), [`floor`](floor)
+[`ceil`](/reference/functions/ceil),
+[`floor`](/reference/functions/floor)

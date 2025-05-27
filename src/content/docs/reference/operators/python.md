@@ -105,4 +105,4 @@ python r#"
 
 ## See Also
 
-[`shell`](shell)
+[`shell`](/reference/operators/shell)

@@ -119,3 +119,6 @@ to_google_cloud_logging log_id="LOG_ID", project="PROJECT_ID"
   resource_type=resource,
   service_credentials=file_contents("/path/to/credentials.json")
 ```
+## See Also
+
+[`to_google_secops`](/reference/operators/to_google_secops)

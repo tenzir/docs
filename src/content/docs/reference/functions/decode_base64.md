@@ -31,4 +31,4 @@ decoded = bytes.decode_base64()
 
 ## See Also
 
-[`encode_base64`](encode_base64)
+[`encode_base64`](/reference/functions/encode_base64)

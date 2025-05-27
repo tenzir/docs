@@ -40,4 +40,5 @@ select ts=now()
 
 ## See Also
 
-[`from_epoch`](from_epoch), [`since_epoch`](since_epoch)
+[`from_epoch`](/reference/functions/from_epoch),
+[`since_epoch`](/reference/functions/since_epoch)

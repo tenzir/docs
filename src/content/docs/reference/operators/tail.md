@@ -38,5 +38,5 @@ tail 5
 
 ## See Also
 
-[`head`](head),
-[`slice`](slice)
+[`head`](/reference/operators/head),
+[`slice`](/reference/operators/slice)

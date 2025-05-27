@@ -125,4 +125,5 @@ l = l.map(str, str.parse_json())
 
 ## See Also
 
-[`where`](where)
+[`where`](/reference/functions/where),
+[`zip`](/reference/functions/zip)

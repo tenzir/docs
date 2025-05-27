@@ -53,6 +53,6 @@ head 5
 
 ## See Also
 
-[`summarize`](summarize),
-[`sort`](sort),
-[`top`](top)
+[`summarize`](/reference/operators/summarize),
+[`sort`](/reference/operators/sort),
+[`top`](/reference/operators/top)

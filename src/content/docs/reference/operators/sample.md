@@ -78,4 +78,4 @@ head 100k
 
 ## See Also
 
-[`deduplicate`](deduplicate)
+[`deduplicate`](/reference/operators/deduplicate)

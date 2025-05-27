@@ -114,4 +114,4 @@ read_zeek_json
 
 ## See Also
 
-[`save_kafka`](save_kafka)
+[`save_kafka`](/reference/operators/save_kafka)

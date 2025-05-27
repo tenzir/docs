@@ -32,4 +32,4 @@ summarize result=any(x)
 
 ## See Also
 
-[`all`](all)
+[`all`](/reference/functions/all)

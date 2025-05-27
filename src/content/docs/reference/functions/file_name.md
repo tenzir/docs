@@ -27,4 +27,4 @@ from {x: file_name("/path/to/log.json")}
 
 ## See Also
 
-[`parent_dir`](parent_dir)
+[`parent_dir`](/reference/functions/parent_dir)

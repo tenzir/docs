@@ -61,4 +61,4 @@ timeshift ts, start=1984-01-01, speed=0.01
 
 ## See Also
 
-[`delay`](delay)
+[`delay`](/reference/operators/delay)

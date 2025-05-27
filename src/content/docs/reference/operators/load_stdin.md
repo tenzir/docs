@@ -34,5 +34,5 @@ read_lines
 
 ## See Also
 
-[`save_stdout`](save_stdout),
-[`load_file`](load_file)
+[`save_stdout`](/reference/operators/save_stdout),
+[`load_file`](/reference/operators/load_file)

@@ -48,4 +48,4 @@ publish "threat-feed"
 
 ## See Also
 
-[`cron`](cron)
+[`cron`](/reference/operators/cron)

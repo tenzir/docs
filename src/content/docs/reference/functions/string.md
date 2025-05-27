@@ -26,4 +26,9 @@ from {x: string(1.2.3.4)}
 
 ## See Also
 
-[int](int), [uint](uint), [float](float), [time](time), [ip](ip)
+[`ip`](/reference/functions/ip),
+[`subnet`](/reference/functions/subnet),
+[`time`](/reference/functions/time),
+[`uint`](/reference/functions/uint),
+[float](/reference/functions/float),
+[int](/reference/functions/int)

@@ -45,4 +45,5 @@ save_file "/logs/packets.pcap"
 
 ## See Also
 
-[`read_pcap`](read_pcap)
+[`load_nic`](/reference/operators/load_nic),
+[`read_pcap`](/reference/operators/read_pcap)

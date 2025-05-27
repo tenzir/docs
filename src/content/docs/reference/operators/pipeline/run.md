@@ -48,4 +48,5 @@ pipeline::run {
 
 ## See Also
 
-[`pipeline::detach`](detach), [`pipeline::list`](list)
+[`pipeline::detach`](/reference/operators/pipeline/detach),
+[`pipeline::list`](/reference/operators/pipeline/list)

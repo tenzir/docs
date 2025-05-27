@@ -69,4 +69,4 @@ from_opensearch tls=true, certfile="server.crt", keyfile="private.key"
 
 ## See also
 
-[`to_opensearch`](to_opensearch)
+[`to_opensearch`](/reference/operators/to_opensearch)

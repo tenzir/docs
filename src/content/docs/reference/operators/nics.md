@@ -51,4 +51,4 @@ where status.connected
 
 ## See Also
 
-[`load_nic`](load_nic)
+[`load_nic`](/reference/operators/load_nic)

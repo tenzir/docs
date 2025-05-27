@@ -22,15 +22,15 @@ context::list
 
 ## See Also
 
-[`context::create_bloom_filter`](create_bloom_filter),
-[`context::create_geoip`](create_geoip),
-[`context::create_lookup_table`](create_lookup_table),
-[`context::enrich`](enrich),
-[`context::erase`](erase),
-[`context::inspect`](inspect),
-[`context::list`](list),
-[`context::load`](load),
-[`context::remove`](remove),
-[`context::reset`](reset),
-[`context::save`](save),
-[`context::update`](update)
+[`context::create_bloom_filter`](/reference/operators/context/create_bloom_filter),
+[`context::create_lookup_table`](/reference/operators/context/create_lookup_table),
+[`context::load`](/reference/operators/context/load),
+[`context::remove`](/reference/operators/context/remove),
+[`context::reset`](/reference/operators/context/reset),
+[`context::save`](/reference/operators/context/save),
+[`create_geoip`](/reference/operators/context/create_geoip),
+[`enrich`](/reference/operators/context/enrich),
+[`erase`](/reference/operators/context/erase),
+[`inspect`](/reference/operators/context/inspect),
+[`list`](/reference/operators/context/list),
+[`update`](/reference/operators/context/update)

@@ -31,4 +31,7 @@ summarize n=sum(x)
 
 ## See Also
 
-[`mean`](mean), [`min`](min), [`max`](max)
+[`collect`](/reference/functions/collect),
+[`max`](/reference/functions/max),
+[`mean`](/reference/functions/mean),
+[`min`](/reference/functions/min)

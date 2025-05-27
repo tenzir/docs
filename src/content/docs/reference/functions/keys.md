@@ -77,4 +77,5 @@ top key
 
 ## See also
 
-[`has`](has), [`get`](get)
+[`has`](/reference/functions/has),
+[`get`](/reference/functions/get)

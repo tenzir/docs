@@ -26,4 +26,7 @@ from {x: "HELLO".to_lower()}
 
 ## See Also
 
-[`to_upper`](to_upper), [`to_title`](to_title)
+[`capitalize`](/reference/functions/capitalize),
+[`is_lower`](/reference/functions/is_lower),
+[`to_title`](/reference/functions/to_title),
+[`to_upper`](/reference/functions/to_upper)

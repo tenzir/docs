@@ -21,7 +21,7 @@ operator discards all events that do not match the provided rules.
 <summary> Transpilation Process </summary>
 
 For each rule, the operator transpiles the YAML into an
-[expression](../language/expressions) and instantiates a [`where`](where)
+[expression](/references/language/expressions) and instantiates a [`where`](where)
 operator, followed by assignments to generate an output. Here's how the
 transpilation works. The Sigma rule YAML format requires a `detection` attribute
 that includes a map of named sub-expression called *search identifiers*. In

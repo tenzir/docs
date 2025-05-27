@@ -27,4 +27,5 @@ from {x: "hello".is_printable()}
 
 ## See Also
 
-[`is_alnum`](is_alnum), [`is_alpha`](is_alpha)
+[`is_alnum`](/reference/functions/is_alnum),
+[`is_alpha`](/reference/functions/is_alpha)

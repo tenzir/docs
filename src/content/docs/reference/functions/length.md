@@ -26,4 +26,5 @@ from {n: [1, 2, 3].length()}
 
 ## See Also
 
-[`length_bytes`](length_bytes), [`length_chars`](length_chars)
+[`length_bytes`](/reference/functions/length_bytes),
+[`length_chars`](/reference/functions/length_chars)

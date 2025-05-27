@@ -77,4 +77,6 @@ output = input.print_kv()
 
 ## See Also
 
-[`write_kv`](../operators/read_kv), [`parse_kv`](parse_kv)
+[`parse_kv`](/reference/functions/parse_kv),
+[`write_kv`](/reference/operators/read_kv),
+[`write_kv`](/reference/operators/write_kv)

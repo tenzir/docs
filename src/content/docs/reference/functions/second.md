@@ -53,5 +53,8 @@ full_second = ts.second().floor()
 
 ## See also
 
-[`year`](year), [`month`](month), [`day`](day), [`hour`](hour),
-[`minute`](minute)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`day`](/reference/functions/day),
+[`hour`](/reference/functions/hour),
+[`minute`](/reference/functions/minute)

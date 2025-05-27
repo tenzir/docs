@@ -34,4 +34,4 @@ read_json
 
 ## See Also
 
-[`python`](python)
+[`python`](/reference/operators/python)

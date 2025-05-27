@@ -33,4 +33,7 @@ zs = concatenate(xs, ys)
 
 ## See Also
 
-[`append`](append), [`prepend`](prepend)
+[`append`](/reference/functions/append),
+[`merge`](/reference/functions/merge),
+[`prepend`](/reference/functions/prepend),
+[`zip`](/reference/functions/zip)

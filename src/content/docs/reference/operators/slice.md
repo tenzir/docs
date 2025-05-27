@@ -78,5 +78,5 @@ slice end=-5, stride=-1
 
 ## See Also
 
-[`head`](head),
-[`tail`](tail)
+[`head`](/reference/operators/head),
+[`tail`](/reference/operators/tail)

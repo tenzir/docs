@@ -22,7 +22,7 @@ bulk-ingestion under the hood and then copies them into the target table.
 
 The operator supports nested types as [Snowflake semi-structured
 types](https://docs.snowflake.com/en/sql-reference/data-types-semistructured).
-Alternatively, you can use the [`flatten`](../functions/flatten) function
+Alternatively, you can use the [`flatten`](/references/functions/flatten) function
 operator beforehand.
 
 ### `account_identifier = string`

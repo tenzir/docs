@@ -55,4 +55,4 @@ load_sqs "tenzir", poll_time=20s
 
 ## See Also
 
-[`save_sqs`](save_sqs)
+[`save_sqs`](/reference/operators/save_sqs)

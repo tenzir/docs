@@ -43,8 +43,8 @@ save_file "out.brotli"
 
 ## See Also
 
-[`compress_bz2`](compress_bz2),
-[`compress_gzip`](compress_gzip),
-[`compress_lz4`](compress_lz4),
-[`compress_zstd`](compress_zstd),
-[`decompress_brotli`](decompress_brotli)
+[`compress_bz2`](/reference/operators/compress_bz2),
+[`compress_gzip`](/reference/operators/compress_gzip),
+[`compress_lz4`](/reference/operators/compress_lz4),
+[`compress_zstd`](/reference/operators/compress_zstd),
+[`decompress_brotli`](/reference/operators/decompress_brotli)

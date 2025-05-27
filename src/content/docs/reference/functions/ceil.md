@@ -57,4 +57,5 @@ from {
 
 ## See Also
 
-[`floor`](floor), [`round`](round)
+[`floor`](/reference/functions/floor),
+[`round`](/reference/functions/round)

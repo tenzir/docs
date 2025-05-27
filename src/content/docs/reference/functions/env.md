@@ -27,5 +27,5 @@ from {x: env("PATH")}
 
 ## See also
 
-[`config`](config),
-[`secret`](secret)
+[`config`](/reference/functions/config),
+[`secret`](/reference/functions/secret)

@@ -32,4 +32,5 @@ summarize values=collect(x)
 
 ## See Also
 
-[`distinct`](distinct), [`sum`](sum)
+[`distinct`](/reference/functions/distinct),
+[`sum`](/reference/functions/sum)

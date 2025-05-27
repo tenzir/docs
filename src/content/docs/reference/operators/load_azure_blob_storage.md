@@ -56,4 +56,4 @@ read_json
 
 ## See Also
 
-[`save_azure_blob_storage`](save_azure_blob_storage)
+[`save_azure_blob_storage`](/reference/operators/save_azure_blob_storage)

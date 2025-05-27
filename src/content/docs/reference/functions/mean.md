@@ -31,4 +31,10 @@ summarize avg=mean(x)
 
 ## See Also
 
-[`median`](median), [`sum`](sum)
+[`max`](/reference/functions/max),
+[`median`](/reference/functions/median),
+[`min`](/reference/functions/min),
+[`quantile`](/reference/functions/quantile),
+[`stddev`](/reference/functions/stddev),
+[`sum`](/reference/functions/sum),
+[`variance`](/reference/functions/variance)

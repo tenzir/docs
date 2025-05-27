@@ -9,7 +9,7 @@ write_lines
 ```
 
 :::tip
-Use [`write_kv`](write_kv) operator if you also want to write the *key*s.
+Use [`write_kv`](/references/operators/write_kv) operator if you also want to write the *key*s.
 :::
 
 ## Description
@@ -37,8 +37,9 @@ write_lines
 
 ## See Also
 
-[`read_lines`](read_lines),
-[`write_kv`](write_kv),
-[`write_ssv`](write_ssv),
-[`write_tsv`](write_tsv),
-[`write_xsv`](write_xsv)
+[`read_lines`](/reference/operators/read_lines),
+[`write_csv`](/reference/operators/write_csv),
+[`write_kv`](/reference/operators/write_kv),
+[`write_ssv`](/reference/operators/write_ssv),
+[`write_tsv`](/reference/operators/write_tsv),
+[`write_xsv`](/reference/operators/write_xsv)

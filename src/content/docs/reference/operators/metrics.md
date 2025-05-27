@@ -553,4 +553,4 @@ select timestamp, port, handle, reads, bytes
 
 ## See Also
 
-[`diagnostics`](diagnostics)
+[`diagnostics`](/reference/operators/diagnostics)

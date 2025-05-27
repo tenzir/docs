@@ -117,4 +117,4 @@ where not connected
 
 ## See Also
 
-[`sample`](sample)
+[`sample`](/reference/operators/sample)

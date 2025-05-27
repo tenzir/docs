@@ -57,4 +57,5 @@ from {
 
 ## See Also
 
-[`ceil`](ceil), [`round`](round)
+[`ceil`](/reference/functions/ceil),
+[`round`](/reference/functions/round)

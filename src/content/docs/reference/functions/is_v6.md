@@ -33,4 +33,4 @@ from {
 
 ## See Also
 
-[`is_v4`](is_v4)
+[`is_v4`](/reference/functions/is_v4)

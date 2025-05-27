@@ -56,4 +56,4 @@ from {x: "hello".replace("l", "r", max=1)}
 
 ## See Also
 
-[`replace_regex`](replace_regex)
+[`replace_regex`](/reference/functions/replace_regex)

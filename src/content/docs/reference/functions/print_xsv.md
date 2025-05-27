@@ -16,9 +16,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](print_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](print_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](print_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/references/functions/print_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/references/functions/print_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/references/functions/print_tsv)   |`\t`           |`,`           |`-`       |
 
 ### `field_separator = str`
 
@@ -57,4 +57,5 @@ output = this.print_xsv(
 
 ## See Also
 
-[`parse_xsv`](parse_xsv), [`write_xsv`](../operators/write_xsv)
+[`parse_xsv`](/reference/functions/parse_xsv),
+[`write_xsv`](/reference/operators/write_xsv)

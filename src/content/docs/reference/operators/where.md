@@ -35,5 +35,6 @@ where src_ip in 10.10.5.0/25 and (orig_bytes > 1Mi or duration > 30min)
 
 ## See Also
 
-[`select`](select),
-[`drop`](drop)
+[`assert`](/reference/operators/assert),
+[`drop`](/reference/operators/drop),
+[`select`](/reference/operators/select)

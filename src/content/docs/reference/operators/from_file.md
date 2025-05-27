@@ -83,4 +83,5 @@ from_file "s3://my-bucket/**", watch=true, remove=true
 
 ## See Also
 
-[`from`](from), [`load_file`](load_file)
+[`from`](/reference/operators/from),
+[`load_file`](/reference/operators/load_file)

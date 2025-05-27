@@ -32,4 +32,4 @@ summarize total=count(x)
 
 ## See Also
 
-[`count_distinct`](count_distinct)
+[`count_distinct`](/reference/functions/count_distinct)

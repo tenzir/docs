@@ -27,4 +27,4 @@ from {x: "hello".starts_with("he")}
 
 ## See Also
 
-[`ends_with`](ends_with)
+[`ends_with`](/reference/functions/ends_with)
