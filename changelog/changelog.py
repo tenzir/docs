@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+
+# /// script
+# dependencies = [
+#   "python-frontmatter",
+# ]
+# ///
+
 """
 Generates versioned changelog MDX files and a product index file.
 Optionally generates a TypeScript sidebar definition file.
@@ -204,7 +211,7 @@ def generate_version_changelog(version_src_path: Path, output_path: Path, pr_bas
                     section_content = f"## {SECTION_TITLES[type_key]}\n\n"
                     section_content += "\n\n".join(entries[type_key])
                     sections_written.append(section_content)
-            
+
             if sections_written:
                 f.write("\n\n".join(sections_written))
                 f.write("\n")
