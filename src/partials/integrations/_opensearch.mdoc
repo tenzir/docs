@@ -1,13 +1,10 @@
-import { Image } from 'astro:assets';
+[{% $Name %}]({% $url %}) is a search and observability suite for
+unstructured data. Tenzir can send events to {% $Name %} and emulate and
+{% $Name %} Bulk API endpoint.
 
-<a href={props.url}>{props.Name}</a> is a search and observability suite for
-unstructured data. Tenzir can send events to {props.Name} and emulate and
-{props.Name} Bulk API endpoint.
+![How to send and receive data]({% $image %})
 
-<Image src={props.image} alt="How to send and receive data"/>
-
-When sending data to {props.Name}, Tenzir uses the <a
-  href={props.bulkApiUrl}>Bulk API</a> and attempts to maximally batch events
+When sending data to {% $Name %}, Tenzir uses the [Bulk API]({% $bulkApiUrl %}) and attempts to maximally batch events
 for throughput, accumulating multiple events before shipping them within a
 single API call. You can control batching behavior with the `max_content_length`
 and `send_timeout` options.
@@ -15,61 +12,43 @@ and `send_timeout` options.
 For more details, see the documentation for the
 [`to_opensearch`](../../reference/operators/to_opensearch) operator.
 
-Tenzir can also present an {props.Name}-compatible REST API via the
+Tenzir can also present an {% $Name %}-compatible REST API via the
 [`from_opensearch`](../../reference/operators/from_opensearch) operator.
 
 ## Examples
 
-### Send events to an {props.Name} index
+### Send events to an {% $Name %} index
 
 Send an example event to the `main` index:
 
-import { Code } from '@astrojs/starlight/components';
-
-export const sendToMainIndex = `
+```tql
 from {event: "example"}
-to "NAME://1.2.3.4:9200", action="create", index="main"
-`;
+to "{% $nameLower %}://1.2.3.4:9200", action="create", index="main"
+```
 
-<Code
-  code={sendToMainIndex.replace("NAME", props.Name.toLowerCase())}
-  lang="tql"
-/>
-
-Instead of treating the entire event as document to be indexed by {props.Name},
+Instead of treating the entire event as document to be indexed by {% $Name %},
 you can designate a nested record as document:
 
-export const sendNestedRecord = `
+```tql
 from {category: "qux", doc_id: "XXX", event: {foo: "bar"}}
-to "NAME://localhost:9200", id=doc_id, doc=event, action="update", index=category
-`;
-
-<Code
-  code={sendNestedRecord.replace("NAME", props.Name.toLowerCase())}
-  lang="tql"
-/>
+to "{% $nameLower %}://localhost:9200", id=doc_id, doc=event, action="update", index=category
+```
 
 The above example updates the document with ID `XXX` with the contents from the
 nested field `event`.
 
-### Accept data by emulating {props.Name}
+### Accept data by emulating {% $Name %}
 
-Tenzir can act as drop-in replacement for {props.Name} by accepting data via a
-Bulk API endpoint. This allows you to point your <a
-href={props.logstashUrl}>Logstash</a> or Beats instances to Tenzir instead.
+Tenzir can act as drop-in replacement for {% $Name %} by accepting data via a
+Bulk API endpoint. This allows you to point your [Logstash]({% $logstashUrl %}) or Beats instances to Tenzir instead.
 
-export const emulate = `
-from "NAME://localhost:9200", keep_actions=true
-publish "NAME"
-`;
-
-<Code
-  code={emulate.replace(/NAME/g, props.Name.toLowerCase())}
-  lang="tql"
-/>
+```tql
+from "{% $nameLower %}://localhost:9200", keep_actions=true
+publish "{% $nameLower %}"
+```
 
 This pipeline accepts data on port 9200 and publishes all received events on the
-<code>{props.Name.toLowerCase()}</code> topic for further processing by other
+`{% $nameLower %}` topic for further processing by other
 pipelines.
 
 Setting `keep_actions=true` causes command events to remain in the stream, e.g.,
@@ -97,21 +76,15 @@ Set `hosts` to the endpoint of the Tenzir pipeline accepting data.
 
 #### Ship data via Logstash
 
-Configure <a href={props.logstashConfigUrl}>Logstash</a> with the
-<code>{props.Name.toLowerCase()}</code> output plugin to ship data to Tenzir:
+Configure [Logstash]({% $logstashConfigUrl %}) with the
+`{% $nameLower %}` output plugin to ship data to Tenzir:
 
-export const shipViaLogstash = `
+```javascript title="pipeline.conf"
 output {
-  NAME {
+  {% $nameLower %} {
     hosts => "https://localhost:9200"
   }
 }
-`;
-
-<Code
-  code={shipViaLogstash.replace("NAME", props.Name.toLowerCase())}
-  title="pipeline.conf"
-  lang="javascript"
-/>
+```
 
 Set `hosts` to the endpoint of the Tenzir pipeline accepting data.
