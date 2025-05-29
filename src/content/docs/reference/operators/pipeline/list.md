@@ -12,7 +12,7 @@ pipeline::list
 
 The `pipeline::list` operator returns the list of all managed pipelines. Managed
 pipelines are pipelines created through the [`/pipeline`
-API](/references/api/node), which includes all pipelines run through the Tenzir
+API](/reference/api/node), which includes all pipelines run through the Tenzir
 Platform.
 
 ## Examples

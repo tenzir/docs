@@ -10,7 +10,7 @@ publish [topic:string]
 ## Description
 
 The `publish` operator publishes events at a node in a channel with the
-specified topic. All [`subscribers`](subscribe) of the channel operator
+specified topic. All [`subscribers`](/reference/operators/subscribe) of the channel operator
 receive the events immediately.
 
 :::note

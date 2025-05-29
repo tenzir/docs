@@ -73,7 +73,7 @@ connector attempts to load from the filesystem.
 ### Decompressing
 
 The compression is inferred from the "file-ending" in the URI. Under the hood,
-this uses the [`decompress_*` operators](/references/operators#encode--decode).
+this uses the [`decompress_*` operators](/reference/operators#encode--decode).
 Supported compressions can be found in the [list of compression
 extensions](#compression).
 
@@ -86,7 +86,7 @@ the decompression manually.
 
 The format to read is, just as the compression, inferred from the file-ending.
 Supported file formats are the common file endings for our [`read_*`
-operators](/references/operators#parsing).
+operators](/reference/operators#parsing).
 
 If you want to provide additional arguments to the parser, you can use the
 [pipeline argument](#---optional) to specify the parsing manually. This can be
@@ -95,7 +95,7 @@ just plain `json`.
 
 ### The pipeline argument & its relation to the loader
 
-Some loaders, such as the [`load_tcp`](load_tcp) operator, accept a sub-pipeline
+Some loaders, such as the [`load_tcp`](/reference/operators/load_tcp) operator, accept a sub-pipeline
 directly. If the selected loader accepts a sub-pipeline, the `from` operator
 will dispatch decompression and parsing into that sub-pipeline. If a an explicit
 pipeline argument is provided it is forwarded as-is. If the loader does not
@@ -132,23 +132,23 @@ load_tcp "tcp://0.0.0.0:12345", parallel=10 {
 
 | Scheme | Operator | Example |
 |:------ |:-------- |:------- |
-| `abfs`,`abfss` | [`load_azure_blob_storage`](load_azure_blob_storage) | `from "abfs://path/to/file.json"` |
-| `amqp` | [`load_amqp`](load_amqp) | `from "amqp://…` |
-| `elasticsearch` | [`from_opensearch`](from_opensearch) | `from "elasticsearch://1.2.3.4:9200` |
-| `file` | [`load_file`](load_file) | `from "file://path/to/file.json"` |
-| `fluent-bit` | [`from_fluent_bit`](from_fluent_bit) | `from "fluent-bit://elasticsearch"` |
-| `ftp`, `ftps` | [`load_ftp`](load_ftp) | `from "ftp://example.com/file.json"` |
-| `gcps` | [`load_google_cloud_pubsub`](load_google_cloud_pubsub) | `from "gcps://project_id/subscription_id" { … }` |
-| `gs` | [`load_gcs`](load_gcs) | `from "gs://bucket/object.json"` |
-| `http`, `https` | [`load_http`](load_http) | `from "http://example.com/file.json"` |
-| `inproc` | [`load_zmq`](load_zmq) | `from "inproc://127.0.0.1:56789" { read_json }` |
-| `kafka` | [`load_kafka`](load_kafka) | `from "kafka://topic" { read_json }` |
-| `opensearch` | [`from_opensearch`](from_opensearch) | `from "opensearch://1.2.3.4:9200` |
-| `s3` | [`load_s3`](load_s3) | `from "s3://bucket/file.json"` |
-| `sqs` | [`load_sqs`](load_sqs) | `from "sqs://my-queue" { read_json }` |
-| `tcp` | [`load_tcp`](load_tcp) | `from "tcp://127.0.0.1:13245" { read_json }` |
-| `udp` | [`load_udp`](load_udp) | `from "udp://127.0.0.1:56789" { read_json }` |
-| `zmq` | [`load_zmq`](load_zmq) | `from "zmq://127.0.0.1:56789" { read_json }` |
+| `abfs`,`abfss` | [`load_azure_blob_storage`](/reference/operators/load_azure_blob_storage) | `from "abfs://path/to/file.json"` |
+| `amqp` | [`load_amqp`](/reference/operators/load_amqp) | `from "amqp://…` |
+| `elasticsearch` | [`from_opensearch`](/reference/operators/from_opensearch) | `from "elasticsearch://1.2.3.4:9200` |
+| `file` | [`load_file`](/reference/operators/load_file) | `from "file://path/to/file.json"` |
+| `fluent-bit` | [`from_fluent_bit`](/reference/operators/from_fluent_bit) | `from "fluent-bit://elasticsearch"` |
+| `ftp`, `ftps` | [`load_ftp`](/reference/operators/load_ftp) | `from "ftp://example.com/file.json"` |
+| `gcps` | [`load_google_cloud_pubsub`](/reference/operators/load_google_cloud_pubsub) | `from "gcps://project_id/subscription_id" { … }` |
+| `gs` | [`load_gcs`](/reference/operators/load_gcs) | `from "gs://bucket/object.json"` |
+| `http`, `https` | [`load_http`](/reference/operators/load_http) | `from "http://example.com/file.json"` |
+| `inproc` | [`load_zmq`](/reference/operators/load_zmq) | `from "inproc://127.0.0.1:56789" { read_json }` |
+| `kafka` | [`load_kafka`](/reference/operators/load_kafka) | `from "kafka://topic" { read_json }` |
+| `opensearch` | [`from_opensearch`](/reference/operators/from_opensearch) | `from "opensearch://1.2.3.4:9200` |
+| `s3` | [`load_s3`](/reference/operators/load_s3) | `from "s3://bucket/file.json"` |
+| `sqs` | [`load_sqs`](/reference/operators/load_sqs) | `from "sqs://my-queue" { read_json }` |
+| `tcp` | [`load_tcp`](/reference/operators/load_tcp) | `from "tcp://127.0.0.1:13245" { read_json }` |
+| `udp` | [`load_udp`](/reference/operators/load_udp) | `from "udp://127.0.0.1:56789" { read_json }` |
+| `zmq` | [`load_zmq`](/reference/operators/load_zmq) | `from "zmq://127.0.0.1:56789" { read_json }` |
 
 Please see the respective operator pages for details on the URI's locator format.
 
@@ -160,15 +160,15 @@ The `from` operator can deduce the file format based on these file-endings:
 
 | Format | File Endings | Operator  |
 |:------ |:------------ |:--------- |
-|  CSV  | `.csv` | [`read_csv`](/references/operators/read_csv) |
-|  Feather  | `.feather`, `.arrow` | [`read_feather`](/references/operators/read_feather) |
-|  JSON  | `.json` | [`read_json`](/references/operators/read_json) |
-|  NDJSON  | `.ndjson`, `.jsonl` | [`read_ndjson`](/references/operators/read_ndjson) |
-|  Parquet  | `.parquet` | [`read_parquet`](/references/operators/read_parquet) |
-|  Pcap  | `.pcap` | [`read_pcap`](/references/operators/read_pcap) |
-|  SSV  | `.ssv` | [`read_ssv`](/references/operators/read_ssv) |
-|  TSV  | `.tsv` | [`read_tsv`](/references/operators/read_tsv) |
-|  YAML  | `.yaml` | [`read_yaml`](/references/operators/read_yaml) |
+|  CSV  | `.csv` | [`read_csv`](/reference/operators/read_csv) |
+|  Feather  | `.feather`, `.arrow` | [`read_feather`](/reference/operators/read_feather) |
+|  JSON  | `.json` | [`read_json`](/reference/operators/read_json) |
+|  NDJSON  | `.ndjson`, `.jsonl` | [`read_ndjson`](/reference/operators/read_ndjson) |
+|  Parquet  | `.parquet` | [`read_parquet`](/reference/operators/read_parquet) |
+|  Pcap  | `.pcap` | [`read_pcap`](/reference/operators/read_pcap) |
+|  SSV  | `.ssv` | [`read_ssv`](/reference/operators/read_ssv) |
+|  TSV  | `.tsv` | [`read_tsv`](/reference/operators/read_tsv) |
+|  YAML  | `.yaml` | [`read_yaml`](/reference/operators/read_yaml) |
 
 #### Compression
 

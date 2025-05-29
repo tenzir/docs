@@ -2,7 +2,7 @@
 title: import
 ---
 
-Imports events into a Tenzir node. The dual to [`export`](export).
+Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export).
 
 ```tql
 import

@@ -75,7 +75,7 @@ yara "rule.yara"
 :::note[Memory Mapping Optimization]
 The `mmap` flag is merely an optimization that constructs a single chunk of
 bytes instead of a contiguous stream. Without `mmap=true`,
-[`load_file`](load_file) generates a stream of byte chunks and feeds them
+[`load_file`](/reference/operators/load_file) generates a stream of byte chunks and feeds them
 incrementally to the `yara` operator. This also works, but performance is better
 due to memory locality when using `mmap`.
 :::

@@ -10,7 +10,7 @@ reverse
 
 ## Description
 
-`reverse` is a shorthand notation for [`slice stride=-1`](slice).
+`reverse` is a shorthand notation for [`slice stride=-1`](/reference/operators/slice).
 
 :::note[Potentially High Memory Usage]
 Use caution when applying this operator to large inputs. It currently buffers

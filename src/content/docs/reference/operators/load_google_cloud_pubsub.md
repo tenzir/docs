@@ -34,7 +34,7 @@ The default value is `0s`.
 
 ## URI support & integration with `from`
 
-The `load_google_cloud_pubsub` operator can also be used from the [`from`](from)
+The `load_google_cloud_pubsub` operator can also be used from the [`from`](/reference/operators/from)
 operator. For this, the `gcps://` scheme can be used. The URI is then translated:
 
 ```tql

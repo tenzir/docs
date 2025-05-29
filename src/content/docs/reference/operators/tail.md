@@ -12,7 +12,7 @@ tail [n:int]
 
 Forwards the last `n` events and discards the rest.
 
-`tail n` is a shorthand notation for [`slice begin=-n`](slice).
+`tail n` is a shorthand notation for [`slice begin=-n`](/reference/operators/slice).
 
 ### `n: int (optional)`
 

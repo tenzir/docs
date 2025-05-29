@@ -79,7 +79,7 @@ example of a connection log in TSV format:
 We first need to parse the log file into structured form that we can work with
 the individual fields. Thanks to Tenzir's [Zeek support](/integrations/zeek),
 we can get quickly turn TSV logs into structured data using the
-[`read_zeek_tsv`](/references/operators/read_zeek_tsv) operator:
+[`read_zeek_tsv`](/reference/operators/read_zeek_tsv) operator:
 
 ```bash
 tenzir 'read_zeek_tsv' < conn.log
@@ -449,7 +449,7 @@ There's a lot more going on here:
   expression for the fallback value.
 - To check whether we have an IPv4 or an IPv6 connection, we call
   `zeek.id.orig_h.is_v6()` on the IPs of the connection record. TQL comes with
-  numerous [functions](/references/functions) that make mapping a breeze.
+  numerous [functions](/reference/functions) that make mapping a breeze.
 
 #### Recap
 
@@ -628,8 +628,8 @@ types, and we need to write one mapping pipeline for each. But how do we combine
 the individual pipelines?
 
 Tenzir's answer for this is topic-based publish-subscribe. The
-[`publish`](/references/operators/publish) and
-[`subscribe`](/references/operators/subscribe) operators send events to, and
+[`publish`](/reference/operators/publish) and
+[`subscribe`](/reference/operators/subscribe) operators send events to, and
 read events from a topic, respectively. Here's an illustration of the conceptual
 approach we are going to use:
 

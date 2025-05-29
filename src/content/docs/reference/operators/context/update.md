@@ -15,7 +15,7 @@ context::update name:string, key=any,
 The `context::update` operator adds new data to a specified context.
 
 Use the `key` argument to specify the field in the input that should be
-associated with the context. The [`context::enrich`](enrich) operator uses
+associated with the context. The [`context::enrich`](/reference/operators/context/enrich) operator uses
 this key to access the context. For contexts that support assigning a value with
 a given key, you can provide an expression to customize what's being associated
 with the given key.

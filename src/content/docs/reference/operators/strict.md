@@ -26,4 +26,4 @@ strict {
 ```
 
 ## See Also
-[`assert`](assert)
+[`assert`](/reference/operators/assert)

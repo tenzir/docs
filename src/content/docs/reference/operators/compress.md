@@ -10,7 +10,7 @@ compress codec:string, [level=int]
 
 :::warning[Deprecated]
 The `compress` operator is deprecated. You should use the
-[bespoke operators](/references/operators#encode--decode) instead.
+[bespoke operators](/reference/operators#encode--decode) instead.
 These operators offer more options for some of the formats.
 :::
 

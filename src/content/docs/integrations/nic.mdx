@@ -4,7 +4,7 @@ title: Network Interface
 
 Tenzir supports reading packets from a network interface card (NIC).
 
-The [`load_nic`](/references/operators/load_nic) produces a stream of bytes
+The [`load_nic`](/reference/operators/load_nic) produces a stream of bytes
 in PCAP file format:
 
 ![Packet pipeline](nic.svg)
@@ -13,14 +13,14 @@ We designed `load_nic` such that it produces a byte stream in the form of a PCAP
 file. That is, when the pipeline starts, it first produces a file header,
 followed by chunks of packets. This creates a byte stream that is
 wire-compatible with the PCAP format, allowing you to exchange `load_nic`
-with [`load_file`](/references/operators/load_file) and It Just Works™.
+with [`load_file`](/reference/operators/load_file) and It Just Works™.
 
 ## Examples
 
 ### List active network interfaces
 
 If you don't know what interface to read from, use the
-[`nics`](/references/operators/nics) operator to identify suitable candidates:
+[`nics`](/reference/operators/nics) operator to identify suitable candidates:
 
 ```tql
 nics
@@ -92,7 +92,7 @@ head 3
 ### Decapsulate packets
 
 After you have structured data in the form of PCAP events, you can use the
-[`decapsulate`](/references/functions/decapsulate) function to decode the
+[`decapsulate`](/reference/functions/decapsulate) function to decode the
 binary `data`:
 
 ```tql
@@ -126,5 +126,5 @@ head 1
 Decapsulation automatically computes a [Community
 ID](https://github.com/corelight/community-id-spec) for correlation in the
 `community_id` field. You could also use the
-[`community_id`](/references/functions/community_id) function to compute this
+[`community_id`](/reference/functions/community_id) function to compute this
 value manually for different events.

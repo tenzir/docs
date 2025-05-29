@@ -82,7 +82,7 @@ Defaults to `false`.
 
 ## Examples
 
-### Send the list of plugins as [JSON](/references/operators/write_json)
+### Send the list of plugins as [JSON](/reference/operators/write_json)
 
 ```tql
 plugins

@@ -9,7 +9,7 @@ write_lines
 ```
 
 :::tip
-Use [`write_kv`](/references/operators/write_kv) operator if you also want to write the *key*s.
+Use [`write_kv`](/reference/operators/write_kv) operator if you also want to write the *key*s.
 :::
 
 ## Description

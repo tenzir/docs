@@ -11,7 +11,7 @@ summarize (group|aggregation)...
 ## Description
 
 The `summarize` operator groups events according to certain fields and applies
-[aggregation functions](/references/functions#aggregation) to each group. The operator
+[aggregation functions](/reference/functions#aggregation) to each group. The operator
 consumes the entire input before producing any output, and may reorder the event
 stream.
 
@@ -31,7 +31,7 @@ returned.
 
 ### `aggregation`
 
-The [aggregation functions](/references/functions#aggregation) applied to each group
+The [aggregation functions](/reference/functions#aggregation) applied to each group
 are specified with `f(…)` or `<field>=f(…)`, where `f` is the name of an
 aggregation function (see below) and `<field>` is an optional name for the
 result. The aggregation function will produce a single result for each group.

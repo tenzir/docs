@@ -29,7 +29,7 @@ Defaults to `false`, i.e., the HTTP client.
 
 :::warning Currently in Development
 Support for HTTP clients is not yet implemented. To get data into a pipeline
-with an HTTP client, use the [`load_http`](load_http) operator instead.
+with an HTTP client, use the [`load_http`](/reference/operators/load_http) operator instead.
 `load_http` will eventually be deprecated and removed in favor of `from_http`.
 :::
 
@@ -110,7 +110,7 @@ and see it on the Tenzir side, parsed and decompressed(!):
 }
 ```
 
-and then strip out all the HTTP framing with [`select`](select):
+and then strip out all the HTTP framing with [`select`](/reference/operators/select):
 
 ```tql
 select parsed=body

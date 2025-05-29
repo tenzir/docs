@@ -20,9 +20,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](/references/operators/write_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](/references/operators/write_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](/references/operators/write_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/reference/operators/write_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/reference/operators/write_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/reference/operators/write_tsv)   |`\t`           |`,`           |`-`       |
 
 [csv]: https://en.wikipedia.org/wiki/Comma-separated_values
 [xsv]: https://en.wikipedia.org/wiki/Delimiter-separated_values

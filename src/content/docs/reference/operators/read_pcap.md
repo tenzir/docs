@@ -28,7 +28,7 @@ present, the parser injects this additional event before the subsequent stream
 of packets.
 
 Emitting this extra event makes it possible to seed the
-[`write_pcap`](/references/operators/write_pcap) operator with a file header from the input. This
+[`write_pcap`](/reference/operators/write_pcap) operator with a file header from the input. This
 allows for controlling the timestamp formatting (microseconds vs. nanosecond
 granularity) and byte order in the packet headers.
 
@@ -64,7 +64,7 @@ load_file "/tmp/trace.pcap"
 read_pcap
 ```
 
-### Read packets from the [network interface](load_nic) `eth0`
+### Read packets from the [network interface](/reference/operators/load_nic) `eth0`
 
 ```tql
 load_nic "eth0"

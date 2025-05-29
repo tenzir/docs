@@ -27,7 +27,7 @@ The topic to publish to.
 
 ## URI support & integration with `from`
 
-The `save_google_cloud_pubsub` operator can also be used from the [`to`](to)
+The `save_google_cloud_pubsub` operator can also be used from the [`to`](/reference/operators/to)
 operator. For this, the `gcps://` scheme can be used. The URI is then translated:
 
 ```tql

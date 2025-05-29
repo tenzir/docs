@@ -2,7 +2,7 @@
 title: top
 ---
 
-Shows the most common values. The dual to [`rare`](rare).
+Shows the most common values. The dual to [`rare`](/reference/operators/rare).
 
 ```tql
 top x:field

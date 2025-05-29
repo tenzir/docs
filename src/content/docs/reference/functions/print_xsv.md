@@ -16,9 +16,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](/references/functions/print_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](/references/functions/print_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](/references/functions/print_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/reference/functions/print_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/reference/functions/print_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/reference/functions/print_tsv)   |`\t`           |`,`           |`-`       |
 
 ### `field_separator = str`
 

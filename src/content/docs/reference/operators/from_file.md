@@ -57,7 +57,7 @@ By default, paths will not be inserted into the outgoing events.
 
 Pipeline to use for parsing the file. By default, this pipeline is derived from
 the path of the file, and will not only handle parsing but also decompression if
-applicable. This is using the same logic as [`from`](from).
+applicable. This is using the same logic as [`from`](/reference/operators/from).
 
 ## Examples
 

@@ -18,7 +18,7 @@ tools support.
 [parquet]: https://parquet.apache.org/
 
 :::tip[MMAP Parsing]
-When using theis with the [`load_file`](load_file) operator, we
+When using theis with the [`load_file`](/reference/operators/load_file) operator, we
 recommend passing the `mmap=true` option to `load_file` to give the parser full control
 over the reads, which leads to better performance and memory usage.
 :::

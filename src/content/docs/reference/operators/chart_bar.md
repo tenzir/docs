@@ -23,13 +23,13 @@ Label for each bar.
 
 Positions on the y-axis for each data point.
 Multiple data points for the same group can be be aggregated using an
-[aggregation function](/references/functions#aggregation).
+[aggregation function](/reference/functions#aggregation).
 
 Multiple `y` values and their labels can be specified by using the record
 syntax: `{name: value, ...}`.
 
 For example, `y = {"Avg. Load": mean(load)}` calculates the
-[mean](/references/functions/mean) of the `load` field and labels it as `Avg. Load`.
+[mean](/reference/functions/mean) of the `load` field and labels it as `Avg. Load`.
 
 ### `x_min = any (optional)`
 

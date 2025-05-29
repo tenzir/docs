@@ -10,7 +10,7 @@ decompress codec:string
 
 :::warning[Deprecated]
 The `decompress` operator is deprecated. You should use the
-[bespoke operators](/references/operators#encode--decode) instead.
+[bespoke operators](/reference/operators#encode--decode) instead.
 :::
 
 ## Description

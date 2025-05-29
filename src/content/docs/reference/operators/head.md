@@ -12,7 +12,7 @@ head [n:int]
 
 Forwards the first `n` events and discards the rest.
 
-`head n` is a shorthand notation for [`slice end=n`](slice).
+`head n` is a shorthand notation for [`slice end=n`](/reference/operators/slice).
 
 ### `n: int (optional)`
 
