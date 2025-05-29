@@ -8,6 +8,9 @@ import 'astro-breadcrumbs/breadcrumbs.css';
 const currentPath = Astro.url.pathname;
 const segments = currentPath.split('/').filter(Boolean);
 
+// Don't show breadcrumbs on the home page
+const isHomePage = currentPath === '/' || segments.length === 0;
+
 // Build customization array for breadcrumb links
 const customizeLinks: any[] = [];
 
@@ -51,7 +54,8 @@ for (let i = 0; i < segments.length - 1; i++) {
 ---
 
 <div class="page-title-with-breadcrumbs">
-  <Breadcrumbs customizeLinks={customizeLinks}>
+  {!isHomePage && (
+    <Breadcrumbs customizeLinks={customizeLinks}>
     <svg
       slot="index"
       xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +87,8 @@ for (let i = 0; i < segments.length - 1; i++) {
     >
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
-  </Breadcrumbs>
+    </Breadcrumbs>
+  )}
   <Default {...Astro.props} />
 </div>
 
