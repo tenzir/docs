@@ -87,7 +87,7 @@ jobs:
           #  RUN_LINK_CHECK: true
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             pnpm astro build \
-              --site "https://tenzir-pr-${{ github.event.pull_request.number }}.surge.sh"
+              --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
           else
             pnpm astro build \
               --site "${{ steps.pages.outputs.origin }}" \
@@ -105,7 +105,7 @@ jobs:
         run: |
           # To create a surge.sh token, run `npx durge login` and `npx surge token`.
           npm install -g surge
-          surge ./dist https://tenzir-pr-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+          surge ./dist https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
@@ -114,7 +114,7 @@ jobs:
           script: |
             const comment = `🚀 **Preview deployed!**
 
-            Visit the preview at: https://tenzir-pr-${{ github.event.pull_request.number }}.surge.sh
+            Visit the preview at: https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh
 
             This preview will be updated automatically on new commits.`;
 
