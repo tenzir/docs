@@ -218,6 +218,24 @@ header[data-scrolled] {
 /* Override any default Starlight header background colors */
 :root {
   --sl-color-bg-nav: var(--sl-color-black);
+  --sl-color-bg-sidebar: var(--sl-color-bg);
+}
+
+/* Make sidebar background match main content background */
+.sidebar-pane {
+  background-color: var(--sl-color-bg) !important;
+}
+
+/* Ensure sidebar content area also matches */
+.sidebar-content {
+  background-color: var(--sl-color-bg) !important;
+}
+
+/* Override mobile sidebar background */
+@media (max-width: 50rem) {
+  nav.sidebar {
+    background-color: var(--sl-color-bg) !important;
+  }
 }
 
 /* Stay monochrome for social icons. */
