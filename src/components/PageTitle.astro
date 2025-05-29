@@ -7,13 +7,21 @@ import { getCollection } from 'astro:content';
 
 // Get all docs entries to check which paths actually exist
 const allDocs = await getCollection('docs');
-const existingPaths = new Set(
-  allDocs.map(doc => `/${doc.slug}`)
-);
+const existingPaths = new Set();
 
-// Also add paths with trailing slashes
+// Add all document paths
 allDocs.forEach(doc => {
-  existingPaths.add(`/${doc.slug}/`);
+  const slug = doc.slug || '';
+  
+  // Add the exact slug
+  existingPaths.add(`/${slug}`);
+  
+  // If it's an index page, also add the parent directory
+  if (slug.endsWith('/index') || slug.endsWith('index')) {
+    const parentPath = slug.replace(/\/?index$/, '');
+    existingPaths.add(`/${parentPath}`);
+    existingPaths.add(`/${parentPath}/`);
+  }
 });
 
 // Get the current path segments
