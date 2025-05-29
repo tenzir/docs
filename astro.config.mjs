@@ -58,6 +58,7 @@ export default defineConfig({
         "./src/assets/styles.css",
       ],
       components: {
+        PageTitle: './src/components/PageTitle.astro',
         Sidebar: './src/components/Sidebar.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         ThemeSelect: './src/components/ThemeSelect.astro',
