@@ -1,0 +1,28 @@
+name: PR Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: Clean up PR preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove preview from Surge
+        run: |
+          npm install -g surge
+          surge teardown https://tenzir-pr-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `🧹 Preview deployment has been cleaned up.`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
