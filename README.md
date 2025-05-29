@@ -2,7 +2,7 @@
 
 This repository hosts the documentation of [Tenzir](https://tenzir.com).
 
-## 🚧 WORK IN PROGRESS 🚧  
+## 🚧 WORK IN PROGRESS 🚧
 
 The content in this repository is not yet authoritative. If you look for the
 Tenzir documentation, go to [docs.tenzir.com](https://docs.tenzir.com).
@@ -22,7 +22,7 @@ can find a preview of the new documentation at
 - [x] Implement broken links check
 - [x] Upgrade to Starlight 0.32 and re-implement Starlight Utils
 - [x] Make logo href be tenzir.com
-- [x] Rename *Documentation* to *Docs* in header
+- [x] Rename _Documentation_ to _Docs_ in header
 - [x] Tweak `index.mdx` title
 - [x] Consider https://github.com/rehypejs/rehype-external-links
 - [ ] Fix Markdoc partial support (https://github.com/withastro/astro/issues/13575)
@@ -36,6 +36,8 @@ can find a preview of the new documentation at
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
 - [x] Add Markdown linting CI job
+- [ ] Add CI job that ensures that changelog is not edited manually
+- [ ] Add CI job for eslint and js formatting
 
 ### Style
 
