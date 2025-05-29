@@ -22,7 +22,7 @@ for (let i = 0; i < segments.length - 1; i++) {
   let pageExists = true;
   try {
     // Use import.meta.glob to check if there's an index page at this path
-    const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { as: 'raw' });
+    const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { query: '?raw', import: 'default' });
     
     // Check if this path has a corresponding page
     const hasIndex = Object.keys(allPages).some(key => 
