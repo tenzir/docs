@@ -88,11 +88,17 @@ const options = Astro.props.options || [
 			if (select) {
 				select.value = theme;
 				
-				// Disable the select if theme is forced via URL
+				// Hide the theme selector if theme is forced via URL
 				const urlParams = new URLSearchParams(window.location.search);
 				if (urlParams.has('theme')) {
-					select.disabled = true;
-					select.title = 'Theme is controlled by URL parameter';
+					// Hide the entire theme selector component
+					this.style.display = 'none';
+					
+					// Also hide the divider after social icons
+					const socialIcons = document.querySelector('.social-icons');
+					if (socialIcons) {
+						socialIcons.style.setProperty('--sl-social-icons-after-display', 'none');
+					}
 				}
 				
 				select.addEventListener('change', (e) => {
@@ -107,6 +113,14 @@ const options = Astro.props.options || [
 </script>
 
 <style>
+	/* Global style to support hiding the social icons divider */
+	:global(.social-icons) {
+		--sl-social-icons-after-display: block;
+	}
+	:global(.social-icons::after) {
+		display: var(--sl-social-icons-after-display);
+	}
+	
 	starlight-theme-select {
 		display: inline-block;
 	}
