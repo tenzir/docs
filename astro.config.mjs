@@ -32,9 +32,9 @@ function findMarkdownFiles(dir, baseDir) {
     
     if (stat.isDirectory()) {
       files.push(...findMarkdownFiles(fullPath, baseDir));
-    } else if (item.endsWith('.md')) {
+    } else if (item.endsWith('.md') || item.endsWith('.mdx') || item.endsWith('.mdoc')) {
       const relativePath = relative(baseDir, fullPath);
-      files.push(relativePath.replace(/\.md$/, ''));
+      files.push(relativePath.replace(/\.(md|mdx|mdoc)$/, ''));
     }
   }
   
