@@ -182,6 +182,44 @@ html[data-theme="dark"] {
   position: fixed !important;
 }
 
+/* Remove grey background from header and match tenzir.com styling */
+header {
+  background-color: var(--sl-color-black) !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid var(--sl-color-gray-6);
+}
+
+/* Ensure the header container also has the correct background */
+.header {
+  background-color: var(--sl-color-black) !important;
+}
+
+/* Override any semi-transparent backgrounds that might be applied */
+[data-has-sidebar] header {
+  background-color: var(--sl-color-black) !important;
+}
+
+/* Ensure mobile menu button area matches */
+starlight-menu-button {
+  background-color: transparent !important;
+}
+
+/* Handle header background when scrolling */
+header[data-scrolled] {
+  background-color: var(--sl-color-black) !important;
+  backdrop-filter: none !important;
+}
+
+/* Ensure consistent styling for the header wrapper */
+.header-wrapper {
+  background-color: var(--sl-color-black) !important;
+}
+
+/* Override any default Starlight header background colors */
+:root {
+  --sl-color-bg-nav: var(--sl-color-black);
+}
+
 /* Stay monochrome for social icons. */
 .social-icons a {
   color: var(--sl-color-white);
