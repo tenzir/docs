@@ -36,7 +36,7 @@ can find a preview of the new documentation at
 - [x] Update `tql.tmLanguage.json` via CI
 - [x] Add Markdown linting CI job
 - [ ] Add CI job that ensures that changelog is not edited manually
-- [x] Add CI job for eslint 
+- [x] Add CI job for eslint
 - [ ] Add CI job for prettier
 
 ### Style
