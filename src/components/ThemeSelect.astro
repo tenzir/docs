@@ -37,13 +37,13 @@ const options = Astro.props.options || [
 
 	const storageKey = 'starlight-theme';
 
-	const parseTheme = (theme) =>
+	const parseTheme = (theme: string | null): Theme =>
 		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
-	const loadTheme = () =>
+	const loadTheme = (): Theme =>
 		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
 
-	function storeTheme(theme) {
+	function storeTheme(theme: Theme) {
 		if (typeof localStorage !== 'undefined') {
 			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
 		}
@@ -52,7 +52,7 @@ const options = Astro.props.options || [
 	const getPreferredColorScheme = () =>
 		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 
-	function onThemeChange(theme) {
+	function onThemeChange(theme: Theme) {
 		StarlightThemeProvider.updatePickers(theme);
 		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
 		storeTheme(theme);

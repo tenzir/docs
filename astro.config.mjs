@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from "astro/config";
-import { execSync } from "node:child_process";
+
 import starlight from "@astrojs/starlight";
 import sitemap from "@astrojs/sitemap";
 import starlightLinksValidator from "starlight-links-validator";
