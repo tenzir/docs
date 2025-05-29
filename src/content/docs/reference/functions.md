@@ -49,6 +49,7 @@ but often resort to the method style when it is more idiomatic.
 | [`any`](/reference/functions/any)                       | Computes the disjunction (OR) of all boolean values          | `any([true,false,true])`     |
 | [`collect`](/reference/functions/collect)               | Creates a list of all non-null values, preserving duplicates | `collect([1,2,2,3])`         |
 | [`count`](/reference/functions/count)                   | Counts the events or non-null values                         | `count([1,2,null])`          |
+| [`count_if`](/reference/functions/count_if)             | Counts the events or non-null values matching a predicate                         | `count_if([1,2,null], x => x > 1)`          |
 | [`count_distinct`](/reference/functions/count_distinct) | Counts all distinct non-null values                          | `count_distinct([1,2,2,3])`  |
 | [`distinct`](/reference/functions/distinct)             | Creates a sorted list without duplicates of non-null values  | `distinct([1,2,2,3])`        |
 | [`first`](/reference/functions/first)                   | Takes the first non-null value                               | `first([null,2,3])`          |
@@ -63,6 +64,7 @@ but often resort to the method style when it is more idiomatic.
 | [`sum`](/reference/functions/sum)                       | Computes the sum of all values                               | `sum([1,2,3])`               |
 | [`value_counts`](/reference/functions/value_counts)     | Returns a list of values with their frequency                | `value_counts([1,2,2,3])`    |
 | [`variance`](/reference/functions/variance)             | Computes the variance of all values                          | `variance([1,2,3])`          |
+| [`where`](/reference/functions/where)             | Filters list elements based on a predicate | `xs.where(x => x > 5)`     |
 
 ## Record
 
@@ -83,7 +85,7 @@ but often resort to the method style when it is more idiomatic.
 | [`concatenate`](/reference/functions/concatenate) | Merges two lists                           | `concatenate(xs, ys)`      |
 | [`get`](/reference/functions/get)                 | Accesses an element of a list              | `list.get(index, default)` |
 | [`length`](/reference/functions/length)           | Retrieves the length of a list             | `[1,2,3].length()`         |
-| [`map`](/reference/functions/map)                 | Maps each list element to an expression    | `xs.map(x, x + 3)`         |
+| [`map`](/reference/functions/map)                 | Maps each list element to an expression    | `xs.map(x => x + 3)`         |
 | [`sort`](/reference/functions/sort)               | Sorts a list by its values.                | `xs.sort()`                |
 | [`where`](/reference/functions/where)             | Filters list elements based on a predicate | `xs.where(x, x > 5)`       |
 | [`zip`](/reference/functions/zip)                 | Combines two lists into a list of pairs    | `zip(xs, ys)`              |
