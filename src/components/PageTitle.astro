@@ -3,57 +3,51 @@ import type { Props } from '@astrojs/starlight/props';
 import Default from '@astrojs/starlight/components/PageTitle.astro';
 import { Breadcrumbs } from 'astro-breadcrumbs';
 import 'astro-breadcrumbs/breadcrumbs.css';
-import { getCollection } from 'astro:content';
-
-// Get all docs entries to check which paths actually exist
-const allDocs = await getCollection('docs');
-const existingPaths = new Set();
-
-// Add all document paths
-allDocs.forEach(doc => {
-  const slug = doc.slug || '';
-  
-  // Add the exact slug
-  existingPaths.add(`/${slug}`);
-  
-  // If it's an index page, also add the parent directory
-  if (slug.endsWith('/index') || slug.endsWith('index')) {
-    const parentPath = slug.replace(/\/?index$/, '');
-    existingPaths.add(`/${parentPath}`);
-    existingPaths.add(`/${parentPath}/`);
-  }
-});
 
 // Get the current path segments
 const currentPath = Astro.url.pathname;
 const segments = currentPath.split('/').filter(Boolean);
 
-// Build customization array for non-existent paths
-const customizeLinks = [];
-let pathSoFar = '';
+// Build customization array for breadcrumb links
+const customizeLinks: any[] = [];
 
-segments.forEach((segment, index) => {
-  pathSoFar += `/${segment}`;
+// For each intermediate segment, check if we need to customize it
+for (let i = 0; i < segments.length - 1; i++) {
+  const pathToCheck = '/' + segments.slice(0, i + 1).join('/');
   
-  // Check if this intermediate path exists as a page
-  // Skip the last segment (current page)
-  if (index < segments.length - 1) {
-    const pathExists = existingPaths.has(pathSoFar) || 
-                      existingPaths.has(`${pathSoFar}/`) ||
-                      existingPaths.has(`${pathSoFar}/index`);
+  // Check if a page exists at this path
+  let pageExists = true;
+  try {
+    // Use import.meta.glob to check if there's an index page at this path
+    const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { as: 'raw' });
     
-    if (!pathExists) {
-      // This intermediate path doesn't exist, so make it non-clickable
-      customizeLinks.push({
-        index: index + 1, // +1 because index 0 is Home
-        href: '#',
-        style: 'pointer-events: none; text-decoration: none; color: var(--sl-color-gray-3); cursor: default;',
-        onclick: 'return false;',
-        tabindex: '-1'
-      });
-    }
+    // Check if this path has a corresponding page
+    const hasIndex = Object.keys(allPages).some(key => 
+      key === `/src/content/docs${pathToCheck}/index.md` ||
+      key === `/src/content/docs${pathToCheck}/index.mdx` ||
+      key === `/src/content/docs${pathToCheck}/index.mdoc` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.md` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdx` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdoc`
+    );
+    
+    pageExists = hasIndex;
+  } catch (e) {
+    // If we can't determine, assume it exists
+    pageExists = true;
   }
-});
+  
+  if (!pageExists) {
+    // This intermediate path doesn't exist, so make it non-clickable
+    customizeLinks.push({
+      index: i + 1, // +1 because index 0 is Home
+      href: '#',
+      style: 'pointer-events: none; text-decoration: none; color: var(--sl-color-gray-3); cursor: default;',
+      onclick: 'return false;',
+      tabindex: '-1'
+    });
+  }
+}
 ---
 
 <div class="page-title-with-breadcrumbs">
