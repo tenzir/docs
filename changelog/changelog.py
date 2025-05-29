@@ -140,7 +140,7 @@ def parse_file(path: Path, pr_base_url: Optional[str]) -> Optional[Tuple[str, st
         byline += "." # Period added here if only authors
     description += byline
 
-    entry = f"### {title}\n\n{description.strip()}\n"
+    entry = f"### {title}\n\n{description.strip()}"
     return type_, entry
 
 def parse_filename_semver_key(filename_stem: str) -> Tuple:
@@ -197,16 +197,17 @@ def generate_version_changelog(version_src_path: Path, output_path: Path, pr_bas
             f.write("---\n\n")
 
             content_written = False
+            sections_written = []
             for type_key in SECTION_TITLES:
                 if entries[type_key]:
                     content_written = True
-                    f.write(f"## {SECTION_TITLES[type_key]}\n\n")
-                    f.write("\n\n".join(entries[type_key]))
-                    f.write("\n\n")
-
-            if content_written:
-                f.seek(f.tell() - 2)
-                f.truncate()
+                    section_content = f"## {SECTION_TITLES[type_key]}\n\n"
+                    section_content += "\n\n".join(entries[type_key])
+                    sections_written.append(section_content)
+            
+            if sections_written:
+                f.write("\n\n".join(sections_written))
+                f.write("\n")
 
         print(f"✅ Generated {output_path.relative_to(Path.cwd())}")
         return True
