@@ -40,10 +40,25 @@ const options = Astro.props.options || [
 	const parseTheme = (theme: string | null): Theme =>
 		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
-	const loadTheme = (): Theme =>
-		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+	const loadTheme = (): Theme => {
+		// Check if we have a theme parameter in the URL
+		const urlParams = new URLSearchParams(window.location.search);
+		const urlTheme = urlParams.get('theme');
+		if (urlTheme) {
+			return parseTheme(urlTheme);
+		}
+		
+		// Fall back to localStorage
+		return parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+	};
 
 	function storeTheme(theme: Theme) {
+		// Don't store the theme if it's forced via URL parameter
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.has('theme')) {
+			return;
+		}
+		
 		if (typeof localStorage !== 'undefined') {
 			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
 		}
@@ -65,12 +80,27 @@ const options = Astro.props.options || [
 	class StarlightThemeSelect extends HTMLElement {
 		constructor() {
 			super();
-			onThemeChange(loadTheme());
-			this.querySelector('select')?.addEventListener('change', (e) => {
-				if (e.currentTarget instanceof HTMLSelectElement) {
-					onThemeChange(parseTheme(e.currentTarget.value));
+			const theme = loadTheme();
+			onThemeChange(theme);
+			
+			// Update the select element to show the current theme
+			const select = this.querySelector('select');
+			if (select) {
+				select.value = theme;
+				
+				// Disable the select if theme is forced via URL
+				const urlParams = new URLSearchParams(window.location.search);
+				if (urlParams.has('theme')) {
+					select.disabled = true;
+					select.title = 'Theme is controlled by URL parameter';
 				}
-			});
+				
+				select.addEventListener('change', (e) => {
+					if (e.currentTarget instanceof HTMLSelectElement) {
+						onThemeChange(parseTheme(e.currentTarget.value));
+					}
+				});
+			}
 		}
 	}
 	customElements.define('starlight-theme-select', StarlightThemeSelect);
