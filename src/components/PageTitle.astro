@@ -3,10 +3,53 @@ import type { Props } from '@astrojs/starlight/props';
 import Default from '@astrojs/starlight/components/PageTitle.astro';
 import { Breadcrumbs } from 'astro-breadcrumbs';
 import 'astro-breadcrumbs/breadcrumbs.css';
+import { getCollection } from 'astro:content';
+
+// Get all docs entries to check which paths actually exist
+const allDocs = await getCollection('docs');
+const existingPaths = new Set(
+  allDocs.map(doc => `/${doc.slug}`)
+);
+
+// Also add paths with trailing slashes
+allDocs.forEach(doc => {
+  existingPaths.add(`/${doc.slug}/`);
+});
+
+// Get the current path segments
+const currentPath = Astro.url.pathname;
+const segments = currentPath.split('/').filter(Boolean);
+
+// Build customization array for non-existent paths
+const customizeLinks = [];
+let pathSoFar = '';
+
+segments.forEach((segment, index) => {
+  pathSoFar += `/${segment}`;
+  
+  // Check if this intermediate path exists as a page
+  // Skip the last segment (current page)
+  if (index < segments.length - 1) {
+    const pathExists = existingPaths.has(pathSoFar) || 
+                      existingPaths.has(`${pathSoFar}/`) ||
+                      existingPaths.has(`${pathSoFar}/index`);
+    
+    if (!pathExists) {
+      // This intermediate path doesn't exist, so make it non-clickable
+      customizeLinks.push({
+        index: index + 1, // +1 because index 0 is Home
+        href: '#',
+        style: 'pointer-events: none; text-decoration: none; color: var(--sl-color-gray-3); cursor: default;',
+        onclick: 'return false;',
+        tabindex: '-1'
+      });
+    }
+  }
+});
 ---
 
 <div class="page-title-with-breadcrumbs">
-  <Breadcrumbs>
+  <Breadcrumbs customizeLinks={customizeLinks}>
     <svg
       slot="index"
       xmlns="http://www.w3.org/2000/svg"
