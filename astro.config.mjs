@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig, passthroughImageService } from 'astro/config';
 import { execSync } from 'node:child_process';
+import { readdirSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
 import starlightLinksValidator from 'starlight-links-validator';
@@ -19,12 +21,53 @@ import tqlLang from './tql.tmLanguage.json' assert { type: 'json' };
 const runLinkCheck = process.env.RUN_LINK_CHECK || false;
 const isProd = process.env.NODE_ENV === 'production';
 
+// Function to recursively find all .md files in a directory
+function findMarkdownFiles(dir, baseDir) {
+  const files = [];
+  const items = readdirSync(dir);
+  
+  for (const item of items) {
+    const fullPath = join(dir, item);
+    const stat = statSync(fullPath);
+    
+    if (stat.isDirectory()) {
+      files.push(...findMarkdownFiles(fullPath, baseDir));
+    } else if (item.endsWith('.md')) {
+      const relativePath = relative(baseDir, fullPath);
+      files.push(relativePath.replace(/\.md$/, ''));
+    }
+  }
+  
+  return files;
+}
+
+// Dynamically discover all operator and function pages
+const operatorsDir = './src/content/docs/reference/operators';
+const functionsDir = './src/content/docs/reference/functions';
+
+const operatorPages = findMarkdownFiles(operatorsDir, operatorsDir);
+const functionPages = findMarkdownFiles(functionsDir, functionsDir);
+
+// Generate redirect mappings for all operator and function pages
+const redirects = {};
+
+// Add operator redirects
+operatorPages.forEach(page => {
+  redirects[`/tql2/operators/${page}`] = `/reference/operators/${page}`;
+});
+
+// Add function redirects
+functionPages.forEach(page => {
+  redirects[`/tql2/functions/${page}`] = `/reference/functions/${page}`;
+});
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://new.docs.tenzir.com',
   redirects: {
     '/discord': 'https://discord.gg/xqbDgVTCxZ',
     '/sbom': 'https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json',
+    ...redirects,
   },
   integrations: [
     sitemap(),
