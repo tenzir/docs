@@ -224,6 +224,7 @@ header[data-scrolled] {
 /* Make sidebar background match main content background */
 .sidebar-pane {
   background-color: var(--sl-color-bg) !important;
+  border-right: 1px solid var(--sl-color-gray-6);
 }
 
 /* Ensure sidebar content area also matches */
@@ -235,6 +236,10 @@ header[data-scrolled] {
 @media (max-width: 50rem) {
   nav.sidebar {
     background-color: var(--sl-color-bg) !important;
+  }
+  /* Remove border on mobile since sidebar overlays content */
+  .sidebar-pane {
+    border-right: none;
   }
 }
 
