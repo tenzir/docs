@@ -10,9 +10,10 @@ permissions:
   contents: write # needed for committing changes
   pages: write
   id-token: write
+  pull-requests: write # needed for commenting on PRs
 
 concurrency:
-  group: "pages"
+  group: "pages-${{ github.ref }}"
   cancel-in-progress: false
 
 jobs:
@@ -30,7 +31,7 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install Poetry
         if: github.event_name == 'push'
@@ -84,14 +85,66 @@ jobs:
           # TODO: enable before going live.
           #env:
           #  RUN_LINK_CHECK: true
-          pnpm astro build \
-            --site "${{ steps.pages.outputs.origin }}" \
-            --base "${{ steps.pages.outputs.base_path }}"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            pnpm astro build \
+              --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
+          else
+            pnpm astro build \
+              --site "${{ steps.pages.outputs.origin }}" \
+              --base "${{ steps.pages.outputs.base_path }}"
+          fi
 
       - name: Upload artifact
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
+      - name: Deploy PR Preview
+        if: github.event_name == 'pull_request'
+        run: |
+          # To create a surge.sh token, run `npx durge login` and `npx surge token`.
+          npm install -g surge
+          surge ./dist https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+
+      - name: Comment PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `🚀 **Preview deployed!**
+
+            Visit the preview at: https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh
+
+            This preview will be updated automatically on new commits.`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Preview deployed!')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
 
   deploy:
     name: Deploy
