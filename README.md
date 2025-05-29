@@ -2,7 +2,7 @@
 
 This repository hosts the documentation of [Tenzir](https://tenzir.com).
 
-## 🚧 WORK IN PROGRESS 🚧  
+## 🚧 WORK IN PROGRESS 🚧
 
 The content in this repository is not yet authoritative. If you look for the
 Tenzir documentation, go to [docs.tenzir.com](https://docs.tenzir.com).
@@ -26,8 +26,7 @@ can find a preview of the new documentation at
 - [x] Tweak `index.mdx` title
 - [x] Consider https://github.com/rehypejs/rehype-external-links
 - [ ] Fix Markdoc partial support (https://github.com/withastro/astro/issues/13575)
-- [ ] Use [breadcrumbs](https://docs.astro-breadcrumbs.kasimir.dev/) for
-      functions and operators
+- [x] Use [breadcrumbs](https://docs.astro-breadcrumbs.kasimir.dev/)
 - [x] Add Plausible analytics
 
 ### CI / Automation
