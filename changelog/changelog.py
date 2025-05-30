@@ -87,11 +87,17 @@ def format_authors(authors: Union[None, str, List[str]]) -> str:
         authors = [authors]
     if not isinstance(authors, list):
         return ""
-    formatted = [f"[@{author}](https://github.com/{author})" for author in authors if isinstance(author, str)]
+    formatted = [
+        f"[@{author}](https://github.com/{author})"
+        for author in authors
+        if isinstance(author, str)
+    ]
     return ", ".join(formatted)
 
 
-def format_prs(prs: Union[None, int, str, List[Union[int, str]]], pr_base_url: Optional[str]) -> str:
+def format_prs(
+    prs: Union[None, int, str, List[Union[int, str]]], pr_base_url: Optional[str]
+) -> str:
     """
     Formats PR numbers/IDs into a comma-separated string
     With links if pr_base_url is provided, otherwise just #-prefixed numbers
@@ -114,7 +120,9 @@ def format_prs(prs: Union[None, int, str, List[Union[int, str]]], pr_base_url: O
     return ", ".join(formatted)
 
 
-def parse_change_file(path: Path, pr_base_url: Optional[str]) -> Optional[Tuple[str, str]]:
+def parse_change_file(
+    path: Path, pr_base_url: Optional[str]
+) -> Optional[Tuple[str, str]]:
     """
     Parses a single changelog entry markdown file, extracts frontmatter and content,
     and validates that singular/plural key pairs (author/authors, pr/prs)
@@ -139,7 +147,9 @@ def parse_change_file(path: Path, pr_base_url: Optional[str]) -> Optional[Tuple[
 
     if error_messages:
         for msg in error_messages:
-            print(f"❌ Error in {path.name}: {msg}; Please use only one", file=sys.stderr)
+            print(
+                f"❌ Error in {path.name}: {msg}; Please use only one", file=sys.stderr
+            )
         return None
 
     raw_authors = post.get("authors", post.get("author"))
@@ -150,7 +160,10 @@ def parse_change_file(path: Path, pr_base_url: Optional[str]) -> Optional[Tuple[
     body = post.content.strip()
 
     if not isinstance(type_, str) or type_ not in SECTION_TITLES:
-        print(f"⚠️ Invalid or unknown type '{type_}' in {path.name}; skipping", file=sys.stderr)
+        print(
+            f"⚠️ Invalid or unknown type '{type_}' in {path.name}; skipping",
+            file=sys.stderr,
+        )
         return None
 
     authors_formatted = format_authors(raw_authors)
@@ -173,9 +186,9 @@ def parse_semver(version: str) -> Optional[Tuple[int, int, int]]:
     Parses a semantic version string (e.g., 'v5.0.0') and returns (major, minor, patch).
     Returns None if parsing fails.
     """
-    version = version.lstrip('v')
+    version = version.lstrip("v")
     try:
-        parts = version.split('.')
+        parts = version.split(".")
         if len(parts) != 3:
             return None
         return int(parts[0]), int(parts[1]), int(parts[2])
@@ -190,7 +203,7 @@ def parse_version_for_sorting(version: str) -> Tuple:
     CalVer versions don't start with 'v' and come after SemVer (sort key starting with 1).
     Within each category, versions are sorted newest first.
     """
-    if version.startswith('v'):
+    if version.startswith("v"):
         # SemVer: parse and sort reverse chronologically
         semver = parse_semver(version)
         if semver is not None:
@@ -201,7 +214,7 @@ def parse_version_for_sorting(version: str) -> Tuple:
     else:
         # CalVer: try to parse as YYYY.MM.DD format
         try:
-            parts = version.split('.')
+            parts = version.split(".")
             if len(parts) == 3:
                 year, month, day = map(int, parts)
                 # Validate it looks like a date
@@ -210,7 +223,7 @@ def parse_version_for_sorting(version: str) -> Tuple:
                     return (1, -year, -month, -day)
         except ValueError:
             pass
-        
+
         # Fallback for unparseable non-v versions: sort last alphabetically
         return (2, version)
 
@@ -226,7 +239,7 @@ def get_badge_variant(version: str) -> str:
     semver = parse_semver(version)
     if not semver:
         return "tip"
-    
+
     major, minor, patch = semver
     if minor == 0 and patch == 0:
         return "note"  # Major version
@@ -246,7 +259,10 @@ def load_changes_map(changes_dir: Path) -> Dict[str, Path]:
         if change_file.is_file():
             basename = change_file.stem
             if basename in changes_map:
-                print(f"⚠️ Duplicate change file basename '{basename}' found at {change_file} and {changes_map[basename]}", file=sys.stderr)
+                print(
+                    f"⚠️ Duplicate change file basename '{basename}' found at {change_file} and {changes_map[basename]}",
+                    file=sys.stderr,
+                )
             changes_map[basename] = change_file
     return changes_map
 
@@ -255,17 +271,19 @@ def process_release(
     release_file: Path,
     changes_map: Dict[str, Path],
     output_path: Path,
-    pr_base_url: Optional[str]
+    pr_base_url: Optional[str],
 ) -> bool:
     """
     Processes a single release YAML file and generates the corresponding MDX changelog.
     Returns True on success, False on failure.
     """
     try:
-        with open(release_file, 'r') as f:
+        with open(release_file, "r") as f:
             release_data = yaml.safe_load(f)
     except Exception as e:
-        print(f"❌ Error loading release file {release_file.name}: {e}", file=sys.stderr)
+        print(
+            f"❌ Error loading release file {release_file.name}: {e}", file=sys.stderr
+        )
         return False
 
     if not isinstance(release_data, dict):
@@ -282,21 +300,27 @@ def process_release(
 
     # Parse version from filename
     version = release_file.stem  # e.g., 'v5.0.0'
-    filename_version = version.replace('.', '-')  # e.g., 'v5-0-0'
-    
+    filename_version = version.replace(".", "-")  # e.g., 'v5-0-0'
+
     # Process changes
     entries: Dict[str, List[str]] = {type_: [] for type_ in SECTION_TITLES}
     valid_entry_found = False
 
     for change_ref in changes:
         if not isinstance(change_ref, str):
-            print(f"⚠️ Invalid change reference '{change_ref}' in {release_file.name}; skipping", file=sys.stderr)
+            print(
+                f"⚠️ Invalid change reference '{change_ref}' in {release_file.name}; skipping",
+                file=sys.stderr,
+            )
             continue
-        
+
         if change_ref not in changes_map:
-            print(f"⚠️ Change file '{change_ref}' referenced in {release_file.name} not found; skipping", file=sys.stderr)
+            print(
+                f"⚠️ Change file '{change_ref}' referenced in {release_file.name} not found; skipping",
+                file=sys.stderr,
+            )
             continue
-        
+
         result = parse_change_file(changes_map[change_ref], pr_base_url)
         if result:
             type_, entry = result
@@ -305,7 +329,10 @@ def process_release(
 
     # Allow releases with only title and description, no entries required
     if not valid_entry_found and not title and not description:
-        print(f"⚠️ No valid changelog entries, title, or description found for {release_file.name}; skipping", file=sys.stderr)
+        print(
+            f"⚠️ No valid changelog entries, title, or description found for {release_file.name}; skipping",
+            file=sys.stderr,
+        )
         return False
 
     # Generate MDX file
@@ -324,7 +351,7 @@ def process_release(
 
             # Collect content parts to write
             content_parts = []
-            
+
             # Add description if present
             if description:
                 content_parts.append(description)
@@ -336,10 +363,10 @@ def process_release(
                     section_content = f"## {SECTION_TITLES[type_key]}\n\n"
                     section_content += "\n\n".join(entries[type_key])
                     sections_written.append(section_content)
-            
+
             if sections_written:
                 content_parts.append("\n\n".join(sections_written))
-            
+
             # Write content with proper spacing
             if content_parts:
                 f.write("\n\n".join(content_parts))
@@ -362,40 +389,42 @@ def parse_filename_semver_key(filename_stem: str) -> Tuple:
     Handles 'v' prefix and uses dashes as separators. Non-semver strings
     are sorted last alphabetically. Used for sidebar sorting
     """
-    version_str = filename_stem.lstrip('v').replace('-', '.')
+    version_str = filename_stem.lstrip("v").replace("-", ".")
     try:
-        parts = tuple(map(int, version_str.split('.')))
+        parts = tuple(map(int, version_str.split(".")))
         return parts
     except ValueError:
-        return (float('inf'), filename_stem)  # Sort non-parseable very last
+        return (float("inf"), filename_stem)  # Sort non-parseable very last
 
 
-def generate_product_index(product: str, versions_info: List[Tuple[str, str]], output_dir: Path) -> bool:
+def generate_product_index(
+    product: str, versions_info: List[Tuple[str, str]], output_dir: Path
+) -> bool:
     """
     Generates the index.mdx file for a product with links to all versions.
     """
     try:
         index_path = output_dir / "index.mdx"
-        
+
         # Sort versions with 'next' first, then reverse chronological
         next_version = None
         other_versions = []
-        
+
         for version_name, filename_version in versions_info:
-            if version_name == 'next':
+            if version_name == "next":
                 next_version = (version_name, filename_version)
             else:
                 other_versions.append((version_name, filename_version))
-        
+
         # Sort other versions with SemVer first, then CalVer (newest first within each category)
         other_versions.sort(key=lambda x: parse_version_for_sorting(x[0]))
-        
+
         # Build sorted list
         sorted_versions = []
         if next_version:
             sorted_versions.append(next_version)
         sorted_versions.extend(other_versions)
-        
+
         # Generate content
         product_title = f"Tenzir {product.capitalize()}"
         content = f"""---
@@ -407,31 +436,33 @@ This page lists the changelog for {product_title}.
 ## Versions
 
 """
-        
+
         # Add version links
         for version_name, filename_version in sorted_versions:
-            if version_name == 'next':
+            if version_name == "next":
                 link_text = "Next (Unreleased)"
             else:
                 link_text = f"Version {version_name.lstrip('v')}"
             content += f"* [{link_text}](/changelog/{product}/{filename_version})\n"
-        
+
         # Write file
-        with open(index_path, 'w') as f:
+        with open(index_path, "w") as f:
             f.write(content)
-        
+
         try:
             print(f"✅ Generated product index: {index_path.relative_to(Path.cwd())}")
         except ValueError:
             print(f"✅ Generated product index: {index_path}")
         return True
-        
+
     except IOError as e:
         print(f"❌ Error writing product index {index_path}: {e}", file=sys.stderr)
         return False
 
 
-def update_sidebar_file(product: str, versions_info: List[Tuple[str, str]], sidebar_path: Path) -> bool:
+def update_sidebar_file(
+    product: str, versions_info: List[Tuple[str, str]], sidebar_path: Path
+) -> bool:
     """
     Updates TypeScript sidebar definition for a single product's changelog entries.
     Preserves entries for other products.
@@ -441,47 +472,51 @@ def update_sidebar_file(product: str, versions_info: List[Tuple[str, str]], side
         # Sort versions
         next_version = None
         other_versions = []
-        
+
         for version_name, filename_version in versions_info:
-            if version_name == 'next':
+            if version_name == "next":
                 next_version = (version_name, filename_version)
-            elif version_name.startswith('v'):
-                # Only include v4+ (Tenzir) versions in sidebar, exclude old VAST v1-v3 versions
+            elif version_name.startswith("v"):
                 semver = parse_semver(version_name)
-                if semver and semver[0] >= 4:  # Only include major version 4 and above
-                    other_versions.append((version_name, filename_version, semver))
-        
+                if semver:
+                    # For node product, only include v4+ (Tenzir) versions to exclude old VAST v1-v3 versions
+                    # For platform product, include all versions
+                    if product == "platform" or semver[0] >= 4:
+                        other_versions.append((version_name, filename_version, semver))
+
         # Sort by semver (newest first)
         other_versions.sort(key=lambda x: x[2], reverse=True)
-        
+
         # Generate TypeScript paths for this product
         ts_paths = []
         if next_version:
-            ts_paths.append(f"  'changelog/{product}/{next_version[1]}',")
+            ts_paths.append(f'  "changelog/{product}/{next_version[1]}",')
         for version_name, filename_version, _ in other_versions:
-            ts_paths.append(f"  'changelog/{product}/{filename_version}',")
-        
+            ts_paths.append(f'  "changelog/{product}/{filename_version}",')
+
         # Read existing content if file exists
         existing_exports = {}
         if sidebar_path.exists():
             try:
                 content = sidebar_path.read_text()
                 # Parse existing exports
-                pattern = r'export const changelog_(\w+) = \[(.*?)\];'
+                pattern = r"export const changelog_(\w+) = \[(.*?)\];"
                 matches = re.findall(pattern, content, re.DOTALL)
                 for match_product, match_content in matches:
                     if match_product != product:
                         # Preserve other products - extract path strings
                         path_pattern = r"'(changelog/[^']+)'"
                         paths = re.findall(path_pattern, match_content)
-                        existing_exports[match_product] = [f"  '{path}'," for path in paths]
+                        existing_exports[match_product] = [
+                            f"  '{path}'," for path in paths
+                        ]
             except Exception:
                 # If parsing fails, start fresh
                 pass
-        
+
         # Update with new product data
         existing_exports[product] = ts_paths
-        
+
         # Generate complete TypeScript content
         ts_content = "// Generated by changelog.py\n\n"
         for prod in sorted(existing_exports.keys()):
@@ -492,24 +527,26 @@ def update_sidebar_file(product: str, versions_info: List[Tuple[str, str]], side
                 ts_content += "];\n\n"
             else:
                 ts_content += f"export const changelog_{prod} = [];\n\n"
-        
+
         # Write file
         sidebar_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sidebar_path, 'w') as f:
-            f.write(ts_content.rstrip() + '\n')
-        
+        with open(sidebar_path, "w") as f:
+            f.write(ts_content.rstrip() + "\n")
+
         try:
             print(f"✅ Updated sidebar file: {sidebar_path.relative_to(Path.cwd())}")
         except ValueError:
             print(f"✅ Updated sidebar file: {sidebar_path}")
         return True
-        
+
     except IOError as e:
         print(f"❌ Error writing sidebar file {sidebar_path}: {e}", file=sys.stderr)
         return False
 
 
-def find_unreferenced_changes(release_files: List[Path], changes_map: Dict[str, Path]) -> List[str]:
+def find_unreferenced_changes(
+    release_files: List[Path], changes_map: Dict[str, Path]
+) -> List[str]:
     """
     Finds all changes that are not referenced in any release.
     Returns a list of change basenames.
@@ -518,42 +555,46 @@ def find_unreferenced_changes(release_files: List[Path], changes_map: Dict[str, 
     referenced_changes = set()
     for release_file in release_files:
         try:
-            with open(release_file, 'r') as f:
+            with open(release_file, "r") as f:
                 release_data = yaml.safe_load(f)
-            if isinstance(release_data, dict) and isinstance(release_data.get("changes"), list):
+            if isinstance(release_data, dict) and isinstance(
+                release_data.get("changes"), list
+            ):
                 for change in release_data["changes"]:
                     if isinstance(change, str):
                         referenced_changes.add(change)
         except Exception:
             # Skip problematic files
             pass
-    
+
     # Find unreferenced changes
     all_changes = set(changes_map.keys())
     unreferenced = all_changes - referenced_changes
-    
+
     return sorted(list(unreferenced))
 
 
-def generate_next_release(unreferenced_changes: List[str], releases_dir: Path) -> Optional[Path]:
+def generate_next_release(
+    unreferenced_changes: List[str], releases_dir: Path
+) -> Optional[Path]:
     """
     Generates a temporary 'next.yaml' file with unreferenced changes.
     Returns the path to the generated file, or None if no unreferenced changes.
     """
     if not unreferenced_changes:
         return None
-    
+
     next_file = releases_dir / "next.yaml"
-    
+
     # Generate next release content
     content = {
         "title": "Next",
         "description": "Unreleased changes.",
-        "changes": unreferenced_changes
+        "changes": unreferenced_changes,
     }
-    
+
     try:
-        with open(next_file, 'w') as f:
+        with open(next_file, "w") as f:
             yaml.dump(content, f, default_flow_style=False, sort_keys=False)
         return next_file
     except Exception as e:
@@ -570,12 +611,12 @@ def main():
         "--product",
         required=True,
         choices=["node", "platform"],
-        help="Product name (either 'node' or 'platform')"
+        help="Product name (either 'node' or 'platform')",
     )
     parser.add_argument(
         "dir",
         type=Path,
-        help="Path to template directory containing 'releases' and 'changes' subdirectories"
+        help="Path to template directory containing 'releases' and 'changes' subdirectories",
     )
     args = parser.parse_args()
 
@@ -585,7 +626,9 @@ def main():
 
     # Set up paths
     script_dir = Path(__file__).parent.resolve()
-    output_dir = script_dir.parent / "src" / "content" / "docs" / "changelog" / args.product
+    output_dir = (
+        script_dir.parent / "src" / "content" / "docs" / "changelog" / args.product
+    )
     sidebar_path = script_dir.parent / "src" / "sidebar-changelog.ts"
 
     releases_dir = args.dir / "releases"
@@ -620,7 +663,9 @@ def main():
     unreferenced = find_unreferenced_changes(release_files, changes_map)
     next_file = None
     if unreferenced:
-        print(f"ℹ️ Found {len(unreferenced)} unreferenced changes, generating 'next' release")
+        print(
+            f"ℹ️ Found {len(unreferenced)} unreferenced changes, generating 'next' release"
+        )
         next_file = generate_next_release(unreferenced, releases_dir)
         if next_file:
             release_files.append(next_file)
@@ -630,9 +675,9 @@ def main():
     versions_info = []
     for release_file in release_files:
         version = release_file.stem
-        filename_version = version.replace('.', '-')
+        filename_version = version.replace(".", "-")
         output_path = output_dir / f"{filename_version}.mdx"
-        
+
         if process_release(release_file, changes_map, output_path, pr_base_url):
             success_count += 1
             versions_info.append((version, filename_version))
