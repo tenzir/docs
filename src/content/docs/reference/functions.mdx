@@ -1,0 +1,1827 @@
+---
+title: Functions
+---
+
+export const functionData = {
+  "Aggregation": {
+    functions: [
+      { name: "all", description: "Computes the conjunction (AND) of all boolean values", example: "all([true,true,false])" },
+      { name: "any", description: "Computes the disjunction (OR) of all boolean values", example: "any([true,false,true])" },
+      { name: "collect", description: "Creates a list of all non-null values, preserving duplicates", example: "collect([1,2,2,3])" },
+      { name: "count", description: "Counts the events or non-null values", example: "count([1,2,null])" },
+      { name: "count_if", description: "Counts the events or non-null values matching a predicate", example: "count_if([1,2,null], x => x > 1)" },
+      { name: "count_distinct", description: "Counts all distinct non-null values", example: "count_distinct([1,2,2,3])" },
+      { name: "distinct", description: "Creates a sorted list without duplicates of non-null values", example: "distinct([1,2,2,3])" },
+      { name: "first", description: "Takes the first non-null value", example: "first([null,2,3])" },
+      { name: "last", description: "Takes the last non-null value", example: "last([1,2,null])" },
+      { name: "max", description: "Computes the maximum of all values", example: "max([1,2,3])" },
+      { name: "mean", description: "Computes the mean of all values", example: "mean([1,2,3])" },
+      { name: "median", description: "Computes the approximate median with a t-digest algorithm", example: "median([1,2,3,4])" },
+      { name: "min", description: "Computes the minimum of all values", example: "min([1,2,3])" },
+      { name: "mode", description: "Takes the most common non-null value", example: "mode([1,1,2,3])" },
+      { name: "quantile", description: "Computes the specified quantile q of values", example: "quantile([1,2,3,4], q=0.5)" },
+      { name: "stddev", description: "Computes the standard deviation of all values", example: "stddev([1,2,3])" },
+      { name: "sum", description: "Computes the sum of all values", example: "sum([1,2,3])" },
+      { name: "value_counts", description: "Returns a list of values with their frequency", example: "value_counts([1,2,2,3])" },
+      { name: "variance", description: "Computes the variance of all values", example: "variance([1,2,3])" },
+      { name: "where", description: "Filters list elements based on a predicate", example: "xs.where(x => x > 5)" }
+    ]
+  },
+  "Record": {
+    functions: [
+      { name: "get", description: "Accesses a field of a record", example: "record.get(\"field\", default)" },
+      { name: "has", description: "Checks whether a record has a field", example: "record.has(\"field\")" },
+      { name: "keys", description: "Gets all field names from a record", example: "record.keys()" },
+      { name: "merge", description: "Merges two records", example: "merge(foo, bar)" },
+      { name: "sort", description: "Sorts a record by field names", example: "xs.sort()" }
+    ]
+  },
+  "List": {
+    functions: [
+      { name: "append", description: "Inserts an element at the back of a list", example: "xs.append(y)" },
+      { name: "prepend", description: "Inserts an element at the front of a list", example: "xs.prepend(y)" },
+      { name: "concatenate", description: "Merges two lists", example: "concatenate(xs, ys)" },
+      { name: "get", description: "Accesses an element of a list", example: "list.get(index, default)" },
+      { name: "length", description: "Retrieves the length of a list", example: "[1,2,3].length()" },
+      { name: "map", description: "Maps each list element to an expression", example: "xs.map(x => x + 3)" },
+      { name: "sort", description: "Sorts a list by its values.", example: "xs.sort()" },
+      { name: "where", description: "Filters list elements based on a predicate", example: "xs.where(x, x > 5)" },
+      { name: "zip", description: "Combines two lists into a list of pairs", example: "zip(xs, ys)" }
+    ]
+  },
+  "Subnet": {
+    functions: [
+      { name: "network", description: "Retrieves the network address of a subnet", example: "10.0.0.0/8.network()" }
+    ]
+  },
+  "String": {
+    subcategories: {
+      "Inspection": {
+        functions: [
+          { name: "length_bytes", description: "Returns the length of a string in bytes", example: "\"hello\".length_bytes()" },
+          { name: "length_chars", description: "Returns the length of a string in characters", example: "\"hello\".length_chars()" },
+          { name: "starts_with", description: "Checks if a string starts with a substring", example: "\"hello\".starts_with(\"he\")" },
+          { name: "ends_with", description: "Checks if a string ends with a substring", example: "\"hello\".ends_with(\"lo\")" },
+          { name: "is_alnum", description: "Checks if a string is alphanumeric", example: "\"hello123\".is_alnum()" },
+          { name: "is_alpha", description: "Checks if a string contains only letters", example: "\"hello\".is_alpha()" },
+          { name: "is_lower", description: "Checks if a string is in lowercase", example: "\"hello\".is_lower()" },
+          { name: "is_numeric", description: "Checks if a string contains only numbers", example: "\"1234\".is_numeric()" },
+          { name: "is_printable", description: "Checks if a string contains only printable characters", example: "\"hello\".is_printable()" },
+          { name: "is_title", description: "Checks if a string follows title case", example: "\"Hello World\".is_title()" },
+          { name: "is_upper", description: "Checks if a string is in uppercase", example: "\"HELLO\".is_upper()" },
+          { name: "match_regex", description: "Checks if a string partially matches a regular expression", example: "\"Hi\".match_regex(\"[Hh]i\")" },
+          { name: "slice", description: "Slices a string with offsets and strides", example: "\"Hi\".slice(begin=2, stride=4)" }
+        ]
+      },
+      "Transformation": {
+        functions: [
+          { name: "trim", description: "Trims whitespace from both ends of a string", example: "\" hello \".trim()" },
+          { name: "trim_start", description: "Trims whitespace from the start of a string", example: "\" hello\".trim_start()" },
+          { name: "trim_end", description: "Trims whitespace from the end of a string", example: "\"hello \".trim_end()" },
+          { name: "capitalize", description: "Capitalizes the first character of a string", example: "\"hello\".capitalize()" },
+          { name: "replace", description: "Replaces characters within a string", example: "\"hello\".replace(\"o\", \"a\")" },
+          { name: "replace_regex", description: "Reverses the characters of a string", example: "\"hello\".replace(\"l+o\", \"y\")" },
+          { name: "reverse", description: "Reverses the characters of a string", example: "\"hello\".reverse()" },
+          { name: "to_lower", description: "Converts a string to lowercase", example: "\"HELLO\".to_lower()" },
+          { name: "to_title", description: "Converts a string to title case", example: "\"hello world\".to_title()" },
+          { name: "to_upper", description: "Converts a string to uppercase", example: "\"hello\".to_upper()" },
+          { name: "split", description: "Splits a string into substrings", example: "split(\"a,b,c\", \",\")" },
+          { name: "split_regex", description: "Splits a string into substrings with a regex", example: "split_regex(\"a1b2c\", r\"\\d\")" },
+          { name: "join", description: "Joins a list of strings into a single string", example: "join([\"a\", \"b\", \"c\"], \",\")" }
+        ]
+      },
+      "Filesystem": {
+        functions: [
+          { name: "file_contents", description: "Reads a file's contents", example: "file_contents(\"/path/to/file\")" },
+          { name: "file_name", description: "Extracts the file name from a file path", example: "file_name(\"/path/to/log.json\")" },
+          { name: "parent_dir", description: "Extracts the parent directory from a file path", example: "parent_dir(\"/path/to/log.json\")" }
+        ]
+      }
+    }
+  },
+  "Parsing": {
+    functions: [
+      { name: "parse_cef", description: "Parses a string as a CEF message", example: "string.parse_cef()" },
+      { name: "parse_csv", description: "Parses a string as CSV", example: "string.parse_csv(header=[\"a\",\"b\"])" },
+      { name: "parse_grok", description: "Parses a string following a grok pattern", example: "string.parse_grok(\"%{IP:client} …\")" },
+      { name: "parse_json", description: "Parses a string as a JSON value", example: "string.parse_json()" },
+      { name: "parse_kv", description: "Parses a string as key-value pairs", example: "string.parse_kv()" },
+      { name: "parse_leef", description: "Parses a string as a LEEF message", example: "string.parse_leef()" },
+      { name: "parse_ssv", description: "Parses a string as SSV", example: "string.parse_ssv(header=[\"a\",\"b\"])" },
+      { name: "parse_syslog", description: "Parses a string as a syslog message", example: "string.parse_syslog()" },
+      { name: "parse_tsv", description: "Parses a string as TSV", example: "string.parse_tsv(header=[\"a\",\"b\"])" },
+      { name: "parse_xsv", description: "Parses a string as XSV", example: "string.parse_xsv(\",\", \";\", \"\", header=[\"a\",\"b\"])" },
+      { name: "parse_yaml", description: "Parses a string as YAML", example: "string.parse_yaml()" }
+    ]
+  },
+  "Printing": {
+    functions: [
+      { name: "print_csv", description: "Prints a record as comma separated values", example: "record.print_csv()" },
+      { name: "print_kv", description: "Prints a record as Key-Value pairs", example: "record.print_kv()" },
+      { name: "print_json", description: "Prints a record as a JSON string", example: "record.print_json()" },
+      { name: "print_ndjson", description: "Prints a record as NDJSON string", example: "record.print_ndjson()" },
+      { name: "print_ssv", description: "Prints a record as space separated values", example: "record.print_ssv()" },
+      { name: "print_tsv", description: "Prints a record as tab separated values", example: "record.print_tsv()" },
+      { name: "print_xsv", description: "Prints a record as delimited separated values", example: "record.print_tsv()" },
+      { name: "print_yaml", description: "Prints a value as a YAML document", example: "record.print_yaml()" }
+    ]
+  },
+  "Time & Date": {
+    functions: [
+      { name: "from_epoch", description: "Interprets a duration as Unix time", example: "from_epoch(time_ms * 1ms)" },
+      { name: "now", description: "Gets the current wallclock time", example: "now()" },
+      { name: "since_epoch", description: "Turns a time into a duration since the Unix epoch", example: "since_epoch(2021-02-24)" },
+      { name: "parse_time", description: "Parses a timestamp following a given format", example: "\"10/11/2012\".parse_time(\"%d/%m/%Y\")" },
+      { name: "format_time", description: "Formats a timestamp following a given format", example: "ts.format_time(\"%d/ %m/%Y\")" },
+      { name: "year", description: "Extracts the year component from a timestamp", example: "ts.year()" },
+      { name: "month", description: "Extracts the month component from a timestamp", example: "ts.month()" },
+      { name: "day", description: "Extracts the day component from a timestamp", example: "ts.day()" },
+      { name: "hour", description: "Extracts the hour component from a timestamp", example: "ts.hour()" },
+      { name: "minute", description: "Extracts the minute component from a timestamp", example: "ts.minute()" },
+      { name: "second", description: "Extracts the second component from a timestamp", example: "ts.second()" },
+      { name: "years", description: "Converts a number to equivalent years", example: "years(100)" },
+      { name: "months", description: "Converts a number to equivalent months", example: "months(100)" },
+      { name: "weeks", description: "Converts a number to equivalent weeks", example: "weeks(100)" },
+      { name: "days", description: "Converts a number to equivalent days", example: "days(100)" },
+      { name: "hours", description: "Converts a number to equivalent hours", example: "hours(100)" },
+      { name: "minutes", description: "Converts a number to equivalent minutes", example: "minutes(100)" },
+      { name: "seconds", description: "Converts a number to equivalent seconds", example: "seconds(100)" },
+      { name: "milliseconds", description: "Converts a number to equivalent milliseconds", example: "milliseconds(100)" },
+      { name: "microseconds", description: "Converts a number to equivalent microseconds", example: "microseconds(100)" },
+      { name: "nanoseconds", description: "Converts a number to equivalent nanoseconds", example: "nanoseconds(100)" },
+      { name: "count_years", description: "Counts the number of years in a duration", example: "count_years(100d)" },
+      { name: "count_months", description: "Counts the number of months in a duration", example: "count_months(100d)" },
+      { name: "count_weeks", description: "Counts the number of weeks in a duration", example: "count_weeks(100d)" },
+      { name: "count_days", description: "Counts the number of days in a duration", example: "count_days(100d)" },
+      { name: "count_hours", description: "Counts the number of hours in a duration", example: "count_hours(100d)" },
+      { name: "count_minutes", description: "Counts the number of minutes in a duration", example: "count_minutes(100d)" },
+      { name: "count_seconds", description: "Counts the number of seconds in a duration", example: "count_seconds(100d)" },
+      { name: "count_milliseconds", description: "Counts the number of milliseconds in a duration", example: "count_milliseconds(100d)" },
+      { name: "count_microseconds", description: "Counts the number of microseconds in a duration", example: "count_microseconds(100d)" },
+      { name: "count_nanoseconds", description: "Counts the number of nanoseconds in a duration", example: "count_nanoseconds(100d)" }
+    ]
+  },
+  "IP": {
+    functions: [
+      { name: "network", description: "Retrieves the network address of a subnet", example: "10.0.0.0/8.network()" }
+    ]
+  },
+  "Math": {
+    functions: [
+      { name: "ceil", description: "Takes the ceiling", example: "ceil(4.2), ceil(3.2s, 1m)" },
+      { name: "floor", description: "Takes the floor", example: "floor(4.2), floor(32h, 1d)" },
+      { name: "random", description: "Generates a random number", example: "random()" },
+      { name: "round", description: "Rounds a value", example: "round(4.2), round(31m, 1h)" },
+      { name: "sqrt", description: "Calculates the square root", example: "sqrt(49)" }
+    ]
+  },
+  "Networking": {
+    functions: [
+      { name: "community_id", description: "Computes a Community ID", example: "community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto=\"tcp\")" },
+      { name: "decapsulate", description: "Decapsulates PCAP packets", example: "decapsulate(this)" },
+      { name: "encrypt_cryptopan", description: "Encrypts IPs via Crypto-PAn", example: "encrypt_cryptopan(1.2.3.4)" },
+      { name: "is_v4", description: "Checks if an IP is IPv4", example: "is_v4(1.2.3.4)" },
+      { name: "is_v6", description: "Checks if an IP is IPv6", example: "is_v6(::1)" }
+    ]
+  },
+  "Hashing": {
+    functions: [
+      { name: "hash_md5", description: "Computes a MD5 hash digest", example: "hash_md5(\"foo\")" },
+      { name: "hash_sha1", description: "Computes a SHA1 hash digest", example: "hash_sha1(\"foo\")" },
+      { name: "hash_sha224", description: "Computes a SHA224 hash digest", example: "hash_sha224(\"foo\")" },
+      { name: "hash_sha256", description: "Computes a SHA256 hash digest", example: "hash_sha256(\"foo\")" },
+      { name: "hash_sha384", description: "Computes a SHA384 hash digest", example: "hash_sha384(\"foo\")" },
+      { name: "hash_sha512", description: "Computes a SHA512 hash digest", example: "hash_sha512(\"foo\")" },
+      { name: "hash_xxh3", description: "Computes a XXH3 hash digest", example: "hash_xxh3(\"foo\")" }
+    ]
+  },
+  "Bit Operations": {
+    functions: [
+      { name: "bit_and", description: "Computes the bit-wise AND of its arguments", example: "bit_and(lhs, rhs)" },
+      { name: "bit_not", description: "Computes the bit-wise NOT of its argument", example: "bit_not(x)" },
+      { name: "bit_or", description: "Computes the bit-wise OR of its arguments", example: "bit_or(lhs, rhs)" },
+      { name: "bit_xor", description: "Computes the bit-wise XOR of its arguments", example: "bit_xor(lhs, rhs)" },
+      { name: "shift_left", description: "Performs a bit-wise left shift", example: "shift_left(lhs, rhs)" },
+      { name: "shift_right", description: "Performs a bit-wise right shift", example: "shift_right(lhs, rhs)" }
+    ]
+  },
+  "Encoding": {
+    functions: [
+      { name: "encode_base64", description: "Encodes bytes as Base64", example: "encode_base64(\"Tenzir\")" },
+      { name: "encode_hex", description: "Encodes bytes as their hexadecimal representation", example: "encode_hex(\"Tenzir\")" },
+      { name: "encode_url", description: "Encodes strings using URL encoding", example: "encode_url(\"Hello World\")" }
+    ]
+  },
+  "Decoding": {
+    functions: [
+      { name: "decode_base64", description: "Decodes bytes as Base64", example: "decode_base64(\"VGVuemly\")" },
+      { name: "decode_hex", description: "Decodes bytes from their hexadecimal representation", example: "decode_hex(\"4e6f6E6365\")" },
+      { name: "decode_url", description: "Decodes URL encoded strings", example: "decode_url(\"Hello%20World\")" }
+    ]
+  },
+  "Type System": {
+    subcategories: {
+      "Introspection": {
+        functions: [
+          { name: "type_id", description: "Retrieves the type id of an expression", example: "type_id(1 + 3.2)" },
+          { name: "type_of", description: "Retrieves the type definition of an expression", example: "type_of(this)" }
+        ]
+      },
+      "Conversion": {
+        functions: [
+          { name: "int", description: "Casts an expression to a signed integer", example: "int(-4.2)" },
+          { name: "uint", description: "Casts an expression to an unsigned integer", example: "uint(4.2)" },
+          { name: "float", description: "Casts an expression to a float", example: "float(42)" },
+          { name: "string", description: "Casts an expression to string", example: "string(1.2.3.4)" },
+          { name: "ip", description: "Casts an expression to an IP", example: "ip(\"1.2.3.4\")" },
+          { name: "subnet", description: "Casts an expression to a subnet", example: "subnet(\"1.2.3.4/16\")" },
+          { name: "time", description: "Casts an expression to a time value", example: "time(\"2020-03-15\")" },
+          { name: "duration", description: "Casts an expression to a duration value", example: "duration(\"1.34w\")" }
+        ]
+      },
+      "Transposition": {
+        functions: [
+          { name: "flatten", description: "Flattens any nested structure by lifting child values into one combined top-level list", example: "flatten(xs)" },
+          { name: "unflatten", description: "Takes a list of key-value pairs and creates a record out of them. Each key is a string with dotted field names referring to a nested record.", example: "xs.unflatten()" }
+        ]
+      }
+    }
+  },
+  "Runtime": {
+    functions: [
+      { name: "config", description: "Reads the configuration file", example: "config()" },
+      { name: "env", description: "Reads an environment variable", example: "env(\"PATH\")" },
+      { name: "secret", description: "Reads a secret from a store", example: "secret(\"KEY\")" }
+    ]
+  }
+};
+
+Functions appear in [expressions](/reference/language/expressions) and take positional
+and/or named arguments, producing a value as a result of their computation.
+
+Function signatures have the following notation:
+
+```tql
+f(arg1:<type>, arg2=<type>, [arg3=type]) -> <type>
+```
+
+- `arg:<type>`: positional argument
+- `arg=<type>`: named argument
+- `[arg=type]`: optional (named) argument
+- `-> <type>`: function return type
+
+TQL features the [uniform function call syntax
+(UFCS)](https://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax), which
+allows you to interchangeably call a function with at least one argument either
+as _free function_ or _method_. For example, `length(str)` and `str.length()`
+resolve to the identical function call. The latter syntax is particularly
+suitable for function chaining, e.g., `x.f().g().h()` reads left-to-right as
+"start with `x`, apply `f()`, then `g()` and then `h()`," compared to
+`h(g(f(x)))`, which reads "inside out."
+
+Throughout our documentation, we use the free function style in the synopsis
+but often resort to the method style when it is more idiomatic.
+
+## Aggregation
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/all">all</a>
+    </h4>
+    <p class="description">
+      Computes the conjunction (AND) of all boolean values
+    </p>
+    ```tql
+    all([true,true,false])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/any">any</a>
+    </h4>
+    <p class="description">
+      Computes the disjunction (OR) of all boolean values
+    </p>
+    ```tql
+    any([true,false,true])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/collect">collect</a>
+    </h4>
+    <p class="description">
+      Creates a list of all non-null values, preserving duplicates
+    </p>
+    ```tql
+    collect([1,2,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count">count</a>
+    </h4>
+    <p class="description">Counts the events or non-null values</p>
+    ```tql
+    count([1,2,null])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_if">count_if</a>
+    </h4>
+    <p class="description">
+      Counts the events or non-null values matching a predicate
+    </p>
+    ```tql
+    count_if([1,2,null], x => x > 1)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_distinct">count_distinct</a>
+    </h4>
+    <p class="description">Counts all distinct non-null values</p>
+    ```tql
+    count_distinct([1,2,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/distinct">distinct</a>
+    </h4>
+    <p class="description">
+      Creates a sorted list without duplicates of non-null values
+    </p>
+    ```tql
+    distinct([1,2,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/first">first</a>
+    </h4>
+    <p class="description">Takes the first non-null value</p>
+    ```tql
+    first([null,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/last">last</a>
+    </h4>
+    <p class="description">Takes the last non-null value</p>
+    ```tql
+    last([1,2,null])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/max">max</a>
+    </h4>
+    <p class="description">Computes the maximum of all values</p>
+    ```tql
+    max([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/mean">mean</a>
+    </h4>
+    <p class="description">Computes the mean of all values</p>
+    ```tql
+    mean([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/median">median</a>
+    </h4>
+    <p class="description">
+      Computes the approximate median with a t-digest algorithm
+    </p>
+    ```tql
+    median([1,2,3,4])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/min">min</a>
+    </h4>
+    <p class="description">Computes the minimum of all values</p>
+    ```tql
+    min([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/mode">mode</a>
+    </h4>
+    <p class="description">Takes the most common non-null value</p>
+    ```tql
+    mode([1,1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/quantile">quantile</a>
+    </h4>
+    <p class="description">
+      Computes the specified quantile <code>q</code> of values
+    </p>
+    ```tql
+    quantile([1,2,3,4], q=0.5)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/stddev">stddev</a>
+    </h4>
+    <p class="description">Computes the standard deviation of all values</p>
+    ```tql
+    stddev([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/sum">sum</a>
+    </h4>
+    <p class="description">Computes the sum of all values</p>
+    ```tql
+    sum([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/value_counts">value_counts</a>
+    </h4>
+    <p class="description">Returns a list of values with their frequency</p>
+    ```tql
+    value_counts([1,2,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/variance">variance</a>
+    </h4>
+    <p class="description">Computes the variance of all values</p>
+    ```tql
+    variance([1,2,3])
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/where">where</a>
+    </h4>
+    <p class="description">Filters list elements based on a predicate</p>
+    ```tql
+    xs.where(x => x > 5)
+    ```
+  </div>
+</div>
+
+## Record
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/get">get</a>
+    </h4>
+    <p class="description">Accesses a field of a record</p>
+    ```tql
+    record.get("field", default)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/has">has</a>
+    </h4>
+    <p class="description">Checks whether a record has a field</p>
+    ```tql
+    record.has("field")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/keys">keys</a>
+    </h4>
+    <p class="description">Gets all field names from a record</p>
+    ```tql
+    record.keys()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/merge">merge</a>
+    </h4>
+    <p class="description">Merges two records</p>
+    ```tql
+    merge(foo, bar)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/sort">sort</a>
+    </h4>
+    <p class="description">Sorts a record by field names</p>
+    ```tql
+    xs.sort()
+    ```
+  </div>
+</div>
+
+## List
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/append">append</a>
+    </h4>
+    <p class="description">Inserts an element at the back of a list</p>
+    ```tql
+    xs.append(y)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/prepend">prepend</a>
+    </h4>
+    <p class="description">Inserts an element at the front of a list</p>
+    ```tql
+    xs.prepend(y)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/concatenate">concatenate</a>
+    </h4>
+    <p class="description">Merges two lists</p>
+    ```tql
+    concatenate(xs, ys)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/get">get</a>
+    </h4>
+    <p class="description">Accesses an element of a list</p>
+    ```tql
+    list.get(index, default)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/length">length</a>
+    </h4>
+    <p class="description">Retrieves the length of a list</p>
+    ```tql
+    [1,2,3].length()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/map">map</a>
+    </h4>
+    <p class="description">Maps each list element to an expression</p>
+    ```tql
+    xs.map(x => x + 3)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/sort">sort</a>
+    </h4>
+    <p class="description">Sorts a list by its values.</p>
+    ```tql
+    xs.sort()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/where">where</a>
+    </h4>
+    <p class="description">Filters list elements based on a predicate</p>
+    ```tql
+    xs.where(x, x > 5)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/zip">zip</a>
+    </h4>
+    <p class="description">Combines two lists into a list of pairs</p>
+    ```tql
+    zip(xs, ys)
+    ```
+  </div>
+</div>
+
+## Subnet
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/network">network</a>
+    </h4>
+    <p class="description">Retrieves the network address of a subnet</p>
+    ```tql
+    10.0.0.0/8.network()
+    ```
+  </div>
+</div>
+
+## String
+
+### Inspection
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/length_bytes">length_bytes</a>
+    </h4>
+    <p class="description">Returns the length of a string in bytes</p>
+    ```tql
+    "hello".length_bytes()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/length_chars">length_chars</a>
+    </h4>
+    <p class="description">Returns the length of a string in characters</p>
+    ```tql
+    "hello".length_chars()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/starts_with">starts_with</a>
+    </h4>
+    <p class="description">Checks if a string starts with a substring</p>
+    ```tql
+    "hello".starts_with("he")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/ends_with">ends_with</a>
+    </h4>
+    <p class="description">Checks if a string ends with a substring</p>
+    ```tql
+    "hello".ends_with("lo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_alnum">is_alnum</a>
+    </h4>
+    <p class="description">Checks if a string is alphanumeric</p>
+    ```tql
+    "hello123".is_alnum()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_alpha">is_alpha</a>
+    </h4>
+    <p class="description">Checks if a string contains only letters</p>
+    ```tql
+    "hello".is_alpha()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_lower">is_lower</a>
+    </h4>
+    <p class="description">Checks if a string is in lowercase</p>
+    ```tql
+    "hello".is_lower()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_numeric">is_numeric</a>
+    </h4>
+    <p class="description">Checks if a string contains only numbers</p>
+    ```tql
+    "1234".is_numeric()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_printable">is_printable</a>
+    </h4>
+    <p class="description">
+      Checks if a string contains only printable characters
+    </p>
+    ```tql
+    "hello".is_printable()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_title">is_title</a>
+    </h4>
+    <p class="description">Checks if a string follows title case</p>
+    ```tql
+    "Hello World".is_title()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_upper">is_upper</a>
+    </h4>
+    <p class="description">Checks if a string is in uppercase</p>
+    ```tql
+    "HELLO".is_upper()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/match_regex">match_regex</a>
+    </h4>
+    <p class="description">
+      Checks if a string partially matches a regular expression
+    </p>
+    ```tql
+    "Hi".match_regex("[Hh]i")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/slice">slice</a>
+    </h4>
+    <p class="description">Slices a string with offsets and strides</p>
+    ```tql
+    "Hi".slice(begin=2, stride=4)
+    ```
+  </div>
+</div>
+
+### Transformation
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/trim">trim</a>
+    </h4>
+    <p class="description">Trims whitespace from both ends of a string</p>
+    ```tql
+    " hello ".trim()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/trim_start">trim_start</a>
+    </h4>
+    <p class="description">Trims whitespace from the start of a string</p>
+    ```tql
+    " hello".trim_start()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/trim_end">trim_end</a>
+    </h4>
+    <p class="description">Trims whitespace from the end of a string</p>
+    ```tql
+    "hello ".trim_end()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/capitalize">capitalize</a>
+    </h4>
+    <p class="description">Capitalizes the first character of a string</p>
+    ```tql
+    "hello".capitalize()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/replace">replace</a>
+    </h4>
+    <p class="description">Replaces characters within a string</p>
+    ```tql
+    "hello".replace("o", "a")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/replace_regex">replace_regex</a>
+    </h4>
+    <p class="description">Reverses the characters of a string</p>
+    ```tql
+    "hello".replace("l+o", "y")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/reverse">reverse</a>
+    </h4>
+    <p class="description">Reverses the characters of a string</p>
+    ```tql
+    "hello".reverse()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/to_lower">to_lower</a>
+    </h4>
+    <p class="description">Converts a string to lowercase</p>
+    ```tql
+    "HELLO".to_lower()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/to_title">to_title</a>
+    </h4>
+    <p class="description">Converts a string to title case</p>
+    ```tql
+    "hello world".to_title()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/to_upper">to_upper</a>
+    </h4>
+    <p class="description">Converts a string to uppercase</p>
+    ```tql
+    "hello".to_upper()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/split">split</a>
+    </h4>
+    <p class="description">Splits a string into substrings</p>
+    ```tql
+    split("a,b,c", ",")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/split_regex">split_regex</a>
+    </h4>
+    <p class="description">Splits a string into substrings with a regex</p>
+    ```tql
+    split_regex("a1b2c", r"\d")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/join">join</a>
+    </h4>
+    <p class="description">Joins a list of strings into a single string</p>
+    ```tql
+    join(["a", "b", "c"], ",")
+    ```
+  </div>
+</div>
+
+### Filesystem
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/file_contents">file_contents</a>
+    </h4>
+    <p class="description">Reads a file's contents</p>
+    ```tql
+    file_contents("/path/to/file")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/file_name">file_name</a>
+    </h4>
+    <p class="description">Extracts the file name from a file path</p>
+    ```tql
+    file_name("/path/to/log.json")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/parent_dir">parent_dir</a>
+    </h4>
+    <p class="description">Extracts the parent directory from a file path</p>
+    ```tql
+    parent_dir("/path/to/log.json")
+    ```
+  </div>
+</div>
+
+## Parsing
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_cef">parse_cef</a></h4>
+    <p class="description">Parses a string as a CEF message</p>
+    ```tql
+    string.parse_cef()
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_csv">parse_csv</a></h4>
+    <p class="description">Parses a string as CSV</p>
+    ```tql
+    string.parse_csv(header=["a","b"])
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_grok">parse_grok</a></h4>
+    <p class="description">Parses a string following a grok pattern</p>
+    ```tql
+    string.parse_grok("%{IP:client} …")
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_json">parse_json</a></h4>
+    <p class="description">Parses a string as a JSON value</p>
+    ```tql
+    string.parse_json()
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_kv">parse_kv</a></h4>
+    <p class="description">Parses a string as key-value pairs</p>
+    ```tql
+    string.parse_kv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_leef">parse_leef</a></h4>
+    <p class="description">Parses a string as a LEEF message</p>
+    ```tql
+    string.parse_leef()
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_ssv">parse_ssv</a></h4>
+    <p class="description">Parses a string as SSV</p>
+    ```tql
+    string.parse_ssv(header=["a","b"])
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_syslog">parse_syslog</a></h4>
+    <p class="description">Parses a string as a syslog message</p>
+    ```tql
+    string.parse_syslog()
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_tsv">parse_tsv</a></h4>
+    <p class="description">Parses a string as TSV</p>
+    ```tql
+    string.parse_tsv(header=["a","b"])
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_xsv">parse_xsv</a></h4>
+    <p class="description">Parses a string as XSV</p>
+    ```tql
+    string.parse_xsv(",", ";", "", header=["a","b"])
+    ```
+  </div>
+  <div class="function-card">
+    <h4><a href="/reference/functions/parse_yaml">parse_yaml</a></h4>
+    <p class="description">Parses a string as YAML</p>
+    ```tql
+    string.parse_yaml()
+    ```
+  </div>
+</div>
+
+## Printing
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_csv">print_csv</a>
+    </h4>
+    <p class="description">Prints a record as comma separated values</p>
+    ```tql
+    record.print_csv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_kv">print_kv</a>
+    </h4>
+    <p class="description">Prints a record as Key-Value pairs</p>
+    ```tql
+    record.print_kv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_json">print_json</a>
+    </h4>
+    <p class="description">Prints a record as a JSON string</p>
+    ```tql
+    record.print_json()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_ndjson">print_ndjson</a>
+    </h4>
+    <p class="description">Prints a record as NDJSON string</p>
+    ```tql
+    record.print_ndjson()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_ssv">print_ssv</a>
+    </h4>
+    <p class="description">Prints a record as space separated values</p>
+    ```tql
+    record.print_ssv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_tsv">print_tsv</a>
+    </h4>
+    <p class="description">Prints a record as tab separated values</p>
+    ```tql
+    record.print_tsv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_xsv">print_xsv</a>
+    </h4>
+    <p class="description">Prints a record as delimited separated values</p>
+    ```tql
+    record.print_tsv()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/print_yaml">print_yaml</a>
+    </h4>
+    <p class="description">Prints a value as a YAML document</p>
+    ```tql
+    record.print_yaml()
+    ```
+  </div>
+</div>
+
+## Time & Date
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/from_epoch">from_epoch</a>
+    </h4>
+    <p class="description">Interprets a duration as Unix time</p>
+    ```tql
+    from_epoch(time_ms * 1ms)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/now">now</a>
+    </h4>
+    <p class="description">Gets the current wallclock time</p>
+    ```tql
+    now()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/since_epoch">since_epoch</a>
+    </h4>
+    <p class="description">Turns a time into a duration since the Unix epoch</p>
+    ```tql
+    since_epoch(2021-02-24)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/parse_time">parse_time</a>
+    </h4>
+    <p class="description">Parses a timestamp following a given format</p>
+    ```tql
+    "10/11/2012".parse_time("%d/%m/%Y")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/format_time">format_time</a>
+    </h4>
+    <p class="description">Formats a timestamp following a given format</p>
+    ```tql
+    ts.format_time("%d/ %m/%Y")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/year">year</a>
+    </h4>
+    <p class="description">Extracts the year component from a timestamp</p>
+    ```tql
+    ts.year()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/month">month</a>
+    </h4>
+    <p class="description">Extracts the month component from a timestamp</p>
+    ```tql
+    ts.month()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/day">day</a>
+    </h4>
+    <p class="description">Extracts the day component from a timestamp</p>
+    ```tql
+    ts.day()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hour">hour</a>
+    </h4>
+    <p class="description">Extracts the hour component from a timestamp</p>
+    ```tql
+    ts.hour()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/minute">minute</a>
+    </h4>
+    <p class="description">Extracts the minute component from a timestamp</p>
+    ```tql
+    ts.minute()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/second">second</a>
+    </h4>
+    <p class="description">Extracts the second component from a timestamp</p>
+    ```tql
+    ts.second()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/years">years</a>
+    </h4>
+    <p class="description">Converts a number to equivalent years</p>
+    ```tql
+    years(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/months">months</a>
+    </h4>
+    <p class="description">Converts a number to equivalent months</p>
+    ```tql
+    months(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/weeks">weeks</a>
+    </h4>
+    <p class="description">Converts a number to equivalent weeks</p>
+    ```tql
+    weeks(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/days">days</a>
+    </h4>
+    <p class="description">Converts a number to equivalent days</p>
+    ```tql
+    days(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hours">hours</a>
+    </h4>
+    <p class="description">Converts a number to equivalent hours</p>
+    ```tql
+    hours(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/minutes">minutes</a>
+    </h4>
+    <p class="description">Converts a number to equivalent minutes</p>
+    ```tql
+    minutes(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/seconds">seconds</a>
+    </h4>
+    <p class="description">Converts a number to equivalent seconds</p>
+    ```tql
+    seconds(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/milliseconds">milliseconds</a>
+    </h4>
+    <p class="description">Converts a number to equivalent milliseconds</p>
+    ```tql
+    milliseconds(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/microseconds">microseconds</a>
+    </h4>
+    <p class="description">Converts a number to equivalent microseconds</p>
+    ```tql
+    microseconds(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/nanoseconds">nanoseconds</a>
+    </h4>
+    <p class="description">Converts a number to equivalent nanoseconds</p>
+    ```tql
+    nanoseconds(100)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_years">count_years</a>
+    </h4>
+    <p class="description">Counts the number of years in a duration</p>
+    ```tql
+    count_years(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_months">count_months</a>
+    </h4>
+    <p class="description">Counts the number of months in a duration</p>
+    ```tql
+    count_months(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_weeks">count_weeks</a>
+    </h4>
+    <p class="description">Counts the number of weeks in a duration</p>
+    ```tql
+    count_weeks(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_days">count_days</a>
+    </h4>
+    <p class="description">Counts the number of days in a duration</p>
+    ```tql
+    count_days(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_hours">count_hours</a>
+    </h4>
+    <p class="description">Counts the number of hours in a duration</p>
+    ```tql
+    count_hours(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_minutes">count_minutes</a>
+    </h4>
+    <p class="description">Counts the number of minutes in a duration</p>
+    ```tql
+    count_minutes(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_seconds">count_seconds</a>
+    </h4>
+    <p class="description">Counts the number of seconds in a duration</p>
+    ```tql
+    count_seconds(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_milliseconds">count_milliseconds</a>
+    </h4>
+    <p class="description">Counts the number of milliseconds in a duration</p>
+    ```tql
+    count_milliseconds(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_microseconds">count_microseconds</a>
+    </h4>
+    <p class="description">Counts the number of microseconds in a duration</p>
+    ```tql
+    count_microseconds(100d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/count_nanoseconds">count_nanoseconds</a>
+    </h4>
+    <p class="description">Counts the number of nanoseconds in a duration</p>
+    ```tql
+    count_nanoseconds(100d)
+    ```
+  </div>
+</div>
+
+## IP
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/network">network</a>
+    </h4>
+    <p class="description">Retrieves the network address of a subnet</p>
+    ```tql
+    10.0.0.0/8.network()
+    ```
+  </div>
+</div>
+
+## Math
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/ceil">ceil</a>
+    </h4>
+    <p class="description">Takes the ceiling</p>
+    ```tql
+    ceil(4.2), ceil(3.2s, 1m)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/floor">floor</a>
+    </h4>
+    <p class="description">Takes the floor</p>
+    ```tql
+    floor(4.2), floor(32h, 1d)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/random">random</a>
+    </h4>
+    <p class="description">Generates a random number</p>
+    ```tql
+    random()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/round">round</a>
+    </h4>
+    <p class="description">Rounds a value</p>
+    ```tql
+    round(4.2), round(31m, 1h)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/sqrt">sqrt</a>
+    </h4>
+    <p class="description">Calculates the square root</p>
+    ```tql
+    sqrt(49)
+    ```
+  </div>
+</div>
+
+## Networking
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/community_id">community_id</a>
+    </h4>
+    <p class="description">Computes a Community ID</p>
+    ```tql
+    community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/decapsulate">decapsulate</a>
+    </h4>
+    <p class="description">Decapsulates PCAP packets</p>
+    ```tql
+    decapsulate(this)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/encrypt_cryptopan">encrypt_cryptopan</a>
+    </h4>
+    <p class="description">Encrypts IPs via Crypto-PAn</p>
+    ```tql
+    encrypt_cryptopan(1.2.3.4)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_v4">is_v4</a>
+    </h4>
+    <p class="description">Checks if an IP is IPv4</p>
+    ```tql
+    is_v4(1.2.3.4)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/is_v6">is_v6</a>
+    </h4>
+    <p class="description">Checks if an IP is IPv6</p>
+    ```tql
+    is_v6(::1)
+    ```
+  </div>
+</div>
+
+## Hashing
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_md5">hash_md5</a>
+    </h4>
+    <p class="description">Computes a MD5 hash digest</p>
+    ```tql
+    hash_md5("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_sha1">hash_sha1</a>
+    </h4>
+    <p class="description">Computes a SHA1 hash digest</p>
+    ```tql
+    hash_sha1("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_sha224">hash_sha224</a>
+    </h4>
+    <p class="description">Computes a SHA224 hash digest</p>
+    ```tql
+    hash_sha224("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_sha256">hash_sha256</a>
+    </h4>
+    <p class="description">Computes a SHA256 hash digest</p>
+    ```tql
+    hash_sha256("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_sha384">hash_sha384</a>
+    </h4>
+    <p class="description">Computes a SHA384 hash digest</p>
+    ```tql
+    hash_sha384("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_sha512">hash_sha512</a>
+    </h4>
+    <p class="description">Computes a SHA512 hash digest</p>
+    ```tql
+    hash_sha512("foo")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/hash_xxh3">hash_xxh3</a>
+    </h4>
+    <p class="description">Computes a XXH3 hash digest</p>
+    ```tql
+    hash_xxh3("foo")
+    ```
+  </div>
+</div>
+
+## Bit Operations
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/bit_and">bit_and</a>
+    </h4>
+    <p class="description">Computes the bit-wise AND of its arguments</p>
+    ```tql
+    bit_and(lhs, rhs)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/bit_not">bit_not</a>
+    </h4>
+    <p class="description">Computes the bit-wise NOT of its argument</p>
+    ```tql
+    bit_not(x)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/bit_or">bit_or</a>
+    </h4>
+    <p class="description">Computes the bit-wise OR of its arguments</p>
+    ```tql
+    bit_or(lhs, rhs)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/bit_xor">bit_xor</a>
+    </h4>
+    <p class="description">Computes the bit-wise XOR of its arguments</p>
+    ```tql
+    bit_xor(lhs, rhs)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/shift_left">shift_left</a>
+    </h4>
+    <p class="description">Performs a bit-wise left shift</p>
+    ```tql
+    shift_left(lhs, rhs)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/shift_right">shift_right</a>
+    </h4>
+    <p class="description">Performs a bit-wise right shift</p>
+    ```tql
+    shift_right(lhs, rhs)
+    ```
+  </div>
+</div>
+
+## Encoding
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/encode_base64">encode_base64</a>
+    </h4>
+    <p class="description">Encodes bytes as Base64</p>
+    ```tql
+    encode_base64("Tenzir")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/encode_hex">encode_hex</a>
+    </h4>
+    <p class="description">Encodes bytes as their hexadecimal representation</p>
+    ```tql
+    encode_hex("Tenzir")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/encode_url">encode_url</a>
+    </h4>
+    <p class="description">Encodes strings using URL encoding</p>
+    ```tql
+    encode_url("Hello World")
+    ```
+  </div>
+</div>
+
+## Decoding
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/decode_base64">decode_base64</a>
+    </h4>
+    <p class="description">Decodes bytes as Base64</p>
+    ```tql
+    decode_base64("VGVuemly")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/decode_hex">decode_hex</a>
+    </h4>
+    <p class="description">
+      Decodes bytes from their hexadecimal representation
+    </p>
+    ```tql
+    decode_hex("4e6f6E6365")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/decode_url">decode_url</a>
+    </h4>
+    <p class="description">Decodes URL encoded strings</p>
+    ```tql
+    decode_url("Hello%20World")
+    ```
+  </div>
+</div>
+
+## Type System
+
+### Introspection
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/type_id">type_id</a>
+    </h4>
+    <p class="description">Retrieves the type id of an expression</p>
+    ```tql
+    type_id(1 + 3.2)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/type_of">type_of</a>
+    </h4>
+    <p class="description">Retrieves the type definition of an expression</p>
+    ```tql
+    type_of(this)
+    ```
+  </div>
+</div>
+
+### Conversion
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/int">int</a>
+    </h4>
+    <p class="description">Casts an expression to a signed integer</p>
+    ```tql
+    int(-4.2)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/uint">uint</a>
+    </h4>
+    <p class="description">Casts an expression to an unsigned integer</p>
+    ```tql
+    uint(4.2)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/float">float</a>
+    </h4>
+    <p class="description">Casts an expression to a float</p>
+    ```tql
+    float(42)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/string">string</a>
+    </h4>
+    <p class="description">Casts an expression to string</p>
+    ```tql
+    string(1.2.3.4)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/ip">ip</a>
+    </h4>
+    <p class="description">Casts an expression to an IP</p>
+    ```tql
+    ip("1.2.3.4")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/subnet">subnet</a>
+    </h4>
+    <p class="description">Casts an expression to a subnet</p>
+    ```tql
+    subnet("1.2.3.4/16")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/time">time</a>
+    </h4>
+    <p class="description">Casts an expression to a time value</p>
+    ```tql
+    time("2020-03-15")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/duration">duration</a>
+    </h4>
+    <p class="description">Casts an expression to a duration value</p>
+    ```tql
+    duration("1.34w")
+    ```
+  </div>
+</div>
+
+### Transposition
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/flatten">flatten</a>
+    </h4>
+    <p class="description">
+      Flattens any nested structure by lifting child values into one combined
+      top-level list
+    </p>
+    ```tql
+    flatten(xs)
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/unflatten">unflatten</a>
+    </h4>
+    <p class="description">
+      Takes a list of key-value pairs and creates a record out of them. Each key
+      is a string with dotted field names referring to a nested record.
+    </p>
+    ```tql
+    xs.unflatten()
+    ```
+  </div>
+</div>
+
+## Runtime
+
+<div class="function-cards">
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/config">config</a>
+    </h4>
+    <p class="description">Reads the configuration file</p>
+    ```tql
+    config()
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/env">env</a>
+    </h4>
+    <p class="description">Reads an environment variable</p>
+    ```tql
+    env("PATH")
+    ```
+  </div>
+  <div class="function-card">
+    <h4>
+      <a href="/reference/functions/secret">secret</a>
+    </h4>
+    <p class="description">Reads a secret from a store</p>
+    ```tql
+    secret("KEY")
+    ```
+  </div>
+</div>
