@@ -183,6 +183,38 @@ def parse_semver(version: str) -> Optional[Tuple[int, int, int]]:
         return None
 
 
+def parse_version_for_sorting(version: str) -> Tuple:
+    """
+    Creates a sort key for mixed SemVer and CalVer versions.
+    SemVer versions start with 'v' and get priority (sort key starting with 0).
+    CalVer versions don't start with 'v' and come after SemVer (sort key starting with 1).
+    Within each category, versions are sorted newest first.
+    """
+    if version.startswith('v'):
+        # SemVer: parse and sort reverse chronologically
+        semver = parse_semver(version)
+        if semver is not None:
+            return (0, -semver[0], -semver[1], -semver[2])
+        else:
+            # Fallback for unparseable v-prefixed versions
+            return (0, version)
+    else:
+        # CalVer: try to parse as YYYY.MM.DD format
+        try:
+            parts = version.split('.')
+            if len(parts) == 3:
+                year, month, day = map(int, parts)
+                # Validate it looks like a date
+                if 2000 <= year <= 3000 and 1 <= month <= 12 and 1 <= day <= 31:
+                    # CalVer: (1, -year, -month, -day) for reverse sorting
+                    return (1, -year, -month, -day)
+        except ValueError:
+            pass
+        
+        # Fallback for unparseable non-v versions: sort last alphabetically
+        return (2, version)
+
+
 def get_badge_variant(version: str) -> str:
     """
     Determines the sidebar badge variant based on version bump type.
@@ -347,8 +379,8 @@ def generate_product_index(product: str, versions_info: List[Tuple[str, str]], o
             else:
                 other_versions.append((version_name, filename_version))
         
-        # Sort other versions by semver (newest first)
-        other_versions.sort(key=lambda x: parse_semver(x[0]) or (0, 0, 0), reverse=True)
+        # Sort other versions with SemVer first, then CalVer (newest first within each category)
+        other_versions.sort(key=lambda x: parse_version_for_sorting(x[0]))
         
         # Build sorted list
         sorted_versions = []
