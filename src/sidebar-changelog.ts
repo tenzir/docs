@@ -95,7 +95,4 @@ export const changelog_node = [
   'changelog/node/v4-0-0',
 ];
 
-export const changelog_platform = [
-  'changelog/platform/next',
-  'changelog/platform/v5-0-0',
-];
+export const changelog_platform = [];
