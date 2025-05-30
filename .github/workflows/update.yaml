@@ -81,7 +81,6 @@ jobs:
           echo "Updating Tenzir Platform docs..."
 
       - name: Generate a app token
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: generate_token
         uses: actions/create-github-app-token@v1
         with:
@@ -101,9 +100,11 @@ jobs:
           GITHUB_APP_TOKEN: ${{ steps.generate_token.outputs.token }}
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
+          echo "Token exists: $([[ -n "$GITHUB_APP_TOKEN" ]] && echo "yes" || echo "no")"
+          echo "Token length: ${#GITHUB_APP_TOKEN}"
           git config --global user.name 'tenzir-bot'
           git config --global user.email 'engineering@tenzir.com'
-          git remote set-url origin https://x-access-token:$GITHUB_APP_TOKEN@github.com/tenzir/docs.git
+          git remote set-url origin https://x-access-token:${GITHUB_APP_TOKEN}@github.com/${{ github.repository }}.git
           product="Tenzir ${{ inputs.product == 'node' && 'Node' || 'Platform' }}"
           if git diff --quiet; then
             echo "ℹ️ No changes needed for $product documentation"
