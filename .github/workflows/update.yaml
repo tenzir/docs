@@ -1,0 +1,90 @@
+name: Update
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: "Product to update (node or platform)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Product to update"
+        required: true
+        type: choice
+        options:
+          - node
+          - platform
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: "update-${{ inputs.product }}"
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate product parameter
+        run: |
+          if [[ "${{ inputs.product }}" != "node" && "${{ inputs.product }}" != "platform" ]]; then
+            echo "Error: product must be either 'node' or 'platform'"
+            exit 1
+          fi
+          echo "Valid product: ${{ inputs.product }}"
+
+  update:
+    name: Update Docs
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Update Tenzir Node docs
+        if: inputs.product == 'node'
+        run: |
+          echo "Updating Tenzir Node docs..."
+          # Add specific update logic for Node docs here
+          # This could include fetching new API docs, updating examples, etc.
+
+      - name: Update Tenzir Platform docs
+        if: inputs.product == 'platform'
+        run: |
+          echo "Updating Tenzir Platform docs..."
+          # Add specific update logic for Platform docs here
+          # This could include updating configuration examples, API references, etc.
+
+      - name: Set up Git user
+        uses: fregante/setup-git-user@v2
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "ℹ️ No changes needed for ${{ inputs.product }} documentation"
+          else
+            git add .
+            git commit -m "docs: update ${{ inputs.product }} documentation [skip ci]"
+            git push
+            echo "✅ Documentation updated and committed for ${{ inputs.product }}"
+          fi
