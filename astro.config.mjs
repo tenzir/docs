@@ -118,6 +118,8 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
+      // Note: These themes are for inline code in Markdown content.
+      // For code blocks, Expressive Code uses the themes defined in ec.config.mjs
       themes: {
         light: "github-light",
         dark: "github-dark",
