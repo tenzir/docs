@@ -8,17 +8,11 @@ template directory structure.
 We provide a Python script to generate the changelog pages from a template
 directory structure.
 
-First, install the dependencies:
-
-```sh
-poetry install --no-root
-```
-
 Then run the script with the product name and template directory `dir`:
 
 ```sh
-poetry run ./changelog.py --product=node <dir>
-poetry run ./changelog.py --product=platform <dir>
+uv run ./changelog.py --product=node <dir>
+uv run ./changelog.py --product=platform <dir>
 ```
 
 The template directory must contain:
