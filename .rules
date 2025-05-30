@@ -1,0 +1,30 @@
+This is a [Starlight](https://starlight.astro.build/) repository that hosts the
+documentation for Tenzir (https://tenzir.com).
+
+## Project Architecture
+
+- Use `pnpm` for package management: `pnpm dev` starts a development server,
+  `pnpm build` builds the site, and `pnpm preview` previews the built site.
+- Prefer [Markdoc](https://markdoc.dev/) for writing documentation over MDX
+  where possible.
+
+## Workflow
+
+- Use `gh` to create a pull request, but make sure to write a separate file for
+  the PR body to avoid escaping issues.
+- Use git commit messages that follow our contribution guide. Details are in
+  /src/content/docs/guides/contribution/workflow.
+
+## Style
+
+- There exist CI jobs for linting, testing, and deploying the site in
+  `.github/workflows`. For Markdown, format and lint with
+  [markdownlint](https://github.com/DavidAnson/markdownlint). For JavaScript and
+  Typescript, use [Prettier](https://prettier.io/) for formatting and
+  [ESLint](https://eslint.org/) for linting.
+
+## Best Practices
+
+- Always test your changes locally before issuing a commit. This typically means
+  building the site and checking the generated HTML output that the change is
+  working as expected.
