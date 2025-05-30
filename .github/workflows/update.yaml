@@ -121,7 +121,11 @@ jobs:
           # Copy changelog entries from app and tenant-manager components
           mkdir -p changelog/changes/
           for component in app tenant-manager; do
-            cp components/$component/changelog/changes/*.md changelog/changes/
+            if ls components/$component/changelog/changes/*.md 1> /dev/null 2>&1; then
+              cp components/$component/changelog/changes/*.md changelog/changes/
+            else
+              echo "No .md files found in components/$component/changelog/changes/, skipping..."
+            fi
           done
 
           # Install poetry and dependencies for changelog script
