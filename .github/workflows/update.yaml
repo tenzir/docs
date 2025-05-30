@@ -81,11 +81,26 @@ jobs:
           # Clean up
           rm -rf /tmp/tenzir
 
+      - name: Update Tenzir Platform docs
+        if: inputs.product == 'platform'
+        run: |
+          echo "Updating Tenzir Platform docs..."
+          # Clone the main tenzir/platform repo (without submodules)
+          git clone --depth 1 \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tenzir/platform.git \
+            /tmp/platform
+
       - name: Configure ssh-agent for app submodule
         if: inputs.product == 'platform'
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.TENZIR_APP_DEPLOY_KEY }}
+
+      - name: Checkout app submodule
+        if: inputs.product == 'platform'
+        run: |
+          cd /tmp/platform
+          git submodule update --init --depth 1 components/app
 
       - name: Configure ssh-agent for tenant-manager submodule
         if: inputs.product == 'platform'
@@ -93,23 +108,24 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.TENZIR_EVENT_HORIZON_DEPLOY_KEY }}
 
-      - name: Update Tenzir Platform docs
+      - name: Checkout tenant-manager submodule
         if: inputs.product == 'platform'
         run: |
-          echo "Updating Tenzir Platform docs..."
-          # Clone the tenzir/platform repo including submodules
-          git clone --depth 1 --recurse-submodules \
-            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tenzir/platform.git \
-            /tmp/platform
+          cd /tmp/platform
+          git submodule update --init --depth 1 components/tenant-manager
 
+      - name: Finalize platform docs update
+        if: inputs.product == 'platform'
+        run: |
+          cd /tmp/platform
           # Copy changelog entries from app and tenant-manager components
-          mkdir -p /tmp/platform/changelog/changes/
+          mkdir -p changelog/changes/
           for component in app tenant-manager; do
-            cp /tmp/platform/components/$component/changelog/changes/*.md \
-               /tmp/platform/changelog/changes/
+            cp components/$component/changelog/changes/*.md changelog/changes/
           done
 
           # Install poetry and dependencies for changelog script
+          cd ${{ github.workspace }}
           pip install poetry
           cd changelog
           poetry install --no-root
