@@ -40,9 +40,9 @@ import tempfile
 # --- Configuration ---
 
 SECTION_TITLES: Dict[str, str] = {
-    "feature": "Features",
-    "change": "Changes",
-    "bugfix": "Bug Fixes",
+    "feature": "✨ Features",
+    "change": "🔄 Changes",
+    "bugfix": "🐛 Bug Fixes",
 }
 
 PR_BASE_URLS: Dict[str, Optional[str]] = {
