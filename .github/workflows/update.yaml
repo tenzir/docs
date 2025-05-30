@@ -76,6 +76,8 @@ jobs:
           cd -
           rsync -av --delete /tmp/tenzir/docs/functions ./src/content/docs/reference/functions
           rsync -av --delete /tmp/tenzir/docs/operators ./src/content/docs/reference/operators
+          cp /tmp/tenzir/docs/openapi.node.yaml ./src/content/apis/openapi.node.yaml
+          cp /tmp/tenzir/tenzir.yaml.example ./tenzir.yaml.example
           # Clean up
           rm -rf /tmp/tenzir
 
@@ -101,7 +103,7 @@ jobs:
           poetry run ./changelog.py --product=platform /tmp/platform/changelog
           # Copy reference
           cd -
-          rsync -av --delete /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
+          cp /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
           # Clean up
           rm -rf /tmp/platform
 
