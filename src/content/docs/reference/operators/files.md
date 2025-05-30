@@ -1,5 +1,6 @@
 ---
 title: files
+category: Host Inspection
 ---
 
 Shows file information for a given directory.

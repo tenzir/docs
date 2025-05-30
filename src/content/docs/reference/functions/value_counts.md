@@ -1,5 +1,6 @@
 ---
 title: value_counts
+category: Aggregation
 ---
 
 Returns a list of all grouped values alongside their frequency.

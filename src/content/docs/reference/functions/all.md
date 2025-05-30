@@ -1,5 +1,6 @@
 ---
 title: all
+category: Aggregation
 ---
 
 Computes the conjunction (AND) of all grouped boolean values.

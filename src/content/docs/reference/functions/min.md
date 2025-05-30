@@ -1,5 +1,6 @@
 ---
 title: min
+category: Aggregation
 ---
 
 Computes the minimum of all grouped values.

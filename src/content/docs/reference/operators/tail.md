@@ -1,5 +1,6 @@
 ---
 title: tail
+category: Filter
 ---
 
 Limits the input to the last `n` events.

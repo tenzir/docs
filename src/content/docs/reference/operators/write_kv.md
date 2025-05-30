@@ -1,5 +1,6 @@
 ---
 title: write_kv
+category: Printing
 ---
 
 Writes events in a Key-Value format.

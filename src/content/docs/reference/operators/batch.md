@@ -1,5 +1,6 @@
 ---
 title: batch
+category: Internals
 ---
 
 The `batch` operator controls the batch size of events.

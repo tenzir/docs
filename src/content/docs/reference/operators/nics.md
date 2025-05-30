@@ -1,5 +1,6 @@
 ---
 title: nics
+category: Host Inspection
 ---
 
 Shows a snapshot of available network interfaces.

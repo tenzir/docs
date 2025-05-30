@@ -1,5 +1,6 @@
 ---
 title: compress_zstd
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes using zstd compression.

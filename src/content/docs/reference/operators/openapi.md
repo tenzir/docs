@@ -1,5 +1,6 @@
 ---
 title: openapi
+category: Node/Inspection
 ---
 
 Shows the node's OpenAPI specification.

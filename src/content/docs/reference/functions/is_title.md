@@ -1,5 +1,6 @@
 ---
 title: is_title
+category: String/Inspection
 ---
 
 Checks if a string follows title case.

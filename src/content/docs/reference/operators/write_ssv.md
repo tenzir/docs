@@ -1,5 +1,6 @@
 ---
 title: write_ssv
+category: Printing
 ---
 
 Transforms event stream to SSV (Space-Separated Values) byte stream.

@@ -1,5 +1,6 @@
 ---
 title: map
+category: List
 ---
 
 Maps each list element to an expression.

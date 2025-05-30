@@ -1,5 +1,6 @@
 ---
 title: set
+category: Modify
 ---
 
 Assigns a value to a field, creating it if necessary.

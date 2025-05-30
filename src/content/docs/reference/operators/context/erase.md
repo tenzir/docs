@@ -1,5 +1,6 @@
 ---
 title: erase
+category: Contexts
 ---
 
 Removes entries from a context.

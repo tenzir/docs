@@ -1,5 +1,6 @@
 ---
 title: compress_lz4
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes using lz4 compression.

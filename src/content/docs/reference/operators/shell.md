@@ -1,5 +1,6 @@
 ---
 title: shell
+category: Escape Hatches
 ---
 
 Executes a system command and hooks its stdin and stdout into the pipeline.

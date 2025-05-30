@@ -1,5 +1,6 @@
 ---
 title: decode_url
+category: Decoding
 ---
 
 Decodes URL encoded strings.

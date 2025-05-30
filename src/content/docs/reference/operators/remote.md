@@ -1,5 +1,6 @@
 ---
 title: remote
+category: Internals
 ---
 
 Forces a pipeline to run remotely at a node.

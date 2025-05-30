@@ -1,5 +1,6 @@
 ---
 title: duration
+category: Type System/Conversion
 ---
 
 Casts an expression to a duration value.

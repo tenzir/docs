@@ -1,5 +1,6 @@
 ---
 title: run
+category: Pipelines
 ---
 
 Starts a pipeline in the node and waits for it to complete.

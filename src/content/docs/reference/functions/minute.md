@@ -1,5 +1,6 @@
 ---
 title: minute
+category: Time & Date
 ---
 
 Extracts the minute component from a timestamp.

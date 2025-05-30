@@ -1,5 +1,6 @@
 ---
 title: sockets
+category: Host Inspection
 ---
 
 Shows a snapshot of open sockets.

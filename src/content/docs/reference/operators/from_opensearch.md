@@ -1,5 +1,6 @@
 ---
 title: from_opensearch
+category: Inputs/Events
 ---
 
 Receives events via [Opensearch Bulk

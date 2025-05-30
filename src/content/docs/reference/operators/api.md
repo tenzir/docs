@@ -1,5 +1,6 @@
 ---
 title: api
+category: Internals
 ---
 
 Use Tenzir's REST API directly from a pipeline.

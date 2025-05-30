@@ -1,5 +1,6 @@
 ---
 title: length_bytes
+category: String/Inspection
 ---
 
 Returns the length of a string in bytes.

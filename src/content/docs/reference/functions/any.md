@@ -1,5 +1,6 @@
 ---
 title: any
+category: Aggregation
 ---
 
 Computes the disjunction (OR) of all grouped boolean values.

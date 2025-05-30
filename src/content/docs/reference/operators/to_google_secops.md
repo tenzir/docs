@@ -1,5 +1,6 @@
 ---
 title: to_google_secops
+category: Outputs/Events
 ---
 
 Sends unstructured events to a Google SecOps Chronicle instance.

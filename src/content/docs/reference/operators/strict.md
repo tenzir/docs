@@ -1,5 +1,6 @@
 ---
 title: strict
+category: Internals
 ---
 
 Treats all warnings as errors.

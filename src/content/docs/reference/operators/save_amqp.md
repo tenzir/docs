@@ -1,5 +1,6 @@
 ---
 title: save_amqp
+category: Outputs/Bytes
 ---
 
 Saves a byte stream via AMQP messages.

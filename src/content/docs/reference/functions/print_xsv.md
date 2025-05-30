@@ -1,5 +1,6 @@
 ---
 title: print_xsv
+category: Printing
 ---
 
 Prints a record as a delimited sequence of values.

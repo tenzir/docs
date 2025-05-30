@@ -1,5 +1,6 @@
 ---
 title: decompress_lz4
+category: Encode & Decode
 ---
 
 Decompresses a stream of bytes in the Lz4 format.

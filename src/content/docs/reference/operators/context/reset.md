@@ -1,5 +1,6 @@
 ---
 title: reset
+category: Contexts
 ---
 
 Resets a context.

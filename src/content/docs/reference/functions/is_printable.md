@@ -1,5 +1,6 @@
 ---
 title: is_printable
+category: String/Inspection
 ---
 
 Checks if a string contains only printable characters.

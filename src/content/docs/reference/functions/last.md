@@ -1,5 +1,6 @@
 ---
 title: last
+category: Aggregation
 ---
 
 Takes the last non-null grouped value.

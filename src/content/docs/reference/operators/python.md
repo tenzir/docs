@@ -1,5 +1,6 @@
 ---
 title: python
+category: Escape Hatches
 ---
 
 Executes Python code against each event of the input.

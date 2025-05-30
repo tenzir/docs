@@ -1,5 +1,6 @@
 ---
 title: sigma
+category: Detection
 ---
 
 Filter the input with [Sigma rules][sigma] and output matching events.

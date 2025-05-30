@@ -1,5 +1,6 @@
 ---
 title: local
+category: Internals
 ---
 
 Forces a pipeline to run locally.

@@ -1,5 +1,6 @@
 ---
 title: read_zeek_tsv
+category: Parsing
 ---
 
 Parses an incoming `Zeek TSV` stream into events.

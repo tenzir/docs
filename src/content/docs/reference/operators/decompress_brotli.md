@@ -1,5 +1,6 @@
 ---
 title: decompress_brotli
+category: Encode & Decode
 ---
 
 Decompresses a stream of bytes in the Brotli format.

@@ -1,5 +1,6 @@
 ---
 title: create_bloom_filter
+category: Contexts
 ---
 
 Creates a Bloom filter context.

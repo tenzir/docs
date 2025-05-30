@@ -1,5 +1,6 @@
 ---
 title: first
+category: Aggregation
 ---
 
 Takes the first non-null grouped value.

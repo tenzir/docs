@@ -1,5 +1,6 @@
 ---
 title: metrics
+category: Node/Inspection
 ---
 
 Retrieves metrics events from a Tenzir node.

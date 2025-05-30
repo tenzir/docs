@@ -1,5 +1,6 @@
 ---
 title: save_file
+category: Outputs/Bytes
 ---
 
 Writes a byte stream to a file.

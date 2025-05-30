@@ -1,5 +1,6 @@
 ---
 title: from_http
+category: Inputs/Events
 ---
 
 Receives HTTP/1.1 requests.

@@ -1,5 +1,6 @@
 ---
 title: hash_md5
+category: Hashing
 ---
 
 Computes an MD5 hash digest.

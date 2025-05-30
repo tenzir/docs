@@ -1,5 +1,6 @@
 ---
 title: load_file
+category: Inputs/Bytes
 ---
 
 Loads the contents of the file at `path` as a byte stream.

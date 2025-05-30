@@ -1,5 +1,6 @@
 ---
 title: to_asl
+category: Outputs/Events
 ---
 
 Sends events to [Amazon Security Lake (ASL)][asl].

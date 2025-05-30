@@ -1,5 +1,6 @@
 ---
 title: save_stdout
+category: Outputs/Bytes
 ---
 
 Writes a byte stream to standard output.

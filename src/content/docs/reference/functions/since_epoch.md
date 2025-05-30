@@ -1,5 +1,6 @@
 ---
 title: since_epoch
+category: Time & Date
 ---
 
 Interprets a time value as duration since the Unix epoch.

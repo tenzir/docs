@@ -1,5 +1,6 @@
 ---
 title: sort
+category: Analyze
 ---
 
 Sorts events by the given expressions.

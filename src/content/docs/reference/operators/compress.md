@@ -1,5 +1,6 @@
 ---
 title: compress
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes.

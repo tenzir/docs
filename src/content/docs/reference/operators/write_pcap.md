@@ -1,5 +1,6 @@
 ---
 title: write_pcap
+category: Printing
 ---
 
 Transforms event stream to PCAP byte stream.

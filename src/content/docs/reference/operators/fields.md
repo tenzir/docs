@@ -1,5 +1,6 @@
 ---
 title: fields
+category: Node/Storage Engine
 ---
 
 Retrieves all fields stored at a node.

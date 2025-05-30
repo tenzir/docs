@@ -1,5 +1,6 @@
 ---
 title: deduplicate
+category: Filter
 ---
 
 Removes duplicate events based on a common key.

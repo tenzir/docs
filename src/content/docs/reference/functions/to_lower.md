@@ -1,5 +1,6 @@
 ---
 title: to_lower
+category: String/Transformation
 ---
 
 Converts a string to lowercase.

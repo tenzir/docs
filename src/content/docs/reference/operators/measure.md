@@ -1,5 +1,6 @@
 ---
 title: measure
+category: Internals
 ---
 
 Replaces the input with metrics describing the input.

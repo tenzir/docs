@@ -1,5 +1,6 @@
 ---
 title: mode
+category: Aggregation
 ---
 
 Takes the most common non-null grouped value.

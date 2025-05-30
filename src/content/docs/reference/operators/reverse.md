@@ -1,5 +1,6 @@
 ---
 title: reverse
+category: Analyze
 ---
 
 Reverses the event order.

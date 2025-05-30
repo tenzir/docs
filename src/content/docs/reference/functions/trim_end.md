@@ -1,5 +1,6 @@
 ---
 title: trim_end
+category: String/Transformation
 ---
 
 Trims whitespace from the end of a string.

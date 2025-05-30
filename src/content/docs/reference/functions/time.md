@@ -1,5 +1,6 @@
 ---
 title: time
+category: Type System/Conversion
 ---
 
 Casts an expression to a time value.

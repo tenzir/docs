@@ -1,5 +1,6 @@
 ---
 title: write_bitz
+category: Printing
 ---
 
 Writes events in *BITZ* format.

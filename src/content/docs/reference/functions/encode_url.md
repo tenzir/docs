@@ -1,5 +1,6 @@
 ---
 title: encode_url
+category: Encoding
 ---
 
 Encodes strings using URL encoding.

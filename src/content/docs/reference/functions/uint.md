@@ -1,5 +1,6 @@
 ---
 title: uint
+category: Type System/Conversion
 ---
 
 Casts an expression to an unsigned integer.

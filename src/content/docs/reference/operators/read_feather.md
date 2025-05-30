@@ -1,5 +1,6 @@
 ---
 title: read_feather
+category: Parsing
 ---
 
 Parses an incoming Feather byte stream into events.

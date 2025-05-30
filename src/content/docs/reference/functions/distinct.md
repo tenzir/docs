@@ -1,5 +1,6 @@
 ---
 title: distinct
+category: Aggregation
 ---
 
 Creates a sorted list without duplicates of non-null grouped values.

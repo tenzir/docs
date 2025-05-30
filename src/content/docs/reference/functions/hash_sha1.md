@@ -1,5 +1,6 @@
 ---
 title: hash_sha1
+category: Hashing
 ---
 
 Computes a SHA-1 hash digest.

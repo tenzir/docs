@@ -1,5 +1,6 @@
 ---
 title: replace_regex
+category: String/Transformation
 ---
 
 Replaces characters within a string based on a regular expression.

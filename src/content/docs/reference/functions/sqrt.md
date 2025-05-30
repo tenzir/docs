@@ -1,5 +1,6 @@
 ---
 title: sqrt
+category: Math
 ---
 
 Computes the square root of a number.

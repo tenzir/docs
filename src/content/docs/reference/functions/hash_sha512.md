@@ -1,5 +1,6 @@
 ---
 title: hash_sha512
+category: Hashing
 ---
 
 Computes a SHA-512 hash digest.

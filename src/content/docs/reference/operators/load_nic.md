@@ -1,5 +1,6 @@
 ---
 title: load_nic
+category: Inputs/Bytes
 ---
 
 Loads bytes from a network interface card (NIC).

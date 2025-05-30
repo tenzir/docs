@@ -1,5 +1,6 @@
 ---
 title: day
+category: Time & Date
 ---
 
 Extracts the day component from a timestamp.

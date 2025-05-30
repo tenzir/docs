@@ -1,5 +1,6 @@
 ---
 title: replace
+category: String/Transformation
 ---
 
 Replaces characters within a string.

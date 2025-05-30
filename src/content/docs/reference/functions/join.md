@@ -1,5 +1,6 @@
 ---
 title: join
+category: String/Transformation
 ---
 
 Joins a list of strings into a single string using a separator.

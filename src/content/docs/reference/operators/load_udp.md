@@ -1,5 +1,6 @@
 ---
 title: load_udp
+category: Inputs/Bytes
 ---
 
 Loads bytes from a UDP socket.

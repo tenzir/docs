@@ -1,5 +1,6 @@
 ---
 title: hash_xxh3
+category: Hashing
 ---
 
 Computes an XXH3 hash digest.

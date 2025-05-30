@@ -1,5 +1,6 @@
 ---
 title: shift_left
+category: Bit Operations
 ---
 
 Performs a bit-wise left shift.

@@ -1,5 +1,6 @@
 ---
 title: schemas
+category: Node/Storage Engine
 ---
 
 Retrieves all schemas for events stored at a node.

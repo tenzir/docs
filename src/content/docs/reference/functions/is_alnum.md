@@ -1,5 +1,6 @@
 ---
 title: is_alnum
+category: String/Inspection
 ---
 
 Checks if a string is alphanumeric.

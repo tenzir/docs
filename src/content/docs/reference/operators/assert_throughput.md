@@ -1,5 +1,6 @@
 ---
 title: assert_throughput
+category: Filter
 ---
 
 Emits a warning if the pipeline does not have the expected throughput

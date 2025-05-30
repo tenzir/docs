@@ -1,5 +1,6 @@
 ---
 title: match_regex
+category: String/Inspection
 ---
 
 Checks if a string partially matches a regular expression.

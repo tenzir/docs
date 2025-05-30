@@ -1,5 +1,6 @@
 ---
 title: cache
+category: Internals
 ---
 
 An in-memory cache shared between pipelines.

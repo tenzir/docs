@@ -1,5 +1,6 @@
 ---
 title: type_of
+category: Type System/Introspection
 ---
 
 Retrieves the type definition of an expression.

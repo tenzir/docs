@@ -1,5 +1,6 @@
 ---
 title: timeshift
+category: Modify
 ---
 
 Adjusts timestamps relative to a given start time, with an optional speedup.

@@ -1,5 +1,6 @@
 ---
 title: write_ndjson
+category: Printing
 ---
 
 Transforms the input event stream to a Newline-Delimited JSON byte stream.

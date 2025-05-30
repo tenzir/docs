@@ -1,5 +1,6 @@
 ---
 title: bit_or
+category: Bit Operations
 ---
 
 Computes the bit-wise OR of its arguments.

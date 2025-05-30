@@ -1,5 +1,6 @@
 ---
 title: count_distinct
+category: Aggregation
 ---
 
 Counts all distinct non-null grouped values.

@@ -1,5 +1,6 @@
 ---
 title: int
+category: Type System/Conversion
 ---
 
 Casts an expression to an integer.

@@ -1,5 +1,8 @@
 ---
 title: where
+category:
+  - Aggregation
+  - List
 ---
 
 Filters list elements based on a predicate.

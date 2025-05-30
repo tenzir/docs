@@ -1,5 +1,8 @@
 ---
 title: pass
+category:
+  - Flow Control
+  - Internals
 ---
 
 Does nothing with the input.

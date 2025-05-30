@@ -1,5 +1,6 @@
 ---
 title: capitalize
+category: String/Transformation
 ---
 
 Capitalizes the first character of a string.

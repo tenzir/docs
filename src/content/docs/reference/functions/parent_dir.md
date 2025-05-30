@@ -1,5 +1,6 @@
 ---
 title: parent_dir
+category: String/Filesystem
 ---
 
 Extracts the parent directory from a file path.

@@ -1,5 +1,6 @@
 ---
 title: save_zmq
+category: Outputs/Bytes
 ---
 
 Sends bytes as ZeroMQ messages.

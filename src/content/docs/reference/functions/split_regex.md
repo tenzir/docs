@@ -1,5 +1,6 @@
 ---
 title: split_regex
+category: String/Transformation
 ---
 
 Splits a string into substrings with a regex.

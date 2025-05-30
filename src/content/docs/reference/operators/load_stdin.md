@@ -1,5 +1,6 @@
 ---
 title: load_stdin
+category: Inputs/Bytes
 ---
 
 Accepts bytes from standard input.

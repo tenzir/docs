@@ -1,5 +1,6 @@
 ---
 title: flatten
+category: Type System/Transposition
 ---
 
 Flattens nested data.

@@ -1,5 +1,6 @@
 ---
 title: parse_time
+category: Time & Date
 ---
 
 Parses a time from a string that follows a specific format.

@@ -1,5 +1,6 @@
 ---
 title: from_file
+category: Inputs/Events
 ---
 
 :::warning[Under Active Development]

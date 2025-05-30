@@ -1,5 +1,6 @@
 ---
 title: write_syslog
+category: Printing
 ---
 
 Writes events as syslog.

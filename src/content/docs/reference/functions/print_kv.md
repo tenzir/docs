@@ -1,5 +1,6 @@
 ---
 title: print_kv
+category: Printing
 ---
 
 Prints records in a key-value format.

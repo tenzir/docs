@@ -1,5 +1,6 @@
 ---
 title: write_lines
+category: Printing
 ---
 
 Writes events as key-value pairsthe *values* of an event.

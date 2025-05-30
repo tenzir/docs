@@ -1,5 +1,6 @@
 ---
 title: load_gcs
+category: Inputs/Bytes
 ---
 
 Loads bytes from a Google Cloud Storage object.

@@ -1,5 +1,6 @@
 ---
 title: env
+category: Runtime
 ---
 
 Reads an environment variable.

@@ -1,5 +1,6 @@
 ---
 title: count_if
+category: Aggregation
 ---
 
 Counts the events or non-null grouped values matching a given predicate.

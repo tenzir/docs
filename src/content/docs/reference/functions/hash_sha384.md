@@ -1,5 +1,6 @@
 ---
 title: hash_sha384
+category: Hashing
 ---
 
 Computes a SHA-384 hash digest.

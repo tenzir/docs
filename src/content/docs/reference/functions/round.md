@@ -1,5 +1,6 @@
 ---
 title: round
+category: Math
 ---
 
 Rounds a number or a time/duration with a specified unit.

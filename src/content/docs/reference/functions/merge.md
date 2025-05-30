@@ -1,5 +1,6 @@
 ---
 title: merge
+category: Record
 ---
 
 Combines two records into a single record by merging their fields.

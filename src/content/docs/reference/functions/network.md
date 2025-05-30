@@ -1,5 +1,8 @@
 ---
 title: network
+category:
+  - Subnet
+  - IP
 ---
 
 Retrieves the network address of a subnet.

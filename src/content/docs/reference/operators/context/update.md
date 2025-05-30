@@ -1,5 +1,6 @@
 ---
 title: update
+category: Contexts
 ---
 
 Updates a context with new data.

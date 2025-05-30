@@ -1,5 +1,6 @@
 ---
 title: save_s3
+category: Outputs/Bytes
 ---
 
 Saves bytes to an Amazon S3 object.

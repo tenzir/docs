@@ -1,5 +1,6 @@
 ---
 title: write_feather
+category: Printing
 ---
 
 Transforms the input event stream to Feather byte stream.

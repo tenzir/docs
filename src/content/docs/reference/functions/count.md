@@ -1,5 +1,6 @@
 ---
 title: count
+category: Aggregation
 ---
 
 Counts the events or non-null grouped values.

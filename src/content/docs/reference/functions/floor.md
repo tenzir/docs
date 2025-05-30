@@ -1,5 +1,6 @@
 ---
 title: floor
+category: Math
 ---
 
 Computes the floor of a number or a time/duration with a specified unit.

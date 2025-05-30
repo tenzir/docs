@@ -1,5 +1,6 @@
 ---
 title: save_azure_blob_storage
+category: Outputs/Bytes
 ---
 
 Saves bytes to Azure Blob Storage.

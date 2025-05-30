@@ -1,5 +1,6 @@
 ---
 title: sample
+category: Filter
 ---
 
 Dynamically samples events from a event stream.

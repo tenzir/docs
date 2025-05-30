@@ -1,5 +1,6 @@
 ---
 title: repeat
+category: Flow Control
 ---
 
 Repeats the input a number of times.

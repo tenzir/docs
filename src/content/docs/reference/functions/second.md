@@ -1,5 +1,6 @@
 ---
 title: second
+category: Time & Date
 ---
 
 Extracts the second component from a timestamp with subsecond precision.

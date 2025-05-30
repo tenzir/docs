@@ -1,5 +1,6 @@
 ---
 title: fork
+category: Flow Control
 ---
 
 Executes a subpipeline with a copy of the input.

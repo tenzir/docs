@@ -1,5 +1,6 @@
 ---
 title: has
+category: Record
 ---
 
 Checks whether a record has a specified field.

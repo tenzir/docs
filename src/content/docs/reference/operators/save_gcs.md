@@ -1,5 +1,6 @@
 ---
 title: save_gcs
+category: Outputs/Bytes
 ---
 
 Saves bytes to a Google Cloud Storage object.

@@ -1,5 +1,6 @@
 ---
 title: compress_brotli
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes using Brotli compression.

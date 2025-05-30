@@ -1,5 +1,6 @@
 ---
 title: month
+category: Time & Date
 ---
 
 Extracts the month component from a timestamp.

@@ -1,5 +1,6 @@
 ---
 title: select
+category: Modify
 ---
 
 Selects some values and discards the rest.

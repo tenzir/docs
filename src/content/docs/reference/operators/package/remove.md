@@ -1,5 +1,6 @@
 ---
 title: remove
+category: Contexts
 ---
 
 Uninstalls a package.

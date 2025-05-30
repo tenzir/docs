@@ -1,5 +1,6 @@
 ---
 title: hash_sha256
+category: Hashing
 ---
 
 Computes a SHA-256 hash digest.

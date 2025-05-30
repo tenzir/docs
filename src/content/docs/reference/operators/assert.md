@@ -1,5 +1,6 @@
 ---
 title: assert
+category: Filter
 ---
 
 Drops event and emits a warning if the invariant is violated.

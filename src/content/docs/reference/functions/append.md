@@ -1,5 +1,6 @@
 ---
 title: append
+category: List
 ---
 
 Inserts an element at the back of a list.

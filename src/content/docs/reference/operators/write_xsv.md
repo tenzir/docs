@@ -1,5 +1,6 @@
 ---
 title: write_xsv
+category: Printing
 ---
 
 Transforms event stream to XSV byte stream.

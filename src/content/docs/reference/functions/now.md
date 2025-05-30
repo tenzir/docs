@@ -1,5 +1,6 @@
 ---
 title: now
+category: Time & Date
 ---
 
 Gets the current wallclock time.

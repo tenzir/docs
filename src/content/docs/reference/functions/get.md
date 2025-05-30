@@ -1,5 +1,8 @@
 ---
 title: get
+category:
+  - Record
+  - List
 ---
 
 Gets a field from a record or an element from a list

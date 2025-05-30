@@ -1,5 +1,6 @@
 ---
 title: summarize
+category: Analyze
 ---
 
 Groups events and applies aggregate functions to each group.

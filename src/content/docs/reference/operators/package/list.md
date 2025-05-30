@@ -1,5 +1,6 @@
 ---
 title: list
+category: Packages
 ---
 
 Shows installed packages.

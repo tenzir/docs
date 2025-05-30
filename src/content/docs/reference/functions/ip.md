@@ -1,5 +1,6 @@
 ---
 title: ip
+category: Type System/Conversion
 ---
 
 Casts an expression to an IP address.

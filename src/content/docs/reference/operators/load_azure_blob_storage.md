@@ -1,5 +1,6 @@
 ---
 title: load_azure_blob_storage
+category: Inputs/Bytes
 ---
 
 Loads bytes from Azure Blob Storage.

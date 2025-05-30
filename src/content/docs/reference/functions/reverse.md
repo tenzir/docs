@@ -1,5 +1,6 @@
 ---
 title: reverse
+category: String/Transformation
 ---
 
 Reverses the characters of a string.

@@ -1,5 +1,6 @@
 ---
 title: concatenate
+category: List
 ---
 
 Merges two lists.

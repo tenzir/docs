@@ -1,5 +1,6 @@
 ---
 title: where
+category: Filter
 ---
 
 Keeps only events for which the given predicate is true.

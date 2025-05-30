@@ -1,5 +1,6 @@
 ---
 title: chart_area
+category: Charts
 ---
 
 Plots events on an area chart.

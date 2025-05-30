@@ -1,5 +1,6 @@
 ---
 title: random
+category: Math
 ---
 
 Generates a random number in *[0,1]*.

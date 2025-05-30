@@ -1,5 +1,6 @@
 ---
 title: split
+category: String/Transformation
 ---
 
 Splits a string into substrings.

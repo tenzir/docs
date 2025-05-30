@@ -1,5 +1,6 @@
 ---
 title: decompress_gzip
+category: Encode & Decode
 ---
 
 Decompresses a stream of bytes in the Gzip format.

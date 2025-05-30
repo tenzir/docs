@@ -1,5 +1,6 @@
 ---
 title: mean
+category: Aggregation
 ---
 
 Computes the mean of all grouped values.

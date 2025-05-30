@@ -1,5 +1,6 @@
 ---
 title: compress_gzip
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes using gzip compression.

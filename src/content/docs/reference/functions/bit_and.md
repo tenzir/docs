@@ -1,5 +1,6 @@
 ---
 title: bit_and
+category: Bit Operations
 ---
 
 Computes the bit-wise AND of its arguments.

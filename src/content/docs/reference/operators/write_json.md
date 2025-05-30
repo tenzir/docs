@@ -1,5 +1,6 @@
 ---
 title: write_json
+category: Printing
 ---
 
 Transforms the input event stream to a JSON byte stream.

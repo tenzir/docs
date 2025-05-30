@@ -1,5 +1,6 @@
 ---
 title: rare
+category: Analyze
 ---
 
 Shows the least common values.

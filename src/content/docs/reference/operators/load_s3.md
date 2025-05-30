@@ -1,5 +1,6 @@
 ---
 title: load_s3
+category: Inputs/Bytes
 ---
 
 Loads from an Amazon S3 object.

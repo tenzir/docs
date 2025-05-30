@@ -1,5 +1,6 @@
 ---
 title: chart_bar
+category: Charts
 ---
 
 Plots events on an bar chart.

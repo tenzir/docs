@@ -1,5 +1,6 @@
 ---
 title: community_id
+category: Networking
 ---
 
 Computes the [Community ID](https://github.com/corelight/community-id-spec) for

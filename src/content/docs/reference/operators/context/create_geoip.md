@@ -1,5 +1,6 @@
 ---
 title: create_geoip
+category: Contexts
 ---
 
 Creates a GeoIP context.

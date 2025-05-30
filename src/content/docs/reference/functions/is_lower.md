@@ -1,5 +1,6 @@
 ---
 title: is_lower
+category: String/Inspection
 ---
 
 Checks if a string is in lowercase.

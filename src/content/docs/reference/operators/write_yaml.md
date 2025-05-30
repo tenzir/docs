@@ -1,5 +1,6 @@
 ---
 title: write_yaml
+category: Printing
 ---
 
 Transforms the input event stream to YAML byte stream.

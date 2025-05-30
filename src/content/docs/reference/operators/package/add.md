@@ -1,5 +1,6 @@
 ---
 title: add
+category: Packages
 ---
 
 Installs a package.

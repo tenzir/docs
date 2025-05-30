@@ -1,5 +1,6 @@
 ---
 title: encrypt_cryptopan
+category: Networking
 ---
 
 Encrypts an IP address via Crypto-PAn.

@@ -1,5 +1,6 @@
 ---
 title: stddev
+category: Aggregation
 ---
 
 Computes the standard deviation of all grouped values.

@@ -1,5 +1,6 @@
 ---
 title: zip
+category: List
 ---
 
 Combines two lists into a list of pairs.

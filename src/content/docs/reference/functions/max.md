@@ -1,5 +1,6 @@
 ---
 title: max
+category: Aggregation
 ---
 
 Computes the maximum of all grouped values.

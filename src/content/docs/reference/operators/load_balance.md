@@ -1,5 +1,6 @@
 ---
 title: load_balance
+category: Flow Control
 ---
 
 Routes the data to one of multiple subpipelines.

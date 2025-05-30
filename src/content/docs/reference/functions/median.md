@@ -1,5 +1,6 @@
 ---
 title: median
+category: Aggregation
 ---
 
 Computes the approximate median of all grouped values using a t-digest algorithm.

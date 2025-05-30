@@ -1,5 +1,6 @@
 ---
 title: unroll
+category: Modify
 ---
 
 Returns a new event for each member of a list or a record in an event,

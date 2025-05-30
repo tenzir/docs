@@ -1,5 +1,6 @@
 ---
 title: inspect
+category: Contexts
 ---
 
 Resets a context.

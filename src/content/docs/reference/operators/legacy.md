@@ -1,5 +1,6 @@
 ---
 title: legacy
+category: Internals
 ---
 
 Provides a compatibility fallback to TQL1 pipelines.

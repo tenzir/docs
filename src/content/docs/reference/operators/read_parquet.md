@@ -1,5 +1,6 @@
 ---
 title: read_parquet
+category: Parsing
 ---
 
 Reads events from a Parquet byte stream.

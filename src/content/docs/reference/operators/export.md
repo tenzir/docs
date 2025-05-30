@@ -1,5 +1,6 @@
 ---
 title: export
+category: Node/Storage Engine
 ---
 
 Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import).

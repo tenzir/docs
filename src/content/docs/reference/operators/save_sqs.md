@@ -1,5 +1,6 @@
 ---
 title: save_sqs
+category: Outputs/Bytes
 ---
 
 Saves bytes to [Amazon SQS][sqs] queues.

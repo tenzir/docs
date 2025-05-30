@@ -1,5 +1,6 @@
 ---
 title: starts_with
+category: String/Inspection
 ---
 
 Checks if a string starts with a specified substring.

@@ -1,5 +1,6 @@
 ---
 title: write_parquet
+category: Printing
 ---
 
 Transforms event stream to a Parquet byte stream.

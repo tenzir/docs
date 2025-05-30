@@ -1,5 +1,6 @@
 ---
 title: save_udp
+category: Outputs/Bytes
 ---
 
 Saves bytes to a UDP socket.

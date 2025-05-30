@@ -1,5 +1,6 @@
 ---
 title: to
+category: Outputs/Events
 ---
 
 Saves to an URI, inferring the destination, compression and format.

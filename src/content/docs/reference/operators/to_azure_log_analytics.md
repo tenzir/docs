@@ -1,5 +1,6 @@
 ---
 title: to_azure_log_analytics
+category: Outputs/Events
 ---
 
 Sends events to the [Microsoft Azure Logs Ingestion API][api].

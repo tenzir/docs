@@ -1,5 +1,6 @@
 ---
 title: plugins
+category: Node/Inspection
 ---
 
 Shows all available plugins and built-ins.

@@ -1,5 +1,6 @@
 ---
 title: is_v4
+category: IP
 ---
 
 Checks whether an IP address has version number 4.

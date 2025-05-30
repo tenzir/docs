@@ -1,5 +1,6 @@
 ---
 title: delay
+category: Flow Control
 ---
 
 Delays events relative to a given start time, with an optional speedup.

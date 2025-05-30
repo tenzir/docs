@@ -1,5 +1,8 @@
 ---
 title: sort
+category:
+  - Record
+  - List
 ---
 
 Sorts lists and record fields.

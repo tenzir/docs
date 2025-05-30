@@ -1,5 +1,6 @@
 ---
 title: decompress
+category: Encode & Decode
 ---
 
 Decompresses a stream of bytes.

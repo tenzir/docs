@@ -1,5 +1,6 @@
 ---
 title: format_time
+category: Time & Date
 ---
 
 Formats a time into a string that follows a specific format.

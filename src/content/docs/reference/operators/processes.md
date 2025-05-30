@@ -1,5 +1,6 @@
 ---
 title: processes
+category: Host Inspection
 ---
 
 Shows a snapshot of running processes.

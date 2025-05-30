@@ -1,5 +1,6 @@
 ---
 title: enrich
+category: Contexts
 ---
 
 Resets data with a context.

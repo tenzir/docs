@@ -1,5 +1,6 @@
 ---
 title: to_upper
+category: String/Transformation
 ---
 
 Converts a string to uppercase.

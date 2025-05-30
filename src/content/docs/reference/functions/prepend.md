@@ -1,5 +1,6 @@
 ---
 title: prepend
+category: List
 ---
 
 Inserts an element at the start of a list.

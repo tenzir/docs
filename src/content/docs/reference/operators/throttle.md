@@ -1,5 +1,6 @@
 ---
 title: throttle
+category: Flow Control
 ---
 
 Limits the bandwidth of a pipeline.

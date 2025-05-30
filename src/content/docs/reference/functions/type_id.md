@@ -1,5 +1,6 @@
 ---
 title: type_id
+category: Type System/Introspection
 ---
 
 Retrieves the type id of an expression.

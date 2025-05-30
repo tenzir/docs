@@ -1,5 +1,6 @@
 ---
 title: encode_hex
+category: Encoding
 ---
 
 Encodes bytes into their hexadecimal representation.

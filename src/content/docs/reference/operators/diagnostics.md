@@ -1,5 +1,6 @@
 ---
 title: diagnostics
+category: Node/Inspection
 ---
 
 Retrieves diagnostic events from a Tenzir node.

@@ -1,5 +1,6 @@
 ---
 title: abs
+category: Math
 ---
 
 Returns the absolute value.

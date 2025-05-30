@@ -1,5 +1,6 @@
 ---
 title: discard
+category: Flow Control
 ---
 
 Discards all incoming events.

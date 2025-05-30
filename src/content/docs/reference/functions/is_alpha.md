@@ -1,5 +1,6 @@
 ---
 title: is_alpha
+category: String/Inspection
 ---
 
 Checks if a string contains only alphabetic characters.

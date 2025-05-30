@@ -1,5 +1,6 @@
 ---
 title: unordered
+category: Internals
 ---
 
 Removes ordering assumptions from a pipeline.

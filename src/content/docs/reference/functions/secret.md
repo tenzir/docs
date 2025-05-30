@@ -1,5 +1,6 @@
 ---
 title: secret
+category: Runtime
 ---
 
 Reads a secret from a store.

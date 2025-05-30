@@ -1,5 +1,6 @@
 ---
 title: bit_xor
+category: Bit Operations
 ---
 
 Computes the bit-wise XOR of its arguments.

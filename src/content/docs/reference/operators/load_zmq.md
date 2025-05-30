@@ -1,5 +1,6 @@
 ---
 title: load_zmq
+category: Inputs/Bytes
 ---
 
 Receives ZeroMQ messages.

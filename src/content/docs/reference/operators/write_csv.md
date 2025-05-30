@@ -1,5 +1,6 @@
 ---
 title: write_csv
+category: Printing
 ---
 
 Transforms event stream to CSV (Comma-Separated Values) byte stream.

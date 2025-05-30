@@ -1,5 +1,6 @@
 ---
 title: read_pcap
+category: Parsing
 ---
 
 Reads raw network packets in [PCAP][pcap-rfc] file format.

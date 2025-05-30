@@ -1,5 +1,6 @@
 ---
 title: slice
+category: String/Inspection
 ---
 
 Slices a string with offsets and strides.

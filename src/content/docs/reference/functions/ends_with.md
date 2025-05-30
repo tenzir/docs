@@ -1,5 +1,6 @@
 ---
 title: ends_with
+category: String/Inspection
 ---
 
 Checks if a string ends with a specified substring.

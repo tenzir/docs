@@ -1,5 +1,6 @@
 ---
 title: compress_bz2
+category: Encode & Decode
 ---
 
 Compresses a stream of bytes using bz2 compression.

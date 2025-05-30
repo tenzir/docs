@@ -1,5 +1,6 @@
 ---
 title: subnet
+category: Type System/Conversion
 ---
 
 Casts an expression to a subnet value.

@@ -1,5 +1,6 @@
 ---
 title: decode_base64
+category: Decoding
 ---
 
 Decodes bytes as Base64.

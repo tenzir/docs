@@ -1,5 +1,6 @@
 ---
 title: write_zeek_tsv
+category: Printing
 ---
 
 Transforms event stream into Zeek Tab-Separated Value byte stream.

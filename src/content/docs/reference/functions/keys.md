@@ -1,5 +1,6 @@
 ---
 title: keys
+category: Record
 ---
 
 Retrieves a list of field names from a record.

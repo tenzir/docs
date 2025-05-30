@@ -1,5 +1,6 @@
 ---
 title: read_lines
+category: Parsing
 ---
 
 Parses an incoming bytes stream into events.

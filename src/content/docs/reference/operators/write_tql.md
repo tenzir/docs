@@ -1,5 +1,6 @@
 ---
 title: write_tql
+category: Printing
 ---
 
 Transforms the input event stream to a TQL notation byte stream.

@@ -1,5 +1,6 @@
 ---
 title: sum
+category: Aggregation
 ---
 
 Computes the sum of all values.

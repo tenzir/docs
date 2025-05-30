@@ -1,5 +1,6 @@
 ---
 title: create_lookup_table
+category: Contexts
 ---
 
 Creates a lookup table context.

@@ -1,5 +1,6 @@
 ---
 title: hour
+category: Time & Date
 ---
 
 Extracts the hour component from a timestamp.

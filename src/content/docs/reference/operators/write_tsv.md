@@ -1,5 +1,6 @@
 ---
 title: write_tsv
+category: Printing
 ---
 
 Transforms event stream to TSV (Tab-Separated Values) byte stream.

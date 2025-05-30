@@ -1,5 +1,6 @@
 ---
 title: chart_pie
+category: Charts
 ---
 
 Plots events on an pie chart.

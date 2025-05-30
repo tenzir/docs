@@ -1,5 +1,6 @@
 ---
 title: encode_base64
+category: Encoding
 ---
 
 Encodes bytes as Base64.

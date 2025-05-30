@@ -1,5 +1,6 @@
 ---
 title: quantile
+category: Aggregation
 ---
 
 Computes the specified quantile of all grouped values.

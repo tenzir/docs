@@ -1,5 +1,6 @@
 ---
 title: from_velociraptor
+category: Inputs/Events
 ---
 
 Submits VQL to a Velociraptor server and returns the response as events.

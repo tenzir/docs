@@ -1,5 +1,6 @@
 ---
 title: serve
+category: Internals
 ---
 
 Make events available under the `/serve` REST API endpoint

@@ -1,5 +1,6 @@
 ---
 title: publish
+category: Connecting Pipelines
 ---
 
 Publishes events to a channel with a topic.

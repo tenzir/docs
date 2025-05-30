@@ -1,5 +1,6 @@
 ---
 title: length
+category: List
 ---
 
 Retrieves the length of a list.

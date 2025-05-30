@@ -1,5 +1,6 @@
 ---
 title: to_title
+category: String/Transformation
 ---
 
 Converts a string to title case.

@@ -1,5 +1,6 @@
 ---
 title: ceil
+category: Math
 ---
 
 Computes the ceiling of a number or a time/duration with a specified unit.

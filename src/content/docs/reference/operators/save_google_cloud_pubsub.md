@@ -1,5 +1,6 @@
 ---
 title: save_google_cloud_pubsub
+category: Outputs/Bytes
 ---
 
 Publishes to a Google Cloud Pub/Sub topic.

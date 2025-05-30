@@ -1,5 +1,6 @@
 ---
 title: from
+category: Inputs/Events
 ---
 
 Obtains events from an URI, inferring the source, compression and format.

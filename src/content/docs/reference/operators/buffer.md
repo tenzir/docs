@@ -1,5 +1,6 @@
 ---
 title: buffer
+category: Internals
 ---
 
 An in-memory buffer to improve handling of data spikes in upstream operators.

@@ -1,5 +1,6 @@
 ---
 title: bit_not
+category: Bit Operations
 ---
 
 Computes the bit-wise NOT of its argument.

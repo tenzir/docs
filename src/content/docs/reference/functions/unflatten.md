@@ -1,5 +1,6 @@
 ---
 title: unflatten
+category: Type System/Transposition
 ---
 
 Unflattens nested data.

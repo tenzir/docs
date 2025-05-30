@@ -1,5 +1,6 @@
 ---
 title: load_amqp
+category: Inputs/Bytes
 ---
 
 Loads a byte stream via AMQP messages.

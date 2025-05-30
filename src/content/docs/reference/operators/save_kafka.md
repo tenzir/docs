@@ -1,5 +1,6 @@
 ---
 title: save_kafka
+category: Outputs/Bytes
 ---
 
 Saves a byte stream to a Apache Kafka topic.

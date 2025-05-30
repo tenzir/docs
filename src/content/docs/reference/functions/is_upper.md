@@ -1,5 +1,6 @@
 ---
 title: is_upper
+category: String/Inspection
 ---
 
 Checks if a string is in uppercase.

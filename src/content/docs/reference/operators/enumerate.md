@@ -1,5 +1,6 @@
 ---
 title: enumerate
+category: Modify
 ---
 
 Add a field with the number of preceding events.

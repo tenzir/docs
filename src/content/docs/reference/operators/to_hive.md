@@ -1,5 +1,6 @@
 ---
 title: to_hive
+category: Outputs/Events
 ---
 
 Writes events to a URI using hive partitioning.

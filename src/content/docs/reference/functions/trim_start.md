@@ -1,5 +1,6 @@
 ---
 title: trim_start
+category: String/Transformation
 ---
 
 Trims whitespace from the start of a string.

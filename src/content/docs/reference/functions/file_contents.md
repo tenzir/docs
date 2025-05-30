@@ -1,5 +1,6 @@
 ---
 title: file_contents
+category: String/Filesystem
 ---
 
 Reads a file's contents.

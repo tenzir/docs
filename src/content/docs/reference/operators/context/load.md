@@ -1,5 +1,6 @@
 ---
 title: load
+category: Contexts
 ---
 
 Loads context state.

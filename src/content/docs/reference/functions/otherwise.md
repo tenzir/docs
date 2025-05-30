@@ -1,5 +1,6 @@
 ---
 title: otherwise
+category: Aggregation
 ---
 
 Returns a `fallback` value if `primary` is `null`.

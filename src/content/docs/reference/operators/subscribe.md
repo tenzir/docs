@@ -1,5 +1,6 @@
 ---
 title: subscribe
+category: Connecting Pipelines
 ---
 
 Subscribes to events from a channel with a topic.

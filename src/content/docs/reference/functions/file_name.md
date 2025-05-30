@@ -1,5 +1,6 @@
 ---
 title: file_name
+category: String/Filesystem
 ---
 
 Extracts the file name from a file path.

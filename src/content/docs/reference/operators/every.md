@@ -1,5 +1,6 @@
 ---
 title: every
+category: Flow Control
 ---
 
 Runs a pipeline periodically at a fixed interval.

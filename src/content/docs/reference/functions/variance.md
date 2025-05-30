@@ -1,5 +1,6 @@
 ---
 title: variance
+category: Aggregation
 ---
 
 Computes the variance of all grouped values.

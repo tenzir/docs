@@ -1,5 +1,6 @@
 ---
 title: print_yaml
+category: Printing
 ---
 
 Prints a value as a YAML document.

@@ -1,5 +1,6 @@
 ---
 title: config
+category: Runtime
 ---
 
 Reads Tenzir's configuration file.

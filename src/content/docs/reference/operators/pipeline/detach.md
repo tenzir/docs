@@ -1,5 +1,6 @@
 ---
 title: detach
+category: Pipelines
 ---
 
 Starts a pipeline in the node.

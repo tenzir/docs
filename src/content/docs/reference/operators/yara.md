@@ -1,5 +1,6 @@
 ---
 title: yara
+category: Detection
 ---
 
 Executes YARA rules on byte streams.

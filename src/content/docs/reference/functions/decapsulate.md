@@ -1,5 +1,6 @@
 ---
 title: decapsulate
+category: Networking
 ---
 
 Decapsulates packet data at link, network, and transport layer.

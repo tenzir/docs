@@ -1,5 +1,6 @@
 ---
 title: save
+category: Contexts
 ---
 
 Saves context state.

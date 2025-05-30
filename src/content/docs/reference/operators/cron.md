@@ -1,5 +1,6 @@
 ---
 title: cron
+category: Flow Control
 ---
 
 Runs a pipeline periodically according to a cron expression.

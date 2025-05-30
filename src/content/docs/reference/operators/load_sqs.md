@@ -1,5 +1,6 @@
 ---
 title: load_sqs
+category: Inputs/Bytes
 ---
 
 Loads bytes from [Amazon SQS][sqs] queues.

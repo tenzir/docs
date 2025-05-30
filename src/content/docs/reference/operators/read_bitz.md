@@ -1,5 +1,6 @@
 ---
 title: read_bitz
+category: Parsing
 ---
 
 Parses bytes as *BITZ* format.

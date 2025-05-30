@@ -1,5 +1,6 @@
 ---
 title: from_epoch
+category: Time & Date
 ---
 
 Interprets a duration as Unix time.

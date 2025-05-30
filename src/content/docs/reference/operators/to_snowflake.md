@@ -1,5 +1,6 @@
 ---
 title: to_snowflake
+category: Outputs/Events
 ---
 
 Sends events to a Snowflake database.

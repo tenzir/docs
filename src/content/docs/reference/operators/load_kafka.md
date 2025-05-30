@@ -1,5 +1,6 @@
 ---
 title: load_kafka
+category: Inputs/Bytes
 ---
 
 Loads a byte stream from a Apache Kafka topic.

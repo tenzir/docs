@@ -1,5 +1,6 @@
 ---
 title: decode_hex
+category: Decoding
 ---
 
 Decodes bytes from their hexadecimal representation.

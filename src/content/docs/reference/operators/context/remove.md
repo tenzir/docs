@@ -1,5 +1,6 @@
 ---
 title: remove
+category: Contexts
 ---
 
 Deletes a context.

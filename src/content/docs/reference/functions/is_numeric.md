@@ -1,5 +1,6 @@
 ---
 title: is_numeric
+category: String/Inspection
 ---
 
 Checks if a string contains only numeric characters.

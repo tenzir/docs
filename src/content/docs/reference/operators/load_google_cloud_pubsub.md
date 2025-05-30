@@ -1,5 +1,6 @@
 ---
 title: load_google_cloud_pubsub
+category: Inputs/Bytes
 ---
 
 Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.

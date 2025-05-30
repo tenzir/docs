@@ -1,5 +1,6 @@
 ---
 title: partitions
+category: Node/Storage Engine
 ---
 
 Retrieves metadata about events stored at a node.

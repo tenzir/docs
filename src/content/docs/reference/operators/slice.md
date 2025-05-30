@@ -1,5 +1,6 @@
 ---
 title: slice
+category: Filter
 ---
 
 Keeps a range of events within the interval `[begin, end)` stepping by `stride`.

@@ -1,5 +1,6 @@
 ---
 title: decompress_zstd
+category: Encode & Decode
 ---
 
 Decompresses a stream of bytes in the Zstd format.
