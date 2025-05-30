@@ -86,7 +86,9 @@ jobs:
         run: |
           echo "Updating Tenzir Platform docs..."
           # Clone the tenzir/platform repo including submodules
-          git clone --depth 1 --recurse-submodules https://github.com/tenzir/platform.git /tmp/platform
+          git clone --depth 1 --recurse-submodules \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tenzir/platform.git \
+            /tmp/platform
 
           # Copy changelog entries from app and tenant-manager components
           mkdir -p /tmp/platform/changelog/changes/
@@ -107,7 +109,7 @@ jobs:
           # Clean up
           rm -rf /tmp/platform
 
-      - name: Generate a app token
+      - name: Generate an app token
         id: generate_token
         uses: actions/create-github-app-token@v1
         with:
