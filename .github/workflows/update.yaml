@@ -85,6 +85,8 @@ jobs:
         if: inputs.product == 'platform'
         run: |
           echo "Updating Tenzir Platform docs..."
+          # Configure git to rewrite SSH URLs to HTTPS with token
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "git@github.com:"
           # Clone the tenzir/platform repo including submodules
           git clone --depth 1 --recurse-submodules \
             https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tenzir/platform.git \
