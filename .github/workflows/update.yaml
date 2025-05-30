@@ -79,6 +79,24 @@ jobs:
         if: inputs.product == 'platform'
         run: |
           echo "Updating Tenzir Platform docs..."
+          # Clone the tenzir/platform repo including submodules
+          git clone --depth 1 --recurse-submodules https://github.com/tenzir/platform.git /tmp/platform
+
+          # Copy changelog entries from app and tenant-manager components
+          mkdir -p /tmp/platform/changelog/changes/
+          for component in app tenant-manager; do
+            cp /tmp/platform/components/$component/changelog/changes/*.md \
+               /tmp/platform/changelog/changes/
+          done
+
+          # Install poetry and dependencies for changelog script
+          pip install poetry
+          cd changelog
+          poetry install --no-root
+          # Run changelog script
+          poetry run ./changelog.py --product=platform /tmp/platform/changelog
+          # Clean up
+          rm -rf /tmp/platform
 
       - name: Generate a app token
         id: generate_token
