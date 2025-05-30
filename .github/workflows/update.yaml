@@ -65,15 +65,20 @@ jobs:
         if: inputs.product == 'node'
         run: |
           echo "Updating Tenzir Node docs..."
-          # Add specific update logic for Node docs here
-          # This could include fetching new API docs, updating examples, etc.
+          git clone --depth 1 https://github.com/tenzir/tenzir.git /tmp/tenzir
+          # Install poetry and dependencies for changelog script
+          pip install poetry
+          cd docs/changelog
+          poetry install --no-root
+          # Run changelog script
+          poetry run ./changelog.py --product=node /tmp/tenzir/changelog
+          # Clean up
+          rm -rf /tmp/tenzir
 
       - name: Update Tenzir Platform docs
         if: inputs.product == 'platform'
         run: |
           echo "Updating Tenzir Platform docs..."
-          # Add specific update logic for Platform docs here
-          # This could include updating configuration examples, API references, etc.
 
       - name: Set up Git user
         uses: fregante/setup-git-user@v2
