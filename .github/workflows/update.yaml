@@ -100,8 +100,6 @@ jobs:
           GITHUB_APP_TOKEN: ${{ steps.generate_token.outputs.token }}
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
-          echo "Token exists: $([[ -n "$GITHUB_APP_TOKEN" ]] && echo "yes" || echo "no")"
-          echo "Token length: ${#GITHUB_APP_TOKEN}"
           git config --global user.name 'tenzir-bot'
           git config --global user.email 'engineering@tenzir.com'
           git remote set-url origin https://x-access-token:${GITHUB_APP_TOKEN}@github.com/${{ github.repository }}.git
