@@ -98,8 +98,12 @@ export default defineConfig({
         ]),
         starlightSidebarTopics(topics, {
           topics: {
-            // Associate all pages under `/reference/api/` directory with the
-            // Reference topic.
+            changelog_node: [
+              "/changelog/node/*",
+            ],
+            changelog_platform: [
+              "/changelog/platform/*",
+            ],
             reference: [
               "/reference/node-api",
               "/reference/node-api/**/*",

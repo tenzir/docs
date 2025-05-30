@@ -52,12 +52,14 @@ export const topics = [
   },
   {
     label: 'Tenzir Node',
+    id: 'changelog_node',
     link: 'changelog/node',
     icon: 'open-book',
     items: changelog_node,
   },
   {
     label: 'Tenzir Platform',
+    id: 'changelog_platform',
     link: 'changelog/platform',
     icon: 'open-book',
     items: changelog_platform,
