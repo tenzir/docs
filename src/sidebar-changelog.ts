@@ -6,5 +6,6 @@ export const changelog_node = [
 ];
 
 export const changelog_platform = [
-'changelog/platform/next',
+  'changelog/platform/next',
+  'changelog/platform/v5-0-0',
 ];
