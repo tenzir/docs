@@ -335,7 +335,6 @@ def process_release(
 
             if sections_written:
                 f.write("\n\n".join(sections_written))
-                f.write("\n")
 
         try:
             print(f"✅ Generated {output_path.relative_to(Path.cwd())}")
