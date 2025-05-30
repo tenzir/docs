@@ -72,6 +72,10 @@ jobs:
           poetry install --no-root
           # Run changelog script
           poetry run ./changelog.py --product=node /tmp/tenzir/changelog
+          # Copy reference
+          cd -
+          rsync -av --delete /tmp/tenzir/docs/functions ./src/content/docs/reference/functions
+          rsync -av --delete /tmp/tenzir/docs/operators ./src/content/docs/reference/operators
           # Clean up
           rm -rf /tmp/tenzir
 
@@ -95,6 +99,9 @@ jobs:
           poetry install --no-root
           # Run changelog script
           poetry run ./changelog.py --product=platform /tmp/platform/changelog
+          # Copy reference
+          cd -
+          rsync -av --delete /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
           # Clean up
           rm -rf /tmp/platform
 
