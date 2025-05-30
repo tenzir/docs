@@ -1,0 +1,36 @@
+---
+title: Tenzir Node v4.10.4
+sidebar:
+  badge:
+    text: v4.10.4
+    variant: tip
+---
+
+## Bug Fixes
+
+### Fix loading of large contexts
+
+Using `context load` with large context files no longer causes a crash.
+
+By [@eliaskosunen](https://github.com/eliaskosunen) in [#4033](https://github.com/tenzir/tenzir/pull/4033).
+
+### Isolate environment in python operator
+
+The code passed to the `python` operator no longer fails to resolve names when
+the local and global scope are both used.
+
+By [@jachris](https://github.com/jachris) in [#4036](https://github.com/tenzir/tenzir/pull/4036).
+
+### Fix a crash in the Sigma operator
+
+The `sigma` operator crashed for some rules when trying to attach the rule to
+the matched event. This no longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4034](https://github.com/tenzir/tenzir/pull/4034).
+
+### Improve HTTP transfer abstraction
+
+The `http` saver now correctly sets the `Content-Length` header when issuing
+HTTP requests.
+
+By [@mavam](https://github.com/mavam) in [#4031](https://github.com/tenzir/tenzir/pull/4031).

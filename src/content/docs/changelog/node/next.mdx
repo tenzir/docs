@@ -4,17 +4,48 @@ title: Next
 
 Unreleased changes.
 
+## Features
+
+### Implement `http` operator
+
+We implemented the `http` operator that allows making HTTP/1.1 requests to a
+URL. The operator also allows paginate APIs based on the responses.
+
+By [@raxyte](https://github.com/raxyte) in [#5188](https://github.com/tenzir/tenzir/pull/5188).
+
+### Introduce lambda functions
+
+TQL now supports lambda expressions. They are supported in the `where` and `map`
+functions on list, and on the newly added `count_if` aggregation function.
+Instead of `[1, 2, 3].map(x, x + 1)`, use `[1, 2, 3].map(x => x + 1)`. This
+subtle change makes it obvious that the expression is not evaluated on the
+entire list, but rather on each element individually.
+
+The `count_if` aggregation function counts the number of elements in a list that
+satisfy a given predicate. For example, `[1, 2, 3].count_if(x => x > 1)` returns
+`2`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).
+
 ## Bug Fixes
 
-### Lorem Ipsum
+### Fix a segfault in `save_amqp` on connection loss
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
-tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
-vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
-no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit
-amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
-labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
-et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
-sanctus est Lorem ipsum dolor sit amet.
+We fixed a crash in `save_amqp` when trying to send a message after the connection
+was lost.
 
-By [@mavam](https://github.com/mavam) in [#5074](https://github.com/tenzir/tenzir/pull/5074).
+By [@IyeOnline](https://github.com/IyeOnline) in [#5226](https://github.com/tenzir/tenzir/pull/5226).
+
+### Fix overflow warning for `-9223372036854775808`
+
+The lowest 64-bit integer, `-9223372036854775808`, no longer causes an overflow
+warning.
+
+By [@jachris](https://github.com/jachris) in [#5223](https://github.com/tenzir/tenzir/pull/5223).
+
+### Introduce lambda functions
+
+The expression `null if true else 42` previously returned `42`. It now correctly
+returns `null`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).

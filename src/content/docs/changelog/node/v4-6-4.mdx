@@ -1,0 +1,41 @@
+---
+title: Tenzir Node v4.6.4
+sidebar:
+  badge:
+    text: v4.6.4
+    variant: tip
+---
+
+## Features
+
+### Add a `duration` field to operator metrics
+
+The `tenzir.metrics.operator` metric now contains an additional `duration`
+field with the timespan over which the metric was collected.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3713](https://github.com/tenzir/tenzir/pull/3713).
+
+## Changes
+
+### Use systemd provided default paths if available
+
+When selecting default paths, the `tenzir-node` will now respect
+the systemd-provided variables `STATE_DIRECTORY`, `CACHE_DIRECTORY`
+and `LOGS_DIRECTORY` before falling back to `$PWD/tenzir.db`.
+
+By [@tobim](https://github.com/tobim) in [#3714](https://github.com/tenzir/tenzir/pull/3714).
+
+## Bug Fixes
+
+### Fix yaml printer enums
+
+The yaml printer no longer crashes when receiving enums.
+
+By [@jachris](https://github.com/jachris) in [#3719](https://github.com/tenzir/tenzir/pull/3719).
+
+### Fix RFC3164 (legacy-syslog) parser expecting spaces after `<PRI>`
+
+The RFC 3164 syslog parser no longer requires a whitespace after the `PRI`-field
+(part in angle brackets in the beginning of a message).
+
+By [@eliaskosunen](https://github.com/eliaskosunen) in [#3718](https://github.com/tenzir/tenzir/pull/3718).

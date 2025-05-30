@@ -1,0 +1,129 @@
+---
+title: VAST 2020.10.29
+sidebar:
+  badge:
+    text: 2020.10.29
+    variant: tip
+---
+
+## Features
+
+### Age rotation for old data
+
+The new options `vast.segments` and `vast.max-segment-size` control how the
+archive generates segments.
+
+By [@lava](https://github.com/lava) in [#1103](https://github.com/tenzir/tenzir/pull/1103).
+
+### Enable loading of concepts from disk
+
+The query language now comes with support for concepts, the first part of
+taxonomies. Concepts is a mechanism to unify the various naming schemes of
+different data formats into a single, coherent nomenclature.
+
+By [@tobim](https://github.com/tobim) in [#1102](https://github.com/tenzir/tenzir/pull/1102).
+
+### Allow tuple-style syntax for parsing records
+
+The expression language now accepts records without field names. For example,`id
+== <192.168.0.1, 41824, 143.51.53.13, 25, "tcp">` is now valid syntax and
+instantiates a record with 5 fields. Note: expressions with records currently do
+not execute.
+
+By [@tobim](https://github.com/tobim) in [#1129](https://github.com/tenzir/tenzir/pull/1129).
+
+### Add script to convert CIM to VAST taxonomy
+
+The new script `splunk-to-vast` converts a splunk CIM model file in JSON to a
+VAST taxonomy. For example, `splunk-to-vast < Network_Traffic.json` renders the
+concept definitions for the *Network Traffic* datamodel. The generated taxonomy
+does not include field definitions, which users should add separately according
+to their data formats.
+
+By [@mavam](https://github.com/mavam) in [#1121](https://github.com/tenzir/tenzir/pull/1121).
+
+### Support native systemd startup notification from VAST
+
+When running VAST under systemd supervision, it is now possible to use the
+`Type=notify` directive in the unit file to let VAST notify the service manager
+when it becomes ready.
+
+By [@lava](https://github.com/lava) in [#1091](https://github.com/tenzir/tenzir/pull/1091).
+
+### Age rotation for old data
+
+A new *disk monitor* component can now monitor the database size and delete data
+that exceeds a specified threshold. Once VAST reaches the maximum amount of disk
+space, the disk monitor deletes the oldest data. The command-line options
+`--disk-quota-high`, `--disk-quota-low`, and `--disk-quota-check-interval`
+control the rotation behavior.
+
+By [@lava](https://github.com/lava) in [#1103](https://github.com/tenzir/tenzir/pull/1103).
+
+## Changes
+
+### Make default log format less verbose
+
+Log files are now less verbose because class and function names are not printed
+on every line.
+
+By [@lava](https://github.com/lava) in [#1107](https://github.com/tenzir/tenzir/pull/1107).
+
+### Make the source actor more responsive
+
+The new option `import.read-timeout` allows for setting an input timeout for low
+volume sources. Reaching the timeout causes the current batch to be forwarded
+immediately. This behavior was previously controlled by `import.batch-timeout`,
+which now only controls the maximum buffer time before the source forwards
+batches to the server.
+
+By [@tobim](https://github.com/tobim) in [#1096](https://github.com/tenzir/tenzir/pull/1096).
+
+### Change /var/db to /var/lib on Linux deployments
+
+The default database directory moved to `/var/lib/vast` for Linux deployments.
+
+By [@0snap](https://github.com/0snap) in [#1116](https://github.com/tenzir/tenzir/pull/1116).
+
+### Warn on client-server version mismatch
+
+VAST will now warn if a client command connects to a server that runs on a
+different version of the vast binary.
+
+By [@tobim](https://github.com/tobim) in [#1098](https://github.com/tenzir/tenzir/pull/1098).
+
+## Bug Fixes
+
+### Fix merging of source status objects
+
+The `vast status --detailed` command now correctly shows the status of all
+sources, i.e., `vast import` or `vast spawn source` commands.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1109](https://github.com/tenzir/tenzir/pull/1109).
+
+### Fix file identifier check in lsvast
+
+The `lsvast` tool failed to print FlatBuffers schemas correctly. The output now
+renders correctly.
+
+By [@lava](https://github.com/lava) in [#1123](https://github.com/tenzir/tenzir/pull/1123).
+
+### Use a stable set for schema directories
+
+The lookup for schema directories now happens in a fixed order.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1086](https://github.com/tenzir/tenzir/pull/1086).
+
+### Don't enable automatic connections by default
+
+VAST no longer opens a random public port, which used to be enabled in the
+experimental VAST cluster mode in order to transparently establish a full mesh.
+
+By [@lava](https://github.com/lava) in [#1110](https://github.com/tenzir/tenzir/pull/1110).
+
+### Make the source actor more responsive
+
+Sources that receive no or very little input do not block `vast status` any
+longer.
+
+By [@tobim](https://github.com/tobim) in [#1096](https://github.com/tenzir/tenzir/pull/1096).

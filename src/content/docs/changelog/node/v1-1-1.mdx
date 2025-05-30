@@ -1,0 +1,23 @@
+---
+title: VAST v1.1.1
+sidebar:
+  badge:
+    text: v1.1.1
+    variant: tip
+---
+
+## Bug Fixes
+
+### Backport bug fixes for a v1.1.1 release
+
+The disk monitor now correctly continues deleting until below the low water mark
+after a partition failed to delete.
+
+We fixed a rarely occurring race condition caused query workers to become stuck
+after delivering all results until the corresponding client process terminated.
+
+Queries that timed out or were externally terminated while in the query backlog
+and with more than five unhandled candidate partitions no longer permanently get
+stuck.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2160](https://github.com/tenzir/tenzir/pull/2160).

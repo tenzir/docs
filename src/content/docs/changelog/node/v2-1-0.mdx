@@ -1,0 +1,280 @@
+---
+title: VAST v2.1.0
+sidebar:
+  badge:
+    text: v2.1.0
+    variant: success
+---
+
+## Features
+
+### Parquet store plugin
+
+A new parquet store plugin allows VAST to store its data as parquet files,
+increasing storage efficiency at the expense of higher deserialization costs.
+Storage requirements for the VAST database is reduced by another
+15-20% compared to the existing segment store with Zstd compression enabled.
+CPU usage for suricata import is up ~ 10%,  mostly related to the more
+expensive serialization.
+Deserialization (reading) of a partition is significantly more expensive,
+increasing CPU utilization by about 100%, and should be carefully considered
+and compared to the potential reduction in storage cost and I/O operations.
+
+By [@dispanser](https://github.com/dispanser) in [#2284](https://github.com/tenzir/tenzir/pull/2284).
+
+### Report by schema metrics from the importer
+
+VAST now produces additional metrics under the keys `ingest.events`,
+`ingest.duration` and `ingest.rate`. Each of those gets issued once for every
+schema that VAST ingested during the measurement period. Use the
+`metadata_schema` key to disambiguate the metrics.
+
+By [@tobim](https://github.com/tobim) in [#2274](https://github.com/tenzir/tenzir/pull/2274).
+
+### Compress in-memory slices with Zstd
+
+VAST now compresses data with Zstd. When persisting data to the segment store,
+the default configuration achieves over 2x space savings. When transferring data
+between client and server processes, compression reduces the amount of
+transferred data by up to 5x. This allowed us to increase the default partition
+size from 1,048,576 to 4,194,304 events, and the default number of events in a
+single batch from 1,024 to 65,536. The performance increase comes at the cost of
+a ~20% memory footprint increase at peak load. Use the option
+`vast.max-partition-size` to tune this space-time tradeoff.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2268](https://github.com/tenzir/tenzir/pull/2268).
+
+### Add percentage of total number of events to index status
+
+The index statistics in `vast status --detailed` now show the event distribution
+per schema as a percentage of the total number of events in addition to the
+per-schema number, e.g., for `suricata.flow` events under the key
+`index.statistics.layouts.suricata.flow.percentage`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2351](https://github.com/tenzir/tenzir/pull/2351).
+
+### PRs 2360-2363
+
+The output `vast status --detailed` now shows metadata from all partitions under
+the key `.catalog.partitions`. Additionally, the catalog emits metrics under the
+key `catalog.num-events` and `catalog.num-partitions` containing the number of
+events and partitions respectively. The metrics contain the schema name in the
+field `metadata_schema` and the (internal) partition version in the field
+`metadata_partition-version`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2360](https://github.com/tenzir/tenzir/pull/2360).
+
+### Base image with Closed Source plugins
+
+The VAST Cloud CLI can now authenticate to the Tenzir private registry and
+download the vast-pro image (including plugins such as Matcher). The deployment
+script can now be configured to use a specific image and can thus be set to use
+vast-pro.
+
+By [@rdettai](https://github.com/rdettai) in [#2415](https://github.com/tenzir/tenzir/pull/2415).
+
+### Add new debugging features to VAST tools
+
+The `lsvast` tool can now print contents of individual `.mdx` files.
+It now has an option to print raw Bloom filter contents of string
+and IP address synopses.
+
+The `mdx-regenerate` tool was renamed to `vast-regenerate` and can
+now also regenerate an index file from a list of partition UUIDs.
+
+By [@lava](https://github.com/lava) in [#2260](https://github.com/tenzir/tenzir/pull/2260).
+
+### PRs 2334-KaanSK
+
+PyVAST now supports running client commands for VAST servers running in a
+container environment, if no local VAST binary is available. Specify the
+`container` keyword to customize this behavior. It defaults to `{"runtime":
+"docker", "name": "vast"}`.
+
+By [@KaanSK](https://github.com/KaanSK) in [#2334](https://github.com/tenzir/tenzir/pull/2334).
+
+### Add index metric for created active partitions
+
+VAST emits the new metric `partition.events-written` when writing a partition to
+disk. The metric's value is the number of events written, and the
+`metadata_schema` field contains the name of the partition's schema.
+
+By [@lava](https://github.com/lava) in [#2302](https://github.com/tenzir/tenzir/pull/2302).
+
+### Improve usability of CSV format
+
+The `csv` import gained a new `--seperator='x'` option that defaults to `','`. Set
+it to `'\t'` to import tab-separated values, or `' '` to import space-separated
+values.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2336](https://github.com/tenzir/tenzir/pull/2336).
+
+### Add a `rebuild` command plugin
+
+The new `rebuild` command rebuilds old partitions to take advantage
+of improvements in newer VAST versions. Rebuilding takes place in the VAST
+server in the background. This process merges partitions up to the configured
+`max-partition-size`, turns VAST v1.x's heterogeneous into VAST v2.x's
+homogenous partitions, migrates all data to the currently configured
+`store-backend`, and upgrades to the most recent internal batch encoding and
+indexes.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2321](https://github.com/tenzir/tenzir/pull/2321).
+
+### Compress serialized indexers
+
+VAST now compresses on-disk indexes with Zstd, resulting in a 50-80% size
+reduction depending on the type of indexes used, and reducing the overall index
+size to below the raw data size. This improves retention spans significantly.
+For example, using the default configuration, the indexes for `suricata.ftp`
+events now use 75% less disk space, and `suricata.flow` 30% less.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2346](https://github.com/tenzir/tenzir/pull/2346).
+
+### Add optional status command filters
+
+The `status` command now supports filtering by component name. E.g.,
+`vast status importer index` only shows the status of the importer and
+index components.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2288](https://github.com/tenzir/tenzir/pull/2288).
+
+## Changes
+
+### Parquet store plugin
+
+VAST now requires Arrow >= v8.0.0.
+
+By [@dispanser](https://github.com/dispanser) in [#2284](https://github.com/tenzir/tenzir/pull/2284).
+
+### Always format time values with microsecond precision
+
+VAST will from now on always format `time` and `timestamp` values with six
+decimal places (microsecond precision). The old behavior used a precision that
+depended on the actual value. This may require action for downstream tooling
+like metrics collectors that expect nanosecond granularity.
+
+By [@tobim](https://github.com/tobim) in [#2380](https://github.com/tenzir/tenzir/pull/2380).
+
+### Remove legacy index from VAST
+
+The `vast.use-legacy-query-scheduler` option is now ignored because the legacy
+query scheduler has been removed.
+
+By [@lava](https://github.com/lava) in [#2312](https://github.com/tenzir/tenzir/pull/2312).
+
+### Deprecate the archive store-backend
+
+The `vast.store-backend` configuration option no longer supports `archive`,
+and instead always uses the superior `segment-store` instead. Events stored in
+the archive will continue to be available in queries.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2290](https://github.com/tenzir/tenzir/pull/2290).
+
+### Write homogenous partitions from the partition transformer
+
+Partition transforms now always emit homogenous partitions, i.e., one schema per
+partition. This makes compaction and aging more efficient.
+
+By [@lava](https://github.com/lava) in [#2277](https://github.com/tenzir/tenzir/pull/2277).
+
+### Add new debugging features to VAST tools
+
+The `mdx-regenerate` tool is no longer part of VAST binary releases.
+
+By [@lava](https://github.com/lava) in [#2260](https://github.com/tenzir/tenzir/pull/2260).
+
+## Bug Fixes
+
+### Improve index crash recovery
+
+We improved the mechanism to recover the database state after an unclean
+shutdown.
+
+By [@tobim](https://github.com/tobim) in [#2394](https://github.com/tenzir/tenzir/pull/2394).
+
+### Use fast_float to parse reals
+
+The parser for `real` values now understands scientific notation, e.g.,
+`1.23e+42`.
+
+By [@tobim](https://github.com/tobim) in [#2332](https://github.com/tenzir/tenzir/pull/2332).
+
+### Prefer CLI over config file for vast.plugins
+
+The command-line options `--plugins`, `--plugin-dirs`, and `--schema-dirs` now
+correctly overwrite their corresponding configuration options.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2289](https://github.com/tenzir/tenzir/pull/2289).
+
+### Fix crash in query evaluation for new partitions
+
+VAST no longer crashes when a query arrives at a newly created active partition
+in the time window between the partition creation and the first event arriving
+at the partition.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2295](https://github.com/tenzir/tenzir/pull/2295).
+
+### Respect the default fp-rate setting
+
+VAST now reads the default false-positive rate for sketches correctly. This
+broke accidentally with the v2.0 release. The option moved from
+`vast.catalog-fp-rate` to `vast.index.default-fp-rate`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2325](https://github.com/tenzir/tenzir/pull/2325).
+
+### Parse time from JSON strings containing numbers
+
+The JSON import now treats `time` and `duration` fields correctly for JSON
+strings containing a number, i.e., the JSON string `"1654735756"` now behaves
+just like the JSON number `1654735756` and for a `time` field results in the
+value `2022-06-09T00:49:16.000Z`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2340](https://github.com/tenzir/tenzir/pull/2340).
+
+### The index shall not quit on write errors
+
+VAST will no longer terminate when it can't write any more data to disk.
+Incoming data will still be accepted but discarded. We encourage all users to
+enable the disk-monitor or compaction features as a proper solution to this
+problem.
+
+By [@tobim](https://github.com/tobim) in [#2376](https://github.com/tenzir/tenzir/pull/2376).
+
+### Fall back to string when parsing config options from environment
+
+Setting the environment variable `VAST_ENDPOINT` to `host:port` pair no longer
+fails on startup with a parse error.
+
+By [@dispanser](https://github.com/dispanser) in [#2305](https://github.com/tenzir/tenzir/pull/2305).
+
+### Improve usability of CSV format
+
+The `csv` import no longer crashes when the CSV file contains columns not
+present in the selected schema. Instead, it imports these columns as strings.
+
+`vast export csv` now renders enum columns in their string representation
+instead of their internal numerical representation.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2336](https://github.com/tenzir/tenzir/pull/2336).
+
+### Allow missing value indices in partition flatbuffer
+
+VAST no longer crashes when importing `map` or `pattern` data annotated with the
+`#skip` attribute.
+
+By [@lava](https://github.com/lava) in [#2286](https://github.com/tenzir/tenzir/pull/2286).
+
+### Fix occasional shutdown hangs
+
+VAST no longer hangs when it is shut down while still importing events.
+
+By [@tobim](https://github.com/tobim) in [#2324](https://github.com/tenzir/tenzir/pull/2324).
+
+### Support environment variables for plugin options
+
+VAST no longer ignores environment variables for plugin-specific options. E.g.,
+the environment variable `VAST_PLUGINS__FOO__BAR` now correctly refers to the
+`bar` option of the `foo` plugin, i.e., `plugins.foo.bar`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2390](https://github.com/tenzir/tenzir/pull/2390).

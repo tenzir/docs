@@ -1,0 +1,104 @@
+---
+title: VAST 2020.04.29
+sidebar:
+  badge:
+    text: 2020.04.29
+    variant: tip
+---
+
+## Features
+
+### PRs 827-844
+
+Packet drop and discard statistics are now reported to the accountant for PCAP
+import, and are available using the keys `pcap-reader.recv`, `pcap-reader.drop`,
+`pcap-reader.ifdrop`, `pcap-reader.discard`, and `pcap-reader.discard-rate` in
+the `vast.statistics` event. If the number of dropped packets exceeds a
+configurable threshold, VAST additionally warns about packet drops on the
+command line.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#827](https://github.com/tenzir/tenzir/pull/827).
+
+### Add Bash autocompletion for VAST
+
+Bash autocompletion for `vast` is now available via the autocomplete script
+located at `scripts/vast-completions.bash` in the VAST source tree.
+
+By [@lava](https://github.com/lava) in [#833](https://github.com/tenzir/tenzir/pull/833).
+
+## Changes
+
+### Rename count.skip-candidate-checks to count.estimate
+
+The option `--skip-candidate-checks` / `-s` for the `count` command was renamed
+to `--estimate` / `-e`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#843](https://github.com/tenzir/tenzir/pull/843).
+
+### Change default listen address to 'localhost'
+
+The default bind address has been changed from `::` to `localhost`.
+
+By [@lava](https://github.com/lava) in [#828](https://github.com/tenzir/tenzir/pull/828).
+
+### Simplify partition structure
+
+The index specific options `max-partition-size`, `max-resident-partitions`,
+`max-taste-partitions`, and `max-queries` can now be specified on the command
+line when starting a node.
+
+By [@tobim](https://github.com/tobim) in [#728](https://github.com/tenzir/tenzir/pull/728).
+
+## Bug Fixes
+
+### Fix meta index nondeterminism
+
+For some queries, the index evaluated only a subset of all relevant partitions
+in a non-deterministic manner. Fixing a violated evaluation invariant now
+guarantees deterministic execution.
+
+By [@tobim](https://github.com/tobim) in [#842](https://github.com/tenzir/tenzir/pull/842).
+
+### Use line reader timeout
+
+Fixed a bug that could cause stalled input streams not to forward events to the
+index and archive components for the JSON, CSV, and Syslog readers, when the
+input stopped arriving but no EOF was sent. This is a follow-up to
+[#750](https://github.com/tenzir/vast/pull/750). A timeout now ensures that that
+the readers continue when some events were already handled, but the input
+appears to be stalled.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#835](https://github.com/tenzir/tenzir/pull/835).
+
+### Fix inequality port lookups
+
+Queries of the form `x != 80/tcp` were falsely evaluated as `x != 80/? && x !=
+?/tcp`. (The syntax in the second predicate does not yet exist; it only
+illustrates the bug.) Port inequality queries now correctly evaluate `x != 80/?
+|| x != ?/tcp`. E.g., the result now contains values like `80/udp` and `80/?`,
+but also `8080/tcp`.
+
+By [@mavam](https://github.com/mavam) in [#834](https://github.com/tenzir/tenzir/pull/834).
+
+### Make archive session extraction interruptible
+
+Archive lookups are now interruptible. This change fixes an issue that caused
+consecutive exports to slow down the node, which improves the overall
+performance for larger databases considerably.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#825](https://github.com/tenzir/tenzir/pull/825).
+
+### Remove assertion from expression tailoring
+
+Fixed a crash when importing data while a continuous export was running for
+unrelated events.
+
+By [@lava](https://github.com/lava) in [#830](https://github.com/tenzir/tenzir/pull/830).
+
+### Make stop command blocking and return properly
+
+The `stop` command always returned immediately, regardless of whether it
+succeeded. It now blocks until the remote node shut down properly or returns an
+error exit code upon failure.
+
+By [@mavam](https://github.com/mavam) in [#849](https://github.com/tenzir/tenzir/pull/849).

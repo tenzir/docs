@@ -1,0 +1,110 @@
+---
+title: Tenzir Node v4.13.0
+sidebar:
+  badge:
+    text: v4.13.0
+    variant: success
+---
+
+## Features
+
+### Add new loading mechanism for GeoIP context
+
+The `geoip` context now supports loading in a MaxMind database with `context
+load <ctx>`. For example, `load s3://my-bucket/file.mmdb | context load my-ctx`
+makes the GeoIP context use a remotely stored database.
+
+By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4158](https://github.com/tenzir/tenzir/pull/4158).
+
+### Add LEEF parser
+
+The new `leef` parser supports parsing Log Event Extended Format (LEEF) version
+1.0 and 2.0 events, e.g.,
+`LEEF:1.0|Microsoft|MSExchange|4.0 SP1|15345|src=192.0.2.0\tdst=172.50.123.1`.
+
+By [@mavam](https://github.com/mavam) in [#4178](https://github.com/tenzir/tenzir/pull/4178).
+
+### Add `cron` operator
+
+The `cron "<cron expression>"` operator modifier executes an operator
+on a schedule.
+For example, `cron "* */10 * * * MON-FRI" from https://example.org/api`
+queries an endpoint on every 10th minute, Monday through Friday.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4192](https://github.com/tenzir/tenzir/pull/4192).
+
+### Add `--precise` mode to JSON parser
+
+The `json` parser has a new `--precise` flag, which ensures that the layout of
+the emitted events precisely match the input. For example, it guarantees that no
+additional `null` fields will be added. This mode is implicitly enabled when
+using `read gelf`.
+
+By [@jachris](https://github.com/jachris) in [#4169](https://github.com/tenzir/tenzir/pull/4169).
+
+## Changes
+
+### Remove the --clear parameter for lookup table contexts
+
+The `--clear` parameter for clearing lookup table contexts during an update no
+longer exists. It has been superseded by the more robust `context reset`
+operator.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4179](https://github.com/tenzir/tenzir/pull/4179).
+
+### Fix a hang on shutdown and remove deprecated things
+
+The deprecated `matcher` plugin no longer exists. Use the superior `lookup`
+operator and contexts instead.
+
+The deprecated `tenzir-ctl import` and `tenzir-ctl export` commands no longer
+exists. They have been fully superseded by pipelines in the form `… | import`
+and `export | …`, respectively.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4187](https://github.com/tenzir/tenzir/pull/4187).
+
+## Bug Fixes
+
+### Add LEEF parser
+
+The `syslog` parser no longer crops messages at unprintable characters, such as
+tab (`\t`).
+
+The `syslog` parser no longer eagerly attempts to grab an application name from
+the content, fixing issues when combined with CEF and LEEF.
+
+By [@mavam](https://github.com/mavam) in [#4178](https://github.com/tenzir/tenzir/pull/4178).
+
+### Fix CSV/XSV format printing the header once for each batch
+
+The CSV, TSV, and SSV printers no longer erroneously print the header multiple
+times when more than one event batch of events arrives.
+
+By [@jachris](https://github.com/jachris) in [#4195](https://github.com/tenzir/tenzir/pull/4195).
+
+### Update the repository to include retry delay-related bug fixes
+
+Some pipelines did not restart on failure. The retry mechanism now works for all
+kinds of failures.
+
+Pipelines that are configured to automatically restart on failure can now be
+stopped explicitly. Stopping a failed pipeline now always changes its state to
+the stopped state.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4184](https://github.com/tenzir/tenzir/pull/4184).
+
+### Fix a hang on shutdown and remove deprecated things
+
+Startup failures caused by invalid pipelines or contexts deployed as code in the
+configuration file sometimes caused the node to hang instead of shutting down
+with an error message. The node now shuts down as expected when this happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4187](https://github.com/tenzir/tenzir/pull/4187).
+
+### Make python venv creation independent from the user
+
+A permission error caused `python` operator to fail when it was previously used
+by another system user with the same set of requirements. There now is a one
+Python environment per user and set of requirements.
+
+By [@tobim](https://github.com/tobim) in [#4189](https://github.com/tenzir/tenzir/pull/4189).

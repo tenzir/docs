@@ -1,0 +1,74 @@
+---
+title: Tenzir Node v4.27.0
+sidebar:
+  badge:
+    text: v4.27.0
+    variant: success
+---
+
+## Features
+
+### Add plugin options to enable self-signed platform certificates
+
+The `platform` plugin now understands the `skip-peer-verification`
+and `cacert` options in order to enable connections to self-hosted
+platform instances with self-signed TLS certificates.
+
+By [@lava](https://github.com/lava) in [#4918](https://github.com/tenzir/tenzir/pull/4918).
+
+### Implement `chart_line`, `chart_area`, `chart_bar` and `chart_pie`
+
+Charting functionality is now available in TQL2 via the new `chart_area`,
+`chart_bar`, `chart_line` and `chart_pie` operators and the [Tenzir
+Platform](https://app.tenzir.com).
+
+By [@raxyte](https://github.com/raxyte) in [#4888](https://github.com/tenzir/tenzir/pull/4888).
+
+### Implement `unroll` for records
+
+The `unroll` operator now works for record fields as well as lists. The operator
+duplicates the surrounding event for every field in the specified record.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4934](https://github.com/tenzir/tenzir/pull/4934).
+
+### Implement AWS MSK IAM Authentication Mechanism for `{load,save}_kafka`
+
+The `load_kafka` and `save_kafka` operators can now authenticate with AWS MSK
+using IAM via the new `aws_iam` options.
+
+By [@raxyte](https://github.com/raxyte) in [#4944](https://github.com/tenzir/tenzir/pull/4944).
+
+### Add `batches` to input/output operator metrics
+
+`metrics "operator"` now includes a new `batches` field under the `input` and
+`output` records that counts how many batches of events or bytes the metric was
+generated from.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4962](https://github.com/tenzir/tenzir/pull/4962).
+
+### Add `tenzir.retention` configuration
+
+The new `tenzir.retention.metrics` and `tenzir.retention.diagnostics`
+configuration options configure how long Tenzir Nodes retain metrics and
+diagnostics. The policies are checked once every hour.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4949](https://github.com/tenzir/tenzir/pull/4949).
+
+## Changes
+
+### Deprecate TQL1
+
+TQL1 is now deprecated in favor of TQL2. Starting a TQL1 pipeline issues a
+warning on startup nudging towards upgrading to TQL2, which will become the
+default in the upcoming Tenzir v5.0 release. This warning cannot be turned off.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4954](https://github.com/tenzir/tenzir/pull/4954).
+
+## Bug Fixes
+
+### Implement AWS MSK IAM Authentication Mechanism for `{load,save}_kafka`
+
+Operators such as `load_kafka`, `load_s3` etc can now correctly read their
+respective YAML configs.
+
+By [@raxyte](https://github.com/raxyte) in [#4944](https://github.com/tenzir/tenzir/pull/4944).

@@ -1,0 +1,35 @@
+---
+title: Tenzir Node v5.0.1
+sidebar:
+  badge:
+    text: v5.0.1
+    variant: tip
+---
+
+## Features
+
+### Fix bugs in `to_clickhouse` and improve diagnostics
+
+The `to_clickhouse` operator now supports `blob`s, which will be sent as an
+`Array(UInt8)`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5122](https://github.com/tenzir/tenzir/pull/5122).
+
+## Bug Fixes
+
+### Fix bugs in `to_clickhouse` and improve diagnostics
+
+We fixed multiple bugs that caused unexpected internal failures and the creation
+of potentially empty `Tuple`s in ClickHouse.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5122](https://github.com/tenzir/tenzir/pull/5122).
+
+### Keep the y-axis order for `chart_*` as specified
+
+The `chart_*` operators no longer sort y-axes by their names. Instead, the
+user-provided order is used. For example, in `metrics "pipeline" | chart_bar
+x=timestamp, resolution=1d, y={"Ingress": ingress.bytes.sum(), "Egress":
+egress.bytes.sum()}` the field order is now "Ingress" followed by "Egress"
+as specified instead of the other way around.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5131](https://github.com/tenzir/tenzir/pull/5131).

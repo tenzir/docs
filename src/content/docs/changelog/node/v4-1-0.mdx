@@ -1,0 +1,79 @@
+---
+title: Tenzir Node v4.1.0
+sidebar:
+  badge:
+    text: v4.1.0
+    variant: success
+---
+
+## Features
+
+### Make `show pipelines` a thing
+
+The new `show pipelines` aspect displays a list of all managed pipelines.
+
+By [@mavam](https://github.com/mavam) in [#3457](https://github.com/tenzir/tenzir/pull/3457).
+
+### Bump the tenzir-plugins submodule pointer to include the pipeline manager's failure and rendered diagnostics functionality
+
+The `rendered` field in the pipeline manager diagnostics delivers a displayable
+version of the diagnostic's error message.
+
+Pipelines that encounter an error during execution are now in a new `failed`
+rather than `stopped` state.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3479](https://github.com/tenzir/tenzir/pull/3479).
+
+### Introduce an experimental `sigma` operator
+
+The new `sigma` operator filters its input with Sigma rules and outputs matching
+events alongside the matched rule.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3138](https://github.com/tenzir/tenzir/pull/3138).
+
+### Implement `compress` and `decompress` operators
+
+The `compress [--level <level>] <codec>` and `decompress <codec>` operators
+enable streaming compression and decompression in pipelines for `brotli`, `bz2`,
+`gzip`, `lz4`, and `zstd`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3443](https://github.com/tenzir/tenzir/pull/3443).
+
+### Bump the tenzir-plugins submodule pointer to include the pipeline manager's resuming and pausing functionality
+
+The `pause` action in the `/pipeline/update` endpoint suspends a pipeline and
+sets its state to `paused`. Resume it with the `start` action.
+
+Newly created pipelines are now in a new `created` rather than `stopped` state.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3471](https://github.com/tenzir/tenzir/pull/3471).
+
+### Implement `show config`
+
+The `show config` aspect returns the configuration currently in use, combining
+options set in the configuration file, the command-line, environment options.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3455](https://github.com/tenzir/tenzir/pull/3455).
+
+## Changes
+
+### Refactor `show` aspects and rewrite `version`
+
+The `version` operator no longer exists. Use `show version` to get the Tenzir
+version instead. The additional information that `version` produced is now
+available as `show build`, `show dependencies`, and `show plugins`.
+
+By [@mavam](https://github.com/mavam) in [#3442](https://github.com/tenzir/tenzir/pull/3442).
+
+## Bug Fixes
+
+### Tweak the execution node behavior
+
+Pipeline operators that create output independent of their input now emit their
+output instantly instead of waiting for receiving further input. This makes the
+`shell` operator more reliable.
+
+The `show <aspect>` operator wrongfully required unsafe pipelines to be allowed
+for some aspects. This is now fixed.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3470](https://github.com/tenzir/tenzir/pull/3470).

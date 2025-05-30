@@ -1,0 +1,93 @@
+---
+title: Tenzir Node v4.5.0
+sidebar:
+  badge:
+    text: v4.5.0
+    variant: success
+---
+
+## Features
+
+### Flush implicitly in the `import` operator
+
+The `import` operator now flushes events to disk automatically before returning,
+ensuring that they are available immediately for subsequent uses of the `export`
+operator.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3638](https://github.com/tenzir/tenzir/pull/3638).
+
+### Add an operator blocklist
+
+The `tenzir.disable-plugins` option is a list of names of plugins and builtins
+to explicitly forbid from being used in Tenzir. For example, adding `shell`
+will prohibit use of the `shell` operator builtin, and adding `kafka` will
+prohibit use of the `kafka` connector plugin. This allows for a more
+fine-grained control than the `tenzir.allow-unsafe-pipelines` option.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3642](https://github.com/tenzir/tenzir/pull/3642).
+
+### Relax type restrictions for queries with numeric literals
+
+In `where <expression>`, the types of numeric literals and numeric fields in an
+equality or relational comparison must no longer match exactly. The literals
+`+42`, `42` or `42.0` now compare against fields of types `int64`, `uint64`, and
+`double` as expected.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3634](https://github.com/tenzir/tenzir/pull/3634).
+
+### Improve `summarize` result for empty inputs
+
+If the `summarize` operator has no `by` clause, it now returns a result even
+if there is no input. For example, `summarize num=count(.)` returns an event
+with `{"num": 0}`. Aggregation functions which do not have a single default
+value, for example because it would depend on the input type, return `null`.
+
+By [@jachris](https://github.com/jachris) in [#3640](https://github.com/tenzir/tenzir/pull/3640).
+
+### Always enable time and bool synopses
+
+Lookups against uint64, int64, double, and duration fields now always use sparse
+indexes, which improves the performance of `export | where <expression>` for
+some expressions.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3639](https://github.com/tenzir/tenzir/pull/3639).
+
+### Add an `api` source operator
+
+The `api` source operator interacts with Tenzir's REST API without needing to
+spin up a web server, making all APIs accessible from within pipelines.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3630](https://github.com/tenzir/tenzir/pull/3630).
+
+## Changes
+
+### Use prefix matching instead of suffix matching
+
+The operators `drop`, `pseudonymize`, `put`, `extend`, `replace`, `rename` and
+`select` were converted from suffix matching to prefix matching and can
+therefore address records now.
+
+By [@jachris](https://github.com/jachris) in [#3616](https://github.com/tenzir/tenzir/pull/3616).
+
+### Always enable time and bool synopses
+
+Sparse indexes for time and bool fields are now always enabled, accelerating
+lookups against them.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3639](https://github.com/tenzir/tenzir/pull/3639).
+
+## Bug Fixes
+
+### Ensure exporter metrics don't get lost
+
+The `exporter.*` metrics will now be emitted in case the exporter finishes
+early.
+
+By [@tobim](https://github.com/tobim) in [#3633](https://github.com/tenzir/tenzir/pull/3633).
+
+### Rename `--appending` option for `save file` to `--append`
+
+The long option `--append` for the `file` and `directory` savers now works as
+documented. Previously, only the short option worked correctly.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3629](https://github.com/tenzir/tenzir/pull/3629).

@@ -1,0 +1,154 @@
+---
+title: VAST 2021.01.28
+sidebar:
+  badge:
+    text: 2021.01.28
+    variant: tip
+---
+
+## Features
+
+### Add the import zeek-json command
+
+The new `import zeek-json` command allows for importing line-delimited Zeek JSON
+logs as produced by the
+[json-streaming-logs](https://github.com/corelight/json-streaming-logs) package.
+Unlike stock Zeek JSON logs, where one file contains exactly one log type, the
+streaming format contains different log event types in a single stream and uses
+an additional `_path` field to disambiguate the log type. For stock Zeek JSON
+logs, use the existing `import json` with the `-t` flag to specify the log type.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1259](https://github.com/tenzir/tenzir/pull/1259).
+
+### Add per partition memory usage information to vast status
+
+The output of `vast status` contains detailed memory usage information about
+active and cached partitions.
+
+By [@tobim](https://github.com/tobim) in [#1297](https://github.com/tenzir/tenzir/pull/1297).
+
+### PRs 1230-1246-1281-1314-1315-ngrodzitski
+
+VAST relies on [simdjson](https://github.com/simdjson/simdjson) for JSON
+parsing. The substantial gains in throughput shift the bottleneck of the ingest
+path from parsing input to indexing at the node. To use the (yet experimental)
+feature, use `vast import json|suricata|zeek-json --simdjson`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1230](https://github.com/tenzir/tenzir/pull/1230).
+
+### Make duration units abbreviations consistent
+
+VAST queries also accept `nanoseconds`, `microseconds`, `milliseconds` `seconds`
+and `minutes` as units for a duration.
+
+By [@rolandpeelen](https://github.com/rolandpeelen) in [#1265](https://github.com/tenzir/tenzir/pull/1265).
+
+### Add third-party licenses for embedded dependencies
+
+VAST installations bundle a LICENSE.3rdparty file alongside the regular LICENSE
+file that lists all embedded code that is under a separate license.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1306](https://github.com/tenzir/tenzir/pull/1306).
+
+### PRs 1208-1264-1275-1282-1285-1287-1302-1307-1316
+
+VAST features a new plugin framework to support efficient customization points
+at various places of the data processing pipeline. There exist several base
+classes that define an interface, e.g., for adding new commands or spawning a
+new actor that processes the incoming stream of data. The directory
+`examples/plugins/example` contains an example plugin.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1208](https://github.com/tenzir/tenzir/pull/1208).
+
+## Changes
+
+### Consolidate Dockerfiles
+
+The GitHub CI changed to Debian Buster and produces Debian artifacts instead of
+Ubuntu artifacts. Similarly, the Docker images we provide on [Docker
+Hub](https://hub.docker.com/r/tenzir/vast) use Debian Buster as base image. To
+build Docker images locally, users must set `DOCKER_BUILDKIT=1` in the build
+environment.
+
+By [@0snap](https://github.com/0snap) in [#1294](https://github.com/tenzir/tenzir/pull/1294).
+
+### Rename *-paths to *-dirs options
+
+The option `vast.schema-paths` is renamed to `vast.schema-dirs`. The old option
+is deprecated and will be removed in a future release.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1287](https://github.com/tenzir/tenzir/pull/1287).
+
+### Support -v, -vv, -vvv, -q, -qq, -qqq for verbosity
+
+The new short options `-v`, `-vv`, `-vvv`, `-q`, `-qq`, and `-qqq` map onto the
+existing verbosity levels. The existing short syntax, e.g., `-v debug`, no
+longer works.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1244](https://github.com/tenzir/tenzir/pull/1244).
+
+### PRs 1257-1289
+
+VAST preserves nested JSON objects in events instead of formatting them in a
+flattened form when exporting data with `vast export json`. The old behavior can
+be enabled with `vast export json --flatten`.
+
+By [@tobim](https://github.com/tobim) in [#1257](https://github.com/tenzir/tenzir/pull/1257).
+
+### Make the start command print the endpoint on stdout
+
+`vast start` prints the endpoint it is listening on when providing the option
+`--print-endpoint`.
+
+By [@tobim](https://github.com/tobim) in [#1271](https://github.com/tenzir/tenzir/pull/1271).
+
+## Bug Fixes
+
+### Handle Arrow decoder errors gracefully
+
+Invalid Arrow table slices read from disk no longer trigger a segmentation
+fault. Instead, the invalid on-disk state is ignored.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1247](https://github.com/tenzir/tenzir/pull/1247).
+
+### Check that disk budget was not specified as non-string
+
+Disk monitor quota settings not ending in a 'B' are no longer silently
+discarded.
+
+By [@lava](https://github.com/lava) in [#1278](https://github.com/tenzir/tenzir/pull/1278).
+
+### Follow up for the CMake refactoring
+
+For relocatable installations, the list of schema loading paths does not include
+a build-time configured path any more.
+
+By [@tobim](https://github.com/tobim) in [#1249](https://github.com/tenzir/tenzir/pull/1249).
+
+### Gracefully deal with JSON to data conversion errors
+
+Values in JSON fields that can't be converted to the type that is specified in
+the schema won't cause the containing event to be dropped any longer.
+
+By [@tobim](https://github.com/tobim) in [#1250](https://github.com/tenzir/tenzir/pull/1250).
+
+### Remove check whether config file is a regular file
+
+Manually specified configuration files may reside in the default location
+directories. Configuration files can be symlinked.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1248](https://github.com/tenzir/tenzir/pull/1248).
+
+### Fix potential race condition between evaluator and partition
+
+A potential race condition that could lead to a hanging export if a partition
+was persisted just as it was scanned no longer exists.
+
+By [@lava](https://github.com/lava) in [#1295](https://github.com/tenzir/tenzir/pull/1295).
+
+### Don't overwrite line content after a read timeout
+
+Line based imports correctly handle read timeouts that occur in the middle of a
+line.
+
+By [@tobim](https://github.com/tobim) in [#1276](https://github.com/tenzir/tenzir/pull/1276).

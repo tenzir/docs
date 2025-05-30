@@ -1,0 +1,100 @@
+---
+title: Tenzir Node v4.23.0
+sidebar:
+  badge:
+    text: v4.23.0
+    variant: success
+---
+
+## Features
+
+### Implement `in` for `list_type`
+
+The relational operator `in` now supports checking for existence of an element
+in a list. For example, `where x in ["important", "values"]` is functionally
+equivalent to `where x == "important" or x == "values"`.
+
+By [@raxyte](https://github.com/raxyte) in [#4691](https://github.com/tenzir/tenzir/pull/4691).
+
+### Add universal function call syntax
+
+TQL now supports "universal function call syntax," which means that every method
+is callable as a function and every function with at least one positional
+argument is callable as a method.
+
+By [@jachris](https://github.com/jachris) in [#4730](https://github.com/tenzir/tenzir/pull/4730).
+
+### Implement `floor` and `ceil` functions
+
+`ceil` and `floor` join the existing `round` function for rounding numbers,
+durations, and timestamps upwards and downwards, respectively.
+
+By [@raxyte](https://github.com/raxyte) in [#4712](https://github.com/tenzir/tenzir/pull/4712).
+
+### Add `load_balance` operator
+
+The new `load_balance` operator distributes events over a set of subpipelines.
+
+By [@jachris](https://github.com/jachris) in [#4720](https://github.com/tenzir/tenzir/pull/4720).
+
+### Port kafka connector to TQL2
+
+New `load_kafka` and `save_kafka` operators enable seamless integration with
+Apache Kafka in TQL2.
+
+By [@raxyte](https://github.com/raxyte) in [#4725](https://github.com/tenzir/tenzir/pull/4725).
+
+### Add spread syntax `...expr` for lists
+
+The spread syntax `...` can now be used inside lists to expand one list into
+another. For example, `[1, ...[2, 3]]` evaluates to `[1, 2, 3]`.
+
+By [@jachris](https://github.com/jachris) in [#4729](https://github.com/tenzir/tenzir/pull/4729).
+
+### Expose new hash functions
+
+We've added new hash functions for commonly used algorithms: `hash_md5`,
+`hash_sha1`, `hash_sha224`, `hash_sha256`, `hash_sha384`, `hash_sha512`,
+`hash_xxh3`.
+
+By [@mavam](https://github.com/mavam) in [#4705](https://github.com/tenzir/tenzir/pull/4705).
+
+### Add a `splunk` sink operator
+
+The new `to_splunk` sink operator writes data to Splunk HEC endpoint.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4719](https://github.com/tenzir/tenzir/pull/4719).
+
+## Changes
+
+### `splunk` fixes & consistent operator naming
+
+We renamed the TQL2 `azure_log_analytics` operator to `to_azure_log_analytics`.
+
+We renamed the TQL2 `velociraptor` operator to `from_velociraptor`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4726](https://github.com/tenzir/tenzir/pull/4726).
+
+## Bug Fixes
+
+### Correctly handle duplicate serve requests and tune some logs
+
+We eliminated a rare crash in the `serve` operator that was introduced in
+v4.20.3.
+
+By [@tobim](https://github.com/tobim) in [#4715](https://github.com/tenzir/tenzir/pull/4715).
+
+### Fix TQL2 `summarize` with no groups and no input
+
+TQL2's `summarize` now returns a single event when used with no groups and no
+input events just like in TQL1, making `from [] | summarize count=count()`
+return `{count: 0}` instead of nothing.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4709](https://github.com/tenzir/tenzir/pull/4709).
+
+### Make `str(enum)` return the name of the enum entry
+
+The `str` function no longer returns the numeric index of an enumeration value.
+Instead, the result is now the actual name associated with that value.
+
+By [@jachris](https://github.com/jachris) in [#4717](https://github.com/tenzir/tenzir/pull/4717).

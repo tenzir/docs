@@ -1,0 +1,80 @@
+---
+title: VAST v1.0.0
+sidebar:
+  badge:
+    text: v1.0.0
+    variant: note
+---
+
+## Features
+
+### Introduce the `#import_time` meta extractor
+
+The `#import_time` meta extractor allows for querying events based on the time
+they arrived at the VAST server process. It may only be used for comparisons
+with [time value
+literals](https://vast.io/docs/understand/query-language/expressions#values),
+e.g., `vast export json '#import_time > 1 hour ago'` exports all events that
+were imported within the last hour as NDJSON.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2019](https://github.com/tenzir/tenzir/pull/2019).
+
+### Add a `--omit-nulls` option to the JSON export
+
+The new `--omit-nulls` option to the `vast export json` command causes VAST to
+skip over fields in JSON objects whose value is `null` when rendering them.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2004](https://github.com/tenzir/tenzir/pull/2004).
+
+### Create projection plugin
+
+VAST has a new transform step: `project`, which keeps the fields with configured
+key suffixes and removes the rest from the input. At the same time, the `delete`
+transform step can remove not only one but multiple fields from the input based
+on the configured key suffixes.
+
+By [@6yozo](https://github.com/6yozo) in [#2000](https://github.com/tenzir/tenzir/pull/2000).
+
+### Implement a selection transform plugin
+
+VAST has a new transform step: `select`, which keeps rows matching the
+configured expression and removes the rest from the input.
+
+By [@6yozo](https://github.com/6yozo) in [#2014](https://github.com/tenzir/tenzir/pull/2014).
+
+## Changes
+
+### Upgrade the minimum Arrow dependency to 6.0
+
+Building VAST now requires Arrow >= 6.0.
+
+By [@dispanser](https://github.com/dispanser) in [#2033](https://github.com/tenzir/tenzir/pull/2033).
+
+### Prepare repository for VAST v1.0.0-rc1
+
+VAST no longer uses calendar-based versioning. Instead, it uses a semantic
+versioning scheme. A new VERSIONING.md document installed alongside VAST
+explores the semantics in-depth.
+
+Plugins now have a separate version. The build scaffolding installs README.md
+and CHANGELOG.md files in the plugin source tree root automatically.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2035](https://github.com/tenzir/tenzir/pull/2035).
+
+## Bug Fixes
+
+### Create intermediate dirs for db-directory and respect schema-dirs in bare mode
+
+VAST no longer ignores the `--schema-dirs` option when using `--bare-mode`.
+
+Starting VAST no longer fails if creating the database directory requires
+creating intermediate directories.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2046](https://github.com/tenzir/tenzir/pull/2046).
+
+### Start the telemetry loop of the index correctly
+
+The index now emits the metrics `query.backlog.{low,normal}` and
+`query.workers.{idle,busy}` reliably.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2032](https://github.com/tenzir/tenzir/pull/2032).

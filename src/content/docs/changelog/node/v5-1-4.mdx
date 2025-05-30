@@ -1,0 +1,25 @@
+---
+title: Tenzir Node v5.1.4
+sidebar:
+  badge:
+    text: v5.1.4
+    variant: tip
+---
+
+## Bug Fixes
+
+### Do not ignore the `tenzir.zstd-compression-level` option
+
+The `tenzir.zstd-compression-level` option now works again as advertised for
+setting the Zstd compression level for the partitions written by the `import`
+operator. For the past few releases, newly written partitions unconditionally
+used the default compression level.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5183](https://github.com/tenzir/tenzir/pull/5183).
+
+### Fix lifetime issues and small bugs in `write_syslog`
+
+We fixed a crash in `write_syslog` when receiving unexpected inputs and improved
+some diagnostics.
+
+By [@raxyte](https://github.com/raxyte) in [#5180](https://github.com/tenzir/tenzir/pull/5180).

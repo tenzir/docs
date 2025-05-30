@@ -1,0 +1,110 @@
+---
+title: VAST v1.1.0
+sidebar:
+  badge:
+    text: v1.1.0
+    variant: success
+---
+
+## Features
+
+### PRs 2064-2082
+
+The built-in `select` and `project` transform steps now correctly handle
+dropping all rows and columns respectively, effectively deleting the input
+data.
+
+By [@lava](https://github.com/lava) in [#2064](https://github.com/tenzir/tenzir/pull/2064).
+
+### Add new query language plugin
+
+VAST has a new *query language* plugin type that allows for adding additional
+query language frontends. The plugin performs one function: compile user input
+into a VAST expression. The new `sigma` plugin demonstrates usage of this plugin
+type.
+
+By [@mavam](https://github.com/mavam) in [#2074](https://github.com/tenzir/tenzir/pull/2074).
+
+### Implement a generic aggregation transform step
+
+The new built-in `rename` transform step allows for renaming event types
+during a transformation. This is useful when you want to ensure that a
+repeatedly triggered transformation does not affect already transformed
+events.
+
+The new `aggregate` transform plugin allows for flexibly grouping and
+aggregating events. We recommend using it alongside the [`compaction`
+plugin](https://vast.io/docs/about/use-cases/data-aging), e.g., for rolling
+up events into a more space-efficient representation after a certain amount of
+time.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2076](https://github.com/tenzir/tenzir/pull/2076).
+
+## Changes
+
+### Correctly handle partition transforms without output
+
+We fixed an issue where partition transforms that erase complete partitions
+trigger an internal assertion failure.
+
+By [@lava](https://github.com/lava) in [#2123](https://github.com/tenzir/tenzir/pull/2123).
+
+### Log actor names together with the unique actor ID
+
+Actor names in log messages now have an `-ID` suffix to make it easier to tell
+multiple instances of the same actor apart, e.g., `exporter-42`.
+
+By [@tobim](https://github.com/tobim) in [#2119](https://github.com/tenzir/tenzir/pull/2119).
+
+### Deprecate the msgpack table slice
+
+The `msgpack` encoding option is now deprecated. VAST issues a warning on
+startup and automatically uses the `arrow` encoding instead. A future version of
+VAST will remove this option entirely.
+
+The experimental aging feature is now deprecated. The [compaction
+plugin](https://vast.io/docs/about/use-cases/data-aging) offers a superset
+of the aging functionality.
+
+By [@tobim](https://github.com/tobim) in [#2087](https://github.com/tenzir/tenzir/pull/2087).
+
+### Add new query language plugin
+
+VAST no longer attempts to intepret query expressions as Sigma rules
+automatically. Instead, this functionality moved to a dedicated `sigma` query
+language plugin that must explicitly be enabled at build time.
+
+By [@mavam](https://github.com/mavam) in [#2074](https://github.com/tenzir/tenzir/pull/2074).
+
+## Bug Fixes
+
+### Improve name lookup in meta index to reduce FPs
+
+A performance bug in the first stage of query evaluation caused VAST to return
+too many candidate partitions when querying for a field suffix. For example, a
+query for the `ts` field commonly used in Zeek logs also included partitions for
+`netflow.pkts` from `suricata.netflow` events. This bug no longer exists,
+resulting in a considerable speedup of affected queries.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#2086](https://github.com/tenzir/tenzir/pull/2086).
+
+### Send initial db state to new partition creation listeners
+
+We fixed a bug that potentially resulted in the wrong subset of partitions to be
+considered during query evaluation.
+
+By [@lava](https://github.com/lava) in [#2103](https://github.com/tenzir/tenzir/pull/2103).
+
+### Fix hanging queries
+
+VAST does not lose query capacity when backlogged queries are cancelled any
+more.
+
+By [@tobim](https://github.com/tobim) in [#2092](https://github.com/tenzir/tenzir/pull/2092).
+
+### Adjust index statistics for partition transforms
+
+VAST now correctly adjusts the index statistics when applying partition
+transforms.
+
+By [@lava](https://github.com/lava) in [#2097](https://github.com/tenzir/tenzir/pull/2097).

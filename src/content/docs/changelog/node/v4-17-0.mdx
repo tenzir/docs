@@ -1,0 +1,137 @@
+---
+title: Tenzir Node v4.17.0
+sidebar:
+  badge:
+    text: v4.17.0
+    variant: success
+---
+
+## Features
+
+### Fix a potential crash in `enrich --replace`
+
+The `enrich` operator no longer crashes when it is used to replace a field value with a context value of a different type and the context is not able to provide a substitute for all inputs.
+
+By [@tobim](https://github.com/tobim) in [#4291](https://github.com/tenzir/tenzir/pull/4291).
+
+### Implement the `azure-log-analytics` plugin
+
+The new `azure-log-analytics` operator makes it possible to upload events to
+supported or custom tables in Microsoft Azure.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4281](https://github.com/tenzir/tenzir/pull/4281).
+
+### Make the parallel level in `lookup` configurable
+
+The `lookup` operator gained a new `--parallel <level>` option controlling the
+number of partitions the operator is allowed to open at once for retrospective
+lookups. This can significantly increase performance at the cost of higher
+resource usage. The option defaults to 3. To restore the previous behavior, set
+the option to 1.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4300](https://github.com/tenzir/tenzir/pull/4300).
+
+### Add the `ttl` to the `/pipeline/list` API
+
+The `/pipeline/list` API now includes a new `ttl` field showing the TTL of the
+pipeline. The remaining TTL moved from `ttl_expires_in_ns` to a `remaining_ttl`
+field, aligning the output of the API with the `show pipelines` operator.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4314](https://github.com/tenzir/tenzir/pull/4314).
+
+### Allow pip to write to stdout in venv creation
+
+We fixed bug that caused python-pip to fail when creating the runtime
+environment for the python operator.
+
+By [@tobim](https://github.com/tobim) in [#4279](https://github.com/tenzir/tenzir/pull/4279).
+
+### Add a `rendered` field to diagnostics
+
+Newly created diagnostics returned from the `diagnostics` now contain a
+`rendered` field that contains a rendered form of the diagnostic. To restore the
+previous behavior, use `diagnostics | drop rendered`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4290](https://github.com/tenzir/tenzir/pull/4290).
+
+### Fix healthcheck in docker-compose.yaml
+
+`context update <name>` for `lookup-table` contexts now supports per-entry
+timeouts. The `--create-timeout <duration>` option sets the time after which
+lookup table entries expire, and the `--update-timeout <duration>` option sets
+the time after which lookup table entries expire if they are not accessed.
+
+By [@lo-chr](https://github.com/lo-chr) in [#5126](https://github.com/tenzir/tenzir/pull/5126).
+
+### Print Operator
+
+The `print` operator allows for printing record fields as strings with any
+format.
+
+By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4265](https://github.com/tenzir/tenzir/pull/4265).
+
+## Changes
+
+### Remove built-in type aliases
+
+The built-in type aliases `timestamp` and `port` for `time` and `uint64`,
+respectively, no longer exist. They were an artifact of Tenzir from before it
+supported schema inference in most parsers, and did not play well with many
+operators when used together with inferred types from other parsers.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4299](https://github.com/tenzir/tenzir/pull/4299).
+
+### Include hidden pipelines in `show pipelines`
+
+`show pipelines` now includes "hidden" pipelines run by the by the Tenzir
+Platform or through the API. These pipelines usually run background jobs, so
+they're intentionally hidden from the `/pipeline/list` API.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4309](https://github.com/tenzir/tenzir/pull/4309).
+
+## Bug Fixes
+
+### Make `ip == subnet` and `string == pattern` commutative
+
+`subnet == ip` and `pattern == string` predicates now behave just like `ip ==
+subnet` and `string == pattern` predicates.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4280](https://github.com/tenzir/tenzir/pull/4280).
+
+### Fix start abort error message
+
+Errors during pipeline startup are properly propagated instead of being replaced
+by `error: failed to run` in some situations.
+
+By [@jachris](https://github.com/jachris) in [#4288](https://github.com/tenzir/tenzir/pull/4288).
+
+### Add missing `-X` option for `kafka` saver
+
+The `-X` option for overriding configuration options for `librdkafka` now works
+the `kafka` saver as well. Previously, the option was only exposed for the
+loader, unlike advertised in the documentation.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4317](https://github.com/tenzir/tenzir/pull/4317).
+
+### Tone down execution node backoff behavior
+
+We fixed a regression that caused excess CPU usage for some operators when idle.
+This was most visible with the `subscribe`, `export`, `metrics`, `diagnostics`,
+`lookup` and `enrich` operators.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4297](https://github.com/tenzir/tenzir/pull/4297).
+
+### Implement the `azure-log-analytics` plugin
+
+The `https` and related savers now signal an error when the saver-related
+upload fails.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4281](https://github.com/tenzir/tenzir/pull/4281).
+
+### Fix using `summarize … by x` when `x` is of type `null`
+
+The `summarize` operator no longer crashes when grpuping by a field of type
+`null`, i.e., a field whose type could not be inferred because all of its values
+were `null`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4289](https://github.com/tenzir/tenzir/pull/4289).
