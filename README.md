@@ -45,7 +45,7 @@ can find a preview of the new documentation at
 - [x] TQL syntax highlighting
 - [x] Fix sliding top nav bar on Firefox
 - [x] Fix sizing calculator iframe height (CSS?)
-- [ ] Fix github-{light,dark} syntax theme selection
+- [x] Fix github-{light,dark} syntax theme selection
 - [x] Fix Integrations tab not being bold font inside
 - [ ] Do CSS magic to fuse subsequent TQL code blocks
 - [x] Apply CSS and get a facelift
