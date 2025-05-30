@@ -303,8 +303,9 @@ def process_release(
             entries[type_].append(entry)
             valid_entry_found = True
 
-    if not valid_entry_found:
-        print(f"⚠️ No valid changelog entries found for {release_file.name}; skipping", file=sys.stderr)
+    # Allow releases with only title and description, no entries required
+    if not valid_entry_found and not title and not description:
+        print(f"⚠️ No valid changelog entries, title, or description found for {release_file.name}; skipping", file=sys.stderr)
         return False
 
     # Generate MDX file
@@ -321,20 +322,28 @@ def process_release(
                 f.write(f"    variant: {get_badge_variant(version)}\n")
             f.write("---\n\n")
 
-            # Write description if present
+            # Collect content parts to write
+            content_parts = []
+            
+            # Add description if present
             if description:
-                f.write(f"{description}\n\n")
+                content_parts.append(description)
 
-            # Write sections
+            # Add sections if present
             sections_written = []
             for type_key in SECTION_TITLES:
                 if entries[type_key]:
                     section_content = f"## {SECTION_TITLES[type_key]}\n\n"
                     section_content += "\n\n".join(entries[type_key])
                     sections_written.append(section_content)
-
+            
             if sections_written:
-                f.write("\n\n".join(sections_written))
+                content_parts.append("\n\n".join(sections_written))
+            
+            # Write content with proper spacing
+            if content_parts:
+                f.write("\n\n".join(content_parts))
+                f.write("\n")
 
         try:
             print(f"✅ Generated {output_path.relative_to(Path.cwd())}")
