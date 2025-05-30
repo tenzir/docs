@@ -489,8 +489,8 @@ def update_sidebar_file(
 
         # Generate TypeScript paths for this product
         ts_paths = []
-        if next_version:
-            ts_paths.append(f'  "changelog/{product}/{next_version[1]}",')
+        # Always include "next" entry regardless of whether it exists
+        ts_paths.append(f'  "changelog/{product}/next",')
         for version_name, filename_version, _ in other_versions:
             ts_paths.append(f'  "changelog/{product}/{filename_version}",')
 
@@ -638,6 +638,8 @@ def main():
     # Find unreferenced changes and generate next release if needed
     unreferenced = find_unreferenced_changes(release_files, changes_map)
     next_file = None
+    
+    # Always generate a next.mdx file
     if unreferenced:
         print(
             f"ℹ️ Found {len(unreferenced)} unreferenced changes, generating 'next' release"
@@ -646,6 +648,20 @@ def main():
         if next_file:
             release_files.append(next_file)
             release_files.sort()  # Re-sort to ensure proper order
+    else:
+        # Create an empty next.mdx file if no unreferenced changes
+        print("ℹ️ No unreferenced changes, creating empty 'next' release")
+        next_output_path = output_dir / "next.mdx"
+        try:
+            next_output_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(next_output_path, "w") as f:
+                f.write("---\n")
+                f.write("title: Next\n")
+                f.write("---\n\n")
+                f.write("Unreleased changes.\n")
+            print(f"✅ Generated: {next_output_path.name}")
+        except Exception as e:
+            print(f"❌ Error creating empty next.mdx: {e}", file=sys.stderr)
 
     success_count = 0
     versions_info = []
