@@ -57,8 +57,8 @@ can find a preview of the new documentation at
 - [x] Figure out if changesets work
 - [x] Come up with a distributed changelog editing workflow
 - [x] Write script to update Changelog pages in this repo
-- [ ] Create CI job in tenzir/tenzir
-- [ ] Create CI job in tenzir/platform
+- [x] Create CI job in tenzir/tenzir
+- [x] Create CI job in tenzir/platform
 
 ### Content
 
