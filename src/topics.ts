@@ -1,5 +1,6 @@
 import { guides, tutorials, explanations, reference, integrations } from './sidebar';
-import { changelog_node, changelog_platform } from './sidebar-changelog';
+import { changelog_node } from './sidebar-changelog-node';
+import { changelog_platform } from './sidebar-changelog-platform';
 
 export const topics = [
   {

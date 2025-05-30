@@ -30,7 +30,7 @@ The script modifies files in this repository:
 
 - MDX files in `/src/content/docs/changelog/{product}/`
 - An index page listing all versions
-- Updates to `/src/sidebar-changelog.ts`
+- Updates to `/src/sidebar-changelog-{product}.ts`
 
 ### Template Structure
 
