@@ -85,11 +85,12 @@ jobs:
 
       - name: Commit changes
         run: |
+          product="Tenzir ${{ inputs.product == 'node' && 'Node' || 'Platform' }}"
           if git diff --quiet; then
-            echo "ℹ️ No changes needed for ${{ inputs.product }} documentation"
+            echo "ℹ️ No changes needed for $product documentation"
           else
             git add .
-            git commit -m "docs: update ${{ inputs.product }} documentation [skip ci]"
+            git commit -m "Update $product documentation"
             git push
-            echo "✅ Documentation updated and committed for ${{ inputs.product }}"
+            echo "✅ Updated and committed $product documentation"
           fi
