@@ -438,13 +438,10 @@ def update_sidebar_file(product: str, versions_info: List[Tuple[str, str]], side
             if version_name == 'next':
                 next_version = (version_name, filename_version)
             elif version_name.startswith('v'):
-                # Only include v* (SemVer) versions in sidebar, exclude old VAST (CalVer) versions
+                # Only include v4+ (Tenzir) versions in sidebar, exclude old VAST v1-v3 versions
                 semver = parse_semver(version_name)
-                if semver:
+                if semver and semver[0] >= 4:  # Only include major version 4 and above
                     other_versions.append((version_name, filename_version, semver))
-                else:
-                    # Non-semver versions with v prefix go at the end
-                    other_versions.append((version_name, filename_version, (float('inf'), version_name)))
         
         # Sort by semver (newest first)
         other_versions.sort(key=lambda x: x[2], reverse=True)
