@@ -1,14 +1,12 @@
 # Changelog
 
-This directory accumulates changelog files from our various repositories.
-
-For every new commit to `main`, a GitHub Actions workflow looks for changes in
-this directory and—on change—re-creates the changelog that we serve at
-`/changelog`.
+This directory contains the tooling for generating the changelog pages from a
+template directory structure.
 
 ## Usage
 
-We provide a Python script to generate the Markdown pages.
+We provide a Python script to generate the changelog pages from a template
+directory structure.
 
 First, install the dependencies:
 
@@ -16,24 +14,54 @@ First, install the dependencies:
 poetry install --no-root
 ```
 
-Then run the script in this directory:
+Then run the script with the product name and template directory `dir`:
 
 ```sh
-poetry run ./changelog.py
+poetry run ./changelog.py --product=node <dir>
+poetry run ./changelog.py --product=platform <dir>
 ```
 
-This generates two things: (i) a directory `mdx` with the generated MDX files,
-and (ii) a file `sidebar-changelog.ts` to be included during the build process.
+The template directory must contain:
 
-To overwrite the generated files in this repository—which you want for
-production invocations in CI—call the script with the following arguments
-relative to this directory:
+- `releases/`: YAML files defining each release (e.g., `v1.2.3.yaml`)
+- `changes/`: Markdown files with individual changelog entries
 
-```sh
-poetry run ./changelog.py \
-  --output-dir ../src/content/docs/changelog/ \
-  --sidebar-file ../src/sidebar-changelog.ts
+The script modifies files in this repository:
+
+- MDX files in `/src/content/docs/changelog/{product}/`
+- An index page listing all versions
+- Updates to `/src/sidebar-changelog.ts`
+
+### Template Structure
+
+Each release YAML file (`releases/*.yaml`) contains:
+
+```yaml
+title: Release Title
+description: |
+  Optional release description.
+changes:
+  - change-file-basename-1
+  - change-file-basename-2
 ```
+
+Each change file (`changes/*.md`) contains:
+
+```markdown
+---
+title: Change Title
+type: feature|change|bugfix
+authors: [author1, author2]
+pr: 1234
+---
+
+Description of the change.
+```
+
+### Automatic "Next" Release
+
+The script automatically generates a "next" release containing all unreferenced
+changes (changes not listed in any release YAML file).
 
 Finally, use `git status` to understand what changed compared to the previous
 version.
