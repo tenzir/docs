@@ -80,11 +80,30 @@ jobs:
         run: |
           echo "Updating Tenzir Platform docs..."
 
-      - name: Set up Git user
-        uses: fregante/setup-git-user@v2
+      - name: Generate a app token
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_AUTOBUMPER_APP_ID }}
+          private-key: ${{ secrets.TENZIR_AUTOBUMPER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Set up GPG for signing
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
 
       - name: Commit changes
+        env:
+          GITHUB_APP_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
+          git config --global user.name 'tenzir-bot'
+          git config --global user.email 'engineering@tenzir.com'
+          git remote set-url origin https://x-access-token:$GITHUB_APP_TOKEN@github.com/tenzir/docs.git
           product="Tenzir ${{ inputs.product == 'node' && 'Node' || 'Platform' }}"
           if git diff --quiet; then
             echo "ℹ️ No changes needed for $product documentation"
