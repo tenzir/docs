@@ -1,10 +1,13 @@
 ---
-title: Tenzir Node v5.1.0
+title: Moving Fields
 sidebar:
   badge:
     text: v5.1.0
     variant: success
 ---
+
+Tenzir Node v5.1 adds more flexible ways to access and move fields, bitwise
+functions, and a native integration with Google Cloud Logging.
 
 ## ✨ Features
 
@@ -66,7 +69,7 @@ By [@dominiklohmann](https://github.com/dominiklohmann) in [#5129](https://githu
 
 ## 🔄 Changes
 
-### Implement `to_google_cloud_logging`
+### Assume UTF8 in `file_contents`
 
 The `file_contents` function now returns contents as `string` by default.
 Non-UTF-8 files can be read by specifying the `binary=true` option.
@@ -98,7 +101,7 @@ under very rare circumstances. This now works as expected.
 
 By [@jachris](https://github.com/jachris) in [#5134](https://github.com/tenzir/tenzir/pull/5134).
 
-### Implement `to_google_cloud_logging`
+### Fix TLS options in `from_http`
 
 We fixed a bug in parsing the TLS options for the `from_http` operator,
 preventing disabling of TLS.
