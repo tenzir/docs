@@ -29,6 +29,40 @@ const options = Astro.props.options || [
 </starlight-theme-select>
 
 <script is:inline>
+	// Apply theme immediately to prevent flash
+	(function() {
+		const parseTheme = (theme) => 
+			theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+		
+		const getPreferredColorScheme = () =>
+			matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+		
+		// Check URL parameter first
+		const urlParams = new URLSearchParams(window.location.search);
+		const urlTheme = urlParams.get('theme');
+		let theme;
+		
+		if (urlTheme) {
+			// Store that theme was forced via URL parameter
+			if (typeof sessionStorage !== 'undefined') {
+				sessionStorage.setItem('forced-theme', urlTheme);
+			}
+			theme = parseTheme(urlTheme);
+		} else {
+			// Check if theme was previously forced via URL parameter
+			const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+			if (forcedTheme) {
+				theme = parseTheme(forcedTheme);
+			} else {
+				// Fall back to localStorage
+				theme = parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme'));
+			}
+		}
+		
+		// Apply theme immediately
+		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
+	})();
+	
 	StarlightThemeProvider.updatePickers();
 </script>
 
@@ -41,21 +75,33 @@ const options = Astro.props.options || [
 		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
 	const loadTheme = (): Theme => {
-		// Check if we have a theme parameter in the URL
-		const urlParams = new URLSearchParams(window.location.search);
-		const urlTheme = urlParams.get('theme');
-		if (urlTheme) {
-			return parseTheme(urlTheme);
+		// Theme detection is now handled in the inline script above
+		// Just read from the document element
+		const currentTheme = document.documentElement.dataset.theme;
+		const preferredTheme = getPreferredColorScheme();
+		
+		// If current theme matches preferred, it's likely 'auto'
+		if (currentTheme === preferredTheme) {
+			// Check if it's actually forced or auto
+			const urlParams = new URLSearchParams(window.location.search);
+			const urlTheme = urlParams.get('theme');
+			const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+			
+			if (urlTheme || forcedTheme) {
+				return parseTheme(urlTheme || forcedTheme);
+			} else {
+				return 'auto';
+			}
 		}
 		
-		// Fall back to localStorage
-		return parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+		return parseTheme(currentTheme);
 	};
 
 	function storeTheme(theme: Theme) {
-		// Don't store the theme if it's forced via URL parameter
+		// Don't store the theme if it's forced via URL parameter or session
 		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.has('theme')) {
+		const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+		if (urlParams.has('theme') || forcedTheme) {
 			return;
 		}
 		
@@ -74,23 +120,30 @@ const options = Astro.props.options || [
 	}
 
 	matchMedia(`(prefers-color-scheme: light)`).addEventListener('change', () => {
-		if (loadTheme() === 'auto') onThemeChange('auto');
+		// Only react to system preference changes if theme is not forced
+		const urlParams = new URLSearchParams(window.location.search);
+		const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+		
+		if (!urlParams.has('theme') && !forcedTheme && loadTheme() === 'auto') {
+			onThemeChange('auto');
+		}
 	});
 
 	class StarlightThemeSelect extends HTMLElement {
 		constructor() {
 			super();
 			const theme = loadTheme();
-			onThemeChange(theme);
+			// Don't call onThemeChange here since theme is already applied
 			
 			// Update the select element to show the current theme
 			const select = this.querySelector('select');
 			if (select) {
 				select.value = theme;
 				
-				// Hide the theme selector if theme is forced via URL
+				// Hide the theme selector if theme is forced via URL or session
 				const urlParams = new URLSearchParams(window.location.search);
-				if (urlParams.has('theme')) {
+				const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+				if (urlParams.has('theme') || forcedTheme) {
 					// Hide the entire theme selector component
 					this.style.display = 'none';
 					
@@ -103,6 +156,18 @@ const options = Astro.props.options || [
 				
 				select.addEventListener('change', (e) => {
 					if (e.currentTarget instanceof HTMLSelectElement) {
+						// Clear forced theme when user manually changes it
+						// This allows the theme selector to reappear and function normally
+						if (typeof sessionStorage !== 'undefined') {
+							sessionStorage.removeItem('forced-theme');
+						}
+						// Show the theme selector again
+						this.style.display = 'inline-block';
+						// Restore the social icons divider
+						const socialIcons = document.querySelector('.social-icons');
+						if (socialIcons) {
+							socialIcons.style.setProperty('--sl-social-icons-after-display', 'block');
+						}
 						onThemeChange(parseTheme(e.currentTarget.value));
 					}
 				});
