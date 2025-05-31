@@ -132,14 +132,15 @@ async function processReferenceFiles(dirPath, items = [], basePath, urlPrefix) {
       const { data, content: body } = parseFrontmatter(content);
 
       const itemName = data.title || entry.name.replace(/\.(md|mdx)$/, "");
+      const fileName = entry.name.replace(/\.(md|mdx)$/, "");
 
       // Calculate relative path from base directory
       const relativePath = path.relative(basePath, fullPath);
       const urlPath = path.dirname(relativePath).replace(/\\/g, "/");
       const finalPath =
         urlPath === "."
-          ? `${urlPrefix}/${itemName}`.substring(1)
-          : `${urlPrefix}/${urlPath}/${itemName}`.substring(1);
+          ? `${urlPrefix}/${fileName}`.substring(1)
+          : `${urlPrefix}/${urlPath}/${fileName}`.substring(1);
 
       // Handle multiple categories
       let categories;

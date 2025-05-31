@@ -150,71 +150,71 @@ operators:
   - name: 'context::create_bloom_filter'
     description: 'Creates a Bloom filter context.'
     example: 'context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01'
-    path: 'reference/operators/context/context::create_bloom_filter'
+    path: 'reference/operators/context/create_bloom_filter'
   - name: 'context::create_geoip'
     description: 'Creates a GeoIP context.'
     example: 'context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"'
-    path: 'reference/operators/context/context::create_geoip'
+    path: 'reference/operators/context/create_geoip'
   - name: 'context::create_lookup_table'
     description: 'Creates a lookup table context.'
     example: 'context::create_lookup_table "ctx"'
-    path: 'reference/operators/context/context::create_lookup_table'
+    path: 'reference/operators/context/create_lookup_table'
   - name: 'context::enrich'
     description: 'Resets data with a context.'
     example: 'context::enrich "ctx", key=x'
-    path: 'reference/operators/context/context::enrich'
+    path: 'reference/operators/context/enrich'
   - name: 'context::erase'
     description: 'Removes entries from a context.'
     example: 'context::erase "ctx", key=x'
-    path: 'reference/operators/context/context::erase'
+    path: 'reference/operators/context/erase'
   - name: 'context::inspect'
     description: 'Resets a context.'
     example: 'context::inspect "ctx"'
-    path: 'reference/operators/context/context::inspect'
+    path: 'reference/operators/context/inspect'
   - name: 'context::list'
     description: 'Lists all contexts'
     example: 'context::list'
-    path: 'reference/operators/context/context::list'
+    path: 'reference/operators/context/list'
   - name: 'context::load'
     description: 'Loads context state.'
     example: 'context::load "ctx"'
-    path: 'reference/operators/context/context::load'
+    path: 'reference/operators/context/load'
   - name: 'context::remove'
     description: 'Deletes a context.'
     example: 'context::remove "ctx"'
-    path: 'reference/operators/context/context::remove'
+    path: 'reference/operators/context/remove'
   - name: 'context::reset'
     description: 'Resets a context.'
     example: 'context::reset "ctx"'
-    path: 'reference/operators/context/context::reset'
+    path: 'reference/operators/context/reset'
   - name: 'context::save'
     description: 'Saves context state.'
     example: 'context::save "ctx"'
-    path: 'reference/operators/context/context::save'
+    path: 'reference/operators/context/save'
   - name: 'context::update'
     description: 'Updates a context with new data.'
     example: 'context::update "ctx", key=x, value=y'
-    path: 'reference/operators/context/context::update'
+    path: 'reference/operators/context/update'
   - name: 'package::remove'
     description: 'Uninstalls a package.'
     example: 'package::remove "suricata-ocsf"'
-    path: 'reference/operators/package/package::remove'
+    path: 'reference/operators/package/remove'
   - name: 'context::list'
     description: 'Lists all contexts'
     example: 'context::list'
-    path: 'reference/operators/context/context::list'
+    path: 'reference/operators/context/list'
   - name: 'packag::list'
     description: 'Shows installed packages.'
     example: 'package::list'
-    path: 'reference/operators/package/packag::list'
+    path: 'reference/operators/package/list'
   - name: 'package::add'
     description: 'Installs a package.'
     example: 'package::add "suricata-ocsf"'
-    path: 'reference/operators/package/package::add'
+    path: 'reference/operators/package/add'
   - name: 'pipeline::list'
     description: 'Shows managed pipelines.'
     example: 'pipeline::list'
-    path: 'reference/operators/pipeline/pipeline::list'
+    path: 'reference/operators/pipeline/list'
   - name: 'cron'
     description: 'Runs a pipeline periodically according to a cron expression.'
     example: 'cron "* */10 * * * MON-FRI" { from "https://example.org" }'
@@ -426,19 +426,19 @@ operators:
   - name: 'pipeline::activity'
     description: 'Summarizes the activity of pipelines.'
     example: 'pipeline::activity range=1d, interval=1h'
-    path: 'reference/operators/pipeline/pipeline::activity'
+    path: 'reference/operators/pipeline/activity'
   - name: 'pipeline::detach'
     description: 'Starts a pipeline in the node.'
     example: 'pipeline::detach { … }'
-    path: 'reference/operators/pipeline/pipeline::detach'
+    path: 'reference/operators/pipeline/detach'
   - name: 'pipeline::list'
     description: 'Shows managed pipelines.'
     example: 'pipeline::list'
-    path: 'reference/operators/pipeline/pipeline::list'
+    path: 'reference/operators/pipeline/list'
   - name: 'pipeline::run'
     description: 'Starts a pipeline in the node and waits for it to complete.'
     example: 'pipeline::run { … }'
-    path: 'reference/operators/pipeline/pipeline::run'
+    path: 'reference/operators/pipeline/run'
   - name: 'publish'
     description: 'Publishes events to a channel with a topic.'
     example: 'publish "topic"'
@@ -861,7 +861,7 @@ subscribe "topic"
 
 <CardGrid>
 
-<ReferenceCard title="context::create_bloom_filter" description="Creates a Bloom filter context." href="/reference/operators/context/context::create_bloom_filter">
+<ReferenceCard title="context::create_bloom_filter" description="Creates a Bloom filter context." href="/reference/operators/context/create_bloom_filter">
 
 ```tql
 context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01
@@ -869,7 +869,7 @@ context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01
 
 </ReferenceCard>
 
-<ReferenceCard title="context::create_geoip" description="Creates a GeoIP context." href="/reference/operators/context/context::create_geoip">
+<ReferenceCard title="context::create_geoip" description="Creates a GeoIP context." href="/reference/operators/context/create_geoip">
 
 ```tql
 context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"
@@ -877,7 +877,7 @@ context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::create_lookup_table" description="Creates a lookup table context." href="/reference/operators/context/context::create_lookup_table">
+<ReferenceCard title="context::create_lookup_table" description="Creates a lookup table context." href="/reference/operators/context/create_lookup_table">
 
 ```tql
 context::create_lookup_table "ctx"
@@ -885,7 +885,7 @@ context::create_lookup_table "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::enrich" description="Resets data with a context." href="/reference/operators/context/context::enrich">
+<ReferenceCard title="context::enrich" description="Resets data with a context." href="/reference/operators/context/enrich">
 
 ```tql
 context::enrich "ctx", key=x
@@ -893,7 +893,7 @@ context::enrich "ctx", key=x
 
 </ReferenceCard>
 
-<ReferenceCard title="context::erase" description="Removes entries from a context." href="/reference/operators/context/context::erase">
+<ReferenceCard title="context::erase" description="Removes entries from a context." href="/reference/operators/context/erase">
 
 ```tql
 context::erase "ctx", key=x
@@ -901,7 +901,7 @@ context::erase "ctx", key=x
 
 </ReferenceCard>
 
-<ReferenceCard title="context::inspect" description="Resets a context." href="/reference/operators/context/context::inspect">
+<ReferenceCard title="context::inspect" description="Resets a context." href="/reference/operators/context/inspect">
 
 ```tql
 context::inspect "ctx"
@@ -909,7 +909,7 @@ context::inspect "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::list" description="Lists all contexts" href="/reference/operators/context/context::list">
+<ReferenceCard title="context::list" description="Lists all contexts" href="/reference/operators/context/list">
 
 ```tql
 context::list
@@ -917,7 +917,7 @@ context::list
 
 </ReferenceCard>
 
-<ReferenceCard title="context::load" description="Loads context state." href="/reference/operators/context/context::load">
+<ReferenceCard title="context::load" description="Loads context state." href="/reference/operators/context/load">
 
 ```tql
 context::load "ctx"
@@ -925,7 +925,7 @@ context::load "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::remove" description="Deletes a context." href="/reference/operators/context/context::remove">
+<ReferenceCard title="context::remove" description="Deletes a context." href="/reference/operators/context/remove">
 
 ```tql
 context::remove "ctx"
@@ -933,7 +933,7 @@ context::remove "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::reset" description="Resets a context." href="/reference/operators/context/context::reset">
+<ReferenceCard title="context::reset" description="Resets a context." href="/reference/operators/context/reset">
 
 ```tql
 context::reset "ctx"
@@ -941,7 +941,7 @@ context::reset "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::save" description="Saves context state." href="/reference/operators/context/context::save">
+<ReferenceCard title="context::save" description="Saves context state." href="/reference/operators/context/save">
 
 ```tql
 context::save "ctx"
@@ -949,7 +949,7 @@ context::save "ctx"
 
 </ReferenceCard>
 
-<ReferenceCard title="context::update" description="Updates a context with new data." href="/reference/operators/context/context::update">
+<ReferenceCard title="context::update" description="Updates a context with new data." href="/reference/operators/context/update">
 
 ```tql
 context::update "ctx", key=x, value=y
@@ -957,7 +957,7 @@ context::update "ctx", key=x, value=y
 
 </ReferenceCard>
 
-<ReferenceCard title="package::remove" description="Uninstalls a package." href="/reference/operators/package/package::remove">
+<ReferenceCard title="package::remove" description="Uninstalls a package." href="/reference/operators/package/remove">
 
 ```tql
 package::remove "suricata-ocsf"
@@ -1975,7 +1975,7 @@ to_splunk "localhost:8088", …
 
 <CardGrid>
 
-<ReferenceCard title="context::list" description="Lists all contexts" href="/reference/operators/context/context::list">
+<ReferenceCard title="context::list" description="Lists all contexts" href="/reference/operators/context/list">
 
 ```tql
 context::list
@@ -1983,7 +1983,7 @@ context::list
 
 </ReferenceCard>
 
-<ReferenceCard title="packag::list" description="Shows installed packages." href="/reference/operators/package/packag::list">
+<ReferenceCard title="packag::list" description="Shows installed packages." href="/reference/operators/package/list">
 
 ```tql
 package::list
@@ -1991,7 +1991,7 @@ package::list
 
 </ReferenceCard>
 
-<ReferenceCard title="package::add" description="Installs a package." href="/reference/operators/package/package::add">
+<ReferenceCard title="package::add" description="Installs a package." href="/reference/operators/package/add">
 
 ```tql
 package::add "suricata-ocsf"
@@ -1999,7 +1999,7 @@ package::add "suricata-ocsf"
 
 </ReferenceCard>
 
-<ReferenceCard title="pipeline::list" description="Shows managed pipelines." href="/reference/operators/pipeline/pipeline::list">
+<ReferenceCard title="pipeline::list" description="Shows managed pipelines." href="/reference/operators/pipeline/list">
 
 ```tql
 pipeline::list
@@ -2187,7 +2187,7 @@ read_zeek_tsv
 
 <CardGrid>
 
-<ReferenceCard title="pipeline::activity" description="Summarizes the activity of pipelines." href="/reference/operators/pipeline/pipeline::activity">
+<ReferenceCard title="pipeline::activity" description="Summarizes the activity of pipelines." href="/reference/operators/pipeline/activity">
 
 ```tql
 pipeline::activity range=1d, interval=1h
@@ -2195,7 +2195,7 @@ pipeline::activity range=1d, interval=1h
 
 </ReferenceCard>
 
-<ReferenceCard title="pipeline::detach" description="Starts a pipeline in the node." href="/reference/operators/pipeline/pipeline::detach">
+<ReferenceCard title="pipeline::detach" description="Starts a pipeline in the node." href="/reference/operators/pipeline/detach">
 
 ```tql
 pipeline::detach { … }
@@ -2203,7 +2203,7 @@ pipeline::detach { … }
 
 </ReferenceCard>
 
-<ReferenceCard title="pipeline::list" description="Shows managed pipelines." href="/reference/operators/pipeline/pipeline::list">
+<ReferenceCard title="pipeline::list" description="Shows managed pipelines." href="/reference/operators/pipeline/list">
 
 ```tql
 pipeline::list
@@ -2211,7 +2211,7 @@ pipeline::list
 
 </ReferenceCard>
 
-<ReferenceCard title="pipeline::run" description="Starts a pipeline in the node and waits for it to complete." href="/reference/operators/pipeline/pipeline::run">
+<ReferenceCard title="pipeline::run" description="Starts a pipeline in the node and waits for it to complete." href="/reference/operators/pipeline/run">
 
 ```tql
 pipeline::run { … }
