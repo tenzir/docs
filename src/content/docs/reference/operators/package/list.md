@@ -1,7 +1,9 @@
 ---
 title: list
 category: Packages
+example: 'package::list [format=string]'
 ---
+
 
 Shows installed packages.
 

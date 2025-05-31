@@ -1,7 +1,9 @@
 ---
 title: count_if
 category: Aggregation
+example: 'count_if(xs:list, predicate:any => bool) -> int'
 ---
+
 
 Counts the events or non-null grouped values matching a given predicate.
 

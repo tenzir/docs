@@ -1,7 +1,9 @@
 ---
 title: is_lower
 category: String/Inspection
+example: 'is_lower(x:string) -> bool'
 ---
+
 
 Checks if a string is in lowercase.
 

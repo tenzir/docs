@@ -1,7 +1,9 @@
 ---
 title: compress_gzip
 category: Encode & Decode
+example: 'compress_gzip [level=int, window_bits=int, format=string]'
 ---
+
 
 Compresses a stream of bytes using gzip compression.
 

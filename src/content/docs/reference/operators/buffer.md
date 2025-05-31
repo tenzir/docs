@@ -1,7 +1,9 @@
 ---
 title: buffer
 category: Internals
+example: 'buffer [capacity:int, policy=string]'
 ---
+
 
 An in-memory buffer to improve handling of data spikes in upstream operators.
 

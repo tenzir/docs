@@ -1,7 +1,9 @@
 ---
 title: print_yaml
 category: Printing
+example: 'print_yaml( input:any, [include_document_markers=bool] )'
 ---
+
 
 Prints a value as a YAML document.
 

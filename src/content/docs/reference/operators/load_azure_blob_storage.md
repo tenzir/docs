@@ -1,7 +1,9 @@
 ---
 title: load_azure_blob_storage
 category: Inputs/Bytes
+example: 'load_azure_blob_storage uri:string'
 ---
+
 
 Loads bytes from Azure Blob Storage.
 

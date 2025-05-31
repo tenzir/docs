@@ -1,7 +1,9 @@
 ---
 title: encode_hex
 category: Encoding
+example: 'encode_hex(bytes: blob|string) -> string'
 ---
+
 
 Encodes bytes into their hexadecimal representation.
 

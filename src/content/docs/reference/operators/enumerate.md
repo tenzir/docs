@@ -1,7 +1,9 @@
 ---
 title: enumerate
 category: Modify
+example: 'enumerate [out:field]'
 ---
+
 
 Add a field with the number of preceding events.
 

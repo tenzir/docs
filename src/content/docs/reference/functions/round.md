@@ -1,7 +1,9 @@
 ---
 title: round
 category: Math
+example: 'round(x:number)'
 ---
+
 
 Rounds a number or a time/duration with a specified unit.
 

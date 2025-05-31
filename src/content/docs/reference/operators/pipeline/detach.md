@@ -1,7 +1,9 @@
 ---
 title: detach
 category: Pipelines
+example: 'pipeline::detach { … }, [id=string]'
 ---
+
 
 Starts a pipeline in the node.
 

@@ -1,7 +1,9 @@
 ---
 title: now
 category: Time & Date
+example: 'now() -> time'
 ---
+
 
 Gets the current wallclock time.
 

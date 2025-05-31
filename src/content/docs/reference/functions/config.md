@@ -1,7 +1,9 @@
 ---
 title: config
 category: Runtime
+example: 'config() -> record'
 ---
+
 
 Reads Tenzir's configuration file.
 

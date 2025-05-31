@@ -1,7 +1,9 @@
 ---
 title: metrics
 category: Node/Inspection
+example: 'metrics [name:string, live=bool, retro=bool]'
 ---
+
 
 Retrieves metrics events from a Tenzir node.
 

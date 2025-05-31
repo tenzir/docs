@@ -1,7 +1,9 @@
 ---
 title: join
 category: String/Transformation
+example: 'join(xs:list, [separator:string]) -> string'
 ---
+
 
 Joins a list of strings into a single string using a separator.
 

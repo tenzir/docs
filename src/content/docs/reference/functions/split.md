@@ -1,7 +1,9 @@
 ---
 title: split
 category: String/Transformation
+example: 'split(x:string, pattern:string, [max:int], [reverse:bool]) -> list'
 ---
+
 
 Splits a string into substrings.
 

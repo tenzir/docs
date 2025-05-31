@@ -1,7 +1,9 @@
 ---
 title: is_numeric
 category: String/Inspection
+example: 'is_numeric(x:string) -> bool'
 ---
+
 
 Checks if a string contains only numeric characters.
 

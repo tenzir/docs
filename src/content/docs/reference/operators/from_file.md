@@ -1,7 +1,9 @@
 ---
 title: from_file
 category: Inputs/Events
+example: 'from_file url:string, [watch=bool, remove=bool, path_field=field] { … }'
 ---
+
 
 :::warning[Under Active Development]
 This operator is still under active development.

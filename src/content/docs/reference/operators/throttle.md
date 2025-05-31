@@ -1,7 +1,9 @@
 ---
 title: throttle
 category: Flow Control
+example: 'throttle bandwidth:int, [within=duration]'
 ---
+
 
 Limits the bandwidth of a pipeline.
 

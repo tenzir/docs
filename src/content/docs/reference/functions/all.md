@@ -1,7 +1,9 @@
 ---
 title: all
 category: Aggregation
+example: 'all(xs:list) -> bool'
 ---
+
 
 Computes the conjunction (AND) of all grouped boolean values.
 

@@ -1,7 +1,9 @@
 ---
 title: is_alpha
 category: String/Inspection
+example: 'is_alpha(x:string) -> bool'
 ---
+
 
 Checks if a string contains only alphabetic characters.
 

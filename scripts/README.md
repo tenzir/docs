@@ -19,7 +19,7 @@ The function overview generation system automatically creates the main functions
 2. **Category system** supports:
    - **Subcategories** using forward slashes: `String/Inspection`, `Type System/Conversion`
    - **Multiple categories** for functions that work across domains
-   
+
 3. **Generation script** (`generate-functions-overview.js`):
    - Reads all function files
    - Extracts categories from frontmatter (falls back to hardcoded mapping)
@@ -111,7 +111,7 @@ When adding new function documentation:
 
 1. **Create the function file** in `src/content/docs/reference/functions/`
 2. **Add category to frontmatter**:
-   
+
    **Single category:**
    ```yaml
    ---
@@ -119,7 +119,7 @@ When adding new function documentation:
    category: Aggregation
    ---
    ```
-   
+
    **Multiple categories:**
    ```yaml
    ---
@@ -141,7 +141,7 @@ When adding new operator documentation:
 
 1. **Create the operator file** in `src/content/docs/reference/operators/` (or appropriate subdirectory)
 2. **Add category to frontmatter**:
-   
+
    **Single category:**
    ```yaml
    ---
@@ -149,7 +149,7 @@ When adding new operator documentation:
    category: Modify
    ---
    ```
-   
+
    **Multiple categories:**
    ```yaml
    ---

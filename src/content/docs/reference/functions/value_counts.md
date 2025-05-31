@@ -1,7 +1,9 @@
 ---
 title: value_counts
 category: Aggregation
+example: 'value_counts(xs:list) -> list'
 ---
+
 
 Returns a list of all grouped values alongside their frequency.
 

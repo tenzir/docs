@@ -1,7 +1,9 @@
 ---
 title: remove
 category: Contexts
+example: 'package::remove package_id:string'
 ---
+
 
 Uninstalls a package.
 

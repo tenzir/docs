@@ -1,7 +1,9 @@
 ---
 title: legacy
 category: Internals
+example: 'legacy definition:string'
 ---
+
 
 Provides a compatibility fallback to TQL1 pipelines.
 

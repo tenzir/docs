@@ -1,7 +1,9 @@
 ---
 title: flatten
 category: Type System/Transposition
+example: 'flatten(x:record, separtor=string) -> record'
 ---
+
 
 Flattens nested data.
 

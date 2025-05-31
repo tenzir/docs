@@ -1,7 +1,9 @@
 ---
 title: to_upper
 category: String/Transformation
+example: 'to_upper(x:string) -> string'
 ---
+
 
 Converts a string to uppercase.
 

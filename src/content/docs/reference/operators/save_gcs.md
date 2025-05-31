@@ -1,7 +1,9 @@
 ---
 title: save_gcs
 category: Outputs/Bytes
+example: 'save_gcs uri:string, [anonymous=bool]'
 ---
+
 
 Saves bytes to a Google Cloud Storage object.
 

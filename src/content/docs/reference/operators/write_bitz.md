@@ -1,7 +1,9 @@
 ---
 title: write_bitz
 category: Printing
+example: 'write_bitz'
 ---
+
 
 Writes events in *BITZ* format.
 

@@ -1,7 +1,9 @@
 ---
 title: print_xsv
 category: Printing
+example: 'print_xsv(input:record, field_separator=str, list_separator=str, null_value=str) -> string'
 ---
+
 
 Prints a record as a delimited sequence of values.
 

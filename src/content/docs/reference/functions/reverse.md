@@ -1,7 +1,9 @@
 ---
 title: reverse
 category: String/Transformation
+example: 'reverse(x:string) -> string'
 ---
+
 
 Reverses the characters of a string.
 

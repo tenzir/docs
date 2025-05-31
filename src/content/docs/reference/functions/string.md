@@ -1,7 +1,9 @@
 ---
 title: string
 category: Type System/Conversion
+example: 'string(x:any) -> string'
 ---
+
 
 Casts an expression to a string.
 

@@ -1,7 +1,9 @@
 ---
 title: partitions
 category: Node/Storage Engine
+example: 'partitions [predicate:expr]'
 ---
+
 
 Retrieves metadata about events stored at a node.
 

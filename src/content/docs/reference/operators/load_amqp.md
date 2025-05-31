@@ -1,7 +1,9 @@
 ---
 title: load_amqp
 category: Inputs/Bytes
+example: 'load_amqp [url:str, channel=int, exchange=str, routing_key=str, queue=str,'
 ---
+
 
 Loads a byte stream via AMQP messages.
 

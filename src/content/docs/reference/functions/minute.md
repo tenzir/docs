@@ -1,7 +1,9 @@
 ---
 title: minute
 category: Time & Date
+example: 'minute(x: time) -> int'
 ---
+
 
 Extracts the minute component from a timestamp.
 

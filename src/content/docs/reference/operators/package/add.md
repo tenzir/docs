@@ -1,7 +1,9 @@
 ---
 title: add
 category: Packages
+example: 'package::add [package_id:string, inputs=record]'
 ---
+
 
 Installs a package.
 

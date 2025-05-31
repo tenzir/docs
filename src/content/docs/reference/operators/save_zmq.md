@@ -1,7 +1,9 @@
 ---
 title: save_zmq
 category: Outputs/Bytes
+example: 'save_zmq [endpoint:str, listen=bool, connect=bool, monitor=bool]'
 ---
+
 
 Sends bytes as ZeroMQ messages.
 

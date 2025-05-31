@@ -1,7 +1,9 @@
 ---
 title: bit_or
 category: Bit Operations
+example: 'bit_or(lhs:number, rhs:number) -> number'
 ---
+
 
 Computes the bit-wise OR of its arguments.
 

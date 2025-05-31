@@ -1,7 +1,9 @@
 ---
 title: compress_brotli
 category: Encode & Decode
+example: 'compress_brotli [level=int, window_bits=int]'
 ---
+
 
 Compresses a stream of bytes using Brotli compression.
 

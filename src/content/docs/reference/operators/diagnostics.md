@@ -1,7 +1,9 @@
 ---
 title: diagnostics
 category: Node/Inspection
+example: 'diagnostics [live=bool, retro=bool]'
 ---
+
 
 Retrieves diagnostic events from a Tenzir node.
 

@@ -1,7 +1,9 @@
 ---
 title: parent_dir
 category: String/Filesystem
+example: 'parent_dir(x:string) -> string'
 ---
+
 
 Extracts the parent directory from a file path.
 

@@ -1,7 +1,9 @@
 ---
 title: create_bloom_filter
 category: Contexts
+example: 'context::create_bloom_filter name:string, capacity=int, fp_probability=float'
 ---
+
 
 Creates a Bloom filter context.
 

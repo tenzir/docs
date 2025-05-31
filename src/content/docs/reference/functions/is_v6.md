@@ -1,7 +1,9 @@
 ---
 title: is_v6
 category: IP
+example: 'is_v6(x:ip) -> bool'
 ---
+
 
 Checks whether an IP address has version number 6.
 

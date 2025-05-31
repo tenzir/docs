@@ -1,7 +1,9 @@
 ---
 title: sort
 category: Analyze
+example: 'sort [-]expr...'
 ---
+
 
 Sorts events by the given expressions.
 

@@ -1,7 +1,9 @@
 ---
 title: measure
 category: Internals
+example: 'measure [real_time=bool, cumulative=bool]'
 ---
+
 
 Replaces the input with metrics describing the input.
 

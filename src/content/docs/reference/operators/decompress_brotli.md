@@ -1,7 +1,9 @@
 ---
 title: decompress_brotli
 category: Encode & Decode
+example: 'decompress_brotli'
 ---
+
 
 Decompresses a stream of bytes in the Brotli format.
 

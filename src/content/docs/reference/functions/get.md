@@ -1,9 +1,9 @@
 ---
 title: get
-category:
-  - Record
-  - List
+category: List, Record
+example: 'get(x:record, field:string, [fallback:any]) -> any'
 ---
+
 
 Gets a field from a record or an element from a list
 

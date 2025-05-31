@@ -1,6 +1,6 @@
 // @ts-check
 
-/** @type {import('astro-expressive-code').AstroExpressiveCodeOptions} */
+/** @type {import('@astrojs/starlight/expressive-code').AstroExpressiveCodeOptions} */
 export default {
   themes: ['github-light', 'github-dark'],
 }

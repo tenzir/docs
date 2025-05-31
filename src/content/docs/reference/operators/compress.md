@@ -1,7 +1,9 @@
 ---
 title: compress
 category: Encode & Decode
+example: 'compress codec:string, [level=int]'
 ---
+
 
 Compresses a stream of bytes.
 

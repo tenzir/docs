@@ -1,7 +1,9 @@
 ---
 title: from_http
 category: Inputs/Events
+example: 'from_http url:string, [server=bool, responses=record, max_request_size=int,'
 ---
+
 
 Receives HTTP/1.1 requests.
 

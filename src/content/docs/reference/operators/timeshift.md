@@ -1,7 +1,9 @@
 ---
 title: timeshift
 category: Modify
+example: 'timeshift field:time, [start=time, speed=double]'
 ---
+
 
 Adjusts timestamps relative to a given start time, with an optional speedup.
 

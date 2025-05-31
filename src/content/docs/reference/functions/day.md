@@ -1,7 +1,9 @@
 ---
 title: day
 category: Time & Date
+example: 'day(x: time) -> int'
 ---
+
 
 Extracts the day component from a timestamp.
 

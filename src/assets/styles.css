@@ -349,3 +349,45 @@ header[data-scrolled] {
     height: 0.625rem;
   }
 }
+
+/* Fix scrollbars in reference card code blocks */
+.function-card-example pre,
+.function-card-example pre[class*="language-"] {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.function-card-example pre::-webkit-scrollbar,
+.function-card-example pre[class*="language-"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure code content doesn't overflow */
+.function-card-example code,
+.function-card-example code[class*="language-"] {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+
+/* Target Expressive Code specifically */
+.function-card-example .expressive-code,
+.function-card-example .ec-line {
+  overflow: hidden !important;
+}
+
+.function-card-example .expressive-code pre {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.function-card-example .expressive-code pre::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

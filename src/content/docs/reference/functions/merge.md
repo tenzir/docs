@@ -1,7 +1,9 @@
 ---
 title: merge
 category: Record
+example: 'merge(x: record, y: record) -> record'
 ---
+
 
 Combines two records into a single record by merging their fields.
 

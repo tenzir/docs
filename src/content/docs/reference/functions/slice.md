@@ -1,7 +1,9 @@
 ---
 title: slice
 category: String/Inspection
+example: 'slice(x:string, [begin=int, end=int, stride=int])'
 ---
+
 
 Slices a string with offsets and strides.
 

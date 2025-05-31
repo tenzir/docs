@@ -1,7 +1,9 @@
 ---
 title: top
 category: Analyze
+example: 'top x:field'
 ---
+
 
 Shows the most common values. The dual to [`rare`](/reference/operators/rare).
 

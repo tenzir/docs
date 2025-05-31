@@ -1,7 +1,9 @@
 ---
 title: distinct
 category: Aggregation
+example: 'distinct(xs:list) -> list'
 ---
+
 
 Creates a sorted list without duplicates of non-null grouped values.
 

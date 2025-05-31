@@ -1,7 +1,9 @@
 ---
 title: publish
 category: Connecting Pipelines
+example: 'publish [topic:string]'
 ---
+
 
 Publishes events to a channel with a topic.
 

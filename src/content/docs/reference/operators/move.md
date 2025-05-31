@@ -1,7 +1,10 @@
 ---
 title: move
 category: Modify
+example: 'move to=from, …'
 ---
+
+Moves values from one field to another, removing the original field.
 
 ```tql
 move to=from, …

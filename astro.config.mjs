@@ -130,9 +130,9 @@ export default defineConfig({
       },
       langs: [
         {
+          ...tqlLang,
           id: "tql",
           scopeName: "source.tql",
-          ...tqlLang,
         },
         ...Object.keys(bundledLanguages),
       ],

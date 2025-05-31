@@ -1,7 +1,9 @@
 ---
 title: api
 category: Internals
+example: 'api endpoint:string, [request_body:string]'
 ---
+
 
 Use Tenzir's REST API directly from a pipeline.
 

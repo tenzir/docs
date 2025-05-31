@@ -1,7 +1,9 @@
 ---
 title: type_id
 category: Type System/Introspection
+example: 'type_id(x:any) -> string'
 ---
+
 
 Retrieves the type id of an expression.
 

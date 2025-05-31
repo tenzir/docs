@@ -1,7 +1,9 @@
 ---
 title: secret
 category: Runtime
+example: 'secret(x:string) -> string'
 ---
+
 
 Reads a secret from a store.
 

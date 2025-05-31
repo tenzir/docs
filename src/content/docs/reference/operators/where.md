@@ -1,7 +1,9 @@
 ---
 title: where
 category: Filter
+example: 'where predicate:bool'
 ---
+
 
 Keeps only events for which the given predicate is true.
 

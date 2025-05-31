@@ -1,7 +1,9 @@
 ---
 title: local
 category: Internals
+example: 'local { … }'
 ---
+
 
 Forces a pipeline to run locally.
 

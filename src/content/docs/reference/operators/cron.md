@@ -1,7 +1,9 @@
 ---
 title: cron
 category: Flow Control
+example: 'cron schedule:string { … }'
 ---
+
 
 Runs a pipeline periodically according to a cron expression.
 

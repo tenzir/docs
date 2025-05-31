@@ -1,9 +1,9 @@
 ---
 title: sort
-category:
-  - Record
-  - List
+category: List, Record
+example: 'sort(xs:list|record) -> list|record'
 ---
+
 
 Sorts lists and record fields.
 

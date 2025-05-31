@@ -1,7 +1,9 @@
 ---
 title: min
 category: Aggregation
+example: 'min(xs:list) -> number'
 ---
+
 
 Computes the minimum of all grouped values.
 

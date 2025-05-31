@@ -1,7 +1,9 @@
 ---
 title: deduplicate
 category: Filter
+example: 'deduplicate [key:any, limit=int, distance=int, create_timeout=duration,'
 ---
+
 
 Removes duplicate events based on a common key.
 

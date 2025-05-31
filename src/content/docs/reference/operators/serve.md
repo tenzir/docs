@@ -1,7 +1,9 @@
 ---
 title: serve
 category: Internals
+example: 'serve id:string, [buffer_size=int]'
 ---
+
 
 Make events available under the `/serve` REST API endpoint
 

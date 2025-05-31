@@ -1,7 +1,9 @@
 ---
 title: encrypt_cryptopan
 category: Networking
+example: 'encrypt_cryptopan(address:ip, [seed=string])'
 ---
+
 
 Encrypts an IP address via Crypto-PAn.
 

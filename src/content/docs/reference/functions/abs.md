@@ -1,7 +1,9 @@
 ---
 title: abs
 category: Math
+example: 'abs(x:number) -> number'
 ---
+
 
 Returns the absolute value.
 

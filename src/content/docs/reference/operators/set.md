@@ -1,7 +1,9 @@
 ---
 title: set
 category: Modify
+example: 'field = expr'
 ---
+
 
 Assigns a value to a field, creating it if necessary.
 

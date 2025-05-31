@@ -1,7 +1,9 @@
 ---
 title: map
 category: List
+example: 'map(xs:list, capture:field, any => any) -> list'
 ---
+
 
 Maps each list element to an expression.
 

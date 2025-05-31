@@ -1,9 +1,9 @@
 ---
 title: network
-category:
-  - Subnet
-  - IP
+category: IP, Subnet
+example: 'network(x:subnet) -> ip'
 ---
+
 
 Retrieves the network address of a subnet.
 

@@ -1,7 +1,9 @@
 ---
 title: quantile
 category: Aggregation
+example: 'quantile(xs:list, q=float) -> float'
 ---
+
 
 Computes the specified quantile of all grouped values.
 

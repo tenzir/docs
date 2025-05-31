@@ -1,7 +1,9 @@
 ---
 title: decode_hex
 category: Decoding
+example: 'decode_hex(bytes: blob|string) -> blob'
 ---
+
 
 Decodes bytes from their hexadecimal representation.
 

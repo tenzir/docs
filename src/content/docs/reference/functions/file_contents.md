@@ -1,7 +1,9 @@
 ---
 title: file_contents
 category: String/Filesystem
+example: 'file_contents(path:string, [binary=bool]) -> blob|string'
 ---
+
 
 Reads a file's contents.
 

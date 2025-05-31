@@ -1,7 +1,9 @@
 ---
 title: length_bytes
 category: String/Inspection
+example: 'length_bytes(x:string) -> int'
 ---
+
 
 Returns the length of a string in bytes.
 

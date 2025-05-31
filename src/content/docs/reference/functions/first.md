@@ -1,7 +1,9 @@
 ---
 title: first
 category: Aggregation
+example: 'first(xs:list) -> any'
 ---
+
 
 Takes the first non-null grouped value.
 

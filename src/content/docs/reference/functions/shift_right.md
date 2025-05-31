@@ -1,7 +1,9 @@
 ---
 title: shift_right
 category: Bit Operations
+example: 'shift_right(lhs:number, rhs:number) -> number'
 ---
+
 
 Performs a bit-wise right shift.
 

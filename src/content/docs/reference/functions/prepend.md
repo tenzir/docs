@@ -1,7 +1,9 @@
 ---
 title: prepend
 category: List
+example: 'prepend(xs:list, x:any) -> list'
 ---
+
 
 Inserts an element at the start of a list.
 

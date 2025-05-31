@@ -1,7 +1,9 @@
 ---
 title: activity
 category: Pipelines
+example: 'pipeline::activity range=duration, interval=duration'
 ---
+
 
 Summarizes the activity of pipelines.
 

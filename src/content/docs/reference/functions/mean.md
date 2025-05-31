@@ -1,7 +1,9 @@
 ---
 title: mean
 category: Aggregation
+example: 'mean(xs:list) -> float'
 ---
+
 
 Computes the mean of all grouped values.
 

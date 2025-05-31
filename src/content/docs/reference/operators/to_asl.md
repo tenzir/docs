@@ -1,7 +1,9 @@
 ---
 title: to_asl
 category: Outputs/Events
+example: 'to_asl s3_uri:string, region=string, account_id=string, [timeout=duration]'
 ---
+
 
 Sends events to [Amazon Security Lake (ASL)][asl].
 

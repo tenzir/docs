@@ -1,7 +1,9 @@
 ---
 title: create_geoip
 category: Contexts
+example: 'context::create_geoip name:string, [db_path=string]'
 ---
+
 
 Creates a GeoIP context.
 

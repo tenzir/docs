@@ -1,7 +1,9 @@
 ---
 title: bit_xor
 category: Bit Operations
+example: 'bit_xor(lhs:number, rhs:number) -> number'
 ---
+
 
 Computes the bit-wise XOR of its arguments.
 

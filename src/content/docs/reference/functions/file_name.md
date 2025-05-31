@@ -1,7 +1,9 @@
 ---
 title: file_name
 category: String/Filesystem
+example: 'file_name(x:string) -> string'
 ---
+
 
 Extracts the file name from a file path.
 

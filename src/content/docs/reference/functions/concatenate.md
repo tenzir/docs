@@ -1,7 +1,9 @@
 ---
 title: concatenate
 category: List
+example: 'concatenate(xs:list, ys:list) -> list'
 ---
+
 
 Merges two lists.
 

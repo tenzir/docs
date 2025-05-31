@@ -1,7 +1,9 @@
 ---
 title: ceil
 category: Math
+example: 'ceil(x:number)'
 ---
+
 
 Computes the ceiling of a number or a time/duration with a specified unit.
 

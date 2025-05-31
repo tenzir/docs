@@ -1,7 +1,9 @@
 ---
 title: subnet
 category: Type System/Conversion
+example: 'subnet(x:string) -> subnet'
 ---
+
 
 Casts an expression to a subnet value.
 

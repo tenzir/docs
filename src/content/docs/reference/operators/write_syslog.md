@@ -1,7 +1,9 @@
 ---
 title: write_syslog
 category: Printing
+example: 'write_syslog [facility=int, severity=int, timestamp=time, hostname=string,'
 ---
+
 
 Writes events as syslog.
 

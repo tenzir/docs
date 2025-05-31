@@ -1,7 +1,9 @@
 ---
 title: collect
 category: Aggregation
+example: 'collect(xs:list) -> list'
 ---
+
 
 Creates a list of all non-null grouped values, preserving duplicates.
 

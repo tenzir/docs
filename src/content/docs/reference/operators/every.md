@@ -1,7 +1,9 @@
 ---
 title: every
 category: Flow Control
+example: 'every interval:duration { … }'
 ---
+
 
 Runs a pipeline periodically at a fixed interval.
 

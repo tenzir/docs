@@ -1,7 +1,9 @@
 ---
 title: hash_sha224
 category: Hashing
+example: 'hash_sha224(x:any, [seed=string]) -> string'
 ---
+
 
 Computes a SHA-224 hash digest.
 

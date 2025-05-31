@@ -1,7 +1,9 @@
 ---
 title: save_sqs
 category: Outputs/Bytes
+example: 'save_sqs queue:str, [poll_time=duration]'
 ---
+
 
 Saves bytes to [Amazon SQS][sqs] queues.
 

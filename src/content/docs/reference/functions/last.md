@@ -1,7 +1,9 @@
 ---
 title: last
 category: Aggregation
+example: 'last(xs:list) -> any'
 ---
+
 
 Takes the last non-null grouped value.
 

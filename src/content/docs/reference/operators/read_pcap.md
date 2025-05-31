@@ -1,7 +1,9 @@
 ---
 title: read_pcap
 category: Parsing
+example: 'read_pcap [emit_file_headers=bool]'
 ---
+
 
 Reads raw network packets in [PCAP][pcap-rfc] file format.
 

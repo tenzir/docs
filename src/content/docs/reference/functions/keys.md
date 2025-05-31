@@ -1,7 +1,9 @@
 ---
 title: keys
 category: Record
+example: 'keys(x:record) -> list<string>'
 ---
+
 
 Retrieves a list of field names from a record.
 
