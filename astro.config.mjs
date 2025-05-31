@@ -68,10 +68,12 @@ export default defineConfig({
         "./src/assets/styles.css",
       ],
       components: {
+        PageFrame: './src/components/PageFrame.astro',
         PageTitle: './src/components/PageTitle.astro',
         Sidebar: './src/components/Sidebar.astro',
         SiteTitle: './src/components/SiteTitle.astro',
         ThemeSelect: './src/components/ThemeSelect.astro',
+        Footer: './src/components/Footer.astro',
       },
       routeMiddleware: "./src/routeData.ts",
       plugins: [
