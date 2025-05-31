@@ -1,4 +1,5 @@
 import { openAPISidebarGroups } from "starlight-openapi";
+import { referenceFunctions, referenceOperators } from "./sidebar-reference.js";
 
 export const guides = [
   "guides/quickstart",
@@ -124,8 +125,16 @@ export const explanations = [
 ];
 
 export const reference = [
-  "reference/operators",
-  "reference/functions",
+  {
+    label: "Operators",
+    collapsed: true,
+    items: ["reference/operators", ...referenceOperators],
+  },
+  {
+    label: "Functions",
+    collapsed: true,
+    items: ["reference/functions", ...referenceFunctions],
+  },
   {
     label: "Language",
     items: [
