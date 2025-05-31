@@ -169,6 +169,10 @@ operators:
     description: 'Resets a context.'
     example: 'context::inspect "ctx"'
     path: '/reference/operators/context/inspect'
+  - name: 'list'
+    description: 'Lists all contexts'
+    example: 'context::list'
+    path: '/reference/operators/context/list'
   - name: 'load'
     description: 'Loads context state.'
     example: 'context::load "ctx"'
@@ -425,6 +429,10 @@ operators:
     description: 'Starts a pipeline in the node.'
     example: 'pipeline::detach { … }'
     path: '/reference/operators/pipeline/detach'
+  - name: 'list'
+    description: 'Shows managed pipelines.'
+    example: 'pipeline::list'
+    path: '/reference/operators/pipeline/list'
   - name: 'run'
     description: 'Starts a pipeline in the node and waits for it to complete.'
     example: 'pipeline::run { … }'
@@ -895,6 +903,14 @@ context::erase "ctx", key=x
 
 ```tql
 context::inspect "ctx"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="list" description="Lists all contexts" href="/reference/operators/context/list">
+
+```tql
+context::list
 ```
 
 </ReferenceCard>
@@ -2181,6 +2197,14 @@ pipeline::activity range=1d, interval=1h
 
 ```tql
 pipeline::detach { … }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="list" description="Shows managed pipelines." href="/reference/operators/pipeline/list">
+
+```tql
+pipeline::list
 ```
 
 </ReferenceCard>
