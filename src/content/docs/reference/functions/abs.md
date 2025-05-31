@@ -1,10 +1,12 @@
 ---
 title: abs
 category: Math
-example: 'abs(-42)'
+example: "abs(-42)"
 ---
 
 Returns the absolute value.
+
+This shouldn't be allowed in a PR.
 
 ```tql
 abs(x:number) -> number
