@@ -181,12 +181,9 @@ function generateSidebarItems(categorizedItems) {
   // Remove duplicates while preserving order
   const uniqueItems = [...new Set(allItems)];
 
-  // Sort all items alphabetically by name
+  // Sort all items alphabetically by full path
   const sortedItems = uniqueItems.sort((a, b) => {
-    // Extract just the item name for sorting
-    const nameA = a.split("/").pop();
-    const nameB = b.split("/").pop();
-    return nameA.localeCompare(nameB);
+    return a.localeCompare(b);
   });
 
   return sortedItems;
