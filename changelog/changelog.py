@@ -2,8 +2,8 @@
 
 # /// script
 # dependencies = [
-#   "python-frontmatter",
-#   "pyyaml",
+#   "python-frontmatter>=1.0.0",
+#   "pyyaml>=6.0.2",
 # ]
 # ///
 
@@ -638,7 +638,7 @@ def main():
     # Find unreferenced changes and generate next release if needed
     unreferenced = find_unreferenced_changes(release_files, changes_map)
     next_file = None
-    
+
     # Always generate a next.mdx file
     if unreferenced:
         print(

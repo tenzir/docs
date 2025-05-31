@@ -61,19 +61,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+
       - name: Update Tenzir Node docs
         if: inputs.product == 'node'
         run: |
           echo "Updating Tenzir Node docs..."
           git clone --depth 1 https://github.com/tenzir/tenzir.git /tmp/tenzir
-          # Install poetry and dependencies for changelog script
-          pip install poetry
-          cd changelog
-          poetry install --no-root
           # Run changelog script
-          poetry run ./changelog.py --product=node /tmp/tenzir/changelog
+          uv run ./changelog/changelog.py --product=node /tmp/tenzir/changelog
           # Copy reference
-          cd -
           rsync -av --delete /tmp/tenzir/docs/functions/ ./src/content/docs/reference/functions
           rsync -av --delete /tmp/tenzir/docs/operators/ ./src/content/docs/reference/operators
           cp /tmp/tenzir/docs/openapi.node.yaml ./src/content/apis/openapi.node.yaml
@@ -128,15 +126,9 @@ jobs:
             fi
           done
 
-          # Install poetry and dependencies for changelog script
-          cd ${{ github.workspace }}
-          pip install poetry
-          cd changelog
-          poetry install --no-root
           # Run changelog script
-          poetry run ./changelog.py --product=platform /tmp/platform/changelog
+          uv run ./changelog/changelog.py --product=platform /tmp/platform/changelog
           # Copy reference
-          cd -
           cp /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
           # Clean up
           rm -rf /tmp/platform
