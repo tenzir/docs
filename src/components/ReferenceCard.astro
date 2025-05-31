@@ -10,10 +10,13 @@ const { title, description, href } = Astro.props;
 // Simple markdown to HTML conversion for inline elements
 function renderMarkdown(text: string): string {
   return text
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    .replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+    )
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
 }
 
 const renderedDescription = renderMarkdown(description);
@@ -26,7 +29,7 @@ const renderedDescription = renderMarkdown(description);
       <span class="function-card-arrow">→</span>
     </div>
     {/* eslint-disable-next-line astro/no-set-html-directive */}
-    <div class="function-card-description" set:html={renderedDescription}></div>
+    <div class="function-card-description" set:html={renderedDescription} />
   </a>
   <div class="function-card-example">
     <slot />
@@ -43,8 +46,7 @@ const renderedDescription = renderMarkdown(description);
     height: 100%;
     display: flex;
     flex-direction: column;
-    max-width: 350px;
-    width: 100%;
+    min-width: 150px;
   }
 
   .function-card:hover {
@@ -217,5 +219,3 @@ const renderedDescription = renderMarkdown(description);
     }
   }
 </style>
-
-

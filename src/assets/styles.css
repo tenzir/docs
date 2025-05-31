@@ -74,7 +74,8 @@ html[data-theme="dark"] {
   --ec-brdRad: 5px !important;
 }
 
-.sl-link-button {
+/* Override Starlight's linkbutton styles with higher specificity */
+.sl-markdown-content .sl-link-button {
   height: 36px;
   position: relative;
   display: inline-flex;
@@ -90,10 +91,22 @@ html[data-theme="dark"] {
   font-size: var(--sl-text-sm);
   padding: 0.4375rem 1.125rem;
   white-space: nowrap;
+  background-color: var(--sl-color-text-accent) !important;
+  color: var(--sl-color-black) !important;
+  border-color: transparent !important;
   transition:
     background-color 0.2s,
     border-color 0.2s,
     color 0.2s;
+}
+
+.sl-markdown-content .sl-link-button:hover {
+  background-color: var(--sl-color-accent-high) !important;
+  color: var(--sl-color-black) !important;
+}
+
+.sl-markdown-content .sl-link-button:active {
+  background-color: var(--sl-color-accent-high) !important;
 }
 
 .sl-link-button:focus {
