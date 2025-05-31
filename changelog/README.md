@@ -8,7 +8,8 @@ template directory structure.
 We provide a Python script to generate the changelog pages from a template
 directory structure.
 
-Then run the script with the product name and template directory `dir`:
+Install [uv](https://github.com/astral-sh/uv) and run the script with the
+product name and template directory `dir`:
 
 ```sh
 uv run ./changelog.py --product=node <dir>
