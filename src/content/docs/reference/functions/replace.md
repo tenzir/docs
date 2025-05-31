@@ -1,10 +1,8 @@
 ---
 title: replace
 category: String/Transformation
-example: 'replace(x:string, pattern:string, replacement:string, [max=int]) -> string'
+example: '"hello".replace("o", "a")'
 ---
-
-
 Replaces characters within a string.
 
 ```tql

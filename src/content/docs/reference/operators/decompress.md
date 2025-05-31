@@ -1,10 +1,8 @@
 ---
 title: decompress
 category: Encode & Decode
-example: 'decompress codec:string'
+example: 'decompress "gzip"'
 ---
-
-
 Decompresses a stream of bytes.
 
 ```tql

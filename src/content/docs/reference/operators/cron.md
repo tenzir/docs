@@ -1,10 +1,8 @@
 ---
 title: cron
 category: Flow Control
-example: 'cron schedule:string { … }'
+example: 'cron "* */10 * * * MON-FRI" { from "https://example.org" }'
 ---
-
-
 Runs a pipeline periodically according to a cron expression.
 
 ```tql

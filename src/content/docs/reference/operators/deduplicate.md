@@ -1,10 +1,8 @@
 ---
 title: deduplicate
 category: Filter
-example: 'deduplicate [key:any, limit=int, distance=int, create_timeout=duration,'
+example: 'deduplicate src_ip'
 ---
-
-
 Removes duplicate events based on a common key.
 
 ```tql

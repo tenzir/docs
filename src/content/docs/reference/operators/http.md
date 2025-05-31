@@ -1,10 +1,8 @@
 ---
 title: http
 category: Modify
-example: 'http url:string, [method=string, payload=string, headers=record,'
+example: 'http "example.com"'
 ---
-
-
 Sends HTTP/1.1 requests and forwards the response.
 
 ```tql

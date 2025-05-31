@@ -1,10 +1,8 @@
 ---
 title: month
 category: Time & Date
-example: 'month(x: time) -> int'
+example: 'ts.month()'
 ---
-
-
 Extracts the month component from a timestamp.
 
 ```tql

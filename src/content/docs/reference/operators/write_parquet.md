@@ -1,10 +1,8 @@
 ---
 title: write_parquet
 category: Printing
-example: 'write_parquet [compression_level=int, compression_type=str]'
+example: 'write_parquet'
 ---
-
-
 Transforms event stream to a Parquet byte stream.
 
 ```tql

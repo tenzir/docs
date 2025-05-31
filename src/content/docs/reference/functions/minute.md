@@ -1,10 +1,8 @@
 ---
 title: minute
 category: Time & Date
-example: 'minute(x: time) -> int'
+example: 'ts.minute()'
 ---
-
-
 Extracts the minute component from a timestamp.
 
 ```tql

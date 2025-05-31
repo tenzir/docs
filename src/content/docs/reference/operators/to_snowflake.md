@@ -1,10 +1,8 @@
 ---
 title: to_snowflake
 category: Outputs/Events
-example: 'to_snowflake account_identifier=string, user_name=string, password=string,'
+example: 'to_snowflake account_identifier="…'
 ---
-
-
 Sends events to a Snowflake database.
 
 ```tql

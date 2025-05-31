@@ -1,10 +1,8 @@
 ---
 title: abs
 category: Math
-example: 'abs(x:number) -> number'
+example: 'abs(-42)'
 ---
-
-
 Returns the absolute value.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: string
 category: Type System/Conversion
-example: 'string(x:any) -> string'
+example: 'string(1.2.3.4)'
 ---
-
-
 Casts an expression to a string.
 
 ```tql

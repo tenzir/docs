@@ -1,10 +1,8 @@
 ---
 title: load
 category: Contexts
-example: 'context::load name:string'
+example: 'context::load "ctx"'
 ---
-
-
 Loads context state.
 
 ```tql

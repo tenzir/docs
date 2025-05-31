@@ -1,10 +1,8 @@
 ---
 title: length_chars
 category: String/Inspection
-example: 'length_chars(x:string) -> int'
+example: '"hello".length_chars()'
 ---
-
-
 Returns the length of a string in characters.
 
 ```tql

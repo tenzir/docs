@@ -1,10 +1,8 @@
 ---
 title: has
 category: Record
-example: 'has(x:record, field:string) -> bool'
+example: 'record.has("field")'
 ---
-
-
 Checks whether a record has a specified field.
 
 ```tql

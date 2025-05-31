@@ -1,10 +1,8 @@
 ---
 title: second
 category: Time & Date
-example: 'second(x: time) -> float'
+example: 'ts.second()'
 ---
-
-
 Extracts the second component from a timestamp with subsecond precision.
 
 ```tql

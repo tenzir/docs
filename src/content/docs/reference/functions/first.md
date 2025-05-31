@@ -1,10 +1,8 @@
 ---
 title: first
 category: Aggregation
-example: 'first(xs:list) -> any'
+example: 'first([null,2,3])'
 ---
-
-
 Takes the first non-null grouped value.
 
 ```tql

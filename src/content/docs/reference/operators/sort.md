@@ -1,10 +1,8 @@
 ---
 title: sort
 category: Analyze
-example: 'sort [-]expr...'
+example: 'sort name, -abs(transaction)'
 ---
-
-
 Sorts events by the given expressions.
 
 ```tql

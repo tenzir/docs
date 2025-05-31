@@ -1,10 +1,8 @@
 ---
 title: load_azure_blob_storage
 category: Inputs/Bytes
-example: 'load_azure_blob_storage uri:string'
+example: 'load_azure_blob_storage "abfs://container/file"'
 ---
-
-
 Loads bytes from Azure Blob Storage.
 
 ```tql

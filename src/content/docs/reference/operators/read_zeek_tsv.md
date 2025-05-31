@@ -3,8 +3,6 @@ title: read_zeek_tsv
 category: Parsing
 example: 'read_zeek_tsv'
 ---
-
-
 Parses an incoming `Zeek TSV` stream into events.
 
 ```tql

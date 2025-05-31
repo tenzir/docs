@@ -1,10 +1,8 @@
 ---
 title: to_lower
 category: String/Transformation
-example: 'to_lower(x:string) -> string'
+example: '"HELLO".to_lower()'
 ---
-
-
 Converts a string to lowercase.
 
 ```tql

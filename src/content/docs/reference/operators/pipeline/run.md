@@ -1,10 +1,8 @@
 ---
 title: run
 category: Pipelines
-example: 'pipeline::run { … }, [id=string]'
+example: 'pipeline::run { … }'
 ---
-
-
 Starts a pipeline in the node and waits for it to complete.
 
 ```tql

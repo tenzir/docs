@@ -1,10 +1,8 @@
 ---
 title: cache
 category: Internals
-example: 'cache id:string, [mode=string, capacity=int, read_timeout=duration, write_timeout=duration]'
+example: 'cache "w01wyhTZm3", ttl=10min'
 ---
-
-
 An in-memory cache shared between pipelines.
 
 ```tql

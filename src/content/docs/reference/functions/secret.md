@@ -1,10 +1,8 @@
 ---
 title: secret
 category: Runtime
-example: 'secret(x:string) -> string'
+example: 'secret("KEY")'
 ---
-
-
 Reads a secret from a store.
 
 ```tql

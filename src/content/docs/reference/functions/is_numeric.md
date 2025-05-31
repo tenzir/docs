@@ -1,10 +1,8 @@
 ---
 title: is_numeric
 category: String/Inspection
-example: 'is_numeric(x:string) -> bool'
+example: '"1234".is_numeric()'
 ---
-
-
 Checks if a string contains only numeric characters.
 
 ```tql

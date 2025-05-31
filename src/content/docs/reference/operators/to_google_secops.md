@@ -1,10 +1,8 @@
 ---
 title: to_google_secops
 category: Outputs/Events
-example: 'to_google_secops customer_id=string, private_key=string, client_email=string,'
+example: 'to_google_secops …'
 ---
-
-
 Sends unstructured events to a Google SecOps Chronicle instance.
 
 ```tql

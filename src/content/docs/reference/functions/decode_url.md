@@ -1,10 +1,8 @@
 ---
 title: decode_url
 category: Decoding
-example: 'decode_url(string: blob|string) -> blob'
+example: 'decode_url("Hello%20World")'
 ---
-
-
 Decodes URL encoded strings.
 
 ```tql

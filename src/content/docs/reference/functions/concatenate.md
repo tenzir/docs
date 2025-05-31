@@ -1,10 +1,8 @@
 ---
 title: concatenate
 category: List
-example: 'concatenate(xs:list, ys:list) -> list'
+example: 'concatenate(xs, ys)'
 ---
-
-
 Merges two lists.
 
 ```tql

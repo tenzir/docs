@@ -1,10 +1,8 @@
 ---
 title: is_lower
 category: String/Inspection
-example: 'is_lower(x:string) -> bool'
+example: '"hello".is_lower()'
 ---
-
-
 Checks if a string is in lowercase.
 
 ```tql

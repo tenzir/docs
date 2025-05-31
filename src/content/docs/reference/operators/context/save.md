@@ -1,10 +1,8 @@
 ---
 title: save
 category: Contexts
-example: 'context::save name:string'
+example: 'context::save "ctx"'
 ---
-
-
 Saves context state.
 
 ```tql

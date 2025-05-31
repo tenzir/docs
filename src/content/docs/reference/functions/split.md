@@ -1,10 +1,8 @@
 ---
 title: split
 category: String/Transformation
-example: 'split(x:string, pattern:string, [max:int], [reverse:bool]) -> list'
+example: 'split("a,b,c", ",")'
 ---
-
-
 Splits a string into substrings.
 
 ```tql

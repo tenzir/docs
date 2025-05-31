@@ -3,639 +3,639 @@ title: Functions
 functions:
   - name: 'abs'
     description: 'Returns the absolute value.'
-    example: 'abs(x:number) -> number'
+    example: 'abs(-42)'
     path: '/reference/functions/abs'
   - name: 'ceil'
     description: 'Computes the ceiling of a number or a time/duration with a specified unit.'
-    example: 'ceil(x:number)'
+    example: 'ceil(4.2)'
     path: '/reference/functions/ceil'
   - name: 'floor'
     description: 'Computes the floor of a number or a time/duration with a specified unit.'
-    example: 'floor(x:number)'
+    example: 'floor(4.8)'
     path: '/reference/functions/floor'
   - name: 'random'
     description: 'Generates a random number in *[0,1]*.'
-    example: 'random() -> float'
+    example: 'random()'
     path: '/reference/functions/random'
   - name: 'round'
     description: 'Rounds a number or a time/duration with a specified unit.'
-    example: 'round(x:number)'
+    example: 'round(4.6)'
     path: '/reference/functions/round'
   - name: 'sqrt'
     description: 'Computes the square root of a number.'
-    example: 'sqrt(x:number) -> float'
+    example: 'sqrt(49)'
     path: '/reference/functions/sqrt'
   - name: 'all'
     description: 'Computes the conjunction (AND) of all grouped boolean values.'
-    example: 'all(xs:list) -> bool'
+    example: 'all([true,true,false])'
     path: '/reference/functions/all'
   - name: 'any'
     description: 'Computes the disjunction (OR) of all grouped boolean values.'
-    example: 'any(xs:list) -> bool'
+    example: 'any([true,false,true])'
     path: '/reference/functions/any'
   - name: 'collect'
     description: 'Creates a list of all non-null grouped values, preserving duplicates.'
-    example: 'collect(xs:list) -> list'
+    example: 'collect([1,2,2,3])'
     path: '/reference/functions/collect'
   - name: 'count'
     description: 'Counts the events or non-null grouped values.'
-    example: 'count(xs:list) -> int'
+    example: 'count([1,2,null])'
     path: '/reference/functions/count'
   - name: 'count_distinct'
     description: 'Counts all distinct non-null grouped values.'
-    example: 'count_distinct(xs:list) -> int'
+    example: 'count_distinct([1,2,2,3])'
     path: '/reference/functions/count_distinct'
   - name: 'count_if'
     description: 'Counts the events or non-null grouped values matching a given predicate.'
-    example: 'count_if(xs:list, predicate:any => bool) -> int'
+    example: 'count_if([1,2,null], x => x > 1)'
     path: '/reference/functions/count_if'
   - name: 'distinct'
     description: 'Creates a sorted list without duplicates of non-null grouped values.'
-    example: 'distinct(xs:list) -> list'
+    example: 'distinct([1,2,2,3])'
     path: '/reference/functions/distinct'
   - name: 'first'
     description: 'Takes the first non-null grouped value.'
-    example: 'first(xs:list) -> any'
+    example: 'first([null,2,3])'
     path: '/reference/functions/first'
   - name: 'last'
     description: 'Takes the last non-null grouped value.'
-    example: 'last(xs:list) -> any'
+    example: 'last([1,2,null])'
     path: '/reference/functions/last'
   - name: 'max'
     description: 'Computes the maximum of all grouped values.'
-    example: 'max(xs:list) -> number'
+    example: 'max([1,2,3])'
     path: '/reference/functions/max'
   - name: 'mean'
     description: 'Computes the mean of all grouped values.'
-    example: 'mean(xs:list) -> float'
+    example: 'mean([1,2,3])'
     path: '/reference/functions/mean'
   - name: 'median'
     description: 'Computes the approximate median of all grouped values using a t-digest algorithm.'
-    example: 'median(xs:list) -> float'
+    example: 'median([1,2,3,4])'
     path: '/reference/functions/median'
   - name: 'min'
     description: 'Computes the minimum of all grouped values.'
-    example: 'min(xs:list) -> number'
+    example: 'min([1,2,3])'
     path: '/reference/functions/min'
   - name: 'mode'
     description: 'Takes the most common non-null grouped value.'
-    example: 'mode(xs:list) -> any'
+    example: 'mode([1,1,2,3])'
     path: '/reference/functions/mode'
   - name: 'otherwise'
     description: 'Returns a `fallback` value if `primary` is `null`.'
-    example: 'otherwise(primary:any, fallback:any) -> any'
+    example: 'x.otherwise(0)'
     path: '/reference/functions/otherwise'
   - name: 'quantile'
     description: 'Computes the specified quantile of all grouped values.'
-    example: 'quantile(xs:list, q=float) -> float'
+    example: 'quantile([1,2,3,4], q=0.5)'
     path: '/reference/functions/quantile'
   - name: 'stddev'
     description: 'Computes the standard deviation of all grouped values.'
-    example: 'stddev(xs:list) -> float'
+    example: 'stddev([1,2,3])'
     path: '/reference/functions/stddev'
   - name: 'sum'
     description: 'Computes the sum of all values.'
-    example: 'sum(xs:list) -> int'
+    example: 'sum([1,2,3])'
     path: '/reference/functions/sum'
   - name: 'value_counts'
     description: 'Returns a list of all grouped values alongside their frequency.'
-    example: 'value_counts(xs:list) -> list'
+    example: 'value_counts([1,2,2,3])'
     path: '/reference/functions/value_counts'
   - name: 'variance'
     description: 'Computes the variance of all grouped values.'
-    example: 'variance(xs:list) -> float'
+    example: 'variance([1,2,3])'
     path: '/reference/functions/variance'
   - name: 'append'
     description: 'Inserts an element at the back of a list.'
-    example: 'append(xs:list, x:any) -> list'
+    example: 'xs.append(y)'
     path: '/reference/functions/append'
   - name: 'concatenate'
     description: 'Merges two lists.'
-    example: 'concatenate(xs:list, ys:list) -> list'
+    example: 'concatenate(xs, ys)'
     path: '/reference/functions/concatenate'
   - name: 'get'
     description: 'Gets a field from a record or an element from a list'
-    example: 'get(x:record, field:string, [fallback:any]) -> any'
+    example: 'list.get(index, default)'
     path: '/reference/functions/get'
   - name: 'length'
     description: 'Retrieves the length of a list.'
-    example: 'length(xs:list) -> int'
+    example: '[1,2,3].length()'
     path: '/reference/functions/length'
   - name: 'map'
     description: 'Maps each list element to an expression.'
-    example: 'map(xs:list, capture:field, any => any) -> list'
+    example: 'xs.map(x => x + 3)'
     path: '/reference/functions/map'
   - name: 'prepend'
     description: 'Inserts an element at the start of a list.'
-    example: 'prepend(xs:list, x:any) -> list'
+    example: 'xs.prepend(y)'
     path: '/reference/functions/prepend'
   - name: 'sort'
     description: 'Sorts lists and record fields.'
-    example: 'sort(xs:list|record) -> list|record'
+    example: 'xs.sort()'
     path: '/reference/functions/sort'
   - name: 'where'
     description: 'Filters list elements based on a predicate.'
-    example: 'where(xs:list, prediacte:any => bool) -> list'
+    example: 'xs.where(x, x > 5)'
     path: '/reference/functions/where'
   - name: 'zip'
     description: 'Combines two lists into a list of pairs.'
-    example: 'zip(xs:list, ys:list) -> list'
+    example: 'zip(xs, ys)'
     path: '/reference/functions/zip'
   - name: 'bit_and'
     description: 'Computes the bit-wise AND of its arguments.'
-    example: 'bit_and(lhs:number, rhs:number) -> number'
+    example: 'bit_and(lhs, rhs)'
     path: '/reference/functions/bit_and'
   - name: 'bit_not'
     description: 'Computes the bit-wise NOT of its argument.'
-    example: 'bit_not(x:number) -> number'
+    example: 'bit_not(x)'
     path: '/reference/functions/bit_not'
   - name: 'bit_or'
     description: 'Computes the bit-wise OR of its arguments.'
-    example: 'bit_or(lhs:number, rhs:number) -> number'
+    example: 'bit_or(lhs, rhs)'
     path: '/reference/functions/bit_or'
   - name: 'bit_xor'
     description: 'Computes the bit-wise XOR of its arguments.'
-    example: 'bit_xor(lhs:number, rhs:number) -> number'
+    example: 'bit_xor(lhs, rhs)'
     path: '/reference/functions/bit_xor'
   - name: 'shift_left'
     description: 'Performs a bit-wise left shift.'
-    example: 'shift_left(lhs:number, rhs:number) -> number'
+    example: 'shift_left(lhs, rhs)'
     path: '/reference/functions/shift_left'
   - name: 'shift_right'
     description: 'Performs a bit-wise right shift.'
-    example: 'shift_right(lhs:number, rhs:number) -> number'
+    example: 'shift_right(lhs, rhs)'
     path: '/reference/functions/shift_right'
   - name: 'capitalize'
     description: 'Capitalizes the first character of a string.'
-    example: 'capitalize(x:string) -> string'
+    example: '"hello".capitalize()'
     path: '/reference/functions/capitalize'
   - name: 'join'
     description: 'Joins a list of strings into a single string using a separator.'
-    example: 'join(xs:list, [separator:string]) -> string'
+    example: 'join(["a", "b", "c"], ",")'
     path: '/reference/functions/join'
   - name: 'replace'
     description: 'Replaces characters within a string.'
-    example: 'replace(x:string, pattern:string, replacement:string, [max=int]) -> string'
+    example: '"hello".replace("o", "a")'
     path: '/reference/functions/replace'
   - name: 'replace_regex'
     description: 'Replaces characters within a string based on a regular expression.'
-    example: 'replace_regex(x:string, pattern:string, replacement:string, [max=int]) -> string'
+    example: '"hello".replace("l+o", "y")'
     path: '/reference/functions/replace_regex'
   - name: 'reverse'
     description: 'Reverses the characters of a string.'
-    example: 'reverse(x:string) -> string'
+    example: '"hello".reverse()'
     path: '/reference/functions/reverse'
   - name: 'split'
     description: 'Splits a string into substrings.'
-    example: 'split(x:string, pattern:string, [max:int], [reverse:bool]) -> list'
+    example: 'split("a,b,c", ",")'
     path: '/reference/functions/split'
   - name: 'split_regex'
     description: 'Splits a string into substrings with a regex.'
-    example: 'split_regex(x:string, pattern:string, [max:int], [reverse:bool]) -> list'
+    example: 'split_regex("a1b2c", r"\d")'
     path: '/reference/functions/split_regex'
   - name: 'to_lower'
     description: 'Converts a string to lowercase.'
-    example: 'to_lower(x:string) -> string'
+    example: '"HELLO".to_lower()'
     path: '/reference/functions/to_lower'
   - name: 'to_title'
     description: 'Converts a string to title case.'
-    example: 'to_title(x:string) -> string'
+    example: '"hello world".to_title()'
     path: '/reference/functions/to_title'
   - name: 'to_upper'
     description: 'Converts a string to uppercase.'
-    example: 'to_upper(x:string) -> string'
+    example: '"hello".to_upper()'
     path: '/reference/functions/to_upper'
   - name: 'trim'
     description: 'Trims whitespace from both ends of a string.'
-    example: 'trim(x:string) -> string'
+    example: '" hello ".trim()'
     path: '/reference/functions/trim'
   - name: 'trim_end'
     description: 'Trims whitespace from the end of a string.'
-    example: 'trim_end(x:string) -> string'
+    example: '"hello ".trim_end()'
     path: '/reference/functions/trim_end'
   - name: 'trim_start'
     description: 'Trims whitespace from the start of a string.'
-    example: 'trim_start(x:string) -> string'
+    example: '" hello".trim_start()'
     path: '/reference/functions/trim_start'
   - name: 'community_id'
     description: 'Computes the Community ID for a network connection/flow.'
-    example: 'community_id(src_ip=ip, dst_ip=ip, proto=string,'
+    example: 'community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")'
     path: '/reference/functions/community_id'
   - name: 'decapsulate'
     description: 'Decapsulates packet data at link, network, and transport layer.'
-    example: 'decapsulate(packet:record) -> record'
+    example: 'decapsulate(this)'
     path: '/reference/functions/decapsulate'
   - name: 'encrypt_cryptopan'
     description: 'Encrypts an IP address via Crypto-PAn.'
-    example: 'encrypt_cryptopan(address:ip, [seed=string])'
+    example: 'encrypt_cryptopan(1.2.3.4)'
     path: '/reference/functions/encrypt_cryptopan'
   - name: 'config'
     description: 'Reads Tenzir''s configuration file.'
-    example: 'config() -> record'
+    example: 'config()'
     path: '/reference/functions/config'
   - name: 'env'
     description: 'Reads an environment variable.'
-    example: 'env(x:string) -> string'
+    example: 'env("PATH")'
     path: '/reference/functions/env'
   - name: 'secret'
     description: 'Reads a secret from a store.'
-    example: 'secret(x:string) -> string'
+    example: 'secret("KEY")'
     path: '/reference/functions/secret'
   - name: 'count_days'
     description: 'Counts the number of `days` in a duration.'
-    example: 'count_days(x:duration) -> float'
+    example: 'count_days(100d)'
     path: '/reference/functions/count_days'
   - name: 'count_hours'
     description: 'Counts the number of `hours` in a duration.'
-    example: 'count_hours(x:duration) -> float'
+    example: 'count_hours(100d)'
     path: '/reference/functions/count_hours'
   - name: 'count_microseconds'
     description: 'Counts the number of `microseconds` in a duration.'
-    example: 'count_microseconds(x:duration) -> float'
+    example: 'count_microseconds(100d)'
     path: '/reference/functions/count_microseconds'
   - name: 'count_milliseconds'
     description: 'Counts the number of `milliseconds` in a duration.'
-    example: 'count_milliseconds(x:duration) -> float'
+    example: 'count_milliseconds(100d)'
     path: '/reference/functions/count_milliseconds'
   - name: 'count_minutes'
     description: 'Counts the number of `minutes` in a duration.'
-    example: 'count_minutes(x:duration) -> float'
+    example: 'count_minutes(100d)'
     path: '/reference/functions/count_minutes'
   - name: 'count_months'
     description: 'Counts the number of `months` in a duration.'
-    example: 'count_months(x:duration) -> float'
+    example: 'count_months(100d)'
     path: '/reference/functions/count_months'
   - name: 'count_nanoseconds'
     description: 'Counts the number of `nanoseconds` in a duration.'
-    example: 'count_nanoseconds(x:duration) -> float'
+    example: 'count_nanoseconds(100d)'
     path: '/reference/functions/count_nanoseconds'
   - name: 'count_seconds'
     description: 'Counts the number of `seconds` in a duration.'
-    example: 'count_seconds(x:duration) -> float'
+    example: 'count_seconds(100d)'
     path: '/reference/functions/count_seconds'
   - name: 'count_weeks'
     description: 'Counts the number of `weeks` in a duration.'
-    example: 'count_weeks(x:duration) -> float'
+    example: 'count_weeks(100d)'
     path: '/reference/functions/count_weeks'
   - name: 'count_years'
     description: 'Counts the number of `years` in a duration.'
-    example: 'count_years(x:duration) -> float'
+    example: 'count_years(100d)'
     path: '/reference/functions/count_years'
   - name: 'day'
     description: 'Extracts the day component from a timestamp.'
-    example: 'day(x: time) -> int'
+    example: 'ts.day()'
     path: '/reference/functions/day'
   - name: 'days'
     description: 'Converts a number to equivalent days.'
-    example: 'days(x:number) -> duration'
+    example: 'days(100)'
     path: '/reference/functions/days'
   - name: 'format_time'
     description: 'Formats a time into a string that follows a specific format.'
-    example: 'format_time(input: time, format: string) -> string'
+    example: 'ts.format_time("%d/ %m/%Y")'
     path: '/reference/functions/format_time'
   - name: 'from_epoch'
     description: 'Interprets a duration as Unix time.'
-    example: 'from_epoch(x:duration) -> time'
+    example: 'from_epoch(time_ms * 1ms)'
     path: '/reference/functions/from_epoch'
   - name: 'hour'
     description: 'Extracts the hour component from a timestamp.'
-    example: 'hour(x: time) -> int'
+    example: 'ts.hour()'
     path: '/reference/functions/hour'
   - name: 'hours'
     description: 'Converts a number to equivalent hours.'
-    example: 'hours(x:number) -> duration'
+    example: 'hours(100)'
     path: '/reference/functions/hours'
   - name: 'microseconds'
     description: 'Converts a number to equivalent microseconds.'
-    example: 'microseconds(x:number) -> duration'
+    example: 'microseconds(100)'
     path: '/reference/functions/microseconds'
   - name: 'milliseconds'
     description: 'Converts a number to equivalent milliseconds.'
-    example: 'milliseconds(x:number) -> duration'
+    example: 'milliseconds(100)'
     path: '/reference/functions/milliseconds'
   - name: 'minute'
     description: 'Extracts the minute component from a timestamp.'
-    example: 'minute(x: time) -> int'
+    example: 'ts.minute()'
     path: '/reference/functions/minute'
   - name: 'minutes'
     description: 'Converts a number to equivalent minutes.'
-    example: 'minutes(x:number) -> duration'
+    example: 'minutes(100)'
     path: '/reference/functions/minutes'
   - name: 'month'
     description: 'Extracts the month component from a timestamp.'
-    example: 'month(x: time) -> int'
+    example: 'ts.month()'
     path: '/reference/functions/month'
   - name: 'months'
     description: 'Converts a number to equivalent months.'
-    example: 'months(x:number) -> duration'
+    example: 'months(100)'
     path: '/reference/functions/months'
   - name: 'nanoseconds'
     description: 'Converts a number to equivalent nanoseconds.'
-    example: 'nanoseconds(x:number) -> duration'
+    example: 'nanoseconds(100)'
     path: '/reference/functions/nanoseconds'
   - name: 'now'
     description: 'Gets the current wallclock time.'
-    example: 'now() -> time'
+    example: 'now()'
     path: '/reference/functions/now'
   - name: 'parse_time'
     description: 'Parses a time from a string that follows a specific format.'
-    example: 'parse_time(input: string, format: string) -> time'
+    example: '"10/11/2012".parse_time("%d/%m/%Y")'
     path: '/reference/functions/parse_time'
   - name: 'second'
     description: 'Extracts the second component from a timestamp with subsecond precision.'
-    example: 'second(x: time) -> float'
+    example: 'ts.second()'
     path: '/reference/functions/second'
   - name: 'seconds'
     description: 'Converts a number to equivalent seconds.'
-    example: 'seconds(x:number) -> duration'
+    example: 'seconds(100)'
     path: '/reference/functions/seconds'
   - name: 'since_epoch'
     description: 'Interprets a time value as duration since the Unix epoch.'
-    example: 'since_epoch(x:time) -> duration'
+    example: 'since_epoch(2021-02-24)'
     path: '/reference/functions/since_epoch'
   - name: 'weeks'
     description: 'Converts a number to equivalent weeks.'
-    example: 'weeks(x:number) -> duration'
+    example: 'weeks(100)'
     path: '/reference/functions/weeks'
   - name: 'years'
     description: 'Converts a number to equivalent years.'
-    example: 'years(x:number) -> duration'
+    example: 'years(100)'
     path: '/reference/functions/years'
   - name: 'decode_base64'
     description: 'Decodes bytes as Base64.'
-    example: 'decode_base64(bytes: blob|string) -> blob'
+    example: 'decode_base64("VGVuemly")'
     path: '/reference/functions/decode_base64'
   - name: 'decode_hex'
     description: 'Decodes bytes from their hexadecimal representation.'
-    example: 'decode_hex(bytes: blob|string) -> blob'
+    example: 'decode_hex("4e6f6E6365")'
     path: '/reference/functions/decode_hex'
   - name: 'decode_url'
     description: 'Decodes URL encoded strings.'
-    example: 'decode_url(string: blob|string) -> blob'
+    example: 'decode_url("Hello%20World")'
     path: '/reference/functions/decode_url'
   - name: 'duration'
     description: 'Casts an expression to a duration value.'
-    example: 'duration(x:string) -> duration'
+    example: 'duration("1.34w")'
     path: '/reference/functions/duration'
   - name: 'float'
     description: 'Casts an expression to a float.'
-    example: 'float(x:any) -> float'
+    example: 'float(42)'
     path: '/reference/functions/float'
   - name: 'int'
     description: 'Casts an expression to an integer.'
-    example: 'int(x:number|string, base=int) -> int'
+    example: 'int(-4.2)'
     path: '/reference/functions/int'
   - name: 'ip'
     description: 'Casts an expression to an IP address.'
-    example: 'ip(x:string) -> ip'
+    example: 'ip("1.2.3.4")'
     path: '/reference/functions/ip'
   - name: 'string'
     description: 'Casts an expression to a string.'
-    example: 'string(x:any) -> string'
+    example: 'string(1.2.3.4)'
     path: '/reference/functions/string'
   - name: 'subnet'
     description: 'Casts an expression to a subnet value.'
-    example: 'subnet(x:string) -> subnet'
+    example: 'subnet("1.2.3.4/16")'
     path: '/reference/functions/subnet'
   - name: 'time'
     description: 'Casts an expression to a time value.'
-    example: 'time(x:any) -> time'
+    example: 'time("2020-03-15")'
     path: '/reference/functions/time'
   - name: 'uint'
     description: 'Casts an expression to an unsigned integer.'
-    example: 'uint(x:number|string, base=int) -> uint'
+    example: 'uint(4.2)'
     path: '/reference/functions/uint'
   - name: 'encode_base64'
     description: 'Encodes bytes as Base64.'
-    example: 'encode_base64(bytes: blob|string) -> string'
+    example: 'encode_base64("Tenzir")'
     path: '/reference/functions/encode_base64'
   - name: 'encode_hex'
     description: 'Encodes bytes into their hexadecimal representation.'
-    example: 'encode_hex(bytes: blob|string) -> string'
+    example: 'encode_hex("Tenzir")'
     path: '/reference/functions/encode_hex'
   - name: 'encode_url'
     description: 'Encodes strings using URL encoding.'
-    example: 'encode_url(bytes: blob|string) -> string'
+    example: 'encode_url("Hello World")'
     path: '/reference/functions/encode_url'
   - name: 'ends_with'
     description: 'Checks if a string ends with a specified substring.'
-    example: 'ends_with(x:string, suffix:string) -> bool'
+    example: '"hello".ends_with("lo")'
     path: '/reference/functions/ends_with'
   - name: 'is_alnum'
     description: 'Checks if a string is alphanumeric.'
-    example: 'is_alnum(x:string) -> bool'
+    example: '"hello123".is_alnum()'
     path: '/reference/functions/is_alnum'
   - name: 'is_alpha'
     description: 'Checks if a string contains only alphabetic characters.'
-    example: 'is_alpha(x:string) -> bool'
+    example: '"hello".is_alpha()'
     path: '/reference/functions/is_alpha'
   - name: 'is_lower'
     description: 'Checks if a string is in lowercase.'
-    example: 'is_lower(x:string) -> bool'
+    example: '"hello".is_lower()'
     path: '/reference/functions/is_lower'
   - name: 'is_numeric'
     description: 'Checks if a string contains only numeric characters.'
-    example: 'is_numeric(x:string) -> bool'
+    example: '"1234".is_numeric()'
     path: '/reference/functions/is_numeric'
   - name: 'is_printable'
     description: 'Checks if a string contains only printable characters.'
-    example: 'is_printable(x:string) -> bool'
+    example: '"hello".is_printable()'
     path: '/reference/functions/is_printable'
   - name: 'is_title'
     description: 'Checks if a string follows title case.'
-    example: 'is_title(x:string) -> bool'
+    example: '"Hello World".is_title()'
     path: '/reference/functions/is_title'
   - name: 'is_upper'
     description: 'Checks if a string is in uppercase.'
-    example: 'is_upper(x:string) -> bool'
+    example: '"HELLO".is_upper()'
     path: '/reference/functions/is_upper'
   - name: 'length_bytes'
     description: 'Returns the length of a string in bytes.'
-    example: 'length_bytes(x:string) -> int'
+    example: '"hello".length_bytes()'
     path: '/reference/functions/length_bytes'
   - name: 'length_chars'
     description: 'Returns the length of a string in characters.'
-    example: 'length_chars(x:string) -> int'
+    example: '"hello".length_chars()'
     path: '/reference/functions/length_chars'
   - name: 'match_regex'
     description: 'Checks if a string partially matches a regular expression.'
-    example: 'match_regex(input:string, regex:string) -> bool'
+    example: '"Hi".match_regex("[Hh]i")'
     path: '/reference/functions/match_regex'
   - name: 'slice'
     description: 'Slices a string with offsets and strides.'
-    example: 'slice(x:string, [begin=int, end=int, stride=int])'
+    example: '"Hi".slice(begin=2, stride=4)'
     path: '/reference/functions/slice'
   - name: 'starts_with'
     description: 'Checks if a string starts with a specified substring.'
-    example: 'starts_with(x:string, prefix:string) -> bool'
+    example: '"hello".starts_with("he")'
     path: '/reference/functions/starts_with'
   - name: 'file_contents'
     description: 'Reads a file''s contents.'
-    example: 'file_contents(path:string, [binary=bool]) -> blob|string'
+    example: 'file_contents("/path/to/file")'
     path: '/reference/functions/file_contents'
   - name: 'file_name'
     description: 'Extracts the file name from a file path.'
-    example: 'file_name(x:string) -> string'
+    example: 'file_name("/path/to/log.json")'
     path: '/reference/functions/file_name'
   - name: 'parent_dir'
     description: 'Extracts the parent directory from a file path.'
-    example: 'parent_dir(x:string) -> string'
+    example: 'parent_dir("/path/to/log.json")'
     path: '/reference/functions/parent_dir'
   - name: 'flatten'
     description: 'Flattens nested data.'
-    example: 'flatten(x:record, separtor=string) -> record'
+    example: 'flatten(this)'
     path: '/reference/functions/flatten'
   - name: 'unflatten'
     description: 'Unflattens nested data.'
-    example: 'unflatten(x:record, [separator=string]) -> record'
+    example: 'unflatten(this)'
     path: '/reference/functions/unflatten'
   - name: 'get'
     description: 'Gets a field from a record or an element from a list'
-    example: 'get(x:record, field:string, [fallback:any]) -> any'
+    example: 'list.get(index, default)'
     path: '/reference/functions/get'
   - name: 'has'
     description: 'Checks whether a record has a specified field.'
-    example: 'has(x:record, field:string) -> bool'
+    example: 'record.has("field")'
     path: '/reference/functions/has'
   - name: 'keys'
     description: 'Retrieves a list of field names from a record.'
-    example: 'keys(x:record) -> list<string>'
+    example: 'record.keys()'
     path: '/reference/functions/keys'
   - name: 'merge'
     description: 'Combines two records into a single record by merging their fields.'
-    example: 'merge(x: record, y: record) -> record'
+    example: 'merge(foo, bar)'
     path: '/reference/functions/merge'
   - name: 'sort'
     description: 'Sorts lists and record fields.'
-    example: 'sort(xs:list|record) -> list|record'
+    example: 'xs.sort()'
     path: '/reference/functions/sort'
   - name: 'hash_md5'
     description: 'Computes an MD5 hash digest.'
-    example: 'hash_md5(x:any, [seed=string])'
+    example: 'hash_md5("foo")'
     path: '/reference/functions/hash_md5'
   - name: 'hash_sha1'
     description: 'Computes a SHA-1 hash digest.'
-    example: 'hash_sha1(x:any, [seed=string]) -> string'
+    example: 'hash_sha1("foo")'
     path: '/reference/functions/hash_sha1'
   - name: 'hash_sha224'
     description: 'Computes a SHA-224 hash digest.'
-    example: 'hash_sha224(x:any, [seed=string]) -> string'
+    example: 'hash_sha224("foo")'
     path: '/reference/functions/hash_sha224'
   - name: 'hash_sha256'
     description: 'Computes a SHA-256 hash digest.'
-    example: 'hash_sha256(x:any, [seed=string]) -> string'
+    example: 'hash_sha256("foo")'
     path: '/reference/functions/hash_sha256'
   - name: 'hash_sha384'
     description: 'Computes a SHA-384 hash digest.'
-    example: 'hash_sha384(x:any, [seed=string]) -> string'
+    example: 'hash_sha384("foo")'
     path: '/reference/functions/hash_sha384'
   - name: 'hash_sha512'
     description: 'Computes a SHA-512 hash digest.'
-    example: 'hash_sha512(x:any, [seed=string]) -> string'
+    example: 'hash_sha512("foo")'
     path: '/reference/functions/hash_sha512'
   - name: 'hash_xxh3'
     description: 'Computes an XXH3 hash digest.'
-    example: 'hash_xxh3(x:any, [seed=string]) -> string'
+    example: 'hash_xxh3("foo")'
     path: '/reference/functions/hash_xxh3'
   - name: 'is_v4'
     description: 'Checks whether an IP address has version number 4.'
-    example: 'is_v4(x:ip) -> bool'
+    example: 'is_v4(1.2.3.4)'
     path: '/reference/functions/is_v4'
   - name: 'is_v6'
     description: 'Checks whether an IP address has version number 6.'
-    example: 'is_v6(x:ip) -> bool'
+    example: 'is_v6(::1)'
     path: '/reference/functions/is_v6'
   - name: 'network'
     description: 'Retrieves the network address of a subnet.'
-    example: 'network(x:subnet) -> ip'
+    example: '10.0.0.0/8.network()'
     path: '/reference/functions/network'
   - name: 'network'
     description: 'Retrieves the network address of a subnet.'
-    example: 'network(x:subnet) -> ip'
+    example: '10.0.0.0/8.network()'
     path: '/reference/functions/network'
   - name: 'parse_cef'
     description: 'Parses a string as a CEF message'
-    example: 'parse_cef(input:string) -> record'
+    example: 'string.parse_cef()'
     path: '/reference/functions/parse_cef'
   - name: 'parse_csv'
     description: 'Parses a string as CSV (Comma-Separated Values).'
-    example: 'parse_csv(input:string) -> record'
+    example: 'string.parse_csv(header=["a","b"])'
     path: '/reference/functions/parse_csv'
   - name: 'parse_grok'
     description: 'Parses a string according to a grok pattern.'
-    example: 'parse_grok(input:string, pattern:string) -> record'
+    example: 'string.parse_grok("%{IP:client} …")'
     path: '/reference/functions/parse_grok'
   - name: 'parse_json'
     description: 'Parses a string as a JSON value.'
-    example: 'parse_json(input:string) -> any'
+    example: 'string.parse_json()'
     path: '/reference/functions/parse_json'
   - name: 'parse_kv'
     description: 'Parses a string as key-value pairs.'
-    example: 'parse_kv(input:string) -> record'
+    example: 'string.parse_kv()'
     path: '/reference/functions/parse_kv'
   - name: 'parse_leef'
     description: 'Parses a string as a LEEF message'
-    example: 'parse_leef(input:string) -> record'
+    example: 'string.parse_leef()'
     path: '/reference/functions/parse_leef'
   - name: 'parse_ssv'
     description: 'Parses a string as space separated values.'
-    example: 'parse_ssv(input:string) -> record'
+    example: 'string.parse_ssv(header=["a","b"])'
     path: '/reference/functions/parse_ssv'
   - name: 'parse_syslog'
     description: 'Parses a string as a Syslog message.'
-    example: 'parse_syslog(input:string) -> record'
+    example: 'string.parse_syslog()'
     path: '/reference/functions/parse_syslog'
   - name: 'parse_tsv'
     description: 'Parses a string as tab separated values.'
-    example: 'parse_tsv(input:string) -> record'
+    example: 'string.parse_tsv(header=["a","b"])'
     path: '/reference/functions/parse_tsv'
   - name: 'parse_xsv'
     description: 'Parses a string as delimiter separated values.'
-    example: 'parse_xsv(input:string) -> record'
+    example: 'string.parse_xsv(",", ";", "", header=["a","b"])'
     path: '/reference/functions/parse_xsv'
   - name: 'parse_yaml'
     description: 'Parses a string as a YAML value.'
-    example: 'parse_yaml(input:string) -> any'
+    example: 'string.parse_yaml()'
     path: '/reference/functions/parse_yaml'
   - name: 'print_csv'
     description: 'Prints a record as a comma-separated string of values.'
-    example: 'print_csv(input:record) -> string'
+    example: 'record.print_csv()'
     path: '/reference/functions/print_csv'
   - name: 'print_json'
     description: 'Transforms a value into a JSON string.'
-    example: 'print_json(input:any) -> string'
+    example: 'record.print_json()'
     path: '/reference/functions/print_json'
   - name: 'print_kv'
     description: 'Prints records in a key-value format.'
-    example: 'print_kv( input:record, [field_separator=str, value_separator=str,'
+    example: 'record.print_kv()'
     path: '/reference/functions/print_kv'
   - name: 'print_ndjson'
     description: 'Transforms a value into a single-line JSON string.'
-    example: 'print_ndjson(input:any) -> string'
+    example: 'record.print_ndjson()'
     path: '/reference/functions/print_ndjson'
   - name: 'print_ssv'
     description: 'Prints a record as a space-separated string of values.'
-    example: 'print_ssv(input:record) -> string'
+    example: 'record.print_ssv()'
     path: '/reference/functions/print_ssv'
   - name: 'print_tsv'
     description: 'Prints a record as a tab-separated string of values.'
-    example: 'print_tsv(input:record) -> string'
+    example: 'record.print_tsv()'
     path: '/reference/functions/print_tsv'
   - name: 'print_xsv'
     description: 'Prints a record as a delimited sequence of values.'
-    example: 'print_xsv(input:record, field_separator=str, list_separator=str, null_value=str) -> string'
+    example: 'record.print_tsv()'
     path: '/reference/functions/print_xsv'
   - name: 'print_yaml'
     description: 'Prints a value as a YAML document.'
-    example: 'print_yaml( input:any, [include_document_markers=bool] )'
+    example: 'record.print_yaml()'
     path: '/reference/functions/print_yaml'
   - name: 'type_id'
     description: 'Retrieves the type id of an expression.'
-    example: 'type_id(x:any) -> string'
+    example: 'type_id(1 + 3.2)'
     path: '/reference/functions/type_id'
   - name: 'type_of'
     description: 'Retrieves the type definition of an expression.'
-    example: 'type_of(x:any) -> record'
+    example: 'type_of(this)'
     path: '/reference/functions/type_of'
 ---
 
@@ -693,7 +693,7 @@ but often resort to the method style when it is more idiomatic.
 <ReferenceCard title="all" description="Computes the conjunction (AND) of all grouped boolean values." href="/reference/functions/all">
 
 ```tql
-all(xs:list) -> bool
+all([true,true,false])
 ```
 
 </ReferenceCard>
@@ -701,7 +701,7 @@ all(xs:list) -> bool
 <ReferenceCard title="any" description="Computes the disjunction (OR) of all grouped boolean values." href="/reference/functions/any">
 
 ```tql
-any(xs:list) -> bool
+any([true,false,true])
 ```
 
 </ReferenceCard>
@@ -709,7 +709,7 @@ any(xs:list) -> bool
 <ReferenceCard title="collect" description="Creates a list of all non-null grouped values, preserving duplicates." href="/reference/functions/collect">
 
 ```tql
-collect(xs:list) -> list
+collect([1,2,2,3])
 ```
 
 </ReferenceCard>
@@ -717,7 +717,7 @@ collect(xs:list) -> list
 <ReferenceCard title="count" description="Counts the events or non-null grouped values." href="/reference/functions/count">
 
 ```tql
-count(xs:list) -> int
+count([1,2,null])
 ```
 
 </ReferenceCard>
@@ -725,7 +725,7 @@ count(xs:list) -> int
 <ReferenceCard title="count_distinct" description="Counts all distinct non-null grouped values." href="/reference/functions/count_distinct">
 
 ```tql
-count_distinct(xs:list) -> int
+count_distinct([1,2,2,3])
 ```
 
 </ReferenceCard>
@@ -733,7 +733,7 @@ count_distinct(xs:list) -> int
 <ReferenceCard title="count_if" description="Counts the events or non-null grouped values matching a given predicate." href="/reference/functions/count_if">
 
 ```tql
-count_if(xs:list, predicate:any => bool) -> int
+count_if([1,2,null], x => x > 1)
 ```
 
 </ReferenceCard>
@@ -741,7 +741,7 @@ count_if(xs:list, predicate:any => bool) -> int
 <ReferenceCard title="distinct" description="Creates a sorted list without duplicates of non-null grouped values." href="/reference/functions/distinct">
 
 ```tql
-distinct(xs:list) -> list
+distinct([1,2,2,3])
 ```
 
 </ReferenceCard>
@@ -749,7 +749,7 @@ distinct(xs:list) -> list
 <ReferenceCard title="first" description="Takes the first non-null grouped value." href="/reference/functions/first">
 
 ```tql
-first(xs:list) -> any
+first([null,2,3])
 ```
 
 </ReferenceCard>
@@ -757,7 +757,7 @@ first(xs:list) -> any
 <ReferenceCard title="last" description="Takes the last non-null grouped value." href="/reference/functions/last">
 
 ```tql
-last(xs:list) -> any
+last([1,2,null])
 ```
 
 </ReferenceCard>
@@ -765,7 +765,7 @@ last(xs:list) -> any
 <ReferenceCard title="max" description="Computes the maximum of all grouped values." href="/reference/functions/max">
 
 ```tql
-max(xs:list) -> number
+max([1,2,3])
 ```
 
 </ReferenceCard>
@@ -773,7 +773,7 @@ max(xs:list) -> number
 <ReferenceCard title="mean" description="Computes the mean of all grouped values." href="/reference/functions/mean">
 
 ```tql
-mean(xs:list) -> float
+mean([1,2,3])
 ```
 
 </ReferenceCard>
@@ -781,7 +781,7 @@ mean(xs:list) -> float
 <ReferenceCard title="median" description="Computes the approximate median of all grouped values using a t-digest algorithm." href="/reference/functions/median">
 
 ```tql
-median(xs:list) -> float
+median([1,2,3,4])
 ```
 
 </ReferenceCard>
@@ -789,7 +789,7 @@ median(xs:list) -> float
 <ReferenceCard title="min" description="Computes the minimum of all grouped values." href="/reference/functions/min">
 
 ```tql
-min(xs:list) -> number
+min([1,2,3])
 ```
 
 </ReferenceCard>
@@ -797,7 +797,7 @@ min(xs:list) -> number
 <ReferenceCard title="mode" description="Takes the most common non-null grouped value." href="/reference/functions/mode">
 
 ```tql
-mode(xs:list) -> any
+mode([1,1,2,3])
 ```
 
 </ReferenceCard>
@@ -805,7 +805,7 @@ mode(xs:list) -> any
 <ReferenceCard title="otherwise" description="Returns a `fallback` value if `primary` is `null`." href="/reference/functions/otherwise">
 
 ```tql
-otherwise(primary:any, fallback:any) -> any
+x.otherwise(0)
 ```
 
 </ReferenceCard>
@@ -813,7 +813,7 @@ otherwise(primary:any, fallback:any) -> any
 <ReferenceCard title="quantile" description="Computes the specified quantile of all grouped values." href="/reference/functions/quantile">
 
 ```tql
-quantile(xs:list, q=float) -> float
+quantile([1,2,3,4], q=0.5)
 ```
 
 </ReferenceCard>
@@ -821,7 +821,7 @@ quantile(xs:list, q=float) -> float
 <ReferenceCard title="stddev" description="Computes the standard deviation of all grouped values." href="/reference/functions/stddev">
 
 ```tql
-stddev(xs:list) -> float
+stddev([1,2,3])
 ```
 
 </ReferenceCard>
@@ -829,7 +829,7 @@ stddev(xs:list) -> float
 <ReferenceCard title="sum" description="Computes the sum of all values." href="/reference/functions/sum">
 
 ```tql
-sum(xs:list) -> int
+sum([1,2,3])
 ```
 
 </ReferenceCard>
@@ -837,7 +837,7 @@ sum(xs:list) -> int
 <ReferenceCard title="value_counts" description="Returns a list of all grouped values alongside their frequency." href="/reference/functions/value_counts">
 
 ```tql
-value_counts(xs:list) -> list
+value_counts([1,2,2,3])
 ```
 
 </ReferenceCard>
@@ -845,7 +845,7 @@ value_counts(xs:list) -> list
 <ReferenceCard title="variance" description="Computes the variance of all grouped values." href="/reference/functions/variance">
 
 ```tql
-variance(xs:list) -> float
+variance([1,2,3])
 ```
 
 </ReferenceCard>
@@ -859,7 +859,7 @@ variance(xs:list) -> float
 <ReferenceCard title="bit_and" description="Computes the bit-wise AND of its arguments." href="/reference/functions/bit_and">
 
 ```tql
-bit_and(lhs:number, rhs:number) -> number
+bit_and(lhs, rhs)
 ```
 
 </ReferenceCard>
@@ -867,7 +867,7 @@ bit_and(lhs:number, rhs:number) -> number
 <ReferenceCard title="bit_not" description="Computes the bit-wise NOT of its argument." href="/reference/functions/bit_not">
 
 ```tql
-bit_not(x:number) -> number
+bit_not(x)
 ```
 
 </ReferenceCard>
@@ -875,7 +875,7 @@ bit_not(x:number) -> number
 <ReferenceCard title="bit_or" description="Computes the bit-wise OR of its arguments." href="/reference/functions/bit_or">
 
 ```tql
-bit_or(lhs:number, rhs:number) -> number
+bit_or(lhs, rhs)
 ```
 
 </ReferenceCard>
@@ -883,7 +883,7 @@ bit_or(lhs:number, rhs:number) -> number
 <ReferenceCard title="bit_xor" description="Computes the bit-wise XOR of its arguments." href="/reference/functions/bit_xor">
 
 ```tql
-bit_xor(lhs:number, rhs:number) -> number
+bit_xor(lhs, rhs)
 ```
 
 </ReferenceCard>
@@ -891,7 +891,7 @@ bit_xor(lhs:number, rhs:number) -> number
 <ReferenceCard title="shift_left" description="Performs a bit-wise left shift." href="/reference/functions/shift_left">
 
 ```tql
-shift_left(lhs:number, rhs:number) -> number
+shift_left(lhs, rhs)
 ```
 
 </ReferenceCard>
@@ -899,7 +899,7 @@ shift_left(lhs:number, rhs:number) -> number
 <ReferenceCard title="shift_right" description="Performs a bit-wise right shift." href="/reference/functions/shift_right">
 
 ```tql
-shift_right(lhs:number, rhs:number) -> number
+shift_right(lhs, rhs)
 ```
 
 </ReferenceCard>
@@ -913,7 +913,7 @@ shift_right(lhs:number, rhs:number) -> number
 <ReferenceCard title="decode_base64" description="Decodes bytes as Base64." href="/reference/functions/decode_base64">
 
 ```tql
-decode_base64(bytes: blob|string) -> blob
+decode_base64("VGVuemly")
 ```
 
 </ReferenceCard>
@@ -921,7 +921,7 @@ decode_base64(bytes: blob|string) -> blob
 <ReferenceCard title="decode_hex" description="Decodes bytes from their hexadecimal representation." href="/reference/functions/decode_hex">
 
 ```tql
-decode_hex(bytes: blob|string) -> blob
+decode_hex("4e6f6E6365")
 ```
 
 </ReferenceCard>
@@ -929,7 +929,7 @@ decode_hex(bytes: blob|string) -> blob
 <ReferenceCard title="decode_url" description="Decodes URL encoded strings." href="/reference/functions/decode_url">
 
 ```tql
-decode_url(string: blob|string) -> blob
+decode_url("Hello%20World")
 ```
 
 </ReferenceCard>
@@ -943,7 +943,7 @@ decode_url(string: blob|string) -> blob
 <ReferenceCard title="encode_base64" description="Encodes bytes as Base64." href="/reference/functions/encode_base64">
 
 ```tql
-encode_base64(bytes: blob|string) -> string
+encode_base64("Tenzir")
 ```
 
 </ReferenceCard>
@@ -951,7 +951,7 @@ encode_base64(bytes: blob|string) -> string
 <ReferenceCard title="encode_hex" description="Encodes bytes into their hexadecimal representation." href="/reference/functions/encode_hex">
 
 ```tql
-encode_hex(bytes: blob|string) -> string
+encode_hex("Tenzir")
 ```
 
 </ReferenceCard>
@@ -959,7 +959,7 @@ encode_hex(bytes: blob|string) -> string
 <ReferenceCard title="encode_url" description="Encodes strings using URL encoding." href="/reference/functions/encode_url">
 
 ```tql
-encode_url(bytes: blob|string) -> string
+encode_url("Hello World")
 ```
 
 </ReferenceCard>
@@ -973,7 +973,7 @@ encode_url(bytes: blob|string) -> string
 <ReferenceCard title="hash_md5" description="Computes an MD5 hash digest." href="/reference/functions/hash_md5">
 
 ```tql
-hash_md5(x:any, [seed=string])
+hash_md5("foo")
 ```
 
 </ReferenceCard>
@@ -981,7 +981,7 @@ hash_md5(x:any, [seed=string])
 <ReferenceCard title="hash_sha1" description="Computes a SHA-1 hash digest." href="/reference/functions/hash_sha1">
 
 ```tql
-hash_sha1(x:any, [seed=string]) -> string
+hash_sha1("foo")
 ```
 
 </ReferenceCard>
@@ -989,7 +989,7 @@ hash_sha1(x:any, [seed=string]) -> string
 <ReferenceCard title="hash_sha224" description="Computes a SHA-224 hash digest." href="/reference/functions/hash_sha224">
 
 ```tql
-hash_sha224(x:any, [seed=string]) -> string
+hash_sha224("foo")
 ```
 
 </ReferenceCard>
@@ -997,7 +997,7 @@ hash_sha224(x:any, [seed=string]) -> string
 <ReferenceCard title="hash_sha256" description="Computes a SHA-256 hash digest." href="/reference/functions/hash_sha256">
 
 ```tql
-hash_sha256(x:any, [seed=string]) -> string
+hash_sha256("foo")
 ```
 
 </ReferenceCard>
@@ -1005,7 +1005,7 @@ hash_sha256(x:any, [seed=string]) -> string
 <ReferenceCard title="hash_sha384" description="Computes a SHA-384 hash digest." href="/reference/functions/hash_sha384">
 
 ```tql
-hash_sha384(x:any, [seed=string]) -> string
+hash_sha384("foo")
 ```
 
 </ReferenceCard>
@@ -1013,7 +1013,7 @@ hash_sha384(x:any, [seed=string]) -> string
 <ReferenceCard title="hash_sha512" description="Computes a SHA-512 hash digest." href="/reference/functions/hash_sha512">
 
 ```tql
-hash_sha512(x:any, [seed=string]) -> string
+hash_sha512("foo")
 ```
 
 </ReferenceCard>
@@ -1021,7 +1021,7 @@ hash_sha512(x:any, [seed=string]) -> string
 <ReferenceCard title="hash_xxh3" description="Computes an XXH3 hash digest." href="/reference/functions/hash_xxh3">
 
 ```tql
-hash_xxh3(x:any, [seed=string]) -> string
+hash_xxh3("foo")
 ```
 
 </ReferenceCard>
@@ -1035,7 +1035,7 @@ hash_xxh3(x:any, [seed=string]) -> string
 <ReferenceCard title="is_v4" description="Checks whether an IP address has version number 4." href="/reference/functions/is_v4">
 
 ```tql
-is_v4(x:ip) -> bool
+is_v4(1.2.3.4)
 ```
 
 </ReferenceCard>
@@ -1043,7 +1043,7 @@ is_v4(x:ip) -> bool
 <ReferenceCard title="is_v6" description="Checks whether an IP address has version number 6." href="/reference/functions/is_v6">
 
 ```tql
-is_v6(x:ip) -> bool
+is_v6(::1)
 ```
 
 </ReferenceCard>
@@ -1051,7 +1051,7 @@ is_v6(x:ip) -> bool
 <ReferenceCard title="network" description="Retrieves the network address of a subnet." href="/reference/functions/network">
 
 ```tql
-network(x:subnet) -> ip
+10.0.0.0/8.network()
 ```
 
 </ReferenceCard>
@@ -1065,7 +1065,7 @@ network(x:subnet) -> ip
 <ReferenceCard title="append" description="Inserts an element at the back of a list." href="/reference/functions/append">
 
 ```tql
-append(xs:list, x:any) -> list
+xs.append(y)
 ```
 
 </ReferenceCard>
@@ -1073,7 +1073,7 @@ append(xs:list, x:any) -> list
 <ReferenceCard title="concatenate" description="Merges two lists." href="/reference/functions/concatenate">
 
 ```tql
-concatenate(xs:list, ys:list) -> list
+concatenate(xs, ys)
 ```
 
 </ReferenceCard>
@@ -1081,7 +1081,7 @@ concatenate(xs:list, ys:list) -> list
 <ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
 
 ```tql
-get(x:record, field:string, [fallback:any]) -> any
+list.get(index, default)
 ```
 
 </ReferenceCard>
@@ -1089,7 +1089,7 @@ get(x:record, field:string, [fallback:any]) -> any
 <ReferenceCard title="length" description="Retrieves the length of a list." href="/reference/functions/length">
 
 ```tql
-length(xs:list) -> int
+[1,2,3].length()
 ```
 
 </ReferenceCard>
@@ -1097,7 +1097,7 @@ length(xs:list) -> int
 <ReferenceCard title="map" description="Maps each list element to an expression." href="/reference/functions/map">
 
 ```tql
-map(xs:list, capture:field, any => any) -> list
+xs.map(x => x + 3)
 ```
 
 </ReferenceCard>
@@ -1105,7 +1105,7 @@ map(xs:list, capture:field, any => any) -> list
 <ReferenceCard title="prepend" description="Inserts an element at the start of a list." href="/reference/functions/prepend">
 
 ```tql
-prepend(xs:list, x:any) -> list
+xs.prepend(y)
 ```
 
 </ReferenceCard>
@@ -1113,7 +1113,7 @@ prepend(xs:list, x:any) -> list
 <ReferenceCard title="sort" description="Sorts lists and record fields." href="/reference/functions/sort">
 
 ```tql
-sort(xs:list|record) -> list|record
+xs.sort()
 ```
 
 </ReferenceCard>
@@ -1121,7 +1121,7 @@ sort(xs:list|record) -> list|record
 <ReferenceCard title="where" description="Filters list elements based on a predicate." href="/reference/functions/where">
 
 ```tql
-where(xs:list, prediacte:any => bool) -> list
+xs.where(x, x > 5)
 ```
 
 </ReferenceCard>
@@ -1129,7 +1129,7 @@ where(xs:list, prediacte:any => bool) -> list
 <ReferenceCard title="zip" description="Combines two lists into a list of pairs." href="/reference/functions/zip">
 
 ```tql
-zip(xs:list, ys:list) -> list
+zip(xs, ys)
 ```
 
 </ReferenceCard>
@@ -1143,7 +1143,7 @@ zip(xs:list, ys:list) -> list
 <ReferenceCard title="abs" description="Returns the absolute value." href="/reference/functions/abs">
 
 ```tql
-abs(x:number) -> number
+abs(-42)
 ```
 
 </ReferenceCard>
@@ -1151,7 +1151,7 @@ abs(x:number) -> number
 <ReferenceCard title="ceil" description="Computes the ceiling of a number or a time/duration with a specified unit." href="/reference/functions/ceil">
 
 ```tql
-ceil(x:number)
+ceil(4.2)
 ```
 
 </ReferenceCard>
@@ -1159,7 +1159,7 @@ ceil(x:number)
 <ReferenceCard title="floor" description="Computes the floor of a number or a time/duration with a specified unit." href="/reference/functions/floor">
 
 ```tql
-floor(x:number)
+floor(4.8)
 ```
 
 </ReferenceCard>
@@ -1167,7 +1167,7 @@ floor(x:number)
 <ReferenceCard title="random" description="Generates a random number in *[0,1]*." href="/reference/functions/random">
 
 ```tql
-random() -> float
+random()
 ```
 
 </ReferenceCard>
@@ -1175,7 +1175,7 @@ random() -> float
 <ReferenceCard title="round" description="Rounds a number or a time/duration with a specified unit." href="/reference/functions/round">
 
 ```tql
-round(x:number)
+round(4.6)
 ```
 
 </ReferenceCard>
@@ -1183,7 +1183,7 @@ round(x:number)
 <ReferenceCard title="sqrt" description="Computes the square root of a number." href="/reference/functions/sqrt">
 
 ```tql
-sqrt(x:number) -> float
+sqrt(49)
 ```
 
 </ReferenceCard>
@@ -1197,7 +1197,7 @@ sqrt(x:number) -> float
 <ReferenceCard title="community_id" description="Computes the Community ID for a network connection/flow." href="/reference/functions/community_id">
 
 ```tql
-community_id(src_ip=ip, dst_ip=ip, proto=string,
+community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")
 ```
 
 </ReferenceCard>
@@ -1205,7 +1205,7 @@ community_id(src_ip=ip, dst_ip=ip, proto=string,
 <ReferenceCard title="decapsulate" description="Decapsulates packet data at link, network, and transport layer." href="/reference/functions/decapsulate">
 
 ```tql
-decapsulate(packet:record) -> record
+decapsulate(this)
 ```
 
 </ReferenceCard>
@@ -1213,7 +1213,7 @@ decapsulate(packet:record) -> record
 <ReferenceCard title="encrypt_cryptopan" description="Encrypts an IP address via Crypto-PAn." href="/reference/functions/encrypt_cryptopan">
 
 ```tql
-encrypt_cryptopan(address:ip, [seed=string])
+encrypt_cryptopan(1.2.3.4)
 ```
 
 </ReferenceCard>
@@ -1227,7 +1227,7 @@ encrypt_cryptopan(address:ip, [seed=string])
 <ReferenceCard title="parse_cef" description="Parses a string as a CEF message" href="/reference/functions/parse_cef">
 
 ```tql
-parse_cef(input:string) -> record
+string.parse_cef()
 ```
 
 </ReferenceCard>
@@ -1235,7 +1235,7 @@ parse_cef(input:string) -> record
 <ReferenceCard title="parse_csv" description="Parses a string as CSV (Comma-Separated Values)." href="/reference/functions/parse_csv">
 
 ```tql
-parse_csv(input:string) -> record
+string.parse_csv(header=["a","b"])
 ```
 
 </ReferenceCard>
@@ -1243,7 +1243,7 @@ parse_csv(input:string) -> record
 <ReferenceCard title="parse_grok" description="Parses a string according to a grok pattern." href="/reference/functions/parse_grok">
 
 ```tql
-parse_grok(input:string, pattern:string) -> record
+string.parse_grok("%{IP:client} …")
 ```
 
 </ReferenceCard>
@@ -1251,7 +1251,7 @@ parse_grok(input:string, pattern:string) -> record
 <ReferenceCard title="parse_json" description="Parses a string as a JSON value." href="/reference/functions/parse_json">
 
 ```tql
-parse_json(input:string) -> any
+string.parse_json()
 ```
 
 </ReferenceCard>
@@ -1259,7 +1259,7 @@ parse_json(input:string) -> any
 <ReferenceCard title="parse_kv" description="Parses a string as key-value pairs." href="/reference/functions/parse_kv">
 
 ```tql
-parse_kv(input:string) -> record
+string.parse_kv()
 ```
 
 </ReferenceCard>
@@ -1267,7 +1267,7 @@ parse_kv(input:string) -> record
 <ReferenceCard title="parse_leef" description="Parses a string as a LEEF message" href="/reference/functions/parse_leef">
 
 ```tql
-parse_leef(input:string) -> record
+string.parse_leef()
 ```
 
 </ReferenceCard>
@@ -1275,7 +1275,7 @@ parse_leef(input:string) -> record
 <ReferenceCard title="parse_ssv" description="Parses a string as space separated values." href="/reference/functions/parse_ssv">
 
 ```tql
-parse_ssv(input:string) -> record
+string.parse_ssv(header=["a","b"])
 ```
 
 </ReferenceCard>
@@ -1283,7 +1283,7 @@ parse_ssv(input:string) -> record
 <ReferenceCard title="parse_syslog" description="Parses a string as a Syslog message." href="/reference/functions/parse_syslog">
 
 ```tql
-parse_syslog(input:string) -> record
+string.parse_syslog()
 ```
 
 </ReferenceCard>
@@ -1291,7 +1291,7 @@ parse_syslog(input:string) -> record
 <ReferenceCard title="parse_tsv" description="Parses a string as tab separated values." href="/reference/functions/parse_tsv">
 
 ```tql
-parse_tsv(input:string) -> record
+string.parse_tsv(header=["a","b"])
 ```
 
 </ReferenceCard>
@@ -1299,7 +1299,7 @@ parse_tsv(input:string) -> record
 <ReferenceCard title="parse_xsv" description="Parses a string as delimiter separated values." href="/reference/functions/parse_xsv">
 
 ```tql
-parse_xsv(input:string) -> record
+string.parse_xsv(",", ";", "", header=["a","b"])
 ```
 
 </ReferenceCard>
@@ -1307,7 +1307,7 @@ parse_xsv(input:string) -> record
 <ReferenceCard title="parse_yaml" description="Parses a string as a YAML value." href="/reference/functions/parse_yaml">
 
 ```tql
-parse_yaml(input:string) -> any
+string.parse_yaml()
 ```
 
 </ReferenceCard>
@@ -1321,7 +1321,7 @@ parse_yaml(input:string) -> any
 <ReferenceCard title="print_csv" description="Prints a record as a comma-separated string of values." href="/reference/functions/print_csv">
 
 ```tql
-print_csv(input:record) -> string
+record.print_csv()
 ```
 
 </ReferenceCard>
@@ -1329,7 +1329,7 @@ print_csv(input:record) -> string
 <ReferenceCard title="print_json" description="Transforms a value into a JSON string." href="/reference/functions/print_json">
 
 ```tql
-print_json(input:any) -> string
+record.print_json()
 ```
 
 </ReferenceCard>
@@ -1337,7 +1337,7 @@ print_json(input:any) -> string
 <ReferenceCard title="print_kv" description="Prints records in a key-value format." href="/reference/functions/print_kv">
 
 ```tql
-print_kv( input:record, [field_separator=str, value_separator=str,
+record.print_kv()
 ```
 
 </ReferenceCard>
@@ -1345,7 +1345,7 @@ print_kv( input:record, [field_separator=str, value_separator=str,
 <ReferenceCard title="print_ndjson" description="Transforms a value into a single-line JSON string." href="/reference/functions/print_ndjson">
 
 ```tql
-print_ndjson(input:any) -> string
+record.print_ndjson()
 ```
 
 </ReferenceCard>
@@ -1353,7 +1353,7 @@ print_ndjson(input:any) -> string
 <ReferenceCard title="print_ssv" description="Prints a record as a space-separated string of values." href="/reference/functions/print_ssv">
 
 ```tql
-print_ssv(input:record) -> string
+record.print_ssv()
 ```
 
 </ReferenceCard>
@@ -1361,7 +1361,7 @@ print_ssv(input:record) -> string
 <ReferenceCard title="print_tsv" description="Prints a record as a tab-separated string of values." href="/reference/functions/print_tsv">
 
 ```tql
-print_tsv(input:record) -> string
+record.print_tsv()
 ```
 
 </ReferenceCard>
@@ -1369,7 +1369,7 @@ print_tsv(input:record) -> string
 <ReferenceCard title="print_xsv" description="Prints a record as a delimited sequence of values." href="/reference/functions/print_xsv">
 
 ```tql
-print_xsv(input:record, field_separator=str, list_separator=str, null_value=str) -> string
+record.print_tsv()
 ```
 
 </ReferenceCard>
@@ -1377,7 +1377,7 @@ print_xsv(input:record, field_separator=str, list_separator=str, null_value=str)
 <ReferenceCard title="print_yaml" description="Prints a value as a YAML document." href="/reference/functions/print_yaml">
 
 ```tql
-print_yaml( input:any, [include_document_markers=bool] )
+record.print_yaml()
 ```
 
 </ReferenceCard>
@@ -1391,7 +1391,7 @@ print_yaml( input:any, [include_document_markers=bool] )
 <ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
 
 ```tql
-get(x:record, field:string, [fallback:any]) -> any
+list.get(index, default)
 ```
 
 </ReferenceCard>
@@ -1399,7 +1399,7 @@ get(x:record, field:string, [fallback:any]) -> any
 <ReferenceCard title="has" description="Checks whether a record has a specified field." href="/reference/functions/has">
 
 ```tql
-has(x:record, field:string) -> bool
+record.has("field")
 ```
 
 </ReferenceCard>
@@ -1407,7 +1407,7 @@ has(x:record, field:string) -> bool
 <ReferenceCard title="keys" description="Retrieves a list of field names from a record." href="/reference/functions/keys">
 
 ```tql
-keys(x:record) -> list<string>
+record.keys()
 ```
 
 </ReferenceCard>
@@ -1415,7 +1415,7 @@ keys(x:record) -> list<string>
 <ReferenceCard title="merge" description="Combines two records into a single record by merging their fields." href="/reference/functions/merge">
 
 ```tql
-merge(x: record, y: record) -> record
+merge(foo, bar)
 ```
 
 </ReferenceCard>
@@ -1423,7 +1423,7 @@ merge(x: record, y: record) -> record
 <ReferenceCard title="sort" description="Sorts lists and record fields." href="/reference/functions/sort">
 
 ```tql
-sort(xs:list|record) -> list|record
+xs.sort()
 ```
 
 </ReferenceCard>
@@ -1437,7 +1437,7 @@ sort(xs:list|record) -> list|record
 <ReferenceCard title="config" description="Reads Tenzir's configuration file." href="/reference/functions/config">
 
 ```tql
-config() -> record
+config()
 ```
 
 </ReferenceCard>
@@ -1445,7 +1445,7 @@ config() -> record
 <ReferenceCard title="env" description="Reads an environment variable." href="/reference/functions/env">
 
 ```tql
-env(x:string) -> string
+env("PATH")
 ```
 
 </ReferenceCard>
@@ -1453,7 +1453,7 @@ env(x:string) -> string
 <ReferenceCard title="secret" description="Reads a secret from a store." href="/reference/functions/secret">
 
 ```tql
-secret(x:string) -> string
+secret("KEY")
 ```
 
 </ReferenceCard>
@@ -1467,7 +1467,7 @@ secret(x:string) -> string
 <ReferenceCard title="file_contents" description="Reads a file's contents." href="/reference/functions/file_contents">
 
 ```tql
-file_contents(path:string, [binary=bool]) -> blob|string
+file_contents("/path/to/file")
 ```
 
 </ReferenceCard>
@@ -1475,7 +1475,7 @@ file_contents(path:string, [binary=bool]) -> blob|string
 <ReferenceCard title="file_name" description="Extracts the file name from a file path." href="/reference/functions/file_name">
 
 ```tql
-file_name(x:string) -> string
+file_name("/path/to/log.json")
 ```
 
 </ReferenceCard>
@@ -1483,7 +1483,7 @@ file_name(x:string) -> string
 <ReferenceCard title="parent_dir" description="Extracts the parent directory from a file path." href="/reference/functions/parent_dir">
 
 ```tql
-parent_dir(x:string) -> string
+parent_dir("/path/to/log.json")
 ```
 
 </ReferenceCard>
@@ -1497,7 +1497,7 @@ parent_dir(x:string) -> string
 <ReferenceCard title="ends_with" description="Checks if a string ends with a specified substring." href="/reference/functions/ends_with">
 
 ```tql
-ends_with(x:string, suffix:string) -> bool
+"hello".ends_with("lo")
 ```
 
 </ReferenceCard>
@@ -1505,7 +1505,7 @@ ends_with(x:string, suffix:string) -> bool
 <ReferenceCard title="is_alnum" description="Checks if a string is alphanumeric." href="/reference/functions/is_alnum">
 
 ```tql
-is_alnum(x:string) -> bool
+"hello123".is_alnum()
 ```
 
 </ReferenceCard>
@@ -1513,7 +1513,7 @@ is_alnum(x:string) -> bool
 <ReferenceCard title="is_alpha" description="Checks if a string contains only alphabetic characters." href="/reference/functions/is_alpha">
 
 ```tql
-is_alpha(x:string) -> bool
+"hello".is_alpha()
 ```
 
 </ReferenceCard>
@@ -1521,7 +1521,7 @@ is_alpha(x:string) -> bool
 <ReferenceCard title="is_lower" description="Checks if a string is in lowercase." href="/reference/functions/is_lower">
 
 ```tql
-is_lower(x:string) -> bool
+"hello".is_lower()
 ```
 
 </ReferenceCard>
@@ -1529,7 +1529,7 @@ is_lower(x:string) -> bool
 <ReferenceCard title="is_numeric" description="Checks if a string contains only numeric characters." href="/reference/functions/is_numeric">
 
 ```tql
-is_numeric(x:string) -> bool
+"1234".is_numeric()
 ```
 
 </ReferenceCard>
@@ -1537,7 +1537,7 @@ is_numeric(x:string) -> bool
 <ReferenceCard title="is_printable" description="Checks if a string contains only printable characters." href="/reference/functions/is_printable">
 
 ```tql
-is_printable(x:string) -> bool
+"hello".is_printable()
 ```
 
 </ReferenceCard>
@@ -1545,7 +1545,7 @@ is_printable(x:string) -> bool
 <ReferenceCard title="is_title" description="Checks if a string follows title case." href="/reference/functions/is_title">
 
 ```tql
-is_title(x:string) -> bool
+"Hello World".is_title()
 ```
 
 </ReferenceCard>
@@ -1553,7 +1553,7 @@ is_title(x:string) -> bool
 <ReferenceCard title="is_upper" description="Checks if a string is in uppercase." href="/reference/functions/is_upper">
 
 ```tql
-is_upper(x:string) -> bool
+"HELLO".is_upper()
 ```
 
 </ReferenceCard>
@@ -1561,7 +1561,7 @@ is_upper(x:string) -> bool
 <ReferenceCard title="length_bytes" description="Returns the length of a string in bytes." href="/reference/functions/length_bytes">
 
 ```tql
-length_bytes(x:string) -> int
+"hello".length_bytes()
 ```
 
 </ReferenceCard>
@@ -1569,7 +1569,7 @@ length_bytes(x:string) -> int
 <ReferenceCard title="length_chars" description="Returns the length of a string in characters." href="/reference/functions/length_chars">
 
 ```tql
-length_chars(x:string) -> int
+"hello".length_chars()
 ```
 
 </ReferenceCard>
@@ -1577,7 +1577,7 @@ length_chars(x:string) -> int
 <ReferenceCard title="match_regex" description="Checks if a string partially matches a regular expression." href="/reference/functions/match_regex">
 
 ```tql
-match_regex(input:string, regex:string) -> bool
+"Hi".match_regex("[Hh]i")
 ```
 
 </ReferenceCard>
@@ -1585,7 +1585,7 @@ match_regex(input:string, regex:string) -> bool
 <ReferenceCard title="slice" description="Slices a string with offsets and strides." href="/reference/functions/slice">
 
 ```tql
-slice(x:string, [begin=int, end=int, stride=int])
+"Hi".slice(begin=2, stride=4)
 ```
 
 </ReferenceCard>
@@ -1593,7 +1593,7 @@ slice(x:string, [begin=int, end=int, stride=int])
 <ReferenceCard title="starts_with" description="Checks if a string starts with a specified substring." href="/reference/functions/starts_with">
 
 ```tql
-starts_with(x:string, prefix:string) -> bool
+"hello".starts_with("he")
 ```
 
 </ReferenceCard>
@@ -1607,7 +1607,7 @@ starts_with(x:string, prefix:string) -> bool
 <ReferenceCard title="capitalize" description="Capitalizes the first character of a string." href="/reference/functions/capitalize">
 
 ```tql
-capitalize(x:string) -> string
+"hello".capitalize()
 ```
 
 </ReferenceCard>
@@ -1615,7 +1615,7 @@ capitalize(x:string) -> string
 <ReferenceCard title="join" description="Joins a list of strings into a single string using a separator." href="/reference/functions/join">
 
 ```tql
-join(xs:list, [separator:string]) -> string
+join(["a", "b", "c"], ",")
 ```
 
 </ReferenceCard>
@@ -1623,7 +1623,7 @@ join(xs:list, [separator:string]) -> string
 <ReferenceCard title="replace" description="Replaces characters within a string." href="/reference/functions/replace">
 
 ```tql
-replace(x:string, pattern:string, replacement:string, [max=int]) -> string
+"hello".replace("o", "a")
 ```
 
 </ReferenceCard>
@@ -1631,7 +1631,7 @@ replace(x:string, pattern:string, replacement:string, [max=int]) -> string
 <ReferenceCard title="replace_regex" description="Replaces characters within a string based on a regular expression." href="/reference/functions/replace_regex">
 
 ```tql
-replace_regex(x:string, pattern:string, replacement:string, [max=int]) -> string
+"hello".replace("l+o", "y")
 ```
 
 </ReferenceCard>
@@ -1639,7 +1639,7 @@ replace_regex(x:string, pattern:string, replacement:string, [max=int]) -> string
 <ReferenceCard title="reverse" description="Reverses the characters of a string." href="/reference/functions/reverse">
 
 ```tql
-reverse(x:string) -> string
+"hello".reverse()
 ```
 
 </ReferenceCard>
@@ -1647,7 +1647,7 @@ reverse(x:string) -> string
 <ReferenceCard title="split" description="Splits a string into substrings." href="/reference/functions/split">
 
 ```tql
-split(x:string, pattern:string, [max:int], [reverse:bool]) -> list
+split("a,b,c", ",")
 ```
 
 </ReferenceCard>
@@ -1655,7 +1655,7 @@ split(x:string, pattern:string, [max:int], [reverse:bool]) -> list
 <ReferenceCard title="split_regex" description="Splits a string into substrings with a regex." href="/reference/functions/split_regex">
 
 ```tql
-split_regex(x:string, pattern:string, [max:int], [reverse:bool]) -> list
+split_regex("a1b2c", r"\d")
 ```
 
 </ReferenceCard>
@@ -1663,7 +1663,7 @@ split_regex(x:string, pattern:string, [max:int], [reverse:bool]) -> list
 <ReferenceCard title="to_lower" description="Converts a string to lowercase." href="/reference/functions/to_lower">
 
 ```tql
-to_lower(x:string) -> string
+"HELLO".to_lower()
 ```
 
 </ReferenceCard>
@@ -1671,7 +1671,7 @@ to_lower(x:string) -> string
 <ReferenceCard title="to_title" description="Converts a string to title case." href="/reference/functions/to_title">
 
 ```tql
-to_title(x:string) -> string
+"hello world".to_title()
 ```
 
 </ReferenceCard>
@@ -1679,7 +1679,7 @@ to_title(x:string) -> string
 <ReferenceCard title="to_upper" description="Converts a string to uppercase." href="/reference/functions/to_upper">
 
 ```tql
-to_upper(x:string) -> string
+"hello".to_upper()
 ```
 
 </ReferenceCard>
@@ -1687,7 +1687,7 @@ to_upper(x:string) -> string
 <ReferenceCard title="trim" description="Trims whitespace from both ends of a string." href="/reference/functions/trim">
 
 ```tql
-trim(x:string) -> string
+" hello ".trim()
 ```
 
 </ReferenceCard>
@@ -1695,7 +1695,7 @@ trim(x:string) -> string
 <ReferenceCard title="trim_end" description="Trims whitespace from the end of a string." href="/reference/functions/trim_end">
 
 ```tql
-trim_end(x:string) -> string
+"hello ".trim_end()
 ```
 
 </ReferenceCard>
@@ -1703,7 +1703,7 @@ trim_end(x:string) -> string
 <ReferenceCard title="trim_start" description="Trims whitespace from the start of a string." href="/reference/functions/trim_start">
 
 ```tql
-trim_start(x:string) -> string
+" hello".trim_start()
 ```
 
 </ReferenceCard>
@@ -1717,7 +1717,7 @@ trim_start(x:string) -> string
 <ReferenceCard title="network" description="Retrieves the network address of a subnet." href="/reference/functions/network">
 
 ```tql
-network(x:subnet) -> ip
+10.0.0.0/8.network()
 ```
 
 </ReferenceCard>
@@ -1731,7 +1731,7 @@ network(x:subnet) -> ip
 <ReferenceCard title="count_days" description="Counts the number of `days` in a duration." href="/reference/functions/count_days">
 
 ```tql
-count_days(x:duration) -> float
+count_days(100d)
 ```
 
 </ReferenceCard>
@@ -1739,7 +1739,7 @@ count_days(x:duration) -> float
 <ReferenceCard title="count_hours" description="Counts the number of `hours` in a duration." href="/reference/functions/count_hours">
 
 ```tql
-count_hours(x:duration) -> float
+count_hours(100d)
 ```
 
 </ReferenceCard>
@@ -1747,7 +1747,7 @@ count_hours(x:duration) -> float
 <ReferenceCard title="count_microseconds" description="Counts the number of `microseconds` in a duration." href="/reference/functions/count_microseconds">
 
 ```tql
-count_microseconds(x:duration) -> float
+count_microseconds(100d)
 ```
 
 </ReferenceCard>
@@ -1755,7 +1755,7 @@ count_microseconds(x:duration) -> float
 <ReferenceCard title="count_milliseconds" description="Counts the number of `milliseconds` in a duration." href="/reference/functions/count_milliseconds">
 
 ```tql
-count_milliseconds(x:duration) -> float
+count_milliseconds(100d)
 ```
 
 </ReferenceCard>
@@ -1763,7 +1763,7 @@ count_milliseconds(x:duration) -> float
 <ReferenceCard title="count_minutes" description="Counts the number of `minutes` in a duration." href="/reference/functions/count_minutes">
 
 ```tql
-count_minutes(x:duration) -> float
+count_minutes(100d)
 ```
 
 </ReferenceCard>
@@ -1771,7 +1771,7 @@ count_minutes(x:duration) -> float
 <ReferenceCard title="count_months" description="Counts the number of `months` in a duration." href="/reference/functions/count_months">
 
 ```tql
-count_months(x:duration) -> float
+count_months(100d)
 ```
 
 </ReferenceCard>
@@ -1779,7 +1779,7 @@ count_months(x:duration) -> float
 <ReferenceCard title="count_nanoseconds" description="Counts the number of `nanoseconds` in a duration." href="/reference/functions/count_nanoseconds">
 
 ```tql
-count_nanoseconds(x:duration) -> float
+count_nanoseconds(100d)
 ```
 
 </ReferenceCard>
@@ -1787,7 +1787,7 @@ count_nanoseconds(x:duration) -> float
 <ReferenceCard title="count_seconds" description="Counts the number of `seconds` in a duration." href="/reference/functions/count_seconds">
 
 ```tql
-count_seconds(x:duration) -> float
+count_seconds(100d)
 ```
 
 </ReferenceCard>
@@ -1795,7 +1795,7 @@ count_seconds(x:duration) -> float
 <ReferenceCard title="count_weeks" description="Counts the number of `weeks` in a duration." href="/reference/functions/count_weeks">
 
 ```tql
-count_weeks(x:duration) -> float
+count_weeks(100d)
 ```
 
 </ReferenceCard>
@@ -1803,7 +1803,7 @@ count_weeks(x:duration) -> float
 <ReferenceCard title="count_years" description="Counts the number of `years` in a duration." href="/reference/functions/count_years">
 
 ```tql
-count_years(x:duration) -> float
+count_years(100d)
 ```
 
 </ReferenceCard>
@@ -1811,7 +1811,7 @@ count_years(x:duration) -> float
 <ReferenceCard title="day" description="Extracts the day component from a timestamp." href="/reference/functions/day">
 
 ```tql
-day(x: time) -> int
+ts.day()
 ```
 
 </ReferenceCard>
@@ -1819,7 +1819,7 @@ day(x: time) -> int
 <ReferenceCard title="days" description="Converts a number to equivalent days." href="/reference/functions/days">
 
 ```tql
-days(x:number) -> duration
+days(100)
 ```
 
 </ReferenceCard>
@@ -1827,7 +1827,7 @@ days(x:number) -> duration
 <ReferenceCard title="format_time" description="Formats a time into a string that follows a specific format." href="/reference/functions/format_time">
 
 ```tql
-format_time(input: time, format: string) -> string
+ts.format_time("%d/ %m/%Y")
 ```
 
 </ReferenceCard>
@@ -1835,7 +1835,7 @@ format_time(input: time, format: string) -> string
 <ReferenceCard title="from_epoch" description="Interprets a duration as Unix time." href="/reference/functions/from_epoch">
 
 ```tql
-from_epoch(x:duration) -> time
+from_epoch(time_ms * 1ms)
 ```
 
 </ReferenceCard>
@@ -1843,7 +1843,7 @@ from_epoch(x:duration) -> time
 <ReferenceCard title="hour" description="Extracts the hour component from a timestamp." href="/reference/functions/hour">
 
 ```tql
-hour(x: time) -> int
+ts.hour()
 ```
 
 </ReferenceCard>
@@ -1851,7 +1851,7 @@ hour(x: time) -> int
 <ReferenceCard title="hours" description="Converts a number to equivalent hours." href="/reference/functions/hours">
 
 ```tql
-hours(x:number) -> duration
+hours(100)
 ```
 
 </ReferenceCard>
@@ -1859,7 +1859,7 @@ hours(x:number) -> duration
 <ReferenceCard title="microseconds" description="Converts a number to equivalent microseconds." href="/reference/functions/microseconds">
 
 ```tql
-microseconds(x:number) -> duration
+microseconds(100)
 ```
 
 </ReferenceCard>
@@ -1867,7 +1867,7 @@ microseconds(x:number) -> duration
 <ReferenceCard title="milliseconds" description="Converts a number to equivalent milliseconds." href="/reference/functions/milliseconds">
 
 ```tql
-milliseconds(x:number) -> duration
+milliseconds(100)
 ```
 
 </ReferenceCard>
@@ -1875,7 +1875,7 @@ milliseconds(x:number) -> duration
 <ReferenceCard title="minute" description="Extracts the minute component from a timestamp." href="/reference/functions/minute">
 
 ```tql
-minute(x: time) -> int
+ts.minute()
 ```
 
 </ReferenceCard>
@@ -1883,7 +1883,7 @@ minute(x: time) -> int
 <ReferenceCard title="minutes" description="Converts a number to equivalent minutes." href="/reference/functions/minutes">
 
 ```tql
-minutes(x:number) -> duration
+minutes(100)
 ```
 
 </ReferenceCard>
@@ -1891,7 +1891,7 @@ minutes(x:number) -> duration
 <ReferenceCard title="month" description="Extracts the month component from a timestamp." href="/reference/functions/month">
 
 ```tql
-month(x: time) -> int
+ts.month()
 ```
 
 </ReferenceCard>
@@ -1899,7 +1899,7 @@ month(x: time) -> int
 <ReferenceCard title="months" description="Converts a number to equivalent months." href="/reference/functions/months">
 
 ```tql
-months(x:number) -> duration
+months(100)
 ```
 
 </ReferenceCard>
@@ -1907,7 +1907,7 @@ months(x:number) -> duration
 <ReferenceCard title="nanoseconds" description="Converts a number to equivalent nanoseconds." href="/reference/functions/nanoseconds">
 
 ```tql
-nanoseconds(x:number) -> duration
+nanoseconds(100)
 ```
 
 </ReferenceCard>
@@ -1915,7 +1915,7 @@ nanoseconds(x:number) -> duration
 <ReferenceCard title="now" description="Gets the current wallclock time." href="/reference/functions/now">
 
 ```tql
-now() -> time
+now()
 ```
 
 </ReferenceCard>
@@ -1923,7 +1923,7 @@ now() -> time
 <ReferenceCard title="parse_time" description="Parses a time from a string that follows a specific format." href="/reference/functions/parse_time">
 
 ```tql
-parse_time(input: string, format: string) -> time
+"10/11/2012".parse_time("%d/%m/%Y")
 ```
 
 </ReferenceCard>
@@ -1931,7 +1931,7 @@ parse_time(input: string, format: string) -> time
 <ReferenceCard title="second" description="Extracts the second component from a timestamp with subsecond precision." href="/reference/functions/second">
 
 ```tql
-second(x: time) -> float
+ts.second()
 ```
 
 </ReferenceCard>
@@ -1939,7 +1939,7 @@ second(x: time) -> float
 <ReferenceCard title="seconds" description="Converts a number to equivalent seconds." href="/reference/functions/seconds">
 
 ```tql
-seconds(x:number) -> duration
+seconds(100)
 ```
 
 </ReferenceCard>
@@ -1947,7 +1947,7 @@ seconds(x:number) -> duration
 <ReferenceCard title="since_epoch" description="Interprets a time value as duration since the Unix epoch." href="/reference/functions/since_epoch">
 
 ```tql
-since_epoch(x:time) -> duration
+since_epoch(2021-02-24)
 ```
 
 </ReferenceCard>
@@ -1955,7 +1955,7 @@ since_epoch(x:time) -> duration
 <ReferenceCard title="weeks" description="Converts a number to equivalent weeks." href="/reference/functions/weeks">
 
 ```tql
-weeks(x:number) -> duration
+weeks(100)
 ```
 
 </ReferenceCard>
@@ -1963,7 +1963,7 @@ weeks(x:number) -> duration
 <ReferenceCard title="years" description="Converts a number to equivalent years." href="/reference/functions/years">
 
 ```tql
-years(x:number) -> duration
+years(100)
 ```
 
 </ReferenceCard>
@@ -1977,7 +1977,7 @@ years(x:number) -> duration
 <ReferenceCard title="duration" description="Casts an expression to a duration value." href="/reference/functions/duration">
 
 ```tql
-duration(x:string) -> duration
+duration("1.34w")
 ```
 
 </ReferenceCard>
@@ -1985,7 +1985,7 @@ duration(x:string) -> duration
 <ReferenceCard title="float" description="Casts an expression to a float." href="/reference/functions/float">
 
 ```tql
-float(x:any) -> float
+float(42)
 ```
 
 </ReferenceCard>
@@ -1993,7 +1993,7 @@ float(x:any) -> float
 <ReferenceCard title="int" description="Casts an expression to an integer." href="/reference/functions/int">
 
 ```tql
-int(x:number|string, base=int) -> int
+int(-4.2)
 ```
 
 </ReferenceCard>
@@ -2001,7 +2001,7 @@ int(x:number|string, base=int) -> int
 <ReferenceCard title="ip" description="Casts an expression to an IP address." href="/reference/functions/ip">
 
 ```tql
-ip(x:string) -> ip
+ip("1.2.3.4")
 ```
 
 </ReferenceCard>
@@ -2009,7 +2009,7 @@ ip(x:string) -> ip
 <ReferenceCard title="string" description="Casts an expression to a string." href="/reference/functions/string">
 
 ```tql
-string(x:any) -> string
+string(1.2.3.4)
 ```
 
 </ReferenceCard>
@@ -2017,7 +2017,7 @@ string(x:any) -> string
 <ReferenceCard title="subnet" description="Casts an expression to a subnet value." href="/reference/functions/subnet">
 
 ```tql
-subnet(x:string) -> subnet
+subnet("1.2.3.4/16")
 ```
 
 </ReferenceCard>
@@ -2025,7 +2025,7 @@ subnet(x:string) -> subnet
 <ReferenceCard title="time" description="Casts an expression to a time value." href="/reference/functions/time">
 
 ```tql
-time(x:any) -> time
+time("2020-03-15")
 ```
 
 </ReferenceCard>
@@ -2033,7 +2033,7 @@ time(x:any) -> time
 <ReferenceCard title="uint" description="Casts an expression to an unsigned integer." href="/reference/functions/uint">
 
 ```tql
-uint(x:number|string, base=int) -> uint
+uint(4.2)
 ```
 
 </ReferenceCard>
@@ -2047,7 +2047,7 @@ uint(x:number|string, base=int) -> uint
 <ReferenceCard title="type_id" description="Retrieves the type id of an expression." href="/reference/functions/type_id">
 
 ```tql
-type_id(x:any) -> string
+type_id(1 + 3.2)
 ```
 
 </ReferenceCard>
@@ -2055,7 +2055,7 @@ type_id(x:any) -> string
 <ReferenceCard title="type_of" description="Retrieves the type definition of an expression." href="/reference/functions/type_of">
 
 ```tql
-type_of(x:any) -> record
+type_of(this)
 ```
 
 </ReferenceCard>
@@ -2069,7 +2069,7 @@ type_of(x:any) -> record
 <ReferenceCard title="flatten" description="Flattens nested data." href="/reference/functions/flatten">
 
 ```tql
-flatten(x:record, separtor=string) -> record
+flatten(this)
 ```
 
 </ReferenceCard>
@@ -2077,7 +2077,7 @@ flatten(x:record, separtor=string) -> record
 <ReferenceCard title="unflatten" description="Unflattens nested data." href="/reference/functions/unflatten">
 
 ```tql
-unflatten(x:record, [separator=string]) -> record
+unflatten(this)
 ```
 
 </ReferenceCard>

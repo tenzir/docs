@@ -1,10 +1,8 @@
 ---
 title: from_velociraptor
 category: Inputs/Events
-example: 'from_velociraptor [request_name=string, org_id=string, max_rows=int,'
+example: 'from_velociraptor subscribe="Windows"'
 ---
-
-
 Submits VQL to a Velociraptor server and returns the response as events.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: add
 category: Packages
-example: 'package::add [package_id:string, inputs=record]'
+example: 'package::add "suricata-ocsf"'
 ---
-
-
 Installs a package.
 
 ```tql

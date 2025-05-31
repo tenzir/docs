@@ -1,10 +1,8 @@
 ---
 title: buffer
 category: Internals
-example: 'buffer [capacity:int, policy=string]'
+example: 'buffer 10M, policy="drop"'
 ---
-
-
 An in-memory buffer to improve handling of data spikes in upstream operators.
 
 ```tql

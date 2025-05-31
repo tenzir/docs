@@ -1,10 +1,8 @@
 ---
 title: write_feather
 category: Printing
-example: 'write_feather [compression_level=int, compression_type=str, min_space_savings=double]'
+example: 'write_feather'
 ---
-
-
 Transforms the input event stream to Feather byte stream.
 
 ```tql

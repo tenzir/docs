@@ -1,10 +1,8 @@
 ---
 title: env
 category: Runtime
-example: 'env(x:string) -> string'
+example: 'env("PATH")'
 ---
-
-
 Reads an environment variable.
 
 ```tql

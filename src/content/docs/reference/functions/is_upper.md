@@ -1,10 +1,8 @@
 ---
 title: is_upper
 category: String/Inspection
-example: 'is_upper(x:string) -> bool'
+example: '"HELLO".is_upper()'
 ---
-
-
 Checks if a string is in uppercase.
 
 ```tql

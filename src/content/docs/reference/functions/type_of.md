@@ -1,10 +1,8 @@
 ---
 title: type_of
 category: Type System/Introspection
-example: 'type_of(x:any) -> record'
+example: 'type_of(this)'
 ---
-
-
 Retrieves the type definition of an expression.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: assert_throughput
 category: Filter
-example: 'assert_throughput min_events:int, within=duration, [retries=int]'
+example: 'assert_throughput 1000, within=1s'
 ---
-
-
 Emits a warning if the pipeline does not have the expected throughput
 
 ```tql

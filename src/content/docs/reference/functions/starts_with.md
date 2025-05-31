@@ -1,10 +1,8 @@
 ---
 title: starts_with
 category: String/Inspection
-example: 'starts_with(x:string, prefix:string) -> bool'
+example: '"hello".starts_with("he")'
 ---
-
-
 Checks if a string starts with a specified substring.
 
 ```tql

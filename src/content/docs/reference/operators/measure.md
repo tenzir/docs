@@ -1,10 +1,8 @@
 ---
 title: measure
 category: Internals
-example: 'measure [real_time=bool, cumulative=bool]'
+example: 'measure'
 ---
-
-
 Replaces the input with metrics describing the input.
 
 ```tql

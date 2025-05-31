@@ -1,10 +1,8 @@
 ---
 title: print_yaml
 category: Printing
-example: 'print_yaml( input:any, [include_document_markers=bool] )'
+example: 'record.print_yaml()'
 ---
-
-
 Prints a value as a YAML document.
 
 ```tql

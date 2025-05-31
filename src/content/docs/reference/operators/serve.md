@@ -1,10 +1,8 @@
 ---
 title: serve
 category: Internals
-example: 'serve id:string, [buffer_size=int]'
+example: 'serve "abcde12345"'
 ---
-
-
 Make events available under the `/serve` REST API endpoint
 
 ```tql

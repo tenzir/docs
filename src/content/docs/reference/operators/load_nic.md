@@ -1,10 +1,8 @@
 ---
 title: load_nic
 category: Inputs/Bytes
-example: 'load_nic iface:str, [snaplen=int, emit_file_headers=bool]'
+example: 'load_nic "eth0"'
 ---
-
-
 Loads bytes from a network interface card (NIC).
 
 [pcap-rfc]: https://datatracker.ietf.org/doc/id/draft-gharris-opsawg-pcap-00.html

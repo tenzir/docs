@@ -1,10 +1,8 @@
 ---
 title: is_alnum
 category: String/Inspection
-example: 'is_alnum(x:string) -> bool'
+example: '"hello123".is_alnum()'
 ---
-
-
 Checks if a string is alphanumeric.
 
 ```tql

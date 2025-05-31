@@ -1,10 +1,8 @@
 ---
 title: int
 category: Type System/Conversion
-example: 'int(x:number|string, base=int) -> int'
+example: 'int(-4.2)'
 ---
-
-
 Casts an expression to an integer.
 
 ```tql

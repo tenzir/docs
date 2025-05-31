@@ -1,10 +1,8 @@
 ---
 title: read_lines
 category: Parsing
-example: 'read_lines [skip_empty=bool, split_at_null=bool, split_at_regex=string]'
+example: 'read_lines'
 ---
-
-
 Parses an incoming bytes stream into events.
 
 ```tql

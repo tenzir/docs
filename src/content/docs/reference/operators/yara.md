@@ -1,10 +1,8 @@
 ---
 title: yara
 category: Detection
-example: 'yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]'
+example: 'yara "/path/to/rules", blockwise=true'
 ---
-
-
 Executes YARA rules on byte streams.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: collect
 category: Aggregation
-example: 'collect(xs:list) -> list'
+example: 'collect([1,2,2,3])'
 ---
-
-
 Creates a list of all non-null grouped values, preserving duplicates.
 
 ```tql

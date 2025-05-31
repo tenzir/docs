@@ -1,10 +1,8 @@
 ---
 title: reverse
 category: String/Transformation
-example: 'reverse(x:string) -> string'
+example: '"hello".reverse()'
 ---
-
-
 Reverses the characters of a string.
 
 ```tql

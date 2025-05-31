@@ -1,10 +1,8 @@
 ---
 title: write_xsv
 category: Printing
-example: 'write_xsv field_separator=str, list_separator=str, null_value=str, [no_header=bool]'
+example: 'write_xsv'
 ---
-
-
 Transforms event stream to XSV byte stream.
 
 ```tql

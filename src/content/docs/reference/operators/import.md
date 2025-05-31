@@ -3,8 +3,6 @@ title: import
 category: Node/Storage Engine
 example: 'import'
 ---
-
-
 Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export).
 
 ```tql

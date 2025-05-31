@@ -1,10 +1,8 @@
 ---
 title: prepend
 category: List
-example: 'prepend(xs:list, x:any) -> list'
+example: 'xs.prepend(y)'
 ---
-
-
 Inserts an element at the start of a list.
 
 ```tql

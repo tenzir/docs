@@ -1,10 +1,8 @@
 ---
 title: load_udp
 category: Inputs/Bytes
-example: 'load_udp endpoint:str, [connect=bool, insert_newlines=bool]'
+example: 'load_udp "0.0.0.0:8090"'
 ---
-
-
 Loads bytes from a UDP socket.
 
 ```tql

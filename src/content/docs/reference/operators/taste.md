@@ -1,10 +1,8 @@
 ---
 title: taste
 category: Filter
-example: 'taste [n:int]'
+example: 'taste 1'
 ---
-
-
 Limits the input to `n` events per unique schema.
 
 ```tql

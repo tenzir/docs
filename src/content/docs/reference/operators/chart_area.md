@@ -1,10 +1,8 @@
 ---
 title: chart_area
 category: Charts
-example: 'chart_area x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,'
+example: 'chart_area …'
 ---
-
-
 Plots events on an area chart.
 
 ```tql

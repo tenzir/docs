@@ -1,10 +1,8 @@
 ---
 title: hash_sha1
 category: Hashing
-example: 'hash_sha1(x:any, [seed=string]) -> string'
+example: 'hash_sha1("foo")'
 ---
-
-
 Computes a SHA-1 hash digest.
 
 ```tql

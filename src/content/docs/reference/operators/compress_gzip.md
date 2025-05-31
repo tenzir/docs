@@ -1,10 +1,8 @@
 ---
 title: compress_gzip
 category: Encode & Decode
-example: 'compress_gzip [level=int, window_bits=int, format=string]'
+example: 'compress_gzip, level=8'
 ---
-
-
 Compresses a stream of bytes using gzip compression.
 
 ```tql

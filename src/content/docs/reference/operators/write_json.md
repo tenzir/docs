@@ -1,10 +1,8 @@
 ---
 title: write_json
 category: Printing
-example: 'write_json [strip=bool, color=bool, arrays_of_objects=bool,'
+example: 'write_json'
 ---
-
-
 Transforms the input event stream to a JSON byte stream.
 
 ```tql

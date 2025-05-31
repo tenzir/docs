@@ -1,10 +1,8 @@
 ---
 title: type_id
 category: Type System/Introspection
-example: 'type_id(x:any) -> string'
+example: 'type_id(1 + 3.2)'
 ---
-
-
 Retrieves the type id of an expression.
 
 ```tql

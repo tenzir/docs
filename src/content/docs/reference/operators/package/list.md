@@ -1,10 +1,8 @@
 ---
 title: list
 category: Packages
-example: 'package::list [format=string]'
+example: 'package::list'
 ---
-
-
 Shows installed packages.
 
 ```tql

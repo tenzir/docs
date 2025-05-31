@@ -1,10 +1,8 @@
 ---
 title: hash_xxh3
 category: Hashing
-example: 'hash_xxh3(x:any, [seed=string]) -> string'
+example: 'hash_xxh3("foo")'
 ---
-
-
 Computes an XXH3 hash digest.
 
 ```tql

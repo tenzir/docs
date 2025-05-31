@@ -1,10 +1,8 @@
 ---
 title: is_printable
 category: String/Inspection
-example: 'is_printable(x:string) -> bool'
+example: '"hello".is_printable()'
 ---
-
-
 Checks if a string contains only printable characters.
 
 ```tql

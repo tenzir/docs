@@ -1,10 +1,8 @@
 ---
 title: where
 category: List
-example: 'where(xs:list, prediacte:any => bool) -> list'
+example: 'xs.where(x, x > 5)'
 ---
-
-
 Filters list elements based on a predicate.
 
 ```tql

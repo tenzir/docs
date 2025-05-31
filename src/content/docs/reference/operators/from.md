@@ -1,10 +1,8 @@
 ---
 title: from
 category: Inputs/Events
-example: 'from uri:string, [loader_args… { … }]'
+example: 'from "data.json"'
 ---
-
-
 Obtains events from an URI, inferring the source, compression and format.
 
 ```tql

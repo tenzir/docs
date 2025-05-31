@@ -1,10 +1,8 @@
 ---
 title: from_opensearch
 category: Inputs/Events
-example: 'from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,'
+example: 'from_opensearch'
 ---
-
-
 Receives events via [Opensearch Bulk
 API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).
 

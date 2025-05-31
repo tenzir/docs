@@ -1,10 +1,8 @@
 ---
 title: uint
 category: Type System/Conversion
-example: 'uint(x:number|string, base=int) -> uint'
+example: 'uint(4.2)'
 ---
-
-
 Casts an expression to an unsigned integer.
 
 ```tql

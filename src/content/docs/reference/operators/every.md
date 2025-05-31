@@ -1,10 +1,8 @@
 ---
 title: every
 category: Flow Control
-example: 'every interval:duration { … }'
+example: 'every 10s { summarize sum(amount) }'
 ---
-
-
 Runs a pipeline periodically at a fixed interval.
 
 ```tql

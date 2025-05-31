@@ -1,10 +1,8 @@
 ---
 title: chart_line
 category: Charts
-example: 'chart_line x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,'
+example: 'chart_line …'
 ---
-
-
 Plots events on an line chart.
 
 ```tql

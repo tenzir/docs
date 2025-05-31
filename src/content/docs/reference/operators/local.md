@@ -1,10 +1,8 @@
 ---
 title: local
 category: Internals
-example: 'local { … }'
+example: 'local { sort foo }'
 ---
-
-
 Forces a pipeline to run locally.
 
 ```tql

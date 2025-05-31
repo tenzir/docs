@@ -1,10 +1,8 @@
 ---
 title: unflatten
 category: Type System/Transposition
-example: 'unflatten(x:record, [separator=string]) -> record'
+example: 'unflatten(this)'
 ---
-
-
 Unflattens nested data.
 
 ```tql

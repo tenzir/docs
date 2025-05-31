@@ -1,10 +1,8 @@
 ---
 title: get
 category: List, Record
-example: 'get(x:record, field:string, [fallback:any]) -> any'
+example: 'list.get(index, default)'
 ---
-
-
 Gets a field from a record or an element from a list
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: to_google_cloud_logging
 category: Outputs/Events
-example: 'to_google_cloud_logging log_id=string, [project=string, organization=string,'
+example: 'to_google_cloud_logging …'
 ---
-
-
 Sends events to [Google Cloud Logging](https://cloud.google.com/logging).
 
 ```tql

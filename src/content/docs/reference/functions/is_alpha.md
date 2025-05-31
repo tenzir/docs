@@ -1,10 +1,8 @@
 ---
 title: is_alpha
 category: String/Inspection
-example: 'is_alpha(x:string) -> bool'
+example: '"hello".is_alpha()'
 ---
-
-
 Checks if a string contains only alphabetic characters.
 
 ```tql

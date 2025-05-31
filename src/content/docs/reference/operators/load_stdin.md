@@ -3,8 +3,6 @@ title: load_stdin
 category: Inputs/Bytes
 example: 'load_stdin'
 ---
-
-
 Accepts bytes from standard input.
 
 ```tql

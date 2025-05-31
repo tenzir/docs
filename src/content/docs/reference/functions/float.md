@@ -1,10 +1,8 @@
 ---
 title: float
 category: Type System/Conversion
-example: 'float(x:any) -> float'
+example: 'float(42)'
 ---
-
-
 Casts an expression to a float.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: all
 category: Aggregation
-example: 'all(xs:list) -> bool'
+example: 'all([true,true,false])'
 ---
-
-
 Computes the conjunction (AND) of all grouped boolean values.
 
 ```tql

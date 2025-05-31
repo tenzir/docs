@@ -1,10 +1,8 @@
 ---
 title: sigma
 category: Detection
-example: 'sigma path:string, [refresh_interval=duration]'
+example: 'sigma "/tmp/rules/"'
 ---
-
-
 Filter the input with [Sigma rules][sigma] and output matching events.
 
 [sigma]: https://github.com/SigmaHQ/sigma

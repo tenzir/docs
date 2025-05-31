@@ -1,10 +1,8 @@
 ---
 title: format_time
 category: Time & Date
-example: 'format_time(input: time, format: string) -> string'
+example: 'ts.format_time("%d/ %m/%Y")'
 ---
-
-
 Formats a time into a string that follows a specific format.
 
 ```tql

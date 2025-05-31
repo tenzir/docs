@@ -1,10 +1,8 @@
 ---
 title: sort
 category: List, Record
-example: 'sort(xs:list|record) -> list|record'
+example: 'xs.sort()'
 ---
-
-
 Sorts lists and record fields.
 
 ```tql

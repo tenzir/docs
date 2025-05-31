@@ -1,10 +1,8 @@
 ---
 title: length_bytes
 category: String/Inspection
-example: 'length_bytes(x:string) -> int'
+example: '"hello".length_bytes()'
 ---
-
-
 Returns the length of a string in bytes.
 
 ```tql

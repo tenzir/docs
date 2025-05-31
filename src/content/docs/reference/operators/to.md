@@ -1,10 +1,8 @@
 ---
 title: to
 category: Outputs/Events
-example: 'to uri:string, [saver_args… { … }]'
+example: 'to "output.json"'
 ---
-
-
 Saves to an URI, inferring the destination, compression and format.
 
 ```tql

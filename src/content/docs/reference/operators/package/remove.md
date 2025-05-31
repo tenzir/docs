@@ -1,10 +1,8 @@
 ---
 title: remove
 category: Contexts
-example: 'package::remove package_id:string'
+example: 'package::remove "suricata-ocsf"'
 ---
-
-
 Uninstalls a package.
 
 ```tql

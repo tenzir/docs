@@ -1,10 +1,8 @@
 ---
 title: slice
 category: String/Inspection
-example: 'slice(x:string, [begin=int, end=int, stride=int])'
+example: '"Hi".slice(begin=2, stride=4)'
 ---
-
-
 Slices a string with offsets and strides.
 
 ```tql

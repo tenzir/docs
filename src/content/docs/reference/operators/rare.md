@@ -1,10 +1,8 @@
 ---
 title: rare
 category: Analyze
-example: 'rare x:field'
+example: 'rare auth.token'
 ---
-
-
 Shows the least common values.
 
 ```tql

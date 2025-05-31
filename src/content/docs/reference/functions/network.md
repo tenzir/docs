@@ -1,10 +1,8 @@
 ---
 title: network
 category: IP, Subnet
-example: 'network(x:subnet) -> ip'
+example: '10.0.0.0/8.network()'
 ---
-
-
 Retrieves the network address of a subnet.
 
 ```tql

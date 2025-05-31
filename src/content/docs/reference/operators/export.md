@@ -1,10 +1,8 @@
 ---
 title: export
 category: Node/Storage Engine
-example: 'export [live=bool, retro=bool, internal=bool, parallel=int]'
+example: 'export'
 ---
-
-
 Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import).
 
 ```tql

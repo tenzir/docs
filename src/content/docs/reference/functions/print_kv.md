@@ -1,10 +1,8 @@
 ---
 title: print_kv
 category: Printing
-example: 'print_kv( input:record, [field_separator=str, value_separator=str,'
+example: 'record.print_kv()'
 ---
-
-
 Prints records in a key-value format.
 
 ```tql

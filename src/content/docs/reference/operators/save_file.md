@@ -1,10 +1,8 @@
 ---
 title: save_file
 category: Outputs/Bytes
-example: 'save_file path:string, [append=bool, real_time=bool, uds=bool]'
+example: 'save_file "/tmp/out.json"'
 ---
-
-
 Writes a byte stream to a file.
 
 ```tql

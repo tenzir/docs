@@ -1,10 +1,8 @@
 ---
 title: throttle
 category: Flow Control
-example: 'throttle bandwidth:int, [within=duration]'
+example: 'throttle 100M, within=1min'
 ---
-
-
 Limits the bandwidth of a pipeline.
 
 ```tql

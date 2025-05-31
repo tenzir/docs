@@ -1,10 +1,8 @@
 ---
 title: create_lookup_table
 category: Contexts
-example: 'context::create_lookup_table name:string'
+example: 'context::create_lookup_table "ctx"'
 ---
-
-
 Creates a lookup table context.
 
 ```tql

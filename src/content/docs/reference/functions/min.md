@@ -1,10 +1,8 @@
 ---
 title: min
 category: Aggregation
-example: 'min(xs:list) -> number'
+example: 'min([1,2,3])'
 ---
-
-
 Computes the minimum of all grouped values.
 
 ```tql

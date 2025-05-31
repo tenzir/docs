@@ -1,10 +1,8 @@
 ---
 title: write_csv
 category: Printing
-example: 'write_csv [list_separator=str, null_value=str, no_header=bool]'
+example: 'write_csv'
 ---
-
-
 Transforms event stream to CSV (Comma-Separated Values) byte stream.
 
 ```tql

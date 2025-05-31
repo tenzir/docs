@@ -1,10 +1,8 @@
 ---
 title: compress_brotli
 category: Encode & Decode
-example: 'compress_brotli [level=int, window_bits=int]'
+example: 'compress_brotli, level=10'
 ---
-
-
 Compresses a stream of bytes using Brotli compression.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: bit_and
 category: Bit Operations
-example: 'bit_and(lhs:number, rhs:number) -> number'
+example: 'bit_and(lhs, rhs)'
 ---
-
-
 Computes the bit-wise AND of its arguments.
 
 ```tql

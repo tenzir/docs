@@ -1,10 +1,8 @@
 ---
 title: save_sqs
 category: Outputs/Bytes
-example: 'save_sqs queue:str, [poll_time=duration]'
+example: 'save_sqs "sqs://tenzir"'
 ---
-
-
 Saves bytes to [Amazon SQS][sqs] queues.
 
 [sqs]: https://docs.aws.amazon.com/sqs/

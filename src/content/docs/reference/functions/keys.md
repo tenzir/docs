@@ -1,10 +1,8 @@
 ---
 title: keys
 category: Record
-example: 'keys(x:record) -> list<string>'
+example: 'record.keys()'
 ---
-
-
 Retrieves a list of field names from a record.
 
 ```tql

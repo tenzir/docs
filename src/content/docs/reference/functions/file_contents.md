@@ -1,10 +1,8 @@
 ---
 title: file_contents
 category: String/Filesystem
-example: 'file_contents(path:string, [binary=bool]) -> blob|string'
+example: 'file_contents("/path/to/file")'
 ---
-
-
 Reads a file's contents.
 
 ```tql

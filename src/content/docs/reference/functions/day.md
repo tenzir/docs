@@ -1,10 +1,8 @@
 ---
 title: day
 category: Time & Date
-example: 'day(x: time) -> int'
+example: 'ts.day()'
 ---
-
-
 Extracts the day component from a timestamp.
 
 ```tql

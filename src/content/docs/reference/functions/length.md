@@ -1,10 +1,8 @@
 ---
 title: length
 category: List
-example: 'length(xs:list) -> int'
+example: '[1,2,3].length()'
 ---
-
-
 Retrieves the length of a list.
 
 ```tql

@@ -1,10 +1,8 @@
 ---
 title: activity
 category: Pipelines
-example: 'pipeline::activity range=duration, interval=duration'
+example: 'pipeline::activity range=1d, interval=1h'
 ---
-
-
 Summarizes the activity of pipelines.
 
 ```tql

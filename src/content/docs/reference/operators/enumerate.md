@@ -1,10 +1,8 @@
 ---
 title: enumerate
 category: Modify
-example: 'enumerate [out:field]'
+example: 'enumerate num'
 ---
-
-
 Add a field with the number of preceding events.
 
 ```tql

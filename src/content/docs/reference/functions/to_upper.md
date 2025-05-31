@@ -1,10 +1,8 @@
 ---
 title: to_upper
 category: String/Transformation
-example: 'to_upper(x:string) -> string'
+example: '"hello".to_upper()'
 ---
-
-
 Converts a string to uppercase.
 
 ```tql

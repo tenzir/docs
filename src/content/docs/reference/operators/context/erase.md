@@ -1,10 +1,8 @@
 ---
 title: erase
 category: Contexts
-example: 'context::erase name:string, key=any'
+example: 'context::erase "ctx", key=x'
 ---
-
-
 Removes entries from a context.
 
 ```tql

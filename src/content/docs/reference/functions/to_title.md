@@ -1,10 +1,8 @@
 ---
 title: to_title
 category: String/Transformation
-example: 'to_title(x:string) -> string'
+example: '"hello world".to_title()'
 ---
-
-
 Converts a string to title case.
 
 ```tql

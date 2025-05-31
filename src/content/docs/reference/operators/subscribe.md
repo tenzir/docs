@@ -1,10 +1,8 @@
 ---
 title: subscribe
 category: Connecting Pipelines
-example: 'subscribe [topic:string]'
+example: 'subscribe "topic"'
 ---
-
-
 Subscribes to events from a channel with a topic.
 
 ```tql

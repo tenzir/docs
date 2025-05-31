@@ -1,10 +1,8 @@
 ---
 title: write_tsv
 category: Printing
-example: 'write_tsv [list_separator=str, null_value=str, no_header=bool]'
+example: 'write_tsv'
 ---
-
-
 Transforms event stream to TSV (Tab-Separated Values) byte stream.
 
 ```tql

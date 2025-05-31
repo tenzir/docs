@@ -1,10 +1,8 @@
 ---
 title: python
 category: Escape Hatches
-example: 'python code:string, [requirements=string]'
+example: 'python "self.x = self.y"'
 ---
-
-
 Executes Python code against each event of the input.
 
 ```tql

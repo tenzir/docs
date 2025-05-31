@@ -1,10 +1,8 @@
 ---
 title: unroll
 category: Modify
-example: 'unroll [field:list|record]'
+example: 'unroll names'
 ---
-
-
 Returns a new event for each member of a list or a record in an event,
 duplicating the surrounding event.
 

@@ -1,10 +1,8 @@
 ---
 title: sum
 category: Aggregation
-example: 'sum(xs:list) -> int'
+example: 'sum([1,2,3])'
 ---
-
-
 Computes the sum of all values.
 
 ```tql

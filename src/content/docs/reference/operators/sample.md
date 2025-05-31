@@ -1,10 +1,8 @@
 ---
 title: sample
 category: Filter
-example: 'sample [period:duration, mode=string, min_events=int, max_rate=int, max_samples=int]'
+example: 'sample 30s, max_samples=2k'
 ---
-
-
 Dynamically samples events from a event stream.
 
 ```tql

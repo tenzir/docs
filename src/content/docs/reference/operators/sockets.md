@@ -3,8 +3,6 @@ title: sockets
 category: Host Inspection
 example: 'sockets'
 ---
-
-
 Shows a snapshot of open sockets.
 
 ```tql

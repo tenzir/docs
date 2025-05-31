@@ -1,10 +1,8 @@
 ---
 title: metrics
 category: Node/Inspection
-example: 'metrics [name:string, live=bool, retro=bool]'
+example: 'metrics "cpu"'
 ---
-
-
 Retrieves metrics events from a Tenzir node.
 
 ```tql

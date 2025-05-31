@@ -1,10 +1,8 @@
 ---
 title: compress
 category: Encode & Decode
-example: 'compress codec:string, [level=int]'
+example: 'compress "zstd"'
 ---
-
-
 Compresses a stream of bytes.
 
 ```tql

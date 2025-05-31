@@ -1,10 +1,8 @@
 ---
 title: write_syslog
 category: Printing
-example: 'write_syslog [facility=int, severity=int, timestamp=time, hostname=string,'
+example: 'write_syslog'
 ---
-
-
 Writes events as syslog.
 
 ```tql

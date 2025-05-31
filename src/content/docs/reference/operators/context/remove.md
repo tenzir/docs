@@ -1,10 +1,8 @@
 ---
 title: remove
 category: Contexts
-example: 'context::remove name:string'
+example: 'context::remove "ctx"'
 ---
-
-
 Deletes a context.
 
 ```tql

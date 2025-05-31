@@ -1,10 +1,8 @@
 ---
 title: replace_regex
 category: String/Transformation
-example: 'replace_regex(x:string, pattern:string, replacement:string, [max=int]) -> string'
+example: '"hello".replace("l+o", "y")'
 ---
-
-
 Replaces characters within a string based on a regular expression.
 
 ```tql

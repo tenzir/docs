@@ -1,10 +1,8 @@
 ---
 title: write_ndjson
 category: Printing
-example: 'write_ndjson [strip=bool, color=bool, arrays_of_objects=bool,'
+example: 'write_ndjson'
 ---
-
-
 Transforms the input event stream to a Newline-Delimited JSON byte stream.
 
 ```tql

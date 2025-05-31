@@ -3,127 +3,127 @@ title: Operators
 operators:
   - name: 'api'
     description: 'Use Tenzir''s REST API directly from a pipeline.'
-    example: 'api endpoint:string, [request_body:string]'
+    example: 'api "/pipeline/list"'
     path: '/reference/operators/api'
   - name: 'batch'
     description: 'The `batch` operator controls the batch size of events.'
-    example: 'batch [limit:int, timeout=duration]'
+    example: 'batch timeout=1s'
     path: '/reference/operators/batch'
   - name: 'buffer'
     description: 'An in-memory buffer to improve handling of data spikes in upstream operators.'
-    example: 'buffer [capacity:int, policy=string]'
+    example: 'buffer 10M, policy="drop"'
     path: '/reference/operators/buffer'
   - name: 'cache'
     description: 'An in-memory cache shared between pipelines.'
-    example: 'cache id:string, [mode=string, capacity=int, read_timeout=duration, write_timeout=duration]'
+    example: 'cache "w01wyhTZm3", ttl=10min'
     path: '/reference/operators/cache'
   - name: 'legacy'
     description: 'Provides a compatibility fallback to TQL1 pipelines.'
-    example: 'legacy definition:string'
+    example: 'legacy "chart area"'
     path: '/reference/operators/legacy'
   - name: 'local'
     description: 'Forces a pipeline to run locally.'
-    example: 'local { … }'
+    example: 'local { sort foo }'
     path: '/reference/operators/local'
   - name: 'measure'
     description: 'Replaces the input with metrics describing the input.'
-    example: 'measure [real_time=bool, cumulative=bool]'
+    example: 'measure'
     path: '/reference/operators/measure'
   - name: 'remote'
     description: 'Forces a pipeline to run remotely at a node.'
-    example: 'remote { … }'
+    example: 'remote { version }'
     path: '/reference/operators/remote'
   - name: 'serve'
     description: 'Make events available under the `/serve` REST API endpoint'
-    example: 'serve id:string, [buffer_size=int]'
+    example: 'serve "abcde12345"'
     path: '/reference/operators/serve'
   - name: 'strict'
     description: 'Treats all warnings as errors.'
-    example: 'strict { … }'
+    example: 'strict { assert false }'
     path: '/reference/operators/strict'
   - name: 'unordered'
     description: 'Removes ordering assumptions from a pipeline.'
-    example: 'unordered { … }'
+    example: 'unordered { read_ndjson }'
     path: '/reference/operators/unordered'
   - name: 'assert'
     description: 'Drops event and emits a warning if the invariant is violated.'
-    example: 'assert invariant:bool'
+    example: 'assert name.starts_with("John")'
     path: '/reference/operators/assert'
   - name: 'assert_throughput'
     description: 'Emits a warning if the pipeline does not have the expected throughput'
-    example: 'assert_throughput min_events:int, within=duration, [retries=int]'
+    example: 'assert_throughput 1000, within=1s'
     path: '/reference/operators/assert_throughput'
   - name: 'deduplicate'
     description: 'Removes duplicate events based on a common key.'
-    example: 'deduplicate [key:any, limit=int, distance=int, create_timeout=duration,'
+    example: 'deduplicate src_ip'
     path: '/reference/operators/deduplicate'
   - name: 'head'
     description: 'Limits the input to the first `n` events.'
-    example: 'head [n:int]'
+    example: 'head 20'
     path: '/reference/operators/head'
   - name: 'sample'
     description: 'Dynamically samples events from a event stream.'
-    example: 'sample [period:duration, mode=string, min_events=int, max_rate=int, max_samples=int]'
+    example: 'sample 30s, max_samples=2k'
     path: '/reference/operators/sample'
   - name: 'slice'
     description: 'Keeps a range of events within the interval `[begin, end)` stepping by `stride`.'
-    example: 'slice [begin=int, end=int, stride=int]'
+    example: 'slice begin=10, end=30'
     path: '/reference/operators/slice'
   - name: 'tail'
     description: 'Limits the input to the last `n` events.'
-    example: 'tail [n:int]'
+    example: 'tail 20'
     path: '/reference/operators/tail'
   - name: 'taste'
     description: 'Limits the input to `n` events per unique schema.'
-    example: 'taste [n:int]'
+    example: 'taste 1'
     path: '/reference/operators/taste'
   - name: 'where'
     description: 'Keeps only events for which the given predicate is true.'
-    example: 'where predicate:bool'
+    example: 'where name.starts_with("John")'
     path: '/reference/operators/where'
   - name: 'chart_area'
     description: 'Plots events on an area chart.'
-    example: 'chart_area x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,'
+    example: 'chart_area …'
     path: '/reference/operators/chart_area'
   - name: 'chart_bar'
     description: 'Plots events on an bar chart.'
-    example: 'chart_bar x|label=field, y|value=any, [x_min=any, x_max=any,'
+    example: 'chart_bar …'
     path: '/reference/operators/chart_bar'
   - name: 'chart_line'
     description: 'Plots events on an line chart.'
-    example: 'chart_line x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,'
+    example: 'chart_line …'
     path: '/reference/operators/chart_line'
   - name: 'chart_pie'
     description: 'Plots events on an pie chart.'
-    example: 'chart_pie x|label=field, y|value=any, [group=any]'
+    example: 'chart_pie …'
     path: '/reference/operators/chart_pie'
   - name: 'compress'
     description: 'Compresses a stream of bytes.'
-    example: 'compress codec:string, [level=int]'
+    example: 'compress "zstd"'
     path: '/reference/operators/compress'
   - name: 'compress_brotli'
     description: 'Compresses a stream of bytes using Brotli compression.'
-    example: 'compress_brotli [level=int, window_bits=int]'
+    example: 'compress_brotli, level=10'
     path: '/reference/operators/compress_brotli'
   - name: 'compress_bz2'
     description: 'Compresses a stream of bytes using bz2 compression.'
-    example: 'compress_bz2 [level=int]'
+    example: 'compress_bz2, level=9'
     path: '/reference/operators/compress_bz2'
   - name: 'compress_gzip'
     description: 'Compresses a stream of bytes using gzip compression.'
-    example: 'compress_gzip [level=int, window_bits=int, format=string]'
+    example: 'compress_gzip, level=8'
     path: '/reference/operators/compress_gzip'
   - name: 'compress_lz4'
     description: 'Compresses a stream of bytes using lz4 compression.'
-    example: 'compress_lz4 [level=int]'
+    example: 'compress_lz4, level=7'
     path: '/reference/operators/compress_lz4'
   - name: 'compress_zstd'
     description: 'Compresses a stream of bytes using zstd compression.'
-    example: 'compress_zstd [level=int]'
+    example: 'compress_zstd, level=6'
     path: '/reference/operators/compress_zstd'
   - name: 'decompress'
     description: 'Decompresses a stream of bytes.'
-    example: 'decompress codec:string'
+    example: 'decompress "gzip"'
     path: '/reference/operators/decompress'
   - name: 'decompress_brotli'
     description: 'Decompresses a stream of bytes in the Brotli format.'
@@ -147,55 +147,55 @@ operators:
     path: '/reference/operators/decompress_zstd'
   - name: 'create_bloom_filter'
     description: 'Creates a Bloom filter context.'
-    example: 'context::create_bloom_filter name:string, capacity=int, fp_probability=float'
+    example: 'context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01'
     path: '/reference/operators/context/create_bloom_filter'
   - name: 'create_geoip'
     description: 'Creates a GeoIP context.'
-    example: 'context::create_geoip name:string, [db_path=string]'
+    example: 'context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"'
     path: '/reference/operators/context/create_geoip'
   - name: 'create_lookup_table'
     description: 'Creates a lookup table context.'
-    example: 'context::create_lookup_table name:string'
+    example: 'context::create_lookup_table "ctx"'
     path: '/reference/operators/context/create_lookup_table'
   - name: 'enrich'
     description: 'Resets data with a context.'
-    example: 'context::enrich name:string, key=any,'
+    example: 'context::enrich "ctx", key=x'
     path: '/reference/operators/context/enrich'
   - name: 'erase'
     description: 'Removes entries from a context.'
-    example: 'context::erase name:string, key=any'
+    example: 'context::erase "ctx", key=x'
     path: '/reference/operators/context/erase'
   - name: 'inspect'
     description: 'Resets a context.'
-    example: 'context::inspect name:string'
+    example: 'context::inspect "ctx"'
     path: '/reference/operators/context/inspect'
   - name: 'load'
     description: 'Loads context state.'
-    example: 'context::load name:string'
+    example: 'context::load "ctx"'
     path: '/reference/operators/context/load'
   - name: 'remove'
     description: 'Deletes a context.'
-    example: 'context::remove name:string'
+    example: 'context::remove "ctx"'
     path: '/reference/operators/context/remove'
   - name: 'remove'
     description: 'Uninstalls a package.'
-    example: 'package::remove package_id:string'
+    example: 'package::remove "suricata-ocsf"'
     path: '/reference/operators/package/remove'
   - name: 'reset'
     description: 'Resets a context.'
-    example: 'context::reset name:string'
+    example: 'context::reset "ctx"'
     path: '/reference/operators/context/reset'
   - name: 'save'
     description: 'Saves context state.'
-    example: 'context::save name:string'
+    example: 'context::save "ctx"'
     path: '/reference/operators/context/save'
   - name: 'update'
     description: 'Updates a context with new data.'
-    example: 'context::update name:string, key=any,'
+    example: 'context::update "ctx", key=x, value=y'
     path: '/reference/operators/context/update'
   - name: 'add'
     description: 'Installs a package.'
-    example: 'package::add [package_id:string, inputs=record]'
+    example: 'package::add "suricata-ocsf"'
     path: '/reference/operators/package/add'
   - name: 'list'
     description: 'Lists all contexts'
@@ -203,7 +203,7 @@ operators:
     path: '/reference/operators/context/list'
   - name: 'list'
     description: 'Shows installed packages.'
-    example: 'package::list [format=string]'
+    example: 'package::list'
     path: '/reference/operators/package/list'
   - name: 'list'
     description: 'Shows managed pipelines.'
@@ -211,11 +211,11 @@ operators:
     path: '/reference/operators/pipeline/list'
   - name: 'cron'
     description: 'Runs a pipeline periodically according to a cron expression.'
-    example: 'cron schedule:string { … }'
+    example: 'cron "* */10 * * * MON-FRI" { from "https://example.org" }'
     path: '/reference/operators/cron'
   - name: 'delay'
     description: 'Delays events relative to a given start time, with an optional speedup.'
-    example: 'delay field:time, [start=time, speed=double]'
+    example: 'delay ts, speed=2.5'
     path: '/reference/operators/delay'
   - name: 'discard'
     description: 'Discards all incoming events.'
@@ -223,15 +223,15 @@ operators:
     path: '/reference/operators/discard'
   - name: 'every'
     description: 'Runs a pipeline periodically at a fixed interval.'
-    example: 'every interval:duration { … }'
+    example: 'every 10s { summarize sum(amount) }'
     path: '/reference/operators/every'
   - name: 'fork'
     description: 'Executes a subpipeline with a copy of the input.'
-    example: 'fork { … }'
+    example: 'fork { to "copy.json" }'
     path: '/reference/operators/fork'
   - name: 'load_balance'
     description: 'Routes the data to one of multiple subpipelines.'
-    example: 'load_balance over:list { … }'
+    example: 'load_balance $over { publish $over }'
     path: '/reference/operators/load_balance'
   - name: 'pass'
     description: 'Does nothing with the input.'
@@ -239,19 +239,19 @@ operators:
     path: '/reference/operators/pass'
   - name: 'repeat'
     description: 'Repeats the input a number of times.'
-    example: 'repeat [count:int]'
+    example: 'repeat 100'
     path: '/reference/operators/repeat'
   - name: 'throttle'
     description: 'Limits the bandwidth of a pipeline.'
-    example: 'throttle bandwidth:int, [within=duration]'
+    example: 'throttle 100M, within=1min'
     path: '/reference/operators/throttle'
   - name: 'diagnostics'
     description: 'Retrieves diagnostic events from a Tenzir node.'
-    example: 'diagnostics [live=bool, retro=bool]'
+    example: 'diagnostics'
     path: '/reference/operators/diagnostics'
   - name: 'metrics'
     description: 'Retrieves metrics events from a Tenzir node.'
-    example: 'metrics [name:string, live=bool, retro=bool]'
+    example: 'metrics "cpu"'
     path: '/reference/operators/metrics'
   - name: 'openapi'
     description: 'Shows the node''s OpenAPI specification.'
@@ -267,39 +267,39 @@ operators:
     path: '/reference/operators/version'
   - name: 'drop'
     description: 'Removes fields from the event.'
-    example: 'drop field...'
+    example: 'drop name, metadata.id'
     path: '/reference/operators/drop'
   - name: 'enumerate'
     description: 'Add a field with the number of preceding events.'
-    example: 'enumerate [out:field]'
+    example: 'enumerate num'
     path: '/reference/operators/enumerate'
   - name: 'http'
     description: 'Sends HTTP/1.1 requests and forwards the response.'
-    example: 'http url:string, [method=string, payload=string, headers=record,'
+    example: 'http "example.com"'
     path: '/reference/operators/http'
   - name: 'move'
     description: 'Moves values from one field to another, removing the original field.'
-    example: 'move to=from, …'
+    example: 'move id=parsed_id, ctx.message=incoming.status'
     path: '/reference/operators/move'
   - name: 'select'
     description: 'Selects some values and discards the rest.'
-    example: 'select (field|assignment)...'
+    example: 'select name, id=metadata.id'
     path: '/reference/operators/select'
   - name: 'set'
     description: 'Assigns a value to a field, creating it if necessary.'
-    example: 'field = expr'
+    example: 'name = "Tenzir"'
     path: '/reference/operators/set'
   - name: 'timeshift'
     description: 'Adjusts timestamps relative to a given start time, with an optional speedup.'
-    example: 'timeshift field:time, [start=time, speed=double]'
+    example: 'timeshift ts, start=2020-01-01'
     path: '/reference/operators/timeshift'
   - name: 'unroll'
     description: 'Returns a new event for each member of a list or a record in an event, duplicating the surrounding event.'
-    example: 'unroll [field:list|record]'
+    example: 'unroll names'
     path: '/reference/operators/unroll'
   - name: 'export'
     description: 'Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import).'
-    example: 'export [live=bool, retro=bool, internal=bool, parallel=int]'
+    example: 'export'
     path: '/reference/operators/export'
   - name: 'fields'
     description: 'Retrieves all fields stored at a node.'
@@ -311,7 +311,7 @@ operators:
     path: '/reference/operators/import'
   - name: 'partitions'
     description: 'Retrieves metadata about events stored at a node.'
-    example: 'partitions [predicate:expr]'
+    example: 'partitions src_ip == 1.2.3.4'
     path: '/reference/operators/partitions'
   - name: 'schemas'
     description: 'Retrieves all schemas for events stored at a node.'
@@ -319,7 +319,7 @@ operators:
     path: '/reference/operators/schemas'
   - name: 'files'
     description: 'Shows file information for a given directory.'
-    example: 'files [dir:string, recurse=bool, follow_symlinks=bool, skip_permission_denied=bool]'
+    example: 'files "/var/log/", recurse=true'
     path: '/reference/operators/files'
   - name: 'nics'
     description: 'Shows a snapshot of available network interfaces.'
@@ -335,71 +335,71 @@ operators:
     path: '/reference/operators/sockets'
   - name: 'from'
     description: 'Obtains events from an URI, inferring the source, compression and format.'
-    example: 'from uri:string, [loader_args… { … }]'
+    example: 'from "data.json"'
     path: '/reference/operators/from'
   - name: 'from_file'
     description: 'Reads one or multiple files from a filesystem.'
-    example: 'from_file url:string, [watch=bool, remove=bool, path_field=field] { … }'
+    example: 'from_file "s3://data/**.json"'
     path: '/reference/operators/from_file'
   - name: 'from_fluent_bit'
     description: 'Receives events via [Fluent Bit](https://docs.fluentbit.io/).'
-    example: 'from_fluent_bit plugin:string, [options=record, fluent_bit_options=record,'
+    example: 'from_fluent_bit "opentelemetry"'
     path: '/reference/operators/from_fluent_bit'
   - name: 'from_http'
     description: 'Receives HTTP/1.1 requests.'
-    example: 'from_http url:string, [server=bool, responses=record, max_request_size=int,'
+    example: 'from_http "0.0.0.0:8080'
     path: '/reference/operators/from_http'
   - name: 'from_opensearch'
     description: 'Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).'
-    example: 'from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,'
+    example: 'from_opensearch'
     path: '/reference/operators/from_opensearch'
   - name: 'from_velociraptor'
     description: 'Submits VQL to a Velociraptor server and returns the response as events.'
-    example: 'from_velociraptor [request_name=string, org_id=string, max_rows=int,'
+    example: 'from_velociraptor subscribe="Windows"'
     path: '/reference/operators/from_velociraptor'
   - name: 'load_amqp'
     description: 'Loads a byte stream via AMQP messages.'
-    example: 'load_amqp [url:str, channel=int, exchange=str, routing_key=str, queue=str,'
+    example: 'load_amqp'
     path: '/reference/operators/load_amqp'
   - name: 'load_azure_blob_storage'
     description: 'Loads bytes from Azure Blob Storage.'
-    example: 'load_azure_blob_storage uri:string'
+    example: 'load_azure_blob_storage "abfs://container/file"'
     path: '/reference/operators/load_azure_blob_storage'
   - name: 'load_file'
     description: 'Loads the contents of the file at `path` as a byte stream.'
-    example: 'load_file path:string, [follow=bool, mmap=bool, timeout=duration]'
+    example: 'load_file "/tmp/data.json"'
     path: '/reference/operators/load_file'
   - name: 'load_ftp'
     description: 'Loads a byte stream via FTP.'
-    example: 'load_ftp url:str [tls=bool, cacert=string, certifle=string,'
+    example: 'load_ftp "ftp.example.org"'
     path: '/reference/operators/load_ftp'
   - name: 'load_gcs'
     description: 'Loads bytes from a Google Cloud Storage object.'
-    example: 'load_gcs uri:string, [anonymous=bool]'
+    example: 'load_gcs "gs://bucket/object.json"'
     path: '/reference/operators/load_gcs'
   - name: 'load_google_cloud_pubsub'
     description: 'Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.'
-    example: 'load_google_cloud_pubsub project_id=string, subscription_id=string, [timeout=duration]'
+    example: 'load_google_cloud_pubsub project_id="my-project"'
     path: '/reference/operators/load_google_cloud_pubsub'
   - name: 'load_http'
     description: 'Loads a byte stream via HTTP.'
-    example: 'load_http url:string, [data=record, params=record, headers=record,'
+    example: 'load_http "example.org", params={n: 5}'
     path: '/reference/operators/load_http'
   - name: 'load_kafka'
     description: 'Loads a byte stream from a Apache Kafka topic.'
-    example: 'load_kafka topic:string, [count=int, exit=bool, offset=int|string,'
+    example: 'load_kafka topic="example"'
     path: '/reference/operators/load_kafka'
   - name: 'load_nic'
     description: 'Loads bytes from a network interface card (NIC).'
-    example: 'load_nic iface:str, [snaplen=int, emit_file_headers=bool]'
+    example: 'load_nic "eth0"'
     path: '/reference/operators/load_nic'
   - name: 'load_s3'
     description: 'Loads from an Amazon S3 object.'
-    example: 'load_s3 uri:str, [anonymous=bool]'
+    example: 'load_s3 "s3://my-bucket/obj.csv"'
     path: '/reference/operators/load_s3'
   - name: 'load_sqs'
     description: 'Loads bytes from [Amazon SQS][sqs] queues.'
-    example: 'load_sqs queue:str, [poll_time=duration]'
+    example: 'load_sqs "sqs://tenzir"'
     path: '/reference/operators/load_sqs'
   - name: 'load_stdin'
     description: 'Accepts bytes from standard input.'
@@ -407,47 +407,47 @@ operators:
     path: '/reference/operators/load_stdin'
   - name: 'load_tcp'
     description: 'Loads bytes from a TCP or TLS connection.'
-    example: 'load_tcp endpoint:string, [parallel=int, peer_field=field, tls=bool,'
+    example: 'load_tcp "0.0.0.0:8090" { read_json }'
     path: '/reference/operators/load_tcp'
   - name: 'load_udp'
     description: 'Loads bytes from a UDP socket.'
-    example: 'load_udp endpoint:str, [connect=bool, insert_newlines=bool]'
+    example: 'load_udp "0.0.0.0:8090"'
     path: '/reference/operators/load_udp'
   - name: 'load_zmq'
     description: 'Receives ZeroMQ messages.'
-    example: 'load_zmq [endpoint:str, filter=str, listen=bool, connect=bool, monitor=bool]'
+    example: 'load_zmq'
     path: '/reference/operators/load_zmq'
   - name: 'activity'
     description: 'Summarizes the activity of pipelines.'
-    example: 'pipeline::activity range=duration, interval=duration'
+    example: 'pipeline::activity range=1d, interval=1h'
     path: '/reference/operators/pipeline/activity'
   - name: 'detach'
     description: 'Starts a pipeline in the node.'
-    example: 'pipeline::detach { … }, [id=string]'
+    example: 'pipeline::detach { … }'
     path: '/reference/operators/pipeline/detach'
   - name: 'run'
     description: 'Starts a pipeline in the node and waits for it to complete.'
-    example: 'pipeline::run { … }, [id=string]'
+    example: 'pipeline::run { … }'
     path: '/reference/operators/pipeline/run'
   - name: 'publish'
     description: 'Publishes events to a channel with a topic.'
-    example: 'publish [topic:string]'
+    example: 'publish "topic"'
     path: '/reference/operators/publish'
   - name: 'subscribe'
     description: 'Subscribes to events from a channel with a topic.'
-    example: 'subscribe [topic:string]'
+    example: 'subscribe "topic"'
     path: '/reference/operators/subscribe'
   - name: 'python'
     description: 'Executes Python code against each event of the input.'
-    example: 'python code:string, [requirements=string]'
+    example: 'python "self.x = self.y"'
     path: '/reference/operators/python'
   - name: 'shell'
     description: 'Executes a system command and hooks its stdin and stdout into the pipeline.'
-    example: 'shell cmd:string'
+    example: 'shell "echo hello"'
     path: '/reference/operators/shell'
   - name: 'rare'
     description: 'Shows the least common values.'
-    example: 'rare x:field'
+    example: 'rare auth.token'
     path: '/reference/operators/rare'
   - name: 'reverse'
     description: 'Reverses the event order.'
@@ -455,15 +455,15 @@ operators:
     path: '/reference/operators/reverse'
   - name: 'sort'
     description: 'Sorts events by the given expressions.'
-    example: 'sort [-]expr...'
+    example: 'sort name, -abs(transaction)'
     path: '/reference/operators/sort'
   - name: 'summarize'
     description: 'Groups events and applies aggregate functions to each group.'
-    example: 'summarize (group|aggregation)...'
+    example: 'summarize name, sum(amount)'
     path: '/reference/operators/summarize'
   - name: 'top'
     description: 'Shows the most common values. The dual to [`rare`](/reference/operators/rare).'
-    example: 'top x:field'
+    example: 'top user'
     path: '/reference/operators/top'
   - name: 'read_bitz'
     description: 'Parses bytes as *BITZ* format.'
@@ -471,11 +471,11 @@ operators:
     path: '/reference/operators/read_bitz'
   - name: 'read_cef'
     description: 'Parses an incoming [Common Event Format (CEF)][cef] stream into events.'
-    example: 'read_cef [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]'
+    example: 'read_cef'
     path: '/reference/operators/read_cef'
   - name: 'read_csv'
     description: 'Read CSV (Comma-Separated Values) from a byte stream.'
-    example: 'read_csv [list_separator=string, null_value=string, comments=bool, header=string,'
+    example: 'read_csv null_value="-"'
     path: '/reference/operators/read_csv'
   - name: 'read_feather'
     description: 'Parses an incoming Feather byte stream into events.'
@@ -483,31 +483,31 @@ operators:
     path: '/reference/operators/read_feather'
   - name: 'read_gelf'
     description: 'Parses an incoming [GELF](https://go2docs.graylog.org/current/getting_in_log_data/gelf.html) stream into events.'
-    example: 'read_gelf [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]'
+    example: 'read_gelf'
     path: '/reference/operators/read_gelf'
   - name: 'read_grok'
     description: 'read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool, include_unnamed=bool, schema=string, selector=string, schema_only=bool, merge=bool, raw=bool, unflatten_separator=string]'
-    example: 'read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool,'
+    example: 'read_grok "%{IP:client} %{WORD:action}"'
     path: '/reference/operators/read_grok'
   - name: 'read_json'
     description: 'Parses an incoming JSON stream into events.'
-    example: 'read_json [schema=string, selector=string, schema_only=bool, merge=bool, raw=bool,'
+    example: 'read_json arrays_of_objects=true'
     path: '/reference/operators/read_json'
   - name: 'read_kv'
     description: 'Read Key-Value pairs from a byte stream.'
-    example: 'read_kv [field_split=string, value_split=string, merge=bool, raw=bool, quotes=string,'
+    example: 'read_kv r"(\s+)[A-Z_]+:", r":\s*"'
     path: '/reference/operators/read_kv'
   - name: 'read_leef'
     description: 'Parses an incoming [LEEF][leef] stream into events.'
-    example: 'read_leef [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]'
+    example: 'read_leef'
     path: '/reference/operators/read_leef'
   - name: 'read_lines'
     description: 'Parses an incoming bytes stream into events.'
-    example: 'read_lines [skip_empty=bool, split_at_null=bool, split_at_regex=string]'
+    example: 'read_lines'
     path: '/reference/operators/read_lines'
   - name: 'read_ndjson'
     description: 'Parses an incoming NDJSON (newline-delimited JSON) stream into events.'
-    example: 'read_ndjson [schema=string, selector=string, schema_only=bool,'
+    example: 'read_ndjson'
     path: '/reference/operators/read_ndjson'
   - name: 'read_parquet'
     description: 'Reads events from a Parquet byte stream.'
@@ -515,35 +515,35 @@ operators:
     path: '/reference/operators/read_parquet'
   - name: 'read_pcap'
     description: 'Reads raw network packets in [PCAP][pcap-rfc] file format.'
-    example: 'read_pcap [emit_file_headers=bool]'
+    example: 'read_pcap'
     path: '/reference/operators/read_pcap'
   - name: 'read_ssv'
     description: 'Read SSV (Space-Separated Values) from a byte stream.'
-    example: 'read_ssv [list_separator=string, null_value=string, comments=bool, header=string,'
+    example: 'read_ssv header="name count"'
     path: '/reference/operators/read_ssv'
   - name: 'read_suricata'
     description: 'Parse an incoming [Suricata EVE JSON][eve-json] stream into events.'
-    example: 'read_suricata [schema_only=bool, raw=bool]'
+    example: 'read_suricata'
     path: '/reference/operators/read_suricata'
   - name: 'read_syslog'
     description: 'Parses an incoming [Syslog](https://en.wikipedia.org/wiki/Syslog) stream into events.'
-    example: 'read_syslog [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]'
+    example: 'read_syslog'
     path: '/reference/operators/read_syslog'
   - name: 'read_tsv'
     description: 'Read TSV (Tab-Separated Values) from a byte stream.'
-    example: 'read_tsv [list_separator=string, null_value=string, comments=bool, header=string,'
+    example: 'read_tsv auto_expand=true'
     path: '/reference/operators/read_tsv'
   - name: 'read_xsv'
     description: 'Read XSV from a byte stream.'
-    example: 'read_xsv field_separator=string, list_separator=string, null_value=string,'
+    example: 'read_xsv ";", ":", "N/A"'
     path: '/reference/operators/read_xsv'
   - name: 'read_yaml'
     description: 'Parses an incoming YAML stream into events.'
-    example: 'read_yaml [merge=bool, raw=bool, schema=string, selector=string,'
+    example: 'read_yaml'
     path: '/reference/operators/read_yaml'
   - name: 'read_zeek_json'
     description: 'Parse an incoming Zeek JSON stream into events.'
-    example: 'read_zeek_json [schema_only=bool, raw=bool]'
+    example: 'read_zeek_json'
     path: '/reference/operators/read_zeek_json'
   - name: 'read_zeek_tsv'
     description: 'Parses an incoming `Zeek TSV` stream into events.'
@@ -551,47 +551,47 @@ operators:
     path: '/reference/operators/read_zeek_tsv'
   - name: 'save_amqp'
     description: 'Saves a byte stream via AMQP messages.'
-    example: 'save_amqp [url:str, channel=int, exchange=str, routing_key=str,'
+    example: 'save_amqp'
     path: '/reference/operators/save_amqp'
   - name: 'save_azure_blob_storage'
     description: 'Saves bytes to Azure Blob Storage.'
-    example: 'save_azure_blob_storage uri:string'
+    example: 'save_azure_blob_storage "abfs://container/file"'
     path: '/reference/operators/save_azure_blob_storage'
   - name: 'save_email'
     description: 'Saves bytes through an SMTP server.'
-    example: 'save_email recipient:str, [endpoint=str, from=str, subject=str, username=str,'
+    example: 'save_email "user@example.org"'
     path: '/reference/operators/save_email'
   - name: 'save_file'
     description: 'Writes a byte stream to a file.'
-    example: 'save_file path:string, [append=bool, real_time=bool, uds=bool]'
+    example: 'save_file "/tmp/out.json"'
     path: '/reference/operators/save_file'
   - name: 'save_ftp'
     description: 'Saves a byte stream via FTP.'
-    example: 'save_ftp url:str [tls=bool, cacert=string, certifle=string,'
+    example: 'save_ftp "ftp.example.org"'
     path: '/reference/operators/save_ftp'
   - name: 'save_gcs'
     description: 'Saves bytes to a Google Cloud Storage object.'
-    example: 'save_gcs uri:string, [anonymous=bool]'
+    example: 'save_gcs "gs://bucket/object.json"'
     path: '/reference/operators/save_gcs'
   - name: 'save_google_cloud_pubsub'
     description: 'Publishes to a Google Cloud Pub/Sub topic.'
-    example: 'save_google_cloud_pubsub project_id=string, topic_id=string'
+    example: 'save_google_cloud_pubsub project_id="my-project"'
     path: '/reference/operators/save_google_cloud_pubsub'
   - name: 'save_http'
     description: 'Sends a byte stream via HTTP.'
-    example: 'save_http url:string, [params=record, headers=record, method=string,'
+    example: 'save_http "example.org/api"'
     path: '/reference/operators/save_http'
   - name: 'save_kafka'
     description: 'Saves a byte stream to a Apache Kafka topic.'
-    example: 'save_kafka topic:string, [key=string, timestamp=time, options=record,'
+    example: 'save_kafka topic="example"'
     path: '/reference/operators/save_kafka'
   - name: 'save_s3'
     description: 'Saves bytes to an Amazon S3 object.'
-    example: 'save_s3 uri:str, [anonymous=bool]'
+    example: 'save_s3 "s3://my-bucket/obj.csv"'
     path: '/reference/operators/save_s3'
   - name: 'save_sqs'
     description: 'Saves bytes to [Amazon SQS][sqs] queues.'
-    example: 'save_sqs queue:str, [poll_time=duration]'
+    example: 'save_sqs "sqs://tenzir"'
     path: '/reference/operators/save_sqs'
   - name: 'save_stdout'
     description: 'Writes a byte stream to standard output.'
@@ -599,71 +599,71 @@ operators:
     path: '/reference/operators/save_stdout'
   - name: 'save_tcp'
     description: 'Saves bytes to a TCP or TLS connection.'
-    example: 'save_tcp endpoint:string, [tls=bool, cacert=string, certifle=string,'
+    example: 'save_tcp "0.0.0.0:8090", tls=true'
     path: '/reference/operators/save_tcp'
   - name: 'save_udp'
     description: 'Saves bytes to a UDP socket.'
-    example: 'save_udp endpoint:str'
+    example: 'save_udp "0.0.0.0:8090"'
     path: '/reference/operators/save_udp'
   - name: 'save_zmq'
     description: 'Sends bytes as ZeroMQ messages.'
-    example: 'save_zmq [endpoint:str, listen=bool, connect=bool, monitor=bool]'
+    example: 'save_zmq'
     path: '/reference/operators/save_zmq'
   - name: 'sigma'
     description: 'Filter the input with [Sigma rules][sigma] and output matching events.'
-    example: 'sigma path:string, [refresh_interval=duration]'
+    example: 'sigma "/tmp/rules/"'
     path: '/reference/operators/sigma'
   - name: 'yara'
     description: 'Executes YARA rules on byte streams.'
-    example: 'yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]'
+    example: 'yara "/path/to/rules", blockwise=true'
     path: '/reference/operators/yara'
   - name: 'to'
     description: 'Saves to an URI, inferring the destination, compression and format.'
-    example: 'to uri:string, [saver_args… { … }]'
+    example: 'to "output.json"'
     path: '/reference/operators/to'
   - name: 'to_asl'
     description: 'Sends events to [Amazon Security Lake (ASL)][asl].'
-    example: 'to_asl s3_uri:string, region=string, account_id=string, [timeout=duration]'
+    example: 'to_asl "s3://…"'
     path: '/reference/operators/to_asl'
   - name: 'to_azure_log_analytics'
     description: 'Sends events to the [Microsoft Azure Logs Ingestion API][api].'
-    example: 'to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string,'
+    example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
     path: '/reference/operators/to_azure_log_analytics'
   - name: 'to_clickhouse'
     description: 'Sends events to a ClickHouse table.'
-    example: 'to_clickhouse table=string, [host=string, port=int, user=string, password=string,'
+    example: 'to_clickhouse table="my_table"'
     path: '/reference/operators/to_clickhouse'
   - name: 'to_fluent_bit'
     description: 'Sends events via [Fluent Bit](https://docs.fluentbit.io/).'
-    example: 'to_fluent_bit plugin:string, [options=record, fluent_bit_options=record,'
+    example: 'to_fluent_bit "elasticsearch" …'
     path: '/reference/operators/to_fluent_bit'
   - name: 'to_google_cloud_logging'
     description: 'Sends events to [Google Cloud Logging](https://cloud.google.com/logging).'
-    example: 'to_google_cloud_logging log_id=string, [project=string, organization=string,'
+    example: 'to_google_cloud_logging …'
     path: '/reference/operators/to_google_cloud_logging'
   - name: 'to_google_cloud_logging'
     description: 'Sends events to **Google Cloud Logging**.'
-    example: 'to_google_cloud_logging name=string, resource_type=string,'
+    example: 'to_google_cloud_logging …'
     path: '/reference/operators/to_google_cloud_logging'
   - name: 'to_google_secops'
     description: 'Sends unstructured events to a Google SecOps Chronicle instance.'
-    example: 'to_google_secops customer_id=string, private_key=string, client_email=string,'
+    example: 'to_google_secops …'
     path: '/reference/operators/to_google_secops'
   - name: 'to_hive'
     description: 'Writes events to a URI using hive partitioning.'
-    example: 'to_hive uri:string, partition_by=list<field>, format=string, [timeout=duration, max_size=int]'
+    example: 'to_hive "s3://…", partition_by=[x]'
     path: '/reference/operators/to_hive'
   - name: 'to_opensearch'
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
-    example: 'to_opensearch url:string, action=string, [index=string, id=string, doc=record,'
+    example: 'to_opensearch ''localhost:9200", …'
     path: '/reference/operators/to_opensearch'
   - name: 'to_snowflake'
     description: 'Sends events to a Snowflake database.'
-    example: 'to_snowflake account_identifier=string, user_name=string, password=string,'
+    example: 'to_snowflake account_identifier="…'
     path: '/reference/operators/to_snowflake'
   - name: 'to_splunk'
     description: 'Sends events to a Splunk [HTTP Event Collector (HEC)][hec].'
-    example: 'to_splunk url:string, hec_token=string,'
+    example: 'to_splunk "localhost:8088", …'
     path: '/reference/operators/to_splunk'
   - name: 'write_bitz'
     description: 'Writes events in *BITZ* format.'
@@ -671,19 +671,19 @@ operators:
     path: '/reference/operators/write_bitz'
   - name: 'write_csv'
     description: 'Transforms event stream to CSV (Comma-Separated Values) byte stream.'
-    example: 'write_csv [list_separator=str, null_value=str, no_header=bool]'
+    example: 'write_csv'
     path: '/reference/operators/write_csv'
   - name: 'write_feather'
     description: 'Transforms the input event stream to Feather byte stream.'
-    example: 'write_feather [compression_level=int, compression_type=str, min_space_savings=double]'
+    example: 'write_feather'
     path: '/reference/operators/write_feather'
   - name: 'write_json'
     description: 'Transforms the input event stream to a JSON byte stream.'
-    example: 'write_json [strip=bool, color=bool, arrays_of_objects=bool,'
+    example: 'write_json'
     path: '/reference/operators/write_json'
   - name: 'write_kv'
     description: 'Writes events in a Key-Value format.'
-    example: 'write_kv [field_separator=str, value_separator=str, list_separator=str,'
+    example: 'write_kv'
     path: '/reference/operators/write_kv'
   - name: 'write_lines'
     description: 'Writes events as key-value pairsthe *values* of an event.'
@@ -691,11 +691,11 @@ operators:
     path: '/reference/operators/write_lines'
   - name: 'write_ndjson'
     description: 'Transforms the input event stream to a Newline-Delimited JSON byte stream.'
-    example: 'write_ndjson [strip=bool, color=bool, arrays_of_objects=bool,'
+    example: 'write_ndjson'
     path: '/reference/operators/write_ndjson'
   - name: 'write_parquet'
     description: 'Transforms event stream to a Parquet byte stream.'
-    example: 'write_parquet [compression_level=int, compression_type=str]'
+    example: 'write_parquet'
     path: '/reference/operators/write_parquet'
   - name: 'write_pcap'
     description: 'Transforms event stream to PCAP byte stream.'
@@ -703,23 +703,23 @@ operators:
     path: '/reference/operators/write_pcap'
   - name: 'write_ssv'
     description: 'Transforms event stream to SSV (Space-Separated Values) byte stream.'
-    example: 'write_ssv [list_separator=str, null_value=str, no_header=bool]'
+    example: 'write_ssv'
     path: '/reference/operators/write_ssv'
   - name: 'write_syslog'
     description: 'Writes events as syslog.'
-    example: 'write_syslog [facility=int, severity=int, timestamp=time, hostname=string,'
+    example: 'write_syslog'
     path: '/reference/operators/write_syslog'
   - name: 'write_tql'
     description: 'Transforms the input event stream to a TQL notation byte stream.'
-    example: 'write_tql [strip=bool, color=bool, compact=bool,'
+    example: 'write_tql'
     path: '/reference/operators/write_tql'
   - name: 'write_tsv'
     description: 'Transforms event stream to TSV (Tab-Separated Values) byte stream.'
-    example: 'write_tsv [list_separator=str, null_value=str, no_header=bool]'
+    example: 'write_tsv'
     path: '/reference/operators/write_tsv'
   - name: 'write_xsv'
     description: 'Transforms event stream to XSV byte stream.'
-    example: 'write_xsv field_separator=str, list_separator=str, null_value=str, [no_header=bool]'
+    example: 'write_xsv'
     path: '/reference/operators/write_xsv'
   - name: 'write_yaml'
     description: 'Transforms the input event stream to YAML byte stream.'
@@ -727,7 +727,7 @@ operators:
     path: '/reference/operators/write_yaml'
   - name: 'write_zeek_tsv'
     description: 'Transforms event stream into Zeek Tab-Separated Value byte stream.'
-    example: 'write_zeek_tsv [set_separator=str, empty_field=str, unset_field=str, disable_timestamp_tags=bool]'
+    example: 'write_zeek_tsv'
     path: '/reference/operators/write_zeek_tsv'
 ---
 
@@ -748,7 +748,7 @@ Tenzir comes with a wide range of built-in pipeline operators.
 <ReferenceCard title="rare" description="Shows the least common values." href="/reference/operators/rare">
 
 ```tql
-rare x:field
+rare auth.token
 ```
 
 </ReferenceCard>
@@ -764,7 +764,7 @@ reverse
 <ReferenceCard title="sort" description="Sorts events by the given expressions." href="/reference/operators/sort">
 
 ```tql
-sort [-]expr...
+sort name, -abs(transaction)
 ```
 
 </ReferenceCard>
@@ -772,7 +772,7 @@ sort [-]expr...
 <ReferenceCard title="summarize" description="Groups events and applies aggregate functions to each group." href="/reference/operators/summarize">
 
 ```tql
-summarize (group|aggregation)...
+summarize name, sum(amount)
 ```
 
 </ReferenceCard>
@@ -780,7 +780,7 @@ summarize (group|aggregation)...
 <ReferenceCard title="top" description="Shows the most common values. The dual to [`rare`](/reference/operators/rare)." href="/reference/operators/top">
 
 ```tql
-top x:field
+top user
 ```
 
 </ReferenceCard>
@@ -794,7 +794,7 @@ top x:field
 <ReferenceCard title="chart_area" description="Plots events on an area chart." href="/reference/operators/chart_area">
 
 ```tql
-chart_area x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
+chart_area …
 ```
 
 </ReferenceCard>
@@ -802,7 +802,7 @@ chart_area x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
 <ReferenceCard title="chart_bar" description="Plots events on an bar chart." href="/reference/operators/chart_bar">
 
 ```tql
-chart_bar x|label=field, y|value=any, [x_min=any, x_max=any,
+chart_bar …
 ```
 
 </ReferenceCard>
@@ -810,7 +810,7 @@ chart_bar x|label=field, y|value=any, [x_min=any, x_max=any,
 <ReferenceCard title="chart_line" description="Plots events on an line chart." href="/reference/operators/chart_line">
 
 ```tql
-chart_line x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
+chart_line …
 ```
 
 </ReferenceCard>
@@ -818,7 +818,7 @@ chart_line x=field, y=any, [x_min=any, x_max=any, y_min=any, y_max=any,
 <ReferenceCard title="chart_pie" description="Plots events on an pie chart." href="/reference/operators/chart_pie">
 
 ```tql
-chart_pie x|label=field, y|value=any, [group=any]
+chart_pie …
 ```
 
 </ReferenceCard>
@@ -832,7 +832,7 @@ chart_pie x|label=field, y|value=any, [group=any]
 <ReferenceCard title="publish" description="Publishes events to a channel with a topic." href="/reference/operators/publish">
 
 ```tql
-publish [topic:string]
+publish "topic"
 ```
 
 </ReferenceCard>
@@ -840,7 +840,7 @@ publish [topic:string]
 <ReferenceCard title="subscribe" description="Subscribes to events from a channel with a topic." href="/reference/operators/subscribe">
 
 ```tql
-subscribe [topic:string]
+subscribe "topic"
 ```
 
 </ReferenceCard>
@@ -854,7 +854,7 @@ subscribe [topic:string]
 <ReferenceCard title="create_bloom_filter" description="Creates a Bloom filter context." href="/reference/operators/context/create_bloom_filter">
 
 ```tql
-context::create_bloom_filter name:string, capacity=int, fp_probability=float
+context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01
 ```
 
 </ReferenceCard>
@@ -862,7 +862,7 @@ context::create_bloom_filter name:string, capacity=int, fp_probability=float
 <ReferenceCard title="create_geoip" description="Creates a GeoIP context." href="/reference/operators/context/create_geoip">
 
 ```tql
-context::create_geoip name:string, [db_path=string]
+context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"
 ```
 
 </ReferenceCard>
@@ -870,7 +870,7 @@ context::create_geoip name:string, [db_path=string]
 <ReferenceCard title="create_lookup_table" description="Creates a lookup table context." href="/reference/operators/context/create_lookup_table">
 
 ```tql
-context::create_lookup_table name:string
+context::create_lookup_table "ctx"
 ```
 
 </ReferenceCard>
@@ -878,7 +878,7 @@ context::create_lookup_table name:string
 <ReferenceCard title="enrich" description="Resets data with a context." href="/reference/operators/context/enrich">
 
 ```tql
-context::enrich name:string, key=any,
+context::enrich "ctx", key=x
 ```
 
 </ReferenceCard>
@@ -886,7 +886,7 @@ context::enrich name:string, key=any,
 <ReferenceCard title="erase" description="Removes entries from a context." href="/reference/operators/context/erase">
 
 ```tql
-context::erase name:string, key=any
+context::erase "ctx", key=x
 ```
 
 </ReferenceCard>
@@ -894,7 +894,7 @@ context::erase name:string, key=any
 <ReferenceCard title="inspect" description="Resets a context." href="/reference/operators/context/inspect">
 
 ```tql
-context::inspect name:string
+context::inspect "ctx"
 ```
 
 </ReferenceCard>
@@ -902,7 +902,7 @@ context::inspect name:string
 <ReferenceCard title="load" description="Loads context state." href="/reference/operators/context/load">
 
 ```tql
-context::load name:string
+context::load "ctx"
 ```
 
 </ReferenceCard>
@@ -910,7 +910,7 @@ context::load name:string
 <ReferenceCard title="remove" description="Deletes a context." href="/reference/operators/context/remove">
 
 ```tql
-context::remove name:string
+context::remove "ctx"
 ```
 
 </ReferenceCard>
@@ -918,7 +918,7 @@ context::remove name:string
 <ReferenceCard title="remove" description="Uninstalls a package." href="/reference/operators/package/remove">
 
 ```tql
-package::remove package_id:string
+package::remove "suricata-ocsf"
 ```
 
 </ReferenceCard>
@@ -926,7 +926,7 @@ package::remove package_id:string
 <ReferenceCard title="reset" description="Resets a context." href="/reference/operators/context/reset">
 
 ```tql
-context::reset name:string
+context::reset "ctx"
 ```
 
 </ReferenceCard>
@@ -934,7 +934,7 @@ context::reset name:string
 <ReferenceCard title="save" description="Saves context state." href="/reference/operators/context/save">
 
 ```tql
-context::save name:string
+context::save "ctx"
 ```
 
 </ReferenceCard>
@@ -942,7 +942,7 @@ context::save name:string
 <ReferenceCard title="update" description="Updates a context with new data." href="/reference/operators/context/update">
 
 ```tql
-context::update name:string, key=any,
+context::update "ctx", key=x, value=y
 ```
 
 </ReferenceCard>
@@ -956,7 +956,7 @@ context::update name:string, key=any,
 <ReferenceCard title="sigma" description="Filter the input with [Sigma rules][sigma] and output matching events." href="/reference/operators/sigma">
 
 ```tql
-sigma path:string, [refresh_interval=duration]
+sigma "/tmp/rules/"
 ```
 
 </ReferenceCard>
@@ -964,7 +964,7 @@ sigma path:string, [refresh_interval=duration]
 <ReferenceCard title="yara" description="Executes YARA rules on byte streams." href="/reference/operators/yara">
 
 ```tql
-yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]
+yara "/path/to/rules", blockwise=true
 ```
 
 </ReferenceCard>
@@ -978,7 +978,7 @@ yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]
 <ReferenceCard title="compress" description="Compresses a stream of bytes." href="/reference/operators/compress">
 
 ```tql
-compress codec:string, [level=int]
+compress "zstd"
 ```
 
 </ReferenceCard>
@@ -986,7 +986,7 @@ compress codec:string, [level=int]
 <ReferenceCard title="compress_brotli" description="Compresses a stream of bytes using Brotli compression." href="/reference/operators/compress_brotli">
 
 ```tql
-compress_brotli [level=int, window_bits=int]
+compress_brotli, level=10
 ```
 
 </ReferenceCard>
@@ -994,7 +994,7 @@ compress_brotli [level=int, window_bits=int]
 <ReferenceCard title="compress_bz2" description="Compresses a stream of bytes using bz2 compression." href="/reference/operators/compress_bz2">
 
 ```tql
-compress_bz2 [level=int]
+compress_bz2, level=9
 ```
 
 </ReferenceCard>
@@ -1002,7 +1002,7 @@ compress_bz2 [level=int]
 <ReferenceCard title="compress_gzip" description="Compresses a stream of bytes using gzip compression." href="/reference/operators/compress_gzip">
 
 ```tql
-compress_gzip [level=int, window_bits=int, format=string]
+compress_gzip, level=8
 ```
 
 </ReferenceCard>
@@ -1010,7 +1010,7 @@ compress_gzip [level=int, window_bits=int, format=string]
 <ReferenceCard title="compress_lz4" description="Compresses a stream of bytes using lz4 compression." href="/reference/operators/compress_lz4">
 
 ```tql
-compress_lz4 [level=int]
+compress_lz4, level=7
 ```
 
 </ReferenceCard>
@@ -1018,7 +1018,7 @@ compress_lz4 [level=int]
 <ReferenceCard title="compress_zstd" description="Compresses a stream of bytes using zstd compression." href="/reference/operators/compress_zstd">
 
 ```tql
-compress_zstd [level=int]
+compress_zstd, level=6
 ```
 
 </ReferenceCard>
@@ -1026,7 +1026,7 @@ compress_zstd [level=int]
 <ReferenceCard title="decompress" description="Decompresses a stream of bytes." href="/reference/operators/decompress">
 
 ```tql
-decompress codec:string
+decompress "gzip"
 ```
 
 </ReferenceCard>
@@ -1080,7 +1080,7 @@ decompress_zstd
 <ReferenceCard title="python" description="Executes Python code against each event of the input." href="/reference/operators/python">
 
 ```tql
-python code:string, [requirements=string]
+python "self.x = self.y"
 ```
 
 </ReferenceCard>
@@ -1088,7 +1088,7 @@ python code:string, [requirements=string]
 <ReferenceCard title="shell" description="Executes a system command and hooks its stdin and stdout into the pipeline." href="/reference/operators/shell">
 
 ```tql
-shell cmd:string
+shell "echo hello"
 ```
 
 </ReferenceCard>
@@ -1102,7 +1102,7 @@ shell cmd:string
 <ReferenceCard title="assert" description="Drops event and emits a warning if the invariant is violated." href="/reference/operators/assert">
 
 ```tql
-assert invariant:bool
+assert name.starts_with("John")
 ```
 
 </ReferenceCard>
@@ -1110,7 +1110,7 @@ assert invariant:bool
 <ReferenceCard title="assert_throughput" description="Emits a warning if the pipeline does not have the expected throughput" href="/reference/operators/assert_throughput">
 
 ```tql
-assert_throughput min_events:int, within=duration, [retries=int]
+assert_throughput 1000, within=1s
 ```
 
 </ReferenceCard>
@@ -1118,7 +1118,7 @@ assert_throughput min_events:int, within=duration, [retries=int]
 <ReferenceCard title="deduplicate" description="Removes duplicate events based on a common key." href="/reference/operators/deduplicate">
 
 ```tql
-deduplicate [key:any, limit=int, distance=int, create_timeout=duration,
+deduplicate src_ip
 ```
 
 </ReferenceCard>
@@ -1126,7 +1126,7 @@ deduplicate [key:any, limit=int, distance=int, create_timeout=duration,
 <ReferenceCard title="head" description="Limits the input to the first `n` events." href="/reference/operators/head">
 
 ```tql
-head [n:int]
+head 20
 ```
 
 </ReferenceCard>
@@ -1134,7 +1134,7 @@ head [n:int]
 <ReferenceCard title="sample" description="Dynamically samples events from a event stream." href="/reference/operators/sample">
 
 ```tql
-sample [period:duration, mode=string, min_events=int, max_rate=int, max_samples=int]
+sample 30s, max_samples=2k
 ```
 
 </ReferenceCard>
@@ -1142,7 +1142,7 @@ sample [period:duration, mode=string, min_events=int, max_rate=int, max_samples=
 <ReferenceCard title="slice" description="Keeps a range of events within the interval `[begin, end)` stepping by `stride`." href="/reference/operators/slice">
 
 ```tql
-slice [begin=int, end=int, stride=int]
+slice begin=10, end=30
 ```
 
 </ReferenceCard>
@@ -1150,7 +1150,7 @@ slice [begin=int, end=int, stride=int]
 <ReferenceCard title="tail" description="Limits the input to the last `n` events." href="/reference/operators/tail">
 
 ```tql
-tail [n:int]
+tail 20
 ```
 
 </ReferenceCard>
@@ -1158,7 +1158,7 @@ tail [n:int]
 <ReferenceCard title="taste" description="Limits the input to `n` events per unique schema." href="/reference/operators/taste">
 
 ```tql
-taste [n:int]
+taste 1
 ```
 
 </ReferenceCard>
@@ -1166,7 +1166,7 @@ taste [n:int]
 <ReferenceCard title="where" description="Keeps only events for which the given predicate is true." href="/reference/operators/where">
 
 ```tql
-where predicate:bool
+where name.starts_with("John")
 ```
 
 </ReferenceCard>
@@ -1180,7 +1180,7 @@ where predicate:bool
 <ReferenceCard title="cron" description="Runs a pipeline periodically according to a cron expression." href="/reference/operators/cron">
 
 ```tql
-cron schedule:string { … }
+cron "* */10 * * * MON-FRI" { from "https://example.org" }
 ```
 
 </ReferenceCard>
@@ -1188,7 +1188,7 @@ cron schedule:string { … }
 <ReferenceCard title="delay" description="Delays events relative to a given start time, with an optional speedup." href="/reference/operators/delay">
 
 ```tql
-delay field:time, [start=time, speed=double]
+delay ts, speed=2.5
 ```
 
 </ReferenceCard>
@@ -1204,7 +1204,7 @@ discard
 <ReferenceCard title="every" description="Runs a pipeline periodically at a fixed interval." href="/reference/operators/every">
 
 ```tql
-every interval:duration { … }
+every 10s { summarize sum(amount) }
 ```
 
 </ReferenceCard>
@@ -1212,7 +1212,7 @@ every interval:duration { … }
 <ReferenceCard title="fork" description="Executes a subpipeline with a copy of the input." href="/reference/operators/fork">
 
 ```tql
-fork { … }
+fork { to "copy.json" }
 ```
 
 </ReferenceCard>
@@ -1220,7 +1220,7 @@ fork { … }
 <ReferenceCard title="load_balance" description="Routes the data to one of multiple subpipelines." href="/reference/operators/load_balance">
 
 ```tql
-load_balance over:list { … }
+load_balance $over { publish $over }
 ```
 
 </ReferenceCard>
@@ -1236,7 +1236,7 @@ pass
 <ReferenceCard title="repeat" description="Repeats the input a number of times." href="/reference/operators/repeat">
 
 ```tql
-repeat [count:int]
+repeat 100
 ```
 
 </ReferenceCard>
@@ -1244,7 +1244,7 @@ repeat [count:int]
 <ReferenceCard title="throttle" description="Limits the bandwidth of a pipeline." href="/reference/operators/throttle">
 
 ```tql
-throttle bandwidth:int, [within=duration]
+throttle 100M, within=1min
 ```
 
 </ReferenceCard>
@@ -1258,7 +1258,7 @@ throttle bandwidth:int, [within=duration]
 <ReferenceCard title="files" description="Shows file information for a given directory." href="/reference/operators/files">
 
 ```tql
-files [dir:string, recurse=bool, follow_symlinks=bool, skip_permission_denied=bool]
+files "/var/log/", recurse=true
 ```
 
 </ReferenceCard>
@@ -1296,7 +1296,7 @@ sockets
 <ReferenceCard title="load_amqp" description="Loads a byte stream via AMQP messages." href="/reference/operators/load_amqp">
 
 ```tql
-load_amqp [url:str, channel=int, exchange=str, routing_key=str, queue=str,
+load_amqp
 ```
 
 </ReferenceCard>
@@ -1304,7 +1304,7 @@ load_amqp [url:str, channel=int, exchange=str, routing_key=str, queue=str,
 <ReferenceCard title="load_azure_blob_storage" description="Loads bytes from Azure Blob Storage." href="/reference/operators/load_azure_blob_storage">
 
 ```tql
-load_azure_blob_storage uri:string
+load_azure_blob_storage "abfs://container/file"
 ```
 
 </ReferenceCard>
@@ -1312,7 +1312,7 @@ load_azure_blob_storage uri:string
 <ReferenceCard title="load_file" description="Loads the contents of the file at `path` as a byte stream." href="/reference/operators/load_file">
 
 ```tql
-load_file path:string, [follow=bool, mmap=bool, timeout=duration]
+load_file "/tmp/data.json"
 ```
 
 </ReferenceCard>
@@ -1320,7 +1320,7 @@ load_file path:string, [follow=bool, mmap=bool, timeout=duration]
 <ReferenceCard title="load_ftp" description="Loads a byte stream via FTP." href="/reference/operators/load_ftp">
 
 ```tql
-load_ftp url:str [tls=bool, cacert=string, certifle=string,
+load_ftp "ftp.example.org"
 ```
 
 </ReferenceCard>
@@ -1328,7 +1328,7 @@ load_ftp url:str [tls=bool, cacert=string, certifle=string,
 <ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
 
 ```tql
-load_gcs uri:string, [anonymous=bool]
+load_gcs "gs://bucket/object.json"
 ```
 
 </ReferenceCard>
@@ -1336,7 +1336,7 @@ load_gcs uri:string, [anonymous=bool]
 <ReferenceCard title="load_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes." href="/reference/operators/load_google_cloud_pubsub">
 
 ```tql
-load_google_cloud_pubsub project_id=string, subscription_id=string, [timeout=duration]
+load_google_cloud_pubsub project_id="my-project"
 ```
 
 </ReferenceCard>
@@ -1344,7 +1344,7 @@ load_google_cloud_pubsub project_id=string, subscription_id=string, [timeout=dur
 <ReferenceCard title="load_http" description="Loads a byte stream via HTTP." href="/reference/operators/load_http">
 
 ```tql
-load_http url:string, [data=record, params=record, headers=record,
+load_http "example.org", params={n: 5}
 ```
 
 </ReferenceCard>
@@ -1352,7 +1352,7 @@ load_http url:string, [data=record, params=record, headers=record,
 <ReferenceCard title="load_kafka" description="Loads a byte stream from a Apache Kafka topic." href="/reference/operators/load_kafka">
 
 ```tql
-load_kafka topic:string, [count=int, exit=bool, offset=int|string,
+load_kafka topic="example"
 ```
 
 </ReferenceCard>
@@ -1360,7 +1360,7 @@ load_kafka topic:string, [count=int, exit=bool, offset=int|string,
 <ReferenceCard title="load_nic" description="Loads bytes from a network interface card (NIC)." href="/reference/operators/load_nic">
 
 ```tql
-load_nic iface:str, [snaplen=int, emit_file_headers=bool]
+load_nic "eth0"
 ```
 
 </ReferenceCard>
@@ -1368,7 +1368,7 @@ load_nic iface:str, [snaplen=int, emit_file_headers=bool]
 <ReferenceCard title="load_s3" description="Loads from an Amazon S3 object." href="/reference/operators/load_s3">
 
 ```tql
-load_s3 uri:str, [anonymous=bool]
+load_s3 "s3://my-bucket/obj.csv"
 ```
 
 </ReferenceCard>
@@ -1376,7 +1376,7 @@ load_s3 uri:str, [anonymous=bool]
 <ReferenceCard title="load_sqs" description="Loads bytes from [Amazon SQS][sqs] queues." href="/reference/operators/load_sqs">
 
 ```tql
-load_sqs queue:str, [poll_time=duration]
+load_sqs "sqs://tenzir"
 ```
 
 </ReferenceCard>
@@ -1392,7 +1392,7 @@ load_stdin
 <ReferenceCard title="load_tcp" description="Loads bytes from a TCP or TLS connection." href="/reference/operators/load_tcp">
 
 ```tql
-load_tcp endpoint:string, [parallel=int, peer_field=field, tls=bool,
+load_tcp "0.0.0.0:8090" { read_json }
 ```
 
 </ReferenceCard>
@@ -1400,7 +1400,7 @@ load_tcp endpoint:string, [parallel=int, peer_field=field, tls=bool,
 <ReferenceCard title="load_udp" description="Loads bytes from a UDP socket." href="/reference/operators/load_udp">
 
 ```tql
-load_udp endpoint:str, [connect=bool, insert_newlines=bool]
+load_udp "0.0.0.0:8090"
 ```
 
 </ReferenceCard>
@@ -1408,7 +1408,7 @@ load_udp endpoint:str, [connect=bool, insert_newlines=bool]
 <ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
 
 ```tql
-load_zmq [endpoint:str, filter=str, listen=bool, connect=bool, monitor=bool]
+load_zmq
 ```
 
 </ReferenceCard>
@@ -1422,7 +1422,7 @@ load_zmq [endpoint:str, filter=str, listen=bool, connect=bool, monitor=bool]
 <ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
 
 ```tql
-from uri:string, [loader_args… { … }]
+from "data.json"
 ```
 
 </ReferenceCard>
@@ -1430,7 +1430,7 @@ from uri:string, [loader_args… { … }]
 <ReferenceCard title="from_file" description="Reads one or multiple files from a filesystem." href="/reference/operators/from_file">
 
 ```tql
-from_file url:string, [watch=bool, remove=bool, path_field=field] { … }
+from_file "s3://data/**.json"
 ```
 
 </ReferenceCard>
@@ -1438,7 +1438,7 @@ from_file url:string, [watch=bool, remove=bool, path_field=field] { … }
 <ReferenceCard title="from_fluent_bit" description="Receives events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/from_fluent_bit">
 
 ```tql
-from_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
+from_fluent_bit "opentelemetry"
 ```
 
 </ReferenceCard>
@@ -1446,7 +1446,7 @@ from_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
 <ReferenceCard title="from_http" description="Receives HTTP/1.1 requests." href="/reference/operators/from_http">
 
 ```tql
-from_http url:string, [server=bool, responses=record, max_request_size=int,
+from_http "0.0.0.0:8080
 ```
 
 </ReferenceCard>
@@ -1454,7 +1454,7 @@ from_http url:string, [server=bool, responses=record, max_request_size=int,
 <ReferenceCard title="from_opensearch" description="Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/)." href="/reference/operators/from_opensearch">
 
 ```tql
-from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
+from_opensearch
 ```
 
 </ReferenceCard>
@@ -1462,7 +1462,7 @@ from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
 <ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
 
 ```tql
-from_velociraptor [request_name=string, org_id=string, max_rows=int,
+from_velociraptor subscribe="Windows"
 ```
 
 </ReferenceCard>
@@ -1476,7 +1476,7 @@ from_velociraptor [request_name=string, org_id=string, max_rows=int,
 <ReferenceCard title="api" description="Use Tenzir's REST API directly from a pipeline." href="/reference/operators/api">
 
 ```tql
-api endpoint:string, [request_body:string]
+api "/pipeline/list"
 ```
 
 </ReferenceCard>
@@ -1484,7 +1484,7 @@ api endpoint:string, [request_body:string]
 <ReferenceCard title="batch" description="The `batch` operator controls the batch size of events." href="/reference/operators/batch">
 
 ```tql
-batch [limit:int, timeout=duration]
+batch timeout=1s
 ```
 
 </ReferenceCard>
@@ -1492,7 +1492,7 @@ batch [limit:int, timeout=duration]
 <ReferenceCard title="buffer" description="An in-memory buffer to improve handling of data spikes in upstream operators." href="/reference/operators/buffer">
 
 ```tql
-buffer [capacity:int, policy=string]
+buffer 10M, policy="drop"
 ```
 
 </ReferenceCard>
@@ -1500,7 +1500,7 @@ buffer [capacity:int, policy=string]
 <ReferenceCard title="cache" description="An in-memory cache shared between pipelines." href="/reference/operators/cache">
 
 ```tql
-cache id:string, [mode=string, capacity=int, read_timeout=duration, write_timeout=duration]
+cache "w01wyhTZm3", ttl=10min
 ```
 
 </ReferenceCard>
@@ -1508,7 +1508,7 @@ cache id:string, [mode=string, capacity=int, read_timeout=duration, write_timeou
 <ReferenceCard title="legacy" description="Provides a compatibility fallback to TQL1 pipelines." href="/reference/operators/legacy">
 
 ```tql
-legacy definition:string
+legacy "chart area"
 ```
 
 </ReferenceCard>
@@ -1516,7 +1516,7 @@ legacy definition:string
 <ReferenceCard title="local" description="Forces a pipeline to run locally." href="/reference/operators/local">
 
 ```tql
-local { … }
+local { sort foo }
 ```
 
 </ReferenceCard>
@@ -1524,7 +1524,7 @@ local { … }
 <ReferenceCard title="measure" description="Replaces the input with metrics describing the input." href="/reference/operators/measure">
 
 ```tql
-measure [real_time=bool, cumulative=bool]
+measure
 ```
 
 </ReferenceCard>
@@ -1532,7 +1532,7 @@ measure [real_time=bool, cumulative=bool]
 <ReferenceCard title="remote" description="Forces a pipeline to run remotely at a node." href="/reference/operators/remote">
 
 ```tql
-remote { … }
+remote { version }
 ```
 
 </ReferenceCard>
@@ -1540,7 +1540,7 @@ remote { … }
 <ReferenceCard title="serve" description="Make events available under the `/serve` REST API endpoint" href="/reference/operators/serve">
 
 ```tql
-serve id:string, [buffer_size=int]
+serve "abcde12345"
 ```
 
 </ReferenceCard>
@@ -1548,7 +1548,7 @@ serve id:string, [buffer_size=int]
 <ReferenceCard title="strict" description="Treats all warnings as errors." href="/reference/operators/strict">
 
 ```tql
-strict { … }
+strict { assert false }
 ```
 
 </ReferenceCard>
@@ -1556,7 +1556,7 @@ strict { … }
 <ReferenceCard title="unordered" description="Removes ordering assumptions from a pipeline." href="/reference/operators/unordered">
 
 ```tql
-unordered { … }
+unordered { read_ndjson }
 ```
 
 </ReferenceCard>
@@ -1570,7 +1570,7 @@ unordered { … }
 <ReferenceCard title="drop" description="Removes fields from the event." href="/reference/operators/drop">
 
 ```tql
-drop field...
+drop name, metadata.id
 ```
 
 </ReferenceCard>
@@ -1578,7 +1578,7 @@ drop field...
 <ReferenceCard title="enumerate" description="Add a field with the number of preceding events." href="/reference/operators/enumerate">
 
 ```tql
-enumerate [out:field]
+enumerate num
 ```
 
 </ReferenceCard>
@@ -1586,7 +1586,7 @@ enumerate [out:field]
 <ReferenceCard title="http" description="Sends HTTP/1.1 requests and forwards the response." href="/reference/operators/http">
 
 ```tql
-http url:string, [method=string, payload=string, headers=record,
+http "example.com"
 ```
 
 </ReferenceCard>
@@ -1594,7 +1594,7 @@ http url:string, [method=string, payload=string, headers=record,
 <ReferenceCard title="move" description="Moves values from one field to another, removing the original field." href="/reference/operators/move">
 
 ```tql
-move to=from, …
+move id=parsed_id, ctx.message=incoming.status
 ```
 
 </ReferenceCard>
@@ -1602,7 +1602,7 @@ move to=from, …
 <ReferenceCard title="select" description="Selects some values and discards the rest." href="/reference/operators/select">
 
 ```tql
-select (field|assignment)...
+select name, id=metadata.id
 ```
 
 </ReferenceCard>
@@ -1610,7 +1610,7 @@ select (field|assignment)...
 <ReferenceCard title="set" description="Assigns a value to a field, creating it if necessary." href="/reference/operators/set">
 
 ```tql
-field = expr
+name = "Tenzir"
 ```
 
 </ReferenceCard>
@@ -1618,7 +1618,7 @@ field = expr
 <ReferenceCard title="timeshift" description="Adjusts timestamps relative to a given start time, with an optional speedup." href="/reference/operators/timeshift">
 
 ```tql
-timeshift field:time, [start=time, speed=double]
+timeshift ts, start=2020-01-01
 ```
 
 </ReferenceCard>
@@ -1626,7 +1626,7 @@ timeshift field:time, [start=time, speed=double]
 <ReferenceCard title="unroll" description="Returns a new event for each member of a list or a record in an event, duplicating the surrounding event." href="/reference/operators/unroll">
 
 ```tql
-unroll [field:list|record]
+unroll names
 ```
 
 </ReferenceCard>
@@ -1640,7 +1640,7 @@ unroll [field:list|record]
 <ReferenceCard title="diagnostics" description="Retrieves diagnostic events from a Tenzir node." href="/reference/operators/diagnostics">
 
 ```tql
-diagnostics [live=bool, retro=bool]
+diagnostics
 ```
 
 </ReferenceCard>
@@ -1648,7 +1648,7 @@ diagnostics [live=bool, retro=bool]
 <ReferenceCard title="metrics" description="Retrieves metrics events from a Tenzir node." href="/reference/operators/metrics">
 
 ```tql
-metrics [name:string, live=bool, retro=bool]
+metrics "cpu"
 ```
 
 </ReferenceCard>
@@ -1686,7 +1686,7 @@ version
 <ReferenceCard title="export" description="Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import)." href="/reference/operators/export">
 
 ```tql
-export [live=bool, retro=bool, internal=bool, parallel=int]
+export
 ```
 
 </ReferenceCard>
@@ -1710,7 +1710,7 @@ import
 <ReferenceCard title="partitions" description="Retrieves metadata about events stored at a node." href="/reference/operators/partitions">
 
 ```tql
-partitions [predicate:expr]
+partitions src_ip == 1.2.3.4
 ```
 
 </ReferenceCard>
@@ -1732,7 +1732,7 @@ schemas
 <ReferenceCard title="save_amqp" description="Saves a byte stream via AMQP messages." href="/reference/operators/save_amqp">
 
 ```tql
-save_amqp [url:str, channel=int, exchange=str, routing_key=str,
+save_amqp
 ```
 
 </ReferenceCard>
@@ -1740,7 +1740,7 @@ save_amqp [url:str, channel=int, exchange=str, routing_key=str,
 <ReferenceCard title="save_azure_blob_storage" description="Saves bytes to Azure Blob Storage." href="/reference/operators/save_azure_blob_storage">
 
 ```tql
-save_azure_blob_storage uri:string
+save_azure_blob_storage "abfs://container/file"
 ```
 
 </ReferenceCard>
@@ -1748,7 +1748,7 @@ save_azure_blob_storage uri:string
 <ReferenceCard title="save_email" description="Saves bytes through an SMTP server." href="/reference/operators/save_email">
 
 ```tql
-save_email recipient:str, [endpoint=str, from=str, subject=str, username=str,
+save_email "user@example.org"
 ```
 
 </ReferenceCard>
@@ -1756,7 +1756,7 @@ save_email recipient:str, [endpoint=str, from=str, subject=str, username=str,
 <ReferenceCard title="save_file" description="Writes a byte stream to a file." href="/reference/operators/save_file">
 
 ```tql
-save_file path:string, [append=bool, real_time=bool, uds=bool]
+save_file "/tmp/out.json"
 ```
 
 </ReferenceCard>
@@ -1764,7 +1764,7 @@ save_file path:string, [append=bool, real_time=bool, uds=bool]
 <ReferenceCard title="save_ftp" description="Saves a byte stream via FTP." href="/reference/operators/save_ftp">
 
 ```tql
-save_ftp url:str [tls=bool, cacert=string, certifle=string,
+save_ftp "ftp.example.org"
 ```
 
 </ReferenceCard>
@@ -1772,7 +1772,7 @@ save_ftp url:str [tls=bool, cacert=string, certifle=string,
 <ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
 
 ```tql
-save_gcs uri:string, [anonymous=bool]
+save_gcs "gs://bucket/object.json"
 ```
 
 </ReferenceCard>
@@ -1780,7 +1780,7 @@ save_gcs uri:string, [anonymous=bool]
 <ReferenceCard title="save_google_cloud_pubsub" description="Publishes to a Google Cloud Pub/Sub topic." href="/reference/operators/save_google_cloud_pubsub">
 
 ```tql
-save_google_cloud_pubsub project_id=string, topic_id=string
+save_google_cloud_pubsub project_id="my-project"
 ```
 
 </ReferenceCard>
@@ -1788,7 +1788,7 @@ save_google_cloud_pubsub project_id=string, topic_id=string
 <ReferenceCard title="save_http" description="Sends a byte stream via HTTP." href="/reference/operators/save_http">
 
 ```tql
-save_http url:string, [params=record, headers=record, method=string,
+save_http "example.org/api"
 ```
 
 </ReferenceCard>
@@ -1796,7 +1796,7 @@ save_http url:string, [params=record, headers=record, method=string,
 <ReferenceCard title="save_kafka" description="Saves a byte stream to a Apache Kafka topic." href="/reference/operators/save_kafka">
 
 ```tql
-save_kafka topic:string, [key=string, timestamp=time, options=record,
+save_kafka topic="example"
 ```
 
 </ReferenceCard>
@@ -1804,7 +1804,7 @@ save_kafka topic:string, [key=string, timestamp=time, options=record,
 <ReferenceCard title="save_s3" description="Saves bytes to an Amazon S3 object." href="/reference/operators/save_s3">
 
 ```tql
-save_s3 uri:str, [anonymous=bool]
+save_s3 "s3://my-bucket/obj.csv"
 ```
 
 </ReferenceCard>
@@ -1812,7 +1812,7 @@ save_s3 uri:str, [anonymous=bool]
 <ReferenceCard title="save_sqs" description="Saves bytes to [Amazon SQS][sqs] queues." href="/reference/operators/save_sqs">
 
 ```tql
-save_sqs queue:str, [poll_time=duration]
+save_sqs "sqs://tenzir"
 ```
 
 </ReferenceCard>
@@ -1828,7 +1828,7 @@ save_stdout
 <ReferenceCard title="save_tcp" description="Saves bytes to a TCP or TLS connection." href="/reference/operators/save_tcp">
 
 ```tql
-save_tcp endpoint:string, [tls=bool, cacert=string, certifle=string,
+save_tcp "0.0.0.0:8090", tls=true
 ```
 
 </ReferenceCard>
@@ -1836,7 +1836,7 @@ save_tcp endpoint:string, [tls=bool, cacert=string, certifle=string,
 <ReferenceCard title="save_udp" description="Saves bytes to a UDP socket." href="/reference/operators/save_udp">
 
 ```tql
-save_udp endpoint:str
+save_udp "0.0.0.0:8090"
 ```
 
 </ReferenceCard>
@@ -1844,7 +1844,7 @@ save_udp endpoint:str
 <ReferenceCard title="save_zmq" description="Sends bytes as ZeroMQ messages." href="/reference/operators/save_zmq">
 
 ```tql
-save_zmq [endpoint:str, listen=bool, connect=bool, monitor=bool]
+save_zmq
 ```
 
 </ReferenceCard>
@@ -1858,7 +1858,7 @@ save_zmq [endpoint:str, listen=bool, connect=bool, monitor=bool]
 <ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
 
 ```tql
-to uri:string, [saver_args… { … }]
+to "output.json"
 ```
 
 </ReferenceCard>
@@ -1866,7 +1866,7 @@ to uri:string, [saver_args… { … }]
 <ReferenceCard title="to_asl" description="Sends events to [Amazon Security Lake (ASL)][asl]." href="/reference/operators/to_asl">
 
 ```tql
-to_asl s3_uri:string, region=string, account_id=string, [timeout=duration]
+to_asl "s3://…"
 ```
 
 </ReferenceCard>
@@ -1874,7 +1874,7 @@ to_asl s3_uri:string, region=string, account_id=string, [timeout=duration]
 <ReferenceCard title="to_azure_log_analytics" description="Sends events to the [Microsoft Azure Logs Ingestion API][api]." href="/reference/operators/to_azure_log_analytics">
 
 ```tql
-to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string,
+to_azure_log_analytics tenant_id="...", workspace_id="..."
 ```
 
 </ReferenceCard>
@@ -1882,7 +1882,7 @@ to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string,
 <ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
 
 ```tql
-to_clickhouse table=string, [host=string, port=int, user=string, password=string,
+to_clickhouse table="my_table"
 ```
 
 </ReferenceCard>
@@ -1890,7 +1890,7 @@ to_clickhouse table=string, [host=string, port=int, user=string, password=string
 <ReferenceCard title="to_fluent_bit" description="Sends events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/to_fluent_bit">
 
 ```tql
-to_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
+to_fluent_bit "elasticsearch" …
 ```
 
 </ReferenceCard>
@@ -1898,7 +1898,7 @@ to_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
 <ReferenceCard title="to_google_cloud_logging" description="Sends events to [Google Cloud Logging](https://cloud.google.com/logging)." href="/reference/operators/to_google_cloud_logging">
 
 ```tql
-to_google_cloud_logging log_id=string, [project=string, organization=string,
+to_google_cloud_logging …
 ```
 
 </ReferenceCard>
@@ -1906,7 +1906,7 @@ to_google_cloud_logging log_id=string, [project=string, organization=string,
 <ReferenceCard title="to_google_cloud_logging" description="Sends events to **Google Cloud Logging**." href="/reference/operators/to_google_cloud_logging">
 
 ```tql
-to_google_cloud_logging name=string, resource_type=string,
+to_google_cloud_logging …
 ```
 
 </ReferenceCard>
@@ -1914,7 +1914,7 @@ to_google_cloud_logging name=string, resource_type=string,
 <ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
 
 ```tql
-to_google_secops customer_id=string, private_key=string, client_email=string,
+to_google_secops …
 ```
 
 </ReferenceCard>
@@ -1922,7 +1922,7 @@ to_google_secops customer_id=string, private_key=string, client_email=string,
 <ReferenceCard title="to_hive" description="Writes events to a URI using hive partitioning." href="/reference/operators/to_hive">
 
 ```tql
-to_hive uri:string, partition_by=list<field>, format=string, [timeout=duration, max_size=int]
+to_hive "s3://…", partition_by=[x]
 ```
 
 </ReferenceCard>
@@ -1930,7 +1930,7 @@ to_hive uri:string, partition_by=list<field>, format=string, [timeout=duration, 
 <ReferenceCard title="to_opensearch" description="Sends events to an OpenSearch-compatible Bulk API." href="/reference/operators/to_opensearch">
 
 ```tql
-to_opensearch url:string, action=string, [index=string, id=string, doc=record,
+to_opensearch 'localhost:9200", …
 ```
 
 </ReferenceCard>
@@ -1938,7 +1938,7 @@ to_opensearch url:string, action=string, [index=string, id=string, doc=record,
 <ReferenceCard title="to_snowflake" description="Sends events to a Snowflake database." href="/reference/operators/to_snowflake">
 
 ```tql
-to_snowflake account_identifier=string, user_name=string, password=string,
+to_snowflake account_identifier="…
 ```
 
 </ReferenceCard>
@@ -1946,7 +1946,7 @@ to_snowflake account_identifier=string, user_name=string, password=string,
 <ReferenceCard title="to_splunk" description="Sends events to a Splunk [HTTP Event Collector (HEC)][hec]." href="/reference/operators/to_splunk">
 
 ```tql
-to_splunk url:string, hec_token=string,
+to_splunk "localhost:8088", …
 ```
 
 </ReferenceCard>
@@ -1960,7 +1960,7 @@ to_splunk url:string, hec_token=string,
 <ReferenceCard title="add" description="Installs a package." href="/reference/operators/package/add">
 
 ```tql
-package::add [package_id:string, inputs=record]
+package::add "suricata-ocsf"
 ```
 
 </ReferenceCard>
@@ -1976,7 +1976,7 @@ context::list
 <ReferenceCard title="list" description="Shows installed packages." href="/reference/operators/package/list">
 
 ```tql
-package::list [format=string]
+package::list
 ```
 
 </ReferenceCard>
@@ -2006,7 +2006,7 @@ read_bitz
 <ReferenceCard title="read_cef" description="Parses an incoming [Common Event Format (CEF)][cef] stream into events." href="/reference/operators/read_cef">
 
 ```tql
-read_cef [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
+read_cef
 ```
 
 </ReferenceCard>
@@ -2014,7 +2014,7 @@ read_cef [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool
 <ReferenceCard title="read_csv" description="Read CSV (Comma-Separated Values) from a byte stream." href="/reference/operators/read_csv">
 
 ```tql
-read_csv [list_separator=string, null_value=string, comments=bool, header=string,
+read_csv null_value="-"
 ```
 
 </ReferenceCard>
@@ -2030,7 +2030,7 @@ read_feather
 <ReferenceCard title="read_gelf" description="Parses an incoming [GELF](https://go2docs.graylog.org/current/getting_in_log_data/gelf.html) stream into events." href="/reference/operators/read_gelf">
 
 ```tql
-read_gelf [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
+read_gelf
 ```
 
 </ReferenceCard>
@@ -2038,7 +2038,7 @@ read_gelf [merge=bool, raw=bool, schema=string, selector=string, schema_only=boo
 <ReferenceCard title="read_grok" description="read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool, include_unnamed=bool, schema=string, selector=string, schema_only=bool, merge=bool, raw=bool, unflatten_separator=string]" href="/reference/operators/read_grok">
 
 ```tql
-read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool,
+read_grok "%{IP:client} %{WORD:action}"
 ```
 
 </ReferenceCard>
@@ -2046,7 +2046,7 @@ read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=b
 <ReferenceCard title="read_json" description="Parses an incoming JSON stream into events." href="/reference/operators/read_json">
 
 ```tql
-read_json [schema=string, selector=string, schema_only=bool, merge=bool, raw=bool,
+read_json arrays_of_objects=true
 ```
 
 </ReferenceCard>
@@ -2054,7 +2054,7 @@ read_json [schema=string, selector=string, schema_only=bool, merge=bool, raw=boo
 <ReferenceCard title="read_kv" description="Read Key-Value pairs from a byte stream." href="/reference/operators/read_kv">
 
 ```tql
-read_kv [field_split=string, value_split=string, merge=bool, raw=bool, quotes=string,
+read_kv r"(\s+)[A-Z_]+:", r":\s*"
 ```
 
 </ReferenceCard>
@@ -2062,7 +2062,7 @@ read_kv [field_split=string, value_split=string, merge=bool, raw=bool, quotes=st
 <ReferenceCard title="read_leef" description="Parses an incoming [LEEF][leef] stream into events." href="/reference/operators/read_leef">
 
 ```tql
-read_leef [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
+read_leef
 ```
 
 </ReferenceCard>
@@ -2070,7 +2070,7 @@ read_leef [merge=bool, raw=bool, schema=string, selector=string, schema_only=boo
 <ReferenceCard title="read_lines" description="Parses an incoming bytes stream into events." href="/reference/operators/read_lines">
 
 ```tql
-read_lines [skip_empty=bool, split_at_null=bool, split_at_regex=string]
+read_lines
 ```
 
 </ReferenceCard>
@@ -2078,7 +2078,7 @@ read_lines [skip_empty=bool, split_at_null=bool, split_at_regex=string]
 <ReferenceCard title="read_ndjson" description="Parses an incoming NDJSON (newline-delimited JSON) stream into events." href="/reference/operators/read_ndjson">
 
 ```tql
-read_ndjson [schema=string, selector=string, schema_only=bool,
+read_ndjson
 ```
 
 </ReferenceCard>
@@ -2094,7 +2094,7 @@ read_parquet
 <ReferenceCard title="read_pcap" description="Reads raw network packets in [PCAP][pcap-rfc] file format." href="/reference/operators/read_pcap">
 
 ```tql
-read_pcap [emit_file_headers=bool]
+read_pcap
 ```
 
 </ReferenceCard>
@@ -2102,7 +2102,7 @@ read_pcap [emit_file_headers=bool]
 <ReferenceCard title="read_ssv" description="Read SSV (Space-Separated Values) from a byte stream." href="/reference/operators/read_ssv">
 
 ```tql
-read_ssv [list_separator=string, null_value=string, comments=bool, header=string,
+read_ssv header="name count"
 ```
 
 </ReferenceCard>
@@ -2110,7 +2110,7 @@ read_ssv [list_separator=string, null_value=string, comments=bool, header=string
 <ReferenceCard title="read_suricata" description="Parse an incoming [Suricata EVE JSON][eve-json] stream into events." href="/reference/operators/read_suricata">
 
 ```tql
-read_suricata [schema_only=bool, raw=bool]
+read_suricata
 ```
 
 </ReferenceCard>
@@ -2118,7 +2118,7 @@ read_suricata [schema_only=bool, raw=bool]
 <ReferenceCard title="read_syslog" description="Parses an incoming [Syslog](https://en.wikipedia.org/wiki/Syslog) stream into events." href="/reference/operators/read_syslog">
 
 ```tql
-read_syslog [merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
+read_syslog
 ```
 
 </ReferenceCard>
@@ -2126,7 +2126,7 @@ read_syslog [merge=bool, raw=bool, schema=string, selector=string, schema_only=b
 <ReferenceCard title="read_tsv" description="Read TSV (Tab-Separated Values) from a byte stream." href="/reference/operators/read_tsv">
 
 ```tql
-read_tsv [list_separator=string, null_value=string, comments=bool, header=string,
+read_tsv auto_expand=true
 ```
 
 </ReferenceCard>
@@ -2134,7 +2134,7 @@ read_tsv [list_separator=string, null_value=string, comments=bool, header=string
 <ReferenceCard title="read_xsv" description="Read XSV from a byte stream." href="/reference/operators/read_xsv">
 
 ```tql
-read_xsv field_separator=string, list_separator=string, null_value=string,
+read_xsv ";", ":", "N/A"
 ```
 
 </ReferenceCard>
@@ -2142,7 +2142,7 @@ read_xsv field_separator=string, list_separator=string, null_value=string,
 <ReferenceCard title="read_yaml" description="Parses an incoming YAML stream into events." href="/reference/operators/read_yaml">
 
 ```tql
-read_yaml [merge=bool, raw=bool, schema=string, selector=string,
+read_yaml
 ```
 
 </ReferenceCard>
@@ -2150,7 +2150,7 @@ read_yaml [merge=bool, raw=bool, schema=string, selector=string,
 <ReferenceCard title="read_zeek_json" description="Parse an incoming Zeek JSON stream into events." href="/reference/operators/read_zeek_json">
 
 ```tql
-read_zeek_json [schema_only=bool, raw=bool]
+read_zeek_json
 ```
 
 </ReferenceCard>
@@ -2172,7 +2172,7 @@ read_zeek_tsv
 <ReferenceCard title="activity" description="Summarizes the activity of pipelines." href="/reference/operators/pipeline/activity">
 
 ```tql
-pipeline::activity range=duration, interval=duration
+pipeline::activity range=1d, interval=1h
 ```
 
 </ReferenceCard>
@@ -2180,7 +2180,7 @@ pipeline::activity range=duration, interval=duration
 <ReferenceCard title="detach" description="Starts a pipeline in the node." href="/reference/operators/pipeline/detach">
 
 ```tql
-pipeline::detach { … }, [id=string]
+pipeline::detach { … }
 ```
 
 </ReferenceCard>
@@ -2188,7 +2188,7 @@ pipeline::detach { … }, [id=string]
 <ReferenceCard title="run" description="Starts a pipeline in the node and waits for it to complete." href="/reference/operators/pipeline/run">
 
 ```tql
-pipeline::run { … }, [id=string]
+pipeline::run { … }
 ```
 
 </ReferenceCard>
@@ -2210,7 +2210,7 @@ write_bitz
 <ReferenceCard title="write_csv" description="Transforms event stream to CSV (Comma-Separated Values) byte stream." href="/reference/operators/write_csv">
 
 ```tql
-write_csv [list_separator=str, null_value=str, no_header=bool]
+write_csv
 ```
 
 </ReferenceCard>
@@ -2218,7 +2218,7 @@ write_csv [list_separator=str, null_value=str, no_header=bool]
 <ReferenceCard title="write_feather" description="Transforms the input event stream to Feather byte stream." href="/reference/operators/write_feather">
 
 ```tql
-write_feather [compression_level=int, compression_type=str, min_space_savings=double]
+write_feather
 ```
 
 </ReferenceCard>
@@ -2226,7 +2226,7 @@ write_feather [compression_level=int, compression_type=str, min_space_savings=do
 <ReferenceCard title="write_json" description="Transforms the input event stream to a JSON byte stream." href="/reference/operators/write_json">
 
 ```tql
-write_json [strip=bool, color=bool, arrays_of_objects=bool,
+write_json
 ```
 
 </ReferenceCard>
@@ -2234,7 +2234,7 @@ write_json [strip=bool, color=bool, arrays_of_objects=bool,
 <ReferenceCard title="write_kv" description="Writes events in a Key-Value format." href="/reference/operators/write_kv">
 
 ```tql
-write_kv [field_separator=str, value_separator=str, list_separator=str,
+write_kv
 ```
 
 </ReferenceCard>
@@ -2250,7 +2250,7 @@ write_lines
 <ReferenceCard title="write_ndjson" description="Transforms the input event stream to a Newline-Delimited JSON byte stream." href="/reference/operators/write_ndjson">
 
 ```tql
-write_ndjson [strip=bool, color=bool, arrays_of_objects=bool,
+write_ndjson
 ```
 
 </ReferenceCard>
@@ -2258,7 +2258,7 @@ write_ndjson [strip=bool, color=bool, arrays_of_objects=bool,
 <ReferenceCard title="write_parquet" description="Transforms event stream to a Parquet byte stream." href="/reference/operators/write_parquet">
 
 ```tql
-write_parquet [compression_level=int, compression_type=str]
+write_parquet
 ```
 
 </ReferenceCard>
@@ -2274,7 +2274,7 @@ write_pcap
 <ReferenceCard title="write_ssv" description="Transforms event stream to SSV (Space-Separated Values) byte stream." href="/reference/operators/write_ssv">
 
 ```tql
-write_ssv [list_separator=str, null_value=str, no_header=bool]
+write_ssv
 ```
 
 </ReferenceCard>
@@ -2282,7 +2282,7 @@ write_ssv [list_separator=str, null_value=str, no_header=bool]
 <ReferenceCard title="write_syslog" description="Writes events as syslog." href="/reference/operators/write_syslog">
 
 ```tql
-write_syslog [facility=int, severity=int, timestamp=time, hostname=string,
+write_syslog
 ```
 
 </ReferenceCard>
@@ -2290,7 +2290,7 @@ write_syslog [facility=int, severity=int, timestamp=time, hostname=string,
 <ReferenceCard title="write_tql" description="Transforms the input event stream to a TQL notation byte stream." href="/reference/operators/write_tql">
 
 ```tql
-write_tql [strip=bool, color=bool, compact=bool,
+write_tql
 ```
 
 </ReferenceCard>
@@ -2298,7 +2298,7 @@ write_tql [strip=bool, color=bool, compact=bool,
 <ReferenceCard title="write_tsv" description="Transforms event stream to TSV (Tab-Separated Values) byte stream." href="/reference/operators/write_tsv">
 
 ```tql
-write_tsv [list_separator=str, null_value=str, no_header=bool]
+write_tsv
 ```
 
 </ReferenceCard>
@@ -2306,7 +2306,7 @@ write_tsv [list_separator=str, null_value=str, no_header=bool]
 <ReferenceCard title="write_xsv" description="Transforms event stream to XSV byte stream." href="/reference/operators/write_xsv">
 
 ```tql
-write_xsv field_separator=str, list_separator=str, null_value=str, [no_header=bool]
+write_xsv
 ```
 
 </ReferenceCard>
@@ -2322,7 +2322,7 @@ write_yaml
 <ReferenceCard title="write_zeek_tsv" description="Transforms event stream into Zeek Tab-Separated Value byte stream." href="/reference/operators/write_zeek_tsv">
 
 ```tql
-write_zeek_tsv [set_separator=str, empty_field=str, unset_field=str, disable_timestamp_tags=bool]
+write_zeek_tsv
 ```
 
 </ReferenceCard>

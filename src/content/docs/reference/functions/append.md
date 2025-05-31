@@ -1,10 +1,8 @@
 ---
 title: append
 category: List
-example: 'append(xs:list, x:any) -> list'
+example: 'xs.append(y)'
 ---
-
-
 Inserts an element at the back of a list.
 
 ```tql
