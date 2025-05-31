@@ -35,9 +35,9 @@ can find a preview of the new documentation at
 - [x] Update OpenAPI spec via CI
 - [x] Update `tql.tmLanguage.json` via CI
 - [x] Add Markdown linting CI job
-- [ ] Add CI job that ensures that changelog is not edited manually
+- [x] Add CI job that ensures that changelog is not edited manually
 - [x] Add CI job for eslint
-- [ ] Add CI job for prettier
+- [x] Add CI job for prettier
 
 ### Style
 
@@ -47,7 +47,7 @@ can find a preview of the new documentation at
 - [x] Fix sizing calculator iframe height (CSS?)
 - [x] Fix github-{light,dark} syntax theme selection
 - [x] Fix Integrations tab not being bold font inside
-- [ ] Do CSS magic to fuse subsequent TQL code blocks
+- [x] Do CSS magic to fuse subsequent TQL code blocks
 - [x] Apply CSS and get a facelift
 - [ ] Style Asides to match design system
 - [x] Add our favicon
@@ -80,7 +80,7 @@ can find a preview of the new documentation at
 ### Legal
 
 - [x] SBOM at `/sbom`
-- [ ] Privacy Statement (or link to it)
+- [x] Privacy Statement (or link to it)
 
 ### 🚀 Relaunch
 
