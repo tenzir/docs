@@ -90,7 +90,6 @@ export const guides = [
       "guides/contribution/coding-style",
       "guides/contribution/build-environment",
       "guides/contribution/documentation",
-      "guides/contribution/changelog",
       "guides/contribution/security",
     ],
   },
