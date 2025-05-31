@@ -1,6 +1,9 @@
 ---
 title: env
+category: Runtime
+example: 'env(x:string) -> string'
 ---
+
 
 Reads an environment variable.
 

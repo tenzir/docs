@@ -1,6 +1,9 @@
 ---
 title: load
+category: Contexts
+example: 'context::load name:string'
 ---
+
 
 Loads context state.
 

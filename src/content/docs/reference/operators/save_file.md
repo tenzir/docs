@@ -1,6 +1,9 @@
 ---
 title: save_file
+category: Outputs/Bytes
+example: 'save_file path:string, [append=bool, real_time=bool, uds=bool]'
 ---
+
 
 Writes a byte stream to a file.
 

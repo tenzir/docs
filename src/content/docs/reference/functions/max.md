@@ -1,6 +1,9 @@
 ---
 title: max
+category: Aggregation
+example: 'max(xs:list) -> number'
 ---
+
 
 Computes the maximum of all grouped values.
 

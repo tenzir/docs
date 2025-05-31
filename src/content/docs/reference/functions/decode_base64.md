@@ -1,6 +1,9 @@
 ---
 title: decode_base64
+category: Decoding
+example: 'decode_base64(bytes: blob|string) -> blob'
 ---
+
 
 Decodes bytes as Base64.
 

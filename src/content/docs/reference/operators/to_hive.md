@@ -1,6 +1,9 @@
 ---
 title: to_hive
+category: Outputs/Events
+example: 'to_hive uri:string, partition_by=list<field>, format=string, [timeout=duration, max_size=int]'
 ---
+
 
 Writes events to a URI using hive partitioning.
 

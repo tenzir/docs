@@ -1,6 +1,9 @@
 ---
 title: encode_base64
+category: Encoding
+example: 'encode_base64(bytes: blob|string) -> string'
 ---
+
 
 Encodes bytes as Base64.
 

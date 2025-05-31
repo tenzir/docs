@@ -1,6 +1,9 @@
 ---
 title: any
+category: Aggregation
+example: 'any(xs:list) -> bool'
 ---
+
 
 Computes the disjunction (OR) of all grouped boolean values.
 

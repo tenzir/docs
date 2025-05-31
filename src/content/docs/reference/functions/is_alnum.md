@@ -1,6 +1,9 @@
 ---
 title: is_alnum
+category: String/Inspection
+example: 'is_alnum(x:string) -> bool'
 ---
+
 
 Checks if a string is alphanumeric.
 

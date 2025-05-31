@@ -1,6 +1,9 @@
 ---
 title: trim_start
+category: String/Transformation
+example: 'trim_start(x:string) -> string'
 ---
+
 
 Trims whitespace from the start of a string.
 

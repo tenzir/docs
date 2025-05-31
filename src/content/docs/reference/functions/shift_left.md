@@ -1,6 +1,9 @@
 ---
 title: shift_left
+category: Bit Operations
+example: 'shift_left(lhs:number, rhs:number) -> number'
 ---
+
 
 Performs a bit-wise left shift.
 

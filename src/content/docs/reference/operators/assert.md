@@ -1,6 +1,9 @@
 ---
 title: assert
+category: Filter
+example: 'assert invariant:bool'
 ---
+
 
 Drops event and emits a warning if the invariant is violated.
 

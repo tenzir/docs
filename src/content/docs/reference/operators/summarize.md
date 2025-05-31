@@ -1,6 +1,9 @@
 ---
 title: summarize
+category: Analyze
+example: 'summarize (group|aggregation)...'
 ---
+
 
 Groups events and applies aggregate functions to each group.
 

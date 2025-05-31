@@ -1,6 +1,9 @@
 ---
 title: remove
+category: Contexts
+example: 'context::remove name:string'
 ---
+
 
 Deletes a context.
 

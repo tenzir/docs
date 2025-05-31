@@ -1,6 +1,9 @@
 ---
 title: load_gcs
+category: Inputs/Bytes
+example: 'load_gcs uri:string, [anonymous=bool]'
 ---
+
 
 Loads bytes from a Google Cloud Storage object.
 

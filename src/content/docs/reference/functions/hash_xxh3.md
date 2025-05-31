@@ -1,6 +1,9 @@
 ---
 title: hash_xxh3
+category: Hashing
+example: 'hash_xxh3(x:any, [seed=string]) -> string'
 ---
+
 
 Computes an XXH3 hash digest.
 

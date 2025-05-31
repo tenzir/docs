@@ -1,6 +1,9 @@
 ---
 title: strict
+category: Internals
+example: 'strict { … }'
 ---
+
 
 Treats all warnings as errors.
 

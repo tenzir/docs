@@ -1,6 +1,9 @@
 ---
 title: unflatten
+category: Type System/Transposition
+example: 'unflatten(x:record, [separator=string]) -> record'
 ---
+
 
 Unflattens nested data.
 

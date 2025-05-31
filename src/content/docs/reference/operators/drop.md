@@ -1,6 +1,9 @@
 ---
 title: drop
+category: Modify
+example: 'drop field...'
 ---
+
 
 Removes fields from the event.
 

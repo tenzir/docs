@@ -1,6 +1,9 @@
 ---
 title: sum
+category: Aggregation
+example: 'sum(xs:list) -> int'
 ---
+
 
 Computes the sum of all values.
 

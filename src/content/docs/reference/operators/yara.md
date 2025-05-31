@@ -1,6 +1,9 @@
 ---
 title: yara
+category: Detection
+example: 'yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]'
 ---
+
 
 Executes YARA rules on byte streams.
 

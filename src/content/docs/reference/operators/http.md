@@ -1,6 +1,9 @@
 ---
 title: http
+category: Modify
+example: 'http url:string, [method=string, payload=string, headers=record,'
 ---
+
 
 Sends HTTP/1.1 requests and forwards the response.
 

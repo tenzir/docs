@@ -1,6 +1,9 @@
 ---
 title: sample
+category: Filter
+example: 'sample [period:duration, mode=string, min_events=int, max_rate=int, max_samples=int]'
 ---
+
 
 Dynamically samples events from a event stream.
 

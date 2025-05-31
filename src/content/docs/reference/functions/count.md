@@ -1,6 +1,9 @@
 ---
 title: count
+category: Aggregation
+example: 'count(xs:list) -> int'
 ---
+
 
 Counts the events or non-null grouped values.
 

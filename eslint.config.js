@@ -22,7 +22,8 @@ export default [
       'tsconfig.tsbuildinfo',
       'pnpm-lock.yaml',
       'package-lock.json',
-      'yarn.lock'
+      'yarn.lock',
+      '**/*.py'
     ]
   },
   

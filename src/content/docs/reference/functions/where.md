@@ -1,6 +1,9 @@
 ---
 title: where
+category: List
+example: 'where(xs:list, prediacte:any => bool) -> list'
 ---
+
 
 Filters list elements based on a predicate.
 

@@ -1,6 +1,9 @@
 ---
 title: stddev
+category: Aggregation
+example: 'stddev(xs:list) -> float'
 ---
+
 
 Computes the standard deviation of all grouped values.
 

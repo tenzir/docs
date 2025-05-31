@@ -1,6 +1,9 @@
 ---
 title: variance
+category: Aggregation
+example: 'variance(xs:list) -> float'
 ---
+
 
 Computes the variance of all grouped values.
 

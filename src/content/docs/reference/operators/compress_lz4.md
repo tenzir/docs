@@ -1,6 +1,9 @@
 ---
 title: compress_lz4
+category: Encode & Decode
+example: 'compress_lz4 [level=int]'
 ---
+
 
 Compresses a stream of bytes using lz4 compression.
 

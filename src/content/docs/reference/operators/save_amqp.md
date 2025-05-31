@@ -1,6 +1,9 @@
 ---
 title: save_amqp
+category: Outputs/Bytes
+example: 'save_amqp [url:str, channel=int, exchange=str, routing_key=str,'
 ---
+
 
 Saves a byte stream via AMQP messages.
 

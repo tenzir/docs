@@ -1,6 +1,9 @@
 ---
 title: uint
+category: Type System/Conversion
+example: 'uint(x:number|string, base=int) -> uint'
 ---
+
 
 Casts an expression to an unsigned integer.
 

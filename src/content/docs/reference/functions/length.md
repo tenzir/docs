@@ -1,6 +1,9 @@
 ---
 title: length
+category: List
+example: 'length(xs:list) -> int'
 ---
+
 
 Retrieves the length of a list.
 

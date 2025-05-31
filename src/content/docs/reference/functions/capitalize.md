@@ -1,6 +1,9 @@
 ---
 title: capitalize
+category: String/Transformation
+example: 'capitalize(x:string) -> string'
 ---
+
 
 Capitalizes the first character of a string.
 

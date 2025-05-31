@@ -1,6 +1,9 @@
 ---
 title: delay
+category: Flow Control
+example: 'delay field:time, [start=time, speed=double]'
 ---
+
 
 Delays events relative to a given start time, with an optional speedup.
 

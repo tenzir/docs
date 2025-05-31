@@ -1,6 +1,9 @@
 ---
 title: decompress
+category: Encode & Decode
+example: 'decompress codec:string'
 ---
+
 
 Decompresses a stream of bytes.
 

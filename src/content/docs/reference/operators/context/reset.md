@@ -1,6 +1,9 @@
 ---
 title: reset
+category: Contexts
+example: 'context::reset name:string'
 ---
+
 
 Resets a context.
 

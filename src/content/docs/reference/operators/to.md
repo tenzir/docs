@@ -1,6 +1,9 @@
 ---
 title: to
+category: Outputs/Events
+example: 'to uri:string, [saver_args… { … }]'
 ---
+
 
 Saves to an URI, inferring the destination, compression and format.
 

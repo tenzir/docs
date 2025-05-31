@@ -1,6 +1,9 @@
 ---
 title: encode_url
+category: Encoding
+example: 'encode_url(bytes: blob|string) -> string'
 ---
+
 
 Encodes strings using URL encoding.
 

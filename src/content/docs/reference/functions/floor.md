@@ -1,6 +1,9 @@
 ---
 title: floor
+category: Math
+example: 'floor(x:number)'
 ---
+
 
 Computes the floor of a number or a time/duration with a specified unit.
 

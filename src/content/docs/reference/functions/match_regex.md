@@ -1,6 +1,9 @@
 ---
 title: match_regex
+category: String/Inspection
+example: 'match_regex(input:string, regex:string) -> bool'
 ---
+
 
 Checks if a string partially matches a regular expression.
 

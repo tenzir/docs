@@ -1,6 +1,9 @@
 ---
 title: since_epoch
+category: Time & Date
+example: 'since_epoch(x:time) -> duration'
 ---
+
 
 Interprets a time value as duration since the Unix epoch.
 

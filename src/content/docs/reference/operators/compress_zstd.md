@@ -1,6 +1,9 @@
 ---
 title: compress_zstd
+category: Encode & Decode
+example: 'compress_zstd [level=int]'
 ---
+
 
 Compresses a stream of bytes using zstd compression.
 

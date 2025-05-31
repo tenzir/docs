@@ -1,6 +1,9 @@
 ---
 title: float
+category: Type System/Conversion
+example: 'float(x:any) -> float'
 ---
+
 
 Casts an expression to a float.
 

@@ -1,6 +1,9 @@
 ---
 title: split_regex
+category: String/Transformation
+example: 'split_regex(x:string, pattern:string, [max:int], [reverse:bool]) -> list'
 ---
+
 
 Splits a string into substrings with a regex.
 

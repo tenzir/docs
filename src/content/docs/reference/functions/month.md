@@ -1,6 +1,9 @@
 ---
 title: month
+category: Time & Date
+example: 'month(x: time) -> int'
 ---
+
 
 Extracts the month component from a timestamp.
 

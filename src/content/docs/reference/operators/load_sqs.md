@@ -1,6 +1,9 @@
 ---
 title: load_sqs
+category: Inputs/Bytes
+example: 'load_sqs queue:str, [poll_time=duration]'
 ---
+
 
 Loads bytes from [Amazon SQS][sqs] queues.
 

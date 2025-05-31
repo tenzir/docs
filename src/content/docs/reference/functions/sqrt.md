@@ -1,6 +1,9 @@
 ---
 title: sqrt
+category: Math
+example: 'sqrt(x:number) -> float'
 ---
+
 
 Computes the square root of a number.
 

@@ -1,6 +1,9 @@
 ---
 title: ends_with
+category: String/Inspection
+example: 'ends_with(x:string, suffix:string) -> bool'
 ---
+
 
 Checks if a string ends with a specified substring.
 

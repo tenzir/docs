@@ -1,6 +1,9 @@
 ---
 title: fork
+category: Flow Control
+example: 'fork { … }'
 ---
+
 
 Executes a subpipeline with a copy of the input.
 

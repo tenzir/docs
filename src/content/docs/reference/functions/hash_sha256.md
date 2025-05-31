@@ -1,6 +1,9 @@
 ---
 title: hash_sha256
+category: Hashing
+example: 'hash_sha256(x:any, [seed=string]) -> string'
 ---
+
 
 Computes a SHA-256 hash digest.
 

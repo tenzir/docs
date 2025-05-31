@@ -1,6 +1,9 @@
 ---
 title: replace
+category: String/Transformation
+example: 'replace(x:string, pattern:string, replacement:string, [max=int]) -> string'
 ---
+
 
 Replaces characters within a string.
 

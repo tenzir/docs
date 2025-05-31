@@ -1,6 +1,9 @@
 ---
 title: hash_sha384
+category: Hashing
+example: 'hash_sha384(x:any, [seed=string]) -> string'
 ---
+
 
 Computes a SHA-384 hash digest.
 

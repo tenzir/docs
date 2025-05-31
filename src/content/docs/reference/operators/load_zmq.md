@@ -1,6 +1,9 @@
 ---
 title: load_zmq
+category: Inputs/Bytes
+example: 'load_zmq [endpoint:str, filter=str, listen=bool, connect=bool, monitor=bool]'
 ---
+
 
 Receives ZeroMQ messages.
 

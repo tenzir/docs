@@ -1,6 +1,9 @@
 ---
 title: cache
+category: Internals
+example: 'cache id:string, [mode=string, capacity=int, read_timeout=duration, write_timeout=duration]'
 ---
+
 
 An in-memory cache shared between pipelines.
 

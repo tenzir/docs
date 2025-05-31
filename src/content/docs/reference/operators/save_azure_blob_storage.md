@@ -1,6 +1,9 @@
 ---
 title: save_azure_blob_storage
+category: Outputs/Bytes
+example: 'save_azure_blob_storage uri:string'
 ---
+
 
 Saves bytes to Azure Blob Storage.
 

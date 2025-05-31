@@ -1,6 +1,9 @@
 ---
 title: duration
+category: Type System/Conversion
+example: 'duration(x:string) -> duration'
 ---
+
 
 Casts an expression to a duration value.
 

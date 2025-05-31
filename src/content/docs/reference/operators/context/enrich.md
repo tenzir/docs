@@ -1,6 +1,9 @@
 ---
 title: enrich
+category: Contexts
+example: 'context::enrich name:string, key=any,'
 ---
+
 
 Resets data with a context.
 

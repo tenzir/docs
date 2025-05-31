@@ -1,6 +1,9 @@
 ---
 title: erase
+category: Contexts
+example: 'context::erase name:string, key=any'
 ---
+
 
 Removes entries from a context.
 

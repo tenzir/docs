@@ -1,6 +1,9 @@
 ---
 title: random
+category: Math
+example: 'random() -> float'
 ---
+
 
 Generates a random number in *[0,1]*.
 

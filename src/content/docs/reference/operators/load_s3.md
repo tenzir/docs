@@ -1,6 +1,9 @@
 ---
 title: load_s3
+category: Inputs/Bytes
+example: 'load_s3 uri:str, [anonymous=bool]'
 ---
+
 
 Loads from an Amazon S3 object.
 

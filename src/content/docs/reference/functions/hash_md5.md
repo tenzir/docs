@@ -1,6 +1,9 @@
 ---
 title: hash_md5
+category: Hashing
+example: 'hash_md5(x:any, [seed=string])'
 ---
+
 
 Computes an MD5 hash digest.
 

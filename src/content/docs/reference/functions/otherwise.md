@@ -1,6 +1,9 @@
 ---
 title: otherwise
+category: Aggregation
+example: 'otherwise(primary:any, fallback:any) -> any'
 ---
+
 
 Returns a `fallback` value if `primary` is `null`.
 

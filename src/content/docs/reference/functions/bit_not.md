@@ -1,6 +1,9 @@
 ---
 title: bit_not
+category: Bit Operations
+example: 'bit_not(x:number) -> number'
 ---
+
 
 Computes the bit-wise NOT of its argument.
 

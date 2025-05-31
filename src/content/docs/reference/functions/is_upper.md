@@ -1,6 +1,9 @@
 ---
 title: is_upper
+category: String/Inspection
+example: 'is_upper(x:string) -> bool'
 ---
+
 
 Checks if a string is in uppercase.
 

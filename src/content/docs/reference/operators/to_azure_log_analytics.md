@@ -1,6 +1,9 @@
 ---
 title: to_azure_log_analytics
+category: Outputs/Events
+example: 'to_azure_log_analytics tenant_id=string, client_id=string, client_secret=string,'
 ---
+
 
 Sends events to the [Microsoft Azure Logs Ingestion API][api].
 

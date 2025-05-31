@@ -1,6 +1,9 @@
 ---
 title: save
+category: Contexts
+example: 'context::save name:string'
 ---
+
 
 Saves context state.
 

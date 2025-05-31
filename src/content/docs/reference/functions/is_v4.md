@@ -1,6 +1,9 @@
 ---
 title: is_v4
+category: IP
+example: 'is_v4(x:ip) -> bool'
 ---
+
 
 Checks whether an IP address has version number 4.
 

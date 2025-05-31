@@ -1,6 +1,9 @@
 ---
 title: sigma
+category: Detection
+example: 'sigma path:string, [refresh_interval=duration]'
 ---
+
 
 Filter the input with [Sigma rules][sigma] and output matching events.
 

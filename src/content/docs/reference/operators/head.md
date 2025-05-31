@@ -1,6 +1,9 @@
 ---
 title: head
+category: Filter
+example: 'head [n:int]'
 ---
+
 
 Limits the input to the first `n` events.
 

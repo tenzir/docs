@@ -1,6 +1,9 @@
 ---
 title: select
+category: Modify
+example: 'select (field|assignment)...'
 ---
+
 
 Selects some values and discards the rest.
 

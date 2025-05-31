@@ -1,6 +1,9 @@
 ---
 title: format_time
+category: Time & Date
+example: 'format_time(input: time, format: string) -> string'
 ---
+
 
 Formats a time into a string that follows a specific format.
 

@@ -1,6 +1,9 @@
 ---
 title: repeat
+category: Flow Control
+example: 'repeat [count:int]'
 ---
+
 
 Repeats the input a number of times.
 

@@ -1,6 +1,9 @@
 ---
 title: files
+category: Host Inspection
+example: 'files [dir:string, recurse=bool, follow_symlinks=bool, skip_permission_denied=bool]'
 ---
+
 
 Shows file information for a given directory.
 

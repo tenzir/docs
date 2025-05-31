@@ -1,6 +1,9 @@
 ---
 title: unordered
+category: Internals
+example: 'unordered { … }'
 ---
+
 
 Removes ordering assumptions from a pipeline.
 

@@ -1,6 +1,9 @@
 ---
 title: type_of
+category: Type System/Introspection
+example: 'type_of(x:any) -> record'
 ---
+
 
 Retrieves the type definition of an expression.
 

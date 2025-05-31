@@ -1,6 +1,9 @@
 ---
 title: update
+category: Contexts
+example: 'context::update name:string, key=any,'
 ---
+
 
 Updates a context with new data.
 

@@ -1,6 +1,9 @@
 ---
 title: batch
+category: Internals
+example: 'batch [limit:int, timeout=duration]'
 ---
+
 
 The `batch` operator controls the batch size of events.
 

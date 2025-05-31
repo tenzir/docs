@@ -1,6 +1,9 @@
 ---
 title: from
+category: Inputs/Events
+example: 'from uri:string, [loader_args… { … }]'
 ---
+
 
 Obtains events from an URI, inferring the source, compression and format.
 

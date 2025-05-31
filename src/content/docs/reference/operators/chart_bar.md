@@ -1,6 +1,9 @@
 ---
 title: chart_bar
+category: Charts
+example: 'chart_bar x|label=field, y|value=any, [x_min=any, x_max=any,'
 ---
+
 
 Plots events on an bar chart.
 

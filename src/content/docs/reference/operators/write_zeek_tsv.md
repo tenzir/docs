@@ -1,6 +1,9 @@
 ---
 title: write_zeek_tsv
+category: Printing
+example: 'write_zeek_tsv [set_separator=str, empty_field=str, unset_field=str, disable_timestamp_tags=bool]'
 ---
+
 
 Transforms event stream into Zeek Tab-Separated Value byte stream.
 

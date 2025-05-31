@@ -1,6 +1,9 @@
 ---
 title: decode_url
+category: Decoding
+example: 'decode_url(string: blob|string) -> blob'
 ---
+
 
 Decodes URL encoded strings.
 

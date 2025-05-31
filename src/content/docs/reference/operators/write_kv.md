@@ -1,6 +1,9 @@
 ---
 title: write_kv
+category: Printing
+example: 'write_kv [field_separator=str, value_separator=str, list_separator=str,'
 ---
+
 
 Writes events in a Key-Value format.
 

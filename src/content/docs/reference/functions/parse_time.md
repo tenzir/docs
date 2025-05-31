@@ -1,6 +1,9 @@
 ---
 title: parse_time
+category: Time & Date
+example: 'parse_time(input: string, format: string) -> time'
 ---
+
 
 Parses a time from a string that follows a specific format.
 

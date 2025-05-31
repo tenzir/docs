@@ -1,6 +1,9 @@
 ---
 title: print_kv
+category: Printing
+example: 'print_kv( input:record, [field_separator=str, value_separator=str,'
 ---
+
 
 Prints records in a key-value format.
 

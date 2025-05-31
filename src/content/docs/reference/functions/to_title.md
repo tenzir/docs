@@ -1,6 +1,9 @@
 ---
 title: to_title
+category: String/Transformation
+example: 'to_title(x:string) -> string'
 ---
+
 
 Converts a string to title case.
 

@@ -1,6 +1,9 @@
 ---
 title: int
+category: Type System/Conversion
+example: 'int(x:number|string, base=int) -> int'
 ---
+
 
 Casts an expression to an integer.
 

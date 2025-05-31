@@ -1,6 +1,9 @@
 ---
 title: is_title
+category: String/Inspection
+example: 'is_title(x:string) -> bool'
 ---
+
 
 Checks if a string follows title case.
 

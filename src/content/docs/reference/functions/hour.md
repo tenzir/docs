@@ -1,6 +1,9 @@
 ---
 title: hour
+category: Time & Date
+example: 'hour(x: time) -> int'
 ---
+
 
 Extracts the hour component from a timestamp.
 

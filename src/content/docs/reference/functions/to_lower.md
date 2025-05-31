@@ -1,6 +1,9 @@
 ---
 title: to_lower
+category: String/Transformation
+example: 'to_lower(x:string) -> string'
 ---
+
 
 Converts a string to lowercase.
 

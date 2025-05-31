@@ -1,6 +1,9 @@
 ---
 title: decapsulate
+category: Networking
+example: 'decapsulate(packet:record) -> record'
 ---
+
 
 Decapsulates packet data at link, network, and transport layer.
 

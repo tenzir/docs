@@ -1,6 +1,9 @@
 ---
 title: ip
+category: Type System/Conversion
+example: 'ip(x:string) -> ip'
 ---
+
 
 Casts an expression to an IP address.
 

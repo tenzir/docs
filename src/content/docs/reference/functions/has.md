@@ -1,6 +1,9 @@
 ---
 title: has
+category: Record
+example: 'has(x:record, field:string) -> bool'
 ---
+
 
 Checks whether a record has a specified field.
 

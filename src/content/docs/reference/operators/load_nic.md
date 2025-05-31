@@ -1,6 +1,9 @@
 ---
 title: load_nic
+category: Inputs/Bytes
+example: 'load_nic iface:str, [snaplen=int, emit_file_headers=bool]'
 ---
+
 
 Loads bytes from a network interface card (NIC).
 

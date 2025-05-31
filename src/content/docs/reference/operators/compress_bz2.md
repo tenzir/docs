@@ -1,6 +1,9 @@
 ---
 title: compress_bz2
+category: Encode & Decode
+example: 'compress_bz2 [level=int]'
 ---
+
 
 Compresses a stream of bytes using bz2 compression.
 

@@ -1,6 +1,9 @@
 ---
 title: trim_end
+category: String/Transformation
+example: 'trim_end(x:string) -> string'
 ---
+
 
 Trims whitespace from the end of a string.
 

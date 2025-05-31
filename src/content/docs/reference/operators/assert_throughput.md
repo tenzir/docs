@@ -1,6 +1,9 @@
 ---
 title: assert_throughput
+category: Filter
+example: 'assert_throughput min_events:int, within=duration, [retries=int]'
 ---
+
 
 Emits a warning if the pipeline does not have the expected throughput
 

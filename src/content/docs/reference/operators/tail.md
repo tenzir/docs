@@ -1,6 +1,9 @@
 ---
 title: tail
+category: Filter
+example: 'tail [n:int]'
 ---
+
 
 Limits the input to the last `n` events.
 

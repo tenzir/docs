@@ -1,6 +1,9 @@
 ---
 title: zip
+category: List
+example: 'zip(xs:list, ys:list) -> list'
 ---
+
 
 Combines two lists into a list of pairs.
 

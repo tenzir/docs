@@ -1,6 +1,9 @@
 ---
 title: load_kafka
+category: Inputs/Bytes
+example: 'load_kafka topic:string, [count=int, exit=bool, offset=int|string,'
 ---
+
 
 Loads a byte stream from a Apache Kafka topic.
 

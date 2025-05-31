@@ -1,6 +1,9 @@
 ---
 title: load_balance
+category: Flow Control
+example: 'load_balance over:list { … }'
 ---
+
 
 Routes the data to one of multiple subpipelines.
 

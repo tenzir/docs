@@ -1,6 +1,9 @@
 ---
 title: inspect
+category: Contexts
+example: 'context::inspect name:string'
 ---
+
 
 Resets a context.
 

@@ -1,6 +1,9 @@
 ---
 title: load_file
+category: Inputs/Bytes
+example: 'load_file path:string, [follow=bool, mmap=bool, timeout=duration]'
 ---
+
 
 Loads the contents of the file at `path` as a byte stream.
 

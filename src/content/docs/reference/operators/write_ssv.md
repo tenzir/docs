@@ -1,6 +1,9 @@
 ---
 title: write_ssv
+category: Printing
+example: 'write_ssv [list_separator=str, null_value=str, no_header=bool]'
 ---
+
 
 Transforms event stream to SSV (Space-Separated Values) byte stream.
 

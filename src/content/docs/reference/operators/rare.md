@@ -1,6 +1,9 @@
 ---
 title: rare
+category: Analyze
+example: 'rare x:field'
 ---
+
 
 Shows the least common values.
 

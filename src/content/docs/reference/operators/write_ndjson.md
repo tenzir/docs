@@ -1,6 +1,9 @@
 ---
 title: write_ndjson
+category: Printing
+example: 'write_ndjson [strip=bool, color=bool, arrays_of_objects=bool,'
 ---
+
 
 Transforms the input event stream to a Newline-Delimited JSON byte stream.
 

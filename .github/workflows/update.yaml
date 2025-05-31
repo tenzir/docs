@@ -76,6 +76,10 @@ jobs:
           rsync -av --delete /tmp/tenzir/docs/operators/ ./src/content/docs/reference/operators
           cp /tmp/tenzir/docs/openapi.node.yaml ./src/content/apis/openapi.node.yaml
           cp /tmp/tenzir/tenzir.yaml.example ./tenzir.yaml.example
+          # Generate functions overview from individual function files
+          pnpm run generate:functions-overview
+          # Generate operators overview from individual operator files
+          pnpm run generate:operators-overview
           # Clean up
           rm -rf /tmp/tenzir
 

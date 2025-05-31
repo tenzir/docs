@@ -1,6 +1,9 @@
 ---
 title: count_distinct
+category: Aggregation
+example: 'count_distinct(xs:list) -> int'
 ---
+
 
 Counts all distinct non-null grouped values.
 

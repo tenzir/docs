@@ -1,6 +1,9 @@
 ---
 title: median
+category: Aggregation
+example: 'median(xs:list) -> float'
 ---
+
 
 Computes the approximate median of all grouped values using a t-digest algorithm.
 
