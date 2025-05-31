@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import fs from 'fs/promises';
-import path from 'path';
+import fs from "fs/promises";
+import path from "path";
 
 // Categories are now read from frontmatter in individual function files
 // This mapping is kept as a fallback for any functions without category metadata
@@ -22,27 +22,33 @@ function parseFrontmatter(content) {
 
   // Simple YAML parser for our needs
   const data = {};
-  const lines = frontmatter.split('\n');
+  const lines = frontmatter.split("\n");
   let currentKey = null;
   let isArray = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const colonIndex = line.indexOf(':');
+    const colonIndex = line.indexOf(":");
 
-    if (colonIndex > 0 && !line.trim().startsWith('-')) {
+    if (colonIndex > 0 && !line.trim().startsWith("-")) {
       // New key-value pair
       const key = line.slice(0, colonIndex).trim();
       let value = line.slice(colonIndex + 1).trim();
 
       // Remove quotes if present
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
         value = value.slice(1, -1);
       }
 
       // Check if this starts an array
-      if (value === '' && i + 1 < lines.length && lines[i + 1].trim().startsWith('-')) {
+      if (
+        value === "" &&
+        i + 1 < lines.length &&
+        lines[i + 1].trim().startsWith("-")
+      ) {
         // This is an array
         data[key] = [];
         currentKey = key;
@@ -52,9 +58,9 @@ function parseFrontmatter(content) {
         currentKey = null;
         isArray = false;
       }
-    } else if (line.trim().startsWith('-') && isArray && currentKey) {
+    } else if (line.trim().startsWith("-") && isArray && currentKey) {
       // Array item
-      const item = line.slice(line.indexOf('-') + 1).trim();
+      const item = line.slice(line.indexOf("-") + 1).trim();
       data[currentKey].push(item);
     }
   }
@@ -64,16 +70,16 @@ function parseFrontmatter(content) {
 
 function extractDescription(content) {
   // Get the first paragraph after frontmatter (until empty line or code block)
-  const lines = content.split('\n');
-  let description = '';
+  const lines = content.split("\n");
+  let description = "";
   let foundStart = false;
   let inCallout = false;
-  
+
   for (const line of lines) {
     const trimmed = line.trim();
-    
+
     // Handle callout blocks
-    if (trimmed.startsWith(':::')) {
+    if (trimmed.startsWith(":::")) {
       if (inCallout) {
         inCallout = false; // End of callout
       } else {
@@ -81,44 +87,47 @@ function extractDescription(content) {
       }
       continue;
     }
-    
+
     // Skip content inside callouts
     if (inCallout) {
       continue;
     }
-    
+
     // Skip empty lines at the beginning
     if (!foundStart && !trimmed) {
       continue;
     }
-    
+
     // Skip headers and code blocks
-    if (trimmed.startsWith('#') || 
-        trimmed.startsWith('```')) {
+    if (trimmed.startsWith("#") || trimmed.startsWith("```")) {
       if (foundStart) break; // End of description paragraph
       continue; // Skip if we haven't started yet
     }
-    
+
     // If we hit an empty line after starting, we've reached the end of the paragraph
     if (foundStart && !trimmed) {
       break;
     }
-    
+
     // This is part of the description
     if (trimmed) {
       foundStart = true;
       if (description) {
-        description += ' ' + trimmed;
+        description += " " + trimmed;
       } else {
         description = trimmed;
       }
     }
   }
-  
+
   return description;
 }
 
-async function processFunctionFiles(dirPath, functions = [], basePath = "src/content/docs/reference/functions") {
+async function processFunctionFiles(
+  dirPath,
+  functions = [],
+  basePath = "src/content/docs/reference/functions",
+) {
   const items = await fs.readdir(dirPath, { withFileTypes: true });
 
   for (const item of items) {
@@ -136,30 +145,33 @@ async function processFunctionFiles(dirPath, functions = [], basePath = "src/con
 
       // Calculate relative path from base functions directory
       const relativePath = path.relative(basePath, fullPath);
-      const urlPath = path.dirname(relativePath).replace(/\\/g, '/');
-      const finalPath = urlPath === '.' ? 
-        `/reference/functions/${functionName}` : 
-        `/reference/functions/${urlPath}/${functionName}`;
+      const urlPath = path.dirname(relativePath).replace(/\\/g, "/");
+      const finalPath =
+        urlPath === "."
+          ? `/reference/functions/${functionName}`
+          : `/reference/functions/${urlPath}/${functionName}`;
 
       // Handle multiple categories
       let categories;
       if (Array.isArray(data.category)) {
         categories = data.category;
-      } else if (data.category && data.category.includes(',')) {
-        categories = data.category.split(',').map(c => c.trim());
+      } else if (data.category && data.category.includes(",")) {
+        categories = data.category.split(",").map((c) => c.trim());
       } else {
-        categories = [data.category || FUNCTION_CATEGORIES[functionName] || 'Uncategorized'];
+        categories = [
+          data.category || FUNCTION_CATEGORIES[functionName] || "Uncategorized",
+        ];
       }
 
       const description = extractDescription(body);
-      const example = data.example || '';
+      const example = data.example || "";
 
       functions.push({
         name: functionName,
         categories,
         description,
         example,
-        path: finalPath
+        path: finalPath,
       });
     }
   }
@@ -168,7 +180,7 @@ async function processFunctionFiles(dirPath, functions = [], basePath = "src/con
 }
 
 async function generateFunctionsOverview() {
-  const functionsDir = 'src/content/docs/reference/functions';
+  const functionsDir = "src/content/docs/reference/functions";
 
   console.warn(`Processing function files in ${functionsDir}...`);
 
@@ -179,8 +191,8 @@ async function generateFunctionsOverview() {
 
   // Group by category - functions can appear in multiple categories
   const categorizedFunctions = {};
-  functions.forEach(fn => {
-    fn.categories.forEach(category => {
+  functions.forEach((fn) => {
+    fn.categories.forEach((category) => {
       if (!categorizedFunctions[category]) {
         categorizedFunctions[category] = [];
       }
@@ -188,25 +200,25 @@ async function generateFunctionsOverview() {
         name: fn.name,
         description: fn.description,
         example: fn.example,
-        path: fn.path
+        path: fn.path,
       });
     });
   });
 
   // Sort functions within each category
-  Object.values(categorizedFunctions).forEach(categoryFunctions => {
+  Object.values(categorizedFunctions).forEach((categoryFunctions) => {
     categoryFunctions.sort((a, b) => a.name.localeCompare(b.name));
   });
 
   // Collect all function data for frontmatter
   const allFunctionData = [];
-  Object.values(categorizedFunctions).forEach(categoryFunctions => {
-    categoryFunctions.forEach(fn => {
+  Object.values(categorizedFunctions).forEach((categoryFunctions) => {
+    categoryFunctions.forEach((fn) => {
       allFunctionData.push({
         name: fn.name,
         description: fn.description,
         example: fn.example,
-        path: fn.path
+        path: fn.path,
       });
     });
   });
@@ -218,7 +230,7 @@ functions:
 `;
 
   // Add function metadata to frontmatter
-  allFunctionData.forEach(fn => {
+  allFunctionData.forEach((fn) => {
     const escapedName = fn.name.replace(/'/g, "''");
     const escapedDescription = fn.description.replace(/'/g, "''");
     const escapedExample = fn.example.replace(/'/g, "''");
@@ -280,17 +292,17 @@ but often resort to the method style when it is more idiomatic.
 
   // Add each category in alphabetical order
   const sortedCategoryNames = Object.keys(categorizedFunctions)
-    .filter(categoryName => categoryName !== 'Uncategorized')
+    .filter((categoryName) => categoryName !== "Uncategorized")
     .sort();
 
-  sortedCategoryNames.forEach(categoryName => {
+  sortedCategoryNames.forEach((categoryName) => {
     const functions = categorizedFunctions[categoryName];
     if (!functions || functions.length === 0) {
       return;
     }
 
-    const isSubcategory = categoryName.includes('/');
-    const [_mainCategory, subCategory] = categoryName.split('/');
+    const isSubcategory = categoryName.includes("/");
+    const [_mainCategory, subCategory] = categoryName.split("/");
 
     if (isSubcategory) {
       markdown += `\n### ${subCategory}\n\n`;
@@ -300,9 +312,9 @@ but often resort to the method style when it is more idiomatic.
 
     markdown += `<CardGrid>\n\n`;
 
-    functions.forEach(fn => {
-      const escapedTitle = fn.name.replace(/"/g, '&quot;');
-      const escapedDescription = fn.description.replace(/"/g, '&quot;');
+    functions.forEach((fn) => {
+      const escapedTitle = fn.name.replace(/"/g, "&quot;");
+      const escapedDescription = fn.description.replace(/"/g, "&quot;");
       markdown += `<ReferenceCard title="${escapedTitle}" description="${escapedDescription}" href="${fn.path}">\n\n\`\`\`tql\n${fn.example}\n\`\`\`\n\n</ReferenceCard>\n\n`;
     });
 
@@ -310,28 +322,28 @@ but often resort to the method style when it is more idiomatic.
   });
 
   // Add any uncategorized functions
-  const uncategorized = categorizedFunctions['Uncategorized'];
+  const uncategorized = categorizedFunctions["Uncategorized"];
   if (uncategorized && uncategorized.length > 0) {
     markdown += `\n## Uncategorized\n\n`;
     markdown += `<CardGrid>\n\n`;
 
-    uncategorized.forEach(fn => {
-      const escapedTitle = fn.name.replace(/"/g, '&quot;');
-      const escapedDescription = fn.description.replace(/"/g, '&quot;');
+    uncategorized.forEach((fn) => {
+      const escapedTitle = fn.name.replace(/"/g, "&quot;");
+      const escapedDescription = fn.description.replace(/"/g, "&quot;");
       markdown += `<ReferenceCard title="${escapedTitle}" description="${escapedDescription}" href="${fn.path}">\n\n\`\`\`tql\n${fn.example}\n\`\`\`\n\n</ReferenceCard>\n\n`;
     });
 
     markdown += `</CardGrid>\n`;
   }
 
-  await fs.writeFile('src/content/docs/reference/functions.mdx', markdown);
-  console.warn('✅ Generated functions overview');
+  await fs.writeFile("src/content/docs/reference/functions.mdx", markdown);
+  console.warn("✅ Generated functions overview");
 
   // Report any functions that were found but not categorized
   const uncategorizedCount = uncategorized ? uncategorized.length : 0;
   if (uncategorizedCount > 0) {
     console.warn(`⚠️  Found ${uncategorizedCount} uncategorized functions:`);
-    uncategorized.forEach(fn => console.warn(`   - ${fn.name}`));
+    uncategorized.forEach((fn) => console.warn(`   - ${fn.name}`));
   }
 }
 

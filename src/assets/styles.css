@@ -396,20 +396,31 @@ header[data-scrolled] {
 /* Create a unified appearance for consecutive TQL blocks */
 
 /* Force both blocks to use the same shadow and positioning */
-.sl-markdown-content .expressive-code:has([data-language="tql"]):has(+ .expressive-code:has([data-language="tql"])),
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]) {
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06)) !important;
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"]):has(
+    + .expressive-code:has([data-language="tql"])
+  ),
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"]) {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))
+    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06)) !important;
 }
 
 /* Remove margin and create overlap */
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]) {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"]) {
   margin-top: -4px !important;
   position: relative;
   z-index: 1;
 }
 
 /* First block styling */
-.sl-markdown-content .expressive-code:has([data-language="tql"]):has(+ .expressive-code:has([data-language="tql"])) {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"]):has(
+    + .expressive-code:has([data-language="tql"])
+  ) {
   margin-bottom: 0 !important;
   --ec-brdRad: 5px 5px 0 0 !important;
   position: relative;
@@ -417,25 +428,41 @@ header[data-scrolled] {
 }
 
 /* Second block styling */
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]) {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"]) {
   --ec-brdRad: 0 0 5px 5px !important;
 }
 
 /* Eliminate all borders and shadows from nested elements */
-.sl-markdown-content .expressive-code:has([data-language="tql"]):has(+ .expressive-code:has([data-language="tql"])) *,
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]) * {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"]):has(
+    + .expressive-code:has([data-language="tql"])
+  )
+  *,
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"])
+  * {
   border: none !important;
   box-shadow: none !important;
   filter: none !important;
 }
 
 /* Force proper border radius on all child elements */
-.sl-markdown-content .expressive-code:has([data-language="tql"]):has(+ .expressive-code:has([data-language="tql"])) * {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"]):has(
+    + .expressive-code:has([data-language="tql"])
+  )
+  * {
   border-bottom-left-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
 
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]) * {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"])
+  * {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
 }
@@ -443,7 +470,9 @@ header[data-scrolled] {
 /* Visual separator line removed to eliminate artifacts - the OUTPUT label provides sufficient visual separation */
 
 /* Add output label */
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"])::after {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"])::after {
   content: "output";
   position: absolute;
   top: 0.5rem;
@@ -462,7 +491,9 @@ header[data-scrolled] {
 }
 
 /* Hide output label on hover to reveal copy button */
-.sl-markdown-content .expressive-code:has([data-language="tql"]) + .expressive-code:has([data-language="tql"]):hover::after {
+.sl-markdown-content
+  .expressive-code:has([data-language="tql"])
+  + .expressive-code:has([data-language="tql"]):hover::after {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;

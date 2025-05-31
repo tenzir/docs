@@ -3,11 +3,11 @@
 // components. :-/
 
 function stripLeadingSlash(path: string): string {
-  return path.replace(/^\/+/, '');
+  return path.replace(/^\/+/, "");
 }
 
 function stripTrailingSlash(path: string): string {
-  return path.replace(/\/+$/, '');
+  return path.replace(/\/+$/, "");
 }
 
 export function pathWithBase(path: NonNullable<string>): string {
@@ -16,5 +16,5 @@ export function pathWithBase(path: NonNullable<string>): string {
   if (!base) {
     return path;
   }
-  return stripTrailingSlash(base) + '/' + path;
+  return stripTrailingSlash(base) + "/" + path;
 }

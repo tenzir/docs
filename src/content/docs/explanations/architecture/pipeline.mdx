@@ -1,7 +1,7 @@
 ---
 title: Pipeline
 sidebar:
-   order: 1
+  order: 1
 ---
 
 A Tenzir **pipeline** is a chain of **operators** that represents a dataflow.
@@ -19,7 +19,7 @@ Our pipelines have 3 types of operators: **inputs** that produce data,
 ## Structured and Unstructured Dataflow
 
 Tenzir pipelines make one more distinction: the elements that the operators push
-through the pipeline are *typed*. An operator has an **upstream** and
+through the pipeline are _typed_. An operator has an **upstream** and
 **downstream** type:
 
 ![Upstream and Downstream Types](pipeline/operator-table.svg)
@@ -36,7 +36,7 @@ When you run a pipeline in the app and do not provide a sink, we only append
 [`serve`](/reference/operators/serve) to make the pipeline a REST API
 and extract data piecemeal through your browser.
 
-Operators can be *polymorphic* in that they can have more than a single upstream
+Operators can be _polymorphic_ in that they can have more than a single upstream
 and downstream type. For example,
 [`buffer`](/reference/operators/buffer) accepts both bytes and events.
 
@@ -83,12 +83,12 @@ types match. Here is an example of other valid pipeline instances:
 
 ## Multi-Schema Dataflows
 
-Every event that flows through a pipeline is part of a *data frame* with a
+Every event that flows through a pipeline is part of a _data frame_ with a
 schema. Internally, these data frames are represented as Apache Arrow record
 batch, encoding potentially of tens of thousands of events at once. This
 innate batching is the reason why the pipelines can achieve a high throughput.
 
-Unique about Tenzir is that a single pipeline can run with *multiple schemas*,
+Unique about Tenzir is that a single pipeline can run with _multiple schemas_,
 even though the events are data frames internally. Tenzir parsers
 (bytes-to-event operators) are capable of emitting events with changing schemas.
 This behavior is different from other engines that work with data frames where
@@ -145,8 +145,8 @@ this:
 For example, to ingest JSON from a Kafka, you write `from "kafka://topic |
 import`. To query the stored data, you write `export | where file == 42`.
 
-The example with `export` suggests that the pipeline *first* exports everything,
-and only *then* starts filtering with `where`, performing a full scan over the
+The example with `export` suggests that the pipeline _first_ exports everything,
+and only _then_ starts filtering with `where`, performing a full scan over the
 stored data. But this is not what's happening. Pipelines support **predicate
 pushdown** for every operator. This means that `export` receives the filter
 expression before it starts executing, enabling index lookups or other
@@ -178,7 +178,7 @@ pipeline on streaming data by exchanging the input with a Kafka stream.
 Tenzir pipelines have built-in network communication, allowing you to create a
 distributed fabric of dataflows to express intricate use cases that go beyond
 single-machine processing. There are two types of network connections:
-*implicit* and *explicit* ones:
+_implicit_ and _explicit_ ones:
 
 ![Implicit vs. Explicit](pipeline/implicit-vs-explicit-networking.svg)
 
@@ -191,6 +191,7 @@ from "/file/eve.json"
 where tag != "foo"
 import
 ```
+
 Or one that begins with [`export`](/reference/operators/export):
 
 ```tql

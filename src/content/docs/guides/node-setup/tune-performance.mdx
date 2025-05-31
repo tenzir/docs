@@ -28,7 +28,7 @@ tenzir:
 ## Batching
 
 Tenzir processes events in batches. Because the structured data has the shape of
-a table, we call these batches *table slices*. The following options control
+a table, we call these batches _table slices_. The following options control
 their shape and behavior.
 
 ### Size
@@ -70,7 +70,7 @@ a later. The default value is 10 seconds.
 
 ## Storage Engine
 
-The central component of Tenzir's storage engine is the *catalog*. It owns the
+The central component of Tenzir's storage engine is the _catalog_. It owns the
 partitions, keeps metadata about them, and maintains a set of sparse secondary
 indexes to identify relevant partitions for a given query.
 
@@ -86,8 +86,8 @@ configurable, but there exist various options that have a direct impact.
 ### Control the partition size
 
 Tenzir groups table slices with the same schema in a partition. There exist
-mutable *active partitions* that Tenzir writes to during ingestion, and
-immutable *passive partitions* that Tenzir reads from during query execution.
+mutable _active partitions_ that Tenzir writes to during ingestion, and
+immutable _passive partitions_ that Tenzir reads from during query execution.
 
 When constructing a partition, the parameter `tenzir.max-partition-size`
 (default: 4Mi / 2^22) sets an upper bound on the number of records in a

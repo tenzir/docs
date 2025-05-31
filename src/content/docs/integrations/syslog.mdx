@@ -42,8 +42,8 @@ publish "syslog"
 ```
 
 :::note[One pipeline per accepted connection]
-For TCP, the pipeline inside `from` executes *for each accepted
-connection*.
+For TCP, the pipeline inside `from` executes _for each accepted
+connection_.
 :::
 
 ### Parsing CEF, LEEF, or JSON Payloads
@@ -77,7 +77,7 @@ Note that the `content` field is just a big string. Parse it with
 ```tql
 load_file "/tmp/sample.syslog"
 read_syslog
-content = content.parse_cef() 
+content = content.parse_cef()
 ```
 
 This yields the following structured output:

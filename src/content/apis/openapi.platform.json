@@ -1,1 +1,384 @@
-{"openapi":"3.1.0","info":{"title":"Websocket Gateway","version":"0.1.0"},"paths":{"/production/proxy":{"post":{"summary":"Proxy Endpoint","operationId":"proxy_endpoint_production_proxy_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/WebsocketUserRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WebsocketUserResponse"}}}},"403":{"description":"`{\"detail\": \"Invalid API Key\"}`"},"408":{"description":"`{\"detail\": \"Proxy timed out\"}`"},"410":{"description":"`{\"detail\": \"Node not connected\"}`"},"404":{"description":"`{\"detail\": \"Tenant not found\"}`\n`{\"detail\": \"Node not found\"}`"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"User Key":[]}]}},"/production/proxy/{tenant_id}/{node_id}/{http_path}":{"post":{"summary":"Simplified Proxy Endpoint","operationId":"simplified_proxy_endpoint_production_proxy__tenant_id___node_id___http_path__post","security":[{"User Key":[]}],"parameters":[{"name":"tenant_id","in":"path","required":true,"schema":{"type":"string","title":"Tenant Id"}},{"name":"node_id","in":"path","required":true,"schema":{"type":"string","title":"Node Id"}},{"name":"http_path","in":"path","required":true,"schema":{"type":"string","title":"Http Path"}},{"name":"x-tenzir-request-id","in":"header","required":false,"schema":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"X-Tenzir-Request-Id"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","title":"Request Body"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/WebsocketUserResponse"}}}},"403":{"description":"`{\"detail\": \"Invalid API Key\"}`"},"408":{"description":"`{\"detail\": \"Proxy timed out\"}`"},"410":{"description":"`{\"detail\": \"Node not connected\"}`"},"404":{"description":"`{\"detail\": \"Tenant not found\"}`\n`{\"detail\": \"Node not found\"}`"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/production/list-connected-nodes":{"post":{"summary":"List Connected Nodes Endpoint","operationId":"list_connected_nodes_endpoint_production_list_connected_nodes_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ListConnectedNodesRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ListConnectedNodesResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"User Key":[]}]}},"/production/refresh-alerts":{"post":{"summary":"Refresh Alerts Endpoint","operationId":"refresh_alerts_endpoint_production_refresh_alerts_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RefreshAlertsRequest"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RefreshAlertsResponse"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}},"security":[{"User Key":[]}]}},"/production/health":{"get":{"summary":"Health Endpoint","operationId":"health_endpoint_production_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}}},"components":{"schemas":{"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"LargePayloadDestination":{"properties":{"type":{"type":"string","const":"http-put","title":"Type"},"url":{"type":"string","title":"Url"},"threshold_bytes":{"type":"integer","title":"Threshold Bytes","default":8388608}},"additionalProperties":false,"type":"object","required":["type","url"],"title":"LargePayloadDestination"},"ListConnectedNodesRequest":{"properties":{"tenant_id":{"type":"string","title":"Tenant Id"}},"type":"object","required":["tenant_id"],"title":"ListConnectedNodesRequest"},"ListConnectedNodesResponse":{"properties":{"node_ids":{"items":{"type":"string"},"type":"array","title":"Node Ids"}},"type":"object","required":["node_ids"],"title":"ListConnectedNodesResponse"},"Method":{"type":"string","enum":["GET","POST","DELETE","PUT","HEAD","PATCH"],"title":"Method"},"PayloadLocation":{"type":"string","enum":["inline","external"],"title":"PayloadLocation"},"ProxiedHttpRequest":{"properties":{"path":{"type":"string","title":"Path"},"method":{"$ref":"#/components/schemas/Method"},"api_version":{"type":"integer","title":"Api Version","default":0},"body_json":{"anyOf":[{"type":"object"},{"type":"null"}],"title":"Body Json"}},"additionalProperties":false,"type":"object","required":["path","method"],"title":"ProxiedHttpRequest"},"ProxiedHttpResponse":{"properties":{"code":{"type":"integer","title":"Code"},"body_json":{"anyOf":[{"type":"object"},{"type":"null"}],"title":"Body Json"}},"additionalProperties":false,"type":"object","required":["code"],"title":"ProxiedHttpResponse"},"RefreshAlertsRequest":{"properties":{"tenant_id":{"type":"string","title":"Tenant Id"}},"type":"object","required":["tenant_id"],"title":"RefreshAlertsRequest"},"RefreshAlertsResponse":{"properties":{},"type":"object","title":"RefreshAlertsResponse"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"},"WebsocketUserRequest":{"properties":{"tenant_id":{"type":"string","title":"Tenant Id"},"node_id":{"type":"string","title":"Node Id"},"http":{"$ref":"#/components/schemas/ProxiedHttpRequest"},"message_type":{"type":"string","const":"user-request","title":"Message Type","default":"user-request"},"request_id":{"type":"string","title":"Request Id"},"large_payload_destination":{"$ref":"#/components/schemas/LargePayloadDestination"}},"additionalProperties":false,"type":"object","required":["tenant_id","node_id","http","request_id","large_payload_destination"],"title":"WebsocketUserRequest","description":"This is the request generated internally by the /proxy endpoint."},"WebsocketUserResponse":{"properties":{"message_type":{"type":"string","const":"user-response","title":"Message Type","default":"user-response"},"request_id":{"type":"string","title":"Request Id"},"payload_location":{"anyOf":[{"$ref":"#/components/schemas/PayloadLocation"},{"type":"null"}],"default":"inline"},"http":{"anyOf":[{"$ref":"#/components/schemas/ProxiedHttpResponse"},{"type":"null"}]}},"additionalProperties":false,"type":"object","required":["request_id"],"title":"WebsocketUserResponse","description":"This is the response returned to the /proxy endpoint handler"}},"securitySchemes":{"User Key":{"type":"apiKey","in":"header","name":"X-Tenzir-UserKey"}}}}
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Websocket Gateway", "version": "0.1.0" },
+  "paths": {
+    "/production/proxy": {
+      "post": {
+        "summary": "Proxy Endpoint",
+        "operationId": "proxy_endpoint_production_proxy_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WebsocketUserRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsocketUserResponse"
+                }
+              }
+            }
+          },
+          "403": { "description": "`{\"detail\": \"Invalid API Key\"}`" },
+          "408": { "description": "`{\"detail\": \"Proxy timed out\"}`" },
+          "410": { "description": "`{\"detail\": \"Node not connected\"}`" },
+          "404": {
+            "description": "`{\"detail\": \"Tenant not found\"}`\n`{\"detail\": \"Node not found\"}`"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "User Key": [] }]
+      }
+    },
+    "/production/proxy/{tenant_id}/{node_id}/{http_path}": {
+      "post": {
+        "summary": "Simplified Proxy Endpoint",
+        "operationId": "simplified_proxy_endpoint_production_proxy__tenant_id___node_id___http_path__post",
+        "security": [{ "User Key": [] }],
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Tenant Id" }
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Node Id" }
+          },
+          {
+            "name": "http_path",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "title": "Http Path" }
+          },
+          {
+            "name": "x-tenzir-request-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "X-Tenzir-Request-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object", "title": "Request Body" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebsocketUserResponse"
+                }
+              }
+            }
+          },
+          "403": { "description": "`{\"detail\": \"Invalid API Key\"}`" },
+          "408": { "description": "`{\"detail\": \"Proxy timed out\"}`" },
+          "410": { "description": "`{\"detail\": \"Node not connected\"}`" },
+          "404": {
+            "description": "`{\"detail\": \"Tenant not found\"}`\n`{\"detail\": \"Node not found\"}`"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/production/list-connected-nodes": {
+      "post": {
+        "summary": "List Connected Nodes Endpoint",
+        "operationId": "list_connected_nodes_endpoint_production_list_connected_nodes_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListConnectedNodesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListConnectedNodesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "User Key": [] }]
+      }
+    },
+    "/production/refresh-alerts": {
+      "post": {
+        "summary": "Refresh Alerts Endpoint",
+        "operationId": "refresh_alerts_endpoint_production_refresh_alerts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RefreshAlertsRequest" }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshAlertsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            }
+          }
+        },
+        "security": [{ "User Key": [] }]
+      }
+    },
+    "/production/health": {
+      "get": {
+        "summary": "Health Endpoint",
+        "operationId": "health_endpoint_production_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": { "application/json": { "schema": {} } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LargePayloadDestination": {
+        "properties": {
+          "type": { "type": "string", "const": "http-put", "title": "Type" },
+          "url": { "type": "string", "title": "Url" },
+          "threshold_bytes": {
+            "type": "integer",
+            "title": "Threshold Bytes",
+            "default": 8388608
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["type", "url"],
+        "title": "LargePayloadDestination"
+      },
+      "ListConnectedNodesRequest": {
+        "properties": {
+          "tenant_id": { "type": "string", "title": "Tenant Id" }
+        },
+        "type": "object",
+        "required": ["tenant_id"],
+        "title": "ListConnectedNodesRequest"
+      },
+      "ListConnectedNodesResponse": {
+        "properties": {
+          "node_ids": {
+            "items": { "type": "string" },
+            "type": "array",
+            "title": "Node Ids"
+          }
+        },
+        "type": "object",
+        "required": ["node_ids"],
+        "title": "ListConnectedNodesResponse"
+      },
+      "Method": {
+        "type": "string",
+        "enum": ["GET", "POST", "DELETE", "PUT", "HEAD", "PATCH"],
+        "title": "Method"
+      },
+      "PayloadLocation": {
+        "type": "string",
+        "enum": ["inline", "external"],
+        "title": "PayloadLocation"
+      },
+      "ProxiedHttpRequest": {
+        "properties": {
+          "path": { "type": "string", "title": "Path" },
+          "method": { "$ref": "#/components/schemas/Method" },
+          "api_version": {
+            "type": "integer",
+            "title": "Api Version",
+            "default": 0
+          },
+          "body_json": {
+            "anyOf": [{ "type": "object" }, { "type": "null" }],
+            "title": "Body Json"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["path", "method"],
+        "title": "ProxiedHttpRequest"
+      },
+      "ProxiedHttpResponse": {
+        "properties": {
+          "code": { "type": "integer", "title": "Code" },
+          "body_json": {
+            "anyOf": [{ "type": "object" }, { "type": "null" }],
+            "title": "Body Json"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["code"],
+        "title": "ProxiedHttpResponse"
+      },
+      "RefreshAlertsRequest": {
+        "properties": {
+          "tenant_id": { "type": "string", "title": "Tenant Id" }
+        },
+        "type": "object",
+        "required": ["tenant_id"],
+        "title": "RefreshAlertsRequest"
+      },
+      "RefreshAlertsResponse": {
+        "properties": {},
+        "type": "object",
+        "title": "RefreshAlertsResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      },
+      "WebsocketUserRequest": {
+        "properties": {
+          "tenant_id": { "type": "string", "title": "Tenant Id" },
+          "node_id": { "type": "string", "title": "Node Id" },
+          "http": { "$ref": "#/components/schemas/ProxiedHttpRequest" },
+          "message_type": {
+            "type": "string",
+            "const": "user-request",
+            "title": "Message Type",
+            "default": "user-request"
+          },
+          "request_id": { "type": "string", "title": "Request Id" },
+          "large_payload_destination": {
+            "$ref": "#/components/schemas/LargePayloadDestination"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "node_id",
+          "http",
+          "request_id",
+          "large_payload_destination"
+        ],
+        "title": "WebsocketUserRequest",
+        "description": "This is the request generated internally by the /proxy endpoint."
+      },
+      "WebsocketUserResponse": {
+        "properties": {
+          "message_type": {
+            "type": "string",
+            "const": "user-response",
+            "title": "Message Type",
+            "default": "user-response"
+          },
+          "request_id": { "type": "string", "title": "Request Id" },
+          "payload_location": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/PayloadLocation" },
+              { "type": "null" }
+            ],
+            "default": "inline"
+          },
+          "http": {
+            "anyOf": [
+              { "$ref": "#/components/schemas/ProxiedHttpResponse" },
+              { "type": "null" }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": ["request_id"],
+        "title": "WebsocketUserResponse",
+        "description": "This is the response returned to the /proxy endpoint handler"
+      }
+    },
+    "securitySchemes": {
+      "User Key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Tenzir-UserKey"
+      }
+    }
+  }
+}

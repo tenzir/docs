@@ -54,7 +54,7 @@ transforms data until disk usage falls below the budget, e.g., by removing
 columns or rows from certain events, or by deleting them entirely.
 
 When the disk budget exceeds the configured threshold, the node decides what
-data to compact. The compaction *mode* defines how this happens. Currently,
+data to compact. The compaction _mode_ defines how this happens. Currently,
 there exists only one mode: weighted age.
 
 To compute the weighted age, the node divides the actual age of an event with
@@ -76,7 +76,7 @@ plugins:
       mode: weighted-age
       interval: 6 hours
       disk-budget-high: 10TiB
-      disk-budget-low:   8TiB
+      disk-budget-low: 8TiB
       weights:
         - weight: 0.1
           types: [suricata.flow]
@@ -107,7 +107,7 @@ which is often needed for regulatory requirements and compliance.
 
 For each compaction cycle, the node processes all rules and identifies what
 subset of the data has become subject to transformation. To this end, each rule
-defines a *minimum* age, i.e., a lower bound that must be exceeded before the
+defines a _minimum_ age, i.e., a lower bound that must be exceeded before the
 corresponding events undergo their configured pipeline.
 
 To configure temporal compaction, provide a list of compaction rules under the

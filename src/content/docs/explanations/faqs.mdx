@@ -43,10 +43,10 @@ to [reach out](https://tenzir.com/contact) what best suits your needs.
 
 ## Can Tenzir see my data?
 
-*No*, but let us explain.
+_No_, but let us explain.
 
-A Tenzir deployment consists of *nodes* that you manage, and a *platform*
-available as SaaS from us or operated by you. The *app* runs in your browser to
+A Tenzir deployment consists of _nodes_ that you manage, and a _platform_
+available as SaaS from us or operated by you. The _app_ runs in your browser to
 access the platform. All computation and storage takes place at your nodes. The
 platform acts as rendezvous point that connects two TLS-encrypted channels, one
 from the node to the platform, and one from the browser to the platform:
@@ -54,7 +54,7 @@ from the node to the platform, and one from the browser to the platform:
 ![Platform Connections](faqs/platform-connections.svg)
 
 We connect these two channels at the platform. Therefore, whoever operates the
-platform *could* interpose on data that travels from the nodes to the app. In
+platform _could_ interpose on data that travels from the nodes to the app. In
 the [Professional Edition](https://tenzir.com/pricing) and [Enterprise
 Edition](https://tenzir.com/pricing), we run the platform. However, we emphasize
 that data privacy is of utmost importance to us and our customers. As a
@@ -88,7 +88,7 @@ component of Tenzir runs where.
 Tenzir currently does not offer cloud-hosted nodes. You can only run nodes in
 your own environment, including your cloud environment.
 
-However, we offer a cloud-native *demo node* that you can deploy as part of
+However, we offer a cloud-native _demo node_ that you can deploy as part of
 every account.
 
 ## Why Did You Create a New Query Language? Why Not SQL?
@@ -108,7 +108,7 @@ be hard to learn, read, and modify, even for experts. Some of the key
 limitations include:
 
 - **Rigid Clause Order**: SQL's fixed structure (e.g., `SELECT ... FROM ... WHERE
-  ...`) forces users to think in an "inside-out" manner that doesn’t match the
+...`) forces users to think in an "inside-out" manner that doesn’t match the
   natural flow of data transformations. This often leads to complex subqueries
   and redundant clauses.
 - **Complex Subqueries**: Expressing multi-level aggregations or intermediate
@@ -143,13 +143,13 @@ extensive experience using SIEMs. Splunk's Search Processing Language (SPL), for
 instance, has set a high standard in user experience, catering well to its
 non-engineer user base. This inspired us to create a language with:
 
-- The *familiarity* of [Splunk](https://splunk.com)
-- The *power* of [Kusto](https://github.com/microsoft/Kusto-Query-Language)
-- The *flexibility* of [jq](https://stedolan.github.io/jq/)
-- The *clarity* of [PRQL](https://prql-lang.org/)
-- The *expressiveness* of [dplyr](https://dplyr.tidyverse.org/)
-- The *ambition* of [SuperSQL](https://superdb.org/)
-- The *composability* of [Nu](https://www.nushell.sh/)
+- The _familiarity_ of [Splunk](https://splunk.com)
+- The _power_ of [Kusto](https://github.com/microsoft/Kusto-Query-Language)
+- The _flexibility_ of [jq](https://stedolan.github.io/jq/)
+- The _clarity_ of [PRQL](https://prql-lang.org/)
+- The _expressiveness_ of [dplyr](https://dplyr.tidyverse.org/)
+- The _ambition_ of [SuperSQL](https://superdb.org/)
+- The _composability_ of [Nu](https://www.nushell.sh/)
 
 Even Elastic recognized the need for more intuitive languages by introducing
 **ES|QL**, which leans into a pipeline style. Nearly every major SIEM and
@@ -183,29 +183,29 @@ layer of indexing to accelerate queries.
 Our [tuning guide](/guides/node-setup/tune-performance) has further details
 on the inner workings.
 
-## Does a Tenzir node run on platform *X*?
+## Does a Tenzir node run on platform _X_?
 
 We support the platforms that we mention in our [deployment
 instructions](/guides/node-setup/provision-a-node).
 
-For any other platform, the answer is most likely *no*. Please [talk to
+For any other platform, the answer is most likely _no_. Please [talk to
 us](/discord) to let us know what is missing, or dive right in by contributing
 to our [open source repository](https://github.com/tenzir/tenzir).
 
-## Do you have an integration for *X*?
+## Do you have an integration for _X_?
 
-Tenzir has multiple layers where integrations can occur. If you cannot find *X*
+Tenzir has multiple layers where integrations can occur. If you cannot find _X_
 in the list of [existing integration](/integrations), .
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
-1. **Application**. If *X* does not require a built-in integration, our [Community
+1. **Application**. If _X_ does not require a built-in integration, our [Community
    Library](https://github.com/tenzir/library) may contain a package for it.
    Many integration to specific tools are just thin API wrappers that only
    require composing a few operators.
-2. **Format**. If your *X* is a wire format, either text-based like JSON or
+2. **Format**. If your _X_ is a wire format, either text-based like JSON or
    binary like PCAP, then look for [parsing
    operators](/reference/operators#parsing) and [printing
    operators](/reference/operators#printing). Those start
@@ -222,14 +222,14 @@ import { Steps } from '@astrojs/starlight/components';
    [`to_fluent_bit`](/reference/operators/to_fluent_bit)
    operator to send events via Fluent Bit.
 4. **Escape Hatches**. As last resort, you can bring in Shell and Python scripts
-   to make up for native support for *X*. The
+   to make up for native support for _X_. The
    [`shell`](/reference/operators/shell) operator brings byte streams via
    standard input and output into a pipeline, and the
    [`python`](/reference/operators/python) operator allows you to perform
    arbitrary event-to-event transformation using the full power of Python.
 5. **Community**. Still unlucky? Then please let us know in our friendly
    [Discord server](/discord). Perhaps we are already working on an integration
-   for *X* or it is somewhere on the roadmap. If you're feeling adventurous and
+   for _X_ or it is somewhere on the roadmap. If you're feeling adventurous and
    want to contribute to our open source core, let us know beforehand! We're
    happy to guide you such that your contribution gets successfully into our
    code base.

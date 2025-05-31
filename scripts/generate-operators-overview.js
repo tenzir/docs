@@ -70,16 +70,16 @@ function parseFrontmatter(content) {
 
 function extractDescription(content) {
   // Get the first paragraph after frontmatter (until empty line or code block)
-  const lines = content.split('\n');
-  let description = '';
+  const lines = content.split("\n");
+  let description = "";
   let foundStart = false;
   let inCallout = false;
-  
+
   for (const line of lines) {
     const trimmed = line.trim();
-    
+
     // Handle callout blocks
-    if (trimmed.startsWith(':::')) {
+    if (trimmed.startsWith(":::")) {
       if (inCallout) {
         inCallout = false; // End of callout
       } else {
@@ -87,44 +87,47 @@ function extractDescription(content) {
       }
       continue;
     }
-    
+
     // Skip content inside callouts
     if (inCallout) {
       continue;
     }
-    
+
     // Skip empty lines at the beginning
     if (!foundStart && !trimmed) {
       continue;
     }
-    
+
     // Skip headers and code blocks
-    if (trimmed.startsWith('#') || 
-        trimmed.startsWith('```')) {
+    if (trimmed.startsWith("#") || trimmed.startsWith("```")) {
       if (foundStart) break; // End of description paragraph
       continue; // Skip if we haven't started yet
     }
-    
+
     // If we hit an empty line after starting, we've reached the end of the paragraph
     if (foundStart && !trimmed) {
       break;
     }
-    
+
     // This is part of the description
     if (trimmed) {
       foundStart = true;
       if (description) {
-        description += ' ' + trimmed;
+        description += " " + trimmed;
       } else {
         description = trimmed;
       }
     }
   }
-  
+
   return description;
 }
 
-async function processOperatorFiles(dirPath, operators = [], basePath = "src/content/docs/reference/operators") {
+async function processOperatorFiles(
+  dirPath,
+  operators = [],
+  basePath = "src/content/docs/reference/operators",
+) {
   const items = await fs.readdir(dirPath, { withFileTypes: true });
 
   for (const item of items) {
@@ -142,10 +145,11 @@ async function processOperatorFiles(dirPath, operators = [], basePath = "src/con
 
       // Calculate relative path from base operators directory
       const relativePath = path.relative(basePath, fullPath);
-      const urlPath = path.dirname(relativePath).replace(/\\/g, '/');
-      const finalPath = urlPath === '.' ? 
-        `/reference/operators/${operatorName}` : 
-        `/reference/operators/${urlPath}/${operatorName}`;
+      const urlPath = path.dirname(relativePath).replace(/\\/g, "/");
+      const finalPath =
+        urlPath === "."
+          ? `/reference/operators/${operatorName}`
+          : `/reference/operators/${urlPath}/${operatorName}`;
 
       // Handle multiple categories
       let categories;

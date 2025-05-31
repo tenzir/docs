@@ -68,6 +68,7 @@ tail 2
 {x: 2, y: "bar"}
 {x: 3, y: "baz"}
 ```
+
 :::caution[`tail` is blocking]
 The `tail` operator must wait for its entire input, whereas `head N` terminates
 immediately after the first `N` records have arrived. Use `head` for the
@@ -365,14 +366,15 @@ this = merge(foo, qux)
 ```
 
 Note that the field `bar`, which is present in both record `foo` and `qux`, has
-the value `5` in the output because *fields from the second argument to `merge`
-overwrite fields from the first if they have the have the same name*.
+the value `5` in the output because _fields from the second argument to `merge`
+overwrite fields from the first if they have the have the same name_.
 
 Instead of writing
 
 ```tql
 this = merge(foo, qux)
 ```
+
 you can also write
 
 ```tql

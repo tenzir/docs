@@ -22,7 +22,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://new.docs.tenzir.com',
+  site: "https://new.docs.tenzir.com",
   redirects: generateRedirects(),
   integrations: [
     sitemap(),
@@ -68,12 +68,12 @@ export default defineConfig({
         "./src/assets/styles.css",
       ],
       components: {
-        PageFrame: './src/components/PageFrame.astro',
-        PageTitle: './src/components/PageTitle.astro',
-        Sidebar: './src/components/Sidebar.astro',
-        SiteTitle: './src/components/SiteTitle.astro',
-        ThemeSelect: './src/components/ThemeSelect.astro',
-        Footer: './src/components/Footer.astro',
+        PageFrame: "./src/components/PageFrame.astro",
+        PageTitle: "./src/components/PageTitle.astro",
+        Sidebar: "./src/components/Sidebar.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
+        Footer: "./src/components/Footer.astro",
       },
       routeMiddleware: "./src/routeData.ts",
       plugins: [
@@ -100,12 +100,8 @@ export default defineConfig({
         ]),
         starlightSidebarTopics(topics, {
           topics: {
-            changelog_node: [
-              "/changelog/node/*",
-            ],
-            changelog_platform: [
-              "/changelog/platform/*",
-            ],
+            changelog_node: ["/changelog/node/*"],
+            changelog_platform: ["/changelog/platform/*"],
             reference: [
               "/reference/node-api",
               "/reference/node-api/**/*",

@@ -5,8 +5,9 @@ title: Graylog
 [Graylog](https://graylog.org/) is a log management solution based on top of
 OpenSearch. Tenzir can send data to and receive data from Graylog.[^1]
 
-[^1]: This guide focuses currently focuses only on receiving data to Graylog,
-      although it's already possible to send data to Graylog.
+[^1]:
+    This guide focuses currently focuses only on receiving data to Graylog,
+    although it's already possible to send data to Graylog.
 
 ![Graylog](graylog.svg)
 
@@ -19,8 +20,8 @@ IP address 1.2.3.4 at port 5678.
 
 ### Configure a GELF TCP output
 
-1. Navigate to *System/Outputs* in Graylog's web interface.
-2. Click *Manage Outputs*.
+1. Navigate to _System/Outputs_ in Graylog's web interface.
+2. Click _Manage Outputs_.
 3. Select `GELF TCP` as the output type.
 4. Configure the output settings:
    - Specify the target server's address in the `host` field (e.g., `1.2.3.4`).
@@ -36,12 +37,12 @@ Now Graylog will forward messages in GELF format to the specified TCP endpoint.
 The newly created output still needs to be connected to a stream to produce
 data. For example, to route all incoming traffic in Graylog to an output:
 
-1. Go to *Streams* in the Graylog web interface.
+1. Go to _Streams_ in the Graylog web interface.
 2. Create a new stream or edit an existing one.
 3. In the stream's settings, configure it to match all incoming messages. You
    can do this by setting up a rule that matches all messages or by leaving the
    rules empty.
-4. Once the stream is configured, go to the *Outputs* tab in the stream's
+4. Once the stream is configured, go to the _Outputs_ tab in the stream's
    settings.
 5. Add the previously configured GELF TCP output to this stream.
 
