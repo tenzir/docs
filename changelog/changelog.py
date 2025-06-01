@@ -499,7 +499,7 @@ def update_sidebar_file(
 
         # Split releases into visible and archived based on MAX_VISIBLE_RELEASES
         for i, (version_name, filename_version, _) in enumerate(other_versions):
-            path_entry = f'  "changelog/{product}/{filename_version}",'
+            path_entry = f"changelog/{product}/{filename_version}"
             if i < MAX_VISIBLE_RELEASES:
                 ts_paths.append(path_entry)
             else:
