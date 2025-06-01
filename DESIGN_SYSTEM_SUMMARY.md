@@ -20,6 +20,7 @@ We've successfully implemented a comprehensive design system for the Tenzir docu
 ### 2. Starlight Integration
 
 The design system maps Tenzir tokens to Starlight's expected CSS variables:
+
 - Font families map to `--sl-font` and `--sl-font-mono`
 - Colors map to Starlight's color system
 - Text sizes map to Starlight's typography scale
@@ -28,6 +29,7 @@ The design system maps Tenzir tokens to Starlight's expected CSS variables:
 ### 3. Utility Classes (`/src/assets/css/design-tokens.css`)
 
 Created a comprehensive set of utility classes for:
+
 - Typography (size, weight, family, color)
 - Spacing (padding, margin)
 - Layout (flexbox, grid, display)
@@ -40,6 +42,7 @@ Created a comprehensive set of utility classes for:
 ### 4. Component Updates
 
 Updated existing components to use the design system:
+
 - **ReferenceCard.astro**: Now uses `--tnz-` variables for typography, spacing, and shadows
 - **TenzirFooter.astro**: Updated to use design system font sizes
 - Created **ExampleCard.astro**: A demonstration component showing best practices
@@ -47,6 +50,7 @@ Updated existing components to use the design system:
 ## Usage Guidelines
 
 ### In Component Styles
+
 ```css
 .my-component {
   font-family: var(--tnz-font-sans);
@@ -58,17 +62,17 @@ Updated existing components to use the design system:
 ```
 
 ### With Utility Classes
+
 ```html
 <div class="tnz-p-4 tnz-bg-neutral-100 tnz-rounded tnz-shadow-s">
-  <h3 class="tnz-text-lg tnz-font-semibold tnz-text-neutral-800">
-    Title
-  </h3>
+  <h3 class="tnz-text-lg tnz-font-semibold tnz-text-neutral-800">Title</h3>
 </div>
 ```
 
 ## Migration Path
 
 When updating existing components:
+
 1. Replace hardcoded colors with `--tnz-` color variables
 2. Replace hardcoded font sizes with `--tnz-text-*` variables
 3. Replace `5px` border radius with `var(--tnz-radius)`
@@ -86,6 +90,7 @@ When updating existing components:
 ## Next Steps
 
 To fully leverage the design system:
+
 1. Audit remaining components for hardcoded values
 2. Create additional utility classes as needed
 3. Document component patterns and best practices

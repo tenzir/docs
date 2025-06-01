@@ -17,10 +17,12 @@ All design tokens use the `--tnz-` prefix (for Tenzir) to avoid conflicts with S
 ### Core Variables (design-system-core.css)
 
 #### Typography
+
 - `--tnz-font-sans`: Inter Variable (primary font)
 - `--tnz-font-mono`: JetBrains Mono Variable (code font)
 
 #### Font Sizes
+
 - `--tnz-text-xxs`: 0.625rem (10px)
 - `--tnz-text-xs`: 0.75rem (12px)
 - `--tnz-text-sm`: 0.875rem (14px)
@@ -32,39 +34,47 @@ All design tokens use the `--tnz-` prefix (for Tenzir) to avoid conflicts with S
 - `--tnz-text-4xl`: 2.25rem (36px)
 
 #### Spacing Scale
+
 - `--tnz-space-0` through `--tnz-space-8`: Consistent spacing values
 
 #### Border Radius
+
 - `--tnz-radius`: 5px (default)
 - `--tnz-radius-sm`: 0.25rem
 - `--tnz-radius-md`: 0.375rem
 - `--tnz-radius-lg`: 0.5rem
 
 #### Shadows
+
 - `--tnz-shadow-xs`: Subtle shadow
 - `--tnz-shadow-s`: Small shadow
 - `--tnz-shadow-m`: Medium shadow
 - `--tnz-shadow-s-light`: Light variant
 
 #### Transitions
+
 - `--tnz-transition-fast`: 0.15s ease
 - `--tnz-transition-base`: 0.2s ease
 - `--tnz-transition-slow`: 0.3s ease
 
 #### Z-index Scale
+
 - `--tnz-z-base` through `--tnz-z-tooltip`: Layering system
 
 ### Color Palette
 
 #### Primary Colors
+
 - `--tnz-primary-50` through `--tnz-primary-600`
 - Main brand color: `--tnz-primary-500` (#0A54FF)
 
 #### Neutral Colors
+
 - `--tnz-neutral-50` through `--tnz-neutral-800`
 - Special: `--tnz-dim` (#0E1017)
 
 #### Semantic Colors
+
 - Red: `--tnz-red-100` through `--tnz-red-600`
 - Green: `--tnz-green-200` through `--tnz-green-600`
 - Yellow: `--tnz-yellow-200` through `--tnz-yellow-600`
@@ -113,38 +123,46 @@ The utility classes use the core design tokens, ensuring consistency:
 ### Available Utility Classes
 
 #### Text Utilities
+
 - Size: `tnz-text-{size}` (xxs, xs, sm, base, lg, xl, 2xl, 3xl, 4xl)
 - Font: `tnz-font-{family}` (sans, mono)
 - Weight: `tnz-font-{weight}` (normal, medium, semibold, bold)
 - Color: `tnz-text-{color}-{shade}`
 
 #### Background
+
 - `tnz-bg-{color}-{shade}`
 
 #### Borders
+
 - Color: `tnz-border-{color}-{shade}`
 - Width: `tnz-border`, `tnz-border-0`, `tnz-border-2`
 - Radius: `tnz-rounded-{size}` (none, sm, default, md, lg, full)
 
 #### Spacing
+
 - Padding: `tnz-p-{size}`, `tnz-px-{size}`, `tnz-py-{size}`
 - Margin: `tnz-m-{size}`, `tnz-mx-{size}`, `tnz-my-{size}`, `tnz-mb-{size}`
 - Sizes: 0, 1 (0.25rem), 2 (0.5rem), 3 (0.75rem), 4 (1rem), 5 (1.25rem), 6 (1.5rem), 8 (2rem)
 
 #### Layout
+
 - Display: `tnz-block`, `tnz-inline-block`, `tnz-flex`, `tnz-grid`, `tnz-hidden`
 - Flexbox: `tnz-flex-{direction}`, `tnz-items-{align}`, `tnz-justify-{align}`
 - Gap: `tnz-gap-{size}`
 
 #### Effects
+
 - Shadow: `tnz-shadow-{size}`
 - Transition: `tnz-transition-{type}`
 
 #### States
+
 - Hover: `hover:tnz-{utility}`
 - Focus: `focus:tnz-{utility}`
 
 #### Responsive
+
 - `sm:tnz-{utility}` (640px+)
 - `md:tnz-{utility}` (768px+)
 - `lg:tnz-{utility}` (1024px+)
@@ -154,37 +172,41 @@ The utility classes use the core design tokens, ensuring consistency:
 When updating existing components:
 
 1. Replace hardcoded colors with CSS variables:
+
    ```css
    /* Before */
-   color: #0A54FF;
-   
+   color: #0a54ff;
+
    /* After */
    color: var(--tnz-primary-500);
    ```
 
 2. Replace hardcoded font sizes:
+
    ```css
    /* Before */
    font-size: 1.125rem;
-   
+
    /* After */
    font-size: var(--tnz-text-lg);
    ```
 
 3. Replace hardcoded border radius:
+
    ```css
    /* Before */
    border-radius: 5px;
-   
+
    /* After */
    border-radius: var(--tnz-radius);
    ```
 
 4. Use utility classes for common patterns:
+
    ```astro
    <!-- Before -->
    <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 5px;">
-   
+
    <!-- After -->
    <div class="tnz-p-4 tnz-mb-4 tnz-rounded">
    ```
@@ -202,11 +224,13 @@ When updating existing components:
 ## Starlight Integration
 
 The design system integrates with Starlight's theming by:
+
 - Mapping Tenzir colors to Starlight's CSS variables in `styles.css`
 - Respecting Starlight's light/dark mode switching
 - Maintaining compatibility with Starlight's built-in components
 
 Key mappings (defined in styles.css):
+
 - `--sl-font` → `--tnz-font-sans`
 - `--sl-font-mono` → `--tnz-font-mono`
 - `--sl-color-accent` → `--tnz-primary-500`
