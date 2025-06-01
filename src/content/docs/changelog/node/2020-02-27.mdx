@@ -6,37 +6,37 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Add a nix package expression for VAST
+#### Add a nix package expression for VAST
 
 For users of the [Nix](https://nixos.org/nix/) package manager, expressions have
 been added to generate reproducible development environments with `nix-shell`.
 
 By [@tobim](https://github.com/tobim) in [#740](https://github.com/tenzir/tenzir/pull/740).
 
-## 🔄 Changes
+### Changes
 
-### Revert "Annotate schemas with
+#### Revert "Annotate schemas with
 
 Hash indices have been disabled again due to a performance regression.
 
 By [@lava](https://github.com/lava) in [#765](https://github.com/tenzir/tenzir/pull/765).
 
-### Remove default option for historical queries
+#### Remove default option for historical queries
 
 The option `--historical` for export commands has been removed, as it was the
  default already.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#754](https://github.com/tenzir/tenzir/pull/754).
 
-### Update VAST for Apache Arrow 0.16
+#### Update VAST for Apache Arrow 0.16
 
 VAST now supports (and requires) Apache Arrow >= 0.16.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#751](https://github.com/tenzir/tenzir/pull/751).
 
-### Add a nix package expression for VAST
+#### Add a nix package expression for VAST
 
 The build system will from now on try use the CAF library from the system, if
 one is provided. If it is not found, the CAF submodule will be used as a
@@ -44,7 +44,7 @@ fallback.
 
 By [@tobim](https://github.com/tobim) in [#740](https://github.com/tenzir/tenzir/pull/740).
 
-### Allow for separating persistent state and log directories
+#### Allow for separating persistent state and log directories
 
 The option `--directory` has been replaced by `--db-directory` and
 `log-directory`, which set directories for persistent state and log files
@@ -53,9 +53,9 @@ respectively. The default log file path has changed from `vast.db/log` to
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#758](https://github.com/tenzir/tenzir/pull/758).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Continuous import of Zeek logs in VAST is broken
+#### Continuous import of Zeek logs in VAST is broken
 
 Continuously importing events from a Zeek process with a low rate of emitted
 events resulted in a long delay until the data would be included in the result

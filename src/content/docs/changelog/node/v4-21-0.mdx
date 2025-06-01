@@ -6,22 +6,22 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Add a --null option to the lines parser
+#### Add a --null option to the lines parser
 
 The `lines` parser can now handle null delimited "lines" with the `--null` flag.
 
 By [@tobim](https://github.com/tobim) in [#4603](https://github.com/tenzir/tenzir/pull/4603).
 
-### Support bytes inputs in the `buffer` operator
+#### Support bytes inputs in the `buffer` operator
 
 The `buffer` operator now works with bytes inputs in addition to the existing
 support for events inputs.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4594](https://github.com/tenzir/tenzir/pull/4594).
 
-### Precise Parsing
+#### Precise Parsing
 
 The CEF, CSV, GELF, JSON, KV, LEEF, Suricata, Syslog, XSV, YAML and Zeek JSON
 parsers now properly adhere to the schema of the read data. Previously, parsers
@@ -37,7 +37,7 @@ precisely control their output schema.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4527](https://github.com/tenzir/tenzir/pull/4527).
 
-### Metrics for TCP connections
+#### Metrics for TCP connections
 
 `metrics tcp` shows metrics for TCP connections, emitted once every second per
 connection. The metrics contains the reads and writes on the socket and the
@@ -45,14 +45,14 @@ number of bytes transmitted.
 
 By [@tobim](https://github.com/tobim) in [#4564](https://github.com/tenzir/tenzir/pull/4564).
 
-### Dynamically grow simdjson buffer if necessary
+#### Dynamically grow simdjson buffer if necessary
 
 The JSON parser is now able to also handle extremely large events when
 not using the NDJSON or GELF mode.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4590](https://github.com/tenzir/tenzir/pull/4590).
 
-### Make the kv-parser consider quotes when looking for separators
+#### Make the kv-parser consider quotes when looking for separators
 
 The `kv` parser now allows for keys and values to be enclosed in double quotes:
 Split matches within quotes will not be considered. Quotes will be trimmed of
@@ -61,29 +61,29 @@ parse as `{ "key" : "nested = value, fun" }`.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4591](https://github.com/tenzir/tenzir/pull/4591).
 
-### Implement the azure-blob-storage connector
+#### Implement the azure-blob-storage connector
 
 The new `azure-blob-storage` connector allows reading from and writing
 to Azure Blob Storage via an URI.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4617](https://github.com/tenzir/tenzir/pull/4617).
 
-## 🔄 Changes
+### Changes
 
-### Prefer recent partitions for retro lookups
+#### Prefer recent partitions for retro lookups
 
 The `lookup` operator now prefers recent data in searches for lookups against
 historical data instead of using the order in which context updates arrive.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4636](https://github.com/tenzir/tenzir/pull/4636).
 
-### Switch the index to basic messaging
+#### Switch the index to basic messaging
 
 We removed the unused `--snapshot` option from the `lookup` operator.
 
 By [@tobim](https://github.com/tobim) in [#4613](https://github.com/tenzir/tenzir/pull/4613).
 
-### Precise Parsing
+#### Precise Parsing
 
 The JSON parser's `--precise` option is now deprecated, as the "precise" mode
 is the new default. Use `--merge` to get the previous "imprecise" behavior.
@@ -93,7 +93,7 @@ old name is deprecated and will be removed in the future.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4527](https://github.com/tenzir/tenzir/pull/4527).
 
-### Stabilize the `bitz` format
+#### Stabilize the `bitz` format
 
 Tenzir's internal wire format `bitz` is now considered stable. Note that the
 format underwent significant changes as part of its stabilization, and is
@@ -101,9 +101,9 @@ incompatible with `bitz` from Tenzir Node v4.20 and older.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4633](https://github.com/tenzir/tenzir/pull/4633).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Stabilize the `bitz` format
+#### Stabilize the `bitz` format
 
 We fixed a very rare crash in the zero-copy parser implementation of `read
 feather` and `read parquet` that was caused by releasing shared memory too
@@ -111,21 +111,21 @@ early.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4633](https://github.com/tenzir/tenzir/pull/4633).
 
-### Keep from tcp pipelines running on connection failures
+#### Keep from tcp pipelines running on connection failures
 
 Pipelines starting with `from tcp` no longer enter the failed state when an
 error occurrs in one of the connections.
 
 By [@tobim](https://github.com/tobim) in [#4602](https://github.com/tenzir/tenzir/pull/4602).
 
-### Stop using connection timeout to get node components
+#### Stop using connection timeout to get node components
 
 The `import` and `partitions` operators and the `tenzir-ctl rebuild` command no
 longer occasionally fail with request timeouts when the node is under high load.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4597](https://github.com/tenzir/tenzir/pull/4597).
 
-### Make `read json --arrays-of-objects` faster
+#### Make `read json --arrays-of-objects` faster
 
 We fixed an accidentally quadratic scaling with the number of top-level array
 elements in `read json --arrays-of-objects`. As a result, using this option will
@@ -133,7 +133,7 @@ now be much faster.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4601](https://github.com/tenzir/tenzir/pull/4601).
 
-### Precise Parsing
+#### Precise Parsing
 
 We fixed various edge cases in parsers where values would not be properly parsed
 as typed data and were stored as plain text instead. No input data was lost, but

@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Load plugin schemas after built-in schemas
+#### Load plugin schemas after built-in schemas
 
 Plugin schemas are now installed to `<datadir>/vast/plugin/<plugin>/schema`,
 while VAST's built-in schemas reside in `<datadir>/vast/schema`. The load order
@@ -17,7 +17,7 @@ VAST.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1608](https://github.com/tenzir/tenzir/pull/1608).
 
-### Support optional numeric duration output for JSON
+#### Support optional numeric duration output for JSON
 
 To enable easier post-processing, the new option
 `vast.export.json.numeric-durations` switches JSON output of `duration` types
@@ -26,14 +26,14 @@ fractional seconds.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1628](https://github.com/tenzir/tenzir/pull/1628).
 
-### Add a timeout option to the export command
+#### Add a timeout option to the export command
 
 The new option `vast export --timeout=<duration>` allows for setting a timeout
 for VAST queries. Cancelled exports result in a non-zero exit code.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1611](https://github.com/tenzir/tenzir/pull/1611).
 
-### PRs 1517-1656
+#### PRs 1517-1656
 
 The new *transforms* feature allows VAST to apply transformations to incoming
 and outgoing data. A transform consists of a sequence of steps that execute
@@ -42,7 +42,7 @@ makes it easy to write custom transforms.
 
 By [@lava](https://github.com/lava) in [#1517](https://github.com/tenzir/tenzir/pull/1517).
 
-### Add step size to disk monitor
+#### Add step size to disk monitor
 
 The new setting `vast.disk-monitor-step-size` enables the disk monitor
 to remove *N* partitions at once before re-checking if the new size of the
@@ -52,16 +52,16 @@ filesystems.
 
 By [@lava](https://github.com/lava) in [#1655](https://github.com/tenzir/tenzir/pull/1655).
 
-### Print the remote-version in the status command
+#### Print the remote-version in the status command
 
 The `status` command now prints the VAST server version information under the
 `version` key.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1652](https://github.com/tenzir/tenzir/pull/1652).
 
-## 🔄 Changes
+### Changes
 
-### Don't send dynamic type information to connecting sources
+#### Don't send dynamic type information to connecting sources
 
 Schemas are no longer implicitly shared between sources, i.e., an `import`
 process importing data with a custom schema will no longer affect other
@@ -74,7 +74,7 @@ VAST server did not have up-to-date schema files, and other sources were
 
 By [@lava](https://github.com/lava) in [#1656](https://github.com/tenzir/tenzir/pull/1656).
 
-### Deprecate builds without Apache Arrow
+#### Deprecate builds without Apache Arrow
 
 Building VAST without Apache Arrow via `-DVAST_ENABLE_ARROW=OFF` is now
 deprecated, and support for the option will be removed in a future release. As
@@ -83,7 +83,7 @@ required dependency and plan to build upon it more in the future.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1682](https://github.com/tenzir/tenzir/pull/1682).
 
-### Remove configure script
+#### Remove configure script
 
 The `configure` script was removed. This was a custom script that
 mimicked the functionality of an autotools-based `configure` script
@@ -92,36 +92,36 @@ the `cmake` and/or `ccmake` binaries directly to configure VAST.
 
 By [@lava](https://github.com/lava) in [#1657](https://github.com/tenzir/tenzir/pull/1657).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Sort loaded plugins by name
+#### Sort loaded plugins by name
 
 VAST no longer erroneously warns about a version mismatch between client and
 server when their plugin load order differs.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1679](https://github.com/tenzir/tenzir/pull/1679).
 
-### Print the remote-version in the status command
+#### Print the remote-version in the status command
 
 VAST no longer erroneously skips the version mismatch detection between client
 and server. The check now additionally compares running plugins.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1652](https://github.com/tenzir/tenzir/pull/1652).
 
-### Error when initializing a plugin fails
+#### Error when initializing a plugin fails
 
 VAST now correctly refuses to run when loaded plugins fail their initialization,
 i.e., are in a state that cannot be reasoned about.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1618](https://github.com/tenzir/tenzir/pull/1618).
 
-### Allow for running unit tests in parallel
+#### Allow for running unit tests in parallel
 
 Executing VAST's unit test suite in parallel no longer fails.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1659](https://github.com/tenzir/tenzir/pull/1659).
 
-### Fix install dirs wrt binary relocatability
+#### Fix install dirs wrt binary relocatability
 
 Non-relocatable VAST binaries no longer look for configuration, schemas, and
 plugins in directories relative to the binary location. Vice versa, relocatable
@@ -133,7 +133,7 @@ directory is `lib64` instead of `lib`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1624](https://github.com/tenzir/tenzir/pull/1624).
 
-### Fix the datagram source
+#### Fix the datagram source
 
 A recent change caused imports over UDP not to forward its events to the VAST
 server process. Running `vast import -l :<port>/udp <format>` now works as
@@ -141,7 +141,7 @@ expected again.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1622](https://github.com/tenzir/tenzir/pull/1622).
 
-### Fix build without Arrow
+#### Fix build without Arrow
 
 VAST and transform plugins now build without Arrow support again.
 

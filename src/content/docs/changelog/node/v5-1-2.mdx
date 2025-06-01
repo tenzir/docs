@@ -8,18 +8,18 @@ sidebar:
 
 This release improves the integration with Google Cloud Logging.
 
-## 🔄 Changes
+### Changes
 
-### Split out `name` option and use metadata server when unset
+#### Split out `name` option and use metadata server when unset
 
 We split the `name` option of `to_google_cloud_logging`, no longer requiring
 user to construct the ID manually.
 
 By [@raxyte](https://github.com/raxyte) in [#5160](https://github.com/tenzir/tenzir/pull/5160).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Delay catalog lookups until catalog is ready
+#### Delay catalog lookups until catalog is ready
 
 The `export`, `metrics`, `diagnostics` and `partitions` operators returned an
 empty result when used before the node had successfully loaded its persisted
@@ -27,7 +27,7 @@ data. They now wait correctly.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5156](https://github.com/tenzir/tenzir/pull/5156).
 
-### Always shut down the pipeline manager first
+#### Always shut down the pipeline manager first
 
 We fixed a very rare bug that on shutdown could mark running pipelines as
 stopped, completed, or failed, causing the pipelines not to restart alongside
@@ -35,14 +35,14 @@ the node.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5163](https://github.com/tenzir/tenzir/pull/5163).
 
-### Do not refuse startup when `pid.lock` is invalid
+#### Do not refuse startup when `pid.lock` is invalid
 
 The node no longer refuses to start when its last shutdown happened in the brief
 period on startup after its PID file was created and before it was flushed.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5164](https://github.com/tenzir/tenzir/pull/5164).
 
-### Split out `name` option and use metadata server when unset
+#### Split out `name` option and use metadata server when unset
 
 The `to_google_cloud_logging` operator is now available in both Docker and static
 builds. The operator had earlier been missing due to a configuration issue.

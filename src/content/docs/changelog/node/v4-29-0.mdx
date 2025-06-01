@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Implement sub-duration functions
+#### Implement sub-duration functions
 
 New functions `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds`,
 `milliseconds`, `microseconds` and `nanoseconds` convert a numeric value to the
@@ -19,14 +19,14 @@ The `abs` function calculates the absolute value for a number or a duration.
 
 By [@raxyte](https://github.com/raxyte) in [#4985](https://github.com/tenzir/tenzir/pull/4985).
 
-### Implement `base` option for `int()` and `uint()`
+#### Implement `base` option for `int()` and `uint()`
 
 The new `base` option for `int` and `uint` functions allows parsing hexadecimal
 numbers in strings.
 
 By [@raxyte](https://github.com/raxyte) in [#5006](https://github.com/tenzir/tenzir/pull/5006).
 
-### Implement some `print_*` functions
+#### Implement some `print_*` functions
 
 The `write_xsv` family of operators now accepts multi-character separators,
 instead of being restricted to a single character.
@@ -43,9 +43,9 @@ records as the respective format.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5001](https://github.com/tenzir/tenzir/pull/5001).
 
-## 🔄 Changes
+### Changes
 
-### Compact NDJSON output
+#### Compact NDJSON output
 
 The output of `write_ndjson` is now more compact and no longer includes
 unnecessary whitespace. Additionally, `write_json` no longer prints a trailing
@@ -53,14 +53,14 @@ whitespace after each comma.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5015](https://github.com/tenzir/tenzir/pull/5015).
 
-### Allow values to be `null` when charting
+#### Allow values to be `null` when charting
 
 The `chart_area`, `chart_bar`, and `chart_pie` operators no longer reject
 null-values. Previously, gaps in charts were only supported for `chart_line`.
 
 By [@raxyte](https://github.com/raxyte) in [#5009](https://github.com/tenzir/tenzir/pull/5009).
 
-### Implement some `print_*` functions
+#### Implement some `print_*` functions
 
 The `sep` argument on the `flatten` and `unflatten` functions is now a
 positional argument, allowing you to simply write `record.flatten("-")`.
@@ -78,15 +78,15 @@ The `field_split` and `list_split` arguments for the `read_kv` operator and
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5001](https://github.com/tenzir/tenzir/pull/5001).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Add to_splunk to the ce binary packages
+#### Add to_splunk to the ce binary packages
 
 We now include the `to_splunk` operator in the Tenzir binary packages.
 
 By [@tobim](https://github.com/tobim) in [#5012](https://github.com/tenzir/tenzir/pull/5012).
 
-### Normalize pushed-up predicates in `subscribe`
+#### Normalize pushed-up predicates in `subscribe`
 
 We fixed an optimization bug that caused pipelines of the form `subscribe
 <topic> | where <value> in <field>` to evaluate the predicate `<field> in
@@ -94,7 +94,7 @@ We fixed an optimization bug that caused pipelines of the form `subscribe
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5014](https://github.com/tenzir/tenzir/pull/5014).
 
-### Respect `--color` option in default implicit events sink
+#### Respect `--color` option in default implicit events sink
 
 The implicit events sink of the `tenzir` binary now respects the
 `--color=[always|never|auto]` option and the `NO_COLOR` environment variable.
@@ -103,21 +103,21 @@ attached.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5007](https://github.com/tenzir/tenzir/pull/5007).
 
-### Fix a crash in `{parse,read}_grok` for invalid patterns
+#### Fix a crash in `{parse,read}_grok` for invalid patterns
 
 The `read_grok` operator and `parse_grok` functions no longer crash when
 providing an invalid Grok expression.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5018](https://github.com/tenzir/tenzir/pull/5018).
 
-### Fix compilation error handling inside `if`
+#### Fix compilation error handling inside `if`
 
 A compilation error within an `if` statement no longer causes pipelines to
 crash.
 
 By [@jachris](https://github.com/jachris) in [#5011](https://github.com/tenzir/tenzir/pull/5011).
 
-### Remove type layering
+#### Remove type layering
 
 We fixed a bug that caused `type_id(this)` to return inconsistent values for
 schemas with metadata attached, e.g., after assigning a schema name via `@name =

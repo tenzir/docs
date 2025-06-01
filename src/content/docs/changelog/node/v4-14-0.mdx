@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Add timeout options to `summarize`
+#### Add timeout options to `summarize`
 
 The `summarize` operator gained two new options: `timeout` and `update-timeout`,
 which enable streaming aggregations. They specifiy the maximum time a bucket in
@@ -21,7 +21,7 @@ be seen earlier.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4209](https://github.com/tenzir/tenzir/pull/4209).
 
-### Add statistical aggregation functions
+#### Add statistical aggregation functions
 
 The new `mean` aggregation function computes the mean of grouped numeric values.
 
@@ -37,7 +37,7 @@ results may appear in any order.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4208](https://github.com/tenzir/tenzir/pull/4208).
 
-### Implement strides for the `slice` operator
+#### Implement strides for the `slice` operator
 
 The `slice` operator now supports strides in the form of `slice
 <begin>:<end>:<stride>`. Negative strides reverse the event order. The new
@@ -45,9 +45,9 @@ The `slice` operator now supports strides in the form of `slice
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4216](https://github.com/tenzir/tenzir/pull/4216).
 
-## 🔄 Changes
+### Changes
 
-### Change the syntax of the `slice` operator
+#### Change the syntax of the `slice` operator
 
 The `slice` operator now expects its arguments in the form `<begin>:<end>`,
 where either the begin or the end value may be omitted. For example, `slice 10:`
@@ -56,16 +56,16 @@ returns all but the first 10 events, `slice 10:20` returns events 10 to 20
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4211](https://github.com/tenzir/tenzir/pull/4211).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Remove the superfluous path separators when using S3 or GS connectors
+#### Remove the superfluous path separators when using S3 or GS connectors
 
 Paths for `s3` and `gs` connectors are not broken anymore during
 loading/saving.
 
 By [@Dakostu](https://github.com/Dakostu) in [#4222](https://github.com/tenzir/tenzir/pull/4222).
 
-### Make syslog parser more lenient
+#### Make syslog parser more lenient
 
 The `syslog` parser incorrectly identified a message without hostname and tag as
 one with hostname and no tag. This resulted in a hostname with a trailing colon,

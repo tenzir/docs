@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Support import filter expressions
+#### Support import filter expressions
 
 VAST now supports import filter expressions. They act as the dual to export
 query expressions: `vast import suricata '#type == "suricata.alert"' < eve.json`
@@ -16,7 +16,7 @@ will import only `suricata.alert` events, discarding all other events.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1742](https://github.com/tenzir/tenzir/pull/1742).
 
-### Use a unique version for plugins
+#### Use a unique version for plugins
 
 Plugin versions are now unique to facilitate debugging. They consist of three
 optional parts: (1) the CMake project version of the plugin, (2) the Git
@@ -26,7 +26,7 @@ specify the version manually in the plugin entrypoint.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1764](https://github.com/tenzir/tenzir/pull/1764).
 
-### Add per-layout metrics to imports
+#### Add per-layout metrics to imports
 
 VAST now exports per-layout import metrics under the key
 `<reader>.events.<layout-name>` in addition to the regular `<reader>.events`.
@@ -34,19 +34,19 @@ This makes it easier to understand the event type distribution.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1781](https://github.com/tenzir/tenzir/pull/1781).
 
-### Fix Docker image builds for arm64
+#### Fix Docker image builds for arm64
 
 VAST now supports the *arm64* architecture.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1773](https://github.com/tenzir/tenzir/pull/1773).
 
-### Enable Broker plugin by default for Nix
+#### Enable Broker plugin by default for Nix
 
 The static binary now bundles the Broker plugin.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1789](https://github.com/tenzir/tenzir/pull/1789).
 
-### Publish a tenzir/vast-dev Docker image
+#### Publish a tenzir/vast-dev Docker image
 
 VAST now comes with a
 [`tenzir/vast-dev`](https://hub.docker.com/r/tenzir/vast-dev) Docker image in
@@ -57,7 +57,7 @@ runs as `root` rather than the `vast` user.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1749](https://github.com/tenzir/tenzir/pull/1749).
 
-### Add Zeek Broker reader plugin
+#### Add Zeek Broker reader plugin
 
 The new [Broker](https://github.com/zeek/broker) plugin enables seamless log
 ingestion from [Zeek](https://github.com/zeek/zeek) to VAST via a TCP socket.
@@ -67,7 +67,7 @@ node](https://docs.zeek.org/en/master/frameworks/cluster.html#logger). Use
 
 By [@mavam](https://github.com/mavam) in [#1758](https://github.com/tenzir/tenzir/pull/1758).
 
-### PRs 1720-1762-1802
+#### PRs 1720-1762-1802
 
 VAST has new a `store_plugin` type for custom store backends that hold the raw
 data of a partition. The new setting `vast.store-backend` controls the
@@ -77,22 +77,22 @@ value is set, VAST defaults to the old implementation.
 
 By [@lava](https://github.com/lava) in [#1720](https://github.com/tenzir/tenzir/pull/1720).
 
-### Fix bug in bitmap offset computation
+#### Fix bug in bitmap offset computation
 
 `lsvast` now prints extended information for hash indexes.
 
 By [@lava](https://github.com/lava) in [#1755](https://github.com/tenzir/tenzir/pull/1755).
 
-### Remove /etc as hardcoded sysconfdir from Nix build
+#### Remove /etc as hardcoded sysconfdir from Nix build
 
 Installing VAST now includes a `vast.yaml.example` configuration file listing
 all available options.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1777](https://github.com/tenzir/tenzir/pull/1777).
 
-## 🔄 Changes
+### Changes
 
-### Compile with C++20
+#### Compile with C++20
 
 From now on VAST is compiled with the C++20 language standard.
 Minimum compiler versions have increased to GCC 10, Clang 11,
@@ -100,7 +100,7 @@ and AppleClang 12.0.5.
 
 By [@tobim](https://github.com/tobim) in [#1768](https://github.com/tenzir/tenzir/pull/1768).
 
-### Bump minimum Debian requirement to Bullseye
+#### Bump minimum Debian requirement to Bullseye
 
 VAST no longer officially supports Debian Buster with GCC-8. In CI, VAST now
 runs on Debian Bullseye with GCC-10. The provided Docker images now use
@@ -109,7 +109,7 @@ Buster support should use the provided static builds instead.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1765](https://github.com/tenzir/tenzir/pull/1765).
 
-### Disable auto-vectorization in prebuilt Docker images
+#### Disable auto-vectorization in prebuilt Docker images
 
 The `vast` binaries in our [prebuilt Docker
 images](http://hub.docker.com/r/tenzir/vast) no longer contain AVX instructions
@@ -123,23 +123,23 @@ SSE3, SSSE3, SSE4.1, SSE4.2, AVX, and AVX2.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1778](https://github.com/tenzir/tenzir/pull/1778).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Support unique plugin versions for Nix and Docker
+#### Support unique plugin versions for Nix and Docker
 
 The official Docker image and static binary distribution of VAST now produce
 the correct version output for plugins from the `vast version` command.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1799](https://github.com/tenzir/tenzir/pull/1799).
 
-### PRs 1804-1809
+#### PRs 1804-1809
 
 The disk budget feature no longer triggers a rare segfault while deleting
 partitions.
 
 By [@tobim](https://github.com/tobim) in [#1804](https://github.com/tenzir/tenzir/pull/1804).
 
-### Fix sorting of plugins by name
+#### Fix sorting of plugins by name
 
 A regression caused VAST's plugins to be loaded in random order, which
 printed a warning about mismatching plugins between client and server. The
@@ -147,20 +147,20 @@ order is now deterministic.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1756](https://github.com/tenzir/tenzir/pull/1756).
 
-### Propagate VAST_ENABLE_JOURNALD_LOGGING setting to config header
+#### Propagate VAST_ENABLE_JOURNALD_LOGGING setting to config header
 
 The `VAST_ENABLE_JOURNALD_LOGGING` CMake option is no longer ignored.
 
 By [@lava](https://github.com/lava) in [#1780](https://github.com/tenzir/tenzir/pull/1780).
 
-### Print the import transformer status
+#### Print the import transformer status
 
 The the `status` command now prints information about input and output
 transformations.
 
 By [@tobim](https://github.com/tobim) in [#1748](https://github.com/tenzir/tenzir/pull/1748).
 
-### Fix bug in bitmap offset computation
+#### Fix bug in bitmap offset computation
 
 Queries against fields using a `#index=hash` attribute could have missed some
 results. Fixing a bug in the offset calculation during bitmap processing
@@ -168,14 +168,14 @@ resolved the issue.
 
 By [@lava](https://github.com/lava) in [#1755](https://github.com/tenzir/tenzir/pull/1755).
 
-### Fix error message about /dev/null-backend on startup
+#### Fix error message about /dev/null-backend on startup
 
 A `[*** LOG ERROR #0001 ***]` error message on startup under Linux no longer
 occurs.
 
 By [@lava](https://github.com/lava) in [#1754](https://github.com/tenzir/tenzir/pull/1754).
 
-### Make the source shutdown instantaneous
+#### Make the source shutdown instantaneous
 
 Import processes now respond quicker. Shutdown requests are no longer delayed
 when the server process has busy imports, and metrics reports are now written
@@ -187,14 +187,14 @@ The server now shuts down correctly in these cases.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1771](https://github.com/tenzir/tenzir/pull/1771).
 
-### Fix loading of the optional OpenSSL module
+#### Fix loading of the optional OpenSSL module
 
 Configuring VAST to use CAF's built-in OpenSSL module via the `caf.openssl.*`
 options now works again as expected.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1740](https://github.com/tenzir/tenzir/pull/1740).
 
-### Normalize GNUInstallDirs for external plugins
+#### Normalize GNUInstallDirs for external plugins
 
 Plugins built against an external libvast no longer require the
 `CMAKE_INSTALL_LIBDIR` to be specified as a path relative to the configured
@@ -203,7 +203,7 @@ for some package managers, e.g., Nix.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1786](https://github.com/tenzir/tenzir/pull/1786).
 
-### Dont abort JSON import when encountering non-objects
+#### Dont abort JSON import when encountering non-objects
 
 VAST does not abort JSON imports anymore when encountering
 something other than a JSON object, e.g., a number or a string.
@@ -211,7 +211,7 @@ Instead, VAST skips the offending line.
 
 By [@lava](https://github.com/lava) in [#1759](https://github.com/tenzir/tenzir/pull/1759).
 
-### Remove /etc as hardcoded sysconfdir from Nix build
+#### Remove /etc as hardcoded sysconfdir from Nix build
 
 The static binary no longer behaves differently than the regular build with
 regards to its configuration directories: system-wide configuration files now

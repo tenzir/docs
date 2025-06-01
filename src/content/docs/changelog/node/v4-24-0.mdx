@@ -6,16 +6,16 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Implement `encode_base64` and `decode_base64`
+#### Implement `encode_base64` and `decode_base64`
 
 The new functions `encode_base64` and `decode_base64` encode and
 decode blobs and strings as Base64.
 
 By [@raxyte](https://github.com/raxyte) in [#4806](https://github.com/tenzir/tenzir/pull/4806).
 
-### Implement `append`, `prepend`, and `concatenate`
+#### Implement `append`, `prepend`, and `concatenate`
 
 The new `append`, `prepend`, and `concatenate` functions add an element to the
 end of a list, to the front of a list, and merge two lists, respectively.
@@ -24,7 +24,7 @@ end of a list, to the front of a list, and merge two lists, respectively.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4792](https://github.com/tenzir/tenzir/pull/4792).
 
-### Implement `otherwise(<expr>, <expr>)`
+#### Implement `otherwise(<expr>, <expr>)`
 
 The function `otherwise(primary:any, fallback:any)` provides a simple way
 to specify a `fallback` expression when the `primary` expression
@@ -32,21 +32,21 @@ evaluates to `null`.
 
 By [@raxyte](https://github.com/raxyte) in [#4794](https://github.com/tenzir/tenzir/pull/4794).
 
-### Port `unroll` to TQL2
+#### Port `unroll` to TQL2
 
 The `unroll` operator is now available in TQL2. It takes a field of type list,
 and duplicates the surrounding event for every element of the list.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4736](https://github.com/tenzir/tenzir/pull/4736).
 
-### Support decapsulating SLL2 packets
+#### Support decapsulating SLL2 packets
 
 The `decapsulate` function now handles SLL2 frames (Linux cooked capture
 encapsulation).
 
 By [@mavam](https://github.com/mavam) in [#4744](https://github.com/tenzir/tenzir/pull/4744).
 
-### Implement `where` and `map` on lists
+#### Implement `where` and `map` on lists
 
 The `<list>.map(<capture>, <expression>)` function replaces each value from
 `<list>` with the value from `<expression>`. Within `<expression>`, the elements
@@ -60,14 +60,14 @@ smaller than 3 from the list `xs`, use `xs = xs.where(x, x >= 3)`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4788](https://github.com/tenzir/tenzir/pull/4788).
 
-### Implement `encode_hex()` and `decode_hex()`
+#### Implement `encode_hex()` and `decode_hex()`
 
 The functions `encode_hex` and `decode_hex` transform strings and blobs to/from
 their hexadecimal byte representation.
 
 By [@raxyte](https://github.com/raxyte) in [#4815](https://github.com/tenzir/tenzir/pull/4815).
 
-### Port Contexts to TQL2
+#### Port Contexts to TQL2
 
 The contexts feature is now available in TQL2. It has undergone significant
 changes to make use of TQL2's more powerful expressions. Contexts are shared
@@ -84,14 +84,14 @@ operator.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4753](https://github.com/tenzir/tenzir/pull/4753).
 
-### Improve `to_splunk` TLS functionality
+#### Improve `to_splunk` TLS functionality
 
 The `to_splunk` operator now supports the `cacert`, `certfile`, and `keyfile`
 options to provide certificates for the TLS connection.
 
 By [@raxyte](https://github.com/raxyte) in [#4825](https://github.com/tenzir/tenzir/pull/4825).
 
-### Implement `--limit` flag for the `chart` operator
+#### Implement `--limit` flag for the `chart` operator
 
 The `--limit` option for the TQL1 `chart` operator controls the previously
 hardcoded upper limit on the number of events in a chart. The option defaults
@@ -99,20 +99,20 @@ to 10,000 events.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4757](https://github.com/tenzir/tenzir/pull/4757).
 
-### Add `parse_time` and `format_time` methods
+#### Add `parse_time` and `format_time` methods
 
 The new `parse_time` and `format_time` functions transform strings into
 timestamps and vice versa.
 
 By [@mavam](https://github.com/mavam) in [#4576](https://github.com/tenzir/tenzir/pull/4576).
 
-### Implement `x[y]` record indexing
+#### Implement `x[y]` record indexing
 
 Indexing records with string expressions is now supported.
 
 By [@raxyte](https://github.com/raxyte) in [#4795](https://github.com/tenzir/tenzir/pull/4795).
 
-### Implement `split`, `split_regex`, and `join`
+#### Implement `split`, `split_regex`, and `join`
 
 The `split` and `split_regex` functions split a string into a list of strings
 based on a delimiter or a regular expression, respectively.
@@ -122,14 +122,14 @@ optionally separated by a delimiter.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4799](https://github.com/tenzir/tenzir/pull/4799).
 
-### Fix crash in `context::enrich` for heterogeneous enrichments
+#### Fix crash in `context::enrich` for heterogeneous enrichments
 
 The `network` function returns the network address of a CIDR subnet. For
 example, `192.168.0.0/16.network()` returns `192.168.0.0`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4828](https://github.com/tenzir/tenzir/pull/4828).
 
-### Introduce a `zip` function for merging lists
+#### Introduce a `zip` function for merging lists
 
 The `zip` function merges two lists into a single list of a record with two
 fields `left` and `right`. For example, `zip([1, 2], [3, 4])` returns `[{left:
@@ -137,7 +137,7 @@ fields `left` and `right`. For example, `zip([1, 2], [3, 4])` returns `[{left:
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4803](https://github.com/tenzir/tenzir/pull/4803).
 
-### PRs 4716-4807
+#### PRs 4716-4807
 
 The following operators are now available in TQL2 for loading and
 saving: `load_amqp`, `save_amqp`, `load_ftp`, `save_ftp`, `load_nic`,
@@ -151,7 +151,7 @@ streams to byte streams in various formats: `write_csv`, `write_feather`,
 
 By [@raxyte](https://github.com/raxyte) in [#4716](https://github.com/tenzir/tenzir/pull/4716).
 
-### Allow aggregation functions to be called on lists
+#### Allow aggregation functions to be called on lists
 
 Aggregation functions now work on lists. For example, `[1, 2, 3].sum()` will
 return `6`, and `["foo", "bar", "baz"].map(x, x == "bar").any()` will return
@@ -159,7 +159,7 @@ return `6`, and `["foo", "bar", "baz"].map(x, x == "bar").any()` will return
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4821](https://github.com/tenzir/tenzir/pull/4821).
 
-### Port `unordered`, `local`, and `remote` to TQL2
+#### Port `unordered`, `local`, and `remote` to TQL2
 
 The `local` and `remote` operators allow for overriding the location of a
 pipeline. Local operators prefer running at a client `tenzir` process, and
@@ -174,9 +174,9 @@ subsequent operators in the pipeline.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4835](https://github.com/tenzir/tenzir/pull/4835).
 
-## 🔄 Changes
+### Changes
 
-### Stop URL-encoding pub/sub topics
+#### Stop URL-encoding pub/sub topics
 
 The topics provided to the `publish` and `subscribe` operators now exactly match
 the `topic` field in the corresponding metrics.
@@ -186,14 +186,14 @@ the topic `main` as opposed to an implementation-defined special name.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4738](https://github.com/tenzir/tenzir/pull/4738).
 
-### Finish porting loaders, printers and savers
+#### Finish porting loaders, printers and savers
 
 The option `ndjson` for `write_json` operator has been removed in favor of a new
 operator `write_ndjson`.
 
 By [@raxyte](https://github.com/raxyte) in [#4762](https://github.com/tenzir/tenzir/pull/4762).
 
-### PRs 4741-4746
+#### PRs 4741-4746
 
 The functions `ocsf_category_name`, `ocsf_category_uid`, `ocsf_class_name`, and
 `ocsf_class_uid` are now called `ocsf::category_name`, `ocsf::category_uid`,
@@ -204,14 +204,14 @@ now called `package::add`, `package::remove`, `package::list`, and
 
 By [@jachris](https://github.com/jachris) in [#4741](https://github.com/tenzir/tenzir/pull/4741).
 
-### Improve names for the `cache` operator's timeout options
+#### Improve names for the `cache` operator's timeout options
 
 The `cache` operator's `ttl` and `max_ttl` options are now called `read_timeout`
 and `write_timeout`, respectively.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4758](https://github.com/tenzir/tenzir/pull/4758).
 
-### Prepare small fixes for release
+#### Prepare small fixes for release
 
 The new `string` function now replaces the `str` function. The older `str`
 name will be available as an alias for some time for compatibility but will
@@ -219,37 +219,37 @@ be removed in a future release.
 
 By [@raxyte](https://github.com/raxyte) in [#4834](https://github.com/tenzir/tenzir/pull/4834).
 
-### Align argument parser usage format with docs
+#### Align argument parser usage format with docs
 
 The usage string that is reported when an operator or function is being used
 incorrectly now uses the same format as the documentation.
 
 By [@jachris](https://github.com/jachris) in [#4740](https://github.com/tenzir/tenzir/pull/4740).
 
-### Improve `to_splunk` TLS functionality
+#### Improve `to_splunk` TLS functionality
 
 The `tls_no_verify` option of the `to_splunk` operator is now called
 `skip_peer_verification`.
 
 By [@raxyte](https://github.com/raxyte) in [#4825](https://github.com/tenzir/tenzir/pull/4825).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Add timeout to multiline syslog
+#### Add timeout to multiline syslog
 
 We fixed an oversight in the syslog parsers, which caused it to not yield an
 event until the next line came in.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4829](https://github.com/tenzir/tenzir/pull/4829).
 
-### Port Loaders, Printers, Savers
+#### Port Loaders, Printers, Savers
 
 The docs for the `sqs` connector now correctly reflect the default of `3s` for
 the `--poll-time` option.
 
 By [@raxyte](https://github.com/raxyte) in [#4716](https://github.com/tenzir/tenzir/pull/4716).
 
-### Ignore whole line when NDJSON parser fails
+#### Ignore whole line when NDJSON parser fails
 
 The `read_ndjson` operator no longer uses an error-prone mechanism to continue
 parsing an NDJSON line that contains an error. Instead, the entire line is
@@ -257,7 +257,7 @@ skipped.
 
 By [@jachris](https://github.com/jachris) in [#4801](https://github.com/tenzir/tenzir/pull/4801).
 
-### Introduce `{package,pipeline}::list`
+#### Introduce `{package,pipeline}::list`
 
 `context inspect` crashed when used to inspect a context that was previously
 updated with `context update` with an input containing a field of type `enum`.
@@ -265,48 +265,48 @@ This no longer happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4746](https://github.com/tenzir/tenzir/pull/4746).
 
-### Don't allow manual erasing of contexts from packages
+#### Don't allow manual erasing of contexts from packages
 
 It is no longer possible to manually remove contexts
 that are installed as part of a package.
 
 By [@lava](https://github.com/lava) in [#4768](https://github.com/tenzir/tenzir/pull/4768).
 
-### Fix ODR violation of `tenzir::socket` type
+#### Fix ODR violation of `tenzir::socket` type
 
 The TQL1 and TQL2 `sockets` operators no longer crash on specific builds.
 
 By [@raxyte](https://github.com/raxyte) in [#4816](https://github.com/tenzir/tenzir/pull/4816).
 
-### Improve `to_splunk` TLS functionality
+#### Improve `to_splunk` TLS functionality
 
 The `max_content_length` option for the `to_splunk` operator was named incorrectly in
 an earlier version to `send_timeout`. This has now been fixed.
 
 By [@raxyte](https://github.com/raxyte) in [#4825](https://github.com/tenzir/tenzir/pull/4825).
 
-### Prepend the field added by `enumerate`
+#### Prepend the field added by `enumerate`
 
 The `enumerate` operator now correctly prepends the added index field instead of
 appending it.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4756](https://github.com/tenzir/tenzir/pull/4756).
 
-### Add missing `co_yield`s in `save_http`
+#### Add missing `co_yield`s in `save_http`
 
 The TQL2 `save_http` operator had a bug causing it to fail to connect and
 get stuck in an infinite loop. This is now fixed and works as expected.
 
 By [@raxyte](https://github.com/raxyte) in [#4833](https://github.com/tenzir/tenzir/pull/4833).
 
-### Fix `str` function quotes
+#### Fix `str` function quotes
 
 The `str` function no longer adds extra quotes when given a string. For example,
 `str("") == "\"\""` was changed to `str("") == ""`.
 
 By [@jachris](https://github.com/jachris) in [#4809](https://github.com/tenzir/tenzir/pull/4809).
 
-### Port Contexts to TQL2
+#### Port Contexts to TQL2
 
 The last metric emitted for each run of the `enrich` operator was incorrectly
 named `tenzir.enrich.metrics` instead of `tenzir.metrics.enrich`, causing it not
@@ -314,7 +314,7 @@ to be available via `metrics enrich`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4753](https://github.com/tenzir/tenzir/pull/4753).
 
-### Make `to_hive` a "local" operator
+#### Make `to_hive` a "local" operator
 
 The `to_hive` operator now correctly writes files relative to the working
 directory of a `tenzir` client process instead of relative to the node.

@@ -6,16 +6,16 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Support `
+#### Support `
 `-style newlines in VAST
 
 All input parsers now support mixed `\n` and `\r\n` line endings.
 
 By [@lava](https://github.com/lava) in [#865](https://github.com/tenzir/tenzir/pull/865).
 
-### Deduce types for heterogenous JSONL import
+#### Deduce types for heterogenous JSONL import
 
 When importing events of a new or updated type, VAST now only requires the type
 to be specified once (e.g., in a schema file). For consecutive imports, the
@@ -33,29 +33,29 @@ for mismatched keys.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#875](https://github.com/tenzir/tenzir/pull/875).
 
-### UX improvements for `read_query()`
+#### UX improvements for `read_query()`
 
 VAST now prints a message when it is waiting for user input to read a query from
 a terminal.
 
 By [@lava](https://github.com/lava) in [#878](https://github.com/tenzir/tenzir/pull/878).
 
-### Publish Sysmon schema
+#### Publish Sysmon schema
 
 VAST now ships with a schema suitable for Sysmon import.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#886](https://github.com/tenzir/tenzir/pull/886).
 
-### PRs 873-877
+#### PRs 873-877
 
 Added a new `explore` command to VAST that can be used to show data records
 within a certain time from the results of a query.
 
 By [@lava](https://github.com/lava) in [#873](https://github.com/tenzir/tenzir/pull/873).
 
-## 🔄 Changes
+### Changes
 
-### Rename statistics event to metrics
+#### Rename statistics event to metrics
 
 The command line flag for disabling the accountant has been renamed to
 `--disable-metrics` to more accurately reflect its intended purpose. The
@@ -63,16 +63,16 @@ internal `vast.statistics` event has been renamed to `vast.metrics`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#870](https://github.com/tenzir/tenzir/pull/870).
 
-### UX improvements for `read_query()`
+#### UX improvements for `read_query()`
 
 Spreading a query over multiple command line arguments in commands like
 explore/export/pivot/etc. has been deprecated.
 
 By [@lava](https://github.com/lava) in [#878](https://github.com/tenzir/tenzir/pull/878).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Correct check for user schema in zeek reader
+#### Correct check for user schema in zeek reader
 
 The parser for Zeek tsv data used to ignore attributes that were defined for the
 Zeek-specific types in the schema files. It has been modified to respect and
@@ -81,7 +81,7 @@ data.
 
 By [@tobim](https://github.com/tobim) in [#847](https://github.com/tenzir/tenzir/pull/847).
 
-### Various config and default setting fixes
+#### Various config and default setting fixes
 
 Fixed a bug that caused `vast import` processes to produce `'default'` table
 slices, despite having the `'arrow'` type as the default.

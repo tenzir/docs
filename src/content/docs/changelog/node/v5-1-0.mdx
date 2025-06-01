@@ -9,9 +9,9 @@ sidebar:
 Tenzir Node v5.1 adds more flexible ways to access and move fields, bitwise
 functions, and a native integration with Google Cloud Logging.
 
-## ✨ Features
+### Features
 
-### Experiment with a trailing `?` for field access
+#### Experiment with a trailing `?` for field access
 
 The `.?field` operator for field access with suppressed warnings is now
 deprecated in favor of `.field?`. We added the `.?` operator just recently, and
@@ -24,7 +24,7 @@ inconvenience.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5128](https://github.com/tenzir/tenzir/pull/5128).
 
-### Implement the `move` keyword
+#### Implement the `move` keyword
 
 The `move` keyword may be used in front of fields anywhere in assignments to
 automatically drop fields after the assignment. For example, `foo = {bar: move
@@ -39,27 +39,27 @@ introduced `move` keyword.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5127](https://github.com/tenzir/tenzir/pull/5127).
 
-### Add a `split_at_regex` option to `read_lines`
+#### Add a `split_at_regex` option to `read_lines`
 
 We added a `split_at_regex` option allows for the use of regular expressions to
 split events with the `read_lines` operator.
 
 By [@tobim](https://github.com/tobim) in [#5123](https://github.com/tenzir/tenzir/pull/5123).
 
-### Implement `to_google_cloud_logging`
+#### Implement `to_google_cloud_logging`
 
 We added a `to_google_cloud_logging` operator that can send events to [Google
 Cloud Logging](https://cloud.google.com/logging).
 
 By [@raxyte](https://github.com/raxyte) in [#5135](https://github.com/tenzir/tenzir/pull/5135).
 
-### Try and switch the Docker Image to `debian::trixie`
+#### Try and switch the Docker Image to `debian::trixie`
 
 The `to_snowflake` operator is now available in the arm64 Docker image.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5113](https://github.com/tenzir/tenzir/pull/5113).
 
-### Expose Arrow's bit-wise compute functions
+#### Expose Arrow's bit-wise compute functions
 
 We added bit-wise functions to TQL, including `bit_and`, `bit_or`, `bit_xor`,
 `bit_not`, `shift_left`, and `shift_right`. These functions enable performing
@@ -67,25 +67,25 @@ bit-level operations on numeric values.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5129](https://github.com/tenzir/tenzir/pull/5129).
 
-## 🔄 Changes
+### Changes
 
-### Assume UTF8 in `file_contents`
+#### Assume UTF8 in `file_contents`
 
 The `file_contents` function now returns contents as `string` by default.
 Non-UTF-8 files can be read by specifying the `binary=true` option.
 
 By [@raxyte](https://github.com/raxyte) in [#5135](https://github.com/tenzir/tenzir/pull/5135).
 
-### Try and switch the Docker Image to `debian::trixie`
+#### Try and switch the Docker Image to `debian::trixie`
 
 The `tenzir/tenzir` and `tenzir/tenzir-node` Docker images now use
 `debian:trixie-slim` instead of `debian:bookworm-slim` as a base image.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5113](https://github.com/tenzir/tenzir/pull/5113).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Use a proper subpipeline for `fork`
+#### Use a proper subpipeline for `fork`
 
 Operators that interact with state in the node that is not local to the
 pipeline, e.g., `context::update`, now properly work when used inside the nested
@@ -94,14 +94,14 @@ context::update … }` failed at runtime.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5133](https://github.com/tenzir/tenzir/pull/5133).
 
-### Fix edge case when parsing nullable lists with type conflicts
+#### Fix edge case when parsing nullable lists with type conflicts
 
 Parsing of nullable lists with type conflicts could previously lead to an error
 under very rare circumstances. This now works as expected.
 
 By [@jachris](https://github.com/jachris) in [#5134](https://github.com/tenzir/tenzir/pull/5134).
 
-### Fix TLS options in `from_http`
+#### Fix TLS options in `from_http`
 
 We fixed a bug in parsing the TLS options for the `from_http` operator,
 preventing disabling of TLS.

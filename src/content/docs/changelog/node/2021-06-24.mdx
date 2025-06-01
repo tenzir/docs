@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Add support for per-plugin configuration files
+#### Add support for per-plugin configuration files
 
 Plugins load their respective configuration from
 `<configdir>/vast/plugin/<plugin-name>.yaml` in addition to the regular
@@ -19,7 +19,7 @@ This allows for deploying plugins without needing to touch the
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1724](https://github.com/tenzir/tenzir/pull/1724).
 
-### Optionally read environment variable for VAST endpoint
+#### Optionally read environment variable for VAST endpoint
 
 It's now possible to configure the VAST endpoint as an environment variable
 by setting `VAST_ENDPOINT`. This has higher precedence than setting
@@ -28,7 +28,7 @@ by setting `VAST_ENDPOINT`. This has higher precedence than setting
 
 By [@rolandpeelen](https://github.com/rolandpeelen) in [#1714](https://github.com/tenzir/tenzir/pull/1714).
 
-### Rework the plugin loading logic
+#### Rework the plugin loading logic
 
 The options `vast.plugins` and `vast.plugin-dirs` may now be specified on the
 command line as well as the configuration. Use the options `--plugins` and
@@ -42,7 +42,7 @@ matching `libvast-plugin-*` from the configured `vast.plugin-dirs`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1703](https://github.com/tenzir/tenzir/pull/1703).
 
-### Add option for configurable post-start hooks
+#### Add option for configurable post-start hooks
 
 The new option `vast.start.commands` allows for specifying an ordered list of
 VAST commands that run after successful startup. The effect is the same as first
@@ -53,9 +53,9 @@ socket or reads packets from a network interface.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1699](https://github.com/tenzir/tenzir/pull/1699).
 
-## 🔄 Changes
+### Changes
 
-### Rework the plugin loading logic
+#### Rework the plugin loading logic
 
 VAST no longer loads static plugins by default. Generally, VAST now
 treats static plugins and bundled dynamic plugins equally, allowing
@@ -64,7 +64,7 @@ deployments.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1703](https://github.com/tenzir/tenzir/pull/1703).
 
-### PRs 1721-1734
+#### PRs 1721-1734
 
 VAST merges lists from configuration files. E.g., running VAST with
 `--plugins=some-plugin` and `vast.plugins: [other-plugin]` in the
@@ -73,30 +73,30 @@ loaded (sorted by the usual precedence), instead of just `some-plugin`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1721](https://github.com/tenzir/tenzir/pull/1721).
 
-### Change chat from Gitter to Slack
+#### Change chat from Gitter to Slack
 
 The VAST community chat moved from Gitter to Slack. [Join
 us](http://slack.tenzir.com) in the `#vast` channel for vibrant discussions.
 
 By [@mavam](https://github.com/mavam) in [#1696](https://github.com/tenzir/tenzir/pull/1696).
 
-### Remove support for building without Arrow
+#### Remove support for building without Arrow
 
 Apache Arrow is now a required dependency. The previously deprecated build
  option `-DVAST_ENABLE_ARROW=OFF` no longer exists.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1683](https://github.com/tenzir/tenzir/pull/1683).
 
-### Fixup repository-internal symlinks in Dockerfile
+#### Fixup repository-internal symlinks in Dockerfile
 
 The [tenzir/vast](https://hub.docker.com/r/tenzir/vast) Docker image bundles the
 PCAP plugin.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1705](https://github.com/tenzir/tenzir/pull/1705).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix log rotation threshold option
+#### Fix log rotation threshold option
 
 The `vast.log-rotation-threshold` option was silently ignored, causing VAST to
 always use the default log rotation threshold of 10 MiB. The option works as
@@ -104,7 +104,7 @@ expected now.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1709](https://github.com/tenzir/tenzir/pull/1709).
 
-### Fix a bunch of smaller issues
+#### Fix a bunch of smaller issues
 
 Building plugins against an installed VAST no longer requires manually
 specifying `-DBUILD_SHARED_LIBS=ON`. The option is now correctly enabled by
@@ -112,35 +112,35 @@ default for external plugins.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1697](https://github.com/tenzir/tenzir/pull/1697).
 
-### Remove dead condition and fix Docker release tags
+#### Remove dead condition and fix Docker release tags
 
 Additional tags for the [tenzir/vast](https://hub.docker.com/r/tenzir/vast)
 Docker image for the release versions exist, e.g., `tenzir/vast:2021.05.27`.
 
 By [@0snap](https://github.com/0snap) in [#1711](https://github.com/tenzir/tenzir/pull/1711).
 
-### Fix shutdown hang in sources on SIGTERM/SIGINT
+#### Fix shutdown hang in sources on SIGTERM/SIGINT
 
 Import processes no longer hang on receiving SIGINT or SIGKILL. Instead, they
 shut down properly after flushing yet to be processed data.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1718](https://github.com/tenzir/tenzir/pull/1718).
 
-### Make unix dgram metrics sink connectionless
+#### Make unix dgram metrics sink connectionless
 
 The UDS metrics sink continues to send data when the receiving socket is
 recreated.
 
 By [@tobim](https://github.com/tobim) in [#1702](https://github.com/tenzir/tenzir/pull/1702).
 
-### Handle arbitrary types in bloom filter synopsis
+#### Handle arbitrary types in bloom filter synopsis
 
 VAST no longer crashes when querying for string fields with non-string
 values. Instead, an error message warns the user about an invalid query.
 
 By [@lava](https://github.com/lava) in [#1685](https://github.com/tenzir/tenzir/pull/1685).
 
-### Handle quoted strings in CSV parser
+#### Handle quoted strings in CSV parser
 
 The `import csv` command handles quoted fields correctly. Previously, the
 quotes were part of the parsed value, and field separators in quoted strings

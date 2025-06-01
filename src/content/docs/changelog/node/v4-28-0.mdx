@@ -6,21 +6,21 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Implement `parse_syslog`
+#### Implement `parse_syslog`
 
 You can use the new `parse_syslog` function to parse a string as a syslog message.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4980](https://github.com/tenzir/tenzir/pull/4980).
 
-### Add explicit `tls` options to `to_opensearch` and `to_splunk`
+#### Add explicit `tls` options to `to_opensearch` and `to_splunk`
 
 `to_opensearch` and `to_splunk` now feature an explicit `tls` option.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4983](https://github.com/tenzir/tenzir/pull/4983).
 
-### More parsing functions
+#### More parsing functions
 
 It is now possible to define additional patterns in the `parse_grok` function.
 
@@ -38,23 +38,23 @@ The `map` function now handles cases where list elements mapped to different typ
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4933](https://github.com/tenzir/tenzir/pull/4933).
 
-### Implement `load_stdin` and `save_stdout`
+#### Implement `load_stdin` and `save_stdout`
 
 The new `load_stdin` operator accepts bytes from standard input, while `save_stdout`
 writes bytes to standard output.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4969](https://github.com/tenzir/tenzir/pull/4969).
 
-## 🔄 Changes
+### Changes
 
-### Stop collecting metrics for hidden pipelines
+#### Stop collecting metrics for hidden pipelines
 
 `metrics "operator"` no longer includes metrics from hidden pipelines, such as
 pipelines run under-the-hood by the Tenzir Platform.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4966](https://github.com/tenzir/tenzir/pull/4966).
 
-### Evict old caches when exceeding capacity limits
+#### Evict old caches when exceeding capacity limits
 
 Unless specified explicitly, the `cache` has no more default capacity in terms
 of number of events per cache. Instead, the node now tracks the global cache
@@ -71,9 +71,9 @@ with the corresponding `serve` operator at the time of the request.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4984](https://github.com/tenzir/tenzir/pull/4984).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### More parsing functions
+#### More parsing functions
 
 Re-defining a predefined grok pattern no longer terminates the application.
 
@@ -86,14 +86,14 @@ of only objects.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4933](https://github.com/tenzir/tenzir/pull/4933).
 
-### Fix shutdown of the lookup helper actor
+#### Fix shutdown of the lookup helper actor
 
 We sqashed a bug that prevented the `tenzir-node` process from exiting cleanly
 while the `lookup` operator was used in a pipeline.
 
 By [@tobim](https://github.com/tobim) in [#4978](https://github.com/tenzir/tenzir/pull/4978).
 
-### Evict old caches when exceeding capacity limits
+#### Evict old caches when exceeding capacity limits
 
 We fixed an up to 60 seconds hang in requests to the `/serve` endpoint when the
 request was issued after the pipeline with the corresponding `serve` operator

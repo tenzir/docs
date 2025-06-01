@@ -6,16 +6,16 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### PRs 1929-1947
+#### PRs 1929-1947
 
 The export command now has a `--low-priority` option to reduce the priority of
 the request while query backlogs are being worked down.
 
 By [@tobim](https://github.com/tobim) in [#1929](https://github.com/tenzir/tenzir/pull/1929).
 
-### Partition transforms
+#### Partition transforms
 
 A new 'apply' handler in the index gives plugin authors the ability to
 apply transforms over entire partitions. Previously, transforms were
@@ -23,7 +23,7 @@ limited to streams of table slice during import or export.
 
 By [@lava](https://github.com/lava) in [#1887](https://github.com/tenzir/tenzir/pull/1887).
 
-### Add metrics to the index
+#### Add metrics to the index
 
 The keys `query.backlog.normal` and `query.backlog.low` have been added to the
 metrics output. The values indicate the number of quries that are currently in
@@ -31,9 +31,9 @@ the backlog.
 
 By [@tobim](https://github.com/tobim) in [#1942](https://github.com/tenzir/tenzir/pull/1942).
 
-## 🔄 Changes
+### Changes
 
-### Introduce a query backlog in the index
+#### Introduce a query backlog in the index
 
 The `max-queries` configuration option now works at a coarser granularity. It
 used to limit the number of queries that could simultaneously retrieve data,
@@ -41,7 +41,7 @@ but it now sets the number of queries that can be processed at the same time.
 
 By [@tobim](https://github.com/tobim) in [#1896](https://github.com/tenzir/tenzir/pull/1896).
 
-### Update xxHash and hashing APIs
+#### Update xxHash and hashing APIs
 
 VAST no longer vendors [xxHash](https://github.com/Cyan4973/xxHash), which is
 now a regular required dependency. Internally, VAST switched its default hash
@@ -49,13 +49,13 @@ function to XXH3, providing a speedup of up to 3x.
 
 By [@mavam](https://github.com/mavam) in [#1905](https://github.com/tenzir/tenzir/pull/1905).
 
-### Bump minimum required CMake version to 3.18
+#### Bump minimum required CMake version to 3.18
 
 Building VAST from source now requires CMake 3.18+.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1914](https://github.com/tenzir/tenzir/pull/1914).
 
-### Prefer reading query from stdin if available
+#### Prefer reading query from stdin if available
 
 A recently added features allows for exporting everything when no query is
 provided. We've restricted this to prefer reading a query from stdin if
@@ -63,30 +63,30 @@ available. Additionally, conflicting ways to read the query now trigger errors.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1917](https://github.com/tenzir/tenzir/pull/1917).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Automatically add the skip attribute to records in lists
+#### Automatically add the skip attribute to records in lists
 
 VAST no longer tries to create indexes for fields of type `list<record{...}>` as
 that wasn't supported in the first place.
 
 By [@tobim](https://github.com/tobim) in [#1933](https://github.com/tenzir/tenzir/pull/1933).
 
-### Increase the partition erase timeout to 1 minute
+#### Increase the partition erase timeout to 1 minute
 
 The timeout duration to delete partitions has been increased to one minute,
 reducing the frequency of warnings for hitting this timeout significantly.
 
 By [@tobim](https://github.com/tobim) in [#1897](https://github.com/tenzir/tenzir/pull/1897).
 
-### Change `suricata.dns` schema to match current DNS structure
+#### Change `suricata.dns` schema to match current DNS structure
 
 The `suricata.dns` schema has been updated to match the currently used
 EVE-JSON structure output by recent Suricata versions.
 
 By [@satta](https://github.com/satta) in [#1919](https://github.com/tenzir/tenzir/pull/1919).
 
-### Load static plugins only when enabled
+#### Load static plugins only when enabled
 
 Static plugins are no longer always loaded, but rather need to be explicitly
 enabled as documented. To restore the behavior from before this bug fix, set
@@ -94,21 +94,21 @@ enabled as documented. To restore the behavior from before this bug fix, set
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1959](https://github.com/tenzir/tenzir/pull/1959).
 
-### Update xxHash and hashing APIs
+#### Update xxHash and hashing APIs
 
 When reading IPv6 addresses from PCAP data, only the first 4 bytes have been
 considered. VAST now stores all 16 bytes.
 
 By [@mavam](https://github.com/mavam) in [#1905](https://github.com/tenzir/tenzir/pull/1905).
 
-### Fix deletion of segments if CWD != dbdir
+#### Fix deletion of segments if CWD != dbdir
 
 Store files now get deleted correctly if the database directory differs from the
 working directory.
 
 By [@tobim](https://github.com/tobim) in [#1912](https://github.com/tenzir/tenzir/pull/1912).
 
-### Avoid references to record fields in fill_status_map
+#### Avoid references to record fields in fill_status_map
 
 Debug builds of VAST no longer segfault on a status request with the `--debug`
 option.

@@ -6,22 +6,22 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Add `apply` operator
+#### Add `apply` operator
 
 The new `apply` operator includes pipelines defined in other files.
 
 By [@jachris](https://github.com/jachris) in [#3677](https://github.com/tenzir/tenzir/pull/3677).
 
-### Add `parse` operator
+#### Add `parse` operator
 
 The new, experimental `parse` operator applies a parser to the string stored in
 a given field.
 
 By [@jachris](https://github.com/jachris) in [#3665](https://github.com/tenzir/tenzir/pull/3665).
 
-### Add `from/load/to/save <uri/file>`
+#### Add `from/load/to/save <uri/file>`
 
 The operators `from`, `to`, `load`, and `save` support using URLs and file paths
 directly as their argument. For example, `load https://example.com` means
@@ -30,34 +30,34 @@ directly as their argument. For example, `load https://example.com` means
 
 By [@eliaskosunen](https://github.com/eliaskosunen) in [#3608](https://github.com/tenzir/tenzir/pull/3608).
 
-### Add `syslog` parser
+#### Add `syslog` parser
 
 The `syslog` parser allows reading both RFC 5424 and RFC 3164 syslog messages.
 
 By [@eliaskosunen](https://github.com/eliaskosunen) in [#3645](https://github.com/tenzir/tenzir/pull/3645).
 
-### Add `yield` operator
+#### Add `yield` operator
 
 The new `yield` operator extracts nested records with the ability to unfold
 lists.
 
 By [@jachris](https://github.com/jachris) in [#3651](https://github.com/tenzir/tenzir/pull/3651).
 
-### Introduce an experimental `python` pipeline operator
+#### Introduce an experimental `python` pipeline operator
 
 The `python` operator adds the ability to perform arbitrary event to event
 transformations with the full power of Python 3.
 
 By [@lava](https://github.com/lava) in [#3592](https://github.com/tenzir/tenzir/pull/3592).
 
-### Implement a TCP loader
+#### Implement a TCP loader
 
 We added a new `tcp` connector that allows reading raw bytes
 from TCP or TLS connections.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3664](https://github.com/tenzir/tenzir/pull/3664).
 
-### Add file extension detection to `from`/`to`
+#### Add file extension detection to `from`/`to`
 
 When using `from <URL>` and `to <URL>` without specifying the format explicitly
 using a `read`/`write` argument, the default format is determined by the file
@@ -70,13 +70,13 @@ yaml` automatically.
 
 By [@eliaskosunen](https://github.com/eliaskosunen) in [#3653](https://github.com/tenzir/tenzir/pull/3653).
 
-### Support `show`-ing all aspects at once
+#### Support `show`-ing all aspects at once
 
 Use `show` without an aspect to return information about all aspects of a node.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3650](https://github.com/tenzir/tenzir/pull/3650).
 
-### Implement context backends for the contextualizer
+#### Implement context backends for the contextualizer
 
 The closed-source `context` plugin offers a backend functionality for
 finding matches between data sets.
@@ -89,7 +89,7 @@ parsing a JSON array of JSON objects into an event for each object.
 
 By [@Dakostu](https://github.com/Dakostu) in [#3684](https://github.com/tenzir/tenzir/pull/3684).
 
-### Add 'min_events' parameters to /serve endpoint
+#### Add 'min_events' parameters to /serve endpoint
 
 We optimized the behavior of the 'serve' operator to respond
 quicker and cause less system load for pipelines that take a
@@ -99,36 +99,36 @@ clients of `/serve`.
 
 By [@lava](https://github.com/lava) in [#3666](https://github.com/tenzir/tenzir/pull/3666).
 
-### Support comments in xsv parser
+#### Support comments in xsv parser
 
 Use `--allow-comments` with the `xsv` parser (incl. `csv`, `tsv`, and `ssv`)
 to treat lines beginning with `'#'` as comments.
 
 By [@eliaskosunen](https://github.com/eliaskosunen) in [#3681](https://github.com/tenzir/tenzir/pull/3681).
 
-### Add `export --internal` to access metrics
+#### Add `export --internal` to access metrics
 
 The new `--internal` flag for the `export` operators returns internal events
 collected by the system, for example pipeline metrics.
 
 By [@jachris](https://github.com/jachris) in [#3619](https://github.com/tenzir/tenzir/pull/3619).
 
-## 🔄 Changes
+### Changes
 
-### Rename pytenzir to tenzir
+#### Rename pytenzir to tenzir
 
 We renamed the name of our python package from `pytenzir` to `tenzir`.
 
 By [@lava](https://github.com/lava) in [#3660](https://github.com/tenzir/tenzir/pull/3660).
 
-### Implement a TCP loader
+#### Implement a TCP loader
 
 We renamed the `--bind` option of the `zmq` connector
 to `--listen`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3664](https://github.com/tenzir/tenzir/pull/3664).
 
-### Consider discard, export, and import as internal operators
+#### Consider discard, export, and import as internal operators
 
 Ingress and egress metrics for pipelines now indicate whether the pipeline
 sent/received events to/from outside of the node with a new `internal` flag. For
@@ -137,16 +137,16 @@ within the node, so its ingress is considered internal.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3658](https://github.com/tenzir/tenzir/pull/3658).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Add `export --internal` to access metrics
+#### Add `export --internal` to access metrics
 
 `export --live` now respects a subsequent `where <expr>` instead of silently
 discarding the filter expression.
 
 By [@jachris](https://github.com/jachris) in [#3619](https://github.com/tenzir/tenzir/pull/3619).
 
-### Support lists and null values and empty strings in XSV parser
+#### Support lists and null values and empty strings in XSV parser
 
 The `csv`, `ssv`, and `tsv` parsers now correctly support empty strings, lists,
 and null values.
@@ -155,7 +155,7 @@ The `tail` operator no longer hangs occasionally.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3687](https://github.com/tenzir/tenzir/pull/3687).
 
-### Fix `sort` type check
+#### Fix `sort` type check
 
 Using the `sort` operator with polymorphic inputs no longer leads to a failing
 assertion under some circumstances.

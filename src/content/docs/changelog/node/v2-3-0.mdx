@@ -6,15 +6,15 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Cloud matchers
+#### Cloud matchers
 
 We can now use matchers in AWS using the vast-cloud CLI matcher plugin.
 
 By [@rdettai](https://github.com/rdettai) in [#2473](https://github.com/tenzir/tenzir/pull/2473).
 
-### Make the connection timeout configurable
+#### Make the connection timeout configurable
 
 The new `vast.connection-timeout` option allows for configuring the timeout VAST
 clients use when connecting to a VAST server. The value defaults to 10s; setting
@@ -22,7 +22,7 @@ it to a zero duration causes produces an infinite timeout.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2499](https://github.com/tenzir/tenzir/pull/2499).
 
-### Make the `rebuild` command more reliable
+#### Make the `rebuild` command more reliable
 
 VAST now continuously rebuilds outdated and merges undersized partitions in the
 background. The new option `vast.automatic-rebuild` controls how many resources
@@ -35,16 +35,16 @@ rebuild` command additionally shows information about the ongoing rebuild.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2493](https://github.com/tenzir/tenzir/pull/2493).
 
-### Implement optional dense indexes
+#### Implement optional dense indexes
 
 VAST's partition indexes are now optional, allowing operators to control the
 trade-off between disk-usage and query performance for every field.
 
 By [@patszt](https://github.com/patszt) in [#2430](https://github.com/tenzir/tenzir/pull/2430).
 
-## 🔄 Changes
+### Changes
 
-### Lower the impact of low-priority queries
+#### Lower the impact of low-priority queries
 
 We improved the operability of VAST servers under high load from automated
 low-priority queries. VAST now considers queries issued with `--low-priority`,
@@ -54,7 +54,7 @@ for rebuilding and compaction (down from 12.5% to 1%).
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2484](https://github.com/tenzir/tenzir/pull/2484).
 
-### Make the `rebuild` command more reliable
+#### Make the `rebuild` command more reliable
 
 The default value for `vast.active-partition-timeout` is now 5 minutes (down
 from 1 hour), causing VAST to persist underful partitions earlier.
@@ -67,9 +67,9 @@ running rebuilds in the background.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2493](https://github.com/tenzir/tenzir/pull/2493).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Respect `--connection-timeout` in more places
+#### Respect `--connection-timeout` in more places
 
 Configuration options representing durations with an associated command-line
 option like `vast.connection-timeout` and `--connection-timeout` were not picked
@@ -78,14 +78,14 @@ expected.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2503](https://github.com/tenzir/tenzir/pull/2503).
 
-### Add active partition actor to unpersisted partitions on decomission
+#### Add active partition actor to unpersisted partitions on decomission
 
 VAST no longer occasionally prints warnings about no longer available partitions
 when queries run concurrently to imports.
 
 By [@patszt](https://github.com/patszt) in [#2500](https://github.com/tenzir/tenzir/pull/2500).
 
-### Implement a flatbuffer container class to hold excess table slices in segments
+#### Implement a flatbuffer container class to hold excess table slices in segments
 
 VAST can now store data in segments bigger than 2GiB in size each.
 
@@ -93,13 +93,13 @@ VAST can now store column indexes that are bigger than 2GiB.
 
 By [@lava](https://github.com/lava) in [#2449](https://github.com/tenzir/tenzir/pull/2449).
 
-### Implement optional dense indexes
+#### Implement optional dense indexes
 
 VAST properly processes queries for fields with `skip` attribute.
 
 By [@patszt](https://github.com/patszt) in [#2430](https://github.com/tenzir/tenzir/pull/2430).
 
-### Wait until all stores have exited before finishing a partition transform
+#### Wait until all stores have exited before finishing a partition transform
 
 Fixed a race condition where the output of a partition transform
 could be reused before it was fully written to disk, for example
@@ -107,14 +107,14 @@ when running `vast rebuild`.
 
 By [@lava](https://github.com/lava) in [#2543](https://github.com/tenzir/tenzir/pull/2543).
 
-### Display store load failures to the user
+#### Display store load failures to the user
 
 Partitions now fail early when their stores fail to load from disk, detailing
 what went wrong in an error message.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2507](https://github.com/tenzir/tenzir/pull/2507).
 
-### Activate cloud plugins explicitely
+#### Activate cloud plugins explicitely
 
 We changed the way `vast-cloud` is loading its cloud plugins to make it more
 explicit. This avoids inconsitent defaults assigned to variables when using core
@@ -122,7 +122,7 @@ commands on specific plugins.
 
 By [@rdettai](https://github.com/rdettai) in [#2510](https://github.com/tenzir/tenzir/pull/2510).
 
-### Don't abort startup if individual partitions fail to load
+#### Don't abort startup if individual partitions fail to load
 
 The `rebuild` command, automatic rebuilds, and compaction are now much faster,
 and match the performance of the `import` command for building indexes.

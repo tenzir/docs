@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Move PCAP import/export into a plugin
+#### Move PCAP import/export into a plugin
 
 *Reader Plugins* and *Writer Plugins* are a new family of plugins that add
 import/export formats. The previously optional PCAP format moved into a
@@ -17,7 +17,7 @@ dedicated plugin. Configure with `--with-pcap-plugin` and add `pcap` to
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1549](https://github.com/tenzir/tenzir/pull/1549).
 
-### PRs 1532-1541
+#### PRs 1532-1541
 
 The `VAST_PLUGIN_DIRS` and `VAST_SCHEMA_DIRS` environment variables allow for
 setting additional plugin and schema directories separated with `:` with higher
@@ -25,7 +25,7 @@ precedence than other plugin and schema directories.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1532](https://github.com/tenzir/tenzir/pull/1532).
 
-### Allow for building plugins separately from VAST
+#### Allow for building plugins separately from VAST
 
 It is now possible to build plugins against an installed VAST. This requires a
 slight adaptation to every plugin's build scaffolding. The example plugin was
@@ -33,7 +33,7 @@ updated accordingly.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1532](https://github.com/tenzir/tenzir/pull/1532).
 
-### Add '--disk-budget-check-binary' option to disk monitor
+#### Add '--disk-budget-check-binary' option to disk monitor
 
 The disk monitor gained a new `vast.start.disk-budget-check-binary` option that
 can be used to specify an external binary to determine the size of the database
@@ -42,7 +42,7 @@ answer, e.g. on compressed filesystems.
 
 By [@lava](https://github.com/lava) in [#1453](https://github.com/tenzir/tenzir/pull/1453).
 
-### PRs 1544-1547-1588
+#### PRs 1544-1547-1588
 
 *Component Plugins* are a new category of plugins that execute code within the
 VAST server process. *Analyzer Plugins* are now a specialization of *Component
@@ -50,9 +50,9 @@ Plugins*, and their API remains unchanged.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1544](https://github.com/tenzir/tenzir/pull/1544).
 
-## 🔄 Changes
+### Changes
 
-### Make the source a regular class
+#### Make the source a regular class
 
 The metrics for Suricata Eve JSON and Zeek Streaming JSON imports are now under
 the categories `suricata-reader` and `zeek-reader` respectively so they can be
@@ -60,14 +60,14 @@ distinguished from the regular JSON import, which is still under `json-reader`.
 
 By [@tobim](https://github.com/tobim) in [#1498](https://github.com/tenzir/tenzir/pull/1498).
 
-### Small fixes for projections
+#### Small fixes for projections
 
 The Suricata `dns` schema type now defines the `dns.grouped.A` field containing
 a list of all returned addresses.
 
 By [@tobim](https://github.com/tobim) in [#1531](https://github.com/tenzir/tenzir/pull/1531).
 
-### Upstream Debian patches
+#### Upstream Debian patches
 
 We upstreamed the Debian patches provided by [@satta](https://github.com/satta).
 VAST now prefers an installed `tsl-robin-map>=0.6.2` to the bundled one unless
@@ -76,20 +76,20 @@ configured with `--with-bundled-robin-map`, and we provide a manpage for
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1515](https://github.com/tenzir/tenzir/pull/1515).
 
-### Remove deprecated no-default-schema option
+#### Remove deprecated no-default-schema option
 
 The previously deprecated ([#1409](https://github.com/tenzir/vast/pull/1409))
 option `vast.no-default-schema` no longer exists.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1507](https://github.com/tenzir/tenzir/pull/1507).
 
-### Use individual files for changelog entries
+#### Use individual files for changelog entries
 
 Building VAST now requires CMake >= 3.15.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1559](https://github.com/tenzir/tenzir/pull/1559).
 
-### Align plugin and library output names
+#### Align plugin and library output names
 
 Plugins configured via `vast.plugins` in the configuration file can now be
 specified using either the plugin name or the full path to the shared plugin
@@ -99,7 +99,7 @@ over `libexample` and `/path/to/libexample.so` over `/path/to/libexample`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1527](https://github.com/tenzir/tenzir/pull/1527).
 
-### Prefix plugin library output names with vast-plugin-
+#### Prefix plugin library output names with vast-plugin-
 
 To avoid confusion between the PCAP plugin and libpcap, which both have a
 library file named `libpcap.so`, we now generally prefix the plugin library
@@ -109,7 +109,7 @@ configuration under `vast.plugins` must be adapted accordingly.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1593](https://github.com/tenzir/tenzir/pull/1593).
 
-### Make it possible to run VAST without user configs
+#### Make it possible to run VAST without user configs
 
 The new option `--disable-default-config-dirs` disables the loading of user and
 system configuration, schema, and plugin directories. We use this option
@@ -117,7 +117,7 @@ internally when running integration tests.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1557](https://github.com/tenzir/tenzir/pull/1557).
 
-### Update chat URL in README
+#### Update chat URL in README
 
 The VAST community chat moved from Element to Gitter. Join us at
 [gitter.im/tenzir/vast](https://gitter.im/tenzir/vast) or via Matrix at
@@ -125,19 +125,19 @@ The VAST community chat moved from Element to Gitter. Join us at
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1591](https://github.com/tenzir/tenzir/pull/1591).
 
-### PRs 1514-1574
+#### PRs 1514-1574
 
 The `exporter.hits` metric has been removed.
 
 By [@tobim](https://github.com/tobim) in [#1514](https://github.com/tenzir/tenzir/pull/1514).
 
-### PRs 1499-satta
+#### PRs 1499-satta
 
 VAST now ships with a schema record type for Suricata's `rfb` event type.
 
 By [@satta](https://github.com/satta) in [#1499](https://github.com/tenzir/tenzir/pull/1499).
 
-### Remove deprecated format-specific options
+#### Remove deprecated format-specific options
 
 The previously deprecated usage
 ([#1354](https://github.com/tenzir/vast/pull/1354)) of format-independent
@@ -147,14 +147,14 @@ commands and the `write` and `uds` options for export commands.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1529](https://github.com/tenzir/tenzir/pull/1529).
 
-### Factor common functionality in component plugin
+#### Factor common functionality in component plugin
 
 The status output of *Analyzer Plugins* moved from the `importer.analyzers` key
 into the top-level record.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1544](https://github.com/tenzir/tenzir/pull/1544).
 
-### Move PCAP import/export into a plugin
+#### Move PCAP import/export into a plugin
 
 Plugins must define a separate entrypoint in their build scaffolding using the
 argument `ENTRYPOINT` to the CMake function `VASTRegisterPlugin`. If only a
@@ -163,28 +163,28 @@ single value is given to the argument `SOURCES`, it is interpreted as the
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1549](https://github.com/tenzir/tenzir/pull/1549).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Handle alias types properly for CSV
+#### Handle alias types properly for CSV
 
 The CSV reader no longer crashes when encountering nested type aliases.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1534](https://github.com/tenzir/tenzir/pull/1534).
 
-### Move PCAP import/export into a plugin
+#### Move PCAP import/export into a plugin
 
 Plugin unit tests now correctly load and initialize their respective plugins.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1549](https://github.com/tenzir/tenzir/pull/1549).
 
-### Fix start command detection for spdlog
+#### Fix start command detection for spdlog
 
 Custom commands from plugins ending in `start` no longer try to write to the
 server instead of the client log file.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1530](https://github.com/tenzir/tenzir/pull/1530).
 
-### Ignore spaces before SI prefixes
+#### Ignore spaces before SI prefixes
 
 Spaces before SI prefixes in command line arguments and configuration options
 are now generally ignored, e.g., it is now possible to set the disk monitor
@@ -192,7 +192,7 @@ budgets to `2 GiB` rather than `2GiB`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1590](https://github.com/tenzir/tenzir/pull/1590).
 
-### Multiple node shutdown fixes
+#### Multiple node shutdown fixes
 
 The shutdown logic contained a bug that would make the node fail to terminate
 in case a plugin actor is registered at said node.
@@ -201,7 +201,7 @@ A race condition in the shutdown logic that caused an assertion was fixed.
 
 By [@tobim](https://github.com/tobim) in [#1563](https://github.com/tenzir/tenzir/pull/1563).
 
-### Fix exporter.selectivity for idle periods
+#### Fix exporter.selectivity for idle periods
 
 The `exporter.selectivity` metric is now 1.0 instead of NaN for idle periods.
 
@@ -211,7 +211,7 @@ now rendered as `null`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1574](https://github.com/tenzir/tenzir/pull/1574).
 
-### Deduplicate plugin entrypoint in sources
+#### Deduplicate plugin entrypoint in sources
 
 We fixed a regression that made it impossible to build static binaries from
 outside of the repository root directory.
@@ -222,7 +222,7 @@ sources again.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1573](https://github.com/tenzir/tenzir/pull/1573).
 
-### Use proper full install dirs for system config
+#### Use proper full install dirs for system config
 
 Specifying relative `CMAKE_INSTALL_*DIR` in the build configuration no longer
 causes VAST not to pick up system-wide installed configuration files, schemas,
@@ -233,7 +233,7 @@ instead.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1580](https://github.com/tenzir/tenzir/pull/1580).
 
-### Fix building VAST within a shallow git tree
+#### Fix building VAST within a shallow git tree
 
 VAST now correctly builds within shallow clones of the repository. If the build
 system is unable to determine the correct version from `git-describe`, it now
@@ -241,35 +241,35 @@ always falls back to the version of the last release.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1570](https://github.com/tenzir/tenzir/pull/1570).
 
-### Avoid shutdown when config dirs are not readable
+#### Avoid shutdown when config dirs are not readable
 
 VAST no longer refuses to start when any of the configuration file directories
 is unreadable, e.g., because VAST is running in a sandbox.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1533](https://github.com/tenzir/tenzir/pull/1533).
 
-### Ignore static plugins when specified in config
+#### Ignore static plugins when specified in config
 
 VAST no longer erroneously tries to load explicitly specified plugins
 dynamically that are linked statically.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1528](https://github.com/tenzir/tenzir/pull/1528).
 
-### Fix the timezone shift to UTC for ISO8601 dates
+#### Fix the timezone shift to UTC for ISO8601 dates
 
 A bug in the parsing of ISO8601 formatted dates that incorrectly adjusted the
 time to the UTC timezone has been fixed.
 
 By [@tobim](https://github.com/tobim) in [#1537](https://github.com/tenzir/tenzir/pull/1537).
 
-### Allow for building plugins separately from VAST
+#### Allow for building plugins separately from VAST
 
 Linking against an installed VAST via CMake now correctly resolves VAST's
 dependencies.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1532](https://github.com/tenzir/tenzir/pull/1532).
 
-### Fix out-of-bounds access in command-line parser
+#### Fix out-of-bounds access in command-line parser
 
 The command-line parser no longer crashes when encountering a flag with missing
 value in the last position of a command invocation.

@@ -4,16 +4,16 @@ title: Next
 
 Unreleased changes.
 
-## ✨ Features
+### Features
 
-### Implement `http` operator
+#### Implement `http` operator
 
 We implemented the `http` operator that allows making HTTP/1.1 requests to a
 URL. The operator also allows paginate APIs based on the responses.
 
 By [@raxyte](https://github.com/raxyte) in [#5188](https://github.com/tenzir/tenzir/pull/5188).
 
-### Introduce lambda functions
+#### Introduce lambda functions
 
 TQL now supports lambda expressions. They are supported in the `where` and `map`
 functions on list, and on the newly added `count_if` aggregation function.
@@ -27,23 +27,23 @@ satisfy a given predicate. For example, `[1, 2, 3].count_if(x => x > 1)` returns
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix a segfault in `save_amqp` on connection loss
+#### Fix a segfault in `save_amqp` on connection loss
 
 We fixed a crash in `save_amqp` when trying to send a message after the connection
 was lost.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5226](https://github.com/tenzir/tenzir/pull/5226).
 
-### Fix overflow warning for `-9223372036854775808`
+#### Fix overflow warning for `-9223372036854775808`
 
 The lowest 64-bit integer, `-9223372036854775808`, no longer causes an overflow
 warning.
 
 By [@jachris](https://github.com/jachris) in [#5223](https://github.com/tenzir/tenzir/pull/5223).
 
-### Fix evaluation of `null if true else …`
+#### Fix evaluation of `null if true else …`
 
 The expression `null if true else 42` previously returned `42`. It now correctly
 returns `null`.

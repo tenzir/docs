@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Let empty queries export everything
+#### Let empty queries export everything
 
 The query argument to the export and count commands may now be omitted, which
 causes the commands to operate on all data. Note that this may be a very
@@ -16,7 +16,7 @@ expensive operation, so use with caution.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1879](https://github.com/tenzir/tenzir/pull/1879).
 
-### Add Zeek writer plugin
+#### Add Zeek writer plugin
 
 The `broker` plugin is now a also *writer* plugin on top of being already a
 *reader* plugin. The new plugin enables exporting query results directly into a
@@ -26,14 +26,14 @@ dispatches under the event `VAST::data(layout: string, data: any)`.
 
 By [@mavam](https://github.com/mavam) in [#1863](https://github.com/tenzir/tenzir/pull/1863).
 
-### Add the streaming and query info to the index status
+#### Add the streaming and query info to the index status
 
 The output of `vast status --detailed` now contains information about queries
   that are currently processed in the index.
 
 By [@tobim](https://github.com/tobim) in [#1881](https://github.com/tenzir/tenzir/pull/1881).
 
-### Add tool to regenerate .mdx files
+#### Add tool to regenerate .mdx files
 
 The new tool `mdx-regenerate` allows operators to re-create all `.mdx` files in
 a database directory to the latest file format version while VAST is running.
@@ -42,7 +42,7 @@ the format version.
 
 By [@lava](https://github.com/lava) in [#1866](https://github.com/tenzir/tenzir/pull/1866).
 
-### Bundle an example configuration file with plugins
+#### Bundle an example configuration file with plugins
 
 If present in the plugin source directory, the build scaffolding now
 automatically installs `<plugin>.yaml.example` files, commenting out every line
@@ -51,16 +51,16 @@ modify the installed file in-place.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1860](https://github.com/tenzir/tenzir/pull/1860).
 
-### Show loaded config files in status output
+#### Show loaded config files in status output
 
 Running `vat status --detailed` now lists all loaded configuration files under
 `system.config-files`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1871](https://github.com/tenzir/tenzir/pull/1871).
 
-## 🔄 Changes
+### Changes
 
-### Make partition-local stores the default
+#### Make partition-local stores the default
 
 The default store backend now is `segment-store` in order to enable the use of
 partition transforms in the future. To continue using the (now deprecated)
@@ -68,7 +68,7 @@ legacy store backend, set `vast.store-backend` to archive.
 
 By [@lava](https://github.com/lava) in [#1876](https://github.com/tenzir/tenzir/pull/1876).
 
-### Install example configuration files to datarootdir
+#### Install example configuration files to datarootdir
 
 Example configuration files are now installed to the datarootdir as opposed to
 the sysconfdir in order to avoid overriding previously installed configuration
@@ -76,23 +76,23 @@ files.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1880](https://github.com/tenzir/tenzir/pull/1880).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix possible garbage in status command output
+#### Fix possible garbage in status command output
 
 The status command no longer occasionally contains garbage keys when the VAST
 server is under high load.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1872](https://github.com/tenzir/tenzir/pull/1872).
 
-### Fix response promises for disk monitor deletion
+#### Fix response promises for disk monitor deletion
 
 The disk monitor no longer fails to delete segments of particularly busy
 partitions with the `segment-store` store backend.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1892](https://github.com/tenzir/tenzir/pull/1892).
 
-### Tailor expressions in filter operation
+#### Tailor expressions in filter operation
 
 Import filter expressions now work correctly with queries using field
 extractors, e.g., `vast import suricata 'event_type == "alert"' <
@@ -100,20 +100,20 @@ path/to/eve.json`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1885](https://github.com/tenzir/tenzir/pull/1885).
 
-### Disallow unsupported field meta extractor predicates
+#### Disallow unsupported field meta extractor predicates
 
 Expression predicates of the `#field` type now produce error messages instead of
 empty result sets for operations that are not supported.
 
 By [@tobim](https://github.com/tobim) in [#1886](https://github.com/tenzir/tenzir/pull/1886).
 
-### Fix possible desync in pending queries map
+#### Fix possible desync in pending queries map
 
 The index now correctly cancels pending queries when the requester dies.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1884](https://github.com/tenzir/tenzir/pull/1884).
 
-### Fix ignoring of remote sources and sinks for status
+#### Fix ignoring of remote sources and sinks for status
 
 Remote sources and sinks are no longer erroneously included in the output of
 VAST status.

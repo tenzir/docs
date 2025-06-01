@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Always convert JSON null to VAST nil
+#### Always convert JSON null to VAST nil
 
 The default schema for Suricata has been updated to support the `suricata.ftp`
 and `suricata.ftp_data` event types.
@@ -17,7 +17,7 @@ VAST now prints the location of the configuration file that is used.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1009](https://github.com/tenzir/tenzir/pull/1009).
 
-### Protect DB directory with PID lock
+#### Protect DB directory with PID lock
 
 VAST now writes a PID lock file on startup to prevent multiple server processes
 from accessing the same persistent state. The `pid.lock` file resides in the
@@ -25,9 +25,9 @@ from accessing the same persistent state. The `pid.lock` file resides in the
 
 By [@mavam](https://github.com/mavam) in [#1001](https://github.com/tenzir/tenzir/pull/1001).
 
-## 🔄 Changes
+### Changes
 
-### Rename vector to list
+#### Rename vector to list
 
 The `vector` type has been renamed to `list`. In an effort to streamline the
 type system vocabulary, we favor `list` over `vector` because it's closer to
@@ -36,13 +36,13 @@ existing schemas by changing `vector<T>` to `list<T>`.
 
 By [@mavam](https://github.com/mavam) in [#1016](https://github.com/tenzir/tenzir/pull/1016).
 
-### Allow the '-' in the expression key parser
+#### Allow the '-' in the expression key parser
 
 The expression field parser now allows the '-' character.
 
 By [@tobim](https://github.com/tobim) in [#999](https://github.com/tenzir/tenzir/pull/999).
 
-### Remove set data type
+#### Remove set data type
 
 The `set` type has been removed. Experience with the data model showed that
 there is no strong use case to separate sets from vectors in the core. While
@@ -54,7 +54,7 @@ unambiguously identifies `map` instances.
 
 By [@mavam](https://github.com/mavam) in [#1010](https://github.com/tenzir/tenzir/pull/1010).
 
-### Expand CAF stream slot ids to 32 bits
+#### Expand CAF stream slot ids to 32 bits
 
 We now bundle a patched version of CAF, with a changed ABI. This means that if
 you're linking against the bundled CAF library, you also need to distribute that
@@ -63,15 +63,15 @@ linking against a system version of CAF is still possible and supported.
 
 By [@lava](https://github.com/lava) in [#1020](https://github.com/tenzir/tenzir/pull/1020).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix bug in decoding multi-object MsgPack types
+#### Fix bug in decoding multi-object MsgPack types
 
 MessagePack-encoded table slices now work correctly for nested container types.
 
 By [@mavam](https://github.com/mavam) in [#984](https://github.com/tenzir/tenzir/pull/984).
 
-### Expand CAF stream slot ids to 32 bits
+#### Expand CAF stream slot ids to 32 bits
 
 When running VAST under heavy load, CAF stream slot ids could wrap around after
 a few days and deadlock the system. As a workaround, we extended the slot id bit
@@ -79,21 +79,21 @@ width to make the time until this happens unrealistically large.
 
 By [@lava](https://github.com/lava) in [#1020](https://github.com/tenzir/tenzir/pull/1020).
 
-### Allow the '-' in the expression key parser
+#### Allow the '-' in the expression key parser
 
 A bug in the expression parser prevented the correct parsing of fields starting
 with either 'F' or 'T'.
 
 By [@tobim](https://github.com/tobim) in [#999](https://github.com/tenzir/tenzir/pull/999).
 
-### Terminate exporters when sinks die
+#### Terminate exporters when sinks die
 
 When continuous query in a client process terminated, the node did not clean up
 the corresponding server-side state. This memory leak no longer exists.
 
 By [@mavam](https://github.com/mavam) in [#1006](https://github.com/tenzir/tenzir/pull/1006).
 
-### Support hard-kill for unresponsive actors
+#### Support hard-kill for unresponsive actors
 
 The shutdown process of the server process could potentially hang forever. VAST
 now uses a 2-step procedure that first attempts to terminate all components
@@ -102,21 +102,21 @@ fails after another timeout, the process will call `abort(3)`.
 
 By [@mavam](https://github.com/mavam) in [#1005](https://github.com/tenzir/tenzir/pull/1005).
 
-### Make port-encoding for Arrow host-independent
+#### Make port-encoding for Arrow host-independent
 
 The port encoding for Arrow-encoded table slices is now host-independent and
  always uses network-byte order.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1007](https://github.com/tenzir/tenzir/pull/1007).
 
-### Close file descriptor by default in 'vast::file'
+#### Close file descriptor by default in 'vast::file'
 
 Some file descriptors remained open when they weren't needed any more. This
 descriptor leak has been fixed.
 
 By [@lava](https://github.com/lava) in [#1018](https://github.com/tenzir/tenzir/pull/1018).
 
-### Always convert JSON null to VAST nil
+#### Always convert JSON null to VAST nil
 
 Importing JSON no longer fails for JSON fields containing `null` when the
 corresponding VAST type in the schema is a non-trivial type like
@@ -124,7 +124,7 @@ corresponding VAST type in the schema is a non-trivial type like
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1009](https://github.com/tenzir/tenzir/pull/1009).
 
-### Correct the use of ::read()
+#### Correct the use of ::read()
 
 Incomplete reads have not been handled properly, which manifested for files
 larger than 2GB. On macOS, writing files larger than 2GB may have failed
@@ -132,14 +132,14 @@ previously. VAST now respects OS-specific constraints on the maximum block size.
 
 By [@tobim](https://github.com/tobim) in [#1025](https://github.com/tenzir/tenzir/pull/1025).
 
-### Shutdown node when component startup fails
+#### Shutdown node when component startup fails
 
 VAST did not terminate when a critical component failed during startup. VAST
 now binds the lifetime of the node to all critical components.
 
 By [@mavam](https://github.com/mavam) in [#1028](https://github.com/tenzir/tenzir/pull/1028).
 
-### Don't overwrite index state after startup error
+#### Don't overwrite index state after startup error
 
 VAST would overwrite existing on-disk state data when encountering a partial
 read during startup. This state-corrupting behavior no longer exists.

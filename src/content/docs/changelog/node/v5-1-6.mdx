@@ -9,9 +9,9 @@ sidebar:
 This release adds the ability to extract hour, minute, and day components from
 timestamps.
 
-## ✨ Features
+### Features
 
-### Add `hour`, `minute`, and `second` time component extraction
+#### Add `hour`, `minute`, and `second` time component extraction
 
 The `hour`, `minute`, and `second` functions extract the respective components
 of a `time` value, and compliment the existing `year`, `month`, and `day`
@@ -19,7 +19,7 @@ functions. The `second` function includes subsecond precision.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5190](https://github.com/tenzir/tenzir/pull/5190).
 
-### Add prototype for static platform config
+#### Add prototype for static platform config
 
 Users of the Sovereign Edition of Tenzir can now use
 workspace tokens to connect their Tenzir Nodes to the
@@ -27,9 +27,9 @@ Tenzir Platform.
 
 By [@lava](https://github.com/lava) in [#5149](https://github.com/tenzir/tenzir/pull/5149).
 
-## 🔄 Changes
+### Changes
 
-### Remove deprecated `as_secs()` function
+#### Remove deprecated `as_secs()` function
 
 We removed the deprecated `<duration>.as_secs()` function which has been
 superseded by `<duration>.count_seconds()` quite some time ago. The
@@ -39,16 +39,16 @@ like `count_minutes()`, `count_hours()`, etc.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5190](https://github.com/tenzir/tenzir/pull/5190).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix a hang in `if` for stalled inputs
+#### Fix a hang in `if` for stalled inputs
 
 We fixed a regression in the `if` statement that caused it to indefinitely
 withhold the last batch of events when its input stalled.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5196](https://github.com/tenzir/tenzir/pull/5196).
 
-### Handle assert gracefully in `write_syslog`
+#### Handle assert gracefully in `write_syslog`
 
 We now gracefully handle a panic in `write_syslog`, when `structured_data` does
 not have the expected shape.

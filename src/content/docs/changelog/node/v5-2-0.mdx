@@ -10,9 +10,9 @@ Tenzir Node v5.2 brings our most requested feature to life, adding the ability
 to watch a local filesystem directory or a blob storage bucket for new files
 within a pipeline.
 
-## ✨ Features
+### Features
 
-### Add `from_file` operator
+#### Add `from_file` operator
 
 The new `from_file` operator can be used to read multiple files from a
 potentially remote filesystem using globbing expressions. It also supports
@@ -23,30 +23,30 @@ the incoming byte stream is not valid UTF-8.
 
 By [@jachris](https://github.com/jachris) in [#5203](https://github.com/tenzir/tenzir/pull/5203).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Handle empty files in `read_xsv` & friends
+#### Handle empty files in `read_xsv` & friends
 
 We fixed a bug that caused `read_xsv` & friends to crash when trying to read an
 empty file.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5215](https://github.com/tenzir/tenzir/pull/5215).
 
-### Fix hang for operators with infinite idle timeout
+#### Fix hang for operators with infinite idle timeout
 
 We fixed a hang in the `cache` and `buffer` operators when their input finished.
 This also prevented the node from shutting down cleanly.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5219](https://github.com/tenzir/tenzir/pull/5219).
 
-### Fix a crash in `to_clickhouse` and bump `clickhouse-cpp`
+#### Fix a crash in `to_clickhouse` and bump `clickhouse-cpp`
 
 We fixed a bug in `to_clickhouse` that caused the operator to crash when
 encountering lists.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5221](https://github.com/tenzir/tenzir/pull/5221).
 
-### Add `from_file` operator
+#### Add `from_file` operator
 
 The `read_lines` operator now validates that the incoming lines are UTF-8.
 

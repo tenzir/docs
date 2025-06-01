@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### PRs 1987-1992
+#### PRs 1987-1992
 
 Metrics events now optionally contain a metadata field that is a key-value
 mapping of string to string, allowing for finer-grained introspection. For now
@@ -17,7 +17,7 @@ metrics for query lookup use this feature to include the query ID.
 
 By [@tobim](https://github.com/tobim) in [#1987](https://github.com/tenzir/tenzir/pull/1987).
 
-### Make JSON field selectors configurable
+#### Make JSON field selectors configurable
 
 JSON field selectors are now configurable instead of being hard-coded for
 Suricata Eve JSON and Zeek Streaming JSON. E.g., `vast import json
@@ -27,16 +27,16 @@ indicates its type.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1974](https://github.com/tenzir/tenzir/pull/1974).
 
-### Emit version column along with metrics
+#### Emit version column along with metrics
 
 All metrics events now contain the version of VAST. Additionally, VAST now emits
 startup and shutdown metrics at the start and stop of the VAST server.
 
 By [@6yozo](https://github.com/6yozo) in [#1973](https://github.com/tenzir/tenzir/pull/1973).
 
-## 🔄 Changes
+### Changes
 
-### Type FlatBuffers
+#### Type FlatBuffers
 
 VAST's internal type system has a new on-disk data representation. While we
 still support reading older databases, reverting to an older version of VAST
@@ -52,9 +52,9 @@ rotated out by the disk monitor.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1888](https://github.com/tenzir/tenzir/pull/1888).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix JSON default selector for nested records
+#### Fix JSON default selector for nested records
 
 The field-based default selector of the JSON import now correctly matches types
 with nested record types.

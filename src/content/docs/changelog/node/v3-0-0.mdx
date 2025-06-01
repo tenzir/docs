@@ -6,16 +6,16 @@ sidebar:
     variant: note
 ---
 
-## ✨ Features
+### Features
 
-### Add `vast import arrow` enabling ingestion of arrow IPC format
+#### Add `vast import arrow` enabling ingestion of arrow IPC format
 
 VAST now imports Arrow IPC data, which is the same format it already
 supports for export.
 
 By [@dispanser](https://github.com/dispanser) in [#2707](https://github.com/tenzir/tenzir/pull/2707).
 
-### Add CORS preflight request handling
+#### Add CORS preflight request handling
 
 The experimental web frontend now correctly responds to CORS preflight requests.
 To configure CORS behavior, the new `vast.web.cors-allowed-origin` config option
@@ -23,14 +23,14 @@ can be used.
 
 By [@lava](https://github.com/lava) in [#2944](https://github.com/tenzir/tenzir/pull/2944).
 
-### Support pattern case insensitivity in Sigma plugin
+#### Support pattern case insensitivity in Sigma plugin
 
 The `sigma` plugin now treats Sigma strings as case-insensitive patterns during
 the transpilation process.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2974](https://github.com/tenzir/tenzir/pull/2974).
 
-### Make it easy to create docker images with Nix
+#### Make it easy to create docker images with Nix
 
 We now offer a `tenzir/vast-slim` image as an alternative to the `tenzir/vast`
 image. The image is minimal in size and supports the same features as the
@@ -39,21 +39,21 @@ mounting in additional plugins.
 
 By [@tobim](https://github.com/tobim) in [#2742](https://github.com/tenzir/tenzir/pull/2742).
 
-### Add 'pseudonymize' pipeline operator
+#### Add 'pseudonymize' pipeline operator
 
 The new `pseudonymize` pipeline operator pseudonymizes IP addresses in
 user-specified fields.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2719](https://github.com/tenzir/tenzir/pull/2719).
 
-### Implement support for `:string == /pattern/` queries
+#### Implement support for `:string == /pattern/` queries
 
 Queries of the forms `:string == /pattern/`, `field == /pattern/`, `#type ==
 /pattern/`, and their respective negations now work as expected.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2769](https://github.com/tenzir/tenzir/pull/2769).
 
-### Add options to omit empty values when exporting as JSON
+#### Add options to omit empty values when exporting as JSON
 
 The JSON export format gained the options `--omit-empty-records`,
 `--omit-empty-lists`, and `--omit-empty-maps`, which cause empty records, lists,
@@ -63,7 +63,7 @@ flags at once.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2856](https://github.com/tenzir/tenzir/pull/2856).
 
-### Add 'pipeline' parameter and schematized format to export endpoint
+#### Add 'pipeline' parameter and schematized format to export endpoint
 
 The `/export` family of endpoints now accepts an optional `pipeline`
 parameter to specify an ad-hoc pipeline that should be applied to
@@ -71,28 +71,28 @@ the exported data.
 
 By [@lava](https://github.com/lava) in [#2773](https://github.com/tenzir/tenzir/pull/2773).
 
-### Support case insensitivity in patterns
+#### Support case insensitivity in patterns
 
 Patterns now support case insensitivity by adding `i` to the pattern string,
 e.g. `/^\w{3}$/i`.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2951](https://github.com/tenzir/tenzir/pull/2951).
 
-### Add a new /openapi.json endpoint to the web plugin
+#### Add a new /openapi.json endpoint to the web plugin
 
 The experimental web plugin now serves its own API specification
 at the new '/openapi.json' endpoint.
 
 By [@lava](https://github.com/lava) in [#2981](https://github.com/tenzir/tenzir/pull/2981).
 
-### Eliminate shutdown lag from the signal monitor
+#### Eliminate shutdown lag from the signal monitor
 
 The new `/query` endpoint for the experimental REST API allows users to receive
 query data in multiple steps, as opposed to a oneshot export.
 
 By [@tobim](https://github.com/tobim) in [#2766](https://github.com/tenzir/tenzir/pull/2766).
 
-### Implement `head` and `taste` operators
+#### Implement `head` and `taste` operators
 
 The new `head` and `taste` operators limit results to the specified number of
 events. The `head` operator applies this limit for all events, and the `taste`
@@ -101,7 +101,7 @@ argument, with the default value being 10.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2891](https://github.com/tenzir/tenzir/pull/2891).
 
-### PRs 2877-2904-2907
+#### PRs 2877-2904-2907
 
 The `export` and `import` commands now support an optional pipeline string
 that allows for chaining pipeline operators together and executing such a
@@ -111,14 +111,14 @@ the new pipeline syntax, and the old YAML syntax is deprecated.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2877](https://github.com/tenzir/tenzir/pull/2877).
 
-### Add extractor predicates
+#### Add extractor predicates
 
 Extractors such as `x` and `:T` can now expand to the predicates `x != null`
 and `:T != null`, respectively.
 
 By [@jachris](https://github.com/jachris) in [#2984](https://github.com/tenzir/tenzir/pull/2984).
 
-### Implement a retry mechanism for VAST clients failing to connect to the server
+#### Implement a retry mechanism for VAST clients failing to connect to the server
 
 We changed VAST client processes to attempt connecting to a VAST server multiple
 times until the configured connection timeout (`vast.connection-timeout`,
@@ -130,36 +130,36 @@ retry mechanism.
 
 By [@patszt](https://github.com/patszt) in [#2835](https://github.com/tenzir/tenzir/pull/2835).
 
-### Install Python bindings along with VAST
+#### Install Python bindings along with VAST
 
 VAST installations and packages now include Python bindings in a site-package
 under `<install-prefix>/lib/python*/site-packages/vast`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2636](https://github.com/tenzir/tenzir/pull/2636).
 
-### Add CEF reader plugin
+#### Add CEF reader plugin
 
 The `cef` import format allows for reading events in the Common Event Format
 (CEF) via `vast import cef < cef.log`.
 
 By [@mavam](https://github.com/mavam) in [#2216](https://github.com/tenzir/tenzir/pull/2216).
 
-## 🔄 Changes
+### Changes
 
-### Add 'pseudonymize' pipeline operator
+#### Add 'pseudonymize' pipeline operator
 
 OpenSSL is now a required dependency.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2719](https://github.com/tenzir/tenzir/pull/2719).
 
-### Remove broker plugin
+#### Remove broker plugin
 
 We removed the broker plugin that enabled direct Zeek 3.x log transfer to VAST.
 The plugin will return in the future rewritten for Zeek 5+.
 
 By [@patszt](https://github.com/patszt) in [#2796](https://github.com/tenzir/tenzir/pull/2796).
 
-### PRs 2769-2873
+#### PRs 2769-2873
 
 The match operator `~`, its negation `!~`, and the `pattern` type no longer
 exist. Use queries of the forms `lhs == /rhs/` and `lhs != /rhs/` instead for
@@ -167,7 +167,7 @@ queries using regular expressions.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2769](https://github.com/tenzir/tenzir/pull/2769).
 
-### Replace 'nil' with 'null'
+#### Replace 'nil' with 'null'
 
 The non-value literal in expressions has a new syntax: `null` replaces its old
 representation `nil`. For example, the query `x != nil` is no longer valid; use
@@ -175,7 +175,7 @@ representation `nil`. For example, the query `x != nil` is no longer valid; use
 
 By [@Dakostu](https://github.com/Dakostu) in [#2999](https://github.com/tenzir/tenzir/pull/2999).
 
-### Deprecate `vast.pipeline-triggers`
+#### Deprecate `vast.pipeline-triggers`
 
 The `vast.pipeline-triggers` option is deprecated; while it continues to
 work as-is, support for it will be removed in the next release. Use the
@@ -184,14 +184,14 @@ generally applicable node ingress and egress pipelines in the future.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3008](https://github.com/tenzir/tenzir/pull/3008).
 
-### Remove the `#field` meta extractor
+#### Remove the `#field` meta extractor
 
 The `#field` meta extractor no longer exists. Use `X != null` over `#field ==
 "X"` to check for existence for the field `X`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2776](https://github.com/tenzir/tenzir/pull/2776).
 
-### Rename count, int, real, and addr to uint64, int64, double, and ip respectively
+#### Rename count, int, real, and addr to uint64, int64, double, and ip respectively
 
 The builtin types `count`, `int`, `real`, and `addr` were renamed to `uint64`,
 `int64`, `double`, and `ip` respectively. For backwards-compatibility, VAST
@@ -199,20 +199,20 @@ still supports parsing the old type tokens in schema files.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2864](https://github.com/tenzir/tenzir/pull/2864).
 
-### Use CAF streaming in export command
+#### Use CAF streaming in export command
 
 The `explore` and `pivot` commands are now unavailable. They will be
 reintroduced as pipeline operators in the future.
 
 By [@patszt](https://github.com/patszt) in [#2898](https://github.com/tenzir/tenzir/pull/2898).
 
-### Introduce a potpourri of smaller improvements
+#### Introduce a potpourri of smaller improvements
 
 Plugin names are now case-insensitive.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2832](https://github.com/tenzir/tenzir/pull/2832).
 
-### Introduce a potpourri of smaller improvements
+#### Introduce a potpourri of smaller improvements
 
 VAST now ignores the previously deprecated options `vast.meta-index-fp-rate`,
 `vast.catalog-fp-rate`, `vast.transforms` and `vast.transform-triggers`.
@@ -221,20 +221,20 @@ error rather than a graceful fallback to the default store.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2832](https://github.com/tenzir/tenzir/pull/2832).
 
-### Provide an Ansible role for VAST
+#### Provide an Ansible role for VAST
 
 VAST now comes with a role definition for Ansible. You can find it directly in
 the `ansible` subdirectory.
 
 By [@tobim](https://github.com/tobim) in [#2604](https://github.com/tenzir/tenzir/pull/2604).
 
-### Rename `identity` operator to `pass`
+#### Rename `identity` operator to `pass`
 
 We renamed the `identity` operator to `pass`.
 
 By [@jachris](https://github.com/jachris) in [#2980](https://github.com/tenzir/tenzir/pull/2980).
 
-### PRs 2922-2927
+#### PRs 2922-2927
 
 We removed the frontend prototype bundled with the web plugin Some parts of the
 frontend that we have in development are designed to be closed-source, and it is
@@ -244,7 +244,7 @@ the frontend may return in the future.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2922](https://github.com/tenzir/tenzir/pull/2922).
 
-### Update response format of the /export endpoint
+#### Update response format of the /export endpoint
 
 For the experimental REST API, the result format of the `/export` endpoint
 was modified: The `num_events` key was renamed to `num-events`, and the
@@ -252,7 +252,7 @@ was modified: The `num_events` key was renamed to `num-events`, and the
 
 By [@lava](https://github.com/lava) in [#2899](https://github.com/tenzir/tenzir/pull/2899).
 
-### Change boolean literals to `true` and `false`
+#### Change boolean literals to `true` and `false`
 
 Boolean literals in expressions have a new syntax: `true` and `false` replace
 the old representations `T` and `F`. For example, the query
@@ -261,14 +261,14 @@ true` instead.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2844](https://github.com/tenzir/tenzir/pull/2844).
 
-### Make the map type inaccessible to users
+#### Make the map type inaccessible to users
 
 The `map` type no longer exists: instead of `map<T, U>`, use the equivalent
 `list<record{ key: T, value: U }>`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2976](https://github.com/tenzir/tenzir/pull/2976).
 
-### Switch default TCP port to 5158
+#### Switch default TCP port to 5158
 
 From now on VAST will use TCP port 5158 for its native inter process
 communication. This change avoids collisions from dynamic port allocation on
@@ -276,14 +276,14 @@ Linux systems.
 
 By [@tobim](https://github.com/tobim) in [#2998](https://github.com/tenzir/tenzir/pull/2998).
 
-### PRs 2807-2848
+#### PRs 2807-2848
 
 Blocking imports now imply that ingested data gets persisted to disk before the
 the `vast import` process exits.
 
 By [@tobim](https://github.com/tobim) in [#2807](https://github.com/tenzir/tenzir/pull/2807).
 
-### Remove the /export endpoint
+#### Remove the /export endpoint
 
 The REST API does not contain the `/export` and `/export/with-schemas`
 endpoints anymore. Any previous queries using those endpoints have to be sent
@@ -291,14 +291,14 @@ to the `/query` endpoint now.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2990](https://github.com/tenzir/tenzir/pull/2990).
 
-### Merge the type-registry into the catalog
+#### Merge the type-registry into the catalog
 
 `vast status` no longer shows type registry-related information. Instead, refer
 to `vast show` for detailed type metadata information.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2745](https://github.com/tenzir/tenzir/pull/2745).
 
-### PRs 2693-2923
+#### PRs 2693-2923
 
 Building VAST now requires CAF 0.18.7. VAST supports setting advanced options
 for CAF directly in its configuration file under the `caf` section. If you were
@@ -310,7 +310,7 @@ throughout VAST, especially in high-load scenarios.
 
 By [@patszt](https://github.com/patszt) in [#2693](https://github.com/tenzir/tenzir/pull/2693).
 
-### Align output of the Zeek TSV reader with schemas
+#### Align output of the Zeek TSV reader with schemas
 
 The bundled Zeek schema no longer includes the `_path` field included in Zeek
 JSON. Use `#type == "zeek.foo"` over `_path == "foo"` for querying data ingested
@@ -318,7 +318,7 @@ using `vast import zeek-json`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2887](https://github.com/tenzir/tenzir/pull/2887).
 
-### PRs 2778-2797-2798
+#### PRs 2778-2797-2798
 
 VAST no longer supports reading partitions created with VAST versions older than
 VAST v2.2. Since VAST v2.2, VAST continuously upgrades old partitions to the
@@ -326,7 +326,7 @@ most recent internal format while running.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2778](https://github.com/tenzir/tenzir/pull/2778).
 
-### Move event distribution statistics to the catalog
+#### Move event distribution statistics to the catalog
 
 The per-schema event distribution moved from `index.statistics.layouts` to
 `catalog.schemas`, and additionally includes information about the import time
@@ -335,16 +335,16 @@ events per schema no longer includes events that are yet unpersisted.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2852](https://github.com/tenzir/tenzir/pull/2852).
 
-### Move taxonomy resolution to the catalog
+#### Move taxonomy resolution to the catalog
 
 `vast status` does not work anymore with an embedded node (i.e., spawned with
 the `-N` parameter).
 
 By [@Dakostu](https://github.com/Dakostu) in [#2771](https://github.com/tenzir/tenzir/pull/2771).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix rounding issue when printing duration types
+#### Fix rounding issue when printing duration types
 
 We fixed incorrect printing of human-readable durations in some edge cases.
 E.g., the value 1.999s was rendered as 1.1s instead of the expected 2.0s. This
@@ -353,20 +353,20 @@ messages or the status command.
 
 By [@patszt](https://github.com/patszt) in [#2906](https://github.com/tenzir/tenzir/pull/2906).
 
-### Fix linux PID file check on startup
+#### Fix linux PID file check on startup
 
 VAST no longer ignores existing PID lock files on Linux.
 
 By [@lava](https://github.com/lava) in [#2861](https://github.com/tenzir/tenzir/pull/2861).
 
-### Add a workaround to fix CAF OpenSSL options
+#### Add a workaround to fix CAF OpenSSL options
 
 Options passed in the `caf.openssl` section in the configuration file or as
 `VAST_CAF__OPENSSL__*` environment variables are no longer ignored.
 
 By [@tobim](https://github.com/tobim) in [#2908](https://github.com/tenzir/tenzir/pull/2908).
 
-### Align output of the Zeek TSV reader with schemas
+#### Align output of the Zeek TSV reader with schemas
 
 The Zeek TSV reader now respects the schema files in the bundled `zeek.schema`
 file, and produces data of the same schema as the Zeek JSON reader. E.g.,
@@ -376,14 +376,14 @@ unflattening the data.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2887](https://github.com/tenzir/tenzir/pull/2887).
 
-### Prevent query_processor from hanging when there are no candidate partitions
+#### Prevent query_processor from hanging when there are no candidate partitions
 
 The VAST client will now terminate properly when using the `count` command with
 a query which delivers zero results.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2924](https://github.com/tenzir/tenzir/pull/2924).
 
-### Run start commands asynchronously
+#### Run start commands asynchronously
 
 The start commands specified with the `vast.start.commands` option are now run
 aynchronously. This means that commands that block indefinitely will no longer
@@ -391,21 +391,21 @@ prevent execution of subsequent commands, and allow for correct signal handling.
 
 By [@lava](https://github.com/lava) in [#2868](https://github.com/tenzir/tenzir/pull/2868).
 
-### Bump CAF to version 0.18.6
+#### Bump CAF to version 0.18.6
 
 Attempting to connect with thousands of clients around the same time
 sometimes crashed the VAST server. This no longer occurs.
 
 By [@patszt](https://github.com/patszt) in [#2693](https://github.com/tenzir/tenzir/pull/2693).
 
-### Remove the transformer actor
+#### Remove the transformer actor
 
 Pipelines that reduce the number of events do not prevent `vast export`
 processes that have a `max-events` limit from terminating any more.
 
 By [@Dakostu](https://github.com/Dakostu) in [#2896](https://github.com/tenzir/tenzir/pull/2896).
 
-### Infer non-config types in extend and replace operators
+#### Infer non-config types in extend and replace operators
 
 The `replace` and `extend` pipeline operators wrongly inferred IP address,
 subnet, pattern, and map values as strings. They are now inferred correctly. To
@@ -413,27 +413,27 @@ force a value to be inferred as a string, wrap it inside double quotes.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2768](https://github.com/tenzir/tenzir/pull/2768).
 
-### Trigger new compaction runs immediately on error
+#### Trigger new compaction runs immediately on error
 
 Compaction now retries immediately on failure instead of waiting for the
 configured scan interval to expire again.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#3006](https://github.com/tenzir/tenzir/pull/3006).
 
-### Fix some shutdown issues in the web plugin
+#### Fix some shutdown issues in the web plugin
 
 The web plugin now reacts correctly to CTRL-C by stopping itself.
 
 By [@lava](https://github.com/lava) in [#2860](https://github.com/tenzir/tenzir/pull/2860).
 
-### Fix infinite recursion in the record algebra parser
+#### Fix infinite recursion in the record algebra parser
 
 VAST no longer crashes when it encounters an invalid type expression in a
 schema.
 
 By [@tobim](https://github.com/tobim) in [#2977](https://github.com/tenzir/tenzir/pull/2977).
 
-### Introduce a potpourri of smaller improvements
+#### Introduce a potpourri of smaller improvements
 
 VAST now shuts down instantly when metrics are enabled instead of being held
 alive for up to the duration of the telemetry interval (10 seconds).

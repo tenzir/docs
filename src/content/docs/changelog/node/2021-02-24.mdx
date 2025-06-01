@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### PRs 1330-1376
+#### PRs 1330-1376
 
 The meta index now stores partition synopses in separate files. This will
 decrease restart times for systems with large databases, slow disks and
@@ -17,7 +17,7 @@ allows storing the meta index information in a separate directory.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1330](https://github.com/tenzir/tenzir/pull/1330).
 
-### Enable real-time metrics reporting
+#### Enable real-time metrics reporting
 
 The new options `vast.metrics.file-sink.real-time` and
 `vast.metrics.uds-sink.real-time` enable real-time metrics reporting for the
@@ -25,7 +25,7 @@ file sink and UDS sink respectively.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1368](https://github.com/tenzir/tenzir/pull/1368).
 
-### PRs 1343-1356-ngrodzitski
+#### PRs 1343-1356-ngrodzitski
 
 The JSON import now always relies upon [simdjson](https://simdjson.org). The
 previously experimental `--simdjson` option to the `vast import
@@ -34,7 +34,7 @@ stable.
 
 By [@ngrodzitski](https://github.com/ngrodzitski) in [#1343](https://github.com/tenzir/tenzir/pull/1343).
 
-### PRs 1223-1362
+#### PRs 1223-1362
 
 VAST rotates server logs by default. The new config options
 `vast.disable-log-rotation` and `vast.log-rotation-threshold` can be used to
@@ -42,7 +42,7 @@ control this behaviour.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1223](https://github.com/tenzir/tenzir/pull/1223).
 
-### Enable type extractors to support user defined types
+#### Enable type extractors to support user defined types
 
 The type extractor in the expression language now works with user defined types.
 For example the type `port` is defined as `type port = count` in the base
@@ -50,7 +50,7 @@ schema. This type can now be queried with an expression like `:port == 80`.
 
 By [@tobim](https://github.com/tobim) in [#1382](https://github.com/tenzir/tenzir/pull/1382).
 
-### Add native Sigma support
+#### Add native Sigma support
 
 [Sigma](https://github.com/Neo23x0/sigma) rules are now a valid format to
 represent query expression. VAST parses the `detection` attribute of a rule and
@@ -59,9 +59,9 @@ pass it on standard input, e.g., `vast export json < rule.yaml`.
 
 By [@mavam](https://github.com/mavam) in [#1379](https://github.com/tenzir/tenzir/pull/1379).
 
-## 🔄 Changes
+### Changes
 
-### Render help and documentation on stdout
+#### Render help and documentation on stdout
 
 The output of `vast help` and `vast documentation` now goes to *stdout* instead
 of to stderr. Erroneous invocations of `vast` also print the helptext, but in
@@ -70,14 +70,14 @@ tooling.
 
 By [@mavam](https://github.com/mavam) in [#1385](https://github.com/tenzir/tenzir/pull/1385).
 
-### PRs 1343-1356-ngrodzitski
+#### PRs 1343-1356-ngrodzitski
 
 The `infer` command has an improved heuristic for the number types `int`,
 `count`, and `real`.
 
 By [@ngrodzitski](https://github.com/ngrodzitski) in [#1343](https://github.com/tenzir/tenzir/pull/1343).
 
-### Enable real-time metrics reporting
+#### Enable real-time metrics reporting
 
 All options in `vast.metrics.*` had underscores in their names replaced with
 dashes to align with other options. For example, `vast.metrics.file_sink` is now
@@ -85,7 +85,7 @@ dashes to align with other options. For example, `vast.metrics.file_sink` is now
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1368](https://github.com/tenzir/tenzir/pull/1368).
 
-### PRs 1223-1328-1334-1390-a4z
+#### PRs 1223-1328-1334-1390-a4z
 
 VAST switched to [spdlog >= 1.5.0](https://github.com/gabime/spdlog) for
 logging. For users, this means: The `vast.console-format` and `vast.file-format`
@@ -96,7 +96,7 @@ counterparts are used for logger configuration.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1223](https://github.com/tenzir/tenzir/pull/1223).
 
-### Move options from format to the import subcommand
+#### Move options from format to the import subcommand
 
 The options `listen`, `read`, `schema`, `schema-file`, `type`, and `uds` can
 from now on be supplied to the `import` command directly. Similarly, the options
@@ -105,7 +105,7 @@ be used after the format subcommand, but that usage is deprecated.
 
 By [@tobim](https://github.com/tobim) in [#1354](https://github.com/tenzir/tenzir/pull/1354).
 
-### Expand subnet value predicates
+#### Expand subnet value predicates
 
 The query normalizer interprets value predicates of type `subnet` more broadly:
 given a subnet `S`, the parser expands this to the expression `:subnet == S ||
@@ -114,14 +114,14 @@ a specific subnet.
 
 By [@mavam](https://github.com/mavam) in [#1373](https://github.com/tenzir/tenzir/pull/1373).
 
-### Read user-supplied schema files from config dirs
+#### Read user-supplied schema files from config dirs
 
 User-supplied schema files are now picked up from `<SYSCONFDIR>/vast/schema` and
 `<XDG_CONFIG_HOME>/vast/schema` instead of `<XDG_DATA_HOME>/vast/schema`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1372](https://github.com/tenzir/tenzir/pull/1372).
 
-### Remove long-deprecated code
+#### Remove long-deprecated code
 
 The previously deprecated options `vast.spawn.importer.ids` and
 `vast.schema-paths` no longer work. Furthermore, queries spread over multiple
@@ -129,13 +129,13 @@ arguments are now disallowed instead of triggering a deprecation warning.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1374](https://github.com/tenzir/tenzir/pull/1374).
 
-### Require fmt to be installed separately from spdlog
+#### Require fmt to be installed separately from spdlog
 
 VAST now requires [fmt >= 5.2.1](https://fmt.dev) to be installed.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#1330](https://github.com/tenzir/tenzir/pull/1330).
 
-### Introduce and make use of the timestamp type
+#### Introduce and make use of the timestamp type
 
 The special meaning of the `#timestamp` attribute has been removed from the
 schema language. Timestamps can from now on be marked as such by using the
@@ -146,7 +146,7 @@ longer.
 
 By [@tobim](https://github.com/tobim) in [#1388](https://github.com/tenzir/tenzir/pull/1388).
 
-### Make it easier to reference user defined types in the schema language
+#### Make it easier to reference user defined types in the schema language
 
 Schema parsing now uses a 2-pass loading phase so that type aliases can
 reference other types that are later defined in the same directory.
@@ -156,9 +156,9 @@ directories, but a type can not be defined twice in the same directory.
 
 By [@tobim](https://github.com/tobim) in [#1331](https://github.com/tenzir/tenzir/pull/1331).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Revert "Fix potential race condition between evaluator and partition"
+#### Revert "Fix potential race condition between evaluator and partition"
 
 An ordering issue introduced in
 [#1295](https://github.com/tenzir/vast/pull/1295) that could lead to a segfault
@@ -166,7 +166,7 @@ with long-running queries was reverted.
 
 By [@lava](https://github.com/lava) in [#1381](https://github.com/tenzir/tenzir/pull/1381).
 
-### Let the JSON reader recover from unexpected inputs
+#### Let the JSON reader recover from unexpected inputs
 
 A bug in the new simdjson based JSON reader introduced in
 [#1356](https://github.com/tenzir/vast/pull/1356) could trigger an assertion in

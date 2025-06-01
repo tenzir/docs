@@ -6,18 +6,18 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Allow assigning ids for pipelines manually
+#### Allow assigning ids for pipelines manually
 
 The `/pipeline/create` and `/pipeline/launch` endpoints now accept an optional
 `id` parameter for assigning the pipeline's ID manually.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5026](https://github.com/tenzir/tenzir/pull/5026).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Make `drop` not remove empty records
+#### Make `drop` not remove empty records
 
 Dropping all fields from a record with the `drop` operator no longer removes the
 record itself. For example, `from {x: {y: 0}} | drop x.y` now returns `{x: {}}`
@@ -25,7 +25,7 @@ instead of `{}`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5021](https://github.com/tenzir/tenzir/pull/5021).
 
-### Fix crash in the MSB in merging mode
+#### Fix crash in the MSB in merging mode
 
 We fixed a bug in the `read_xsv` and `parse_xsv` family of operators and
 functions that caused the parser to fail unexpectedly when the data contained
@@ -34,14 +34,14 @@ a list (as specified through the list separator) for fields where the provided
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5028](https://github.com/tenzir/tenzir/pull/5028).
 
-### Fix `tls` option of `to_splunk`
+#### Fix `tls` option of `to_splunk`
 
 Using the `tls` option of the `to_splunk` operator no longer directly emits an
 error.
 
 By [@jachris](https://github.com/jachris) in [#5027](https://github.com/tenzir/tenzir/pull/5027).
 
-### Make UDO resolution order-independent
+#### Make UDO resolution order-independent
 
 The resolution of user-defined operator aliases in the `tenzir.operators`
 section is no longer order-dependent. Previously, an operator `foo` may have
@@ -50,7 +50,7 @@ longer exists.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5029](https://github.com/tenzir/tenzir/pull/5029).
 
-### Fix startup delay in `from_fluent_bit`
+#### Fix startup delay in `from_fluent_bit`
 
 We fixed a bug that caused pipelines with `from_fluent_bit` to not report their
 startup successfully, causing errors when deploying pipelines starting with the

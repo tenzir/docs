@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## ✨ Features
+### Features
 
-### Add a few new aggregation functions for TQL2
+#### Add a few new aggregation functions for TQL2
 
 We added three new, TQL2-exclusive aggregation functions: `first`, `last`, and
 `mode`. The functions return the first, last, and most common non-null value per
@@ -16,9 +16,9 @@ group, respectively.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4679](https://github.com/tenzir/tenzir/pull/4679).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Implement `and` and `or` for `null_type`
+#### Implement `and` and `or` for `null_type`
 
 The boolean operators `and`/`or` now work correctly for the type `null`.
 Previously, `null and false` evaluated to `null`, and a warning was emitted.
@@ -26,7 +26,7 @@ Now, it evaluates to `false` without a warning.
 
 By [@raxyte](https://github.com/raxyte) in [#4689](https://github.com/tenzir/tenzir/pull/4689).
 
-### Ensure cache directory is writable for multiple users
+#### Ensure cache directory is writable for multiple users
 
 Using the `tenzir` process from multiple users on the same host sometimes failed
 because the cache directory was not writable for all users. This no longer
@@ -34,7 +34,7 @@ happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4694](https://github.com/tenzir/tenzir/pull/4694).
 
-### Return instantly in `/serve` if pipeline fails early
+#### Return instantly in `/serve` if pipeline fails early
 
 The `/serve` endpoint now returns instantly when its pipeline fails before the
 endpoint is used for the first time. In the Tenzir Platform this causes the load

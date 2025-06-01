@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Add new loading mechanism for GeoIP context
+#### Add new loading mechanism for GeoIP context
 
 The `geoip` context now supports loading in a MaxMind database with `context
 load <ctx>`. For example, `load s3://my-bucket/file.mmdb | context load my-ctx`
@@ -16,7 +16,7 @@ makes the GeoIP context use a remotely stored database.
 
 By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4158](https://github.com/tenzir/tenzir/pull/4158).
 
-### Add LEEF parser
+#### Add LEEF parser
 
 The new `leef` parser supports parsing Log Event Extended Format (LEEF) version
 1.0 and 2.0 events, e.g.,
@@ -24,7 +24,7 @@ The new `leef` parser supports parsing Log Event Extended Format (LEEF) version
 
 By [@mavam](https://github.com/mavam) in [#4178](https://github.com/tenzir/tenzir/pull/4178).
 
-### Add `cron` operator
+#### Add `cron` operator
 
 The `cron "<cron expression>"` operator modifier executes an operator
 on a schedule.
@@ -33,7 +33,7 @@ queries an endpoint on every 10th minute, Monday through Friday.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#4192](https://github.com/tenzir/tenzir/pull/4192).
 
-### Add `--precise` mode to JSON parser
+#### Add `--precise` mode to JSON parser
 
 The `json` parser has a new `--precise` flag, which ensures that the layout of
 the emitted events precisely match the input. For example, it guarantees that no
@@ -42,9 +42,9 @@ using `read gelf`.
 
 By [@jachris](https://github.com/jachris) in [#4169](https://github.com/tenzir/tenzir/pull/4169).
 
-## 🔄 Changes
+### Changes
 
-### Remove the --clear parameter for lookup table contexts
+#### Remove the --clear parameter for lookup table contexts
 
 The `--clear` parameter for clearing lookup table contexts during an update no
 longer exists. It has been superseded by the more robust `context reset`
@@ -52,7 +52,7 @@ operator.
 
 By [@Dakostu](https://github.com/Dakostu) in [#4179](https://github.com/tenzir/tenzir/pull/4179).
 
-### Fix a hang on shutdown and remove deprecated things
+#### Fix a hang on shutdown and remove deprecated things
 
 The deprecated `matcher` plugin no longer exists. Use the superior `lookup`
 operator and contexts instead.
@@ -63,9 +63,9 @@ and `export | …`, respectively.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4187](https://github.com/tenzir/tenzir/pull/4187).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Add LEEF parser
+#### Add LEEF parser
 
 The `syslog` parser no longer crops messages at unprintable characters, such as
 tab (`\t`).
@@ -75,14 +75,14 @@ the content, fixing issues when combined with CEF and LEEF.
 
 By [@mavam](https://github.com/mavam) in [#4178](https://github.com/tenzir/tenzir/pull/4178).
 
-### Fix CSV/XSV format printing the header once for each batch
+#### Fix CSV/XSV format printing the header once for each batch
 
 The CSV, TSV, and SSV printers no longer erroneously print the header multiple
 times when more than one event batch of events arrives.
 
 By [@jachris](https://github.com/jachris) in [#4195](https://github.com/tenzir/tenzir/pull/4195).
 
-### Update the repository to include retry delay-related bug fixes
+#### Update the repository to include retry delay-related bug fixes
 
 Some pipelines did not restart on failure. The retry mechanism now works for all
 kinds of failures.
@@ -93,7 +93,7 @@ the stopped state.
 
 By [@Dakostu](https://github.com/Dakostu) in [#4184](https://github.com/tenzir/tenzir/pull/4184).
 
-### Fix a hang on shutdown and remove deprecated things
+#### Fix a hang on shutdown and remove deprecated things
 
 Startup failures caused by invalid pipelines or contexts deployed as code in the
 configuration file sometimes caused the node to hang instead of shutting down
@@ -101,7 +101,7 @@ with an error message. The node now shuts down as expected when this happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4187](https://github.com/tenzir/tenzir/pull/4187).
 
-### Make python venv creation independent from the user
+#### Make python venv creation independent from the user
 
 A permission error caused `python` operator to fail when it was previously used
 by another system user with the same set of requirements. There now is a one

@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Enable selective deletion of lookup table entries
+#### Enable selective deletion of lookup table entries
 
 For `lookup-table` contexts, the new `--erase` option for `context update`
 enables selective deletion of lookup table entries.
@@ -18,14 +18,14 @@ first field in the input when no field is explicitly specified.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4274](https://github.com/tenzir/tenzir/pull/4274).
 
-### Add percentile aggregation functions
+#### Add percentile aggregation functions
 
 The `p99`, `p95`, `p90`, `p75`, and `p50` aggregation functions calculate
 commonly used percentiles of grouped values in the `summarize` operator.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4273](https://github.com/tenzir/tenzir/pull/4273).
 
-### Support multiple publishers
+#### Support multiple publishers
 
 The `publish` operator's topics no longer have to be unique. Instead, any number
 of pipelines may use the `publish` operator with the same topic. This enables
@@ -44,18 +44,18 @@ limits the memory usage of `publish` operators and prevents data loss.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4270](https://github.com/tenzir/tenzir/pull/4270).
 
-## 🔄 Changes
+### Changes
 
-### Add percentile aggregation functions
+#### Add percentile aggregation functions
 
 The `approximate_median` aggregation function is now called `median`. We found
 the longer name, despite being more accurate, to be rather unintuitive.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4273](https://github.com/tenzir/tenzir/pull/4273).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Handle loading of configured and non-configured contexts with the same name
+#### Handle loading of configured and non-configured contexts with the same name
 
 Configured and non-configured contexts with the same name will not cause
 non-deterministic behavior upon loading anymore. The node will shut down
@@ -63,7 +63,7 @@ instead.
 
 By [@Dakostu](https://github.com/Dakostu) in [#4224](https://github.com/tenzir/tenzir/pull/4224).
 
-### Evaluate `ip == subnet` predicates
+#### Evaluate `ip == subnet` predicates
 
 Predicates of the form `ip == subnet` and `ip in [subnet1, subnet2, …]` now
 work as expected.

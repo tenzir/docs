@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Add a global ca-certificates config option
+#### Add a global ca-certificates config option
 
 We introduced common TLS settings for all operators that support TLS. The Tenzir
 config now has a key `cacert`, which will set the CA certificate file for all
@@ -17,28 +17,28 @@ system.
 
 By [@tobim](https://github.com/tobim) in [#5022](https://github.com/tenzir/tenzir/pull/5022).
 
-### Add `to_clickhouse` operator
+#### Add `to_clickhouse` operator
 
 We have added a new `to_clickhouse` operator, which enables you to easily send
 events to ClickHouse.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5032](https://github.com/tenzir/tenzir/pull/5032).
 
-### Port `load_gcs` and `save_gcs` to TQL2
+#### Port `load_gcs` and `save_gcs` to TQL2
 
 The `load_gcs` and `save_gcs` operators are now available in TQL2 to interact
 with Google Cloud Storage.
 
 By [@raxyte](https://github.com/raxyte) in [#5054](https://github.com/tenzir/tenzir/pull/5054).
 
-### Implement an `assert_throughput` operator
+#### Implement an `assert_throughput` operator
 
 The new `assert_throughput` operators allows for checking whether a pipeline
 meets the minimum expected throughput at any place in the pipeline.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5055](https://github.com/tenzir/tenzir/pull/5055).
 
-### Introduce `metrics "pipeline"`
+#### Introduce `metrics "pipeline"`
 
 `metrics "pipeline"` provides an easy way to view the ingress and egress of
 pipelines. The new metrics show the ingress and egress of every pipeline in
@@ -46,9 +46,9 @@ windows of ten seconds.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5024](https://github.com/tenzir/tenzir/pull/5024).
 
-## 🔄 Changes
+### Changes
 
-### Add a global ca-certificates config option
+#### Add a global ca-certificates config option
 
 The `skip_host_verification` option has been removed from the `load_http`,
 `save_email` and `save_http` operators. Its functionality has been merged into
@@ -56,7 +56,7 @@ the `skip_peer_verification` option.
 
 By [@tobim](https://github.com/tobim) in [#5022](https://github.com/tenzir/tenzir/pull/5022).
 
-### Introduce `metrics "pipeline"`
+#### Introduce `metrics "pipeline"`
 
 `metrics "operator"` is now deprecated. Use `metrics "pipeline"` instead, which
 offers a pre-aggregated view of pipeline metrics. We plan to remove operator
@@ -65,9 +65,9 @@ deployments.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5024](https://github.com/tenzir/tenzir/pull/5024).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Fix passing string params to `{from,to}_fluent_bit`
+#### Fix passing string params to `{from,to}_fluent_bit`
 
 We fixed a regression that caused strings passed as options to the
 `from_fluent_bit` and `to_fluent_bit` operators to incorrectly be surrounded by
@@ -78,14 +78,14 @@ engine as an error. This no longer happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5053](https://github.com/tenzir/tenzir/pull/5053).
 
-### Fix bug that caused `read_zeek_tsv` to produce invalid fields
+#### Fix bug that caused `read_zeek_tsv` to produce invalid fields
 
 The `read_zeek_tsv` operator sometimes produced an invalid field with the name
 `\0` for types without a schema specified. This no longer happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5052](https://github.com/tenzir/tenzir/pull/5052).
 
-### Fix crash in `from "path/to/file.ndjson"`
+#### Fix crash in `from "path/to/file.ndjson"`
 
 The `from` operator no longer incorrectly attempts to use parsers with a known
 file extension that is a suffix of the actual file extension. For example, `from

@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### PRs 4212-satta
+#### PRs 4212-satta
 
 The `amqp` connector now properly signals more errors caused, for example, by
 networking issues. This enables pipelines using this connector to trigger their
@@ -16,7 +16,7 @@ retry behavior.
 
 By [@satta](https://github.com/satta) in [#4212](https://github.com/tenzir/tenzir/pull/4212).
 
-### Improve `slice` with positive begin and negative end
+#### Improve `slice` with positive begin and negative end
 
 The `slice` operator no longer waits for all input to arrive when used with a
 positive begin and a negative (or missing) end value, which rendered it unusable
@@ -24,14 +24,14 @@ with infinite inputs. Instead, the operator now yields results earlier.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4210](https://github.com/tenzir/tenzir/pull/4210).
 
-### Relax `transform_columns`
+#### Relax `transform_columns`
 
 The `enrich`, `drop`, `extend`, `replace`, and `deduplicate` operators failed
 for empty input events. This no longer happens.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4215](https://github.com/tenzir/tenzir/pull/4215).
 
-### Remove stream managers when decommissioning partitions
+#### Remove stream managers when decommissioning partitions
 
 The node's CPU usage increased ever so slightly with every persisted partition,
 eventually causing imports and exports to get stuck. This no longer happens.

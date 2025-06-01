@@ -6,9 +6,9 @@ sidebar:
     variant: success
 ---
 
-## ✨ Features
+### Features
 
-### Summarize operator with pluggable aggregation functions
+#### Summarize operator with pluggable aggregation functions
 
 The `summarize` operator supports three new aggregation functions: `sample`
 takes the first value in every group, `distinct` filters out duplicate values,
@@ -16,7 +16,7 @@ and `count` yields the number of values.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2417](https://github.com/tenzir/tenzir/pull/2417).
 
-### Implement a `flush` command
+#### Implement a `flush` command
 
 The new `flush` command causes VAST to decommission all currently active
 partitions, i.e., write all active partitions to disk immediately regardless of
@@ -27,14 +27,14 @@ available for operations that only work on persisted passive partitions. The
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2396](https://github.com/tenzir/tenzir/pull/2396).
 
-### Introduce `select` / `replace` / `extend` operators
+#### Introduce `select` / `replace` / `extend` operators
 
 The new `extend` pipeline operator allows for adding new fields with fixed
 values to data.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2423](https://github.com/tenzir/tenzir/pull/2423).
 
-### Run commands from scripts
+#### Run commands from scripts
 
 The cloud execution commands (`run-lambda` and `execute-command`) now accept
 scripts from file-like handles. To improve the usability of this feature, the
@@ -42,7 +42,7 @@ whole host file system is now mounted into the CLI container.
 
 By [@rdettai](https://github.com/rdettai) in [#2446](https://github.com/tenzir/tenzir/pull/2446).
 
-### Support dropping entire schemas in `drop` operator
+#### Support dropping entire schemas in `drop` operator
 
 The `drop` pipeline operator now drops entire schemas spcefied by name in the
 `schemas` configuration key in addition to dropping fields by extractors in the
@@ -50,16 +50,16 @@ The `drop` pipeline operator now drops entire schemas spcefied by name in the
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2419](https://github.com/tenzir/tenzir/pull/2419).
 
-## 🔄 Changes
+### Changes
 
-### Add clean command
+#### Add clean command
 
 An `init` command was added to `vast-cloud` to help getting out of inconsistent
 Terraform states.
 
 By [@rdettai](https://github.com/rdettai) in [#2435](https://github.com/tenzir/tenzir/pull/2435).
 
-### Implement Apache Parquet & Apache Feather V2 stores
+#### Implement Apache Parquet & Apache Feather V2 stores
 
 Metrics for VAST's store lookups now use the keys
 `{active,passive}-store.lookup.{runtime,hits}`. The store type metadata field
@@ -68,14 +68,14 @@ now distinguishes between the various supported store types, e.g., `parquet`,
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2413](https://github.com/tenzir/tenzir/pull/2413).
 
-### Rename transform to pipeline
+#### Rename transform to pipeline
 
 Transforms are now called pipelines. In your configuration, replace `transform`
 with `pipeline` in all keys.
 
 By [@dispanser](https://github.com/dispanser) in [#2429](https://github.com/tenzir/tenzir/pull/2429).
 
-### Introduce `select` / `replace` / `extend` operators
+#### Introduce `select` / `replace` / `extend` operators
 
 The `put` pipeline operator is now called `select`, as we've abandoned plans to
 integrate the functionality of `replace` into it.
@@ -85,7 +85,7 @@ configuration, which aligns the behavior with other operators.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2423](https://github.com/tenzir/tenzir/pull/2423).
 
-### Summarize operator with pluggable aggregation functions
+#### Summarize operator with pluggable aggregation functions
 
 The `summarize` pipeline operator is now a builtin; the previously bundled
 `summarize` plugin no longer exists. Aggregation functions in the `summarize`
@@ -97,44 +97,44 @@ The undocumented `count` pipeline operator no longer exists.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2417](https://github.com/tenzir/tenzir/pull/2417).
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Make partition deletion resilient against oversize
+#### Make partition deletion resilient against oversize
 
 VAST is now able to detect corrupt index files and will attempt to repair them
 on startup.
 
 By [@tobim](https://github.com/tobim) in [#2431](https://github.com/tenzir/tenzir/pull/2431).
 
-### Make transform application transactional
+#### Make transform application transactional
 
 We fixed a race condition when VAST crashed while applying a partition
 transform, leading to data duplication.
 
 By [@lava](https://github.com/lava) in [#2465](https://github.com/tenzir/tenzir/pull/2465).
 
-### Properly indicate failure in the rebuild command
+#### Properly indicate failure in the rebuild command
 
 The rebuild command no longer crashes on failure, and displays the encountered
 error instead.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2466](https://github.com/tenzir/tenzir/pull/2466).
 
-### Fix missing options sometimes not causing an error
+#### Fix missing options sometimes not causing an error
 
 Missing arguments for the `--plugins`, `--plugin-dirs`, and `--schema-dirs`
 command line options no longer cause VAST to crash occasionally.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2470](https://github.com/tenzir/tenzir/pull/2470).
 
-### Fix `vast.export.json.omit-nulls` for nested records
+#### Fix `vast.export.json.omit-nulls` for nested records
 
 The JSON export with `--omit-nulls` now correctly handles nested records whose
 first field is `null` instead of dropping them entirely.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#2447](https://github.com/tenzir/tenzir/pull/2447).
 
-### Render reals with at least one decimal place
+#### Render reals with at least one decimal place
 
 VAST will export `real` values in JSON consistently with at least one decimal
 place.

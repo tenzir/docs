@@ -6,9 +6,9 @@ sidebar:
     variant: tip
 ---
 
-## 🐛 Bug Fixes
+### Bug Fixes
 
-### Properly recover corrupted partition data on startup
+#### Properly recover corrupted partition data on startup
 
 VAST now properly regenerates any corrupted, oversized partitions it encounters
 during startup, provided that the corresponding store files are available. These
@@ -17,7 +17,7 @@ configurations with an increased maximum partition size.
 
 By [@lava](https://github.com/lava) in [#2631](https://github.com/tenzir/tenzir/pull/2631).
 
-### Abort the response promise if running into oversized partitions
+#### Abort the response promise if running into oversized partitions
 
 We fixed an indefinite hang that occurred when attempting to apply a pipeline to
 a partition that is not a valid flatbuffer.
