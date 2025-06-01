@@ -156,6 +156,7 @@ export const referenceFunctions = [
   "reference/functions/variance",
   "reference/functions/weeks",
   "reference/functions/where",
+  "reference/functions/year",
   "reference/functions/years",
   "reference/functions/zip"
 ];
