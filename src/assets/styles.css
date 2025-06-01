@@ -64,11 +64,123 @@ html[data-theme="dark"] {
 
 /* Global Styles and Starlight Integration */
 
-/* Starlight Asides */
+/* Starlight Asides with Tenzir Semantic Colors */
 .starlight-aside {
-  border: 1px solid var(--sl-color-asides-border);
   border-radius: var(--tnz-radius);
-  color: var(--sl-color-asides-text-accent);
+  border-width: 1px;
+  border-style: solid;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+/* Note (default) - Lightblue */
+.starlight-aside--note {
+  background-color: var(--tnz-lightblue-200);
+  border-color: var(--tnz-lightblue-400);
+  color: var(--tnz-neutral-800);
+}
+
+.starlight-aside--note .starlight-aside__icon {
+  color: var(--tnz-lightblue-600);
+}
+
+.starlight-aside--note .starlight-aside__title {
+  color: var(--tnz-lightblue-600);
+}
+
+/* Tip - Green */
+.starlight-aside--tip {
+  background-color: var(--tnz-green-200);
+  border-color: var(--tnz-green-400);
+  color: var(--tnz-neutral-800);
+}
+
+.starlight-aside--tip .starlight-aside__icon {
+  color: var(--tnz-green-600);
+}
+
+.starlight-aside--tip .starlight-aside__title {
+  color: var(--tnz-green-600);
+}
+
+/* Caution - Yellow */
+.starlight-aside--caution {
+  background-color: var(--tnz-yellow-200);
+  border-color: var(--tnz-yellow-400);
+  color: var(--tnz-neutral-800);
+}
+
+.starlight-aside--caution .starlight-aside__icon {
+  color: var(--tnz-yellow-600);
+}
+
+.starlight-aside--caution .starlight-aside__title {
+  color: var(--tnz-yellow-600);
+}
+
+/* Danger - Red */
+.starlight-aside--danger {
+  background-color: var(--tnz-red-200);
+  border-color: var(--tnz-red-400);
+  color: var(--tnz-neutral-800);
+}
+
+.starlight-aside--danger .starlight-aside__icon {
+  color: var(--tnz-red-600);
+}
+
+.starlight-aside--danger .starlight-aside__title {
+  color: var(--tnz-red-600);
+}
+
+/* Dark mode adjustments for asides */
+:root[data-theme="dark"] .starlight-aside--note {
+  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 15%, var(--sl-color-bg));
+  border-color: var(--tnz-lightblue-500);
+  color: var(--sl-color-white);
+}
+
+:root[data-theme="dark"] .starlight-aside--tip {
+  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--sl-color-bg));
+  border-color: var(--tnz-green-500);
+  color: var(--sl-color-white);
+}
+
+:root[data-theme="dark"] .starlight-aside--caution {
+  background-color: color-mix(in srgb, var(--tnz-yellow-600) 15%, var(--sl-color-bg));
+  border-color: var(--tnz-yellow-500);
+  color: var(--sl-color-white);
+}
+
+:root[data-theme="dark"] .starlight-aside--danger {
+  background-color: color-mix(in srgb, var(--tnz-red-600) 15%, var(--sl-color-bg));
+  border-color: var(--tnz-red-500);
+  color: var(--sl-color-white);
+}
+
+/* Light mode adjustments for better contrast */
+:root[data-theme="light"] .starlight-aside {
+  color: var(--tnz-neutral-800);
+}
+
+:root[data-theme="light"] .starlight-aside--note {
+  background-color: color-mix(in srgb, var(--tnz-lightblue-200) 50%, white);
+  border-color: var(--tnz-lightblue-500);
+}
+
+:root[data-theme="light"] .starlight-aside--tip {
+  background-color: color-mix(in srgb, var(--tnz-green-200) 50%, white);
+  border-color: var(--tnz-green-500);
+}
+
+:root[data-theme="light"] .starlight-aside--caution {
+  background-color: color-mix(in srgb, var(--tnz-yellow-200) 50%, white);
+  border-color: var(--tnz-yellow-500);
+}
+
+:root[data-theme="light"] .starlight-aside--danger {
+  background-color: color-mix(in srgb, var(--tnz-red-200) 50%, white);
+  border-color: var(--tnz-red-500);
 }
 
 /* Markdown content cards */
