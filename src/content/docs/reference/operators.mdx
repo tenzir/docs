@@ -1307,186 +1307,6 @@ sockets
 
 </CardGrid>
 
-### Bytes
-
-<CardGrid>
-
-<ReferenceCard title="load_amqp" description="Loads a byte stream via AMQP messages." href="/reference/operators/load_amqp">
-
-```tql
-load_amqp
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_azure_blob_storage" description="Loads bytes from Azure Blob Storage." href="/reference/operators/load_azure_blob_storage">
-
-```tql
-load_azure_blob_storage "abfs://container/file"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_file" description="Loads the contents of the file at `path` as a byte stream." href="/reference/operators/load_file">
-
-```tql
-load_file "/tmp/data.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_ftp" description="Loads a byte stream via FTP." href="/reference/operators/load_ftp">
-
-```tql
-load_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
-
-```tql
-load_gcs "gs://bucket/object.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes." href="/reference/operators/load_google_cloud_pubsub">
-
-```tql
-load_google_cloud_pubsub project_id="my-project"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_http" description="Loads a byte stream via HTTP." href="/reference/operators/load_http">
-
-```tql
-load_http "example.org", params={n: 5}
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_kafka" description="Loads a byte stream from a Apache Kafka topic." href="/reference/operators/load_kafka">
-
-```tql
-load_kafka topic="example"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_nic" description="Loads bytes from a network interface card (NIC)." href="/reference/operators/load_nic">
-
-```tql
-load_nic "eth0"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_s3" description="Loads from an Amazon S3 object." href="/reference/operators/load_s3">
-
-```tql
-load_s3 "s3://my-bucket/obj.csv"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_sqs" description="Loads bytes from [Amazon SQS][sqs] queues." href="/reference/operators/load_sqs">
-
-```tql
-load_sqs "sqs://tenzir"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_stdin" description="Accepts bytes from standard input." href="/reference/operators/load_stdin">
-
-```tql
-load_stdin
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_tcp" description="Loads bytes from a TCP or TLS connection." href="/reference/operators/load_tcp">
-
-```tql
-load_tcp "0.0.0.0:8090" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_udp" description="Loads bytes from a UDP socket." href="/reference/operators/load_udp">
-
-```tql
-load_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
-
-```tql
-load_zmq
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-### Events
-
-<CardGrid>
-
-<ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
-
-```tql
-from "data.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_file" description="Reads one or multiple files from a filesystem." href="/reference/operators/from_file">
-
-```tql
-from_file "s3://data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_fluent_bit" description="Receives events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/from_fluent_bit">
-
-```tql
-from_fluent_bit "opentelemetry"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_http" description="Receives HTTP/1.1 requests." href="/reference/operators/from_http">
-
-```tql
-from_http "0.0.0.0:8080
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_opensearch" description="Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/)." href="/reference/operators/from_opensearch">
-
-```tql
-from_opensearch
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
-
-```tql
-from_velociraptor subscribe="Windows"
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
 ## Internals
 
 <CardGrid>
@@ -1645,326 +1465,6 @@ timeshift ts, start=2020-01-01
 
 ```tql
 unroll names
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-### Inspection
-
-<CardGrid>
-
-<ReferenceCard title="diagnostics" description="Retrieves diagnostic events from a Tenzir node." href="/reference/operators/diagnostics">
-
-```tql
-diagnostics
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="metrics" description="Retrieves metrics events from a Tenzir node." href="/reference/operators/metrics">
-
-```tql
-metrics "cpu"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="openapi" description="Shows the node's OpenAPI specification." href="/reference/operators/openapi">
-
-```tql
-openapi
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="plugins" description="Shows all available plugins and built-ins." href="/reference/operators/plugins">
-
-```tql
-plugins
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="version" description="Shows the current version." href="/reference/operators/version">
-
-```tql
-version
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-### Storage Engine
-
-<CardGrid>
-
-<ReferenceCard title="export" description="Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import)." href="/reference/operators/export">
-
-```tql
-export
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="fields" description="Retrieves all fields stored at a node." href="/reference/operators/fields">
-
-```tql
-fields
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="import" description="Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export)." href="/reference/operators/import">
-
-```tql
-import
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="partitions" description="Retrieves metadata about events stored at a node." href="/reference/operators/partitions">
-
-```tql
-partitions src_ip == 1.2.3.4
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="schemas" description="Retrieves all schemas for events stored at a node." href="/reference/operators/schemas">
-
-```tql
-schemas
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-### Bytes
-
-<CardGrid>
-
-<ReferenceCard title="save_amqp" description="Saves a byte stream via AMQP messages." href="/reference/operators/save_amqp">
-
-```tql
-save_amqp
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_azure_blob_storage" description="Saves bytes to Azure Blob Storage." href="/reference/operators/save_azure_blob_storage">
-
-```tql
-save_azure_blob_storage "abfs://container/file"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_email" description="Saves bytes through an SMTP server." href="/reference/operators/save_email">
-
-```tql
-save_email "user@example.org"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_file" description="Writes a byte stream to a file." href="/reference/operators/save_file">
-
-```tql
-save_file "/tmp/out.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_ftp" description="Saves a byte stream via FTP." href="/reference/operators/save_ftp">
-
-```tql
-save_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
-
-```tql
-save_gcs "gs://bucket/object.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_google_cloud_pubsub" description="Publishes to a Google Cloud Pub/Sub topic." href="/reference/operators/save_google_cloud_pubsub">
-
-```tql
-save_google_cloud_pubsub project_id="my-project"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_http" description="Sends a byte stream via HTTP." href="/reference/operators/save_http">
-
-```tql
-save_http "example.org/api"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_kafka" description="Saves a byte stream to a Apache Kafka topic." href="/reference/operators/save_kafka">
-
-```tql
-save_kafka topic="example"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_s3" description="Saves bytes to an Amazon S3 object." href="/reference/operators/save_s3">
-
-```tql
-save_s3 "s3://my-bucket/obj.csv"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_sqs" description="Saves bytes to [Amazon SQS][sqs] queues." href="/reference/operators/save_sqs">
-
-```tql
-save_sqs "sqs://tenzir"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_stdout" description="Writes a byte stream to standard output." href="/reference/operators/save_stdout">
-
-```tql
-save_stdout
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_tcp" description="Saves bytes to a TCP or TLS connection." href="/reference/operators/save_tcp">
-
-```tql
-save_tcp "0.0.0.0:8090", tls=true
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_udp" description="Saves bytes to a UDP socket." href="/reference/operators/save_udp">
-
-```tql
-save_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="save_zmq" description="Sends bytes as ZeroMQ messages." href="/reference/operators/save_zmq">
-
-```tql
-save_zmq
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-### Events
-
-<CardGrid>
-
-<ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
-
-```tql
-to "output.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_asl" description="Sends events to [Amazon Security Lake (ASL)][asl]." href="/reference/operators/to_asl">
-
-```tql
-to_asl "s3://…"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_azure_log_analytics" description="Sends events to the [Microsoft Azure Logs Ingestion API][api]." href="/reference/operators/to_azure_log_analytics">
-
-```tql
-to_azure_log_analytics tenant_id="...", workspace_id="..."
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
-
-```tql
-to_clickhouse table="my_table"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_fluent_bit" description="Sends events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/to_fluent_bit">
-
-```tql
-to_fluent_bit "elasticsearch" …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_logging" description="Sends events to [Google Cloud Logging](https://cloud.google.com/logging)." href="/reference/operators/to_google_cloud_logging">
-
-```tql
-to_google_cloud_logging …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_logging" description="Sends events to **Google Cloud Logging**." href="/reference/operators/to_google_cloud_logging">
-
-```tql
-to_google_cloud_logging …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
-
-```tql
-to_google_secops …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_hive" description="Writes events to a URI using hive partitioning." href="/reference/operators/to_hive">
-
-```tql
-to_hive "s3://…", partition_by=[x]
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_opensearch" description="Sends events to an OpenSearch-compatible Bulk API." href="/reference/operators/to_opensearch">
-
-```tql
-to_opensearch "localhost:9200", …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_snowflake" description="Sends events to a Snowflake database." href="/reference/operators/to_snowflake">
-
-```tql
-to_snowflake account_identifier="…
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_splunk" description="Sends events to a Splunk [HTTP Event Collector (HEC)][hec]." href="/reference/operators/to_splunk">
-
-```tql
-to_splunk "localhost:8088", …
 ```
 
 </ReferenceCard>
@@ -2349,6 +1849,509 @@ write_yaml
 
 ```tql
 write_zeek_tsv
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Inputs
+
+### Bytes
+
+<CardGrid>
+
+<ReferenceCard title="load_amqp" description="Loads a byte stream via AMQP messages." href="/reference/operators/load_amqp">
+
+```tql
+load_amqp
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_azure_blob_storage" description="Loads bytes from Azure Blob Storage." href="/reference/operators/load_azure_blob_storage">
+
+```tql
+load_azure_blob_storage "abfs://container/file"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_file" description="Loads the contents of the file at `path` as a byte stream." href="/reference/operators/load_file">
+
+```tql
+load_file "/tmp/data.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_ftp" description="Loads a byte stream via FTP." href="/reference/operators/load_ftp">
+
+```tql
+load_ftp "ftp.example.org"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
+
+```tql
+load_gcs "gs://bucket/object.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes." href="/reference/operators/load_google_cloud_pubsub">
+
+```tql
+load_google_cloud_pubsub project_id="my-project"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_http" description="Loads a byte stream via HTTP." href="/reference/operators/load_http">
+
+```tql
+load_http "example.org", params={n: 5}
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_kafka" description="Loads a byte stream from a Apache Kafka topic." href="/reference/operators/load_kafka">
+
+```tql
+load_kafka topic="example"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_nic" description="Loads bytes from a network interface card (NIC)." href="/reference/operators/load_nic">
+
+```tql
+load_nic "eth0"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_s3" description="Loads from an Amazon S3 object." href="/reference/operators/load_s3">
+
+```tql
+load_s3 "s3://my-bucket/obj.csv"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_sqs" description="Loads bytes from [Amazon SQS][sqs] queues." href="/reference/operators/load_sqs">
+
+```tql
+load_sqs "sqs://tenzir"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_stdin" description="Accepts bytes from standard input." href="/reference/operators/load_stdin">
+
+```tql
+load_stdin
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_tcp" description="Loads bytes from a TCP or TLS connection." href="/reference/operators/load_tcp">
+
+```tql
+load_tcp "0.0.0.0:8090" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_udp" description="Loads bytes from a UDP socket." href="/reference/operators/load_udp">
+
+```tql
+load_udp "0.0.0.0:8090"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
+
+```tql
+load_zmq
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Events
+
+<CardGrid>
+
+<ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
+
+```tql
+from "data.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_file" description="Reads one or multiple files from a filesystem." href="/reference/operators/from_file">
+
+```tql
+from_file "s3://data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_fluent_bit" description="Receives events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/from_fluent_bit">
+
+```tql
+from_fluent_bit "opentelemetry"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_http" description="Receives HTTP/1.1 requests." href="/reference/operators/from_http">
+
+```tql
+from_http "0.0.0.0:8080
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_opensearch" description="Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/)." href="/reference/operators/from_opensearch">
+
+```tql
+from_opensearch
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
+
+```tql
+from_velociraptor subscribe="Windows"
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Node
+
+### Inspection
+
+<CardGrid>
+
+<ReferenceCard title="diagnostics" description="Retrieves diagnostic events from a Tenzir node." href="/reference/operators/diagnostics">
+
+```tql
+diagnostics
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="metrics" description="Retrieves metrics events from a Tenzir node." href="/reference/operators/metrics">
+
+```tql
+metrics "cpu"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="openapi" description="Shows the node's OpenAPI specification." href="/reference/operators/openapi">
+
+```tql
+openapi
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="plugins" description="Shows all available plugins and built-ins." href="/reference/operators/plugins">
+
+```tql
+plugins
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="version" description="Shows the current version." href="/reference/operators/version">
+
+```tql
+version
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Storage Engine
+
+<CardGrid>
+
+<ReferenceCard title="export" description="Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import)." href="/reference/operators/export">
+
+```tql
+export
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="fields" description="Retrieves all fields stored at a node." href="/reference/operators/fields">
+
+```tql
+fields
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="import" description="Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export)." href="/reference/operators/import">
+
+```tql
+import
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="partitions" description="Retrieves metadata about events stored at a node." href="/reference/operators/partitions">
+
+```tql
+partitions src_ip == 1.2.3.4
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="schemas" description="Retrieves all schemas for events stored at a node." href="/reference/operators/schemas">
+
+```tql
+schemas
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Outputs
+
+### Bytes
+
+<CardGrid>
+
+<ReferenceCard title="save_amqp" description="Saves a byte stream via AMQP messages." href="/reference/operators/save_amqp">
+
+```tql
+save_amqp
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_azure_blob_storage" description="Saves bytes to Azure Blob Storage." href="/reference/operators/save_azure_blob_storage">
+
+```tql
+save_azure_blob_storage "abfs://container/file"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_email" description="Saves bytes through an SMTP server." href="/reference/operators/save_email">
+
+```tql
+save_email "user@example.org"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_file" description="Writes a byte stream to a file." href="/reference/operators/save_file">
+
+```tql
+save_file "/tmp/out.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_ftp" description="Saves a byte stream via FTP." href="/reference/operators/save_ftp">
+
+```tql
+save_ftp "ftp.example.org"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
+
+```tql
+save_gcs "gs://bucket/object.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_google_cloud_pubsub" description="Publishes to a Google Cloud Pub/Sub topic." href="/reference/operators/save_google_cloud_pubsub">
+
+```tql
+save_google_cloud_pubsub project_id="my-project"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_http" description="Sends a byte stream via HTTP." href="/reference/operators/save_http">
+
+```tql
+save_http "example.org/api"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_kafka" description="Saves a byte stream to a Apache Kafka topic." href="/reference/operators/save_kafka">
+
+```tql
+save_kafka topic="example"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_s3" description="Saves bytes to an Amazon S3 object." href="/reference/operators/save_s3">
+
+```tql
+save_s3 "s3://my-bucket/obj.csv"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_sqs" description="Saves bytes to [Amazon SQS][sqs] queues." href="/reference/operators/save_sqs">
+
+```tql
+save_sqs "sqs://tenzir"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_stdout" description="Writes a byte stream to standard output." href="/reference/operators/save_stdout">
+
+```tql
+save_stdout
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_tcp" description="Saves bytes to a TCP or TLS connection." href="/reference/operators/save_tcp">
+
+```tql
+save_tcp "0.0.0.0:8090", tls=true
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_udp" description="Saves bytes to a UDP socket." href="/reference/operators/save_udp">
+
+```tql
+save_udp "0.0.0.0:8090"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="save_zmq" description="Sends bytes as ZeroMQ messages." href="/reference/operators/save_zmq">
+
+```tql
+save_zmq
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Events
+
+<CardGrid>
+
+<ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
+
+```tql
+to "output.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_asl" description="Sends events to [Amazon Security Lake (ASL)][asl]." href="/reference/operators/to_asl">
+
+```tql
+to_asl "s3://…"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_azure_log_analytics" description="Sends events to the [Microsoft Azure Logs Ingestion API][api]." href="/reference/operators/to_azure_log_analytics">
+
+```tql
+to_azure_log_analytics tenant_id="...", workspace_id="..."
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
+
+```tql
+to_clickhouse table="my_table"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_fluent_bit" description="Sends events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/to_fluent_bit">
+
+```tql
+to_fluent_bit "elasticsearch" …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_logging" description="Sends events to [Google Cloud Logging](https://cloud.google.com/logging)." href="/reference/operators/to_google_cloud_logging">
+
+```tql
+to_google_cloud_logging …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_logging" description="Sends events to **Google Cloud Logging**." href="/reference/operators/to_google_cloud_logging">
+
+```tql
+to_google_cloud_logging …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
+
+```tql
+to_google_secops …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_hive" description="Writes events to a URI using hive partitioning." href="/reference/operators/to_hive">
+
+```tql
+to_hive "s3://…", partition_by=[x]
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_opensearch" description="Sends events to an OpenSearch-compatible Bulk API." href="/reference/operators/to_opensearch">
+
+```tql
+to_opensearch "localhost:9200", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_snowflake" description="Sends events to a Snowflake database." href="/reference/operators/to_snowflake">
+
+```tql
+to_snowflake account_identifier="…
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_splunk" description="Sends events to a Splunk [HTTP Event Collector (HEC)][hec]." href="/reference/operators/to_splunk">
+
+```tql
+to_splunk "localhost:8088", …
 ```
 
 </ReferenceCard>

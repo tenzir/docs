@@ -280,26 +280,42 @@ but often resort to the method style when it is more idiomatic.
 `;
   }
 
-  // Add each category in alphabetical order
-  const sortedCategoryNames = Object.keys(categorizedItems)
-    .filter((categoryName) => categoryName !== "Uncategorized")
-    .sort();
+  // Group categories by main category
+  const categoryGroups = {};
+  const standaloneCategories = [];
 
-  sortedCategoryNames.forEach((categoryName) => {
+  Object.keys(categorizedItems)
+    .filter((categoryName) => categoryName !== "Uncategorized")
+    .forEach((categoryName) => {
+      if (categoryName.includes("/")) {
+        const [mainCategory, subCategory] = categoryName.split("/");
+        if (!categoryGroups[mainCategory]) {
+          categoryGroups[mainCategory] = [];
+        }
+        categoryGroups[mainCategory].push({ name: categoryName, subCategory });
+      } else {
+        standaloneCategories.push(categoryName);
+      }
+    });
+
+  // Sort standalone categories
+  standaloneCategories.sort();
+
+  // Sort main categories and their subcategories
+  Object.keys(categoryGroups).forEach((mainCategory) => {
+    categoryGroups[mainCategory].sort((a, b) => a.subCategory.localeCompare(b.subCategory));
+  });
+
+  const sortedMainCategories = Object.keys(categoryGroups).sort();
+
+  // Process standalone categories first
+  standaloneCategories.forEach((categoryName) => {
     const items = categorizedItems[categoryName];
     if (!items || items.length === 0) {
       return;
     }
 
-    const isSubcategory = categoryName.includes("/");
-    const [_mainCategory, subCategory] = categoryName.split("/");
-
-    if (isSubcategory) {
-      markdown += `\n### ${subCategory}\n\n`;
-    } else {
-      markdown += `\n## ${categoryName}\n\n`;
-    }
-
+    markdown += `\n## ${categoryName}\n\n`;
     markdown += `<CardGrid>\n\n`;
 
     items.forEach((item) => {
@@ -309,6 +325,29 @@ but often resort to the method style when it is more idiomatic.
     });
 
     markdown += `</CardGrid>\n`;
+  });
+
+  // Process grouped categories
+  sortedMainCategories.forEach((mainCategory) => {
+    markdown += `\n## ${mainCategory}\n\n`;
+
+    categoryGroups[mainCategory].forEach(({ name: categoryName, subCategory }) => {
+      const items = categorizedItems[categoryName];
+      if (!items || items.length === 0) {
+        return;
+      }
+
+      markdown += `### ${subCategory}\n\n`;
+      markdown += `<CardGrid>\n\n`;
+
+      items.forEach((item) => {
+        const escapedTitle = item.name.replace(/"/g, "&quot;");
+        const escapedDescription = item.description.replace(/"/g, "&quot;");
+        markdown += `<ReferenceCard title="${escapedTitle}" description="${escapedDescription}" href="/${item.path}">\n\n\`\`\`tql\n${item.example}\n\`\`\`\n\n</ReferenceCard>\n\n`;
+      });
+
+      markdown += `</CardGrid>\n`;
+    });
   });
 
   // Add any uncategorized items
