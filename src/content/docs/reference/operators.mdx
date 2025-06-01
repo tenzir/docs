@@ -304,7 +304,7 @@ operators:
     example: 'unroll names'
     path: 'reference/operators/unroll'
   - name: 'export'
-    description: 'Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import).'
+    description: 'Retrieves events from a Tenzir node.'
     example: 'export'
     path: 'reference/operators/export'
   - name: 'fields'
@@ -312,7 +312,7 @@ operators:
     example: 'fields'
     path: 'reference/operators/fields'
   - name: 'import'
-    description: 'Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export).'
+    description: 'Imports events into a Tenzir node.'
     example: 'import'
     path: 'reference/operators/import'
   - name: 'partitions'
@@ -348,7 +348,7 @@ operators:
     example: 'from_file "s3://data/**.json"'
     path: 'reference/operators/from_file'
   - name: 'from_fluent_bit'
-    description: 'Receives events via [Fluent Bit](https://docs.fluentbit.io/).'
+    description: 'Receives events via Fluent Bit.'
     example: 'from_fluent_bit "opentelemetry"'
     path: 'reference/operators/from_fluent_bit'
   - name: 'from_http'
@@ -356,7 +356,7 @@ operators:
     example: 'from_http "0.0.0.0:8080'
     path: 'reference/operators/from_http'
   - name: 'from_opensearch'
-    description: 'Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).'
+    description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
     path: 'reference/operators/from_opensearch'
   - name: 'from_velociraptor'
@@ -472,7 +472,7 @@ operators:
     example: 'summarize name, sum(amount)'
     path: 'reference/operators/summarize'
   - name: 'top'
-    description: 'Shows the most common values. The dual to [`rare`](/reference/operators/rare).'
+    description: 'Shows the most common values.'
     example: 'top user'
     path: 'reference/operators/top'
   - name: 'read_bitz'
@@ -480,7 +480,7 @@ operators:
     example: 'read_bitz'
     path: 'reference/operators/read_bitz'
   - name: 'read_cef'
-    description: 'Parses an incoming [Common Event Format (CEF)][cef] stream into events.'
+    description: 'Parses an incoming Common Event Format (CEF) stream into events.'
     example: 'read_cef'
     path: 'reference/operators/read_cef'
   - name: 'read_csv'
@@ -492,11 +492,11 @@ operators:
     example: 'read_feather'
     path: 'reference/operators/read_feather'
   - name: 'read_gelf'
-    description: 'Parses an incoming [GELF](https://go2docs.graylog.org/current/getting_in_log_data/gelf.html) stream into events.'
+    description: 'Parses an incoming GELF stream into events.'
     example: 'read_gelf'
     path: 'reference/operators/read_gelf'
   - name: 'read_grok'
-    description: 'read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool, include_unnamed=bool, schema=string, selector=string, schema_only=bool, merge=bool, raw=bool, unflatten_separator=string]'
+    description: 'Parses lines of input with a grok pattern.'
     example: 'read_grok "%{IP:client} %{WORD:action}"'
     path: 'reference/operators/read_grok'
   - name: 'read_json'
@@ -524,7 +524,7 @@ operators:
     example: 'read_parquet'
     path: 'reference/operators/read_parquet'
   - name: 'read_pcap'
-    description: 'Reads raw network packets in [PCAP][pcap-rfc] file format.'
+    description: 'Reads raw network packets in PCAP file format.'
     example: 'read_pcap'
     path: 'reference/operators/read_pcap'
   - name: 'read_ssv'
@@ -536,7 +536,7 @@ operators:
     example: 'read_suricata'
     path: 'reference/operators/read_suricata'
   - name: 'read_syslog'
-    description: 'Parses an incoming [Syslog](https://en.wikipedia.org/wiki/Syslog) stream into events.'
+    description: 'Parses an incoming Syslog stream into events.'
     example: 'read_syslog'
     path: 'reference/operators/read_syslog'
   - name: 'read_tsv'
@@ -620,7 +620,7 @@ operators:
     example: 'save_zmq'
     path: 'reference/operators/save_zmq'
   - name: 'sigma'
-    description: 'Filter the input with [Sigma rules][sigma] and output matching events.'
+    description: 'Filter the input with Sigma rules and output matching events.'
     example: 'sigma "/tmp/rules/"'
     path: 'reference/operators/sigma'
   - name: 'yara'
@@ -632,11 +632,11 @@ operators:
     example: 'to "output.json"'
     path: 'reference/operators/to'
   - name: 'to_asl'
-    description: 'Sends events to [Amazon Security Lake (ASL)][asl].'
+    description: 'Sends events to Amazon Security Lake (ASL).'
     example: 'to_asl "s3://…"'
     path: 'reference/operators/to_asl'
   - name: 'to_azure_log_analytics'
-    description: 'Sends events to the [Microsoft Azure Logs Ingestion API][api].'
+    description: 'Sends events to the Microsoft Azure Logs Ingestion API.'
     example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
     path: 'reference/operators/to_azure_log_analytics'
   - name: 'to_clickhouse'
@@ -644,15 +644,11 @@ operators:
     example: 'to_clickhouse table="my_table"'
     path: 'reference/operators/to_clickhouse'
   - name: 'to_fluent_bit'
-    description: 'Sends events via [Fluent Bit](https://docs.fluentbit.io/).'
+    description: 'Sends events via Fluent Bit.'
     example: 'to_fluent_bit "elasticsearch" …'
     path: 'reference/operators/to_fluent_bit'
   - name: 'to_google_cloud_logging'
-    description: 'Sends events to [Google Cloud Logging](https://cloud.google.com/logging).'
-    example: 'to_google_cloud_logging …'
-    path: 'reference/operators/to_google_cloud_logging'
-  - name: 'to_google_cloud_logging'
-    description: 'Sends events to **Google Cloud Logging**.'
+    description: 'Sends events to Google Cloud Logging.'
     example: 'to_google_cloud_logging …'
     path: 'reference/operators/to_google_cloud_logging'
   - name: 'to_google_secops'
@@ -787,7 +783,7 @@ summarize name, sum(amount)
 
 </ReferenceCard>
 
-<ReferenceCard title="top" description="Shows the most common values. The dual to [`rare`](/reference/operators/rare)." href="/reference/operators/top">
+<ReferenceCard title="top" description="Shows the most common values." href="/reference/operators/top">
 
 ```tql
 top user
@@ -971,7 +967,7 @@ package::remove "suricata-ocsf"
 
 <CardGrid>
 
-<ReferenceCard title="sigma" description="Filter the input with [Sigma rules][sigma] and output matching events." href="/reference/operators/sigma">
+<ReferenceCard title="sigma" description="Filter the input with Sigma rules and output matching events." href="/reference/operators/sigma">
 
 ```tql
 sigma "/tmp/rules/"
@@ -1521,7 +1517,7 @@ read_bitz
 
 </ReferenceCard>
 
-<ReferenceCard title="read_cef" description="Parses an incoming [Common Event Format (CEF)][cef] stream into events." href="/reference/operators/read_cef">
+<ReferenceCard title="read_cef" description="Parses an incoming Common Event Format (CEF) stream into events." href="/reference/operators/read_cef">
 
 ```tql
 read_cef
@@ -1545,7 +1541,7 @@ read_feather
 
 </ReferenceCard>
 
-<ReferenceCard title="read_gelf" description="Parses an incoming [GELF](https://go2docs.graylog.org/current/getting_in_log_data/gelf.html) stream into events." href="/reference/operators/read_gelf">
+<ReferenceCard title="read_gelf" description="Parses an incoming GELF stream into events." href="/reference/operators/read_gelf">
 
 ```tql
 read_gelf
@@ -1553,7 +1549,7 @@ read_gelf
 
 </ReferenceCard>
 
-<ReferenceCard title="read_grok" description="read_grok pattern:string, [pattern_definitions=record|string, indexed_captures=bool, include_unnamed=bool, schema=string, selector=string, schema_only=bool, merge=bool, raw=bool, unflatten_separator=string]" href="/reference/operators/read_grok">
+<ReferenceCard title="read_grok" description="Parses lines of input with a grok pattern." href="/reference/operators/read_grok">
 
 ```tql
 read_grok "%{IP:client} %{WORD:action}"
@@ -1609,7 +1605,7 @@ read_parquet
 
 </ReferenceCard>
 
-<ReferenceCard title="read_pcap" description="Reads raw network packets in [PCAP][pcap-rfc] file format." href="/reference/operators/read_pcap">
+<ReferenceCard title="read_pcap" description="Reads raw network packets in PCAP file format." href="/reference/operators/read_pcap">
 
 ```tql
 read_pcap
@@ -1633,7 +1629,7 @@ read_suricata
 
 </ReferenceCard>
 
-<ReferenceCard title="read_syslog" description="Parses an incoming [Syslog](https://en.wikipedia.org/wiki/Syslog) stream into events." href="/reference/operators/read_syslog">
+<ReferenceCard title="read_syslog" description="Parses an incoming Syslog stream into events." href="/reference/operators/read_syslog">
 
 ```tql
 read_syslog
@@ -2002,7 +1998,7 @@ from_file "s3://data/**.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="from_fluent_bit" description="Receives events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/from_fluent_bit">
+<ReferenceCard title="from_fluent_bit" description="Receives events via Fluent Bit." href="/reference/operators/from_fluent_bit">
 
 ```tql
 from_fluent_bit "opentelemetry"
@@ -2018,7 +2014,7 @@ from_http "0.0.0.0:8080
 
 </ReferenceCard>
 
-<ReferenceCard title="from_opensearch" description="Receives events via [Opensearch Bulk API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/)." href="/reference/operators/from_opensearch">
+<ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
 
 ```tql
 from_opensearch
@@ -2087,7 +2083,7 @@ version
 
 <CardGrid>
 
-<ReferenceCard title="export" description="Retrieves events from a Tenzir node. The dual to [`import`](/reference/operators/import)." href="/reference/operators/export">
+<ReferenceCard title="export" description="Retrieves events from a Tenzir node." href="/reference/operators/export">
 
 ```tql
 export
@@ -2103,7 +2099,7 @@ fields
 
 </ReferenceCard>
 
-<ReferenceCard title="import" description="Imports events into a Tenzir node. The dual to [`export`](/reference/operators/export)." href="/reference/operators/import">
+<ReferenceCard title="import" description="Imports events into a Tenzir node." href="/reference/operators/import">
 
 ```tql
 import
@@ -2268,7 +2264,7 @@ to "output.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="to_asl" description="Sends events to [Amazon Security Lake (ASL)][asl]." href="/reference/operators/to_asl">
+<ReferenceCard title="to_asl" description="Sends events to Amazon Security Lake (ASL)." href="/reference/operators/to_asl">
 
 ```tql
 to_asl "s3://…"
@@ -2276,7 +2272,7 @@ to_asl "s3://…"
 
 </ReferenceCard>
 
-<ReferenceCard title="to_azure_log_analytics" description="Sends events to the [Microsoft Azure Logs Ingestion API][api]." href="/reference/operators/to_azure_log_analytics">
+<ReferenceCard title="to_azure_log_analytics" description="Sends events to the Microsoft Azure Logs Ingestion API." href="/reference/operators/to_azure_log_analytics">
 
 ```tql
 to_azure_log_analytics tenant_id="...", workspace_id="..."
@@ -2292,7 +2288,7 @@ to_clickhouse table="my_table"
 
 </ReferenceCard>
 
-<ReferenceCard title="to_fluent_bit" description="Sends events via [Fluent Bit](https://docs.fluentbit.io/)." href="/reference/operators/to_fluent_bit">
+<ReferenceCard title="to_fluent_bit" description="Sends events via Fluent Bit." href="/reference/operators/to_fluent_bit">
 
 ```tql
 to_fluent_bit "elasticsearch" …
@@ -2300,15 +2296,7 @@ to_fluent_bit "elasticsearch" …
 
 </ReferenceCard>
 
-<ReferenceCard title="to_google_cloud_logging" description="Sends events to [Google Cloud Logging](https://cloud.google.com/logging)." href="/reference/operators/to_google_cloud_logging">
-
-```tql
-to_google_cloud_logging …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_logging" description="Sends events to **Google Cloud Logging**." href="/reference/operators/to_google_cloud_logging">
+<ReferenceCard title="to_google_cloud_logging" description="Sends events to Google Cloud Logging." href="/reference/operators/to_google_cloud_logging">
 
 ```tql
 to_google_cloud_logging …
