@@ -7,23 +7,18 @@
   --sl-font: var(--tnz-font-sans);
   --sl-font-mono: var(--tnz-font-mono);
   
-  /* Dark mode colors (default) - all mapped to Tenzir design system */
-  --sl-color-accent-low: var(--tnz-primary-600);
+  /* Dark mode colors (default) */
+  --sl-color-accent-low: #0c214d;
   --sl-color-accent: var(--tnz-primary-500);
-  --sl-color-accent-high: var(--tnz-primary-400);
-  --sl-color-text-accent: var(--tnz-primary-500);
-  --sl-color-white: var(--tnz-neutral-50);
-  --sl-color-gray-1: var(--tnz-neutral-100);
-  --sl-color-gray-2: var(--tnz-neutral-300);
-  --sl-color-gray-3: var(--tnz-neutral-400);
-  --sl-color-gray-4: var(--tnz-neutral-500);
-  --sl-color-gray-5: var(--tnz-neutral-600);
-  --sl-color-gray-6: var(--tnz-neutral-700);
-  --sl-color-black: var(--tnz-neutral-800);
-  --sl-color-text: var(--tnz-neutral-50);
-  --sl-color-bg: var(--tnz-neutral-800);
-  --sl-color-bg-nav: var(--tnz-neutral-800);
-  --sl-color-bg-sidebar: var(--tnz-neutral-800);
+  --sl-color-accent-high: var(--tnz-primary-300);
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #ecedf2;
+  --sl-color-gray-2: #c0c2c7;
+  --sl-color-gray-3: #888b95;
+  --sl-color-gray-4: #555861;
+  --sl-color-gray-5: #353840;
+  --sl-color-gray-6: #24262e;
+  --sl-color-black: #17181c;
   
   /* Text sizes mapped from Tenzir system */
   --sl-text-xs: var(--tnz-text-xs);
@@ -35,7 +30,9 @@
   --sl-text-3xl: var(--tnz-text-3xl);
   --sl-text-4xl: var(--tnz-text-4xl);
   
-  /* Navigation highlight colors */
+  /* Additional Starlight overrides */
+  --sl-color-bg-nav: var(--sl-color-black);
+  --sl-color-bg-sidebar: var(--sl-color-bg);
   
   /* Expressive Code border radius */
   --ec-brdRad: var(--tnz-radius) !important;
@@ -43,10 +40,10 @@
   /* Navigation highlight colors */
   --tnz-nav-hover-bg: rgba(255, 255, 255, 0.08);
   --tnz-nav-active-bg: rgba(255, 255, 255, 0.15);
-  --tnz-nav-active-border: var(--tnz-primary-500);
+  --tnz-nav-active-border: var(--sl-color-accent);
   
   /* Text color for inverted contexts (buttons, etc) */
-  --sl-color-text-invert: var(--tnz-neutral-50);
+  --sl-color-text-invert: var(--sl-color-white);
 }
 
 /* Light mode colors */
@@ -54,29 +51,24 @@
   --sl-color-accent-low: var(--tnz-primary-300);
   --sl-color-accent: var(--tnz-primary-500);
   --sl-color-accent-high: var(--tnz-primary-600);
-  --sl-color-text-accent: var(--tnz-primary-500);
   
-  --sl-color-white: var(--tnz-neutral-50);
-  --sl-color-gray-1: var(--tnz-neutral-600);
-  --sl-color-gray-2: var(--tnz-neutral-500);
-  --sl-color-gray-3: var(--tnz-neutral-400);
-  --sl-color-gray-4: var(--tnz-neutral-300);
-  --sl-color-gray-5: var(--tnz-neutral-250);
+  --sl-color-white: var(--tnz-neutral-800);
+  --sl-color-gray-1: var(--tnz-neutral-700);
+  --sl-color-gray-2: var(--tnz-neutral-600);
+  --sl-color-gray-3: var(--tnz-neutral-500);
+  --sl-color-gray-4: var(--tnz-neutral-400);
+  --sl-color-gray-5: var(--tnz-neutral-300);
   --sl-color-gray-6: var(--tnz-neutral-200);
   --sl-color-gray-7: var(--tnz-neutral-100);
-  --sl-color-black: var(--tnz-neutral-800);
-  --sl-color-text: var(--tnz-neutral-800);
-  --sl-color-bg: var(--tnz-neutral-50);
-  --sl-color-bg-nav: var(--tnz-neutral-50);
-  --sl-color-bg-sidebar: var(--tnz-neutral-50);
+  --sl-color-black: var(--tnz-neutral-50);
   
   /* Navigation highlight colors for light mode */
   --tnz-nav-hover-bg: rgba(0, 0, 0, 0.04);
   --tnz-nav-active-bg: rgba(0, 0, 0, 0.08);
-  --tnz-nav-active-border: var(--tnz-primary-500);
+  --tnz-nav-active-border: var(--sl-color-accent);
   
   /* Text color for inverted contexts (buttons, etc) */
-  --sl-color-text-invert: var(--tnz-neutral-800);
+  --sl-color-text-invert: var(--sl-color-black);
 }
 
 /* Dark mode SVG inversion */
@@ -159,27 +151,27 @@ html[data-theme="dark"] {
 
 /* Dark mode adjustments for asides */
 :root[data-theme="dark"] .starlight-aside--note {
-  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 15%, var(--tnz-neutral-800));
+  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 15%, var(--sl-color-bg));
   border-color: var(--tnz-lightblue-500);
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
 }
 
 :root[data-theme="dark"] .starlight-aside--tip {
-  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--tnz-neutral-800));
+  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--sl-color-bg));
   border-color: var(--tnz-green-500);
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
 }
 
 :root[data-theme="dark"] .starlight-aside--caution {
-  background-color: color-mix(in srgb, var(--tnz-yellow-600) 15%, var(--tnz-neutral-800));
+  background-color: color-mix(in srgb, var(--tnz-yellow-600) 15%, var(--sl-color-bg));
   border-color: var(--tnz-yellow-500);
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
 }
 
 :root[data-theme="dark"] .starlight-aside--danger {
-  background-color: color-mix(in srgb, var(--tnz-red-600) 15%, var(--tnz-neutral-800));
+  background-color: color-mix(in srgb, var(--tnz-red-600) 15%, var(--sl-color-bg));
   border-color: var(--tnz-red-500);
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
 }
 
 /* Light mode adjustments for better contrast */
@@ -215,10 +207,10 @@ html[data-theme="dark"] {
   --sl-text-h4: var(--tnz-text-xl);
   --sl-text-h5: var(--tnz-text-lg);
   
-  border: 1px solid var(--tnz-neutral-600);
+  border: 1px solid var(--sl-color-gray-5);
   border-radius: var(--tnz-radius);
   padding: clamp(1rem, calc(0.125rem + 1.5vw), 2.5rem);
-  background-color: var(--tnz-neutral-700);
+  background-color: var(--sl-color-bg-sidebar);
   transition: all var(--tnz-transition-base);
   margin-bottom: 1rem;
 }
@@ -262,7 +254,7 @@ html[data-theme="dark"] {
 .sl-markdown-content .card .title {
   font-weight: 600;
   font-size: var(--tnz-text-xl);
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
   line-height: var(--sl-line-height-headings);
   margin-bottom: 0.75rem;
   display: flex;
@@ -280,7 +272,7 @@ html[data-theme="dark"] {
 
 .sl-markdown-content .card .body p {
   margin: 0;
-  color: var(--tnz-neutral-300);
+  color: var(--sl-color-gray-2);
   line-height: 1.6;
   font-size: var(--tnz-text-base);
 }
@@ -301,21 +293,21 @@ html[data-theme="dark"] {
 
 /* Light mode adjustments for cards */
 :root[data-theme="light"] .sl-markdown-content .card {
-  background-color: var(--tnz-neutral-50);
-  border-color: var(--tnz-neutral-250);
+  background-color: var(--sl-color-bg);
+  border-color: var(--sl-color-gray-5);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card:hover {
-  background-color: var(--tnz-neutral-100);
+  background-color: var(--sl-color-gray-7);
   border-color: var(--tnz-primary-500);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card .title {
-  color: var(--tnz-neutral-800);
+  color: var(--sl-color-text);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card .body p {
-  color: var(--tnz-neutral-500);
+  color: var(--sl-color-gray-2);
 }
 
 /* Code blocks */
@@ -340,22 +332,22 @@ html[data-theme="dark"] {
   font-size: var(--tnz-text-sm);
   padding: 0.4375rem 1.125rem;
   white-space: nowrap;
-  background-color: var(--tnz-primary-500) !important;
-  color: var(--tnz-neutral-50) !important;
+  background-color: var(--sl-color-text-accent) !important;
+  color: var(--sl-color-text-invert) !important;
   border-color: transparent !important;
   transition: all var(--tnz-transition-base);
 }
 
 .sl-markdown-content .sl-link-button:hover {
-  background-color: var(--tnz-primary-400) !important;
-  color: var(--tnz-neutral-50) !important;
+  background-color: var(--sl-color-accent-high) !important;
+  color: var(--sl-color-text-invert) !important;
   box-shadow: var(--tnz-shadow-xs);
   text-decoration: none !important;
 }
 
 .sl-markdown-content .sl-link-button:active {
-  background-color: var(--tnz-primary-600) !important;
-  color: var(--tnz-neutral-50) !important;
+  background-color: var(--sl-color-accent-high) !important;
+  color: var(--sl-color-text-invert) !important;
 }
 
 .sl-link-button:focus {
@@ -365,52 +357,52 @@ html[data-theme="dark"] {
 
 /* Link button variants */
 .sl-link-button.primary {
-  background-color: var(--tnz-primary-500);
-  color: var(--tnz-neutral-50);
+  background-color: var(--sl-color-text-accent);
+  color: var(--sl-color-text-invert);
   border-color: transparent;
 }
 
 .sl-link-button.primary:hover {
-  background-color: var(--tnz-primary-400);
+  background-color: var(--sl-color-accent-high);
 }
 
 .sl-link-button.primary:active {
-  background-color: var(--tnz-primary-600);
+  background-color: var(--sl-color-text-accent);
 }
 
 
 
 .sl-link-button.secondary {
   background-color: transparent;
-  border-color: var(--tnz-neutral-400);
-  color: var(--tnz-neutral-50);
+  border-color: var(--sl-color-gray-3);
+  color: var(--sl-color-white);
 }
 
 .sl-link-button.secondary:hover {
-  border-color: var(--tnz-primary-300);
-  color: var(--tnz-primary-500);
-  background-color: var(--tnz-primary-100);
+  border-color: var(--sl-color-accent-low);
+  color: var(--sl-color-accent);
+  background-color: rgba(10, 84, 255, 0.1);
 }
 
 .sl-link-button.secondary:active {
-  border-color: var(--tnz-primary-500);
-  color: var(--tnz-primary-400);
-  background-color: var(--tnz-primary-200);
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent-high);
+  background-color: rgba(10, 84, 255, 0.2);
 }
 
 .sl-link-button.minimal {
   background-color: transparent;
-  color: var(--tnz-neutral-50);
+  color: var(--sl-color-white);
   padding-inline: 0;
   border-color: transparent;
 }
 
 .sl-link-button.minimal:hover {
-  color: var(--tnz-primary-500);
+  color: var(--sl-color-accent);
 }
 
 .sl-link-button.minimal:active {
-  color: var(--tnz-primary-400);
+  color: var(--sl-color-accent-high);
 }
 
 .sl-link-button :global(svg) {
