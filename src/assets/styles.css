@@ -352,7 +352,7 @@ html[data-theme="dark"] {
 
 .sl-link-button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(10, 84, 255, 0.3);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 30%, transparent);
 }
 
 /* Link button variants */
@@ -381,13 +381,13 @@ html[data-theme="dark"] {
 .sl-link-button.secondary:hover {
   border-color: var(--sl-color-accent-low);
   color: var(--sl-color-accent);
-  background-color: rgba(10, 84, 255, 0.1);
+  background-color: color-mix(in srgb, var(--sl-color-accent) 10%, transparent);
 }
 
 .sl-link-button.secondary:active {
   border-color: var(--sl-color-accent);
   color: var(--sl-color-accent-high);
-  background-color: rgba(10, 84, 255, 0.2);
+  background-color: color-mix(in srgb, var(--sl-color-accent) 20%, transparent);
 }
 
 .sl-link-button.minimal {
@@ -793,6 +793,249 @@ starlight-menu-button button {
 
 starlight-menu-button button:hover {
   background-color: var(--tnz-nav-hover-bg);
+}
+
+/* Search modal and dialog styling */
+site-search dialog {
+  border-radius: var(--tnz-radius) !important;
+  border: 1px solid var(--sl-color-gray-5) !important;
+  background-color: var(--sl-color-bg) !important;
+  box-shadow: var(--tnz-shadow-lg) !important;
+}
+
+site-search dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+site-search input[type="search"] {
+  border-radius: var(--tnz-radius-sm) !important;
+  border: 1px solid var(--sl-color-gray-5) !important;
+  transition: all var(--tnz-transition-base) !important;
+  background-color: var(--sl-color-bg-sidebar) !important;
+}
+
+site-search input[type="search"]:focus {
+  outline: none !important;
+  border-color: var(--sl-color-accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 30%, transparent) !important;
+}
+
+site-search ul[role="listbox"] li {
+  border-radius: var(--tnz-radius-sm) !important;
+  transition: all var(--tnz-transition-base) !important;
+}
+
+site-search ul[role="listbox"] li:hover,
+site-search ul[role="listbox"] li[aria-selected="true"] {
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+site-search ul[role="listbox"] li[aria-selected="true"] {
+  background-color: var(--tnz-nav-active-bg) !important;
+}
+
+/* Light mode search adjustments */
+:root[data-theme="light"] site-search dialog {
+  background-color: var(--sl-color-bg) !important;
+  border-color: var(--sl-color-gray-5) !important;
+}
+
+:root[data-theme="light"] site-search input[type="search"] {
+  background-color: var(--sl-color-bg-sidebar) !important;
+}
+
+/* Code copy buttons and interactive elements */
+.expressive-code button[title="Copy to clipboard"] {
+  border-radius: var(--tnz-radius-sm) !important;
+  padding: 0.25rem 0.5rem !important;
+  transition: all var(--tnz-transition-base) !important;
+  background-color: var(--sl-color-bg-sidebar) !important;
+  border: 1px solid var(--sl-color-gray-5) !important;
+}
+
+.expressive-code button[title="Copy to clipboard"]:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  border-color: var(--sl-color-gray-4) !important;
+}
+
+.expressive-code button[title="Copy to clipboard"]:active {
+  background-color: var(--tnz-nav-active-bg) !important;
+}
+
+/* Code block frame styling */
+.expressive-code .frame {
+  border-radius: var(--tnz-radius) !important;
+  border: 1px solid var(--sl-color-gray-6) !important;
+}
+
+/* Code block tab styling */
+.expressive-code .tab {
+  border-radius: var(--tnz-radius-sm) var(--tnz-radius-sm) 0 0 !important;
+  transition: all var(--tnz-transition-base) !important;
+}
+
+.expressive-code .tab:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+.expressive-code .tab[aria-selected="true"] {
+  background-color: var(--tnz-nav-active-bg) !important;
+}
+
+/* Scrollbar styling for code blocks */
+.expressive-code pre::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.expressive-code pre::-webkit-scrollbar-track {
+  background-color: var(--sl-color-gray-6);
+  border-radius: var(--tnz-radius-sm);
+}
+
+.expressive-code pre::-webkit-scrollbar-thumb {
+  background-color: var(--sl-color-gray-4);
+  border-radius: var(--tnz-radius-sm);
+  transition: background-color var(--tnz-transition-base);
+}
+
+.expressive-code pre::-webkit-scrollbar-thumb:hover {
+  background-color: var(--sl-color-gray-3);
+}
+
+/* Select elements and dropdown styling */
+select,
+starlight-lang-select select,
+starlight-theme-select select {
+  border-radius: var(--tnz-radius-sm) !important;
+  border: 1px solid var(--sl-color-gray-5) !important;
+  background-color: var(--sl-color-bg-sidebar) !important;
+  color: var(--sl-color-white) !important;
+  padding: 0.375rem 0.75rem !important;
+  transition: all var(--tnz-transition-base) !important;
+}
+
+select:hover,
+starlight-lang-select select:hover,
+starlight-theme-select select:hover {
+  border-color: var(--sl-color-gray-4) !important;
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+select:focus,
+starlight-lang-select select:focus,
+starlight-theme-select select:focus {
+  outline: none !important;
+  border-color: var(--sl-color-accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 30%, transparent) !important;
+}
+
+/* Dropdown option styling */
+select option,
+starlight-lang-select select option,
+starlight-theme-select select option {
+  background-color: var(--sl-color-bg-nav) !important;
+  color: var(--sl-color-white) !important;
+  padding: 0.375rem 0.75rem !important;
+}
+
+select option:hover,
+starlight-lang-select select option:hover,
+starlight-theme-select select option:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+/* Light mode select adjustments */
+:root[data-theme="light"] select,
+:root[data-theme="light"] starlight-lang-select select,
+:root[data-theme="light"] starlight-theme-select select {
+  color: var(--sl-color-text) !important;
+  background-color: var(--sl-color-bg) !important;
+}
+
+:root[data-theme="light"] select option,
+:root[data-theme="light"] starlight-lang-select select option,
+:root[data-theme="light"] starlight-theme-select select option {
+  color: var(--sl-color-text) !important;
+  background-color: var(--sl-color-bg) !important;
+}
+
+/* Focus indicators and accessibility improvements */
+:focus-visible {
+  outline: 2px solid var(--sl-color-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--tnz-radius-sm) !important;
+}
+
+/* Enhanced keyboard navigation */
+.sl-markdown-content a:focus-visible,
+.sidebar-content a:focus-visible,
+.social-icons a:focus-visible {
+  outline: 2px solid var(--sl-color-accent) !important;
+  outline-offset: 2px !important;
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background-color: var(--sl-color-accent);
+  color: var(--sl-color-text-invert);
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: var(--tnz-radius);
+  z-index: 1000;
+  transition: all var(--tnz-transition-base);
+}
+
+.skip-to-content:focus {
+  top: 6px;
+}
+
+/* Interactive element focus improvements */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--sl-color-accent) !important;
+  outline-offset: 2px !important;
+  background-color: var(--tnz-nav-hover-bg) !important;
+}
+
+/* Form element focus consistency */
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--sl-color-accent) !important;
+  outline-offset: 2px !important;
+  border-color: var(--sl-color-accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent) 20%, transparent) !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --tnz-nav-hover-bg: color-mix(in srgb, var(--sl-color-accent) 25%, transparent);
+    --tnz-nav-active-bg: color-mix(in srgb, var(--sl-color-accent) 40%, transparent);
+  }
+  
+  .sl-link-button {
+    border-width: 2px !important;
+  }
+  
+  :focus-visible {
+    outline-width: 3px !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Pagination navigation styling */
