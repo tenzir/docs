@@ -85,30 +85,52 @@ const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label))
     line-height: 1.5;
     padding: 0.3em 0.5rem;
     text-decoration: none;
+    border-radius: var(--tnz-radius-sm);
+    transition: all var(--tnz-transition-base);
   }
 
-  a:is(.starlight-sidebar-topics-current, :hover, :focus-visible) {
-    color: var(--sl-color-accent-high);
+  a:hover, a:focus-visible {
+    background-color: var(--tnz-nav-hover-bg);
+    color: var(--sl-color-white);
+  }
+
+  a.starlight-sidebar-topics-current {
+    background-color: var(--tnz-nav-active-bg);
+    color: var(--sl-color-white);
+    border-left: 3px solid var(--tnz-nav-active-border);
+    padding-left: calc(0.5rem - 3px);
+  }
+
+  :global([data-theme='light']) a {
+    color: var(--sl-color-text);
+  }
+
+  :global([data-theme='light']) a:hover,
+  :global([data-theme='light']) a:focus-visible {
+    color: var(--sl-color-text);
   }
 
   :global([data-theme='light']) a.starlight-sidebar-topics-current {
-    color: var(--sl-color-accent);
+    color: var(--sl-color-text);
   }
 
   .starlight-sidebar-topics-icon {
     align-items: center;
     border-radius: 0.25rem;
-    border: 1px solid var(--sl-color-gray-4);
+    border: 1px solid var(--sl-color-gray-5);
     display: flex;
     justify-content: center;
-    padding: 0.1875rem;
     padding: 0.25rem;
+    transition: all var(--tnz-transition-base);
   }
 
-  a:is(.starlight-sidebar-topics-current, :hover, :focus-visible) .starlight-sidebar-topics-icon {
-    background-color: var(--sl-color-text-accent);
-    border-color: var(--sl-color-text-accent);
-    color: var(--sl-color-text-invert);
+  a:hover .starlight-sidebar-topics-icon,
+  a:focus-visible .starlight-sidebar-topics-icon {
+    border-color: var(--sl-color-gray-4);
+  }
+
+  a.starlight-sidebar-topics-current .starlight-sidebar-topics-icon {
+    border-color: var(--sl-color-gray-4);
   }
 
   .starlight-sidebar-topics-badge {

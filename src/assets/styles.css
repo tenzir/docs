@@ -36,6 +36,14 @@
   
   /* Expressive Code border radius */
   --ec-brdRad: var(--tnz-radius) !important;
+  
+  /* Navigation highlight colors */
+  --tnz-nav-hover-bg: rgba(255, 255, 255, 0.08);
+  --tnz-nav-active-bg: rgba(255, 255, 255, 0.15);
+  --tnz-nav-active-border: var(--sl-color-accent);
+  
+  /* Text color for inverted contexts (buttons, etc) */
+  --sl-color-text-invert: var(--sl-color-white);
 }
 
 /* Light mode colors */
@@ -53,6 +61,14 @@
   --sl-color-gray-6: var(--tnz-neutral-200);
   --sl-color-gray-7: var(--tnz-neutral-100);
   --sl-color-black: var(--tnz-neutral-50);
+  
+  /* Navigation highlight colors for light mode */
+  --tnz-nav-hover-bg: rgba(0, 0, 0, 0.04);
+  --tnz-nav-active-bg: rgba(0, 0, 0, 0.08);
+  --tnz-nav-active-border: var(--sl-color-accent);
+  
+  /* Text color for inverted contexts (buttons, etc) */
+  --sl-color-text-invert: var(--sl-color-black);
 }
 
 /* Dark mode SVG inversion */
@@ -191,8 +207,107 @@ html[data-theme="dark"] {
   --sl-text-h4: var(--tnz-text-xl);
   --sl-text-h5: var(--tnz-text-lg);
   
+  border: 1px solid var(--sl-color-gray-5);
   border-radius: var(--tnz-radius);
   padding: clamp(1rem, calc(0.125rem + 1.5vw), 2.5rem);
+  background-color: var(--sl-color-bg-sidebar);
+  transition: all var(--tnz-transition-base);
+  margin-bottom: 1rem;
+}
+
+.sl-markdown-content .card:hover {
+  border-color: var(--tnz-primary-500);
+  box-shadow: var(--tnz-shadow-s);
+}
+
+/* Card grid layout - ensure consistent spacing */
+.sl-markdown-content .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Ensure cards in grid have consistent height */
+.sl-markdown-content .card-grid > .card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Stagger effect for card grid */
+.sl-markdown-content .card-grid.stagger {
+  --stagger-height: 3rem;
+}
+
+@media (min-width: 50rem) {
+  .sl-markdown-content .card-grid.stagger > *:nth-child(2n) {
+    transform: translateY(var(--stagger-height));
+  }
+  
+  .sl-markdown-content .card-grid.stagger > .card:nth-child(2n):hover {
+    transform: translateY(var(--stagger-height));
+  }
+}
+
+/* Card title styling - use Starlight's built-in title class */
+.sl-markdown-content .card .title {
+  font-weight: 600;
+  font-size: var(--tnz-text-xl);
+  color: var(--sl-color-white);
+  line-height: var(--sl-line-height-headings);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Card body content styling */
+.sl-markdown-content .card .body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sl-markdown-content .card .body p {
+  margin: 0;
+  color: var(--sl-color-gray-2);
+  line-height: 1.6;
+  font-size: var(--tnz-text-base);
+}
+
+/* Ensure link buttons in cards align to bottom */
+.sl-markdown-content .card .body .sl-link-button {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* Card with icon */
+.sl-markdown-content .card[data-icon]:before {
+  content: attr(data-icon);
+  display: block;
+  font-size: var(--tnz-text-2xl);
+  margin-bottom: 0.5rem;
+}
+
+/* Light mode adjustments for cards */
+:root[data-theme="light"] .sl-markdown-content .card {
+  background-color: var(--sl-color-bg);
+  border-color: var(--sl-color-gray-5);
+}
+
+:root[data-theme="light"] .sl-markdown-content .card:hover {
+  background-color: var(--sl-color-gray-7);
+  border-color: var(--tnz-primary-500);
+}
+
+:root[data-theme="light"] .sl-markdown-content .card .title {
+  color: var(--sl-color-text);
+}
+
+:root[data-theme="light"] .sl-markdown-content .card .body p {
+  color: var(--sl-color-gray-2);
 }
 
 /* Code blocks */
@@ -209,7 +324,7 @@ html[data-theme="dark"] {
   justify-content: center;
   font-family: var(--tnz-font-sans);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: none !important;
   border: 1px solid transparent;
   border-radius: var(--tnz-radius) !important;
   outline-offset: 2px;
@@ -218,18 +333,21 @@ html[data-theme="dark"] {
   padding: 0.4375rem 1.125rem;
   white-space: nowrap;
   background-color: var(--sl-color-text-accent) !important;
-  color: var(--sl-color-black) !important;
+  color: var(--sl-color-text-invert) !important;
   border-color: transparent !important;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition: all var(--tnz-transition-base);
 }
 
 .sl-markdown-content .sl-link-button:hover {
   background-color: var(--sl-color-accent-high) !important;
-  color: var(--sl-color-black) !important;
+  color: var(--sl-color-text-invert) !important;
+  box-shadow: var(--tnz-shadow-xs);
+  text-decoration: none !important;
 }
 
 .sl-markdown-content .sl-link-button:active {
   background-color: var(--sl-color-accent-high) !important;
+  color: var(--sl-color-text-invert) !important;
 }
 
 .sl-link-button:focus {
@@ -240,18 +358,19 @@ html[data-theme="dark"] {
 /* Link button variants */
 .sl-link-button.primary {
   background-color: var(--sl-color-text-accent);
-  color: var(--sl-color-black);
+  color: var(--sl-color-text-invert);
   border-color: transparent;
 }
 
 .sl-link-button.primary:hover {
   background-color: var(--sl-color-accent-high);
-  color: var(--sl-color-black);
 }
 
 .sl-link-button.primary:active {
-  background-color: var(--sl-color-accent-high);
+  background-color: var(--sl-color-text-accent);
 }
+
+
 
 .sl-link-button.secondary {
   background-color: transparent;
@@ -307,18 +426,94 @@ html[data-theme="dark"] {
   margin-block: 1rem;
 }
 
+
+
+/* LinkCard component styling (if used in future) */
+.sl-markdown-content .sl-link-card {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--tnz-radius);
+  background-color: var(--sl-color-bg-sidebar);
+  transition: all var(--tnz-transition-base);
+}
+
+.sl-markdown-content .sl-link-card:hover {
+  background-color: var(--sl-color-gray-7);
+  border-color: var(--tnz-primary-500);
+  box-shadow: var(--tnz-shadow-s);
+}
+
+.sl-markdown-content .sl-link-card .title {
+  color: var(--sl-color-white);
+  font-weight: 600;
+  font-size: var(--tnz-text-lg);
+}
+
+.sl-markdown-content .sl-link-card .description {
+  color: var(--sl-color-gray-2);
+  font-size: var(--tnz-text-sm);
+  line-height: 1.5;
+}
+
+.sl-markdown-content .sl-link-card .icon {
+  color: var(--tnz-primary-500);
+  transition: color var(--tnz-transition-base);
+}
+
+.sl-markdown-content .sl-link-card:hover .icon {
+  color: var(--sl-color-white);
+}
+
+/* Light mode LinkCard adjustments */
+:root[data-theme="light"] .sl-markdown-content .sl-link-card {
+  background-color: var(--sl-color-bg);
+  border-color: var(--sl-color-gray-5);
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-card:hover {
+  background-color: var(--sl-color-gray-7);
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-card .title {
+  color: var(--sl-color-text);
+}
+
+/* Search button styling */
+site-search button[data-open-modal] {
+  border-radius: var(--tnz-radius-sm);
+  padding: 0.5rem 0.75rem;
+  transition: all var(--tnz-transition-base);
+}
+
+site-search button[data-open-modal]:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
 /* Links */
 .sl-markdown-content a,
 .sl-markdown-content a:focus,
-.sl-markdown-content a:hover,
-.sl-markdown-content a:active,
 .sl-markdown-content a:visited {
-  color: var(--sl-color-text-accent);
+  color: var(--tnz-primary-500);
   text-decoration: none;
+  transition: all var(--tnz-transition-base);
+}
+
+/* Dark mode link color adjustment */
+:root[data-theme="dark"] .sl-markdown-content a,
+:root[data-theme="dark"] .sl-markdown-content a:focus,
+:root[data-theme="dark"] .sl-markdown-content a:visited {
+  color: var(--tnz-primary-400);
 }
 
 .sl-markdown-content a:hover {
   text-decoration: underline;
+  color: var(--sl-color-accent-high);
+}
+
+/* Ensure link buttons never get underlined */
+.sl-markdown-content a.sl-link-button,
+.sl-markdown-content a.sl-link-button:hover,
+.sl-markdown-content a.sl-link-button:focus {
+  text-decoration: none !important;
 }
 
 /* Header styling */
@@ -359,10 +554,32 @@ header[data-scrolled] {
   border-right: 1px solid var(--sl-color-gray-6);
 }
 
+/* Sidebar link hover effects */
+.sidebar-content a {
+  transition: all var(--tnz-transition-base);
+  border-radius: var(--tnz-radius-sm);
+}
+
+.sidebar-content a:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+.sidebar-content a[aria-current="page"] {
+  background-color: var(--tnz-nav-active-bg);
+  border-left: 3px solid var(--tnz-nav-active-border);
+  color: var(--sl-color-white);
+}
+
+/* Light mode fix for active sidebar item */
+:root[data-theme="light"] .sidebar-content a[aria-current="page"] {
+  color: var(--sl-color-text);
+}
+
 .sidebar-content {
   background-color: var(--sl-color-bg) !important;
 }
 
+/* Header styling */
 @media (max-width: 50rem) {
   nav.sidebar {
     background-color: var(--sl-color-bg) !important;
@@ -376,6 +593,40 @@ header[data-scrolled] {
 /* Social icons */
 .social-icons a {
   color: var(--sl-color-white);
+  transition: all var(--tnz-transition-base);
+  border-radius: var(--tnz-radius-sm);
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-icons a:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+/* Remove any transform on social icons */
+.social-icons a svg {
+  transition: none;
+  transform: none !important;
+}
+
+/* Override Starlight's social icon styles */
+.sl-flex.astro-6twgvhvi {
+  transform: none !important;
+  transition: background-color var(--tnz-transition-base), color var(--tnz-transition-base) !important;
+}
+
+.sl-flex.astro-6twgvhvi:hover {
+  transform: none !important;
+}
+
+/* Ensure no transforms on any social icon states */
+.social-icons a,
+.social-icons a:hover,
+.social-icons a:focus,
+.social-icons a:active {
+  transform: none !important;
 }
 
 /* Breadcrumbs */
@@ -404,7 +655,7 @@ header[data-scrolled] {
 .c-breadcrumbs__link {
   color: var(--sl-color-gray-3);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: all var(--tnz-transition-base);
   display: inline-flex;
   align-items: center;
   padding: 0.125rem 0.25rem;
@@ -412,8 +663,8 @@ header[data-scrolled] {
 }
 
 .c-breadcrumbs__link:hover {
-  color: var(--sl-color-accent);
-  background-color: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-3);
+  background-color: var(--tnz-nav-hover-bg);
 }
 
 .c-breadcrumbs__link.is-current {
@@ -505,11 +756,116 @@ header[data-scrolled] {
   overflow: hidden !important;
 }
 
+/* Language selector hover styling */
+starlight-lang-select button {
+  border-radius: var(--tnz-radius-sm);
+  padding: 0.25rem;
+  transition: all var(--tnz-transition-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+starlight-lang-select button:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+/* Theme selector hover styling */
+starlight-theme-select button {
+  border-radius: var(--tnz-radius-sm);
+  padding: 0.5rem;
+  transition: all var(--tnz-transition-base);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+starlight-theme-select button:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+/* Mobile menu button hover */
+starlight-menu-button button {
+  border-radius: var(--tnz-radius-sm);
+  padding: 0.375rem 0.5rem;
+  transition: all var(--tnz-transition-base);
+}
+
+starlight-menu-button button:hover {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+/* Table of contents active highlighting */
+starlight-toc {
+  position: relative;
+}
+
+starlight-toc a {
+  position: relative;
+  transition: color var(--tnz-transition-base);
+}
+
+starlight-toc a::before {
+  content: '';
+  position: absolute;
+  inset: -0.125rem -0.5rem;
+  background-color: transparent;
+  border-radius: var(--tnz-radius-sm);
+  transition: background-color var(--tnz-transition-base);
+  z-index: -1;
+}
+
+starlight-toc a:hover::before {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+starlight-toc a[aria-current="true"] {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+starlight-toc a[aria-current="true"]::before {
+  background-color: var(--tnz-nav-active-bg);
+}
+
+/* Mobile table of contents */
+mobile-starlight-toc a {
+  position: relative;
+  transition: color var(--tnz-transition-base);
+}
+
+mobile-starlight-toc a::before {
+  content: '';
+  position: absolute;
+  inset: -0.125rem -0.5rem;
+  background-color: transparent;
+  border-radius: var(--tnz-radius-sm);
+  transition: background-color var(--tnz-transition-base);
+  z-index: -1;
+}
+
+mobile-starlight-toc a:hover::before {
+  background-color: var(--tnz-nav-hover-bg);
+}
+
+mobile-starlight-toc a[aria-current="true"] {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+mobile-starlight-toc a[aria-current="true"]::before {
+  background-color: var(--tnz-nav-active-bg);
+}
+
 .function-card-example .expressive-code pre {
   overflow: hidden !important;
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
+
+/* Force override of Starlight button text colors at the end of CSS cascade */
+/* This ensures our custom color is applied after all component styles */
+
 
 .function-card-example .expressive-code pre::-webkit-scrollbar {
   display: none !important;
@@ -609,5 +965,17 @@ header[data-scrolled] {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
+}
+
+/* LinkButton text color override */
+.sl-link-button,
+.sl-link-button *,
+.sl-markdown-content .sl-link-button,
+.sl-markdown-content .sl-link-button *,
+.card .sl-link-button,
+.card .sl-link-button * {
+  color: var(--sl-color-text-invert) !important;
+  text-decoration: none !important;
+  --sl-color-black: var(--sl-color-text-invert) !important;
 }
 
