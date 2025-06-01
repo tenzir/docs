@@ -30,6 +30,7 @@ export function generateRedirects() {
   const redirects = {};
 
   // Static redirects
+  redirects["/overview"] = "/";
   redirects["/discord"] = "https://discord.gg/xqbDgVTCxZ";
   redirects["/sbom"] =
     "https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json";
