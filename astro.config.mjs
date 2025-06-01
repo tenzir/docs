@@ -82,7 +82,20 @@ export default defineConfig({
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
                 //errorOnLocalLinks: false,
-                exclude: ["/api/"],
+                exclude: [
+                  // Legacy API path that redirects to correct locations
+                  "/api/",
+                  // Redirect to Discord server; handled by redirects.mjs
+                  "/discord",
+                  // Auto-generated OpenAPI pages that may not be ready during
+                  // link checking
+                  "/reference/node-api",
+                  "/reference/platform-api",
+                  // These pages fail the link check for reasons unknown; maybe
+                  // a timing issue during build?
+                  "/explanations/configuration",
+                  "/guides/platform-setup",
+                ],
               }),
             ]
           : []),

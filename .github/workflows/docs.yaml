@@ -45,9 +45,6 @@ jobs:
 
       - name: Build with Astro
         run: |
-          # TODO: enable before going live.
-          #env:
-          #  RUN_LINK_CHECK: true
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             pnpm astro build \
               --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"

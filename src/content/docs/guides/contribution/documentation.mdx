@@ -35,7 +35,7 @@ Thereafter, build a development version of the docs:
 pnpm dev
 ```
 
-Then browse to http://localhost:4321/ to view the site.
+Then browse to `http://localhost:4321/` to view the site.
 
 ## Build for Production
 
@@ -51,11 +51,53 @@ Preview the generated files by spinning up a web server:
 pnpm preview
 ```
 
-Then browse to http://localhost:4321/ to view the site.
+Then browse to `http://localhost:4321/` to view the site.
 
 We create a production build in CI. Check out our [GitHub
 workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/docs.yaml)
 for the gory details.
+
+## Link Checking
+
+The documentation includes automated link validation to ensure all internal and external links work correctly:
+
+### Local Link Checking
+
+Before submitting changes, run link checking locally to catch broken links:
+
+```bash
+pnpm lint:linkcheck
+```
+
+This will build the site with link validation enabled and report any broken links found.
+
+### CI Integration
+
+Link checking runs automatically in our CI pipeline:
+
+- **All builds**: Link validation is enabled for production builds
+- **Pull requests**: Link checking runs as part of the lint workflow
+- **Scheduled maintenance**: Weekly link checks run every Sunday to catch broken external links
+
+### How It Works
+
+The link checker validates:
+
+- Internal page references (e.g., `/guides/quickstart`)
+- Anchor links within pages (e.g., `/reference/operators#aggregate`)
+- External URLs (with appropriate timeout and retry logic)
+- Relative links between documentation files
+
+### Fixing Broken Links
+
+When the link checker finds issues:
+
+1. **Invalid internal links**: Update the link to point to the correct page path
+2. **Missing anchor references**: Ensure the target heading or element exists
+3. **Broken external links**: Update URLs or remove outdated references
+4. **False positives**: Add exclusions to the `starlightLinksValidator` configuration in `astro.config.mjs`
+
+The link checker will cause builds to fail if broken links are detected, ensuring the documentation maintains high quality.
 
 ## Optimize Images
 
