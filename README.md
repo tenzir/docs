@@ -98,7 +98,7 @@ repository.
 
 This project includes automated link checking to ensure all internal and external links are valid:
 
-- **Local testing**: Run `pnpm linkcheck` to check for broken links locally
+- **Local testing**: Run `pnpm lint:linkcheck` to check for broken links locally
 - **CI integration**: Link checking runs automatically on all builds and pull requests
 - **Scheduled checks**: Weekly automated link checking runs on Sundays to catch broken external links
 - **Error reporting**: Broken links cause builds to fail and create GitHub issues automatically
