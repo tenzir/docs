@@ -53,11 +53,6 @@ export const topics = [
     items: reference,
   },
   {
-    label: "Changelog",
-    link: "changelog",
-    items: changelog_node,
-  },
-  {
     label: "Tenzir Node",
     id: "changelog_node",
     link: "changelog/node",
@@ -70,6 +65,11 @@ export const topics = [
     link: "changelog/platform",
     icon: "open-book",
     items: changelog_platform,
+  },
+  {
+    label: "Changelog",
+    link: "changelog",
+    items: changelog_node,
   },
 ];
 
