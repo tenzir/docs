@@ -495,7 +495,7 @@ def update_sidebar_file(
         ts_archive_paths = []
 
         # Always include "next" entry regardless of whether it exists
-        ts_paths.append(f'  "changelog/{product}/next",')
+        ts_paths.append(f'changelog/{product}/next')
 
         # Split releases into visible and archived based on MAX_VISIBLE_RELEASES
         for i, (version_name, filename_version, _) in enumerate(other_versions):
@@ -510,7 +510,7 @@ def update_sidebar_file(
         if ts_paths or ts_archive_paths:
             ts_content += f"export const changelog_{product} = [\n"
             for path in ts_paths:
-                ts_content += f"  {path},\n"
+                ts_content += f'    "{path}",\n'
 
             # Add archive section if there are archived releases
             if ts_archive_paths:
@@ -519,7 +519,7 @@ def update_sidebar_file(
                 ts_content += f'    collapsed: true,\n'
                 ts_content += f'    items: [\n'
                 for path in ts_archive_paths:
-                    ts_content += f"    {path},\n"
+                    ts_content += f'      "{path}",\n'
                 ts_content += f'    ],\n'
                 ts_content += f'  }},\n'
 
