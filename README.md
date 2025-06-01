@@ -85,12 +85,12 @@ can find a preview of the new documentation at
 ### 🚀 Relaunch
 
 - [x] Fix all broken links and uncomment link checking in CI
-- [ ] Remove `new.` subdomain in `site` variable in `astro.config.mjs`
+- [x] Remove `new.` subdomain in `site` variable in `astro.config.mjs`
 
 ## ✊ Usage
 
 Our
-[documentation](https://new.docs.tenzir.com/guides/contribution/documentation/)
+[documentation](https://docs.tenzir.com/guides/contribution/documentation/)
 has up-to-date instructions on how to build, view, and edit content in this
 repository.
 
