@@ -234,22 +234,22 @@ def parse_version_for_sorting(version: str) -> Tuple:
 def get_badge_variant(version: str) -> str:
     """
     Determines the sidebar badge variant based on version bump type.
-    - Major bump (X.0.0) → 'note'
+    - Major bump (X.0.0) → 'tip'
     - Minor bump (x.Y.0) → 'success'
-    - Patch bump (x.y.Z) → 'tip'
-    Defaults to 'tip' if version parsing fails.
+    - Patch bump (x.y.Z) → 'note'
+    Defaults to 'note' if version parsing fails.
     """
     semver = parse_semver(version)
     if not semver:
-        return "tip"
+        return "note"
 
     major, minor, patch = semver
     if minor == 0 and patch == 0:
-        return "note"  # Major version
+        return "tip"  # Major version
     elif patch == 0:
         return "success"  # Minor version
     else:
-        return "tip"  # Patch version
+        return "note"  # Patch version
 
 
 def load_changes_map(changes_dir: Path) -> Dict[str, Path]:

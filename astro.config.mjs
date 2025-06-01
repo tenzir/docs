@@ -66,6 +66,7 @@ export default defineConfig({
         "@fontsource-variable/jetbrains-mono",
         "@fontsource-variable/inter",
         "./src/assets/styles.css",
+        "./src/assets/css/utilities.css",
       ],
       components: {
         PageFrame: "./src/components/PageFrame.astro",

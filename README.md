@@ -49,7 +49,7 @@ can find a preview of the new documentation at
 - [x] Fix Integrations tab not being bold font inside
 - [x] Do CSS magic to fuse subsequent TQL code blocks
 - [x] Apply CSS and get a facelift
-- [ ] Style Asides to match design system
+- [x] Style Asides to match design system
 - [x] Add our favicon
 
 ### Changelog
