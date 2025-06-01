@@ -303,7 +303,9 @@ but often resort to the method style when it is more idiomatic.
 
   // Sort main categories and their subcategories
   Object.keys(categoryGroups).forEach((mainCategory) => {
-    categoryGroups[mainCategory].sort((a, b) => a.subCategory.localeCompare(b.subCategory));
+    categoryGroups[mainCategory].sort((a, b) =>
+      a.subCategory.localeCompare(b.subCategory),
+    );
   });
 
   const sortedMainCategories = Object.keys(categoryGroups).sort();
@@ -331,23 +333,25 @@ but often resort to the method style when it is more idiomatic.
   sortedMainCategories.forEach((mainCategory) => {
     markdown += `\n## ${mainCategory}\n\n`;
 
-    categoryGroups[mainCategory].forEach(({ name: categoryName, subCategory }) => {
-      const items = categorizedItems[categoryName];
-      if (!items || items.length === 0) {
-        return;
-      }
+    categoryGroups[mainCategory].forEach(
+      ({ name: categoryName, subCategory }) => {
+        const items = categorizedItems[categoryName];
+        if (!items || items.length === 0) {
+          return;
+        }
 
-      markdown += `### ${subCategory}\n\n`;
-      markdown += `<CardGrid>\n\n`;
+        markdown += `### ${subCategory}\n\n`;
+        markdown += `<CardGrid>\n\n`;
 
-      items.forEach((item) => {
-        const escapedTitle = item.name.replace(/"/g, "&quot;");
-        const escapedDescription = item.description.replace(/"/g, "&quot;");
-        markdown += `<ReferenceCard title="${escapedTitle}" description="${escapedDescription}" href="/${item.path}">\n\n\`\`\`tql\n${item.example}\n\`\`\`\n\n</ReferenceCard>\n\n`;
-      });
+        items.forEach((item) => {
+          const escapedTitle = item.name.replace(/"/g, "&quot;");
+          const escapedDescription = item.description.replace(/"/g, "&quot;");
+          markdown += `<ReferenceCard title="${escapedTitle}" description="${escapedDescription}" href="/${item.path}">\n\n\`\`\`tql\n${item.example}\n\`\`\`\n\n</ReferenceCard>\n\n`;
+        });
 
-      markdown += `</CardGrid>\n`;
-    });
+        markdown += `</CardGrid>\n`;
+      },
+    );
   });
 
   // Add any uncategorized items
