@@ -150,62 +150,77 @@ export const reference = [
 
 export const integrations = [
   {
-    label: "Integrations",
+    label: "Amazon",
+    items: [
+      "integrations/amazon",
+      "integrations/amazon/msk",
+      "integrations/amazon/s3",
+      "integrations/amazon/security-lake",
+      "integrations/amazon/sqs",
+    ],
+  },
+  {
+    label: "Google",
+    items: [
+      "integrations/google/cloud-logging",
+      "integrations/google/cloud-storage",
+      "integrations/google/pubsub",
+      "integrations/google/secops",
+    ],
+  },
+  {
+    label: "Microsoft",
     items: [
       {
-        label: "Amazon",
+        label: "Azure",
         items: [
-          "integrations/amazon",
-          "integrations/amazon/msk",
-          "integrations/amazon/s3",
-          "integrations/amazon/security-lake",
-          "integrations/amazon/sqs",
+          "integrations/microsoft/azure/blob-storage",
+          "integrations/microsoft/azure/log-analytics",
         ],
       },
-      {
-        label: "Google",
-        items: [
-          "integrations/google/cloud-logging",
-          "integrations/google/cloud-storage",
-          "integrations/google/pubsub",
-          "integrations/google/secops",
-        ],
-      },
-      {
-        label: "Microsoft",
-        items: [
-          {
-            label: "Azure",
-            items: [
-              "integrations/microsoft/azure/blob-storage",
-              "integrations/microsoft/azure/log-analytics",
-            ],
-          },
-          "integrations/microsoft/defender",
-          "integrations/microsoft/windows-event-logs",
-        ],
-      },
+      "integrations/microsoft/defender",
+      "integrations/microsoft/windows-event-logs",
+    ],
+  },
+  {
+    label: "Message Brokers",
+    items: [
       "integrations/amqp",
-      "integrations/clickhouse",
-      "integrations/elasticsearch",
+      "integrations/fluent-bit",
+      "integrations/kafka",
+      "integrations/zeromq",
+    ],
+  },
+  {
+    label: "Protocols",
+    items: [
       "integrations/email",
       "integrations/file",
-      "integrations/fluent-bit",
       "integrations/ftp",
-      "integrations/graylog",
       "integrations/http",
-      "integrations/kafka",
       "integrations/nic",
-      "integrations/opensearch",
-      "integrations/snowflake",
-      "integrations/splunk",
-      "integrations/suricata",
       "integrations/syslog",
       "integrations/tcp",
       "integrations/udp",
+    ],
+  },
+  {
+    label: "Data Tools",
+    items: [
+      "integrations/clickhouse",
+      "integrations/elasticsearch",
+      "integrations/graylog",
+      "integrations/opensearch",
+      "integrations/snowflake",
+      "integrations/splunk",
+    ],
+  },
+  {
+    label: "Security Tools",
+    items: [
+      "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
-      "integrations/zeromq",
       "integrations/zscaler",
     ],
   },
