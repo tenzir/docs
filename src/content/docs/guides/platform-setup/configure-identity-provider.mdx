@@ -80,4 +80,65 @@ This section still needs to be written.
 
 ## Microsoft Entra Identity
 
-[Entra ID](identity-providers/entra.mdx)
+### Connect the Tenzir Platform to Microsoft Entra Identity
+
+To use Entra as an OIDC provider, you need to create two App registrations in Entra ID and configure them to use with the Tenzir UI and the Tenzir Platform CLI.
+Follow these steps to create the required resources:
+
+1. Navigate to `portal.azure.com` and open the page for "Microsoft Entra ID".
+
+![Navigate to Entra](./configure-identity-provider/Entra_OIDC_navigate.png)
+
+2. Open the "App registrations" sub page.
+
+![Select App registrations](./configure-identity-provider/Entra_OIDC_app_registrations.png)
+
+3. Create a new registration named `Tenzir Platform CLI`.
+
+![Register CLI](./configure-identity-provider/Entra_OIDC_register_CLI.png)
+
+4. Enable the public client flows for this app.
+
+![Enable public client flows](./configure-identity-provider/Entra_OIDC_CLI_public_client_flows.png)
+
+5. Create a second registration named `Tenzir UI`.
+
+![Register UI](./configure-identity-provider/Entra_OIDC_register_UI.png)
+
+6. For this registration, open "Ceritificates & Secrets".
+
+![Navigate Secrets](./configure-identity-provider/Entra_OIDC_Create_secret-1.png)
+
+7. Create a new secret and give it a descriptive name.
+
+![Create Secret](./configure-identity-provider/Entra_OIDC_Create_secret-2.png)
+
+8. Make a local copy of the secret value.
+
+![Copy Secret](./configure-identity-provider/Entra_OIDC_Copy_secret.png)
+
+9. Copy the client id to your local machine.
+
+![Copy Client ID](./configure-identity-provider/Entra_OIDC_client_id.png)
+
+9. Copy the issuer url to your local machine.
+
+![Copy Issuer URL](./configure-identity-provider/Entra_OIDC_issuer_url.png)
+
+
+Now you can supply the created resources and values to the stack by setting editing the `.env` file in your compose folder:
+
+```sh
+TENZIR_PLATFORM_LOGIN_ENDPOINT=https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0
+TENZIR_PLATFORM_OIDC_PROVIDER_ISSUER_URL=https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0
+
+TENZIR_PLATFORM_OIDC_PROVIDER_NAME="Entra ID"
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0","audiences": ["d8ea5612-6745-47bc-b9fe-5024b1ca18fe"]}'
+TENZIR_PLATFORM_OIDC_ADMIN_RULES='[{"auth_fn":"auth_user","user_id":"00000000-0000-0000-0000-000000000000"}]'
+
+TENZIR_PLATFORM_OIDC_CLI_CLIENT_ID=082a9391-b645-4278-a16e-3cf54fb1bcf0
+TENZIR_PLATFORM_OIDC_APP_CLIENT_ID=d8ea5612-6745-47bc-b9fe-5024b1ca18fe
+TENZIR_PLATFORM_OIDC_APP_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Now you can restart your Tenzir Platform stack and you will be redirected to a Microsoft login page when you next login to the Tenzir UI.
