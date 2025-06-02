@@ -171,13 +171,8 @@ export const integrations = [
   {
     label: "Microsoft",
     items: [
-      {
-        label: "Azure",
-        items: [
-          "integrations/microsoft/azure/blob-storage",
-          "integrations/microsoft/azure/log-analytics",
-        ],
-      },
+      "integrations/microsoft/azure-blob-storage",
+      "integrations/microsoft/azure-log-analytics",
       "integrations/microsoft/defender",
       "integrations/microsoft/windows-event-logs",
     ],
