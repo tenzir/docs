@@ -1,0 +1,211 @@
+---
+export interface Props {
+  imageSrc?: string;
+  activeSection?: "tutorials" | "guides" | "explanations" | "reference" | null;
+}
+
+const { imageSrc = "/docs-structure.svg", activeSection = null } = Astro.props;
+
+// Define which sections should be clickable based on the active section
+const getClickableStatus = (section: string) => {
+  return activeSection !== section;
+};
+
+// Get the appropriate href for each section
+const getHref = (section: string) => {
+  if (activeSection === section) return undefined;
+  return `/${section}/`;
+};
+---
+
+<div class="interactive-diagram-container">
+  <!-- The SVG image -->
+  <img src={imageSrc} alt="Documentation structure" class="diagram-image inline-svg" />
+
+  <!-- Clickable overlay areas -->
+  <div class="overlay-container">
+    <!-- Tutorials (top-left) -->
+    {
+      getClickableStatus("tutorials") ? (
+        <a
+          href={getHref("tutorials")}
+          class="overlay-area tutorials"
+          aria-label="Go to Tutorials"
+        >
+          <div class="overlay-content" />
+        </a>
+      ) : (
+        <div class="overlay-area tutorials inactive">
+          <div class="overlay-content" />
+        </div>
+      )
+    }
+
+    <!-- Guides (top-right) -->
+    {
+      getClickableStatus("guides") ? (
+        <a
+          href={getHref("guides")}
+          class="overlay-area guides"
+          aria-label="Go to Guides"
+        >
+          <div class="overlay-content" />
+        </a>
+      ) : (
+        <div class="overlay-area guides inactive">
+          <div class="overlay-content" />
+        </div>
+      )
+    }
+
+    <!-- Explanations (bottom-left) -->
+    {
+      getClickableStatus("explanations") ? (
+        <a
+          href={getHref("explanations")}
+          class="overlay-area explanations"
+          aria-label="Go to Explanations"
+        >
+          <div class="overlay-content" />
+        </a>
+      ) : (
+        <div class="overlay-area explanations inactive">
+          <div class="overlay-content" />
+        </div>
+      )
+    }
+
+    <!-- Reference (bottom-right) -->
+    {
+      getClickableStatus("reference") ? (
+        <a
+          href={getHref("reference")}
+          class="overlay-area reference"
+          aria-label="Go to Reference"
+        >
+          <div class="overlay-content" />
+        </a>
+      ) : (
+        <div class="overlay-area reference inactive">
+          <div class="overlay-content" />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .interactive-diagram-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    margin: 2rem auto;
+  }
+
+  .diagram-image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 3.52% 39.55% 13.93% 39.55% 3.45%;
+    grid-template-rows: 2% 32% 24% 32% 10%;
+    gap: 0;
+  }
+
+  .overlay-area {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay-area:hover {
+    background-color: rgba(128, 128, 128, 0.1);
+  }
+
+  /* Dark mode: more prominent hover effect */
+  :global([data-theme="dark"]) .overlay-area:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .overlay-area:focus {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: -2px;
+  }
+
+  .overlay-area.inactive {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .overlay-area.inactive:hover {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .overlay-content {
+    display: none;
+  }
+
+  /* Specific positioning adjustments */
+  .tutorials {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .guides {
+    grid-column: 4;
+    grid-row: 2;
+  }
+
+  .explanations {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .reference {
+    grid-column: 4;
+    grid-row: 4;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .interactive-diagram-container {
+      margin: 1.5rem auto;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .interactive-diagram-container {
+      margin: 1rem auto;
+    }
+  }
+
+  /* Accessibility improvements */
+  @media (prefers-reduced-motion: reduce) {
+    .overlay-area {
+      transition: none;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .overlay-area:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+  }
+</style>

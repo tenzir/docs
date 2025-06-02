@@ -1,5 +1,7 @@
 ---
 title: metrics
+category: Node/Inspection
+example: 'metrics "cpu"'
 ---
 
 Retrieves metrics events from a Tenzir node.
@@ -58,7 +60,7 @@ Contains information about all accessed API endpoints, emitted once per second.
 | `params`        | `record`   | The API endpoints parameters passed inused.            |
 
 The schema of the record `params` depends on the API endpoint used. Refer to the
-[API documentation](/api) to see the available parameters per endpoint.
+[API documentation](/reference/node-api) to see the available parameters per endpoint.
 
 ### `tenzir.metrics.caf`
 
@@ -553,4 +555,4 @@ select timestamp, port, handle, reads, bytes
 
 ## See Also
 
-[`diagnostics`](diagnostics)
+[`diagnostics`](/reference/operators/diagnostics)

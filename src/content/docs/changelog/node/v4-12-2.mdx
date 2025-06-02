@@ -1,0 +1,61 @@
+---
+title: Tenzir Node v4.12.2
+sidebar:
+  badge:
+    text: v4.12.2
+    variant: note
+---
+
+### Features
+
+#### Add an operator for dumping schemas
+
+The chart operator now accepts the flags `--x-axis-type` and `--y-axis-type`
+for `bar`, `line`, and `area` charts, with the possible values being `log` and
+`linear`, with `linear` as the default value. Setting these flags defines the
+scale (logarithmic or linear) on the Tenzir App chart visualization.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4147](https://github.com/tenzir/tenzir/pull/4147).
+
+### Bug Fixes
+
+#### Use consistent attributes for y-axis in `chart`
+
+The `chart` operator failed to render a chart when the y-axis was not specified
+explicitly and the events contained more than two top-level fields. This no
+longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4173](https://github.com/tenzir/tenzir/pull/4173).
+
+#### Find syntax errors before record batch reading
+
+The python operator now checks for syntax errors on operator start up.
+
+By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4139](https://github.com/tenzir/tenzir/pull/4139).
+
+#### Fix reopening ports while subprocesses are open
+
+We fixed a bug that prevented restarts of pipelines containing a listening
+connector under specific circumstances.
+
+By [@tobim](https://github.com/tobim) in [#4170](https://github.com/tenzir/tenzir/pull/4170).
+
+#### Chain the execution node start response promise to the node lifetime
+
+The retry delay now works for pipelines that fail during startup.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4171](https://github.com/tenzir/tenzir/pull/4171).
+
+#### Restore implicit `read json` in `from tcp`
+
+We accidentally removed the implicit `read json` from `from tcp` in Tenzir
+v4.12. The shortform now works as expected again.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4175](https://github.com/tenzir/tenzir/pull/4175).
+
+#### Fix shutdown of `every <interval> <transformation|sink>`
+
+Transformations or sinks used with the `every` operator modifier did not shut
+down correctly when exhausting their input. This now work as expected.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4166](https://github.com/tenzir/tenzir/pull/4166).

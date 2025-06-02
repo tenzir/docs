@@ -4,7 +4,7 @@ title: Write a node plugin
 
 Implementing a new plugin requires the following steps:
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
@@ -57,14 +57,14 @@ files/directories:
 ## Choose a plugin type
 
 Tenzir offers [a variety of customization
-points](../architecture/plugins.md#plugin-types), each of which defines its
+points](/explanations/architecture), each of which defines its
 own API by inheriting from the plugin base class `tenzir::plugin`. When writing
 a new plugin, you can choose a subset of available types by inheriting from the
 respective plugin classes.
 
 :::caution[Dreaded Diamond]
 To avoid common issues with multiple inheritance, all intermediate plugin
-classes that inherit from `tenzir::plugin` use *virtual inheritance* to avoid
+classes that inherit from `tenzir::plugin` use _virtual inheritance_ to avoid
 issues with the [dreaded
 diamond](https://isocpp.org/wiki/faq/multiple-inheritance#mi-diamond).
 :::
@@ -180,7 +180,7 @@ To test that Tenzir loads the plugin properly, you can use `tenzir
 --plugins=example version` and look into the `plugins`. A key-value pair with
 your plugin name and version should exist in the output.
 
-Refer to the [plugin loading](../configuration.md#load-plugins) section of
+Refer to the [plugin loading](/explanations/configuration) section of
 the documentation to find out how to explicitly de-/activate plugins.
 
 ### Building against an installed Tenzir

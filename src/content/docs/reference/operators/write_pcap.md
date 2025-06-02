@@ -1,5 +1,7 @@
 ---
 title: write_pcap
+category: Printing
+example: 'write_pcap'
 ---
 
 Transforms event stream to PCAP byte stream.
@@ -45,4 +47,5 @@ save_file "/logs/packets.pcap"
 
 ## See Also
 
-[`read_pcap`](read_pcap)
+[`load_nic`](/reference/operators/load_nic),
+[`read_pcap`](/reference/operators/read_pcap)

@@ -1,5 +1,7 @@
 ---
 title: format_time
+category: Time & Date
+example: 'ts.format_time("%d/ %m/%Y")'
 ---
 
 Formats a time into a string that follows a specific format.
@@ -85,4 +87,4 @@ x = x.format_time("%d.%m.%Y")
 
 ## See Also
 
-[`parse_time`](parse_time)
+[`parse_time`](/reference/functions/parse_time)

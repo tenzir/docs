@@ -1,5 +1,7 @@
 ---
 title: shell
+category: Escape Hatches
+example: 'shell "echo hello"'
 ---
 
 Executes a system command and hooks its stdin and stdout into the pipeline.
@@ -34,4 +36,4 @@ read_json
 
 ## See Also
 
-[`python`](python)
+[`python`](/reference/operators/python)

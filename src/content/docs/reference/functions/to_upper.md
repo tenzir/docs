@@ -1,5 +1,7 @@
 ---
 title: to_upper
+category: String/Transformation
+example: '"hello".to_upper()'
 ---
 
 Converts a string to uppercase.
@@ -26,4 +28,7 @@ from {x: "hello".to_upper()}
 
 ## See Also
 
-[`to_lower`](to_lower), [`to_title`](to_title)
+[`capitalize`](/reference/functions/capitalize),
+[`is_upper`](/reference/functions/is_upper),
+[`to_lower`](/reference/functions/to_lower),
+[`to_title`](/reference/functions/to_title)

@@ -1,5 +1,7 @@
 ---
 title: from_epoch
+category: Time & Date
+example: 'from_epoch(time_ms * 1ms)'
 ---
 
 Interprets a duration as Unix time.
@@ -27,7 +29,7 @@ time = from_epoch(time * 1s)
 ```
 
 ```tql
-{x: 2025-01-10T16:10:29+00:00}
+{time: 2025-01-10T16:10:29+00:00}
 ```
 
 ### Interpret a duration as Unix time
@@ -42,4 +44,5 @@ from {x: from_epoch(50y + 12w + 20m)}
 
 ## See Also
 
-[`now`](now), [`since_epoch`](since_epoch)
+[`now`](/reference/functions/now),
+[`since_epoch`](/reference/functions/since_epoch)

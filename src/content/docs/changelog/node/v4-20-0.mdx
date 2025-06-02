@@ -1,0 +1,118 @@
+---
+title: Tenzir Node v4.20.0
+sidebar:
+  badge:
+    text: v4.20.0
+    variant: success
+---
+
+### Features
+
+#### Perform individual catalog lookups in `lookup`
+
+The `lookup` operator is now smarter about retroactive lookups for frequently
+updated contexts and avoids loading data from disk multiple times for context
+updates that arrive shortly after one another.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4535](https://github.com/tenzir/tenzir/pull/4535).
+
+#### Implement the `cache` operator
+
+The `cache` operator is a transformation that passes through events, creating an
+in-memory cache of events on the first use. On subsequent uses, the operator
+signals upstream operators no to start at all, and returns the cached events
+immediately. The operator may also be used as a source for reading from a cache
+only, or as a sink for writing to a cache only.
+
+The `/pipeline/launch` operator features four new parameters `cache_id`,
+`cache_capacity`,`cache_ttl`, and `cache_max_ttl`. If a `cache_id` is specified,
+the pipeline's implicit sink will use the `cache` operator under the hood. At
+least one of `serve_id` and `cache_id` must be specified.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4515](https://github.com/tenzir/tenzir/pull/4515).
+
+#### Remove the legacy metrics system
+
+The new `rebuild` metrics contain information about running partition rebuilds.
+
+The `ingest` metrics contain information about all ingested events and their
+schema. This is slightly different from the existing `import` metrics, which
+track only events imported via the `import` operator, and are separate per
+pipeline.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4381](https://github.com/tenzir/tenzir/pull/4381).
+
+#### Implement unstoppable pipelines
+
+The new `unstoppable` flag allows for pipelines to run and repeat indefinitely
+without the ability to stop or pause.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4513](https://github.com/tenzir/tenzir/pull/4513).
+
+### Changes
+
+#### Remove the legacy metrics system
+
+The previously deprecated legacy metrics system configured via the
+`tenzir.metrics` configuration section no longer exists. Use the `metrics`
+operator instead.
+
+`lookup` metrics no longer contain the `snapshot` field; instead, the values
+show in the `retro` field.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4381](https://github.com/tenzir/tenzir/pull/4381).
+
+#### Remove special character escaping from `lines_printer`
+
+The `lines` printer now does not perform any escaping and is no longer an alias to
+the `ssv` printer. Additionally, nulls are skipped, instead of being printed
+as `-`.
+
+By [@raxyte](https://github.com/raxyte) in [#4520](https://github.com/tenzir/tenzir/pull/4520).
+
+#### PRs 4455-4549
+
+The `show` operator is deprecated. Use the operator `<aspect>` instead of `show
+<aspect>`. The information from `show dependencies` and `show build` is now
+available in the `version` operator.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4455](https://github.com/tenzir/tenzir/pull/4455).
+
+### Bug Fixes
+
+#### Fix a crash when starting `export` on shutdown
+
+We fixed an issue where the `export`, `metrics`, or `diagnostics` operators
+crashed the node when started while the node was shutting down or after an
+unexpected filesystem error occurred. This happened frequently while using the
+Tenzir Platform, which subscribes to metrics and diagnostics automatically.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4530](https://github.com/tenzir/tenzir/pull/4530).
+
+#### Perform individual catalog lookups in `lookup`
+
+We fixed a bug that sometimes caused the `retro.queued_events` value in `lookup`
+metrics to stop going down again.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4535](https://github.com/tenzir/tenzir/pull/4535).
+
+#### Fix data parser precedence
+
+IPv6 addresses with a prefix that is a valid duration, for example `2dff::` with
+the prefix `2d`, now correctly parse as an IP instead of a string.
+
+By [@jachris](https://github.com/jachris) in [#4523](https://github.com/tenzir/tenzir/pull/4523).
+
+#### Fix regression in `azure-log-analytics`
+
+We fixed a regression introduced in Tenzir v4.19.2 in the `azure-log-analytics`
+operator that prevented it from starting correctly.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4516](https://github.com/tenzir/tenzir/pull/4516).
+
+#### Fix crash for heterogeneous subnet lookup tables
+
+`context inspect <ctx>` no longer crashes for lookup table contexts with
+values of multiple schemas when using subnets as keys.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4531](https://github.com/tenzir/tenzir/pull/4531).

@@ -1,5 +1,7 @@
 ---
 title: value_counts
+category: Aggregation
+example: 'value_counts([1,2,2,3])'
 ---
 
 Returns a list of all grouped values alongside their frequency.
@@ -32,4 +34,5 @@ summarize counts=value_counts(x)
 
 ## See Also
 
-[`mode`](mode), [`distinct`](distinct)
+[`mode`](/reference/functions/mode),
+[`distinct`](/reference/functions/distinct)

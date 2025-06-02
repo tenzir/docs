@@ -1,5 +1,7 @@
 ---
 title: unordered
+category: Internals
+example: 'unordered { read_ndjson }'
 ---
 
 Removes ordering assumptions from a pipeline.

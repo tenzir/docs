@@ -1,0 +1,132 @@
+---
+title: Tenzir Node v4.18.0
+sidebar:
+  badge:
+    text: v4.18.0
+    variant: success
+---
+
+### Features
+
+#### Add an optional `name` argument to the `metrics` operator
+
+The `metrics` operator now optionally takes a metric name as an argument. For
+example, `metrics cpu` only shows CPU metrics. This is functionally equivalent
+to `metrics | where #schema == "tenzir.metrics.cpu"`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4369](https://github.com/tenzir/tenzir/pull/4369).
+
+#### Introduce API metrics
+
+The new `tenzir.metrics.api` metrics record every API call made to a Tenzir
+Node.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4368](https://github.com/tenzir/tenzir/pull/4368).
+
+#### Emit connection status metrics from the platform
+
+The `tenzir.metrics.platform` metrics records every second whether the
+connection to the Tenzir Platform is working as expected from the node's
+perspective.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4374](https://github.com/tenzir/tenzir/pull/4374).
+
+#### PRs 4339-4365
+
+The `publish`, `subscribe`, `import`, `export`, `lookup` and `enrich` operators
+deliver their own, operator-specific metrics now.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4339](https://github.com/tenzir/tenzir/pull/4339).
+
+### Changes
+
+#### Raise the default and max timeouts for `/serve`
+
+We raised the default and maximum long-polling timeouts for `/serve` from 2s and
+5s to 5s and 10s, respectively.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4370](https://github.com/tenzir/tenzir/pull/4370).
+
+#### Prepare the pipeline manager for TQLv2
+
+Diagnostics from managed pipelines are now deduplicated, showing each diagnostic
+at most once for each run.
+
+By [@jachris](https://github.com/jachris) in [#4348](https://github.com/tenzir/tenzir/pull/4348).
+
+#### Push expressions into `subscribe` for better metrics
+
+Pipeline activity for pipelines starting with `subscribe | where <expr>` will no
+longer report ingress that does not match the provided filter expression.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4349](https://github.com/tenzir/tenzir/pull/4349).
+
+#### Revamp the `export` operator
+
+The previously deprecated `--low-priority` option for the `export` operator no
+longer exists. The new `--parallel <level>` option allows tuning how many
+worker threads the operator uses at most for querying persisted events.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4365](https://github.com/tenzir/tenzir/pull/4365).
+
+#### Simplify the node actor setup
+
+The deprecated `vast` symlink for the `tenzir-ctl` binary that offeres backwards
+compatiblity with versions older than Tenzir v4—when it was called VAST—no
+longer exists.
+
+The deprecated `tenzir.db-directory` option no longer exists. Use
+`tenzir.state-directory` instead.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4343](https://github.com/tenzir/tenzir/pull/4343).
+
+### Bug Fixes
+
+#### Add missing time format specifiers for the static binary
+
+The time parser now accepts the `%F`, `%g`, `%G`, `%u`, `%V`, `%z`, and `%Z`
+format specifiers.
+
+By [@tobim](https://github.com/tobim) in [#4366](https://github.com/tenzir/tenzir/pull/4366).
+
+#### Fix open partition tracking in the `lookup` operator
+
+We fixed a rare bug that caused the `lookup` operator to exit unexpectedly when
+using a high value for the operator's `--parallel` option.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4363](https://github.com/tenzir/tenzir/pull/4363).
+
+#### Allow immediate restarts of the TCP listen connector
+
+The `tcp` connector no longer fails in listen mode when you try to restart it
+directly after stopping it.
+
+By [@tobim](https://github.com/tobim) in [#4367](https://github.com/tenzir/tenzir/pull/4367).
+
+#### Honor proxy settings in the SQS connector
+
+The SQS connector now honors system proxy settings.
+
+By [@tobim](https://github.com/tobim) in [#4359](https://github.com/tenzir/tenzir/pull/4359).
+
+#### Fix possible crash when one of multiple subscribers disconnects
+
+We fixed a rare crash when one of multiple `subscribe` operators for the same
+topic disconnected while at least one of the other subscribers was overwhelmed
+and asked for corresponding publishers to throttle.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4346](https://github.com/tenzir/tenzir/pull/4346).
+
+#### Remove the zero-size check in the split_at_null() input loop
+
+We fixed a rarely occurring issue in the `gelf` parser that led to parsing
+errors for some events.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4341](https://github.com/tenzir/tenzir/pull/4341).
+
+#### Push expressions into `subscribe` for better metrics
+
+Pipelines of the form `export --live | where <expr>` failed to filter with
+type extractors or concepts. This now works as expected.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4349](https://github.com/tenzir/tenzir/pull/4349).

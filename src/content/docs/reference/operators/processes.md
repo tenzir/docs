@@ -1,5 +1,7 @@
 ---
 title: processes
+category: Host Inspection
+example: 'processes'
 ---
 
 Shows a snapshot of running processes.
@@ -59,5 +61,5 @@ head 5
 
 ## See Also
 
-[`files`](files),
-[`sockets`](sockets)
+[`files`](/reference/operators/files),
+[`sockets`](/reference/operators/sockets)

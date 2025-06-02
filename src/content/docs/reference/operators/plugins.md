@@ -1,5 +1,7 @@
 ---
 title: plugins
+category: Node/Inspection
+example: 'plugins'
 ---
 
 Shows all available plugins and built-ins.

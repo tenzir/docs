@@ -1,5 +1,7 @@
 ---
 title: decode_base64
+category: Decoding
+example: 'decode_base64("VGVuemly")'
 ---
 
 Decodes bytes as Base64.
@@ -31,4 +33,4 @@ decoded = bytes.decode_base64()
 
 ## See Also
 
-[`encode_base64`](encode_base64)
+[`encode_base64`](/reference/functions/encode_base64)

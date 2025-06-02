@@ -1,5 +1,7 @@
 ---
 title: read_parquet
+category: Parsing
+example: 'read_parquet'
 ---
 
 Reads events from a Parquet byte stream.
@@ -18,7 +20,7 @@ tools support.
 [parquet]: https://parquet.apache.org/
 
 :::tip[MMAP Parsing]
-When using theis with the [`load_file`](load_file) operator, we
+When using theis with the [`load_file`](/reference/operators/load_file) operator, we
 recommend passing the `mmap=true` option to `load_file` to give the parser full control
 over the reads, which leads to better performance and memory usage.
 :::
@@ -39,6 +41,6 @@ read_parquet
 
 ## See Also
 
-[`read_feather`](read_feather),
-[`to_hive`](to_hive),
-[`write_parquet`](write_parquet)
+[`read_feather`](/reference/operators/read_feather),
+[`to_hive`](/reference/operators/to_hive),
+[`write_parquet`](/reference/operators/write_parquet)

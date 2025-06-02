@@ -1,5 +1,7 @@
 ---
 title: head
+category: Filter
+example: 'head 20'
 ---
 
 Limits the input to the first `n` events.
@@ -12,7 +14,7 @@ head [n:int]
 
 Forwards the first `n` events and discards the rest.
 
-`head n` is a shorthand notation for [`slice end=n`](slice).
+`head n` is a shorthand notation for [`slice end=n`](/reference/operators/slice).
 
 ### `n: int (optional)`
 
@@ -36,5 +38,5 @@ head 5
 
 ## See Also
 
-[`slice`](slice),
-[`tail`](tail)
+[`slice`](/reference/operators/slice),
+[`tail`](/reference/operators/tail)

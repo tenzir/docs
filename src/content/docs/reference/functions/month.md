@@ -1,5 +1,7 @@
 ---
 title: month
+category: Time & Date
+example: 'ts.month()'
 ---
 
 Extracts the month component from a timestamp.
@@ -37,5 +39,8 @@ month = ts.month()
 
 ## See also
 
-[`year`](year), [`day`](day), [`hour`](hour), [`minute`](minute),
-[`second`](second)
+[`year`](/reference/functions/year),
+[`day`](/reference/functions/day),
+[`hour`](/reference/functions/hour),
+[`minute`](/reference/functions/minute),
+[`second`](/reference/functions/second)

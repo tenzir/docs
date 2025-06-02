@@ -1,5 +1,7 @@
 ---
 title: decompress_gzip
+category: Encode & Decode
+example: 'decompress_gzip'
 ---
 
 Decompresses a stream of bytes in the Gzip format.
@@ -27,8 +29,9 @@ import
 
 ## See Also
 
-[`compress_gzip`](decompress_gzip),
-[`decompress_brotli`](decompress_brotli),
-[`decompress_bz2`](decompress_bz2),
-[`decompress_lz4`](decompress_lz4),
-[`decompress_zstd`](decompress_zstd)
+[`compress_gzip`](/reference/operators/compress_gzip),
+[`decompress_brotli`](/reference/operators/decompress_brotli),
+[`decompress_bz2`](/reference/operators/decompress_bz2),
+[`decompress_gzip`](/reference/operators/decompress_gzip),
+[`decompress_lz4`](/reference/operators/decompress_lz4),
+[`decompress_zstd`](/reference/operators/decompress_zstd)

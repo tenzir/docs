@@ -1,5 +1,7 @@
 ---
 title: all
+category: Aggregation
+example: 'all([true,true,false])'
 ---
 
 Computes the conjunction (AND) of all grouped boolean values.
@@ -32,4 +34,4 @@ summarize result=all(x)
 
 ## See Also
 
-[`any`](any)
+[`any`](/reference/functions/any)

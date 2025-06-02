@@ -1,5 +1,7 @@
 ---
 title: print_xsv
+category: Printing
+example: 'record.print_tsv()'
 ---
 
 Prints a record as a delimited sequence of values.
@@ -16,9 +18,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](print_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](print_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](print_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/reference/functions/print_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/reference/functions/print_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/reference/functions/print_tsv)   |`\t`           |`,`           |`-`       |
 
 ### `field_separator = str`
 
@@ -42,7 +44,7 @@ from {
 }
 output = this.print_xsv(
   field_separator=",",
-  list_selarator=";",
+  list_separator=";",
   null_value="null")
 ```
 
@@ -57,4 +59,5 @@ output = this.print_xsv(
 
 ## See Also
 
-[`parse_xsv`](parse_xsv), [`write_xsv`](../operators/write_xsv)
+[`parse_xsv`](/reference/functions/parse_xsv),
+[`write_xsv`](/reference/operators/write_xsv)

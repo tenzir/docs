@@ -1,5 +1,7 @@
 ---
 title: save_s3
+category: Outputs/Bytes
+example: 'save_s3 "s3://my-bucket/obj.csv"'
 ---
 
 Saves bytes to an Amazon S3 object.
@@ -69,5 +71,5 @@ save_s3 "s3://examplebucket2/obj.yaml"
 
 ## See Also
 
-[`load_s3`](load_s3),
-[`to_asl`](to_asl)
+[`load_s3`](/reference/operators/load_s3),
+[`to_asl`](/reference/operators/to_asl)

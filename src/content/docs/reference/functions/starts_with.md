@@ -1,5 +1,7 @@
 ---
 title: starts_with
+category: String/Inspection
+example: '"hello".starts_with("he")'
 ---
 
 Checks if a string starts with a specified substring.
@@ -27,4 +29,4 @@ from {x: "hello".starts_with("he")}
 
 ## See Also
 
-[`ends_with`](ends_with)
+[`ends_with`](/reference/functions/ends_with)

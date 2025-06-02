@@ -1,5 +1,7 @@
 ---
 title: bit_xor
+category: Bit Operations
+example: 'bit_xor(lhs, rhs)'
 ---
 
 Computes the bit-wise XOR of its arguments.
@@ -36,5 +38,8 @@ from {x: bit_xor(5, 3)}
 
 ## See Also
 
-[`bit_and`](bit_and), [`bit_or`](bit_or), [`bit_not`](bit_not),
-[`shift_left`](shift_left), [`shift_right`](shift_right)
+[`bit_and`](/reference/functions/bit_and),
+[`bit_or`](/reference/functions/bit_or),
+[`bit_not`](/reference/functions/bit_not),
+[`shift_left`](/reference/functions/shift_left),
+[`shift_right`](/reference/functions/shift_right)

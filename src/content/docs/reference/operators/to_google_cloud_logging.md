@@ -1,8 +1,10 @@
 ---
 title: to_google_cloud_logging
+category: Outputs/Events
+example: 'to_google_cloud_logging …'
 ---
 
-Sends events to [Google Cloud Logging](https://cloud.google.com/logging).
+Sends events to Google Cloud Logging.
 
 ```tql
 to_google_cloud_logging log_id=string, [project=string, organization=string,
@@ -119,3 +121,6 @@ to_google_cloud_logging log_id="LOG_ID", project="PROJECT_ID"
   resource_type=resource,
   service_credentials=file_contents("/path/to/credentials.json")
 ```
+## See Also
+
+[`to_google_secops`](/reference/operators/to_google_secops)

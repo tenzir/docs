@@ -1,5 +1,7 @@
 ---
 title: append
+category: List
+example: 'xs.append(y)'
 ---
 
 Inserts an element at the back of a list.
@@ -28,4 +30,5 @@ xs = xs.append(3)
 
 ## See Also
 
-[`concatenate`](concatenate), [`prepend`](prepend)
+[`concatenate`](/reference/functions/concatenate),
+[`prepend`](/reference/functions/prepend)

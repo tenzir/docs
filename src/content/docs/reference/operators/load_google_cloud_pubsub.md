@@ -1,5 +1,7 @@
 ---
 title: load_google_cloud_pubsub
+category: Inputs/Bytes
+example: 'load_google_cloud_pubsub project_id="my-project"'
 ---
 
 Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.
@@ -34,7 +36,7 @@ The default value is `0s`.
 
 ## URI support & integration with `from`
 
-The `load_google_cloud_pubsub` operator can also be used from the [`from`](from)
+The `load_google_cloud_pubsub` operator can also be used from the [`from`](/reference/operators/from)
 operator. For this, the `gcps://` scheme can be used. The URI is then translated:
 
 ```tql
@@ -58,4 +60,4 @@ read_json
 
 ## See Also
 
-[`save_google_cloud_pubsub`](save_google_cloud_pubsub)
+[`save_google_cloud_pubsub`](/reference/operators/save_google_cloud_pubsub)

@@ -1,0 +1,2099 @@
+---
+title: Functions
+sidebar:
+  label: Overview
+functions:
+  - name: 'abs'
+    description: 'Returns the absolute value.'
+    example: 'abs(-42)'
+    path: 'reference/functions/abs'
+  - name: 'ceil'
+    description: 'Computes the ceiling of a number or a time/duration with a specified unit.'
+    example: 'ceil(4.2)'
+    path: 'reference/functions/ceil'
+  - name: 'floor'
+    description: 'Computes the floor of a number or a time/duration with a specified unit.'
+    example: 'floor(4.8)'
+    path: 'reference/functions/floor'
+  - name: 'random'
+    description: 'Generates a random number in *[0,1]*.'
+    example: 'random()'
+    path: 'reference/functions/random'
+  - name: 'round'
+    description: 'Rounds a number or a time/duration with a specified unit.'
+    example: 'round(4.6)'
+    path: 'reference/functions/round'
+  - name: 'sqrt'
+    description: 'Computes the square root of a number.'
+    example: 'sqrt(49)'
+    path: 'reference/functions/sqrt'
+  - name: 'all'
+    description: 'Computes the conjunction (AND) of all grouped boolean values.'
+    example: 'all([true,true,false])'
+    path: 'reference/functions/all'
+  - name: 'any'
+    description: 'Computes the disjunction (OR) of all grouped boolean values.'
+    example: 'any([true,false,true])'
+    path: 'reference/functions/any'
+  - name: 'collect'
+    description: 'Creates a list of all non-null grouped values, preserving duplicates.'
+    example: 'collect([1,2,2,3])'
+    path: 'reference/functions/collect'
+  - name: 'count'
+    description: 'Counts the events or non-null grouped values.'
+    example: 'count([1,2,null])'
+    path: 'reference/functions/count'
+  - name: 'count_distinct'
+    description: 'Counts all distinct non-null grouped values.'
+    example: 'count_distinct([1,2,2,3])'
+    path: 'reference/functions/count_distinct'
+  - name: 'count_if'
+    description: 'Counts the events or non-null grouped values matching a given predicate.'
+    example: 'count_if([1,2,null], x => x > 1)'
+    path: 'reference/functions/count_if'
+  - name: 'distinct'
+    description: 'Creates a sorted list without duplicates of non-null grouped values.'
+    example: 'distinct([1,2,2,3])'
+    path: 'reference/functions/distinct'
+  - name: 'first'
+    description: 'Takes the first non-null grouped value.'
+    example: 'first([null,2,3])'
+    path: 'reference/functions/first'
+  - name: 'last'
+    description: 'Takes the last non-null grouped value.'
+    example: 'last([1,2,null])'
+    path: 'reference/functions/last'
+  - name: 'max'
+    description: 'Computes the maximum of all grouped values.'
+    example: 'max([1,2,3])'
+    path: 'reference/functions/max'
+  - name: 'mean'
+    description: 'Computes the mean of all grouped values.'
+    example: 'mean([1,2,3])'
+    path: 'reference/functions/mean'
+  - name: 'median'
+    description: 'Computes the approximate median of all grouped values using a t-digest algorithm.'
+    example: 'median([1,2,3,4])'
+    path: 'reference/functions/median'
+  - name: 'min'
+    description: 'Computes the minimum of all grouped values.'
+    example: 'min([1,2,3])'
+    path: 'reference/functions/min'
+  - name: 'mode'
+    description: 'Takes the most common non-null grouped value.'
+    example: 'mode([1,1,2,3])'
+    path: 'reference/functions/mode'
+  - name: 'otherwise'
+    description: 'Returns a `fallback` value if `primary` is `null`.'
+    example: 'x.otherwise(0)'
+    path: 'reference/functions/otherwise'
+  - name: 'quantile'
+    description: 'Computes the specified quantile of all grouped values.'
+    example: 'quantile([1,2,3,4], q=0.5)'
+    path: 'reference/functions/quantile'
+  - name: 'stddev'
+    description: 'Computes the standard deviation of all grouped values.'
+    example: 'stddev([1,2,3])'
+    path: 'reference/functions/stddev'
+  - name: 'sum'
+    description: 'Computes the sum of all values.'
+    example: 'sum([1,2,3])'
+    path: 'reference/functions/sum'
+  - name: 'value_counts'
+    description: 'Returns a list of all grouped values alongside their frequency.'
+    example: 'value_counts([1,2,2,3])'
+    path: 'reference/functions/value_counts'
+  - name: 'variance'
+    description: 'Computes the variance of all grouped values.'
+    example: 'variance([1,2,3])'
+    path: 'reference/functions/variance'
+  - name: 'append'
+    description: 'Inserts an element at the back of a list.'
+    example: 'xs.append(y)'
+    path: 'reference/functions/append'
+  - name: 'concatenate'
+    description: 'Merges two lists.'
+    example: 'concatenate(xs, ys)'
+    path: 'reference/functions/concatenate'
+  - name: 'get'
+    description: 'Gets a field from a record or an element from a list'
+    example: 'list.get(index, default)'
+    path: 'reference/functions/get'
+  - name: 'length'
+    description: 'Retrieves the length of a list.'
+    example: '[1,2,3].length()'
+    path: 'reference/functions/length'
+  - name: 'map'
+    description: 'Maps each list element to an expression.'
+    example: 'xs.map(x => x + 3)'
+    path: 'reference/functions/map'
+  - name: 'prepend'
+    description: 'Inserts an element at the start of a list.'
+    example: 'xs.prepend(y)'
+    path: 'reference/functions/prepend'
+  - name: 'sort'
+    description: 'Sorts lists and record fields.'
+    example: 'xs.sort()'
+    path: 'reference/functions/sort'
+  - name: 'where'
+    description: 'Filters list elements based on a predicate.'
+    example: 'xs.where(x, x > 5)'
+    path: 'reference/functions/where'
+  - name: 'zip'
+    description: 'Combines two lists into a list of pairs.'
+    example: 'zip(xs, ys)'
+    path: 'reference/functions/zip'
+  - name: 'bit_and'
+    description: 'Computes the bit-wise AND of its arguments.'
+    example: 'bit_and(lhs, rhs)'
+    path: 'reference/functions/bit_and'
+  - name: 'bit_not'
+    description: 'Computes the bit-wise NOT of its argument.'
+    example: 'bit_not(x)'
+    path: 'reference/functions/bit_not'
+  - name: 'bit_or'
+    description: 'Computes the bit-wise OR of its arguments.'
+    example: 'bit_or(lhs, rhs)'
+    path: 'reference/functions/bit_or'
+  - name: 'bit_xor'
+    description: 'Computes the bit-wise XOR of its arguments.'
+    example: 'bit_xor(lhs, rhs)'
+    path: 'reference/functions/bit_xor'
+  - name: 'shift_left'
+    description: 'Performs a bit-wise left shift.'
+    example: 'shift_left(lhs, rhs)'
+    path: 'reference/functions/shift_left'
+  - name: 'shift_right'
+    description: 'Performs a bit-wise right shift.'
+    example: 'shift_right(lhs, rhs)'
+    path: 'reference/functions/shift_right'
+  - name: 'capitalize'
+    description: 'Capitalizes the first character of a string.'
+    example: '"hello".capitalize()'
+    path: 'reference/functions/capitalize'
+  - name: 'join'
+    description: 'Joins a list of strings into a single string using a separator.'
+    example: 'join(["a", "b", "c"], ",")'
+    path: 'reference/functions/join'
+  - name: 'replace'
+    description: 'Replaces characters within a string.'
+    example: '"hello".replace("o", "a")'
+    path: 'reference/functions/replace'
+  - name: 'replace_regex'
+    description: 'Replaces characters within a string based on a regular expression.'
+    example: '"hello".replace("l+o", "y")'
+    path: 'reference/functions/replace_regex'
+  - name: 'reverse'
+    description: 'Reverses the characters of a string.'
+    example: '"hello".reverse()'
+    path: 'reference/functions/reverse'
+  - name: 'split'
+    description: 'Splits a string into substrings.'
+    example: 'split("a,b,c", ",")'
+    path: 'reference/functions/split'
+  - name: 'split_regex'
+    description: 'Splits a string into substrings with a regex.'
+    example: 'split_regex("a1b2c", r"\d")'
+    path: 'reference/functions/split_regex'
+  - name: 'to_lower'
+    description: 'Converts a string to lowercase.'
+    example: '"HELLO".to_lower()'
+    path: 'reference/functions/to_lower'
+  - name: 'to_title'
+    description: 'Converts a string to title case.'
+    example: '"hello world".to_title()'
+    path: 'reference/functions/to_title'
+  - name: 'to_upper'
+    description: 'Converts a string to uppercase.'
+    example: '"hello".to_upper()'
+    path: 'reference/functions/to_upper'
+  - name: 'trim'
+    description: 'Trims whitespace from both ends of a string.'
+    example: '" hello ".trim()'
+    path: 'reference/functions/trim'
+  - name: 'trim_end'
+    description: 'Trims whitespace from the end of a string.'
+    example: '"hello ".trim_end()'
+    path: 'reference/functions/trim_end'
+  - name: 'trim_start'
+    description: 'Trims whitespace from the start of a string.'
+    example: '" hello".trim_start()'
+    path: 'reference/functions/trim_start'
+  - name: 'community_id'
+    description: 'Computes the Community ID for a network connection/flow.'
+    example: 'community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")'
+    path: 'reference/functions/community_id'
+  - name: 'decapsulate'
+    description: 'Decapsulates packet data at link, network, and transport layer.'
+    example: 'decapsulate(this)'
+    path: 'reference/functions/decapsulate'
+  - name: 'encrypt_cryptopan'
+    description: 'Encrypts an IP address via Crypto-PAn.'
+    example: 'encrypt_cryptopan(1.2.3.4)'
+    path: 'reference/functions/encrypt_cryptopan'
+  - name: 'config'
+    description: 'Reads Tenzir''s configuration file.'
+    example: 'config()'
+    path: 'reference/functions/config'
+  - name: 'env'
+    description: 'Reads an environment variable.'
+    example: 'env("PATH")'
+    path: 'reference/functions/env'
+  - name: 'secret'
+    description: 'Reads a secret from a store.'
+    example: 'secret("KEY")'
+    path: 'reference/functions/secret'
+  - name: 'count_days'
+    description: 'Counts the number of `days` in a duration.'
+    example: 'count_days(100d)'
+    path: 'reference/functions/count_days'
+  - name: 'count_hours'
+    description: 'Counts the number of `hours` in a duration.'
+    example: 'count_hours(100d)'
+    path: 'reference/functions/count_hours'
+  - name: 'count_microseconds'
+    description: 'Counts the number of `microseconds` in a duration.'
+    example: 'count_microseconds(100d)'
+    path: 'reference/functions/count_microseconds'
+  - name: 'count_milliseconds'
+    description: 'Counts the number of `milliseconds` in a duration.'
+    example: 'count_milliseconds(100d)'
+    path: 'reference/functions/count_milliseconds'
+  - name: 'count_minutes'
+    description: 'Counts the number of `minutes` in a duration.'
+    example: 'count_minutes(100d)'
+    path: 'reference/functions/count_minutes'
+  - name: 'count_months'
+    description: 'Counts the number of `months` in a duration.'
+    example: 'count_months(100d)'
+    path: 'reference/functions/count_months'
+  - name: 'count_nanoseconds'
+    description: 'Counts the number of `nanoseconds` in a duration.'
+    example: 'count_nanoseconds(100d)'
+    path: 'reference/functions/count_nanoseconds'
+  - name: 'count_seconds'
+    description: 'Counts the number of `seconds` in a duration.'
+    example: 'count_seconds(100d)'
+    path: 'reference/functions/count_seconds'
+  - name: 'count_weeks'
+    description: 'Counts the number of `weeks` in a duration.'
+    example: 'count_weeks(100d)'
+    path: 'reference/functions/count_weeks'
+  - name: 'count_years'
+    description: 'Counts the number of `years` in a duration.'
+    example: 'count_years(100d)'
+    path: 'reference/functions/count_years'
+  - name: 'day'
+    description: 'Extracts the day component from a timestamp.'
+    example: 'ts.day()'
+    path: 'reference/functions/day'
+  - name: 'days'
+    description: 'Converts a number to equivalent days.'
+    example: 'days(100)'
+    path: 'reference/functions/days'
+  - name: 'format_time'
+    description: 'Formats a time into a string that follows a specific format.'
+    example: 'ts.format_time("%d/ %m/%Y")'
+    path: 'reference/functions/format_time'
+  - name: 'from_epoch'
+    description: 'Interprets a duration as Unix time.'
+    example: 'from_epoch(time_ms * 1ms)'
+    path: 'reference/functions/from_epoch'
+  - name: 'hour'
+    description: 'Extracts the hour component from a timestamp.'
+    example: 'ts.hour()'
+    path: 'reference/functions/hour'
+  - name: 'hours'
+    description: 'Converts a number to equivalent hours.'
+    example: 'hours(100)'
+    path: 'reference/functions/hours'
+  - name: 'microseconds'
+    description: 'Converts a number to equivalent microseconds.'
+    example: 'microseconds(100)'
+    path: 'reference/functions/microseconds'
+  - name: 'milliseconds'
+    description: 'Converts a number to equivalent milliseconds.'
+    example: 'milliseconds(100)'
+    path: 'reference/functions/milliseconds'
+  - name: 'minute'
+    description: 'Extracts the minute component from a timestamp.'
+    example: 'ts.minute()'
+    path: 'reference/functions/minute'
+  - name: 'minutes'
+    description: 'Converts a number to equivalent minutes.'
+    example: 'minutes(100)'
+    path: 'reference/functions/minutes'
+  - name: 'month'
+    description: 'Extracts the month component from a timestamp.'
+    example: 'ts.month()'
+    path: 'reference/functions/month'
+  - name: 'months'
+    description: 'Converts a number to equivalent months.'
+    example: 'months(100)'
+    path: 'reference/functions/months'
+  - name: 'nanoseconds'
+    description: 'Converts a number to equivalent nanoseconds.'
+    example: 'nanoseconds(100)'
+    path: 'reference/functions/nanoseconds'
+  - name: 'now'
+    description: 'Gets the current wallclock time.'
+    example: 'now()'
+    path: 'reference/functions/now'
+  - name: 'parse_time'
+    description: 'Parses a time from a string that follows a specific format.'
+    example: '"10/11/2012".parse_time("%d/%m/%Y")'
+    path: 'reference/functions/parse_time'
+  - name: 'second'
+    description: 'Extracts the second component from a timestamp with subsecond precision.'
+    example: 'ts.second()'
+    path: 'reference/functions/second'
+  - name: 'seconds'
+    description: 'Converts a number to equivalent seconds.'
+    example: 'seconds(100)'
+    path: 'reference/functions/seconds'
+  - name: 'since_epoch'
+    description: 'Interprets a time value as duration since the Unix epoch.'
+    example: 'since_epoch(2021-02-24)'
+    path: 'reference/functions/since_epoch'
+  - name: 'weeks'
+    description: 'Converts a number to equivalent weeks.'
+    example: 'weeks(100)'
+    path: 'reference/functions/weeks'
+  - name: 'year'
+    description: 'Extracts the year component from a timestamp.'
+    example: 'ts.year()'
+    path: 'reference/functions/year'
+  - name: 'years'
+    description: 'Converts a number to equivalent years.'
+    example: 'years(100)'
+    path: 'reference/functions/years'
+  - name: 'decode_base64'
+    description: 'Decodes bytes as Base64.'
+    example: 'decode_base64("VGVuemly")'
+    path: 'reference/functions/decode_base64'
+  - name: 'decode_hex'
+    description: 'Decodes bytes from their hexadecimal representation.'
+    example: 'decode_hex("4e6f6E6365")'
+    path: 'reference/functions/decode_hex'
+  - name: 'decode_url'
+    description: 'Decodes URL encoded strings.'
+    example: 'decode_url("Hello%20World")'
+    path: 'reference/functions/decode_url'
+  - name: 'duration'
+    description: 'Casts an expression to a duration value.'
+    example: 'duration("1.34w")'
+    path: 'reference/functions/duration'
+  - name: 'float'
+    description: 'Casts an expression to a float.'
+    example: 'float(42)'
+    path: 'reference/functions/float'
+  - name: 'int'
+    description: 'Casts an expression to an integer.'
+    example: 'int(-4.2)'
+    path: 'reference/functions/int'
+  - name: 'ip'
+    description: 'Casts an expression to an IP address.'
+    example: 'ip("1.2.3.4")'
+    path: 'reference/functions/ip'
+  - name: 'string'
+    description: 'Casts an expression to a string.'
+    example: 'string(1.2.3.4)'
+    path: 'reference/functions/string'
+  - name: 'subnet'
+    description: 'Casts an expression to a subnet value.'
+    example: 'subnet("1.2.3.4/16")'
+    path: 'reference/functions/subnet'
+  - name: 'time'
+    description: 'Casts an expression to a time value.'
+    example: 'time("2020-03-15")'
+    path: 'reference/functions/time'
+  - name: 'uint'
+    description: 'Casts an expression to an unsigned integer.'
+    example: 'uint(4.2)'
+    path: 'reference/functions/uint'
+  - name: 'encode_base64'
+    description: 'Encodes bytes as Base64.'
+    example: 'encode_base64("Tenzir")'
+    path: 'reference/functions/encode_base64'
+  - name: 'encode_hex'
+    description: 'Encodes bytes into their hexadecimal representation.'
+    example: 'encode_hex("Tenzir")'
+    path: 'reference/functions/encode_hex'
+  - name: 'encode_url'
+    description: 'Encodes strings using URL encoding.'
+    example: 'encode_url("Hello World")'
+    path: 'reference/functions/encode_url'
+  - name: 'ends_with'
+    description: 'Checks if a string ends with a specified substring.'
+    example: '"hello".ends_with("lo")'
+    path: 'reference/functions/ends_with'
+  - name: 'is_alnum'
+    description: 'Checks if a string is alphanumeric.'
+    example: '"hello123".is_alnum()'
+    path: 'reference/functions/is_alnum'
+  - name: 'is_alpha'
+    description: 'Checks if a string contains only alphabetic characters.'
+    example: '"hello".is_alpha()'
+    path: 'reference/functions/is_alpha'
+  - name: 'is_lower'
+    description: 'Checks if a string is in lowercase.'
+    example: '"hello".is_lower()'
+    path: 'reference/functions/is_lower'
+  - name: 'is_numeric'
+    description: 'Checks if a string contains only numeric characters.'
+    example: '"1234".is_numeric()'
+    path: 'reference/functions/is_numeric'
+  - name: 'is_printable'
+    description: 'Checks if a string contains only printable characters.'
+    example: '"hello".is_printable()'
+    path: 'reference/functions/is_printable'
+  - name: 'is_title'
+    description: 'Checks if a string follows title case.'
+    example: '"Hello World".is_title()'
+    path: 'reference/functions/is_title'
+  - name: 'is_upper'
+    description: 'Checks if a string is in uppercase.'
+    example: '"HELLO".is_upper()'
+    path: 'reference/functions/is_upper'
+  - name: 'length_bytes'
+    description: 'Returns the length of a string in bytes.'
+    example: '"hello".length_bytes()'
+    path: 'reference/functions/length_bytes'
+  - name: 'length_chars'
+    description: 'Returns the length of a string in characters.'
+    example: '"hello".length_chars()'
+    path: 'reference/functions/length_chars'
+  - name: 'match_regex'
+    description: 'Checks if a string partially matches a regular expression.'
+    example: '"Hi".match_regex("[Hh]i")'
+    path: 'reference/functions/match_regex'
+  - name: 'slice'
+    description: 'Slices a string with offsets and strides.'
+    example: '"Hi".slice(begin=2, stride=4)'
+    path: 'reference/functions/slice'
+  - name: 'starts_with'
+    description: 'Checks if a string starts with a specified substring.'
+    example: '"hello".starts_with("he")'
+    path: 'reference/functions/starts_with'
+  - name: 'file_contents'
+    description: 'Reads a file''s contents.'
+    example: 'file_contents("/path/to/file")'
+    path: 'reference/functions/file_contents'
+  - name: 'file_name'
+    description: 'Extracts the file name from a file path.'
+    example: 'file_name("/path/to/log.json")'
+    path: 'reference/functions/file_name'
+  - name: 'parent_dir'
+    description: 'Extracts the parent directory from a file path.'
+    example: 'parent_dir("/path/to/log.json")'
+    path: 'reference/functions/parent_dir'
+  - name: 'flatten'
+    description: 'Flattens nested data.'
+    example: 'flatten(this)'
+    path: 'reference/functions/flatten'
+  - name: 'unflatten'
+    description: 'Unflattens nested data.'
+    example: 'unflatten(this)'
+    path: 'reference/functions/unflatten'
+  - name: 'get'
+    description: 'Gets a field from a record or an element from a list'
+    example: 'list.get(index, default)'
+    path: 'reference/functions/get'
+  - name: 'has'
+    description: 'Checks whether a record has a specified field.'
+    example: 'record.has("field")'
+    path: 'reference/functions/has'
+  - name: 'keys'
+    description: 'Retrieves a list of field names from a record.'
+    example: 'record.keys()'
+    path: 'reference/functions/keys'
+  - name: 'merge'
+    description: 'Combines two records into a single record by merging their fields.'
+    example: 'merge(foo, bar)'
+    path: 'reference/functions/merge'
+  - name: 'sort'
+    description: 'Sorts lists and record fields.'
+    example: 'xs.sort()'
+    path: 'reference/functions/sort'
+  - name: 'hash_md5'
+    description: 'Computes an MD5 hash digest.'
+    example: 'hash_md5("foo")'
+    path: 'reference/functions/hash_md5'
+  - name: 'hash_sha1'
+    description: 'Computes a SHA-1 hash digest.'
+    example: 'hash_sha1("foo")'
+    path: 'reference/functions/hash_sha1'
+  - name: 'hash_sha224'
+    description: 'Computes a SHA-224 hash digest.'
+    example: 'hash_sha224("foo")'
+    path: 'reference/functions/hash_sha224'
+  - name: 'hash_sha256'
+    description: 'Computes a SHA-256 hash digest.'
+    example: 'hash_sha256("foo")'
+    path: 'reference/functions/hash_sha256'
+  - name: 'hash_sha384'
+    description: 'Computes a SHA-384 hash digest.'
+    example: 'hash_sha384("foo")'
+    path: 'reference/functions/hash_sha384'
+  - name: 'hash_sha512'
+    description: 'Computes a SHA-512 hash digest.'
+    example: 'hash_sha512("foo")'
+    path: 'reference/functions/hash_sha512'
+  - name: 'hash_xxh3'
+    description: 'Computes an XXH3 hash digest.'
+    example: 'hash_xxh3("foo")'
+    path: 'reference/functions/hash_xxh3'
+  - name: 'is_v4'
+    description: 'Checks whether an IP address has version number 4.'
+    example: 'is_v4(1.2.3.4)'
+    path: 'reference/functions/is_v4'
+  - name: 'is_v6'
+    description: 'Checks whether an IP address has version number 6.'
+    example: 'is_v6(::1)'
+    path: 'reference/functions/is_v6'
+  - name: 'network'
+    description: 'Retrieves the network address of a subnet.'
+    example: '10.0.0.0/8.network()'
+    path: 'reference/functions/network'
+  - name: 'network'
+    description: 'Retrieves the network address of a subnet.'
+    example: '10.0.0.0/8.network()'
+    path: 'reference/functions/network'
+  - name: 'parse_cef'
+    description: 'Parses a string as a CEF message'
+    example: 'string.parse_cef()'
+    path: 'reference/functions/parse_cef'
+  - name: 'parse_csv'
+    description: 'Parses a string as CSV (Comma-Separated Values).'
+    example: 'string.parse_csv(header=["a","b"])'
+    path: 'reference/functions/parse_csv'
+  - name: 'parse_grok'
+    description: 'Parses a string according to a grok pattern.'
+    example: 'string.parse_grok("%{IP:client} …")'
+    path: 'reference/functions/parse_grok'
+  - name: 'parse_json'
+    description: 'Parses a string as a JSON value.'
+    example: 'string.parse_json()'
+    path: 'reference/functions/parse_json'
+  - name: 'parse_kv'
+    description: 'Parses a string as key-value pairs.'
+    example: 'string.parse_kv()'
+    path: 'reference/functions/parse_kv'
+  - name: 'parse_leef'
+    description: 'Parses a string as a LEEF message'
+    example: 'string.parse_leef()'
+    path: 'reference/functions/parse_leef'
+  - name: 'parse_ssv'
+    description: 'Parses a string as space separated values.'
+    example: 'string.parse_ssv(header=["a","b"])'
+    path: 'reference/functions/parse_ssv'
+  - name: 'parse_syslog'
+    description: 'Parses a string as a Syslog message.'
+    example: 'string.parse_syslog()'
+    path: 'reference/functions/parse_syslog'
+  - name: 'parse_tsv'
+    description: 'Parses a string as tab separated values.'
+    example: 'string.parse_tsv(header=["a","b"])'
+    path: 'reference/functions/parse_tsv'
+  - name: 'parse_xsv'
+    description: 'Parses a string as delimiter separated values.'
+    example: 'string.parse_xsv(",", ";", "", header=["a","b"])'
+    path: 'reference/functions/parse_xsv'
+  - name: 'parse_yaml'
+    description: 'Parses a string as a YAML value.'
+    example: 'string.parse_yaml()'
+    path: 'reference/functions/parse_yaml'
+  - name: 'print_csv'
+    description: 'Prints a record as a comma-separated string of values.'
+    example: 'record.print_csv()'
+    path: 'reference/functions/print_csv'
+  - name: 'print_json'
+    description: 'Transforms a value into a JSON string.'
+    example: 'record.print_json()'
+    path: 'reference/functions/print_json'
+  - name: 'print_kv'
+    description: 'Prints records in a key-value format.'
+    example: 'record.print_kv()'
+    path: 'reference/functions/print_kv'
+  - name: 'print_ndjson'
+    description: 'Transforms a value into a single-line JSON string.'
+    example: 'record.print_ndjson()'
+    path: 'reference/functions/print_ndjson'
+  - name: 'print_ssv'
+    description: 'Prints a record as a space-separated string of values.'
+    example: 'record.print_ssv()'
+    path: 'reference/functions/print_ssv'
+  - name: 'print_tsv'
+    description: 'Prints a record as a tab-separated string of values.'
+    example: 'record.print_tsv()'
+    path: 'reference/functions/print_tsv'
+  - name: 'print_xsv'
+    description: 'Prints a record as a delimited sequence of values.'
+    example: 'record.print_tsv()'
+    path: 'reference/functions/print_xsv'
+  - name: 'print_yaml'
+    description: 'Prints a value as a YAML document.'
+    example: 'record.print_yaml()'
+    path: 'reference/functions/print_yaml'
+  - name: 'type_id'
+    description: 'Retrieves the type id of an expression.'
+    example: 'type_id(1 + 3.2)'
+    path: 'reference/functions/type_id'
+  - name: 'type_of'
+    description: 'Retrieves the type definition of an expression.'
+    example: 'type_of(this)'
+    path: 'reference/functions/type_of'
+---
+
+{/*
+This file is auto-generated from individual functions files. Do not edit manually.
+Run 'pnpm run generate:reference' to regenerate this file.
+*/}
+
+import { CardGrid } from '@astrojs/starlight/components';
+import ReferenceCard from '../../../components/ReferenceCard.astro';
+
+{/*
+
+TODO: the following functions still need to be documented:
+
+## OCSF
+
+- `ocsf::category_name`
+- `ocsf::category_uid`
+- `ocsf::class_name`
+- `ocsf::class_uid`
+
+*/}
+
+Functions appear in [expressions](/reference/language/expressions) and take positional
+and/or named arguments, producing a value as a result of their computation.
+
+Function signatures have the following notation:
+
+```tql
+f(arg1:<type>, arg2=<type>, [arg3=type]) -> <type>
+```
+
+- `arg:<type>`: positional argument
+- `arg=<type>`: named argument
+- `[arg=type]`: optional (named) argument
+- `-> <type>`: function return type
+
+TQL features the [uniform function call syntax
+(UFCS)](https://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax), which
+allows you to interchangeably call a function with at least one argument either
+as _free function_ or _method_. For example, `length(str)` and `str.length()`
+resolve to the identical function call. The latter syntax is particularly
+suitable for function chaining, e.g., `x.f().g().h()` reads left-to-right as
+"start with `x`, apply `f()`, then `g()` and then `h()`," compared to
+`h(g(f(x)))`, which reads "inside out."
+
+Throughout our documentation, we use the free function style in the synopsis
+but often resort to the method style when it is more idiomatic.
+
+## Aggregation
+
+<CardGrid>
+
+<ReferenceCard title="all" description="Computes the conjunction (AND) of all grouped boolean values." href="/reference/functions/all">
+
+```tql
+all([true,true,false])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="any" description="Computes the disjunction (OR) of all grouped boolean values." href="/reference/functions/any">
+
+```tql
+any([true,false,true])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="collect" description="Creates a list of all non-null grouped values, preserving duplicates." href="/reference/functions/collect">
+
+```tql
+collect([1,2,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count" description="Counts the events or non-null grouped values." href="/reference/functions/count">
+
+```tql
+count([1,2,null])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_distinct" description="Counts all distinct non-null grouped values." href="/reference/functions/count_distinct">
+
+```tql
+count_distinct([1,2,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_if" description="Counts the events or non-null grouped values matching a given predicate." href="/reference/functions/count_if">
+
+```tql
+count_if([1,2,null], x => x > 1)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="distinct" description="Creates a sorted list without duplicates of non-null grouped values." href="/reference/functions/distinct">
+
+```tql
+distinct([1,2,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="first" description="Takes the first non-null grouped value." href="/reference/functions/first">
+
+```tql
+first([null,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="last" description="Takes the last non-null grouped value." href="/reference/functions/last">
+
+```tql
+last([1,2,null])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="max" description="Computes the maximum of all grouped values." href="/reference/functions/max">
+
+```tql
+max([1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="mean" description="Computes the mean of all grouped values." href="/reference/functions/mean">
+
+```tql
+mean([1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="median" description="Computes the approximate median of all grouped values using a t-digest algorithm." href="/reference/functions/median">
+
+```tql
+median([1,2,3,4])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="min" description="Computes the minimum of all grouped values." href="/reference/functions/min">
+
+```tql
+min([1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="mode" description="Takes the most common non-null grouped value." href="/reference/functions/mode">
+
+```tql
+mode([1,1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="otherwise" description="Returns a `fallback` value if `primary` is `null`." href="/reference/functions/otherwise">
+
+```tql
+x.otherwise(0)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="quantile" description="Computes the specified quantile of all grouped values." href="/reference/functions/quantile">
+
+```tql
+quantile([1,2,3,4], q=0.5)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="stddev" description="Computes the standard deviation of all grouped values." href="/reference/functions/stddev">
+
+```tql
+stddev([1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="sum" description="Computes the sum of all values." href="/reference/functions/sum">
+
+```tql
+sum([1,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="value_counts" description="Returns a list of all grouped values alongside their frequency." href="/reference/functions/value_counts">
+
+```tql
+value_counts([1,2,2,3])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="variance" description="Computes the variance of all grouped values." href="/reference/functions/variance">
+
+```tql
+variance([1,2,3])
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Bit Operations
+
+<CardGrid>
+
+<ReferenceCard title="bit_and" description="Computes the bit-wise AND of its arguments." href="/reference/functions/bit_and">
+
+```tql
+bit_and(lhs, rhs)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="bit_not" description="Computes the bit-wise NOT of its argument." href="/reference/functions/bit_not">
+
+```tql
+bit_not(x)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="bit_or" description="Computes the bit-wise OR of its arguments." href="/reference/functions/bit_or">
+
+```tql
+bit_or(lhs, rhs)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="bit_xor" description="Computes the bit-wise XOR of its arguments." href="/reference/functions/bit_xor">
+
+```tql
+bit_xor(lhs, rhs)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="shift_left" description="Performs a bit-wise left shift." href="/reference/functions/shift_left">
+
+```tql
+shift_left(lhs, rhs)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="shift_right" description="Performs a bit-wise right shift." href="/reference/functions/shift_right">
+
+```tql
+shift_right(lhs, rhs)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Decoding
+
+<CardGrid>
+
+<ReferenceCard title="decode_base64" description="Decodes bytes as Base64." href="/reference/functions/decode_base64">
+
+```tql
+decode_base64("VGVuemly")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="decode_hex" description="Decodes bytes from their hexadecimal representation." href="/reference/functions/decode_hex">
+
+```tql
+decode_hex("4e6f6E6365")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="decode_url" description="Decodes URL encoded strings." href="/reference/functions/decode_url">
+
+```tql
+decode_url("Hello%20World")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Encoding
+
+<CardGrid>
+
+<ReferenceCard title="encode_base64" description="Encodes bytes as Base64." href="/reference/functions/encode_base64">
+
+```tql
+encode_base64("Tenzir")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="encode_hex" description="Encodes bytes into their hexadecimal representation." href="/reference/functions/encode_hex">
+
+```tql
+encode_hex("Tenzir")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="encode_url" description="Encodes strings using URL encoding." href="/reference/functions/encode_url">
+
+```tql
+encode_url("Hello World")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Hashing
+
+<CardGrid>
+
+<ReferenceCard title="hash_md5" description="Computes an MD5 hash digest." href="/reference/functions/hash_md5">
+
+```tql
+hash_md5("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_sha1" description="Computes a SHA-1 hash digest." href="/reference/functions/hash_sha1">
+
+```tql
+hash_sha1("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_sha224" description="Computes a SHA-224 hash digest." href="/reference/functions/hash_sha224">
+
+```tql
+hash_sha224("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_sha256" description="Computes a SHA-256 hash digest." href="/reference/functions/hash_sha256">
+
+```tql
+hash_sha256("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_sha384" description="Computes a SHA-384 hash digest." href="/reference/functions/hash_sha384">
+
+```tql
+hash_sha384("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_sha512" description="Computes a SHA-512 hash digest." href="/reference/functions/hash_sha512">
+
+```tql
+hash_sha512("foo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hash_xxh3" description="Computes an XXH3 hash digest." href="/reference/functions/hash_xxh3">
+
+```tql
+hash_xxh3("foo")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## IP
+
+<CardGrid>
+
+<ReferenceCard title="is_v4" description="Checks whether an IP address has version number 4." href="/reference/functions/is_v4">
+
+```tql
+is_v4(1.2.3.4)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_v6" description="Checks whether an IP address has version number 6." href="/reference/functions/is_v6">
+
+```tql
+is_v6(::1)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="network" description="Retrieves the network address of a subnet." href="/reference/functions/network">
+
+```tql
+10.0.0.0/8.network()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## List
+
+<CardGrid>
+
+<ReferenceCard title="append" description="Inserts an element at the back of a list." href="/reference/functions/append">
+
+```tql
+xs.append(y)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="concatenate" description="Merges two lists." href="/reference/functions/concatenate">
+
+```tql
+concatenate(xs, ys)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
+
+```tql
+list.get(index, default)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="length" description="Retrieves the length of a list." href="/reference/functions/length">
+
+```tql
+[1,2,3].length()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="map" description="Maps each list element to an expression." href="/reference/functions/map">
+
+```tql
+xs.map(x => x + 3)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="prepend" description="Inserts an element at the start of a list." href="/reference/functions/prepend">
+
+```tql
+xs.prepend(y)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="sort" description="Sorts lists and record fields." href="/reference/functions/sort">
+
+```tql
+xs.sort()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="where" description="Filters list elements based on a predicate." href="/reference/functions/where">
+
+```tql
+xs.where(x, x > 5)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="zip" description="Combines two lists into a list of pairs." href="/reference/functions/zip">
+
+```tql
+zip(xs, ys)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Math
+
+<CardGrid>
+
+<ReferenceCard title="abs" description="Returns the absolute value." href="/reference/functions/abs">
+
+```tql
+abs(-42)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="ceil" description="Computes the ceiling of a number or a time/duration with a specified unit." href="/reference/functions/ceil">
+
+```tql
+ceil(4.2)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="floor" description="Computes the floor of a number or a time/duration with a specified unit." href="/reference/functions/floor">
+
+```tql
+floor(4.8)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="random" description="Generates a random number in *[0,1]*." href="/reference/functions/random">
+
+```tql
+random()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="round" description="Rounds a number or a time/duration with a specified unit." href="/reference/functions/round">
+
+```tql
+round(4.6)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="sqrt" description="Computes the square root of a number." href="/reference/functions/sqrt">
+
+```tql
+sqrt(49)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Networking
+
+<CardGrid>
+
+<ReferenceCard title="community_id" description="Computes the Community ID for a network connection/flow." href="/reference/functions/community_id">
+
+```tql
+community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="decapsulate" description="Decapsulates packet data at link, network, and transport layer." href="/reference/functions/decapsulate">
+
+```tql
+decapsulate(this)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="encrypt_cryptopan" description="Encrypts an IP address via Crypto-PAn." href="/reference/functions/encrypt_cryptopan">
+
+```tql
+encrypt_cryptopan(1.2.3.4)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Parsing
+
+<CardGrid>
+
+<ReferenceCard title="parse_cef" description="Parses a string as a CEF message" href="/reference/functions/parse_cef">
+
+```tql
+string.parse_cef()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_csv" description="Parses a string as CSV (Comma-Separated Values)." href="/reference/functions/parse_csv">
+
+```tql
+string.parse_csv(header=["a","b"])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_grok" description="Parses a string according to a grok pattern." href="/reference/functions/parse_grok">
+
+```tql
+string.parse_grok("%{IP:client} …")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_json" description="Parses a string as a JSON value." href="/reference/functions/parse_json">
+
+```tql
+string.parse_json()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_kv" description="Parses a string as key-value pairs." href="/reference/functions/parse_kv">
+
+```tql
+string.parse_kv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_leef" description="Parses a string as a LEEF message" href="/reference/functions/parse_leef">
+
+```tql
+string.parse_leef()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_ssv" description="Parses a string as space separated values." href="/reference/functions/parse_ssv">
+
+```tql
+string.parse_ssv(header=["a","b"])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_syslog" description="Parses a string as a Syslog message." href="/reference/functions/parse_syslog">
+
+```tql
+string.parse_syslog()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_tsv" description="Parses a string as tab separated values." href="/reference/functions/parse_tsv">
+
+```tql
+string.parse_tsv(header=["a","b"])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_xsv" description="Parses a string as delimiter separated values." href="/reference/functions/parse_xsv">
+
+```tql
+string.parse_xsv(",", ";", "", header=["a","b"])
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_yaml" description="Parses a string as a YAML value." href="/reference/functions/parse_yaml">
+
+```tql
+string.parse_yaml()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Printing
+
+<CardGrid>
+
+<ReferenceCard title="print_csv" description="Prints a record as a comma-separated string of values." href="/reference/functions/print_csv">
+
+```tql
+record.print_csv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_json" description="Transforms a value into a JSON string." href="/reference/functions/print_json">
+
+```tql
+record.print_json()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_kv" description="Prints records in a key-value format." href="/reference/functions/print_kv">
+
+```tql
+record.print_kv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_ndjson" description="Transforms a value into a single-line JSON string." href="/reference/functions/print_ndjson">
+
+```tql
+record.print_ndjson()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_ssv" description="Prints a record as a space-separated string of values." href="/reference/functions/print_ssv">
+
+```tql
+record.print_ssv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_tsv" description="Prints a record as a tab-separated string of values." href="/reference/functions/print_tsv">
+
+```tql
+record.print_tsv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_xsv" description="Prints a record as a delimited sequence of values." href="/reference/functions/print_xsv">
+
+```tql
+record.print_tsv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_yaml" description="Prints a value as a YAML document." href="/reference/functions/print_yaml">
+
+```tql
+record.print_yaml()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Record
+
+<CardGrid>
+
+<ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
+
+```tql
+list.get(index, default)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="has" description="Checks whether a record has a specified field." href="/reference/functions/has">
+
+```tql
+record.has("field")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="keys" description="Retrieves a list of field names from a record." href="/reference/functions/keys">
+
+```tql
+record.keys()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="merge" description="Combines two records into a single record by merging their fields." href="/reference/functions/merge">
+
+```tql
+merge(foo, bar)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="sort" description="Sorts lists and record fields." href="/reference/functions/sort">
+
+```tql
+xs.sort()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Runtime
+
+<CardGrid>
+
+<ReferenceCard title="config" description="Reads Tenzir's configuration file." href="/reference/functions/config">
+
+```tql
+config()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="env" description="Reads an environment variable." href="/reference/functions/env">
+
+```tql
+env("PATH")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="secret" description="Reads a secret from a store." href="/reference/functions/secret">
+
+```tql
+secret("KEY")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Subnet
+
+<CardGrid>
+
+<ReferenceCard title="network" description="Retrieves the network address of a subnet." href="/reference/functions/network">
+
+```tql
+10.0.0.0/8.network()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Time & Date
+
+<CardGrid>
+
+<ReferenceCard title="count_days" description="Counts the number of `days` in a duration." href="/reference/functions/count_days">
+
+```tql
+count_days(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_hours" description="Counts the number of `hours` in a duration." href="/reference/functions/count_hours">
+
+```tql
+count_hours(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_microseconds" description="Counts the number of `microseconds` in a duration." href="/reference/functions/count_microseconds">
+
+```tql
+count_microseconds(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_milliseconds" description="Counts the number of `milliseconds` in a duration." href="/reference/functions/count_milliseconds">
+
+```tql
+count_milliseconds(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_minutes" description="Counts the number of `minutes` in a duration." href="/reference/functions/count_minutes">
+
+```tql
+count_minutes(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_months" description="Counts the number of `months` in a duration." href="/reference/functions/count_months">
+
+```tql
+count_months(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_nanoseconds" description="Counts the number of `nanoseconds` in a duration." href="/reference/functions/count_nanoseconds">
+
+```tql
+count_nanoseconds(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_seconds" description="Counts the number of `seconds` in a duration." href="/reference/functions/count_seconds">
+
+```tql
+count_seconds(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_weeks" description="Counts the number of `weeks` in a duration." href="/reference/functions/count_weeks">
+
+```tql
+count_weeks(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="count_years" description="Counts the number of `years` in a duration." href="/reference/functions/count_years">
+
+```tql
+count_years(100d)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="day" description="Extracts the day component from a timestamp." href="/reference/functions/day">
+
+```tql
+ts.day()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="days" description="Converts a number to equivalent days." href="/reference/functions/days">
+
+```tql
+days(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="format_time" description="Formats a time into a string that follows a specific format." href="/reference/functions/format_time">
+
+```tql
+ts.format_time("%d/ %m/%Y")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_epoch" description="Interprets a duration as Unix time." href="/reference/functions/from_epoch">
+
+```tql
+from_epoch(time_ms * 1ms)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hour" description="Extracts the hour component from a timestamp." href="/reference/functions/hour">
+
+```tql
+ts.hour()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="hours" description="Converts a number to equivalent hours." href="/reference/functions/hours">
+
+```tql
+hours(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="microseconds" description="Converts a number to equivalent microseconds." href="/reference/functions/microseconds">
+
+```tql
+microseconds(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="milliseconds" description="Converts a number to equivalent milliseconds." href="/reference/functions/milliseconds">
+
+```tql
+milliseconds(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="minute" description="Extracts the minute component from a timestamp." href="/reference/functions/minute">
+
+```tql
+ts.minute()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="minutes" description="Converts a number to equivalent minutes." href="/reference/functions/minutes">
+
+```tql
+minutes(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="month" description="Extracts the month component from a timestamp." href="/reference/functions/month">
+
+```tql
+ts.month()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="months" description="Converts a number to equivalent months." href="/reference/functions/months">
+
+```tql
+months(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="nanoseconds" description="Converts a number to equivalent nanoseconds." href="/reference/functions/nanoseconds">
+
+```tql
+nanoseconds(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="now" description="Gets the current wallclock time." href="/reference/functions/now">
+
+```tql
+now()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parse_time" description="Parses a time from a string that follows a specific format." href="/reference/functions/parse_time">
+
+```tql
+"10/11/2012".parse_time("%d/%m/%Y")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="second" description="Extracts the second component from a timestamp with subsecond precision." href="/reference/functions/second">
+
+```tql
+ts.second()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="seconds" description="Converts a number to equivalent seconds." href="/reference/functions/seconds">
+
+```tql
+seconds(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="since_epoch" description="Interprets a time value as duration since the Unix epoch." href="/reference/functions/since_epoch">
+
+```tql
+since_epoch(2021-02-24)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="weeks" description="Converts a number to equivalent weeks." href="/reference/functions/weeks">
+
+```tql
+weeks(100)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="year" description="Extracts the year component from a timestamp." href="/reference/functions/year">
+
+```tql
+ts.year()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="years" description="Converts a number to equivalent years." href="/reference/functions/years">
+
+```tql
+years(100)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## String
+
+### Filesystem
+
+<CardGrid>
+
+<ReferenceCard title="file_contents" description="Reads a file's contents." href="/reference/functions/file_contents">
+
+```tql
+file_contents("/path/to/file")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="file_name" description="Extracts the file name from a file path." href="/reference/functions/file_name">
+
+```tql
+file_name("/path/to/log.json")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parent_dir" description="Extracts the parent directory from a file path." href="/reference/functions/parent_dir">
+
+```tql
+parent_dir("/path/to/log.json")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Inspection
+
+<CardGrid>
+
+<ReferenceCard title="ends_with" description="Checks if a string ends with a specified substring." href="/reference/functions/ends_with">
+
+```tql
+"hello".ends_with("lo")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_alnum" description="Checks if a string is alphanumeric." href="/reference/functions/is_alnum">
+
+```tql
+"hello123".is_alnum()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_alpha" description="Checks if a string contains only alphabetic characters." href="/reference/functions/is_alpha">
+
+```tql
+"hello".is_alpha()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_lower" description="Checks if a string is in lowercase." href="/reference/functions/is_lower">
+
+```tql
+"hello".is_lower()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_numeric" description="Checks if a string contains only numeric characters." href="/reference/functions/is_numeric">
+
+```tql
+"1234".is_numeric()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_printable" description="Checks if a string contains only printable characters." href="/reference/functions/is_printable">
+
+```tql
+"hello".is_printable()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_title" description="Checks if a string follows title case." href="/reference/functions/is_title">
+
+```tql
+"Hello World".is_title()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_upper" description="Checks if a string is in uppercase." href="/reference/functions/is_upper">
+
+```tql
+"HELLO".is_upper()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="length_bytes" description="Returns the length of a string in bytes." href="/reference/functions/length_bytes">
+
+```tql
+"hello".length_bytes()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="length_chars" description="Returns the length of a string in characters." href="/reference/functions/length_chars">
+
+```tql
+"hello".length_chars()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="match_regex" description="Checks if a string partially matches a regular expression." href="/reference/functions/match_regex">
+
+```tql
+"Hi".match_regex("[Hh]i")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="slice" description="Slices a string with offsets and strides." href="/reference/functions/slice">
+
+```tql
+"Hi".slice(begin=2, stride=4)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="starts_with" description="Checks if a string starts with a specified substring." href="/reference/functions/starts_with">
+
+```tql
+"hello".starts_with("he")
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Transformation
+
+<CardGrid>
+
+<ReferenceCard title="capitalize" description="Capitalizes the first character of a string." href="/reference/functions/capitalize">
+
+```tql
+"hello".capitalize()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="join" description="Joins a list of strings into a single string using a separator." href="/reference/functions/join">
+
+```tql
+join(["a", "b", "c"], ",")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="replace" description="Replaces characters within a string." href="/reference/functions/replace">
+
+```tql
+"hello".replace("o", "a")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="replace_regex" description="Replaces characters within a string based on a regular expression." href="/reference/functions/replace_regex">
+
+```tql
+"hello".replace("l+o", "y")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="reverse" description="Reverses the characters of a string." href="/reference/functions/reverse">
+
+```tql
+"hello".reverse()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="split" description="Splits a string into substrings." href="/reference/functions/split">
+
+```tql
+split("a,b,c", ",")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="split_regex" description="Splits a string into substrings with a regex." href="/reference/functions/split_regex">
+
+```tql
+split_regex("a1b2c", r"\d")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_lower" description="Converts a string to lowercase." href="/reference/functions/to_lower">
+
+```tql
+"HELLO".to_lower()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_title" description="Converts a string to title case." href="/reference/functions/to_title">
+
+```tql
+"hello world".to_title()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_upper" description="Converts a string to uppercase." href="/reference/functions/to_upper">
+
+```tql
+"hello".to_upper()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="trim" description="Trims whitespace from both ends of a string." href="/reference/functions/trim">
+
+```tql
+" hello ".trim()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="trim_end" description="Trims whitespace from the end of a string." href="/reference/functions/trim_end">
+
+```tql
+"hello ".trim_end()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="trim_start" description="Trims whitespace from the start of a string." href="/reference/functions/trim_start">
+
+```tql
+" hello".trim_start()
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
+## Type System
+
+### Conversion
+
+<CardGrid>
+
+<ReferenceCard title="duration" description="Casts an expression to a duration value." href="/reference/functions/duration">
+
+```tql
+duration("1.34w")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="float" description="Casts an expression to a float." href="/reference/functions/float">
+
+```tql
+float(42)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="int" description="Casts an expression to an integer." href="/reference/functions/int">
+
+```tql
+int(-4.2)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="ip" description="Casts an expression to an IP address." href="/reference/functions/ip">
+
+```tql
+ip("1.2.3.4")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="string" description="Casts an expression to a string." href="/reference/functions/string">
+
+```tql
+string(1.2.3.4)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="subnet" description="Casts an expression to a subnet value." href="/reference/functions/subnet">
+
+```tql
+subnet("1.2.3.4/16")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="time" description="Casts an expression to a time value." href="/reference/functions/time">
+
+```tql
+time("2020-03-15")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="uint" description="Casts an expression to an unsigned integer." href="/reference/functions/uint">
+
+```tql
+uint(4.2)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Introspection
+
+<CardGrid>
+
+<ReferenceCard title="type_id" description="Retrieves the type id of an expression." href="/reference/functions/type_id">
+
+```tql
+type_id(1 + 3.2)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="type_of" description="Retrieves the type definition of an expression." href="/reference/functions/type_of">
+
+```tql
+type_of(this)
+```
+
+</ReferenceCard>
+
+</CardGrid>
+### Transposition
+
+<CardGrid>
+
+<ReferenceCard title="flatten" description="Flattens nested data." href="/reference/functions/flatten">
+
+```tql
+flatten(this)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="unflatten" description="Unflattens nested data." href="/reference/functions/unflatten">
+
+```tql
+unflatten(this)
+```
+
+</ReferenceCard>
+
+</CardGrid>

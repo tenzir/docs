@@ -1,9 +1,10 @@
 ---
 title: from_opensearch
+category: Inputs/Events
+example: 'from_opensearch'
 ---
 
-Receives events via [Opensearch Bulk
-API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).
+Receives events via Opensearch Bulk API.
 
 ```tql
 from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
@@ -12,8 +13,9 @@ from_opensearch [url:string, keep_actions=bool, max_request_size=int, tls=bool,
 
 ## Description
 
-The `from_opensearch` operator emulates simple situations for the Opensearch
-Bulk API.
+The `from_opensearch` operator emulates simple situations for the [Opensearch
+Bulk
+API](https://opensearch.org/docs/latest/api-reference/document-apis/bulk/).
 
 ### `url: string (optional)`
 
@@ -69,4 +71,4 @@ from_opensearch tls=true, certfile="server.crt", keyfile="private.key"
 
 ## See also
 
-[`to_opensearch`](to_opensearch)
+[`to_opensearch`](/reference/operators/to_opensearch)

@@ -1,0 +1,38 @@
+---
+title: Tenzir Node v4.22.0
+sidebar:
+  badge:
+    text: v4.22.0
+    variant: success
+---
+
+### Features
+
+#### Implement Google Cloud Pub/Sub connectors
+
+The new `google-cloud-pubsub` connectors allow subscribing to a
+Google Cloud Pub/Sub subscription and publishing to a Google Cloud Pub/Sub topic.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4656](https://github.com/tenzir/tenzir/pull/4656).
+
+#### Add metrics for select component actors
+
+We added low-level actor metrics that help admins track the system health over
+time.
+
+By [@tobim](https://github.com/tobim) in [#4668](https://github.com/tenzir/tenzir/pull/4668).
+
+### Bug Fixes
+
+#### Clean up old venvs in the python operator
+
+The node now wipes its cache directory whenever it restarts.
+
+By [@lava](https://github.com/lava) in [#4669](https://github.com/tenzir/tenzir/pull/4669).
+
+#### Check cURL response codes and do not deliver data on error
+
+We fixed a bug in the HTTP connectors, that caused them to not respect the
+http response codes.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4660](https://github.com/tenzir/tenzir/pull/4660).

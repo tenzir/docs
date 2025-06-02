@@ -1,5 +1,7 @@
 ---
 title: decompress_zstd
+category: Encode & Decode
+example: 'decompress_zstd'
 ---
 
 Decompresses a stream of bytes in the Zstd format.
@@ -27,8 +29,9 @@ import
 
 ## See Also
 
-[`compress_zstd`](decompress_zstd),
-[`decompress_brotli`](decompress_brotli),
-[`decompress_bz2`](decompress_bz2),
-[`decompress_gzip`](decompress_gzip),
-[`decompress_lz4`](decompress_lz4)
+[`compress_zstd`](/reference/operators/compress_zstd),
+[`decompress_brotli`](/reference/operators/decompress_brotli),
+[`decompress_bz2`](/reference/operators/decompress_bz2),
+[`decompress_gzip`](/reference/operators/decompress_gzip),
+[`decompress_lz4`](/reference/operators/decompress_lz4),
+[`decompress_zstd`](/reference/operators/decompress_zstd)

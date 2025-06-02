@@ -1,5 +1,7 @@
 ---
 title: timeshift
+category: Modify
+example: 'timeshift ts, start=2020-01-01'
 ---
 
 Adjusts timestamps relative to a given start time, with an optional speedup.
@@ -61,4 +63,4 @@ timeshift ts, start=1984-01-01, speed=0.01
 
 ## See Also
 
-[`delay`](delay)
+[`delay`](/reference/operators/delay)

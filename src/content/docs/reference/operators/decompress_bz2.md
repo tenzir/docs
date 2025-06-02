@@ -1,5 +1,7 @@
 ---
 title: decompress_bz2
+category: Encode & Decode
+example: 'decompress_bz2'
 ---
 
 Decompresses a stream of bytes in the Bzip2 format.
@@ -27,8 +29,9 @@ import
 
 ## See Also
 
-[`compress_bz2`](decompress_bz2),
-[`decompress_brotli`](decompress_brotli),
-[`decompress_gzip`](decompress_gzip),
-[`decompress_lz4`](decompress_lz4),
-[`decompress_zstd`](decompress_zstd)
+[`compress_bz2`](/reference/operators/compress_bz2),
+[`decompress_brotli`](/reference/operators/decompress_brotli),
+[`decompress_bz2`](/reference/operators/decompress_bz2),
+[`decompress_gzip`](/reference/operators/decompress_gzip),
+[`decompress_lz4`](/reference/operators/decompress_lz4),
+[`decompress_zstd`](/reference/operators/decompress_zstd)

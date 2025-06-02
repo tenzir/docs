@@ -1,5 +1,7 @@
 ---
 title: hash_sha512
+category: Hashing
+example: 'hash_sha512("foo")'
 ---
 
 Computes a SHA-512 hash digest.
@@ -27,6 +29,9 @@ from {x: hash_sha512("foo")}
 
 ## See Also
 
-[`hash_md5`](hash_md5), [`hash_sha1`](hash_sha1),
-[`hash_sha224`](hash_sha224), [`hash_sha256`](hash_sha256),
-[`hash_sha384`](hash_sha384), [`hash_xxh3`](hash_xxh3)
+[`hash_md5`](/reference/functions/hash_md5),
+[`hash_sha1`](/reference/functions/hash_sha1),
+[`hash_sha224`](/reference/functions/hash_sha224),
+[`hash_sha256`](/reference/functions/hash_sha256),
+[`hash_sha384`](/reference/functions/hash_sha384),
+[`hash_xxh3`](/reference/functions/hash_xxh3)

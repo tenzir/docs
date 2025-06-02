@@ -1,5 +1,7 @@
 ---
 title: load_udp
+category: Inputs/Bytes
+example: 'load_udp "0.0.0.0:8090"'
 ---
 
 Loads bytes from a UDP socket.
@@ -15,7 +17,7 @@ in listening mode. Use `connect=true` if the operator should initiate the
 connection instead.
 
 When you have a socket in listening mode, use `0.0.0.0` to accept connections
-on all interfaces. The [`nics`](nics) operator lists all all
+on all interfaces. The [`nics`](/reference/operators/nics) operator lists all all
 available interfaces.
 
 ### `endpoint: str`
@@ -49,4 +51,4 @@ import
 
 ## See Also
 
-[`save_udp`](save_udp)
+[`save_udp`](/reference/operators/save_udp)

@@ -1,0 +1,36 @@
+---
+title: Azure Blob Storage
+---
+
+[Azure Blob Storage](https://azure.microsoft.com/en-us/products/storage/blobs)
+is Azure's object storage service. Tenzir can treat it like a local filesystem
+to read and write files.
+
+![Azure Blob Storage](azure-blob-storage.svg)
+
+:::tip[URL Support]
+The URL scheme `abfs[s]://` dispatches to
+[`load_azure_blob_storage`](/reference/operators/load_azure_blob_storage) and
+[`save_azure_blob_storage`](/reference/operators/save_azure_blob_storage)
+for seamless URL-style use via [`from`](/reference/operators/from)
+and [`to`](/reference/operators/to).
+:::
+
+## Examples
+
+### Write an event to a file in a container
+
+```tql
+from {foo: 42}
+to "abfss://user@container/path/to/file.json"
+```
+
+### Read events from a file in a container
+
+```tql
+from "abfss://user@container/path/to/file.json"
+```
+
+```tql
+{foo: 42}
+```

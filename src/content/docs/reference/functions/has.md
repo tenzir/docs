@@ -1,5 +1,7 @@
 ---
 title: has
+category: Record
+example: 'record.has("field")'
 ---
 
 Checks whether a record has a specified field.
@@ -36,3 +38,6 @@ this = {
   has_z: false,
 }
 ```
+## See Also
+
+[`keys`](/reference/functions/keys)

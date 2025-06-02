@@ -1,5 +1,7 @@
 ---
 title: load_azure_blob_storage
+category: Inputs/Bytes
+example: 'load_azure_blob_storage "abfs://container/file"'
 ---
 
 Loads bytes from Azure Blob Storage.
@@ -56,4 +58,4 @@ read_json
 
 ## See Also
 
-[`save_azure_blob_storage`](save_azure_blob_storage)
+[`save_azure_blob_storage`](/reference/operators/save_azure_blob_storage)

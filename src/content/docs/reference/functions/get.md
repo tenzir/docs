@@ -1,5 +1,7 @@
 ---
 title: get
+category: List, Record
+example: 'list.get(index, default)'
 ---
 
 Gets a field from a record or an element from a list
@@ -40,10 +42,13 @@ from (
   {x: 1, y: 2},
   {x: 3},
 }
-select x = x.get("x", -1), y = y.get("y", -1)
+select x = this.get("x", -1), y = this.get("y", -1)
 ```
 
 ```tql
 {x: 1, y: 2}
 {x: 3, y: -1}
 ```
+## See Also
+
+[`keys`](/reference/functions/keys)

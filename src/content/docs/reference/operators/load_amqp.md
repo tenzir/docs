@@ -1,5 +1,7 @@
 ---
 title: load_amqp
+category: Inputs/Bytes
+example: 'load_amqp'
 ---
 
 Loads a byte stream via AMQP messages.
@@ -128,4 +130,4 @@ read_json
 
 ## See Also
 
-[`save_amqp`](save_amqp)
+[`save_amqp`](/reference/operators/save_amqp)

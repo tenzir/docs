@@ -1,5 +1,7 @@
 ---
 title: write_parquet
+category: Printing
+example: 'write_parquet'
 ---
 
 Transforms event stream to a Parquet byte stream.
@@ -36,7 +38,7 @@ compression, `gzip` for [gzip][gzip-docs] compression, and `snappy` for
 
 :::tip[Why would I use this over the `compress` operator?]
 The Parquet format offers more efficient compression compared to the
-[`compress`](compress) operator. This is because it compresses
+[`compress`](/reference/operators/compress) operator. This is because it compresses
 the data column-by-column, leaving metadata that needs to be accessed frequently
 uncompressed.
 :::
@@ -53,7 +55,8 @@ write_parquet
 
 ## See Also
 
-[`to_hive`](to_hive),
-[`read_parquet`](read_parquet),
-[`write_bitz`](write_bitz),
-[`write_feather`](write_feather)
+[`read_bitz`](/reference/operators/read_bitz),
+[`read_parquet`](/reference/operators/read_parquet),
+[`to_hive`](/reference/operators/to_hive),
+[`write_bitz`](/reference/operators/write_bitz),
+[`write_feather`](/reference/operators/write_feather)

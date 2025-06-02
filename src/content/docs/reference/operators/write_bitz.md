@@ -1,5 +1,7 @@
 ---
 title: write_bitz
+category: Printing
+example: 'write_bitz'
 ---
 
 Writes events in *BITZ* format.
@@ -25,6 +27,7 @@ between batches—something that Arrow's IPC format does not support on its own.
 
 ## See Also
 
-[`read_bitz`](read_bitz),
-[`write_feather`](write_feather),
-[`write_parquet`](write_parquet)
+[`read_bitz`](/reference/operators/read_bitz),
+[`to_hive`](/reference/operators/to_hive),
+[`write_feather`](/reference/operators/write_feather),
+[`write_parquet`](/reference/operators/write_parquet)

@@ -1,5 +1,7 @@
 ---
 title: load_nic
+category: Inputs/Bytes
+example: 'load_nic "eth0"'
 ---
 
 Loads bytes from a network interface card (NIC).
@@ -40,7 +42,7 @@ When setting `emit_file_headers` every chunk gets its own PCAP file header, as
 opposed to just the very first. This yields a continuous stream of concatenated
 PCAP files.
 
-Our [`read_pcap`](read_pcap) operator can handle such concatenated traces, and
+Our [`read_pcap`](/reference/operators/read_pcap) operator can handle such concatenated traces, and
 optionally re-emit thes file headers as separate events.
 
 ## Examples
@@ -63,6 +65,6 @@ save_file "trace.pcap"
 
 ## See Also
 
-[`read_pcap`](read_pcap),
-[`nics`](nics),
-[`write_pcap`](write_pcap)
+[`read_pcap`](/reference/operators/read_pcap),
+[`nics`](/reference/operators/nics),
+[`write_pcap`](/reference/operators/write_pcap)

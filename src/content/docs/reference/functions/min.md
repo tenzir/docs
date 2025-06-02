@@ -1,5 +1,7 @@
 ---
 title: min
+category: Aggregation
+example: 'min([1,2,3])'
 ---
 
 Computes the minimum of all grouped values.
@@ -31,4 +33,6 @@ summarize min_value=min(x)
 
 ## See Also
 
-[`max`](max), [`mean`](mean), [`sum`](sum)
+[`max`](/reference/functions/max),
+[`mean`](/reference/functions/mean),
+[`sum`](/reference/functions/sum)

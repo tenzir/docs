@@ -1,5 +1,7 @@
 ---
 title: drop
+category: Modify
+example: 'drop name, metadata.id'
 ---
 
 Removes fields from the event.
@@ -42,5 +44,5 @@ drop role, info.id
 
 ## See Also
 
-[`select`](select),
-[`where`](where)
+[`select`](/reference/operators/select),
+[`where`](/reference/operators/where)

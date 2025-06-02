@@ -1,5 +1,7 @@
 ---
 title: delay
+category: Flow Control
+example: 'delay ts, speed=2.5'
 ---
 
 Delays events relative to a given start time, with an optional speedup.
@@ -95,4 +97,4 @@ delay ts, start=now()+2h
 ```
 ## See Also
 
-[`timeshift`](timeshift)
+[`timeshift`](/reference/operators/timeshift)

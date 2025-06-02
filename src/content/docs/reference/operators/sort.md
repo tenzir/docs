@@ -1,5 +1,7 @@
 ---
 title: sort
+category: Analyze
+example: 'sort name, -abs(transaction)'
 ---
 
 Sorts events by the given expressions.
@@ -61,4 +63,6 @@ sort src_ip, -dest_ip
 
 ## See Also
 
-[`reverse`](reverse)
+[`rare`](/reference/operators/rare),
+[`reverse`](/reference/operators/reverse),
+[`top`](/reference/operators/top)

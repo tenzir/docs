@@ -1,5 +1,7 @@
 ---
 title: is_numeric
+category: String/Inspection
+example: '"1234".is_numeric()'
 ---
 
 Checks if a string contains only numeric characters.
@@ -27,4 +29,5 @@ from {x: "1234".is_numeric()}
 
 ## See Also
 
-[`is_alpha`](is_alpha), [`is_alnum`](is_alnum)
+[`is_alpha`](/reference/functions/is_alpha),
+[`is_alnum`](/reference/functions/is_alnum)

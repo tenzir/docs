@@ -1,5 +1,7 @@
 ---
 title: load_s3
+category: Inputs/Bytes
+example: 'load_s3 "s3://my-bucket/obj.csv"'
 ---
 
 Loads from an Amazon S3 object.
@@ -75,4 +77,4 @@ read_json
 
 ## See Also
 
-[`save_s3`](save_s3)
+[`save_s3`](/reference/operators/save_s3)

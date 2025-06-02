@@ -1,0 +1,48 @@
+---
+title: Tenzir Node v4.31.0
+sidebar:
+  badge:
+    text: v4.31.0
+    variant: success
+---
+
+### Features
+
+#### Implement `if … else` expressions and short-circuiting for `and` / `or`
+
+Tenzir now supports inline `if … else` expressions in the form `foo if pred`,
+which returns `foo` if `pred` evaluates to `true`, or `null` otherwise, and `foo
+if pred else bar`, which instead of falling back to `null` falls back to `bar`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5085](https://github.com/tenzir/tenzir/pull/5085).
+
+#### Implement `from_opensearch`
+
+We added a `from_opensearch` operator that presents a OpenSearch-compatible REST
+API to enable easy interop with tools that can send data to OpenSearch or
+Elasticsearch, e.g. Filebeat, Winlogbeat etc.
+
+By [@raxyte](https://github.com/raxyte) in [#5075](https://github.com/tenzir/tenzir/pull/5075).
+
+#### Implement `write_syslog`
+
+We added a new `write_syslog` operator to format events as syslog messages.
+
+By [@raxyte](https://github.com/raxyte) in [#5083](https://github.com/tenzir/tenzir/pull/5083).
+
+### Bug Fixes
+
+#### Implement `if … else` expressions and short-circuiting for `and` / `or`
+
+The binary operators `and` and `or` now skip evaluating their right-hand side
+when not necessary. For example, `where this.has("foo") and foo == 42` now
+avoids emitting a warning when `foo` does not exist.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5085](https://github.com/tenzir/tenzir/pull/5085).
+
+#### Hardcode the fluent-bit page size to 24576
+
+The `from_fluent_bit` and `to_fluent_bit` operators no longer crash when trying
+to handle very large payloads.
+
+By [@tobim](https://github.com/tobim) in [#5084](https://github.com/tenzir/tenzir/pull/5084).

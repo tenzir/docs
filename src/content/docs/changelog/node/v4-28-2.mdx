@@ -1,0 +1,39 @@
+---
+title: Tenzir Node v4.28.2
+sidebar:
+  badge:
+    text: v4.28.2
+    variant: note
+---
+
+### Features
+
+#### Add `fill` option to chart operators
+
+The new `fill` option on `chart_area`, `chart_bar` and `chart_line` allows you
+to specify a value to replace `null`s with and fill gaps.
+
+By [@raxyte](https://github.com/raxyte) in [#4967](https://github.com/tenzir/tenzir/pull/4967).
+
+#### Fix `from`/`to` not respecting default formats
+
+The `from` and `to` operators now assume `http` and `https` URLs to produce or
+accept JSON, unless the filename in the URL contains a known file extension.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4990](https://github.com/tenzir/tenzir/pull/4990).
+
+#### Fix crash in AMQP and add JSON `arrays_of_objects` option
+
+The `write_json` and `write_ndjson` operators now have a `arrays_of_objects`
+option.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4994](https://github.com/tenzir/tenzir/pull/4994).
+
+### Bug Fixes
+
+#### Fix crash in AMQP and add JSON `arrays_of_objects` option
+
+We fixed a bug in `load_amqp` and `save_amqp` that prevented the node from
+starting if they were used in a pipeline configured as code and failed to connect.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4994](https://github.com/tenzir/tenzir/pull/4994).

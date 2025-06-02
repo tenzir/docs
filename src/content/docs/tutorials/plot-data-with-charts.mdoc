@@ -14,10 +14,10 @@ often calls for visualization. This is where charts come into play.
 
 Tenzir supports four types of charts, each with a dedicated operator:
 
-1. **Pie**: [`chart_pie`](../../reference/operators/chart_pie)
-2. **Bar**: [`chart_bar`](../../reference/operators/chart_bar)
-3. **Line**: [`chart_line`](../../reference/operators/chart_line)
-4. **Area**: [`chart_area`](../../reference/operators/chart_area)
+1. **Pie**: [`chart_pie`](/reference/operators/chart_pie)
+2. **Bar**: [`chart_bar`](/reference/operators/chart_bar)
+3. **Line**: [`chart_line`](/reference/operators/chart_line)
+4. **Area**: [`chart_area`](/reference/operators/chart_area)
 
 ## How to plot data
 
@@ -25,7 +25,7 @@ Plotting data in the Explorer involves three steps:
 
 {% steps %}
 
-1. [Run a pipeline](../../guides/usage/basics/run-pipelines) to prepare the
+1. [Run a pipeline](/guides/usage/basics/run-pipelines) to prepare the
    data.
 2. Add a `chart_*` operator to render the plot.
 3. View the chart below the Editor.
@@ -132,7 +132,7 @@ understanding of the data at hand.
    {outcome: "heads", n: 11}
    ```
 
-2. **Plot the data**: Add the [`chart_bar`](../../reference/operators/chart_bar)
+2. **Plot the data**: Add the [`chart_bar`](/reference/operators/chart_bar)
    operator to visualize the counts.
 
    Map the outcome and count fields to the x-axis and y-axis:
@@ -232,7 +232,7 @@ numeric ratio. Stacked values are not additive anymore.
 
 Pie charts are well-understood and frequently occur in management dashboards.
 Let's plot some synthetic data with the
-[`chart_pie`](../../reference/operators/chart_pie) operator:
+[`chart_pie`](/reference/operators/chart_pie) operator:
 
 ```tql
 from (
@@ -272,7 +272,7 @@ such as time series data.
 {% steps %}
 
 1. **Shape your data**: For our line chart demo, we'll use some internal node
-   metrics provided by the [`metrics`](../reference/operators/metrics) operator.
+   metrics provided by the [`metrics`](/reference/operators/metrics) operator.
    Let's look at the RAM usage of the node:
 
    ```tql
@@ -288,7 +288,7 @@ such as time series data.
    ```
 
 2. **Plot the data**: Add the
-   [`chart_line`](../../reference/operators/chart_line) operator to visualize
+   [`chart_line`](/reference/operators/chart_line) operator to visualize
    the time series. We are going to plot the memory usage within the last day:
 
    ```tql
@@ -366,8 +366,8 @@ continuous variable, such as time or value ranges. They are similar to line
 charts but emphasize the volume underneath the line.
 
 In the above section about line charts, you can exchange every call to
-[`chart_line`](../../reference/operators/chart_line) with
-[`chart_area`](../../reference/operators/chart_area) and will get a working
+[`chart_line`](/reference/operators/chart_line) with
+[`chart_area`](/reference/operators/chart_area) and will get a working
 plot.
 
 ```tql
@@ -466,7 +466,7 @@ Here are some important details to remember:
   the maximum value in the respective bucket. This results in nicer axis ticks
   that align on the bucket boundary, e.g., hourly or daily.
 - The combination of `resolution` with an [aggregation
-  function](../../reference/functions#aggregation) for the `y` series is equivalent
+  function](/reference/functions#aggregation) for the `y` series is equivalent
   to the manual `summarize`.
 - When you use `resolution`, you can additionally use the `fill` option to patch
   up missing values with a provided value, e.g., `fill=0` replaces otherwise

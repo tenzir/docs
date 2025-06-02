@@ -1,11 +1,13 @@
 ---
 title: where
+category: List
+example: 'xs.where(x, x > 5)'
 ---
 
 Filters list elements based on a predicate.
 
 ```tql
-where(xs:list, capture:field, predicate:bool) -> list
+where(xs:list, prediacte:any => bool) -> list
 ```
 
 ## Description
@@ -17,11 +19,7 @@ evaluates to `true`.
 
 A list of values.
 
-### `capture: field`
-
-The name of each list element in each predicate.
-
-### `predicate: bool`
+### `predicate: any => bool`
 
 The predicate evaluated for each list element.
 
@@ -37,9 +35,11 @@ xs = xs.where(x, x > 3)
 ```
 
 ```tql
-{xs: [4, 5]}
+{
+  xs: [4, 5]
+}
 ```
 
 ## See Also
 
-[`map`](map)
+[`map`](/reference/functions/map)

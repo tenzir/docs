@@ -1,5 +1,7 @@
 ---
 title: load_zmq
+category: Inputs/Bytes
+example: 'load_zmq'
 ---
 
 Receives ZeroMQ messages.
@@ -64,4 +66,4 @@ read_json
 
 ## See Also
 
-[`save_zmq`](save_zmq)
+[`save_zmq`](/reference/operators/save_zmq)

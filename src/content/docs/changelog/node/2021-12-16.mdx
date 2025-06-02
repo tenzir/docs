@@ -1,0 +1,62 @@
+---
+title: VAST 2021.12.16
+sidebar:
+  badge:
+    text: 2021.12.16
+    variant: note
+---
+
+### Features
+
+#### PRs 1987-1992
+
+Metrics events now optionally contain a metadata field that is a key-value
+mapping of string to string, allowing for finer-grained introspection. For now
+this enables correlation of metrics events and individual queries. A set of new
+metrics for query lookup use this feature to include the query ID.
+
+By [@tobim](https://github.com/tobim) in [#1987](https://github.com/tenzir/tenzir/pull/1987).
+
+#### Make JSON field selectors configurable
+
+JSON field selectors are now configurable instead of being hard-coded for
+Suricata Eve JSON and Zeek Streaming JSON. E.g., `vast import json
+--selector=event_type:suricata` is now equivalent to `vast import suricata`.
+This allows for easier integration of JSONL data containing a field that
+indicates its type.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1974](https://github.com/tenzir/tenzir/pull/1974).
+
+#### Emit version column along with metrics
+
+All metrics events now contain the version of VAST. Additionally, VAST now emits
+startup and shutdown metrics at the start and stop of the VAST server.
+
+By [@6yozo](https://github.com/6yozo) in [#1973](https://github.com/tenzir/tenzir/pull/1973).
+
+### Changes
+
+#### Type FlatBuffers
+
+VAST's internal type system has a new on-disk data representation. While we
+still support reading older databases, reverting to an older version of VAST
+will not be possible after this change. Alongside this change, we've
+implemented numerous fixes and streamlined handling of field name lookups,
+which now more consistently handles the dot-separator. E.g., the query `#field
+== "ip"` still matches the field `source.ip`, but no longer the field
+`source_ip`. The change is also performance-relevant in the long-term: For data
+persisted from previous versions of VAST we convert to the new type system on
+the fly, and for newly ingested data we now have near zero-cost deserialization
+for types, which should result in an overall speedup once the old data is
+rotated out by the disk monitor.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1888](https://github.com/tenzir/tenzir/pull/1888).
+
+### Bug Fixes
+
+#### Fix JSON default selector for nested records
+
+The field-based default selector of the JSON import now correctly matches types
+with nested record types.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#1988](https://github.com/tenzir/tenzir/pull/1988).

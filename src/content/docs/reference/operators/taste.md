@@ -1,5 +1,7 @@
 ---
 title: taste
+category: Filter
+example: 'taste 1'
 ---
 
 Limits the input to `n` events per unique schema.

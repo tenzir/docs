@@ -1,5 +1,7 @@
 ---
 title: remote
+category: Internals
+example: 'remote { version }'
 ---
 
 Forces a pipeline to run remotely at a node.
@@ -28,4 +30,4 @@ remote {
 
 ## See Also
 
-[`local`](local)
+[`local`](/reference/operators/local)

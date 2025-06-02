@@ -1,5 +1,7 @@
 ---
 title: keys
+category: Record
+example: 'record.keys()'
 ---
 
 Retrieves a list of field names from a record.
@@ -77,4 +79,5 @@ top key
 
 ## See also
 
-[`has`](has), [`get`](get)
+[`has`](/reference/functions/has),
+[`get`](/reference/functions/get)

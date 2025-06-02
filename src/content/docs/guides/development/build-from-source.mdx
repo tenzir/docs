@@ -21,44 +21,49 @@ Every [release](https://github.com/tenzir/tenzir/releases) of Tenzir includes an
 [SPDX](https://spdx.dev) format that lists all dependencies and their versions.
 
 <div align="center" class="padding-bottom--md">
-  <a class="button button--md button--primary margin-right--md" href="https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json">Latest SBOM</a>
+  <a
+    class="button button--md button--primary margin-right--md"
+    href="https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json"
+  >
+    Latest SBOM
+  </a>
 </div>
 
-|Required|Dependency|Version|Description|
-|:-:|:-:|:-:|-|
-|✓|C++ Compiler|C++23 required|Tenzir is tested to compile with GCC >= 14.0 and Clang >= 19.0.|
-|✓|[CMake](https://cmake.org)|>= 3.30|Cross-platform tool for building, testing and packaging software.|
-|✓|[CAF](https://github.com/actor-framework/actor-framework)|>= 1.0.2|Implementation of the actor model in C++. (Bundled as submodule.)|
-|✓|[OpenSSL](https://www.openssl.org)||Utilities for secure networking and cryptography.|
-|✓|[FlatBuffers](https://google.github.io/flatbuffers/)|>= 2.0.8|Memory-efficient cross-platform serialization library.|
-|✓|[Boost](https://www.boost.org)|>= 1.83.0|Required as a general utility library.|
-|✓|[Apache Arrow](https://arrow.apache.org)|>= 13.0.0|Required for in-memory data representation. Must be built with Compute, Filesystem, S3, Zstd and Parquet enabled. For the `gcs` plugin, GCS needs to be enabled. |
-|✓|[re2](https://github.com/google/re2)||Required for regular expressione evaluation.|
-|✓|[yaml-cpp](https://github.com/jbeder/yaml-cpp)|>= 0.6.2|Required for reading YAML configuration files.|
-|✓|[simdjson](https://github.com/simdjson/simdjson)|>= 3.10.0|Required for high-performance JSON parsing. (Bundled as submodule.)|
-|✓|[spdlog](https://github.com/gabime/spdlog)|>= 1.5|Required for logging.|
-|✓|[fmt](https://fmt.dev)|>= 10.0.0|Required for formatted text output.|
-|✓|[xxHash](https://github.com/Cyan4973/xxHash)|>= 0.8.0|Required for computing fast hash digests.|
-|✓|[robin-map](https://github.com/Tessil/robin-map)|>= 0.6.3|Fast hash map and hash set using robin hood hashing. (Bundled as subtree.)|
-|✓|[fast_float](https://github.com/FastFloat/fast_float)|>= 3.2.0|Required for parsing floating point numbers. (Bundled as submodule.)|
-|✓|[libbacktrace](https://github.com/ianlancetaylor/libbacktrace)|>= 1.0|Required for generating stack traces. (Only on Linux.)|
-|✓|[libmaxminddb](https://github.com/maxmind/libmaxminddb)|>= 1.8.0|Required for the `geoip` context.|
-||[libpcap](https://www.tcpdump.org)||Required for building the `pcap` plugin.|
-||[librdkafka](https://github.com/confluentinc/librdkafka)||Required for building the `kafka` plugin.|
-||[http-parser](https://github.com/nodejs/http-parser)||Required for building the `web` plugin.|
-||[cppzmq](https://github.com/zeromq/cppzmq)||Required for building the `zmq` plugin.|
-||[clickhouse-cpp](https://github.com/clickhouse/clickhouse-cpp)|>=fbd7945|Required for building the `clickhouse` plugin. (Bundled as submodule.)|
-||[pfs](https://github.com/dtrugman/pfs)||Required for the `processes` and `sockets` operators on Linux.|
-||[Protocol Buffers](https://protobuf.dev)|>= 1.4.1|Required for building the `velociraptor` plugin.|
-||[gRPC](https://grpci.io)|>= 1.51|Required for building the `velociraptor` plugin.|
-||[rabbitmq-c](https://github.com/alanxz/rabbitmq-c)||Required for building the `rabbitmq` plugin.|
-||[yara](https://yara.readthedocs.io/)|>= 4.4.0|Required for building the `yara` plugin.|
-||[poetry](https://python-poetry.org)||Required for building the Python bindings.|
-||[Doxygen](http://www.doxygen.org)||Required to build documentation for libtenzir.|
-||[Pandoc](https://github.com/jgm/pandoc)||Required to build the manpage for Tenzir.|
-||[bash](https://www.gnu.org/software/bash/)|>= 4.0.0|Required to run the integration tests.|
-||[bats](https://bats-core.readthedocs.io)|>= 1.8.0|Required to run the integration tests.|
-||[uv](https://github.com/astral-sh/uv)|>= 0.7.2|Required to run the python operator.|
+| Required |                           Dependency                           |    Version     | Description                                                                                                                                                      |
+| :------: | :------------------------------------------------------------: | :------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|    ✓     |                          C++ Compiler                          | C++23 required | Tenzir is tested to compile with GCC >= 14.0 and Clang >= 19.0.                                                                                                  |
+|    ✓     |                   [CMake](https://cmake.org)                   |    >= 3.30     | Cross-platform tool for building, testing and packaging software.                                                                                                |
+|    ✓     |   [CAF](https://github.com/actor-framework/actor-framework)    |    >= 1.0.2    | Implementation of the actor model in C++. (Bundled as submodule.)                                                                                                |
+|    ✓     |               [OpenSSL](https://www.openssl.org)               |                | Utilities for secure networking and cryptography.                                                                                                                |
+|    ✓     |      [FlatBuffers](https://google.github.io/flatbuffers/)      |    >= 2.0.8    | Memory-efficient cross-platform serialization library.                                                                                                           |
+|    ✓     |                 [Boost](https://www.boost.org)                 |   >= 1.83.0    | Required as a general utility library.                                                                                                                           |
+|    ✓     |            [Apache Arrow](https://arrow.apache.org)            |   >= 13.0.0    | Required for in-memory data representation. Must be built with Compute, Filesystem, S3, Zstd and Parquet enabled. For the `gcs` plugin, GCS needs to be enabled. |
+|    ✓     |              [re2](https://github.com/google/re2)              |                | Required for regular expressione evaluation.                                                                                                                     |
+|    ✓     |         [yaml-cpp](https://github.com/jbeder/yaml-cpp)         |    >= 0.6.2    | Required for reading YAML configuration files.                                                                                                                   |
+|    ✓     |        [simdjson](https://github.com/simdjson/simdjson)        |   >= 3.10.0    | Required for high-performance JSON parsing. (Bundled as submodule.)                                                                                              |
+|    ✓     |           [spdlog](https://github.com/gabime/spdlog)           |     >= 1.5     | Required for logging.                                                                                                                                            |
+|    ✓     |                     [fmt](https://fmt.dev)                     |   >= 10.0.0    | Required for formatted text output.                                                                                                                              |
+|    ✓     |          [xxHash](https://github.com/Cyan4973/xxHash)          |    >= 0.8.0    | Required for computing fast hash digests.                                                                                                                        |
+|    ✓     |        [robin-map](https://github.com/Tessil/robin-map)        |    >= 0.6.3    | Fast hash map and hash set using robin hood hashing. (Bundled as subtree.)                                                                                       |
+|    ✓     |     [fast_float](https://github.com/FastFloat/fast_float)      |    >= 3.2.0    | Required for parsing floating point numbers. (Bundled as submodule.)                                                                                             |
+|    ✓     | [libbacktrace](https://github.com/ianlancetaylor/libbacktrace) |     >= 1.0     | Required for generating stack traces. (Only on Linux.)                                                                                                           |
+|    ✓     |    [libmaxminddb](https://github.com/maxmind/libmaxminddb)     |    >= 1.8.0    | Required for the `geoip` context.                                                                                                                                |
+|          |               [libpcap](https://www.tcpdump.org)               |                | Required for building the `pcap` plugin.                                                                                                                         |
+|          |    [librdkafka](https://github.com/confluentinc/librdkafka)    |                | Required for building the `kafka` plugin.                                                                                                                        |
+|          |      [http-parser](https://github.com/nodejs/http-parser)      |                | Required for building the `web` plugin.                                                                                                                          |
+|          |           [cppzmq](https://github.com/zeromq/cppzmq)           |                | Required for building the `zmq` plugin.                                                                                                                          |
+|          | [clickhouse-cpp](https://github.com/clickhouse/clickhouse-cpp) |   >=fbd7945    | Required for building the `clickhouse` plugin. (Bundled as submodule.)                                                                                           |
+|          |             [pfs](https://github.com/dtrugman/pfs)             |                | Required for the `processes` and `sockets` operators on Linux.                                                                                                   |
+|          |            [Protocol Buffers](https://protobuf.dev)            |    >= 1.4.1    | Required for building the `velociraptor` plugin.                                                                                                                 |
+|          |                    [gRPC](https://grpci.io)                    |    >= 1.51     | Required for building the `velociraptor` plugin.                                                                                                                 |
+|          |       [rabbitmq-c](https://github.com/alanxz/rabbitmq-c)       |                | Required for building the `rabbitmq` plugin.                                                                                                                     |
+|          |              [yara](https://yara.readthedocs.io/)              |    >= 4.4.0    | Required for building the `yara` plugin.                                                                                                                         |
+|          |              [poetry](https://python-poetry.org)               |                | Required for building the Python bindings.                                                                                                                       |
+|          |               [Doxygen](http://www.doxygen.org)                |                | Required to build documentation for libtenzir.                                                                                                                   |
+|          |            [Pandoc](https://github.com/jgm/pandoc)             |                | Required to build the manpage for Tenzir.                                                                                                                        |
+|          |           [bash](https://www.gnu.org/software/bash/)           |    >= 4.0.0    | Required to run the integration tests.                                                                                                                           |
+|          |            [bats](https://bats-core.readthedocs.io)            |    >= 1.8.0    | Required to run the integration tests.                                                                                                                           |
+|          |             [uv](https://github.com/astral-sh/uv)              |    >= 0.7.2    | Required to run the python operator.                                                                                                                             |
 
 The minimum specified versions reflect those versions that we use in CI and
 manual testing. Older versions may still work in select cases.
@@ -85,6 +90,7 @@ spawn a node at login:
 # To unload the agent, replace 'load' with 'unload'.
 launchctl load -w ~/Library/LaunchAgents/com.tenzir.tenzir.plist
 ```
+
 :::
 
 ## Compile

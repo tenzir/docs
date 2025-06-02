@@ -1,5 +1,7 @@
 ---
 title: decode_url
+category: Decoding
+example: 'decode_url("Hello%20World")'
 ---
 
 Decodes URL encoded strings.
@@ -35,4 +37,4 @@ decoded = input.decode_url()
 
 ## See Also
 
-[`encode_url`](encode_url)
+[`encode_url`](/reference/functions/encode_url)

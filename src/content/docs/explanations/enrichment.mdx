@@ -20,7 +20,7 @@ when modelling the threat landscape or internal network infrastructure.
 Reusing pipelines as mechanism for context updates (as opposed to other systems
 that, say, offer a separate interface to only load static CSV files) has the
 benefit that we can leverage the full power of TQL. In other words, we can reuse
-*all* existing connectors, formats, periodic scheduling, and more.
+_all_ existing connectors, formats, periodic scheduling, and more.
 
 ## Enrichment Modes
 
@@ -89,7 +89,7 @@ return the value associated with `10.0.0.0/8`.
 ![Subnet Keys](enrichment/lookup-table-subnet-keys.svg)
 
 When a table contains subnet keys with overlapping ranges, such as `10.0.0.0/22`
-and `10.0.0.0/24`, a lookup returns the entry with the *longest-prefix match* of
+and `10.0.0.0/24`, a lookup returns the entry with the _longest-prefix match_ of
 the key. For example, probing the table with `10.0.0.1` returns the value
 associated with the `/24` subnet, because it is a longer match (24 > 22).
 
@@ -106,7 +106,7 @@ during lateral movement of attackers.
 #### 2. Per-Key Create/Write/Read Expiration
 
 Every table entry has three optional expiration timeouts that evict the entry.
-These timeout are compounding, so it suffices if *one* of them fires to trigger
+These timeout are compounding, so it suffices if _one_ of them fires to trigger
 eviction.
 
 ![Expiration](enrichment/lookup-table-expiration.svg)
@@ -116,7 +116,7 @@ The three timeout types are:
 1. **Create timeout**: Whenever a new entry is created in the table, e.g.,
    through `context::update`, this timeout starts counting down. This happens
    exactly once and the timer cannot be reset. Therefore, a create timeout is an
-   *upper bound* on the lifetime of an entry.
+   _upper bound_ on the lifetime of an entry.
 2. **Write timeout**: Whenever an update modifies a table entry by writing a new
    value for a given key with `context::update`, this timeout resets.
 3. **Read timeout**: Whenever an entry is accessed, which happens during
@@ -138,7 +138,7 @@ information already to generate more actionable enrichments.
 
 Lookup tables offer more than just entries with static values. You can also
 aggregate into values with [aggregation
-functions](../../reference/functions#aggregation). In this case an update of a
+functions](/reference/functions#aggregation). In this case an update of a
 table entry does not write the new value directly, but rather hands that value
 to the configured aggregation function, which in turn updates the table value.
 
@@ -189,7 +189,7 @@ drop-in replacement for `bloom` users.
 Let's say you have a 10 billion SHA256 hash digests of malware samples. Your
 endpoint telemetry provides a SHA256 along with every process creation event.
 You'd like to check whether the newly created process is in the malware set.
-With a lookup table, you would need at least 256 / 8 * 100^6 = 320 GB of memory.
+With a lookup table, you would need at least 256 / 8 \* 100^6 = 320 GB of memory.
 With a Bloom filter that has a 1% false positive rate, you can represent the
 same set with XXX memory. A lot less!
 :::

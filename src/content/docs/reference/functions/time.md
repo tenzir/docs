@@ -1,5 +1,7 @@
 ---
 title: time
+category: Type System/Conversion
+example: 'time("2020-03-15")'
 ---
 
 Casts an expression to a time value.
@@ -26,4 +28,10 @@ from {x: time("2020-03-15")}
 
 ## See Also
 
-[int](int), [uint](uint), [float](float), [string](string), [ip](ip), [duration](duration)
+[`ip`](/reference/functions/ip),
+[`string`](/reference/functions/string),
+[`subnet`](/reference/functions/subnet),
+[`uint`](/reference/functions/uint),
+[duration](/reference/functions/duration),
+[float](/reference/functions/float),
+[int](/reference/functions/int)

@@ -1,5 +1,7 @@
 ---
 title: is_v4
+category: IP
+example: 'is_v4(1.2.3.4)'
 ---
 
 Checks whether an IP address has version number 4.
@@ -33,4 +35,4 @@ from {
 
 ## See Also
 
-[`is_v6`](is_v6)
+[`is_v6`](/reference/functions/is_v6)

@@ -1,0 +1,53 @@
+---
+title: Tenzir Node v4.22.2
+sidebar:
+  badge:
+    text: v4.22.2
+    variant: note
+---
+
+### Features
+
+#### Implement `<list>.sort()` and `<record>.sort()`
+
+The new `sort` method sorts fields in records by name and lists by values.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4704](https://github.com/tenzir/tenzir/pull/4704).
+
+#### Add a `value_counts` aggregation function
+
+The new `value_counts` aggregation function returns a list of values and their
+frequency.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4701](https://github.com/tenzir/tenzir/pull/4701).
+
+### Bug Fixes
+
+#### Enable google-cloud-pubsub connector in the Docker Image
+
+The `google-cloud-pubsub` connector and TQL2 operators `load_google_cloud_pubsub`
+`save_google_cloud_pubsub` operators are now available in the Docker image.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4690](https://github.com/tenzir/tenzir/pull/4690).
+
+#### Add a `value_counts` aggregation function
+
+We fixed a bug that caused the `mode` aggregation function to sometimes ignore
+some input values.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4701](https://github.com/tenzir/tenzir/pull/4701).
+
+#### Allow reinstantiating the `buffer` operator
+
+We fixed a bug in the `buffer` operator that caused it to break when
+restarting a pipeline or using multiple buffers in a "parallel" context,
+such as in `load_tcp`'s pipeline argument.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4702](https://github.com/tenzir/tenzir/pull/4702).
+
+#### Explicitly close ending TCP connection sockets
+
+We fixed a bug that sometimes prevented incoming connections from `load_tcp`
+from closing properly.
+
+By [@tobim](https://github.com/tobim) in [#4674](https://github.com/tenzir/tenzir/pull/4674).

@@ -1,5 +1,7 @@
 ---
 title: is_alnum
+category: String/Inspection
+example: '"hello123".is_alnum()'
 ---
 
 Checks if a string is alphanumeric.
@@ -27,4 +29,6 @@ from {x: "hello123".is_alnum()}
 
 ## See Also
 
-[`is_alpha`](is_alpha), [`is_numeric`](is_numeric)
+[`is_alpha`](/reference/functions/is_alpha),
+[`is_numeric`](/reference/functions/is_numeric),
+[`is_printable`](/reference/functions/is_printable)

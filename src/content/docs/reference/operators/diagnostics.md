@@ -1,5 +1,7 @@
 ---
 title: diagnostics
+category: Node/Inspection
+example: 'diagnostics'
 ---
 
 Retrieves diagnostic events from a Tenzir node.
@@ -90,4 +92,4 @@ where severity == "error"
 
 ## See Also
 
-[`metrics`](metrics)
+[`metrics`](/reference/operators/metrics)

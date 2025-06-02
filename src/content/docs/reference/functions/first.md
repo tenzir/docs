@@ -1,5 +1,7 @@
 ---
 title: first
+category: Aggregation
+example: 'first([null,2,3])'
 ---
 
 Takes the first non-null grouped value.
@@ -31,4 +33,4 @@ summarize first_value=first(x)
 
 ## See Also
 
-[`last`](last)
+[`last`](/reference/functions/last)

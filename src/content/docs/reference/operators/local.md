@@ -1,5 +1,7 @@
 ---
 title: local
+category: Internals
+example: 'local { sort foo }'
 ---
 
 Forces a pipeline to run locally.
@@ -32,4 +34,4 @@ save_file "eve.json"
 
 ## See Also
 
-[`remote`](remote)
+[`remote`](/reference/operators/remote)

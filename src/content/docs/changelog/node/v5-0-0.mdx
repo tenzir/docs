@@ -1,18 +1,96 @@
 ---
-title: v5.0.0
+title: TQL2, Always
+sidebar:
+  badge:
+    text: v5.0.0
+    variant: tip
 ---
 
-## Bug Fixes
+Tenzir Node v5.0 makes TQL2 the default and only option throughout Tenzir.
 
-### Lorem Ipsum
+### Features
 
-Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
-tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
-vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
-no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit
-amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
-labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam
-et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata
-sanctus est Lorem ipsum dolor sit amet.
+#### Implement `from_http`
 
-By [@mavam](https://github.com/mavam) in [#5074](https://github.com/tenzir/tenzir/pull/5074).
+`from_http <host:port>, server=true` creates an HTTP/1.1 server that listens on
+a specified hostname and port. In the future, the `load_http` operator's HTTP
+client will be integrated with this operator as well, eventually superseding
+`load_http`.
+
+By [@raxyte](https://github.com/raxyte) in [#5114](https://github.com/tenzir/tenzir/pull/5114).
+
+#### Add optimizations for `if`
+
+The `mo` suffix allows for specifying durations in terms of months. For example,
+`3mo` returns a duration equivalent to three months. The unit has alternative
+spellings `month` and `months`, and is defined as one twelfth of a year.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5110](https://github.com/tenzir/tenzir/pull/5110).
+
+#### Fix panic in `head 0 | write_json arrays_of_objects=true`
+
+`write_json arrays_of_objects=true` now works correctly with an empty input,
+returning an empty JSON array instead of running into a panic.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5115](https://github.com/tenzir/tenzir/pull/5115).
+
+#### Implement `move` operator
+
+We added a new `move` operator that moves a field into another, effectively a
+smart renaming such as `ctx.message=status.msg` moves the values from
+`status.msg` into the field `message` of a record `ctx` and drops `status.msg`.
+
+By [@raxyte](https://github.com/raxyte) in [#5117](https://github.com/tenzir/tenzir/pull/5117).
+
+#### Add a `hidden` field to `diagnostics`
+
+The output of the `diagnostics` operator now includes an additional `hidden`
+field that is set to `true` for pipelines that are not visible on the Pipelines
+page of the Tenzir Platform, e.g., because they're run under-the-hood by the
+platform or interactively in the Explorer.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5119](https://github.com/tenzir/tenzir/pull/5119).
+
+### Changes
+
+#### Make TQL2 the default
+
+TQL2 is now the default and only option for writing pipelines with Tenzir. The
+environment variable `TENZIR_TQL2`, the configuration option `tenzir.tql2` have
+no more effect. Using the command-line option `--tql2` results in an error.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5086](https://github.com/tenzir/tenzir/pull/5086).
+
+#### Implement `file_content(path:string)`
+
+We added a new function `file_contents` to read bytes from a file with an
+absolute path.
+
+By [@raxyte](https://github.com/raxyte) in [#5111](https://github.com/tenzir/tenzir/pull/5111).
+
+#### Add optimizations for `if`
+
+`1y` in TQL now equals 365.2425 days, which is the average length of a year in
+the Gregorian calendar. This aligns the duration literal with the `years`
+function and how the Tenzir Platform renders durations.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5110](https://github.com/tenzir/tenzir/pull/5110).
+
+### Bug Fixes
+
+#### Add optimizations for `if`
+
+Operators that interact with state in the node that is not local to the
+pipeline, e.g., `context::update`, now properly work when used inside an `if`
+statement. Previously, pipelines of the form `if … { context::update … }` failed
+at runtime.
+
+Branches in `if` statement no longer run on a single thread, and instead
+properly participate in the thread pool. This fixes performance problems when
+running complex pipelines inside branches. Note that this causes the output of
+the `if` operator to be unordered between its branches.
+
+Literal values of type `time` in expressions failed to parse when they used
+subsecond prevision or a time-zone offset. This no longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5110](https://github.com/tenzir/tenzir/pull/5110).

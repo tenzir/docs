@@ -1,5 +1,7 @@
 ---
 title: select
+category: Modify
+example: 'select name, id=metadata.id'
 ---
 
 Selects some values and discards the rest.
@@ -62,5 +64,5 @@ select id=name.to_upper(), pos.x, added=true
 
 ## See Also
 
-[`drop`](drop),
-[`where`](where)
+[`drop`](/reference/operators/drop),
+[`where`](/reference/operators/where)

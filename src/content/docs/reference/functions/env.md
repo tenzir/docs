@@ -1,5 +1,7 @@
 ---
 title: env
+category: Runtime
+example: 'env("PATH")'
 ---
 
 Reads an environment variable.
@@ -27,5 +29,5 @@ from {x: env("PATH")}
 
 ## See also
 
-[`config`](config),
-[`secret`](secret)
+[`config`](/reference/functions/config),
+[`secret`](/reference/functions/secret)

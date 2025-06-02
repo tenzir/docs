@@ -1,5 +1,7 @@
 ---
 title: write_ndjson
+category: Printing
+example: 'write_ndjson'
 ---
 
 Transforms the input event stream to a Newline-Delimited JSON byte stream.
@@ -85,10 +87,9 @@ write_ndjson strip_null_fields=true
 
 ## See Also
 
-[`parse_ndjson`](../functions/parse_ndjson),
-[`parse_json`](../functions/parse_json),
-[`print_ndjson`](../functions/print_ndjson),
-[`print_json`](../functions/print_json),
-[`read_json`](./read_json),
-[`read_ndjson`](./read_ndjson),
-[`write_json`](./write_json)
+[`parse_json`](/reference/functions/parse_json),
+[`print_ndjson`](/reference/functions/print_ndjson),
+[`print_json`](/reference/functions/print_json),
+[`read_json`](/reference/operators/read_json),
+[`read_ndjson`](/reference/operators/read_ndjson),
+[`write_json`](/reference/operators/write_json)

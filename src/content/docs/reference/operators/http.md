@@ -1,5 +1,7 @@
 ---
 title: http
+category: Modify
+example: 'http "example.com"'
 ---
 
 Sends HTTP/1.1 requests and forwards the response.
@@ -220,4 +222,4 @@ Additionally, we limit the maximum pages by a simple `head 10`.
 
 ## See Also
 
-[`from_http`](from_http)
+[`from_http`](/reference/operators/from_http)

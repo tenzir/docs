@@ -1,5 +1,7 @@
 ---
 title: is_printable
+category: String/Inspection
+example: '"hello".is_printable()'
 ---
 
 Checks if a string contains only printable characters.
@@ -27,4 +29,5 @@ from {x: "hello".is_printable()}
 
 ## See Also
 
-[`is_alnum`](is_alnum), [`is_alpha`](is_alpha)
+[`is_alnum`](/reference/functions/is_alnum),
+[`is_alpha`](/reference/functions/is_alpha)

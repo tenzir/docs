@@ -1,5 +1,7 @@
 ---
 title: from_file
+category: Inputs/Events
+example: 'from_file "s3://data/**.json"'
 ---
 
 :::warning[Under Active Development]
@@ -57,7 +59,7 @@ By default, paths will not be inserted into the outgoing events.
 
 Pipeline to use for parsing the file. By default, this pipeline is derived from
 the path of the file, and will not only handle parsing but also decompression if
-applicable. This is using the same logic as [`from`](from).
+applicable. This is using the same logic as [`from`](/reference/operators/from).
 
 ## Examples
 
@@ -83,4 +85,5 @@ from_file "s3://my-bucket/**", watch=true, remove=true
 
 ## See Also
 
-[`from`](from), [`load_file`](load_file)
+[`from`](/reference/operators/from),
+[`load_file`](/reference/operators/load_file)

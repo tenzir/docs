@@ -1,5 +1,7 @@
 ---
 title: trim_start
+category: String/Transformation
+example: '" hello".trim_start()'
 ---
 
 Trims whitespace from the start of a string.
@@ -26,4 +28,5 @@ from {x: " hello".trim_start()}
 
 ## See Also
 
-[`trim`](trim), [`trim_end`](trim_end)
+[`trim`](/reference/functions/trim),
+[`trim_end`](/reference/functions/trim_end)

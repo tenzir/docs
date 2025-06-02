@@ -1,5 +1,7 @@
 ---
 title: secret
+category: Runtime
+example: 'secret("KEY")'
 ---
 
 Reads a secret from a store.
@@ -35,5 +37,5 @@ from {x: secret("geheim")}
 
 ## See also
 
-[`config`](config),
-[`env`](env)
+[`config`](/reference/functions/config),
+[`env`](/reference/functions/env)

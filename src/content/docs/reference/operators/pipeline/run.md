@@ -1,5 +1,7 @@
 ---
-title: run
+title: pipeline::run
+category: Pipelines
+example: "pipeline::run { … }"
 ---
 
 Starts a pipeline in the node and waits for it to complete.
@@ -48,4 +50,5 @@ pipeline::run {
 
 ## See Also
 
-[`pipeline::detach`](detach), [`pipeline::list`](list)
+[`pipeline::detach`](/reference/operators/pipeline/detach),
+[`pipeline::list`](/reference/operators/pipeline/list)

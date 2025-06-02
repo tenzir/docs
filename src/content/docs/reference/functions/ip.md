@@ -1,5 +1,7 @@
 ---
 title: ip
+category: Type System/Conversion
+example: 'ip("1.2.3.4")'
 ---
 
 Casts an expression to an IP address.
@@ -26,4 +28,9 @@ from {x: ip("1.2.3.4")}
 
 ## See Also
 
-[subnet](subnet), [int](int), [uint](uint), [float](float), [time](time), [string](string)
+[`subnet`](/reference/functions/subnet),
+[`time`](/reference/functions/time),
+[`uint`](/reference/functions/uint),
+[float](/reference/functions/float),
+[int](/reference/functions/int),
+[string](/reference/functions/string)

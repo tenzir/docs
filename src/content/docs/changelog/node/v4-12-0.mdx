@@ -1,0 +1,292 @@
+---
+title: Tenzir Node v4.12.0
+sidebar:
+  badge:
+    text: v4.12.0
+    variant: success
+---
+
+### Features
+
+#### PRs 4133-4138-satta
+
+The `suricata` parser's schema now more accurately reflects Suricata's Eve JSON
+output, adding many fields that were previously missing.
+
+By [@satta](https://github.com/satta) in [#4133](https://github.com/tenzir/tenzir/pull/4133).
+
+#### Add value grouping to `chart` and remove `--title`
+
+Some charts supported by the `chart` operator (`bar`, `line`, and `area`)
+now have a `--position` argument, with the possible values of
+`grouped` and `stacked`.
+
+By [@jachris](https://github.com/jachris) in [#4119](https://github.com/tenzir/tenzir/pull/4119).
+
+#### Add a `--timeout <duration>` option to `batch`
+
+The `batch` operator gained a new `--timeout <duration>` option that controls
+the maixmum latency for withholding events for batching.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4095](https://github.com/tenzir/tenzir/pull/4095).
+
+#### Add configurable contexts
+
+You can now define contexts and their creation parameters in the
+`tenzir.contexts` section of the configuration file.
+
+By [@tobim](https://github.com/tobim) in [#4126](https://github.com/tenzir/tenzir/pull/4126).
+
+#### Add `show schemas` to display all available schemas
+
+The `show schemas` operator lists all unique schemas of events stored at the
+node.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4131](https://github.com/tenzir/tenzir/pull/4131).
+
+#### Introduce the BITZ format
+
+The `bitz` format resembles Tenzir's internal wire format. It enables lossless
+and quick transfer of events between Tenzir nodes through any connector.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4079](https://github.com/tenzir/tenzir/pull/4079).
+
+#### Add a delay to retrying failed pipelines
+
+Stopping a failed pipeline now moves it into the stopped state in the app and
+through the `/pipeline/update` API, stopping automatic restarts on failure.
+
+Pipelines now restart on failure at most every minute. The new API parameter
+`retry_delay` is available in the `/pipeline/create`, `/pipeline/launch`, and
+`/pipeline/update` APIs to customize this value. For configured pipelines, the
+new `restart-on-error` option supersedes the previous `autostart.failed` option
+and may be set either to a boolean or to a duration, with the former using the
+default retry delay and the latter using a custom one.
+
+The output of `show pipelines` and the `/pipeline/list` API now includes the
+start time of the pipeline in the field `start_time`, the newly added retry
+delay in the field `retry_delay`, and whether the pipeline is hidden from the
+overview page on app.tenzir.com in the field `hidden`.
+
+By [@Dakostu](https://github.com/Dakostu) in [#4108](https://github.com/tenzir/tenzir/pull/4108).
+
+#### Add `unroll` operator
+
+The `unroll` operator transforms an event that contains a list into a sequence
+of events where each output event contains one of the list elements.
+
+By [@jachris](https://github.com/jachris) in [#4078](https://github.com/tenzir/tenzir/pull/4078).
+
+#### Add UDP connector
+
+The new `udp` connector comes with a loader and saver to read bytes from and
+write bytes to a UDP socket.
+
+By [@mavam](https://github.com/mavam) in [#4067](https://github.com/tenzir/tenzir/pull/4067).
+
+#### Support 0mq inproc sockets
+
+The `0mq` connector now supports `inproc` socket endpoint URLs, allowing you to
+create arbitrary publish/subscribe topologies within a node. For example, `save
+zmq inproc://foo` writes messages to the in-process socket named `foo`.
+
+By [@mavam](https://github.com/mavam) in [#4117](https://github.com/tenzir/tenzir/pull/4117).
+
+#### Generalize `every` to work with all operators
+
+The `every <duration>` operator modifier now supports all operators, turning
+blocking operators like `tail`, `sort` or `summarize` into operators that emit
+events every `<duration>`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4109](https://github.com/tenzir/tenzir/pull/4109).
+
+#### Add multi-line syslog message support
+
+Syslog messages spanning multiple lines are now supported.
+
+By [@eliaskosunen](https://github.com/eliaskosunen) in [#4080](https://github.com/tenzir/tenzir/pull/4080).
+
+#### Add `deduplicate` operator
+
+The `deduplicate` operator allows removing duplicate events based on
+specific fields.
+
+By [@eliaskosunen](https://github.com/eliaskosunen) in [#4068](https://github.com/tenzir/tenzir/pull/4068).
+
+### Changes
+
+#### Support 0mq inproc sockets
+
+The `0mq` connector no longer automatically monitors TCP sockets to wait until
+at least one remote peer is present. Explicitly pass `--monitor` for this
+behavior.
+
+By [@mavam](https://github.com/mavam) in [#4117](https://github.com/tenzir/tenzir/pull/4117).
+
+#### Remove metrics from `/pipeline/list`
+
+The `show pipelines` operator and `/pipeline/list` endpoint no longer include
+pipeline metrics. We recommend using the `metrics` operator instead, which
+offers the same data in a more flexible way.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4114](https://github.com/tenzir/tenzir/pull/4114).
+
+#### Add value grouping to `chart` and remove `--title`
+
+In the `chart` operator, unless otherwise specified, every field but the
+first one is taken to be a value for the Y-axis, instead of just the second one.
+
+If the value for `-x`/`--name` or `-y`/`--value` is explicitly specified, the
+other one must now be too.
+
+The `--title` option is removed from `chart`. Titles can instead be set directly
+in the web interface.
+
+By [@jachris](https://github.com/jachris) in [#4119](https://github.com/tenzir/tenzir/pull/4119).
+
+#### Remove many deprecated things
+
+The `tenzir-ctl count <expr>` command no longer exists. It has long been
+deprecated and superseded by pipelines of the form `export | where <expr> |
+summarize count(.)`.
+
+The deprecated `tenzir-ctl status` command and the corresponding `/status`
+endpoint no longer exist. They have been superseded by the `show` and `metrics`
+operators that provide more detailed insight.
+
+The deprecated `tenzir.aging-frequency` and `tenzir.aging-query` options no
+longer exist. We recommend using the compaction or disk monitor mechanisms
+instead to delete persisted events.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4103](https://github.com/tenzir/tenzir/pull/4103).
+
+#### Add multi-line syslog message support
+
+Lines of input containing an invalid syslog messages are now assumed to
+be a continuation of a message on a previous line, if there's any.
+
+By [@eliaskosunen](https://github.com/eliaskosunen) in [#4080](https://github.com/tenzir/tenzir/pull/4080).
+
+#### Remove events output from many context operators
+
+The `context create`, `context reset`, `context update`, and `context load`
+operators no return information about the context. Pipelines ending with these
+operators will now be considered closed, and you will be asked to deploy them in
+the Explorer. Previously, users commonly added `discard` after these operators
+to force this behavior.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4143](https://github.com/tenzir/tenzir/pull/4143).
+
+#### Implement feather printer and parser
+
+The `feather` format now reads and writes Arrow IPC streams in addition to
+Feather files, and no longer requires random access to a file to function,
+making the format streamable with both `read feather` and `write feather`.
+
+By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4089](https://github.com/tenzir/tenzir/pull/4089).
+
+#### Implement a `parquet` parser and printer
+
+The `parquet` format more efficiently reads and writes Parquet files. The format is streamable for `write parquet`.
+
+By [@balavinaithirthan](https://github.com/balavinaithirthan) in [#4116](https://github.com/tenzir/tenzir/pull/4116).
+
+### Bug Fixes
+
+#### Make `python` operator not discard fields that start with an underscore
+
+The `python` operator no longer discards field that start with an underscore.
+
+By [@jachris](https://github.com/jachris) in [#4085](https://github.com/tenzir/tenzir/pull/4085).
+
+#### Support parallel connections in `from tcp`
+
+The `tcp` connector now supports accepting multiple connections in parallel when
+used with the `from` operator, parsing data separately per connection.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4084](https://github.com/tenzir/tenzir/pull/4084).
+
+#### Fix shutdown of connected pipelines alongside node
+
+Pipelines run with the `tenzir` binary that connected to a Tenzir Node did
+sometimes not shut down correctly when the node shut down. This now happens
+reliably.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4093](https://github.com/tenzir/tenzir/pull/4093).
+
+#### Remove wrong EXPOSE in Dockerfile
+
+Tenzir Docker images no longer expose 5158/tcp by default, as this prevented
+running multiple containers in the same network or in host mode.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4099](https://github.com/tenzir/tenzir/pull/4099).
+
+#### Fix unflattening of empty records and `null` records
+
+Empty records and `null` values of record type are now correctly unflattened.
+
+By [@jachris](https://github.com/jachris) in [#4104](https://github.com/tenzir/tenzir/pull/4104).
+
+#### Remove events output from many context operators
+
+The `enrich` operator sometimes stopped working when it encountered an event for
+which the specified fields did not exist. This no longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4143](https://github.com/tenzir/tenzir/pull/4143).
+
+#### Fix verification of large FlatBuffers tables
+
+Lookup tables with more than 1M entries failed to load after the node was
+restarted. This no longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4137](https://github.com/tenzir/tenzir/pull/4137).
+
+#### Fix a race condition in `/serve`
+
+We fixed a bug that caused the explorer to sometimes show 504 Gateway Timeout
+errors for pipelines where the first result took over two seconds to arrive.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4123](https://github.com/tenzir/tenzir/pull/4123).
+
+#### Shut down node a configured pipeline fails to start
+
+Nodes now shut down with a non-zero exit code when pipelines configured as part
+of the `tenzir.yaml` file fail to start, making such configuration errors easier
+to spot.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4097](https://github.com/tenzir/tenzir/pull/4097).
+
+#### Fix HTTP saver Content-Length computation
+
+The `http` saver now correctly sets the `Content-Length` header value for HTTP
+POST requests.
+
+By [@mavam](https://github.com/mavam) in [#4134](https://github.com/tenzir/tenzir/pull/4134).
+
+#### Fix the schema name in `show contexts`
+
+The schema name of events returned by `show contexts` sometimes did not match
+the type of the context. This now works reliably.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4082](https://github.com/tenzir/tenzir/pull/4082).
+
+#### Fix JSON printer handling of `inf` and `nan`
+
+The JSON printer previously printed invalid JSON for `inf` and `nan`, which
+means that `serve` could sometimes emit invalid JSON, which is not handled well
+by platform/app. Instead, we now emit `null`.
+
+By [@jachris](https://github.com/jachris) in [#4087](https://github.com/tenzir/tenzir/pull/4087).
+
+#### Fix HTTP PUT with empty request body
+
+We fixed a bug in the `http` saver that prevented sending HTTP PUT requests with
+an empty request body.
+
+By [@mavam](https://github.com/mavam) in [#4092](https://github.com/tenzir/tenzir/pull/4092).
+
+#### Fix `python` deadlock for empty input
+
+The `python` operator no longer deadlocks when given an empty program.
+
+By [@jachris](https://github.com/jachris) in [#4086](https://github.com/tenzir/tenzir/pull/4086).

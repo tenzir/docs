@@ -1,5 +1,7 @@
 ---
 title: read_bitz
+category: Parsing
+example: 'read_bitz'
 ---
 
 Parses bytes as *BITZ* format.
@@ -25,6 +27,7 @@ between batches—something that Arrow's IPC format does not support on its own.
 
 ## See Also
 
-[`read_bitz`](read_bitz),
-[`read_feather`](write_feather),
-[`read_parquet`](write_parquet)
+[`read_bitz`](/reference/operators/read_bitz),
+[`read_feather`](/reference/operators/write_feather),
+[`read_parquet`](/reference/operators/write_parquet),
+[`write_bitz`](/reference/operators/write_bitz)

@@ -1,5 +1,7 @@
 ---
 title: file_name
+category: String/Filesystem
+example: 'file_name("/path/to/log.json")'
 ---
 
 Extracts the file name from a file path.
@@ -27,4 +29,4 @@ from {x: file_name("/path/to/log.json")}
 
 ## See Also
 
-[`parent_dir`](parent_dir)
+[`parent_dir`](/reference/functions/parent_dir)

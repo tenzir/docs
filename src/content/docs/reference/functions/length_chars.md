@@ -1,5 +1,7 @@
 ---
 title: length_chars
+category: String/Inspection
+example: '"hello".length_chars()'
 ---
 
 Returns the length of a string in characters.
@@ -38,4 +40,5 @@ from {x: "👻".length_chars()}
 
 ## See Also
 
-[`length`](length), [`length_bytes`](length_bytes)
+[`length`](/reference/functions/length),
+[`length_bytes`](/reference/functions/length_bytes)

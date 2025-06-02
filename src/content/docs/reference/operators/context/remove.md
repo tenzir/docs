@@ -1,5 +1,7 @@
 ---
-title: remove
+title: context::remove
+category: Contexts
+example: 'context::remove "ctx"'
 ---
 
 Deletes a context.
@@ -26,14 +28,14 @@ context::delete "ctx"
 
 ## See Also
 
-[`context::create_bloom_filter`](create_bloom_filter),
-[`context::create_geoip`](create_geoip),
-[`context::create_lookup_table`](create_lookup_table),
-[`context::enrich`](enrich),
-[`context::erase`](erase),
-[`context::inspect`](inspect),
-[`context::list`](list),
-[`context::load`](load),
-[`context::reset`](update),
-[`context::save`](save),
-[`context::update`](update)
+[`context::create_bloom_filter`](/reference/operators/context/create_bloom_filter),
+[`context::create_lookup_table`](/reference/operators/context/create_lookup_table),
+[`context::inspect`](/reference/operators/context/inspect),
+[`context::load`](/reference/operators/context/load),
+[`context::save`](/reference/operators/context/save),
+[`create_geoip`](/reference/operators/context/create_geoip),
+[`enrich`](/reference/operators/context/enrich),
+[`erase`](/reference/operators/context/erase),
+[`list`](/reference/operators/context/list),
+[`reset`](/reference/operators/context/reset),
+[`update`](/reference/operators/context/update)

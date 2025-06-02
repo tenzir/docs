@@ -1,5 +1,7 @@
 ---
 title: write_tsv
+category: Printing
+example: 'write_tsv'
 ---
 
 Transforms event stream to TSV (Tab-Separated Values) byte stream.
@@ -44,7 +46,7 @@ x	y	z
 
 ## See Also
 
-[`write_csv`](write_csv),
-[`write_lines`](write_lines),
-[`write_ssv`](write_ssv),
-[`write_xsv`](write_xsv)
+[`write_csv`](/reference/operators/write_csv),
+[`write_lines`](/reference/operators/write_lines),
+[`write_ssv`](/reference/operators/write_ssv),
+[`write_xsv`](/reference/operators/write_xsv)

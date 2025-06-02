@@ -1,5 +1,7 @@
 ---
 title: save_stdout
+category: Outputs/Bytes
+example: 'save_stdout'
 ---
 
 Writes a byte stream to standard output.
@@ -29,5 +31,5 @@ save_stdout
 
 ## See Also
 
-[`load_stdin`](load_stdin),
-[`save_file`](save_file)
+[`load_stdin`](/reference/operators/load_stdin),
+[`save_file`](/reference/operators/save_file)

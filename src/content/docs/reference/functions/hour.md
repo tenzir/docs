@@ -1,5 +1,7 @@
 ---
 title: hour
+category: Time & Date
+example: 'ts.hour()'
 ---
 
 Extracts the hour component from a timestamp.
@@ -37,5 +39,8 @@ hour = ts.hour()
 
 ## See also
 
-[`year`](year), [`month`](month), [`day`](day), [`minute`](minute),
-[`second`](second)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`day`](/reference/functions/day),
+[`minute`](/reference/functions/minute),
+[`second`](/reference/functions/second)

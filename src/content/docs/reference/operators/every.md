@@ -1,5 +1,7 @@
 ---
 title: every
+category: Flow Control
+example: 'every 10s { summarize sum(amount) }'
 ---
 
 Runs a pipeline periodically at a fixed interval.
@@ -48,4 +50,4 @@ publish "threat-feed"
 
 ## See Also
 
-[`cron`](cron)
+[`cron`](/reference/operators/cron)

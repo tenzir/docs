@@ -1,10 +1,10 @@
 ---
 title: sigma
+category: Detection
+example: 'sigma "/tmp/rules/"'
 ---
 
-Filter the input with [Sigma rules][sigma] and output matching events.
-
-[sigma]: https://github.com/SigmaHQ/sigma
+Filter the input with Sigma rules and output matching events.
 
 ```tql
 sigma path:string, [refresh_interval=duration]
@@ -21,7 +21,7 @@ operator discards all events that do not match the provided rules.
 <summary> Transpilation Process </summary>
 
 For each rule, the operator transpiles the YAML into an
-[expression](../language/expressions) and instantiates a [`where`](where)
+[expression](/reference/language/expressions) and instantiates a [`where`](/reference/operators/where)
 operator, followed by assignments to generate an output. Here's how the
 transpilation works. The Sigma rule YAML format requires a `detection` attribute
 that includes a map of named sub-expression called *search identifiers*. In

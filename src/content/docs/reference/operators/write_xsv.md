@@ -1,5 +1,7 @@
 ---
 title: write_xsv
+category: Printing
+example: 'write_xsv'
 ---
 
 Transforms event stream to XSV byte stream.
@@ -20,9 +22,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](write_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](write_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](write_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/reference/operators/write_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/reference/operators/write_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/reference/operators/write_tsv)   |`\t`           |`,`           |`-`       |
 
 [csv]: https://en.wikipedia.org/wiki/Comma-separated_values
 [xsv]: https://en.wikipedia.org/wiki/Delimiter-separated_values
@@ -58,7 +60,8 @@ x/y/z
 
 ## See Also
 
-[`write_csv`](write_csv),
-[`write_lines`](write_lines),
-[`write_ssv`](write_ssv),
-[`write_tsv`](write_tsv)
+[`print_xsv`](/reference/functions/print_xsv),
+[`write_csv`](/reference/operators/write_csv),
+[`write_lines`](/reference/operators/write_lines),
+[`write_ssv`](/reference/operators/write_ssv),
+[`write_tsv`](/reference/operators/write_tsv)

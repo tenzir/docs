@@ -1,8 +1,10 @@
 ---
 title: from_fluent_bit
+category: Inputs/Events
+example: 'from_fluent_bit "opentelemetry"'
 ---
 
-Receives events via [Fluent Bit](https://docs.fluentbit.io/).
+Receives events via Fluent Bit.
 
 ```tql
 from_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
@@ -13,8 +15,9 @@ from_fluent_bit plugin:string, [options=record, fluent_bit_options=record,
 
 ## Description
 
-The `from_fluent_bit` operator acts as a bridge into the Fluent Bit ecosystem,
-making it possible to acquire events from a Fluent Bit [input plugin][inputs].
+The `from_fluent_bit` operator acts as a bridge into the [Fluent
+Bit](https://docs.fluentbit.io) ecosystem, making it possible to acquire events
+from a Fluent Bit [input plugin][inputs].
 
 [inputs]: https://docs.fluentbit.io/manual/pipeline/inputs
 
@@ -31,7 +34,7 @@ from_fluent_bit "plugin", options={key1: value1, key2: value2, …}
 ```
 
 :::tip Output to Fluent Bit
-You can output events to Fluent Bit using the [`to_fluent_bit` operator](to_fluent_bit).
+You can output events to Fluent Bit using the [`to_fluent_bit` operator](/reference/operators/to_fluent_bit).
 :::
 
 ### `plugin: string`
@@ -71,7 +74,7 @@ import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
 
 ## URI support & integration with `from`
 
-The `from_fluent_bit` operator can also be used from the [`from`](from)
+The `from_fluent_bit` operator can also be used from the [`from`](/reference/operators/from)
 operator. For this, the `fluentbit://` scheme can be used. The URI is then translated:
 
 ```tql

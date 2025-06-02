@@ -1,0 +1,26 @@
+---
+title: Tenzir Node v4.17.3
+sidebar:
+  badge:
+    text: v4.17.3
+    variant: note
+---
+
+### Features
+
+#### Add an operator for partition candidate checks
+
+The `partitions [<expr>]` source operator supersedes `show partitions` (now
+deprecated) and supports an optional expression as a positional argument for
+showing only the partitions that would be considered in `export | where <expr>`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4329](https://github.com/tenzir/tenzir/pull/4329).
+
+### Bug Fixes
+
+#### Fix deletion of removed configured contexts
+
+We fixed a bug in Tenzir v4.17.2 that sometimes caused the deletion of on-disk
+state of configured contexts on startup.
+
+By [@tobim](https://github.com/tobim) in [#4330](https://github.com/tenzir/tenzir/pull/4330).

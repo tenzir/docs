@@ -1,5 +1,7 @@
 ---
 title: parent_dir
+category: String/Filesystem
+example: 'parent_dir("/path/to/log.json")'
 ---
 
 Extracts the parent directory from a file path.
@@ -26,4 +28,4 @@ from {x: parent_dir("/path/to/log.json")}
 
 ## See Also
 
-[`file_name`](file_name)
+[`file_name`](/reference/functions/file_name)

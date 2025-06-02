@@ -1,5 +1,7 @@
 ---
 title: parse_xsv
+category: Parsing
+example: 'string.parse_xsv(",", ";", "", header=["a","b"])'
 ---
 
 Parses a string as delimiter separated values.
@@ -21,9 +23,9 @@ The following table lists existing XSV configurations:
 
 |Format               |Field Separator|List Separator|Null Value|
 |---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](parse_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](parse_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](parse_tsv)   |`\t`           |`,`           |`-`       |
+|[`csv`](/reference/functions/parse_csv)   |`,`            |`;`           | empty    |
+|[`ssv`](/reference/functions/parse_ssv)   |`<space>`      |`,`           |`-`       |
+|[`tsv`](/reference/functions/parse_tsv)   |`\t`           |`,`           |`-`       |
 
 [csv]: https://en.wikipedia.org/wiki/Comma-separated_values
 [xsv]: https://en.wikipedia.org/wiki/Delimiter-separated_values
@@ -67,7 +69,7 @@ import ParsingOptions from '../../.../../../../partials/functions/ParsingOptions
 ```tql
 from { input: "1,2,3" }
 output = input.parse_xsv(
-  field_separtor=",",
+  field_separator=",",
   list_separator= ";",
   null_value="",
   header=["a","b","c"],
@@ -86,7 +88,7 @@ output = input.parse_xsv(
 
 ## See Also
 
-[`read_xsv`](../operators/read_xsv),
-[`parse_csv`](parse_csv),
-[`parse_ssv`](parse_ssv),
-[`parse_tsv`](parse_tsv)
+[`read_xsv`](/reference/operators/read_xsv),
+[`parse_csv`](/reference/functions/parse_csv),
+[`parse_ssv`](/reference/functions/parse_ssv),
+[`parse_tsv`](/reference/functions/parse_tsv)

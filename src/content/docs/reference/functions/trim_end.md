@@ -1,5 +1,7 @@
 ---
 title: trim_end
+category: String/Transformation
+example: '"hello ".trim_end()'
 ---
 
 Trims whitespace from the end of a string.
@@ -26,4 +28,5 @@ from {x: "hello ".trim_end()}
 
 ## See Also
 
-[`trim`](trim), [`trim_start`](trim_start)
+[`trim`](/reference/functions/trim),
+[`trim_start`](/reference/functions/trim_start)

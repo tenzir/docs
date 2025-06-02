@@ -29,6 +29,40 @@ const options = Astro.props.options || [
 </starlight-theme-select>
 
 <script is:inline>
+	// Apply theme immediately to prevent flash
+	(function() {
+		const parseTheme = (theme) => 
+			theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+		
+		const getPreferredColorScheme = () =>
+			matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+		
+		// Check URL parameter first
+		const urlParams = new URLSearchParams(window.location.search);
+		const urlTheme = urlParams.get('theme');
+		let theme;
+		
+		if (urlTheme) {
+			// Store that theme was forced via URL parameter
+			if (typeof sessionStorage !== 'undefined') {
+				sessionStorage.setItem('forced-theme', urlTheme);
+			}
+			theme = parseTheme(urlTheme);
+		} else {
+			// Check if theme was previously forced via URL parameter
+			const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+			if (forcedTheme) {
+				theme = parseTheme(forcedTheme);
+			} else {
+				// Fall back to localStorage
+				theme = parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem('starlight-theme'));
+			}
+		}
+		
+		// Apply theme immediately
+		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
+	})();
+	
 	StarlightThemeProvider.updatePickers();
 </script>
 
@@ -37,13 +71,40 @@ const options = Astro.props.options || [
 
 	const storageKey = 'starlight-theme';
 
-	const parseTheme = (theme) =>
+	const parseTheme = (theme: string | null): Theme =>
 		theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
 
-	const loadTheme = () =>
-		parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+	const loadTheme = (): Theme => {
+		// Theme detection is now handled in the inline script above
+		// Just read from the document element
+		const currentTheme = document.documentElement.dataset.theme;
+		const preferredTheme = getPreferredColorScheme();
+		
+		// If current theme matches preferred, it's likely 'auto'
+		if (currentTheme === preferredTheme) {
+			// Check if it's actually forced or auto
+			const urlParams = new URLSearchParams(window.location.search);
+			const urlTheme = urlParams.get('theme');
+			const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+			
+			if (urlTheme || forcedTheme) {
+				return parseTheme(urlTheme || forcedTheme);
+			} else {
+				return 'auto';
+			}
+		}
+		
+		return parseTheme(currentTheme);
+	};
 
-	function storeTheme(theme) {
+	function storeTheme(theme: Theme) {
+		// Don't store the theme if it's forced via URL parameter or session
+		const urlParams = new URLSearchParams(window.location.search);
+		const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+		if (urlParams.has('theme') || forcedTheme) {
+			return;
+		}
+		
 		if (typeof localStorage !== 'undefined') {
 			localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
 		}
@@ -52,31 +113,79 @@ const options = Astro.props.options || [
 	const getPreferredColorScheme = () =>
 		matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 
-	function onThemeChange(theme) {
+	function onThemeChange(theme: Theme) {
 		StarlightThemeProvider.updatePickers(theme);
 		document.documentElement.dataset.theme = theme === 'auto' ? getPreferredColorScheme() : theme;
 		storeTheme(theme);
 	}
 
 	matchMedia(`(prefers-color-scheme: light)`).addEventListener('change', () => {
-		if (loadTheme() === 'auto') onThemeChange('auto');
+		// Only react to system preference changes if theme is not forced
+		const urlParams = new URLSearchParams(window.location.search);
+		const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+		
+		if (!urlParams.has('theme') && !forcedTheme && loadTheme() === 'auto') {
+			onThemeChange('auto');
+		}
 	});
 
 	class StarlightThemeSelect extends HTMLElement {
 		constructor() {
 			super();
-			onThemeChange(loadTheme());
-			this.querySelector('select')?.addEventListener('change', (e) => {
-				if (e.currentTarget instanceof HTMLSelectElement) {
-					onThemeChange(parseTheme(e.currentTarget.value));
+			const theme = loadTheme();
+			// Don't call onThemeChange here since theme is already applied
+			
+			// Update the select element to show the current theme
+			const select = this.querySelector('select');
+			if (select) {
+				select.value = theme;
+				
+				// Hide the theme selector if theme is forced via URL or session
+				const urlParams = new URLSearchParams(window.location.search);
+				const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+				if (urlParams.has('theme') || forcedTheme) {
+					// Hide the entire theme selector component
+					this.style.display = 'none';
+					
+					// Also hide the divider after social icons
+					const socialIcons = document.querySelector('.social-icons');
+					if (socialIcons) {
+						socialIcons.style.setProperty('--sl-social-icons-after-display', 'none');
+					}
 				}
-			});
+				
+				select.addEventListener('change', (e) => {
+					if (e.currentTarget instanceof HTMLSelectElement) {
+						// Clear forced theme when user manually changes it
+						// This allows the theme selector to reappear and function normally
+						if (typeof sessionStorage !== 'undefined') {
+							sessionStorage.removeItem('forced-theme');
+						}
+						// Show the theme selector again
+						this.style.display = 'inline-block';
+						// Restore the social icons divider
+						const socialIcons = document.querySelector('.social-icons');
+						if (socialIcons) {
+							socialIcons.style.setProperty('--sl-social-icons-after-display', 'block');
+						}
+						onThemeChange(parseTheme(e.currentTarget.value));
+					}
+				});
+			}
 		}
 	}
 	customElements.define('starlight-theme-select', StarlightThemeSelect);
 </script>
 
 <style>
+	/* Global style to support hiding the social icons divider */
+	:global(.social-icons) {
+		--sl-social-icons-after-display: block;
+	}
+	:global(.social-icons::after) {
+		display: var(--sl-social-icons-after-display);
+	}
+	
 	starlight-theme-select {
 		display: inline-block;
 	}
@@ -88,12 +197,13 @@ const options = Astro.props.options || [
 		color: var(--sl-color-gray-1);
 		cursor: pointer;
 		padding: 0.5rem;
-		border-radius: 0.25rem;
+		border-radius: var(--tnz-radius-sm);
+		transition: all var(--tnz-transition-base);
 	}
 
 	label:hover {
 		color: var(--sl-color-gray-2);
-		background: var(--sl-color-gray-6);
+		background: var(--tnz-nav-hover-bg);
 	}
 
 	.icon {

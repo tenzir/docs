@@ -1,0 +1,418 @@
+---
+title: Tenzir Node v4.0.0
+sidebar:
+  badge:
+    text: v4.0.0
+    variant: tip
+---
+
+### Features
+
+#### Add the enumerate operator
+
+The new `enumerate` operator prepends a column with the row number of the input
+records.
+
+By [@mavam](https://github.com/mavam) in [#3142](https://github.com/tenzir/tenzir/pull/3142).
+
+#### Add colors to JSON printer
+
+The `json` printer can now colorize its output by providing the
+`-C|--color-output` option, and explicitly disable coloring via
+`-M|--monochrome-output`.
+
+By [@mavam](https://github.com/mavam) in [#3343](https://github.com/tenzir/tenzir/pull/3343).
+
+#### Add `show` operator
+
+The new `show` source operator makes it possible to gather meta information
+about Tenzir. For example, the provided introspection capabilities allow for
+emitting existing formats, connectors, and operators.
+
+By [@mavam](https://github.com/mavam) in [#3414](https://github.com/tenzir/tenzir/pull/3414).
+
+#### Rename `#type` to `#schema` and introduce `#schema_id`
+
+The new `#schema_id` meta extractor returns a unique fingerprint for the schema.
+
+By [@jachris](https://github.com/jachris) in [#3183](https://github.com/tenzir/tenzir/pull/3183).
+
+#### Expose the `batch` operator underlying rebuild
+
+The `batch <limit>` operator allows expert users to control batch sizes in
+pipelines explicitly.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3391](https://github.com/tenzir/tenzir/pull/3391).
+
+#### Revamp packet acquisition and parsing
+
+The new `nic` plugin provides a loader that acquires packets from a network
+interface card using libpcap. It emits chunks of data in the PCAP file format so
+that the `pcap` parser can process them as if packets come from a trace file.
+
+The new `decapsulate` operator processes events of type `pcap.packet` and emits
+new events of type `tenzir.packet` that contain the decapsulated PCAP packet
+with packet header fields from the link, network, and transport layer. The
+operator also computes a Community ID.
+
+By [@mavam](https://github.com/mavam) in [#3263](https://github.com/tenzir/tenzir/pull/3263).
+
+#### Add --append and --real-time to directory saver
+
+The `directory` saver now supports the two arguments `-a|--append` and
+`-r|--realtime` that have the same semantics as they have for the `file` saver:
+open files in the directory in append mode (instead of overwriting) and flush
+the output buffers on every update.
+
+By [@mavam](https://github.com/mavam) in [#3379](https://github.com/tenzir/tenzir/pull/3379).
+
+#### Use `load -` and `read json` as implicit sources
+
+Pipelines executed locally with `tenzir` now use `load -` and `read json` as
+implicit sources. This complements `save -` and `write json --pretty` as
+implicit sinks.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3329](https://github.com/tenzir/tenzir/pull/3329).
+
+#### Fix sporadic stalling of pipelines
+
+The pipeline manager now accepts empty strings for the optional `name`. The
+`/create` endpoint returns a list of diagnostics if pipeline creation fails,
+and if `start_when_created` is set, the endpoint now returns only after the
+pipeline execution has been fully started. The `/list` endpoint now returns
+the diagnostics collected for every pipeline so far. The `/delete` endpoint
+now returns an empty object if the request is successful.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3264](https://github.com/tenzir/tenzir/pull/3264).
+
+#### Add a `--schema` option to the JSON parser
+
+The `--schema` option for the JSON parser allows for setting the target schema
+explicitly by name.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3295](https://github.com/tenzir/tenzir/pull/3295).
+
+#### Expose pipeline operator metrics in execution node and pipeline executor
+
+Pipeline metrics (total ingress/egress amount and average rate per second) are
+now visible in the `pipeline-manager`, via the `metrics` field in the
+`/pipeline/list` endpoint result.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3376](https://github.com/tenzir/tenzir/pull/3376).
+
+#### Implement `top` and `rare`
+
+The `top <field>` operator makes it easy to find the most common values for the
+given field. Likewise, `rare <field>` returns the least common values for the
+given field.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3176](https://github.com/tenzir/tenzir/pull/3176).
+
+#### Implement the `unflatten` operator
+
+The `unflatten [<separator>]` operator unflattens data structures by creating
+nested records out of fields whose names contain a `<separator>`.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3304](https://github.com/tenzir/tenzir/pull/3304).
+
+#### Implement a `sort` operator
+
+The new `sort` operator allows for arranging events by field, in ascending and
+descending order. The current version is still "beta" and has known limitations.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3155](https://github.com/tenzir/tenzir/pull/3155).
+
+#### Add a `--cumulative` option to the `measure` operator
+
+The `measure` operator now returns running totals with the `--cumulative`
+option.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3156](https://github.com/tenzir/tenzir/pull/3156).
+
+#### Change `summarize` to operate across schemas
+
+The `summarize` operator now works across multiple schemas and can combine
+events of different schemas into one group. It now also treats missing columns
+as having `null` values.
+
+The `by` clause of `summarize` is now optional. If it is omitted, all events
+are assigned to the same group.
+
+By [@jachris](https://github.com/jachris) in [#3250](https://github.com/tenzir/tenzir/pull/3250).
+
+#### Add diagnostics (and some other improvements)
+
+In addition to `tenzir "<pipeline>"`, there now is `tenzir -f <file>`, which
+loads and executes the pipeline defined in the given file.
+
+The pipeline parser now emits helpful and visually pleasing diagnostics.
+
+By [@jachris](https://github.com/jachris) in [#3223](https://github.com/tenzir/tenzir/pull/3223).
+
+#### Implement the `serve` operator and `/serve` endpoint
+
+The `serve` operator and `/serve` endpoint supersede the experimental `/query`
+endpoint. The operator is a sink for events, and bridges a pipeline into a
+RESTful interface from which events can be pulled incrementally.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3180](https://github.com/tenzir/tenzir/pull/3180).
+
+#### Apply the changes from the new `pipeline_manager` plugin
+
+The new *pipeline-manager* is a proprietary plugin that allows for creating,
+updating and persisting pipelines.
+The included RESTful interface allows for easy access and modification of these
+pipelines.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3164](https://github.com/tenzir/tenzir/pull/3164).
+
+#### Implement a fallback parser mechanism for extensions that don't have …
+
+The `json` parser now servers as a fallback parser for all files whose
+extension do not have any default parser in Tenzir.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3422](https://github.com/tenzir/tenzir/pull/3422).
+
+#### Avoid crashing when reading a pre-2.0 partition
+
+The `flatten [<separator>]` operator flattens nested data structures by joining
+nested records with the specified separator (defaults to `.`) and merging lists.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3018](https://github.com/tenzir/tenzir/pull/3018).
+
+#### PRs 3128-3173-3193
+
+The sink operator `import` persists events in a VAST node.
+
+The source operator `export` retrieves events from a VAST node.
+
+The `repeat` operator repeats its input a given number of times.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3128](https://github.com/tenzir/tenzir/pull/3128).
+
+#### Improve metrics (and some other things)
+
+The `sort` operator now also works for `ip` and `enum` fields.
+
+`tenzir --dump-metrics '<pipeline>'` prints a performance overview of the
+executed pipeline on stderr at the end.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3390](https://github.com/tenzir/tenzir/pull/3390).
+
+#### A collection of minor UX improvements
+
+The `--timeout` option for the `vast status` command allows for defining how
+long VAST waits for components to report their status. The option defaults to 10
+seconds.
+
+By [@tobim](https://github.com/tobim) in [#3162](https://github.com/tenzir/tenzir/pull/3162).
+
+#### Unroll the Zeek TSV header parsing loop
+
+The `zeek-tsv` parser sometimes failed to parse Zeek TSV logs, wrongly
+reporting that the header ended too early. This bug no longer exists.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3291](https://github.com/tenzir/tenzir/pull/3291).
+
+### Changes
+
+#### Rename package artifacts from vast to tenzir
+
+The Debian package for Tenzir replaces previous VAST installations and attempts
+to migrate existing data from VAST to Tenzir in the process. You can opt-out of
+this migration by creating the file `/var/lib/vast/disable-migration`.
+
+By [@tobim](https://github.com/tobim) in [#3203](https://github.com/tenzir/tenzir/pull/3203).
+
+#### Change Arrow extension type and metadata prefixes
+
+We now register extension types as `tenzir.ip`, `tenzir.subnet`, and
+`tenzir.enumeration` instead of `vast.address`, `vast.subnet`, and
+`vast.enumeration`, respectively. Arrow schema metadata now has a `TENZIR:`
+prefix instead of a `VAST:` prefix.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3208](https://github.com/tenzir/tenzir/pull/3208).
+
+#### Introduce the `tenzir` and `tenzird` binaries
+
+VAST is now called Tenzir. The `tenzir` binary replaces `vast exec` to execute a
+pipeline. The `tenzird` binary replaces `vast start` to start a node. The
+`tenzirctl` binary continues to offer all functionality that `vast` previously
+offered until all commands have been migrated to pipeline operators.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3187](https://github.com/tenzir/tenzir/pull/3187).
+
+#### Delete `delete_when_stopped` from the pipeline manager
+
+The `delete_when_stopped` flag was removed from the pipeline manager REST API.
+
+By [@jachris](https://github.com/jachris) in [#3292](https://github.com/tenzir/tenzir/pull/3292).
+
+#### Transform `read` and `write` into `parse` and `print`
+
+The `parse` and `print` operators have been renamed to `read` and `write`,
+respectively. The `read ... [from ...]` and `write ... [to ...]` operators
+are not available anymore. If you did not specify a connector, you can
+continue using `read ...` and `write ...` in many cases. Otherwise, use
+`from ... [read ...]` and `to ... [write ...]` instead.
+
+By [@jachris](https://github.com/jachris) in [#3365](https://github.com/tenzir/tenzir/pull/3365).
+
+#### Rename `#type` to `#schema` and introduce `#schema_id`
+
+The `#type` meta extractor was renamed to `#schema`.
+
+By [@jachris](https://github.com/jachris) in [#3183](https://github.com/tenzir/tenzir/pull/3183).
+
+#### Tune defaults and demo-node experience
+
+We reduced the default `batch-timeout` from ten seconds to one second in to
+improve the user experience of interactive pipelines with data aquisition.
+
+We reduced the default `active-partition-timeout` from 5 minutes to 30 seconds
+to reduce the time until data is persisted.
+
+By [@tobim](https://github.com/tobim) in [#3320](https://github.com/tenzir/tenzir/pull/3320).
+
+#### Remove old commands
+
+The `stop` command no longer exists. Shut down VAST nodes using CTRL-C instead.
+
+The `version` command no longer exists. Use the more powerful `version` pipeline
+operator instead.
+
+The `spawn source` and `spawn sink` commands no longer exist. To import data
+remotely, run a pipeline in the form of `remote from … | … | import`, and to
+export data remotely, run a pipeline in the form of `export | … | remote to …`.
+
+The lower-level `peer`, `kill`, and `send` commands no longer exist.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3166](https://github.com/tenzir/tenzir/pull/3166).
+
+#### Remove `lsvast`
+
+The debugging utility `lsvast` no longer exists. Pipelines replace most of its
+functionality.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3211](https://github.com/tenzir/tenzir/pull/3211).
+
+#### Revamp packet acquisition and parsing
+
+We reimplemented the old `pcap` plugin as a format. The command `tenzir-ctl
+import pcap` no longer works. Instead, the new `pcap` plugin provides a parser
+that emits `pcap.packet` events, as well as a printer that generates a PCAP file
+when provided with these events.
+
+By [@mavam](https://github.com/mavam) in [#3263](https://github.com/tenzir/tenzir/pull/3263).
+
+#### Add colors to JSON printer
+
+We removed the `--pretty` option from the `json` printer. This option is now the
+default. To switch to NDJSON, use `-c|--compact-output`.
+
+By [@mavam](https://github.com/mavam) in [#3343](https://github.com/tenzir/tenzir/pull/3343).
+
+#### Change `summarize` to operate across schemas
+
+The aggregation functions in a `summarize` operator can now receive only a
+single extractor instead of multiple ones.
+
+The behavior for absent columns and aggregations across multiple schemas was
+changed.
+
+By [@jachris](https://github.com/jachris) in [#3250](https://github.com/tenzir/tenzir/pull/3250).
+
+#### Remove the `prefix()` function from the REST endpoint plugin API
+
+We removed the `rest_endpoint_plugin::prefix()` function from
+the public API of the `rest_endpoint_plugin` class. For a migration,
+existing users should prepend the prefix manually to all endpoints
+defined by their plugin.
+
+By [@lava](https://github.com/lava) in [#3221](https://github.com/tenzir/tenzir/pull/3221).
+
+#### Implement the `serve` operator and `/serve` endpoint
+
+The default port of the web plugin changed from 42001 to 5160. This change
+avoids collisions from dynamic port allocation on Linux systems.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3180](https://github.com/tenzir/tenzir/pull/3180).
+
+#### Switch /status to POST
+
+The HTTP method of the status endpoint in the experimental REST API is now `POST`.
+
+By [@tobim](https://github.com/tobim) in [#3194](https://github.com/tenzir/tenzir/pull/3194).
+
+#### Add diagnostics (and some other improvements)
+
+We changed the default connector of `read <format>` and `write <format>` for
+all formats to `stdin` and `stdout`, respectively.
+
+We removed language plugins in favor of operator-based integrations.
+
+The interface of the operator, loader, parser, printer and saver plugins was
+changed.
+
+By [@jachris](https://github.com/jachris) in [#3223](https://github.com/tenzir/tenzir/pull/3223).
+
+#### Improve low-load memory consumption
+
+The default interval between two automatic rebuilds is now set to 2 hours and
+can be configured with the `rebuild-interval` option.
+
+By [@tobim](https://github.com/tobim) in [#3377](https://github.com/tenzir/tenzir/pull/3377).
+
+#### Remove previously deprecated options
+
+The previously deprecated options `tenzir.pipelines` (replaced with
+`tenzir.operators`) and `tenzir.pipeline-triggers` (no replacement) no longer
+exist.
+
+The previously deprecated deprecated types `addr`, `count`, `int`, and `real`
+(replaced with `ip`, `uint64`, `int64`, and `double`, respectively) no longer
+exist.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3358](https://github.com/tenzir/tenzir/pull/3358).
+
+#### Rename default database directory to `tenzir.db`
+
+The default database directory moved from `vast.db` to `tenzir.db`. Use the
+option `tenzir.db-directory` to manually set the database directory path.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3212](https://github.com/tenzir/tenzir/pull/3212).
+
+### Bug Fixes
+
+#### Fix shutdown of sources and importer
+
+Import processes sometimes failed to shut down automatically when the node
+exited. They now shut down reliably.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3207](https://github.com/tenzir/tenzir/pull/3207).
+
+#### Fix rare crash when transforming sliced nested arrays
+
+Using transformation operators like `summarize`, `sort`, `put`, `extend`, or
+`replace` no longer sometimes crashes after a preceding `head` or `tail`
+operator when referencing a nested field.
+
+The `tail` operator sometimes returned more events than specified. This no
+longer happens.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3171](https://github.com/tenzir/tenzir/pull/3171).
+
+#### Add a changelog entry for the compaction fix
+
+We fixed a bug in the compation plugin that prevented it from applying the
+configured weights when it was used for the first time on a database.
+
+By [@tobim](https://github.com/tobim) in [#3185](https://github.com/tenzir/tenzir/pull/3185).
+
+#### Fix reconnect attempts for remote pipelines
+
+Starting a remote pipeline with `vast exec` failed when the node was not
+reachable yet. Like other commands, executing a pipeline now waits until the
+node is reachable before starting.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3188](https://github.com/tenzir/tenzir/pull/3188).

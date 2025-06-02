@@ -1,0 +1,43 @@
+---
+import Default from '@astrojs/starlight/components/PageFrame.astro';
+import TenzirFooter from './TenzirFooter.astro';
+
+const { hasSidebar } = Astro.locals.starlightRoute;
+---
+
+<div class="layout-wrapper">
+  <div class="main-layout">
+    <Default {...Astro.props}>
+      <slot name="header" slot="header" />
+      <slot name="sidebar" slot="sidebar" />
+      <slot />
+    </Default>
+  </div>
+  <div class="footer-wrapper" data-has-sidebar={hasSidebar}>
+    <TenzirFooter />
+  </div>
+</div>
+
+<style>
+  .layout-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-layout {
+    flex: 1;
+  }
+  
+  .footer-wrapper {
+    width: 100%;
+  }
+  
+  /* On larger screens with sidebar, offset footer to start after sidebar */
+  @media (min-width: 50em) {
+    .footer-wrapper[data-has-sidebar="true"] {
+      margin-left: var(--sl-sidebar-width);
+      width: calc(100% - var(--sl-sidebar-width));
+    }
+  }
+</style>

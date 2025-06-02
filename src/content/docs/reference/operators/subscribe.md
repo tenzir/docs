@@ -1,5 +1,7 @@
 ---
 title: subscribe
+category: Connecting Pipelines
+example: 'subscribe "topic"'
 ---
 
 Subscribes to events from a channel with a topic.
@@ -35,4 +37,5 @@ subscribe "zeek-conn"
 
 ## See Also
 
-[`publish`](publish)
+[`export`](/reference/operators/export),
+[`publish`](/reference/operators/publish)

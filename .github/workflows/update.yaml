@@ -1,0 +1,169 @@
+name: Update
+
+on:
+  workflow_call:
+    inputs:
+      product:
+        description: "Product to update (node or platform)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Product to update"
+        required: true
+        type: choice
+        options:
+          - node
+          - platform
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: "update"
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate product parameter
+        run: |
+          if [[ "${{ inputs.product }}" != "node" && "${{ inputs.product }}" != "platform" ]]; then
+            echo "Error: product must be either 'node' or 'platform'"
+            exit 1
+          fi
+          echo "Valid product: ${{ inputs.product }}"
+
+  update:
+    name: Update Docs
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Update Tenzir Node docs
+        if: inputs.product == 'node'
+        run: |
+          echo "Updating Tenzir Node docs..."
+          git clone --depth 1 https://github.com/tenzir/tenzir.git /tmp/tenzir
+          # Run changelog script
+          uv run ./changelog/changelog.py --product=node /tmp/tenzir/changelog
+          # Copy reference
+          rsync -av --delete /tmp/tenzir/docs/functions/ ./src/content/docs/reference/functions
+          rsync -av --delete /tmp/tenzir/docs/operators/ ./src/content/docs/reference/operators
+          cp /tmp/tenzir/docs/openapi.node.yaml ./src/content/apis/openapi.node.yaml
+          cp /tmp/tenzir/tenzir.yaml.example ./tenzir.yaml.example
+          # Generate complete reference documentation (overviews and sidebar)
+          pnpm run generate:reference
+          # Clean up
+          rm -rf /tmp/tenzir
+
+      - name: Update Tenzir Platform docs
+        if: inputs.product == 'platform'
+        run: |
+          echo "Updating Tenzir Platform docs..."
+          # Clone the main tenzir/platform repo (without submodules)
+          git clone --depth 1 \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/tenzir/platform.git \
+            /tmp/platform
+
+      - name: Configure ssh-agent for app submodule
+        if: inputs.product == 'platform'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.TENZIR_APP_DEPLOY_KEY }}
+
+      - name: Checkout app submodule
+        if: inputs.product == 'platform'
+        run: |
+          cd /tmp/platform
+          git submodule update --init --depth 1 components/app
+
+      - name: Configure ssh-agent for tenant-manager submodule
+        if: inputs.product == 'platform'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.TENZIR_EVENT_HORIZON_DEPLOY_KEY }}
+
+      - name: Checkout tenant-manager submodule
+        if: inputs.product == 'platform'
+        run: |
+          cd /tmp/platform
+          git submodule update --init --depth 1 components/tenant-manager
+
+      - name: Finalize platform docs update
+        if: inputs.product == 'platform'
+        run: |
+          cd /tmp/platform
+          # Copy changelog entries from app and tenant-manager components
+          mkdir -p changelog/changes/
+          for component in app tenant-manager; do
+            if ls components/$component/changelog/changes/*.md 1> /dev/null 2>&1; then
+              cp components/$component/changelog/changes/*.md changelog/changes/
+            else
+              echo "No .md files found in components/$component/changelog/changes/, skipping..."
+            fi
+          done
+          cd -
+
+          # Run changelog script
+          uv run ./changelog/changelog.py --product=platform /tmp/platform/changelog
+          # Copy reference
+          cp /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
+          # Clean up
+          rm -rf /tmp/platform
+
+      - name: Generate an app token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_AUTOBUMPER_APP_ID }}
+          private-key: ${{ secrets.TENZIR_AUTOBUMPER_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Set up GPG for signing
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+
+      - name: Commit changes
+        env:
+          GITHUB_APP_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          git config --global user.name 'tenzir-bot'
+          git config --global user.email 'engineering@tenzir.com'
+          git remote set-url origin https://x-access-token:${GITHUB_APP_TOKEN}@github.com/${{ github.repository }}.git
+          product="Tenzir ${{ inputs.product == 'node' && 'Node' || 'Platform' }}"
+          if git diff --quiet; then
+            echo "ℹ️ No changes needed for $product documentation"
+          else
+            git add .
+            git commit -m "Update $product documentation"
+            git push
+            echo "✅ Updated and committed $product documentation"
+          fi

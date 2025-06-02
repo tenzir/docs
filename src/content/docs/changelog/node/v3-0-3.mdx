@@ -1,0 +1,34 @@
+---
+title: VAST v3.0.3
+sidebar:
+  badge:
+    text: v3.0.3
+    variant: note
+---
+
+### Features
+
+#### PRs 3004-3010
+
+The new `vast exec` command executes a pipeline locally. It takes a single
+argument representing a closed pipeline, and immediately executes it. This is
+the foundation for a new, pipeline-first VAST, in which most operations are
+expressed as pipelines.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3004](https://github.com/tenzir/tenzir/pull/3004).
+
+### Changes
+
+#### Reduce conflict potential between rebuilding and queries
+
+VAST's rebuilding and compaction features now interfere less with queries. This
+patch was also backported as [VAST v2.4.2](https://vast.io/changelog#v242) to
+enable a smoother upgrade from to VAST v3.x.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3047](https://github.com/tenzir/tenzir/pull/3047).
+
+#### Add Boost as a dependency
+
+VAST now depends on the Boost C++ libraries.
+
+By [@tobim](https://github.com/tobim) in [#3043](https://github.com/tenzir/tenzir/pull/3043).

@@ -1,0 +1,105 @@
+---
+title: VAST 2020.03.26
+sidebar:
+  badge:
+    text: 2020.03.26
+    variant: note
+---
+
+### Features
+
+#### Use heterogenous lookup for hash index
+
+The hash index has been re-enabled after it was outfitted with a new
+[high-performance hash map](https://github.com/Tessil/robin-map/) implementation
+that increased performance to the point where it is on par with the regular
+index.
+
+By [@lava](https://github.com/lava) in [#796](https://github.com/tenzir/tenzir/pull/796).
+
+#### Require end-of-input to be reached for range-based parser invocations
+
+An under-the-hood change to our parser-combinator framework makes sure that we
+do not discard possibly invalid input data up the the end of input. This
+uncovered a bug in our MRT/bgpdump integrations, which have thus been disabled
+(for now), and will be fixed at a later point in time.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#808](https://github.com/tenzir/tenzir/pull/808).
+
+#### Fix user shutdown handling for continuous exports
+
+Continuous export processes can now be stopped correctly. Before this change,
+the node showed an error message and the exporting process exited with a
+non-zero exit code.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#779](https://github.com/tenzir/tenzir/pull/779).
+
+#### Implement reader for Syslog RFC5424
+
+The new `vast import syslog` command allows importing Syslog messages as defined
+in [RFC5424](https://tools.ietf.org/html/rfc5424).
+
+By [@knapperzbusch](https://github.com/knapperzbusch) in [#770](https://github.com/tenzir/tenzir/pull/770).
+
+#### Remove -c short option for setting config file
+
+The short option `-c` for setting the configuration file has been removed. The
+long option `--config` must now be used instead. This fixed a bug that did not
+allow for `-c` to be used for continuous exports.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#781](https://github.com/tenzir/tenzir/pull/781).
+
+#### Allow disabling Community ID computation for PCAPs
+
+The option `--disable-community-id` has been added to the `vast import pcap`
+command for disabling the automatic computation of Community IDs.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#777](https://github.com/tenzir/tenzir/pull/777).
+
+#### Require expressions to be parsed to end-of-input
+
+Expressions must now be parsed to the end of input. This fixes a bug that caused
+malformed queries to be evaluated until the parser failed. For example, the
+query `#type == "suricata.http" && .dest_port == 80` was erroneously evaluated
+as `#type == "suricata.http"` instead.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#791](https://github.com/tenzir/tenzir/pull/791).
+
+### Changes
+
+#### Rename vast.account event type to vast.statistics
+
+The internal statistics event type `vast.account` has been renamed to
+`vast.statistics` for clarity.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#789](https://github.com/tenzir/tenzir/pull/789).
+
+#### Add timestamp attribute to statistics ts field
+
+The config option `system.log-directory` was deprecated and replaced by the new
+ option `system.log-file`. All logs will now be written to a single file.
+
+By [@tobim](https://github.com/tobim) in [#806](https://github.com/tenzir/tenzir/pull/806).
+
+#### Restrict log file creation to 'vast start'
+
+The log folder `vast.log/` in the current directory will not be created by
+ default any more. Users must explicitly set the `system.file-verbosity` option
+ if they wish to keep the old behavior.
+
+By [@lava](https://github.com/lava) in [#803](https://github.com/tenzir/tenzir/pull/803).
+
+#### Introduce the VERBOSE log level
+
+The VERBOSE log level has been added between INFO and DEBUG. This level is
+enabled at build time for all build types, making it possible to get more
+detailed logging output from release builds.
+
+By [@tobim](https://github.com/tobim) in [#787](https://github.com/tenzir/tenzir/pull/787).
+
+#### Replace 'caf#' prefix for CAF options with 'caf.'
+
+The command line options prefix for changing CAF options was changed from
+`--caf#` to `--caf.`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#797](https://github.com/tenzir/tenzir/pull/797).

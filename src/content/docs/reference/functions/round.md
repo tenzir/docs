@@ -1,5 +1,7 @@
 ---
 title: round
+category: Math
+example: 'round(4.6)'
 ---
 
 Rounds a number or a time/duration with a specified unit.
@@ -55,4 +57,5 @@ from {
 
 ## See Also
 
-[`ceil`](ceil), [`floor`](floor)
+[`ceil`](/reference/functions/ceil),
+[`floor`](/reference/functions/floor)

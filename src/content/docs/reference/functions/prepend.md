@@ -1,5 +1,7 @@
 ---
 title: prepend
+category: List
+example: 'xs.prepend(y)'
 ---
 
 Inserts an element at the start of a list.
@@ -28,4 +30,5 @@ xs = xs.prepend(3)
 
 ## See Also
 
-[`append`](append), [`concatenate`](concatenate)
+[`append`](/reference/functions/append),
+[`concatenate`](/reference/functions/concatenate)

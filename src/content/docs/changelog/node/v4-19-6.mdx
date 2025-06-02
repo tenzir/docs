@@ -1,0 +1,38 @@
+---
+title: Tenzir Node v4.19.6
+sidebar:
+  badge:
+    text: v4.19.6
+    variant: note
+---
+
+### Features
+
+#### Implement the `assert` operator
+
+The `tenzir` command-line utility gained a new option `--strict`, causing it to
+exit with a non-zero exit code for pipelines that emit at least one warning.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4506](https://github.com/tenzir/tenzir/pull/4506).
+
+### Bug Fixes
+
+#### Fix a potentially uncaught exception in `shell`
+
+We fixed a bug in the `shell` operator that could cause the process to crash
+when breaking its pipe. Now, the operator shuts down with an error diagnostic
+instead.
+
+Pipelines with the `python` operator now deploy more quickly, as their
+deployment no longer waits for the virtual environment to be set up
+successfully.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4508](https://github.com/tenzir/tenzir/pull/4508).
+
+#### Fix `slice 1:-1` for exactly one event
+
+The `slice` operator no longer crashes when used with a positive begin and
+negative end value when operating on less events than `-end`, e.g., when working
+on a single event and using `slice 0:-1`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4505](https://github.com/tenzir/tenzir/pull/4505).

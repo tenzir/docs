@@ -36,7 +36,7 @@ class. Think of it as a mixin of attributes that get automatically added:
 
 ![OCSF Base Event Class](map-data-to-ocsf/ocsf-base-event-class.svg)
 
-For this tutorial, we look at OCSF from the perspective of the *mapper* persona,
+For this tutorial, we look at OCSF from the perspective of the _mapper_ persona,
 i.e., as someone who converts existing events into the OCSF schema. OCSF also
 defines three other personas, author, producer, and analyst. These are out of
 scope. Our mission as mapper is now to study the event semantics of the data
@@ -77,9 +77,9 @@ example of a connection log in TSV format:
 ### Step 1: Parse the input
 
 We first need to parse the log file into structured form that we can work with
-the individual fields. Thanks to Tenzir's [Zeek support](../integrations/zeek),
+the individual fields. Thanks to Tenzir's [Zeek support](/integrations/zeek),
 we can get quickly turn TSV logs into structured data using the
-[`read_zeek_tsv`](../../reference/operators/read_zeek_tsv) operator:
+[`read_zeek_tsv`](/reference/operators/read_zeek_tsv) operator:
 
 ```bash
 tenzir 'read_zeek_tsv' < conn.log
@@ -282,7 +282,7 @@ this = {...ocsf, unmapped: zeek}
 @name = "ocsf.network_activity"
 ```
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components";
 
 Let's unpack this:
 
@@ -373,10 +373,10 @@ A few noteworthy things:
   have the `_write_ts` field. If we omitted the `?` then the absence of
   `_write_ts` would emit a warning.
 - We use the `move` key word during record assignment, e.g., `uid: move
-  zeek.uid`. The consequence is that `zeek.uid` is gone after the assignment.
+zeek.uid`. The consequence is that `zeek.uid` is gone after the assignment.
 - We use the `move` operator outside of record expressions, e.g., `move
-  ocsf.app_name = zeek.service`. Think of `move x=y` as the equivalent to `set
-  x=y | drop y`. It allows for more concise relocation of fields.
+ocsf.app_name = zeek.service`. Think of `move x=y` as the equivalent to `set
+x=y | drop y`. It allows for more concise relocation of fields.
 
 #### Primary Attributes
 
@@ -449,7 +449,7 @@ There's a lot more going on here:
   expression for the fallback value.
 - To check whether we have an IPv4 or an IPv6 connection, we call
   `zeek.id.orig_h.is_v6()` on the IPs of the connection record. TQL comes with
-  numerous [functions](../../reference/functions) that make mapping a breeze.
+  numerous [functions](/reference/functions) that make mapping a breeze.
 
 #### Recap
 
@@ -628,8 +628,8 @@ types, and we need to write one mapping pipeline for each. But how do we combine
 the individual pipelines?
 
 Tenzir's answer for this is topic-based publish-subscribe. The
-[`publish`](../../reference/operators/publish) and
-[`subscribe`](../../reference/operators/subscribe) operators send events to, and
+[`publish`](/reference/operators/publish) and
+[`subscribe`](/reference/operators/subscribe) operators send events to, and
 read events from a topic, respectively. Here's an illustration of the conceptual
 approach we are going to use:
 
@@ -664,12 +664,13 @@ all OCSF Authentication events.
 :::tip[Isn't this inefficient?]
 You may think that copying the full feed of the `zeek` topic to every mapping
 pipeline is inefficient. The good news is that it is not, for two reasons:
+
 1. Data transfers between `publish` and `subscribe` use the same zero-copy
    mechanism that pipelines use internally for sharing of events.
 2. Pipelines of the form `subscribe ... | where <predicate>` push perform
-   *predicate pushdown* and send `predicate` upstream so that the filtering
+   _predicate pushdown_ and send `predicate` upstream so that the filtering
    can happen as early as possible.
-:::
+   :::
 
 ## Summary
 

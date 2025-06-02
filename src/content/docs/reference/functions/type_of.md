@@ -1,5 +1,7 @@
 ---
 title: type_of
+category: Type System/Introspection
+example: 'type_of(this)'
 ---
 
 Retrieves the type definition of an expression.
@@ -58,4 +60,4 @@ this = type_of(this)
 
 ## See also
 
-[`type_id`](type_id)
+[`type_id`](/reference/functions/type_id)

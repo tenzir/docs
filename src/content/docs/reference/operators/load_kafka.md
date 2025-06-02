@@ -1,5 +1,7 @@
 ---
 title: load_kafka
+category: Inputs/Bytes
+example: 'load_kafka topic="example"'
 ---
 
 Loads a byte stream from a Apache Kafka topic.
@@ -114,4 +116,4 @@ read_zeek_json
 
 ## See Also
 
-[`save_kafka`](save_kafka)
+[`save_kafka`](/reference/operators/save_kafka)

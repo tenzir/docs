@@ -1,5 +1,7 @@
 ---
 title: write_zeek_tsv
+category: Printing
+example: 'write_zeek_tsv'
 ---
 
 Transforms event stream into Zeek Tab-Separated Value byte stream.
@@ -58,6 +60,5 @@ save_file "filtered_conn.log"
 
 ## See Also
 
-[`read_zeek_json`](read_zeek_json),
-[`read_zeek_tsv`](read_zeek_tsv),
-[`write_zeek_json`](write_zeek_json)
+[`read_zeek_json`](/reference/operators/read_zeek_json),
+[`read_zeek_tsv`](/reference/operators/read_zeek_tsv)

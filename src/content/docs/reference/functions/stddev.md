@@ -1,5 +1,7 @@
 ---
 title: stddev
+category: Aggregation
+example: 'stddev([1,2,3])'
 ---
 
 Computes the standard deviation of all grouped values.
@@ -32,4 +34,5 @@ summarize stddev_value=stddev(x)
 
 ## See Also
 
-[`variance`](variance), [`mean`](mean)
+[`variance`](/reference/functions/variance),
+[`mean`](/reference/functions/mean)

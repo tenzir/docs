@@ -1,0 +1,38 @@
+---
+title: Tenzir Node v4.30.3
+sidebar:
+  badge:
+    text: v4.30.3
+    variant: note
+---
+
+### Features
+
+#### Make schema definitions represent the type system exactly
+
+We introduced a new `type_of(x: any) -> record` function that returns the exact
+type definition of a TQL expression. For example, `this = type_of(this)`
+replaces an event with its schema's definition.
+
+The `/serve` endpoint gained a new option `schema`, which can be set to `legacy`
+(default), `exact`, or `never`. The `legacy` option causes the schema definition
+to be rendered in a simplified way, which is the current default. The `exact`
+option causes the schema definitions to be rendered exactly without omitting any
+information. Set the option to `never` to omit schema definitions entirely.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5062](https://github.com/tenzir/tenzir/pull/5062).
+
+### Bug Fixes
+
+#### Fix `engine::push` and co. for fluent-bit
+
+The `to_fluent_bit` operator no longer crashes on larger inputs.
+
+By [@raxyte](https://github.com/raxyte) in [#5076](https://github.com/tenzir/tenzir/pull/5076).
+
+#### Fix up `to_azure_log_analytics`
+
+We fixed a hang in `to_azure_log_analytics` for pipelines that never exhausted
+their input.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5077](https://github.com/tenzir/tenzir/pull/5077).

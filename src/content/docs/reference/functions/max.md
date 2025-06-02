@@ -1,5 +1,7 @@
 ---
 title: max
+category: Aggregation
+example: 'max([1,2,3])'
 ---
 
 Computes the maximum of all grouped values.
@@ -31,4 +33,6 @@ summarize max_value=max(x)
 
 ## See Also
 
-[`min`](min), [`mean`](mean), [`sum`](sum)
+[`min`](/reference/functions/min),
+[`mean`](/reference/functions/mean),
+[`sum`](/reference/functions/sum)

@@ -1,5 +1,7 @@
 ---
 title: merge
+category: Record
+example: 'merge(foo, bar)'
 ---
 
 Combines two records into a single record by merging their fields.
@@ -67,7 +69,7 @@ select result = merge(x, y)
 
 ```tql
 {
-  result {
+  result: {
     a: 1
   }
 }
@@ -75,4 +77,4 @@ select result = merge(x, y)
 
 ## See Also
 
-[`concatenate`](concatenate)
+[`concatenate`](/reference/functions/concatenate)

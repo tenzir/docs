@@ -1,0 +1,98 @@
+---
+title: Tenzir Node v4.26.0
+sidebar:
+  badge:
+    text: v4.26.0
+    variant: success
+---
+
+### Features
+
+#### Introduce CAF metrics
+
+`metrics "caf"` offers insights into Tenzir's underlying actor system. This is
+primarily aimed at developers for performance benchmarking.
+
+The new `merge` function combines two records. `merge(foo, bar)` is a shorthand
+for `{...foo, ...bar}`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4897](https://github.com/tenzir/tenzir/pull/4897).
+
+#### TQL printer
+
+You can use the new `write_tql` operator to print events as TQL expressions.
+
+We added `strip` options to `write_json` and `write_ndjson`, allowing you to
+strip null fields as well as empty records or lists.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4921](https://github.com/tenzir/tenzir/pull/4921).
+
+#### Implement `match_regex`
+
+You can use the new `string.match_regex(regex:string)` function to check whether
+a string partially matches a regular expression.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4917](https://github.com/tenzir/tenzir/pull/4917).
+
+#### Implement `to_asl` operator
+
+We added a `to_asl` operator that can be used to send OCSF normalized events
+to an Amazon Security Lake.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4911](https://github.com/tenzir/tenzir/pull/4911).
+
+### Changes
+
+#### TQL printer
+
+The implicit sources and sinks that can be set via commandline options or
+configuration now use TQL2.
+
+The default implicit event sink now writes TQL values instead of JSON.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4921](https://github.com/tenzir/tenzir/pull/4921).
+
+#### Fix overzealous parameter validation in `/pipeline/launch`
+
+Contexts persist less frequently now in the background, reducing their resource
+usage.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4919](https://github.com/tenzir/tenzir/pull/4919).
+
+#### Improve configured pipeline startup errors
+
+Errors from the startup of configured pipelines, including those coming from
+configured packages, now have improved rendering.
+
+By [@jachris](https://github.com/jachris) in [#4886](https://github.com/tenzir/tenzir/pull/4886).
+
+#### Use adaptive resolution and `Z` suffix in timestamp printer
+
+Timestamps are now printed with a `Z` suffix to indicate that they are relative
+to UTC. Furthermore, the fractional part of the seconds is no longer always
+printed using 6 digits. Instead, timestamps that do not have sub-second
+information no longer have a fractional part. Other timestamps are either
+printed with 3, 6 or 9 fractional digits, depending on their resolution.
+
+Durations that are printed as minutes now use `min` instead of `m`.
+Additionally, the fractional part of durations is now printed with full
+precision instead of being rounded to two digits.
+
+By [@jachris](https://github.com/jachris) in [#4916](https://github.com/tenzir/tenzir/pull/4916).
+
+### Bug Fixes
+
+#### Fix CONVERSION part for GROK patterns
+
+We fixed a bug which broke the CONVERSION part of the GROK pattern semantic.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4939](https://github.com/tenzir/tenzir/pull/4939).
+
+#### Fix overzealous parameter validation in `/pipeline/launch`
+
+We fixed an overzealous parameter validation bug that prevented the use of the
+`/pipeline/launch` API endpoint when specifying a `cache_id` without a
+`serve_id` when `definition` contained a definition for a pipeline without a
+sink.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4919](https://github.com/tenzir/tenzir/pull/4919).

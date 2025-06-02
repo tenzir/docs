@@ -1,5 +1,7 @@
 ---
 title: encode_base64
+category: Encoding
+example: 'encode_base64("Tenzir")'
 ---
 
 Encodes bytes as Base64.
@@ -31,4 +33,4 @@ encoded = bytes.encode_base64()
 
 ## See Also
 
-[`decode_base64`](decode_base64)
+[`decode_base64`](/reference/functions/decode_base64)

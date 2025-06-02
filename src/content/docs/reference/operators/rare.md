@@ -1,5 +1,7 @@
 ---
 title: rare
+category: Analyze
+example: 'rare auth.token'
 ---
 
 Shows the least common values.
@@ -13,6 +15,8 @@ rare x:field
 Shows the least common values for a given field. For each unique value, a new
 event containing its count will be produced. In general, `rare x` is equivalent
 to:
+
+This operator is the dual to [`top`](/reference/operators/top).
 
 ```tql
 summarize x, count=count()
@@ -53,6 +57,6 @@ head 5
 
 ## See Also
 
-[`summarize`](summarize),
-[`sort`](sort),
-[`top`](top)
+[`summarize`](/reference/operators/summarize),
+[`sort`](/reference/operators/sort),
+[`top`](/reference/operators/top)

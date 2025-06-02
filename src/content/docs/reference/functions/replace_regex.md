@@ -1,5 +1,7 @@
 ---
 title: replace_regex
+category: String/Transformation
+example: '"hello".replace("l+o", "y")'
 ---
 
 Replaces characters within a string based on a regular expression.
@@ -26,7 +28,7 @@ The pattern (as regular expression) to replace in `x`.
 
 The replacement value for `pattern`.
 
-### `max = string (optional)`
+### `max = int (optional)`
 
 The maximum number of replacements to perform.
 
@@ -56,4 +58,4 @@ from {x: replace_regex("hellolo", "l+", "y", max=1)}
 
 ## See Also
 
-[`replace`](replace)
+[`replace`](/reference/functions/replace)

@@ -1,5 +1,7 @@
 ---
 title: serve
+category: Internals
+example: 'serve "abcde12345"'
 ---
 
 Make events available under the `/serve` REST API endpoint
@@ -11,7 +13,7 @@ serve id:string, [buffer_size=int]
 ## Description
 
 The `serve` operator bridges between pipelines and the corresponding `/serve`
-[REST API endpoint](../api/node/operations/serve).
+[REST API endpoint](/reference/node-api).
 
 ![Serve Operator](serve.excalidraw.svg)
 
@@ -85,6 +87,6 @@ event arrives.
 
 ## See Also
 
-[`api`](api),
-[`from_http`](from_http),
-[`openapi`](openapi)
+[`api`](/reference/operators/api),
+[`from_http`](/reference/operators/from_http),
+[`openapi`](/reference/operators/openapi)

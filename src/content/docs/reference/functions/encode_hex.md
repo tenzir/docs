@@ -1,5 +1,7 @@
 ---
 title: encode_hex
+category: Encoding
+example: 'encode_hex("Tenzir")'
 ---
 
 Encodes bytes into their hexadecimal representation.
@@ -31,4 +33,4 @@ encoded = bytes.encode_hex()
 
 ## See Also
 
-[`decode_hex`](decode_hex)
+[`decode_hex`](/reference/functions/decode_hex)

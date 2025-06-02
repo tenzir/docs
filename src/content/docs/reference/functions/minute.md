@@ -1,5 +1,7 @@
 ---
 title: minute
+category: Time & Date
+example: 'ts.minute()'
 ---
 
 Extracts the minute component from a timestamp.
@@ -37,5 +39,8 @@ minute = ts.minute()
 
 ## See also
 
-[`year`](year), [`month`](month), [`day`](day), [`hour`](hour),
-[`second`](second)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`day`](/reference/functions/day),
+[`hour`](/reference/functions/hour),
+[`second`](/reference/functions/second)

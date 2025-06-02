@@ -1,5 +1,7 @@
 ---
 title: since_epoch
+category: Time & Date
+example: 'since_epoch(2021-02-24)'
 ---
 
 Interprets a time value as duration since the Unix epoch.
@@ -28,4 +30,5 @@ from { x: since_epoch(2021-02-24) }
 
 ## See Also
 
-[`from_epoch`](from_epoch), [`now`](now)
+[`from_epoch`](/reference/functions/from_epoch),
+[`now`](/reference/functions/now)

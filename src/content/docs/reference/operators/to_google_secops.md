@@ -1,5 +1,7 @@
 ---
 title: to_google_secops
+category: Outputs/Events
+example: 'to_google_secops …'
 ---
 
 Sends unstructured events to a Google SecOps Chronicle instance.
@@ -87,4 +89,4 @@ to_google_secops \
 
 ## See Also
 
-[`to_google_cloud_logging`](to_google_cloud_logging)
+[`to_google_cloud_logging`](/reference/operators/to_google_cloud_logging)

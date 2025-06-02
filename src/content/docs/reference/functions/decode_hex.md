@@ -1,5 +1,7 @@
 ---
 title: decode_hex
+category: Decoding
+example: 'decode_hex("4e6f6E6365")'
 ---
 
 Decodes bytes from their hexadecimal representation.
@@ -42,4 +44,4 @@ decoded = bytes.decode_hex()
 
 ## See Also
 
-[`encode_hex`](encode_hex)
+[`encode_hex`](/reference/functions/encode_hex)

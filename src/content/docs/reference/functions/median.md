@@ -1,5 +1,7 @@
 ---
 title: median
+category: Aggregation
+example: 'median([1,2,3,4])'
 ---
 
 Computes the approximate median of all grouped values using a t-digest algorithm.
@@ -32,4 +34,6 @@ summarize median_value=median(x)
 
 ## See Also
 
-[`mean`](mean), [`quantile`](quantile)
+[`mean`](/reference/functions/mean),
+[`mode`](/reference/functions/mode),
+[`quantile`](/reference/functions/quantile)

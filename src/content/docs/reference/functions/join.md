@@ -1,5 +1,7 @@
 ---
 title: join
+category: String/Transformation
+example: 'join(["a", "b", "c"], ",")'
 ---
 
 Joins a list of strings into a single string using a separator.
@@ -37,4 +39,5 @@ from {x: join(["a", "b", "c"], "-")}
 
 ## See Also
 
-[`split`](split), [`split_regex`](split_regex)
+[`split`](/reference/functions/split),
+[`split_regex`](/reference/functions/split_regex)

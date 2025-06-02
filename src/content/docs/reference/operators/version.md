@@ -1,5 +1,7 @@
 ---
 title: version
+category: Node/Inspection
+example: 'version'
 ---
 
 Shows the current version.

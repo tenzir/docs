@@ -1,5 +1,7 @@
 ---
 title: float
+category: Type System/Conversion
+example: 'float(42)'
 ---
 
 Casts an expression to a float.
@@ -36,4 +38,9 @@ from {x: float("4.2")}
 
 ## See Also
 
-[int](int), [uint](uint), [time](time), [string](string), [ip](ip)
+[`ip`](/reference/functions/ip),
+[`string`](/reference/functions/string),
+[`subnet`](/reference/functions/subnet),
+[`time`](/reference/functions/time),
+[`uint`](/reference/functions/uint),
+[int](/reference/functions/int)

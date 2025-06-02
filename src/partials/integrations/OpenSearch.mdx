@@ -1,10 +1,10 @@
-import { Image } from 'astro:assets';
+import { Image } from "astro:assets";
 
 <a href={props.url}>{props.Name}</a> is a search and observability suite for
 unstructured data. Tenzir can send events to {props.Name} and emulate and
 {props.Name} Bulk API endpoint.
 
-<Image src={props.image} alt="How to send and receive data"/>
+<Image src={props.image} alt="How to send and receive data" />
 
 When sending data to {props.Name}, Tenzir uses the <a
   href={props.bulkApiUrl}>Bulk API</a> and attempts to maximally batch events
@@ -13,10 +13,10 @@ single API call. You can control batching behavior with the `max_content_length`
 and `send_timeout` options.
 
 For more details, see the documentation for the
-[`to_opensearch`](../../reference/operators/to_opensearch) operator.
+[`to_opensearch`](/reference/operators/to_opensearch) operator.
 
 Tenzir can also present an {props.Name}-compatible REST API via the
-[`from_opensearch`](../../reference/operators/from_opensearch) operator.
+[`from_opensearch`](/reference/operators/from_opensearch) operator.
 
 ## Examples
 
@@ -24,7 +24,7 @@ Tenzir can also present an {props.Name}-compatible REST API via the
 
 Send an example event to the `main` index:
 
-import { Code } from '@astrojs/starlight/components';
+import { Code } from "@astrojs/starlight/components";
 
 export const sendToMainIndex = `
 from {event: "example"}
@@ -63,12 +63,10 @@ from "NAME://localhost:9200", keep_actions=true
 publish "NAME"
 `;
 
-<Code
-  code={emulate.replace(/NAME/g, props.Name.toLowerCase())}
-  lang="tql"
-/>
+<Code code={emulate.replace(/NAME/g, props.Name.toLowerCase())} lang="tql" />
 
 This pipeline accepts data on port 9200 and publishes all received events on the
+
 <code>{props.Name.toLowerCase()}</code> topic for further processing by other
 pipelines.
 
@@ -98,6 +96,7 @@ Set `hosts` to the endpoint of the Tenzir pipeline accepting data.
 #### Ship data via Logstash
 
 Configure <a href={props.logstashConfigUrl}>Logstash</a> with the
+
 <code>{props.Name.toLowerCase()}</code> output plugin to ship data to Tenzir:
 
 export const shipViaLogstash = `

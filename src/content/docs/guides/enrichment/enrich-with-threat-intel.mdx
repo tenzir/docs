@@ -2,7 +2,7 @@
 title: Enrich with threat intel
 ---
 
-Tenzir has a powerful [enrichment framework](../../../../explanations/enrichment)
+Tenzir has a powerful [enrichment framework](/explanations/enrichment)
 for real-time contextualization. The heart of the framework is a **context**—a
 stateful object that can be managed and used with pipelines.
 
@@ -42,7 +42,7 @@ That is, 57 entries have been added successfully to the `threatfox` context.
 <summary>Example data for context updating</summary>
 
 If we replace
-[`context::update`](../../../../reference/operators/context/update) in the above
+[`context::update`](/reference/operators/context/update) in the above
 pipeline with `head 5`, we get output similar to the following, depending on the
 current state of the API:
 
@@ -160,7 +160,7 @@ in the data of that type.
 The following pipeline subscribes to the import feed of all data arriving at the
 node via `export live=true` and applies the `threatfox` context to Suricata DNS
 requests in field `dns.rrname` via
-[`context::enrich`](../../../../reference/operators/context/enrich).
+[`context::enrich`](/reference/operators/context/enrich).
 
 ```tql
 export live=true
@@ -220,9 +220,7 @@ Here is a sample of an event that the above pipeline yields:
       "last_seen": null,
       "reference": "",
       "reporter": "onecert_ir",
-      "tags": [
-        "irata"
-      ]
+      "tags": ["irata"]
     },
     "timestamp": "2023-12-04T13:52:49.043157"
   }

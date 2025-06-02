@@ -1,5 +1,7 @@
 ---
 title: assert_throughput
+category: Filter
+example: 'assert_throughput 1000, within=1s'
 ---
 
 Emits a warning if the pipeline does not have the expected throughput
@@ -10,7 +12,7 @@ assert_throughput min_events:int, within=duration, [retries=int]
 
 ## Description
 
-The `assert_throghput` operator checks a pipeline's throughput, emitting a
+The `assert_throughput` operator checks a pipeline's throughput, emitting a
 warning if the minimum specified throughput is unmet, and optionally an error if
 the number of retries is exceeded.
 
@@ -25,4 +27,4 @@ assert_throughput 1k, within=1s, retries=30
 
 ## See Also
 
-[`assert`](assert)
+[`assert`](/reference/operators/assert)

@@ -1,5 +1,7 @@
 ---
 title: load_sqs
+category: Inputs/Bytes
+example: 'load_sqs "sqs://tenzir"'
 ---
 
 Loads bytes from [Amazon SQS][sqs] queues.
@@ -55,4 +57,4 @@ load_sqs "tenzir", poll_time=20s
 
 ## See Also
 
-[`save_sqs`](save_sqs)
+[`save_sqs`](/reference/operators/save_sqs)

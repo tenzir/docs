@@ -1,5 +1,7 @@
 ---
 title: tail
+category: Filter
+example: 'tail 20'
 ---
 
 Limits the input to the last `n` events.
@@ -12,7 +14,7 @@ tail [n:int]
 
 Forwards the last `n` events and discards the rest.
 
-`tail n` is a shorthand notation for [`slice begin=-n`](slice).
+`tail n` is a shorthand notation for [`slice begin=-n`](/reference/operators/slice).
 
 ### `n: int (optional)`
 
@@ -38,5 +40,5 @@ tail 5
 
 ## See Also
 
-[`head`](head),
-[`slice`](slice)
+[`head`](/reference/operators/head),
+[`slice`](/reference/operators/slice)

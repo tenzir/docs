@@ -1,5 +1,7 @@
 ---
 title: count
+category: Aggregation
+example: 'count([1,2,null])'
 ---
 
 Counts the events or non-null grouped values.
@@ -32,4 +34,4 @@ summarize total=count(x)
 
 ## See Also
 
-[`count_distinct`](count_distinct)
+[`count_distinct`](/reference/functions/count_distinct)

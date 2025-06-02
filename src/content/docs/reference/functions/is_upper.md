@@ -1,5 +1,7 @@
 ---
 title: is_upper
+category: String/Inspection
+example: '"HELLO".is_upper()'
 ---
 
 Checks if a string is in uppercase.
@@ -26,4 +28,6 @@ from {x: "HELLO".is_upper()}
 
 ## See Also
 
-[`to_upper`](to_upper), [`is_lower`](is_lower)
+[`is_alpha`](/reference/functions/is_alpha),
+[`is_lower`](/reference/functions/is_lower),
+[`to_upper`](/reference/functions/to_upper)

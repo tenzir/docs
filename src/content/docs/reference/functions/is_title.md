@@ -1,5 +1,7 @@
 ---
 title: is_title
+category: String/Inspection
+example: '"Hello World".is_title()'
 ---
 
 Checks if a string follows title case.
@@ -27,4 +29,4 @@ from {x: "Hello World".is_title()}
 
 ## See Also
 
-[`to_title`](to_title)
+[`to_title`](/reference/functions/to_title)

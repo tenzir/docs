@@ -1,5 +1,7 @@
 ---
 title: save_google_cloud_pubsub
+category: Outputs/Bytes
+example: 'save_google_cloud_pubsub project_id="my-project"'
 ---
 
 Publishes to a Google Cloud Pub/Sub topic.
@@ -27,7 +29,7 @@ The topic to publish to.
 
 ## URI support & integration with `from`
 
-The `save_google_cloud_pubsub` operator can also be used from the [`to`](to)
+The `save_google_cloud_pubsub` operator can also be used from the [`to`](/reference/operators/to)
 operator. For this, the `gcps://` scheme can be used. The URI is then translated:
 
 ```tql
@@ -52,4 +54,4 @@ save_google_cloud_pubsub project_id="amazing-project-123456", topic_id="alerts-t
 
 ## See Also
 
-[`load_google_cloud_pubsub`](load_google_cloud_pubsub)
+[`load_google_cloud_pubsub`](/reference/operators/load_google_cloud_pubsub)

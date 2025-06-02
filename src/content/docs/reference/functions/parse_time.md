@@ -1,5 +1,7 @@
 ---
 title: parse_time
+category: Time & Date
+example: '"10/11/2012".parse_time("%d/%m/%Y")'
 ---
 
 Parses a time from a string that follows a specific format.
@@ -82,4 +84,4 @@ x = x.parse_time("%Y-%m-%d+%H:%M:%S")
 
 ## See Also
 
-[`format_time`](format_time)
+[`format_time`](/reference/functions/format_time)

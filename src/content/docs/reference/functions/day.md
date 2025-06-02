@@ -1,5 +1,7 @@
 ---
 title: day
+category: Time & Date
+example: 'ts.day()'
 ---
 
 Extracts the day component from a timestamp.
@@ -37,5 +39,8 @@ day = ts.day()
 
 ## See also
 
-[`year`](year), [`month`](month), [`hour`](hour),
-[`minute`](minute), [`second`](second)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`hour`](/reference/functions/hour),
+[`minute`](/reference/functions/minute),
+[`second`](/reference/functions/second)

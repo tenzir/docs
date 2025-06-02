@@ -1,5 +1,7 @@
 ---
-title: remove
+title: package::remove
+category: Contexts
+example: 'package::remove "suricata-ocsf"'
 ---
 
 Uninstalls a package.
@@ -26,5 +28,5 @@ package::remove "suricata-ocsf"
 
 ## See Also
 
-[`package::add`](add),
-[`package::list`](list)
+[`list`](/reference/operators/package/list),
+[`package::add`](/reference/operators/package/add)

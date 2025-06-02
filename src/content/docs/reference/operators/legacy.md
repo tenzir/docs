@@ -1,5 +1,7 @@
 ---
 title: legacy
+category: Internals
+example: 'legacy "chart area"'
 ---
 
 Provides a compatibility fallback to TQL1 pipelines.

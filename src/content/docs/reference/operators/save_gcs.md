@@ -1,5 +1,7 @@
 ---
 title: save_gcs
+category: Outputs/Bytes
+example: 'save_gcs "gs://bucket/object.json"'
 ---
 
 Saves bytes to a Google Cloud Storage object.
@@ -44,4 +46,4 @@ save_gcs "gs://bucket/test.json?endpoint_override=gcs.mycloudservice.com"
 
 ## See Also
 
-[`load_gcs`](load_gcs)
+[`load_gcs`](/reference/operators/load_gcs)

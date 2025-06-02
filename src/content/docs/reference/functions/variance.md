@@ -1,5 +1,7 @@
 ---
 title: variance
+category: Aggregation
+example: 'variance([1,2,3])'
 ---
 
 Computes the variance of all grouped values.
@@ -31,4 +33,5 @@ summarize variance_value=variance(x)
 
 ## See Also
 
-[`stddev`](stddev), [`mean`](mean)
+[`stddev`](/reference/functions/stddev),
+[`mean`](/reference/functions/mean)

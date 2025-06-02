@@ -1,5 +1,7 @@
 ---
 title: split_regex
+category: String/Transformation
+example: 'split_regex("a1b2c", r"\d")'
 ---
 
 Splits a string into substrings with a regex.
@@ -59,4 +61,5 @@ from {xs: split_regex("a1b2c3", r"\d", max=1)}
 
 ## See Also
 
-[`split`](split), [`join`](join)
+[`split`](/reference/functions/split),
+[`join`](/reference/functions/join)

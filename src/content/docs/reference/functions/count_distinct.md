@@ -1,5 +1,7 @@
 ---
 title: count_distinct
+category: Aggregation
+example: 'count_distinct([1,2,2,3])'
 ---
 
 Counts all distinct non-null grouped values.
@@ -32,4 +34,5 @@ summarize unique=count_distinct(x)
 
 ## See Also
 
-[`count`](count), [`distinct`](distinct)
+[`count`](/reference/functions/count),
+[`distinct`](/reference/functions/distinct)

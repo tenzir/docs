@@ -1,0 +1,58 @@
+---
+title: Tenzir Node v4.23.1
+sidebar:
+  badge:
+    text: v4.23.1
+    variant: note
+---
+
+### Bug Fixes
+
+#### Only wipe the cache directory contents but not the dir itself
+
+The node doesn't try to recreate its cache directory on startup anymore,
+avoiding permissions issues on systems with strict access control.
+
+By [@lava](https://github.com/lava) in [#4742](https://github.com/tenzir/tenzir/pull/4742).
+
+#### Use separate volumes in docker-compose
+
+The `docker compose` setup now uses separate local volumes for each `tenzir` directory. This fixes a bug where restarting the container resets installed packages or pipelines.
+
+By [@sunnewehr](https://github.com/sunnewehr) in [#4749](https://github.com/tenzir/tenzir/pull/4749).
+
+#### Normalize expressions for live and unpersisted data
+
+We fixed a crash in pipelines that use the `export` operator and a subsequent
+`where` filter with certain expressions.
+
+By [@tobim](https://github.com/tobim) in [#4774](https://github.com/tenzir/tenzir/pull/4774).
+
+#### Build the `parquet` plugin in the Dockerfile
+
+The `parquet` plugin is now available in the `tenzir/tenzir` and
+`tenzir/tenzir-node` Docker images.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4760](https://github.com/tenzir/tenzir/pull/4760).
+
+#### Fix configuration options for the kafka plugin
+
+We fixed a bug in the kafka plugin so that it no longer wrongly splits config
+options from the `yaml` files at the dot character.
+
+By [@tobim](https://github.com/tobim) in [#4761](https://github.com/tenzir/tenzir/pull/4761).
+
+#### Fix syslog parser not yielding on infinite streams
+
+We fixed a bug causing the `syslog` parser to never yield events until the input
+stream ended.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4777](https://github.com/tenzir/tenzir/pull/4777).
+
+#### Fix bugs in `where` when predicate evaluates to `null`
+
+We fixed a bug in TQL2's `where` operator that made it sometimes return
+incorrect results for events for which the predicate evaluated to `null`. Now,
+the operator consistently warns when this happens and drops the events.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4785](https://github.com/tenzir/tenzir/pull/4785).

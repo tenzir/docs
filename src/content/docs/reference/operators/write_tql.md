@@ -1,5 +1,7 @@
 ---
 title: write_tql
+category: Printing
+example: 'write_tql'
 ---
 
 Transforms the input event stream to a TQL notation byte stream.
@@ -96,4 +98,4 @@ write_tql strip_null_fields=true
 
 ## See Also
 
-[`write_json`](write_json)
+[`write_json`](/reference/operators/write_json)

@@ -1,0 +1,58 @@
+---
+title: Disabling Packages
+sidebar:
+  badge:
+    text: v5.1.7
+    variant: note
+---
+
+This release adds the ability to disable entire packages.
+
+### Features
+
+#### Allow packages to be disabled properly
+
+Packages gained a new `config.disabled` option that causes all pipelines and
+contexts in the package to be disabled.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5161](https://github.com/tenzir/tenzir/pull/5161).
+
+#### Add option to `load_tcp` for storing sender information
+
+The `peer_field` option for `load_tcp` allows for setting a field for the IP
+address, port, and hostname of the connected peer.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5173](https://github.com/tenzir/tenzir/pull/5173).
+
+#### Implement `<record>.keys()`
+
+The `keys` function returns a list of strings representing the field names of a
+record.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5202](https://github.com/tenzir/tenzir/pull/5202).
+
+### Bug Fixes
+
+#### Make the run loop of exec nodes cheaper
+
+Fixed a bug in the `load_tcp` operator that would
+cause it to require server certificates for incoming
+connections.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5193](https://github.com/tenzir/tenzir/pull/5193).
+
+#### Allow packages to be disabled properly
+
+For configured pipelines, the `tenzir.pipelines.<pipeline>.disabled`
+configuration option was silently ignored unless the pipeline was part of a
+package. This no longer happens, and disabling the pipelines through the option
+now works correctly.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5161](https://github.com/tenzir/tenzir/pull/5161).
+
+#### Fix URL check in `to_hive`
+
+The `to_hive` operator no longer incorrectly rejects URLs, which was due to a
+bug introduced by Tenzir v5.1.6.
+
+By [@jachris](https://github.com/jachris) in [#5204](https://github.com/tenzir/tenzir/pull/5204).

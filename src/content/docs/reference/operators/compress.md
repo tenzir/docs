@@ -1,5 +1,7 @@
 ---
 title: compress
+category: Encode & Decode
+example: 'compress "zstd"'
 ---
 
 Compresses a stream of bytes.
@@ -10,7 +12,7 @@ compress codec:string, [level=int]
 
 :::warning[Deprecated]
 The `compress` operator is deprecated. You should use the
-[bespoke operators](../operators#encode--decode) instead.
+[bespoke operators](/reference/operators#encode--decode) instead.
 These operators offer more options for some of the formats.
 :::
 

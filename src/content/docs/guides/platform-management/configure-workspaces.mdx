@@ -26,18 +26,18 @@ Extract content from CLI docs to here.
 You pre-define **static workspaces** declaratively in configuration files. This
 "as-code" approach differs from the dynamic management approach, which you
 manage with the [command
-line interface](../use-the-platform-cli).
+line interface](/reference/platform-cli).
 
 Here's a minimal example of a static workspace configuration:
 
 ```yaml title="workspaces.yaml"
 workspaces:
-  static0:                # Unique workspace identifier
-    name: Tenzir          # Display name in the UI
-    category: Statically Configured Workspaces  # Grouping category in the UI
+  static0: # Unique workspace identifier
+    name: Tenzir # Display name in the UI
+    category: Statically Configured Workspaces # Grouping category in the UI
     icon-url: https://storage.googleapis.com/tenzir-public-data/icons/tenzir-logo-square.svg
     auth-rules:
-      - {"auth_fn": "auth_allow_all"}  # Authentication rule (this allows everyone)
+      - { "auth_fn": "auth_allow_all" } # Authentication rule (this allows everyone)
 ```
 
 The `auth-rules` section defines who can access the workspace. The example above
@@ -50,6 +50,7 @@ generate auth rules in the correct format:
 ```bash
 tenzir-platform tools print-auth-rule allow-all
 ```
+
 :::
 
 The `platform` service in a Tenzir Platform deployment uses the

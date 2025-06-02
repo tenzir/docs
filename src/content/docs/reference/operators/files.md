@@ -1,5 +1,7 @@
 ---
 title: files
+category: Host Inspection
+example: 'files "/var/log/", recurse=true'
 ---
 
 Shows file information for a given directory.
@@ -98,7 +100,7 @@ where type == "fifo"
 
 ## See Also
 
-[`load_file`](load_file),
-[`processes`](processes),
-[`save_file`](save_file),
-[`sockets`](sockets)
+[`load_file`](/reference/operators/load_file),
+[`processes`](/reference/operators/processes),
+[`save_file`](/reference/operators/save_file),
+[`sockets`](/reference/operators/sockets)

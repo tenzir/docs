@@ -1,5 +1,7 @@
 ---
 title: nics
+category: Host Inspection
+example: 'nics'
 ---
 
 Shows a snapshot of available network interfaces.
@@ -51,4 +53,4 @@ where status.connected
 
 ## See Also
 
-[`load_nic`](load_nic)
+[`load_nic`](/reference/operators/load_nic)

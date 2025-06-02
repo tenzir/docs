@@ -1,5 +1,7 @@
 ---
 title: decompress
+category: Encode & Decode
+example: 'decompress "gzip"'
 ---
 
 Decompresses a stream of bytes.
@@ -10,7 +12,7 @@ decompress codec:string
 
 :::warning[Deprecated]
 The `decompress` operator is deprecated. You should use the
-[bespoke operators](../operators#encode--decode) instead.
+[bespoke operators](/reference/operators#encode--decode) instead.
 :::
 
 ## Description

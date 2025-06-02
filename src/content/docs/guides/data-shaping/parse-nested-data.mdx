@@ -41,7 +41,7 @@ In this guide we start with `from {line: "..."}` to make it easier to follow
 along. In practice you're likely accepting Syslog from TCP or UDP sockets and
 would thus start your pipeline with something along the lines of `from
 "udp://0.0.0.0:514" { read_syslog }`. Check
-out our [Syslog integration page](../../../../integrations/syslog) for further
+out our [Syslog integration page](/integrations/syslog) for further
 details.
 :::
 
@@ -133,7 +133,7 @@ content.params = content.params.parse_kv()
 ```
 
 The above output still has several values that we can improve in terms of
-typing: 
+typing:
 
 - `content.ts`: numeric value instead of timestamp
 - `content.params.duration`: numeric value instead of duration
@@ -206,7 +206,7 @@ We've now reached an important state: all data is deconstructed into atomic
 values with proper types. We can't take the data apart any further. This is the
 inflection point where we shift from disassembly of the original data into
 reassembly into the desired form. For example, you could [map your events to
-OCSF](../../../../tutorials/map-data-to-ocsf).
+OCSF](/tutorials/map-data-to-ocsf).
 
 In our toy example, we'll just create a slightly flatter structure:
 
@@ -245,4 +245,4 @@ this = {
 
 This pipeline structure is very common, except that we would perform the data
 shaping on live input as opposed to a single synthetic log line. Check out our
-[Syslog integration page](../../../../integrations/syslog) for further related topics.
+[Syslog integration page](/integrations/syslog) for further related topics.

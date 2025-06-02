@@ -1,5 +1,7 @@
 ---
 title: uint
+category: Type System/Conversion
+example: 'uint(4.2)'
 ---
 
 Casts an expression to an unsigned integer.
@@ -50,4 +52,9 @@ from {x: uint("0x42", base=16)}
 
 ## See Also
 
-[int](int), [float](float), [time](time), [string](string), [ip](ip)
+[`ip`](/reference/functions/ip),
+[`subnet`](/reference/functions/subnet),
+[`time`](/reference/functions/time),
+[float](/reference/functions/float),
+[int](/reference/functions/int),
+[string](/reference/functions/string)

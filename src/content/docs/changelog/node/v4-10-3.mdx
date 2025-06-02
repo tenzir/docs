@@ -1,0 +1,28 @@
+---
+title: Tenzir Node v4.10.3
+sidebar:
+  badge:
+    text: v4.10.3
+    variant: note
+---
+
+### Changes
+
+#### Update the submodule pointers to include periodic platform reconnects
+
+Tenzir nodes no longer attempt reconnecting to app.tenzir.com immediately upon
+failure, but rather wait before reconnecting.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3997](https://github.com/tenzir/tenzir/pull/3997).
+
+### Bug Fixes
+
+#### Ignore events in `lookup` that did not bind
+
+The `lookup` operator no longer tries to match internal metrics and diagnostics
+events.
+
+The `lookup` operator no longer returns events for which none of the provided
+fields exist.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4028](https://github.com/tenzir/tenzir/pull/4028).

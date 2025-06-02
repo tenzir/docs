@@ -1,5 +1,7 @@
 ---
 title: slice
+category: Filter
+example: 'slice begin=10, end=30'
 ---
 
 Keeps a range of events within the interval `[begin, end)` stepping by `stride`.
@@ -78,5 +80,5 @@ slice end=-5, stride=-1
 
 ## See Also
 
-[`head`](head),
-[`tail`](tail)
+[`head`](/reference/operators/head),
+[`tail`](/reference/operators/tail)

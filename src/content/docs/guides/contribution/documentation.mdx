@@ -8,14 +8,14 @@ https://github.com/tenzir/docs. We use [Astro](https://astro.build) with
 
 **TL;DR**: Here's a summary about frequently used commands:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`            | Installs dependencies                            |
-| `pnpm dev`                | Starts local dev server at `localhost:4321`      |
-| `pnpm build`              | Build your production site to `./dist/`          |
-| `pnpm preview`            | Preview your build locally, before deploying     |
-| `pnpm astro ...`          | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help`    | Get help using the Astro CLI                     |
+| Command                | Action                                           |
+| :--------------------- | :----------------------------------------------- |
+| `pnpm install`         | Installs dependencies                            |
+| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
+| `pnpm build`           | Build your production site to `./dist/`          |
+| `pnpm preview`         | Preview your build locally, before deploying     |
+| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `pnpm astro -- --help` | Get help using the Astro CLI                     |
 
 For anything beyond editing Markdown content, check out [Starlight’s
 docs](https://starlight.astro.build/) or read [Astro's
@@ -35,7 +35,7 @@ Thereafter, build a development version of the docs:
 pnpm dev
 ```
 
-Then browse to http://localhost:4321/ to view the site.
+Then browse to `http://localhost:4321/` to view the site.
 
 ## Build for Production
 
@@ -51,15 +51,57 @@ Preview the generated files by spinning up a web server:
 pnpm preview
 ```
 
-Then browse to http://localhost:4321/ to view the site.
+Then browse to `http://localhost:4321/` to view the site.
 
 We create a production build in CI. Check out our [GitHub
 workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/docs.yaml)
 for the gory details.
 
+## Link Checking
+
+The documentation includes automated link validation to ensure all internal and external links work correctly:
+
+### Local Link Checking
+
+Before submitting changes, run link checking locally to catch broken links:
+
+```bash
+pnpm lint:linkcheck
+```
+
+This will build the site with link validation enabled and report any broken links found.
+
+### CI Integration
+
+Link checking runs automatically in our CI pipeline:
+
+- **All builds**: Link validation is enabled for production builds
+- **Pull requests**: Link checking runs as part of the lint workflow
+- **Scheduled maintenance**: Weekly link checks run every Sunday to catch broken external links
+
+### How It Works
+
+The link checker validates:
+
+- Internal page references (e.g., `/guides/quickstart`)
+- Anchor links within pages (e.g., `/reference/operators#aggregate`)
+- External URLs (with appropriate timeout and retry logic)
+- Relative links between documentation files
+
+### Fixing Broken Links
+
+When the link checker finds issues:
+
+1. **Invalid internal links**: Update the link to point to the correct page path
+2. **Missing anchor references**: Ensure the target heading or element exists
+3. **Broken external links**: Update URLs or remove outdated references
+4. **False positives**: Add exclusions to the `starlightLinksValidator` configuration in `astro.config.mjs`
+
+The link checker will cause builds to fail if broken links are detected, ensuring the documentation maintains high quality.
+
 ## Optimize Images
 
-To keep the repository size manageable, always optimize image files *before*
+To keep the repository size manageable, always optimize image files _before_
 committing them. This is especially important for formats like PNG, which can
 contain unnecessary metadata or use inefficient compression.
 
@@ -92,13 +134,64 @@ even better compression ratios.
 Use [svgo](https://github.com/svg/svgo), a Node-based tool to optimize SVG files
 by removing unnecessary data:
 
-
 ```bash
 svgo image.svg
 ```
 
 This automatically rewrites the file in-place with redundant code removed and
 optimized structure.
+
+## Auto-Updated Files
+
+**Important**: Some files in this repository are automatically updated by CI and
+should **never** be manually edited. Manual changes to these files will be
+overwritten the next time the [update
+workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/update.yaml)
+runs.
+
+### Automatically Updated Files
+
+The following files are synchronized from upstream repositories:
+
+**Tenzir Node Documentation:**
+
+- `src/content/docs/changelog/node` is generated from individual changelog
+  entries
+- `src/content/docs/reference/functions` is synced from
+  [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/functions/`
+- `src/content/docs/reference/operators` is synced from
+  [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/operators/`
+- `src/content/docs/reference/functions.mdx` is generated from individual
+  function files
+- `src/content/docs/reference/operators.mdx` is generated from individual
+  operator files
+- `src/sidebar-reference.js` is generated from individual function and operator
+  files for programmatic sidebar navigation
+- `src/content/apis/openapi.node.yaml` is the API specification for Tenzir Node
+  and generated from the node's source code
+- `tenzir.yaml.example` is the node's example configuration file
+
+**Tenzir Platform Documentation:**
+
+- `src/content/docs/changelog/platform` is generated from individual changelog
+  entries
+- `src/content/docs/reference/platform-cli.mdx` is synced from
+  [tenzir/platform](https://github.com/tenzir/platform) at `docs/platform-cli.mdx`
+
+### Making Changes to Auto-Updated Content
+
+If you need to update content in these files:
+
+1. **For Functions/Operators**: Make changes in the
+   [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
+2. **For Platform CLI**: Make changes in the
+   [tenzir/platform](https://github.com/tenzir/platform) repository
+3. **For generation logic**: Modify the scripts in `scripts/` or the update
+   workflow
+
+Our CI will automatically prevent pull requests that modify auto-updated files.
+If you encounter this error, revert your changes and make them in the
+appropriate upstream repository instead.
 
 ## Edit Diagrams
 

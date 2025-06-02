@@ -1,5 +1,7 @@
 ---
 title: distinct
+category: Aggregation
+example: 'distinct([1,2,2,3])'
 ---
 
 Creates a sorted list without duplicates of non-null grouped values.
@@ -32,4 +34,6 @@ summarize unique=distinct(x)
 
 ## See Also
 
-[`collect`](collect), [`count_distinct`](count_distinct)
+[`collect`](/reference/functions/collect),
+[`count_distinct`](/reference/functions/count_distinct),
+[`value_counts`](/reference/functions/value_counts)

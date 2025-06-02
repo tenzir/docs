@@ -1,5 +1,7 @@
 ---
 title: write_yaml
+category: Printing
+example: 'write_yaml'
 ---
 
 Transforms the input event stream to YAML byte stream.
@@ -25,6 +27,6 @@ save_file "output.yaml"
 
 ## See Also
 
-[`read_yaml`](read_yaml),
-[`parse_yaml`](../functions/parse_yaml),
-[`print_yaml`](../functions/print_yaml)
+[`read_yaml`](/reference/operators/read_yaml),
+[`parse_yaml`](/reference/functions/parse_yaml),
+[`print_yaml`](/reference/functions/print_yaml)

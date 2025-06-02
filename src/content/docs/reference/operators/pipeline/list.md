@@ -1,5 +1,7 @@
 ---
-title: list
+title: pipeline::list
+category: Pipelines, Packages
+example: "pipeline::list"
 ---
 
 Shows managed pipelines.
@@ -12,7 +14,7 @@ pipeline::list
 
 The `pipeline::list` operator returns the list of all managed pipelines. Managed
 pipelines are pipelines created through the [`/pipeline`
-API](../.../../../api/node), which includes all pipelines run through the Tenzir
+API](/reference/node-api), which includes all pipelines run through the Tenzir
 Platform.
 
 ## Examples
@@ -60,4 +62,5 @@ summarize package, names=collect(name)
 
 ## See Also
 
-[`package::list`](../package/list)
+[`list`](/reference/operators/package/list),
+[`run`](/reference/operators/pipeline/run)

@@ -1,5 +1,7 @@
 ---
 title: second
+category: Time & Date
+example: 'ts.second()'
 ---
 
 Extracts the second component from a timestamp with subsecond precision.
@@ -53,5 +55,8 @@ full_second = ts.second().floor()
 
 ## See also
 
-[`year`](year), [`month`](month), [`day`](day), [`hour`](hour),
-[`minute`](minute)
+[`year`](/reference/functions/year),
+[`month`](/reference/functions/month),
+[`day`](/reference/functions/day),
+[`hour`](/reference/functions/hour),
+[`minute`](/reference/functions/minute)

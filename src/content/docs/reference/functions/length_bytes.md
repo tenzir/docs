@@ -1,5 +1,7 @@
 ---
 title: length_bytes
+category: String/Inspection
+example: '"hello".length_bytes()'
 ---
 
 Returns the length of a string in bytes.
@@ -38,4 +40,5 @@ from {x: "👻".length_bytes()}
 
 ## See Also
 
-[`length`](length), [`length_chars`](length_chars)
+[`length`](/reference/functions/length),
+[`length_chars`](/reference/functions/length_chars)

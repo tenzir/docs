@@ -1,5 +1,7 @@
 ---
 title: to_snowflake
+category: Outputs/Events
+example: 'to_snowflake account_identifier="…'
 ---
 
 Sends events to a Snowflake database.
@@ -22,7 +24,7 @@ bulk-ingestion under the hood and then copies them into the target table.
 
 The operator supports nested types as [Snowflake semi-structured
 types](https://docs.snowflake.com/en/sql-reference/data-types-semistructured).
-Alternatively, you can use the [`flatten`](../functions/flatten) function
+Alternatively, you can use the [`flatten`](/reference/functions/flatten) function
 operator beforehand.
 
 ### `account_identifier = string`

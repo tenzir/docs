@@ -1,5 +1,7 @@
 ---
 title: match_regex
+category: String/Inspection
+example: '"Hi".match_regex("[Hh]i")'
 ---
 
 Checks if a string partially matches a regular expression.
@@ -59,4 +61,4 @@ output = input.match_regex("^[E|e]xample[!]?$")
 
 ## See Also
 
-[String Operations](../language/expressions.md#string-operations)
+[String Operations](/reference/language/expressions#string-operations)

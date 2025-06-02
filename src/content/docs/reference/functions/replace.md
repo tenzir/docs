@@ -1,5 +1,7 @@
 ---
 title: replace
+category: String/Transformation
+example: '"hello".replace("o", "a")'
 ---
 
 Replaces characters within a string.
@@ -26,7 +28,7 @@ The pattern to replace in `x`.
 
 The replacement value for `pattern`.
 
-### `max = string (optional)`
+### `max = int (optional)`
 
 The maximum number of replacements to perform.
 
@@ -56,4 +58,4 @@ from {x: "hello".replace("l", "r", max=1)}
 
 ## See Also
 
-[`replace_regex`](replace_regex)
+[`replace_regex`](/reference/functions/replace_regex)

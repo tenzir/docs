@@ -2,22 +2,50 @@
 title: Next
 ---
 
-## Changes
+Unreleased changes.
 
-### Improved changelog
+### Features
 
-As part of moving our docs site, we are also improving our changelog handling.
-The new `tenzir/docs` repo will receive changelog entries from all of our other
-repos and host an amalgamated changelog.
+#### Implement `http` operator
 
-By [@mavam](https://github.com/mavam), [@dominiklohmann](https://github.com/dominiklohmann) in [#5069](https://github.com/tenzir/tenzir/pull/5069).
+We implemented the `http` operator that allows making HTTP/1.1 requests to a
+URL. The operator also allows paginate APIs based on the responses.
 
+By [@raxyte](https://github.com/raxyte) in [#5188](https://github.com/tenzir/tenzir/pull/5188).
 
-## Bug Fixes
+#### Introduce lambda functions
 
-### Fix broken changelog generation
+TQL now supports lambda expressions. They are supported in the `where` and `map`
+functions on list, and on the newly added `count_if` aggregation function.
+Instead of `[1, 2, 3].map(x, x + 1)`, use `[1, 2, 3].map(x => x + 1)`. This
+subtle change makes it obvious that the expression is not evaluated on the
+entire list, but rather on each element individually.
 
-We had a bug in our changelog generation that nobody knew about. We fixed it and
-moved on.
+The `count_if` aggregation function counts the number of elements in a list that
+satisfy a given predicate. For example, `[1, 2, 3].count_if(x => x > 1)` returns
+`2`.
 
-By [@mavam](https://github.com/mavam) in [#5074](https://github.com/tenzir/tenzir/pull/5074).
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).
+
+### Bug Fixes
+
+#### Fix a segfault in `save_amqp` on connection loss
+
+We fixed a crash in `save_amqp` when trying to send a message after the connection
+was lost.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5226](https://github.com/tenzir/tenzir/pull/5226).
+
+#### Fix overflow warning for `-9223372036854775808`
+
+The lowest 64-bit integer, `-9223372036854775808`, no longer causes an overflow
+warning.
+
+By [@jachris](https://github.com/jachris) in [#5223](https://github.com/tenzir/tenzir/pull/5223).
+
+#### Fix evaluation of `null if true else …`
+
+The expression `null if true else 42` previously returned `42`. It now correctly
+returns `null`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).

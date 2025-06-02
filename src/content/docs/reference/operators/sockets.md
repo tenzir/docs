@@ -1,5 +1,7 @@
 ---
 title: sockets
+category: Host Inspection
+example: 'sockets'
 ---
 
 Shows a snapshot of open sockets.
@@ -42,5 +44,5 @@ select pid, local_addr, remote_addr
 
 ## See Also
 
-[`files`](files),
-[`processes`](processes)
+[`files`](/reference/operators/files),
+[`processes`](/reference/operators/processes)

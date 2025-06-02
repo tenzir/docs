@@ -1,4 +1,5 @@
 import { openAPISidebarGroups } from "starlight-openapi";
+import { referenceFunctions, referenceOperators } from "./sidebar-reference.js";
 
 export const guides = [
   "guides/quickstart",
@@ -90,7 +91,6 @@ export const guides = [
       "guides/contribution/coding-style",
       "guides/contribution/build-environment",
       "guides/contribution/documentation",
-      "guides/contribution/changelog",
       "guides/contribution/security",
     ],
   },
@@ -125,8 +125,16 @@ export const explanations = [
 ];
 
 export const reference = [
-  "reference/operators",
-  "reference/functions",
+  {
+    label: "Operators",
+    collapsed: true,
+    items: ["reference/operators", ...referenceOperators],
+  },
+  {
+    label: "Functions",
+    collapsed: true,
+    items: ["reference/functions", ...referenceFunctions],
+  },
   {
     label: "Language",
     items: [
@@ -142,61 +150,72 @@ export const reference = [
 
 export const integrations = [
   {
-    label: "Integrations",
+    label: "Amazon",
     items: [
-      {
-        label: "Amazon",
-        items: [
-          "integrations/amazon",
-          "integrations/amazon/msk",
-          "integrations/amazon/s3",
-          "integrations/amazon/security-lake",
-          "integrations/amazon/sqs",
-        ],
-      },
-      {
-        label: "Google",
-        items: [
-          "integrations/google/cloud-logging",
-          "integrations/google/cloud-storage",
-          "integrations/google/pubsub",
-          "integrations/google/secops",
-        ],
-      },
-      {
-        label: "Microsoft",
-        items: [
-          {
-            label: "Azure",
-            items: [
-              "integrations/microsoft/azure/blob-storage",
-              "integrations/microsoft/azure/log-analytics",
-            ],
-          },
-          "integrations/microsoft/defender",
-          "integrations/microsoft/windows-event-logs",
-        ],
-      },
+      "integrations/amazon",
+      "integrations/amazon/msk",
+      "integrations/amazon/s3",
+      "integrations/amazon/security-lake",
+      "integrations/amazon/sqs",
+    ],
+  },
+  {
+    label: "Google",
+    items: [
+      "integrations/google/cloud-logging",
+      "integrations/google/cloud-storage",
+      "integrations/google/cloud-pubsub",
+      "integrations/google/secops",
+    ],
+  },
+  {
+    label: "Microsoft",
+    items: [
+      "integrations/microsoft/azure-blob-storage",
+      "integrations/microsoft/azure-log-analytics",
+      "integrations/microsoft/defender",
+      "integrations/microsoft/windows-event-logs",
+    ],
+  },
+  {
+    label: "Message Brokers",
+    items: [
       "integrations/amqp",
-      "integrations/elasticsearch",
+      "integrations/fluent-bit",
+      "integrations/kafka",
+      "integrations/zeromq",
+    ],
+  },
+  {
+    label: "Protocols",
+    items: [
       "integrations/email",
       "integrations/file",
-      "integrations/fluent-bit",
       "integrations/ftp",
-      "integrations/graylog",
       "integrations/http",
-      "integrations/kafka",
       "integrations/nic",
-      "integrations/opensearch",
-      "integrations/snowflake",
-      "integrations/splunk",
-      "integrations/suricata",
       "integrations/syslog",
       "integrations/tcp",
       "integrations/udp",
+    ],
+  },
+  {
+    label: "Data Tools",
+    items: [
+      "integrations/clickhouse",
+      "integrations/elasticsearch",
+      "integrations/graylog",
+      "integrations/opensearch",
+      "integrations/snowflake",
+      "integrations/splunk",
+    ],
+  },
+  {
+    label: "Security Tools",
+    items: [
+      "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
-      "integrations/zeromq",
       "integrations/zscaler",
     ],
   },

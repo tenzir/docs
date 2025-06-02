@@ -1,5 +1,7 @@
 ---
 title: load_file
+category: Inputs/Bytes
+example: 'load_file "/tmp/data.json"'
 ---
 
 Loads the contents of the file at `path` as a byte stream.
@@ -52,6 +54,7 @@ load_file "example.txt"
 
 ## See Also
 
-[`files`](files),
-[`load_stdin`](load_stdin),
-[`save_file`](save_file)
+[`files`](/reference/operators/files),
+[`from_file`](/reference/operators/from_file),
+[`load_stdin`](/reference/operators/load_stdin),
+[`save_file`](/reference/operators/save_file)

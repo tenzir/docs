@@ -1,0 +1,99 @@
+---
+import type { Props } from '@astrojs/starlight/props';
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+import { Breadcrumbs } from 'astro-breadcrumbs';
+import 'astro-breadcrumbs/breadcrumbs.css';
+
+// Get the current path segments
+const currentPath = Astro.url.pathname;
+const segments = currentPath.split('/').filter(Boolean);
+
+// Don't show breadcrumbs on the home page
+const isHomePage = currentPath === '/' || segments.length === 0;
+
+// Build customization array for breadcrumb links
+const customizeLinks: any[] = [];
+
+// For each intermediate segment, check if we need to customize it
+for (let i = 0; i < segments.length - 1; i++) {
+  const pathToCheck = '/' + segments.slice(0, i + 1).join('/');
+  
+  // Check if a page exists at this path
+  let pageExists = true;
+  try {
+    // Use import.meta.glob to check if there's an index page at this path
+    const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { query: '?raw', import: 'default' });
+    
+    // Check if this path has a corresponding page
+    const hasIndex = Object.keys(allPages).some(key => 
+      key === `/src/content/docs${pathToCheck}/index.md` ||
+      key === `/src/content/docs${pathToCheck}/index.mdx` ||
+      key === `/src/content/docs${pathToCheck}/index.mdoc` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.md` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdx` ||
+      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdoc`
+    );
+    
+    pageExists = hasIndex;
+  } catch (e) {
+    // If we can't determine, assume it exists
+    pageExists = true;
+  }
+  
+  if (!pageExists) {
+    // This intermediate path doesn't exist, so make it non-clickable
+    customizeLinks.push({
+      index: i + 1, // +1 because index 0 is Home
+      href: '#',
+      style: 'pointer-events: none; text-decoration: none; color: var(--sl-color-gray-3); cursor: default;',
+      onclick: 'return false;',
+      tabindex: '-1'
+    });
+  }
+}
+---
+
+<div class="page-title-with-breadcrumbs">
+  {!isHomePage && (
+    <Breadcrumbs customizeLinks={customizeLinks}>
+    <svg
+      slot="index"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-label="Home"
+    >
+      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+    <svg
+      slot="separator"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+    </Breadcrumbs>
+  )}
+  <Default {...Astro.props} />
+</div>
+
+<style>
+  .page-title-with-breadcrumbs {
+    display: contents;
+  }
+</style>

@@ -1,5 +1,7 @@
 ---
 title: compress_gzip
+category: Encode & Decode
+example: 'compress_gzip, level=8'
 ---
 
 Compresses a stream of bytes using gzip compression.
@@ -58,8 +60,8 @@ save_file "out.gzip"
 
 ## See Also
 
-[`compress_brotli`](compress_brotli),
-[`compress_bz2`](compress_bz2),
-[`compress_lz4`](compress_lz4),
-[`compress_zstd`](compress_zstd),
-[`decompress_gzip`](decompress_gzip)
+[`compress_brotli`](/reference/operators/compress_brotli),
+[`compress_bz2`](/reference/operators/compress_bz2),
+[`compress_lz4`](/reference/operators/compress_lz4),
+[`compress_zstd`](/reference/operators/compress_zstd),
+[`decompress_gzip`](/reference/operators/decompress_gzip)

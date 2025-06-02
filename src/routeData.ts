@@ -1,5 +1,5 @@
-import { defineRouteMiddleware } from '@astrojs/starlight/route-data';
+import { defineRouteMiddleware } from "@astrojs/starlight/route-data";
 
 export const onRequest = defineRouteMiddleware((context) => {
-  context.locals.starlightRoute.siteTitleHref = 'https://tenzir.com';
+  context.locals.starlightRoute.siteTitleHref = "https://tenzir.com";
 });

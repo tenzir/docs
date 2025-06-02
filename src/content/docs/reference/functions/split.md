@@ -1,5 +1,7 @@
 ---
 title: split
+category: String/Transformation
+example: 'split("a,b,c", ",")'
 ---
 
 Splits a string into substrings.
@@ -58,4 +60,5 @@ from {xs: split("a-b-c", "-", max=1)}
 
 ## See Also
 
-[`split_regex`](split_regex), [`join`](join)
+[`split_regex`](/reference/functions/split_regex),
+[`join`](/reference/functions/join)

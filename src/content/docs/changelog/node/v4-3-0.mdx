@@ -1,0 +1,117 @@
+---
+title: Tenzir Node v4.3.0
+sidebar:
+  badge:
+    text: v4.3.0
+    variant: success
+---
+
+### Features
+
+#### Add support for reading and writing YAML documents
+
+The `yaml` format supports reading and writing YAML documents and streams.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3456](https://github.com/tenzir/tenzir/pull/3456).
+
+#### PRs 3461-fluent-bit
+
+The new `fluent-bit` source and sink operator provide and interface to the
+Fluent Bit ecosystem. The source operator maps to a Fluent Bit *input* and the
+sink operator to a Fluent Bit *output*.
+
+By [@tobim](https://github.com/tobim) in [#3461](https://github.com/tenzir/tenzir/pull/3461).
+
+#### Add pipeline label support to the main repository
+
+The pipeline manager now supports user-provided labels for pipelines.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3541](https://github.com/tenzir/tenzir/pull/3541).
+
+#### Improve `json` parser, add `null` type, and various fixes
+
+The performance of the `json`, `suricata` and `zeek-json` parsers was improved.
+
+The `json` parser has a new `--raw` flag, which uses the raw type of JSON values
+instead of trying to infer one. For example, strings with ip addresses are given
+the type `string` instead of `ip`.
+
+A dedicated `null` type was added.
+
+Empty records are now allowed. Operators that previously discarded empty records
+(for example, `drop`) now preserve them.
+
+By [@jachris](https://github.com/jachris) in [#3503](https://github.com/tenzir/tenzir/pull/3503).
+
+### Changes
+
+#### Disable dense indexes
+
+Tenzir no longer builds dense indexes for imported events. Dense indexes
+improved query performance at the cost of a higher memory usage. However, over
+time the performance improvement became smaller due to other improvements in the
+underlying storage engine.
+
+Tenzir no longer supports models in taxonomies. Since Tenzir v4.0 they were only
+supported in the deprecated `tenzir-ctl export` and `tenzir-ctl count` commands.
+We plan to bring the functionality back in the future with more powerful
+expressions in TQL.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#3552](https://github.com/tenzir/tenzir/pull/3552).
+
+#### Disable 0mq socket lingering
+
+We made it easier to reuse the default `zmq` socket endpoint by disabling
+*socket lingering*, and thereby immediately relinquishing resources when
+terminating a ZeroMQ pipeline. Changing the linger period from infinite to 0 no
+longer buffers pending messages in memory after closing a ZeroMQ socket.
+
+By [@mavam](https://github.com/mavam) in [#3536](https://github.com/tenzir/tenzir/pull/3536).
+
+### Bug Fixes
+
+#### Fix timing-related crashes in the `web` plugin
+
+The web server will not crash when receiving requests during shutdown anymore.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3553](https://github.com/tenzir/tenzir/pull/3553).
+
+#### Change type of `version` in `suricata.quic` to `string`
+
+The type of the `quic.version` field in the built-in `suricata.quic` schema was
+fixed. It now is a string instead of an integer.
+
+By [@jachris](https://github.com/jachris) in [#3533](https://github.com/tenzir/tenzir/pull/3533).
+
+#### Implement serialization_plugins for store_plugins
+
+The `parquet` and `feather` formats no longer throw assertions during normal
+usage anymore.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3537](https://github.com/tenzir/tenzir/pull/3537).
+
+#### Fix the wrong type for the version record type in the `zeek.software` schema
+
+The `zeek.software` does not contain an incomplete `version` record type
+anymore.
+
+The `version.minor` type in the `zeek.software` schema is now a `uint64`
+instead of a `double` to comply with Zeek's version structure.
+
+By [@Dakostu](https://github.com/Dakostu) in [#3538](https://github.com/tenzir/tenzir/pull/3538).
+
+#### Improve `json` parser, add `null` type, and various fixes
+
+The `json`, `suricata` and `zeek-json` parsers are now more stable and should
+now parse all inputs correctly.
+
+`null` records are no longer incorrectly transformed into records with `null`
+fields anymore.
+
+By [@jachris](https://github.com/jachris) in [#3503](https://github.com/tenzir/tenzir/pull/3503).
+
+#### Fix processing of http arguments
+
+The `http` loader no longer ignores the value user-provided custom headers.
+
+By [@mavam](https://github.com/mavam) in [#3535](https://github.com/tenzir/tenzir/pull/3535).

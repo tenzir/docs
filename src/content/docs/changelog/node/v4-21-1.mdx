@@ -1,0 +1,58 @@
+---
+title: Tenzir Node v4.21.1
+sidebar:
+  badge:
+    text: v4.21.1
+    variant: note
+---
+
+### Features
+
+#### Make the grok parser precise
+
+The `grok` parser now allows better control over the schema inference.
+
+The `grok` parser can now be directly used when reading input, allowing for
+`read grok`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#4657](https://github.com/tenzir/tenzir/pull/4657).
+
+#### Add `sample` operator
+
+A new `sample` operator now provides the ability to dynamically sample input
+data based on the frequency of the receiving events allowing relative sampling
+in situations of varying load.
+
+By [@raxyte](https://github.com/raxyte) in [#4645](https://github.com/tenzir/tenzir/pull/4645).
+
+### Bug Fixes
+
+#### Switch the index to basic messaging
+
+We fixed a bug that sometimes caused the `tenzir-node` process to hang on
+shutdown. This was most likely to happen when the node shut down immediately
+after starting up, e.g., because of an invalid configuration file.
+
+By [@tobim](https://github.com/tobim) in [#4613](https://github.com/tenzir/tenzir/pull/4613).
+
+#### Fix double-closing fds in the python operator
+
+Fixed a bug in the python operator that could lead to random valid file
+descriptors in the parent process being closed prematurely.
+
+By [@lava](https://github.com/lava) in [#4646](https://github.com/tenzir/tenzir/pull/4646).
+
+#### Enable azure-blob-storage in the DEB and RPM packages
+
+The `azure-blob-storage` connector is now also available in the static linux
+binary distributions.
+
+By [@tobim](https://github.com/tobim) in [#4649](https://github.com/tenzir/tenzir/pull/4649).
+
+#### Fix incorrect context updates count in lookup metrics
+
+We fixed a bug that caused the `context_updates` field in `metrics lookup` to be
+reported once per field specified in the corresponding `lookup` operator instead
+of being reported once per operator in total.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4655](https://github.com/tenzir/tenzir/pull/4655).

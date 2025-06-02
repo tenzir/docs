@@ -1,5 +1,7 @@
 ---
-title: detach
+title: pipeline::detach
+category: Pipelines
+example: "pipeline::detach { … }"
 ---
 
 Starts a pipeline in the node.
@@ -42,4 +44,4 @@ pipeline::detach {
 
 ## See also
 
-[`pipeline::run`](run)
+[`run`](/reference/operators/pipeline/run)

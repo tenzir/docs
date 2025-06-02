@@ -1,5 +1,7 @@
 ---
 title: load_gcs
+category: Inputs/Bytes
+example: 'load_gcs "gs://bucket/object.json"'
 ---
 
 Loads bytes from a Google Cloud Storage object.
@@ -43,4 +45,4 @@ read_json
 
 ## See Also
 
-[`save_gcs`](save_gcs)
+[`save_gcs`](/reference/operators/save_gcs)

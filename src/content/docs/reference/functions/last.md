@@ -1,5 +1,7 @@
 ---
 title: last
+category: Aggregation
+example: 'last([1,2,null])'
 ---
 
 Takes the last non-null grouped value.
@@ -31,4 +33,4 @@ summarize last_value=last(x)
 
 ## See Also
 
-[`first`](first)
+[`first`](/reference/functions/first)

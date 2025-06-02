@@ -1,0 +1,61 @@
+---
+title: VAST 2020.07.28
+sidebar:
+  badge:
+    text: 2020.07.28
+    variant: note
+---
+
+### Features
+
+#### Add a static binary workflow
+
+Starting with this release, installing VAST on any Linux becomes significantly
+easier: A static binary will be provided with each release on the GitHub
+releases page.
+
+By [@tobim](https://github.com/tobim) in [#966](https://github.com/tenzir/tenzir/pull/966).
+
+#### Add MsgPack-based Table Slice implementation
+
+We open-sourced our [MessagePack](http://msgpack.org)-based table slice
+implementation, which provides a compact row-oriented encoding of data. This
+encoding works well for binary formats (e.g., PCAP) and access patterns that
+involve materializing entire rows. The MessagePack table slice is the new
+default when Apache Arrow is unavailable. To enable parsing into MessagePack,
+you can pass `--table-slice-type=msgpack` to the `import` command, or set the
+configuration option `import.table-slice-type` to `'msgpack'`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#975](https://github.com/tenzir/tenzir/pull/975).
+
+### Changes
+
+#### Use Flatbuffers for Persistent State of Segment Store and Meta Index
+
+[FlatBuffers](https://google.github.io/flatbuffers/) is now a required
+ dependency for VAST. The archive and the segment store use FlatBuffers to store
+ and version their on-disk persistent state.
+
+By [@lava](https://github.com/lava) in [#972](https://github.com/tenzir/tenzir/pull/972).
+
+#### Improve handling of the default schema paths
+
+VAST now recognizes `/etc/vast/schema` as an additional default directory for
+schema files.
+
+By [@tobim](https://github.com/tobim) in [#980](https://github.com/tenzir/tenzir/pull/980).
+
+#### PRs 954-986
+
+The suricata schema file contains new type definitions for the stats, krb5, smb,
+and ssh events.
+
+By [@tobim](https://github.com/tobim) in [#954](https://github.com/tenzir/tenzir/pull/954).
+
+### Bug Fixes
+
+#### Fix spawn source subcommand
+
+The PCAP reader now correctly shows the amount of generated events.
+
+By [@tobim](https://github.com/tobim) in [#954](https://github.com/tenzir/tenzir/pull/954).

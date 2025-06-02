@@ -1,5 +1,7 @@
 ---
 title: floor
+category: Math
+example: 'floor(4.8)'
 ---
 
 Computes the floor of a number or a time/duration with a specified unit.
@@ -57,4 +59,5 @@ from {
 
 ## See Also
 
-[`ceil`](ceil), [`round`](round)
+[`ceil`](/reference/functions/ceil),
+[`round`](/reference/functions/round)

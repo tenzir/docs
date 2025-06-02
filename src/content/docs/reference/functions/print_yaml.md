@@ -1,5 +1,7 @@
 ---
 title: print_yaml
+category: Printing
+example: 'record.print_yaml()'
 ---
 
 Prints a value as a YAML document.
@@ -37,4 +39,5 @@ x = x.print_yaml()
 
 ## See Also
 
-[`write_yaml`](../operators/write_yaml), [`parse_yaml`](parse_yaml)
+[`write_yaml`](/reference/operators/write_yaml),
+[`parse_yaml`](/reference/functions/parse_yaml)

@@ -1,5 +1,7 @@
 ---
 title: parse_grok
+category: Parsing
+example: 'string.parse_grok("%{IP:client} …")'
 ---
 
 Parses a string according to a grok pattern.
@@ -91,7 +93,7 @@ output.dur = output.dur * 1s
 ```
 ```tql
 {
-  input: "Input: 55.3.244.1 GET /index.html 15824 0.043",
+  input: "55.3.244.1 GET /index.html 15824 0.043",
   output: {
     client: 55.3.244.1,
     req: "/index.html",
@@ -103,4 +105,4 @@ output.dur = output.dur * 1s
 
 ## See Also
 
-[`read_grok`](../operators/read_grok)
+[`read_grok`](/reference/operators/read_grok)

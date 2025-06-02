@@ -1,8 +1,10 @@
 ---
 title: export
+category: Node/Storage Engine
+example: 'export'
 ---
 
-Retrieves events from a Tenzir node. The dual to [`import`](import).
+Retrieves events from a Tenzir node.
 
 ```tql
 export [live=bool, retro=bool, internal=bool, parallel=int]
@@ -12,14 +14,16 @@ export [live=bool, retro=bool, internal=bool, parallel=int]
 
 The `export` operator retrieves events from a Tenzir node.
 
+This operator is the dual to [`import`](/reference/operators/import).
+
 ### `live = bool (optional)`
 
 Work on all events that are imported with `import` operators in real-time
 instead of on events persisted at a Tenzir node.
 
 Note that live exports may drop events if the following pipeline fails to keep
-up. To connect pipelines with back pressure, use the [`publish`](publish) and
-[`subscribe`](subscribe) operators.
+up. To connect pipelines with back pressure, use the [`publish`](/reference/operators/publish) and
+[`subscribe`](/reference/operators/subscribe) operators.
 
 ### `retro = bool (optional)`
 
@@ -61,5 +65,5 @@ head 20
 
 ## See Also
 
-[`import`](import),
-[`subscribe`](subscribe)
+[`import`](/reference/operators/import),
+[`subscribe`](/reference/operators/subscribe)

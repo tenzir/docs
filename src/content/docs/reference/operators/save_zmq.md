@@ -1,5 +1,7 @@
 ---
 title: save_zmq
+category: Outputs/Bytes
+example: 'save_zmq'
 ---
 
 Sends bytes as ZeroMQ messages.
@@ -57,4 +59,4 @@ save_zmq connect=true
 
 ## See Also
 
-[`load_zmq`](load_zmq)
+[`load_zmq`](/reference/operators/load_zmq)

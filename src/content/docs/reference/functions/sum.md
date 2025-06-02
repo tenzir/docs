@@ -1,5 +1,7 @@
 ---
 title: sum
+category: Aggregation
+example: 'sum([1,2,3])'
 ---
 
 Computes the sum of all values.
@@ -31,4 +33,7 @@ summarize n=sum(x)
 
 ## See Also
 
-[`mean`](mean), [`min`](min), [`max`](max)
+[`collect`](/reference/functions/collect),
+[`max`](/reference/functions/max),
+[`mean`](/reference/functions/mean),
+[`min`](/reference/functions/min)

@@ -1,5 +1,7 @@
 ---
 title: to_hive
+category: Outputs/Events
+example: 'to_hive "s3://…", partition_by=[x]'
 ---
 
 Writes events to a URI using hive partitioning.
@@ -89,6 +91,7 @@ to_hive "s3://my-bucket/some/subdirectory",
 
 ## See Also
 
-[`write_bitz`](write_bitz),
-[`write_json`](write_bitz),
-[`write_parquet`](write_parquet)
+[`read_parquet`](/reference/operators/read_parquet),
+[`write_bitz`](/reference/operators/write_bitz),
+[`write_feather`](/reference/operators/write_feather),
+[`write_parquet`](/reference/operators/write_parquet)

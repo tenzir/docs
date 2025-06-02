@@ -1,5 +1,7 @@
 ---
 title: read_feather
+category: Parsing
+example: 'read_feather'
 ---
 
 Parses an incoming Feather byte stream into events.
@@ -28,5 +30,5 @@ pulish "log"
 
 ## See Also
 
-[`read_parquet`](read_parquet),
-[`write_feather`](write_feather)
+[`read_parquet`](/reference/operators/read_parquet),
+[`write_feather`](/reference/operators/write_feather)

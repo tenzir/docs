@@ -1,5 +1,7 @@
 ---
 title: quantile
+category: Aggregation
+example: 'quantile([1,2,3,4], q=0.5)'
 ---
 
 Computes the specified quantile of all grouped values.
@@ -36,4 +38,5 @@ summarize median_value=quantile(x, q=0.5)
 
 ## See Also
 
-[`median`](median), [`mean`](mean)
+[`median`](/reference/functions/median),
+[`mean`](/reference/functions/mean)

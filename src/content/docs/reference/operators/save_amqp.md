@@ -1,5 +1,7 @@
 ---
 title: save_amqp
+category: Outputs/Bytes
+example: 'save_amqp'
 ---
 
 Saves a byte stream via AMQP messages.
@@ -82,7 +84,7 @@ Defaults to `false`.
 
 ## Examples
 
-### Send the list of plugins as [JSON](write_json)
+### Send the list of plugins as [JSON](/reference/operators/write_json)
 
 ```tql
 plugins
@@ -92,4 +94,4 @@ save_amqp
 
 ## See Also
 
-[`load_amqp`](load_amqp)
+[`load_amqp`](/reference/operators/load_amqp)

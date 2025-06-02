@@ -20,28 +20,32 @@ authenticated and encrypted via TLS certificates. This means you must provide a
 client-side certificate, which you can generate as follows. (Velociraptor ships
 as a static binary that we refer to as `velociraptor-binary` here.)
 
-import { Steps } from '@astrojs/starlight/components';
+import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
 1. Create a server configuration `server.yaml`:
+
    ```bash
    velociraptor-binary config generate > server.yaml
    ```
 
 2. Create an API client:
+
    ```bash
    velociraptor-binary -c server.yaml config api_client --name tenzir client.yaml
    ```
 
    Copy the generated `client.yaml` to your Tenzir [plugin
-   configuration](/references/configuration#plugins) directory as `velociraptor.yaml`
+   configuration](/reference/configuration) directory as `velociraptor.yaml`
    so that the operator can find it:
+
    ```bash
    cp client.yaml /etc/tenzir/plugin/velociraptor.yaml
    ```
 
 3. Create a user (e.g., an admin named `tenzir`):
+
    ```bash
    velociraptor-binary -v -c server.yaml user add --role administrator tenzir
    ```
@@ -58,7 +62,7 @@ import { Steps } from '@astrojs/starlight/components';
 ### Run raw VQL
 
 After you have created a TLS certificate, you can use the
-[`from_velociraptor`](/references/operators/from_velociraptor)
+[`from_velociraptor`](/reference/operators/from_velociraptor)
 operator to execute a [Velociraptor Query Language
 (VQL)](https://docs.velociraptor.app/docs/vql/) query:
 
