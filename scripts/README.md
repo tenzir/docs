@@ -2,7 +2,82 @@
 
 This directory contains utility scripts for maintaining the documentation.
 
-## Overview Generation
+## Image Optimization
+
+The image optimization system automatically checks and optimizes images to ensure consistent quality and performance across the documentation.
+
+### How it works
+
+1. **Automated checking** validates that all images are optimized within a 10% threshold of their optimal size
+2. **CI enforcement** fails pull requests when images exceed the optimization threshold
+3. **Multiple formats supported**:
+   - **PNG images**: Optimized using `pngquant` with quality 65-80%
+   - **JPEG images**: Optimized using `jpegoptim` with max quality 80%
+   - **SVG images**: Optimized using `svgo` to remove unnecessary data
+
+### Scripts
+
+#### `image-optimization.js`
+
+Main script that handles image optimization checking and processing.
+
+**Usage:**
+
+```bash
+# Check if images need optimization
+pnpm run lint:images
+
+# Automatically optimize all images
+pnpm run lint:images:fix
+
+# Or run directly
+node scripts/image-optimization.js check
+node scripts/image-optimization.js optimize
+```
+
+**Features:**
+
+- Scans all image files in the project (excluding build directories)
+- Calculates potential file size savings for each image
+- Fails when images exceed 10% optimization threshold
+- Provides specific commands to fix optimization issues
+- Supports dry-run checking without modifying files
+- Shows detailed summary with total potential savings
+
+**Dependencies:**
+
+The script requires the following system dependencies:
+
+- `pnpm install pngquant jpegoptim`  # System packages
+- `npm install -g svgo`              # Node.js package
+
+### CI Integration
+
+Image optimization is enforced through GitHub Actions:
+
+- **All commits**: Images are validated during the lint workflow
+- **Pull requests**: Unoptimized images cause build failures with detailed feedback
+- **Automatic comments**: Failed checks include specific optimization commands
+- **Consistent quality**: Ensures all images meet performance standards
+
+### Adding New Images
+
+When adding new images to the documentation:
+
+1. **Add the image file** to the appropriate location
+2. **Optimize before committing**:
+   ```bash
+   pnpm run lint:images:fix
+   ```
+3. **Verify optimization**:
+   ```bash
+   pnpm run lint:images
+   ```
+4. **Commit the optimized image**
+
+The CI will automatically validate that new images are properly optimized.
+
+## Reference Documentation Generation
 
 The overview generation system automatically creates the main reference pages (functions and operators) from individual documentation files.
 

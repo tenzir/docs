@@ -105,6 +105,11 @@ To keep the repository size manageable, always optimize image files _before_
 committing them. This is especially important for formats like PNG, which can
 contain unnecessary metadata or use inefficient compression.
 
+**CI Enforcement**: Our CI pipeline automatically checks that all images are
+optimized within a 10% threshold of their optimal size. Pull requests will fail
+if images are not properly optimized, ensuring consistent quality across the
+documentation.
+
 ### PNG Images
 
 We recommend using [pngquant](https://pngquant.org/), a command-line utility
@@ -140,6 +145,65 @@ svgo image.svg
 
 This automatically rewrites the file in-place with redundant code removed and
 optimized structure.
+
+### Automated Optimization
+
+You can use our built-in scripts to check and optimize all images in the
+project:
+
+```bash
+# Check if images need optimization
+pnpm run lint:images
+
+# Automatically optimize all images
+pnpm run lint:images:fix
+```
+
+The `lint:images` command will show you which images could benefit from
+optimization and by how much, while `lint:images:fix` will actually compress
+the files using the recommended settings above.
+
+### CI Integration
+
+Our continuous integration pipeline includes automated image optimization
+checking:
+
+- **All commits**: Images are validated to ensure they meet optimization
+  standards
+- **Pull requests**: Unoptimized images will cause the build to fail with
+  detailed feedback
+- **Automatic suggestions**: Failed checks include specific commands to fix
+  optimization issues
+
+If your PR fails the image optimization check, run `pnpm run lint:images:fix`
+to fix all issues at once, then commit the optimized images.
+
+### Pre-commit Hook (Optional)
+
+To catch image optimization issues before committing, you can set up a git
+pre-commit hook:
+
+```bash
+# Create the hook file
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/sh
+# Image optimization pre-commit hook
+
+echo "Checking image optimization..."
+if ! pnpm run lint:images > /dev/null 2>&1; then
+    echo "❌ Images are not optimized. Run 'pnpm run lint:images:fix' to fix."
+    echo "Or commit with --no-verify to skip this check."
+    exit 1
+fi
+echo "✅ All images are properly optimized."
+EOF
+
+# Make it executable
+chmod +x .git/hooks/pre-commit
+```
+
+This will automatically check image optimization before each commit and prevent
+commits with unoptimized images.
 
 ## Auto-Updated Files
 

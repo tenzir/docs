@@ -98,3 +98,33 @@ jobs:
 
       - name: Run link check
         run: pnpm run lint:linkcheck
+
+  image-optimization:
+    name: Image Optimization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pngquant jpegoptim
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install svgo globally
+        run: npm install -g svgo
+
+      - name: Check image optimization
+        run: pnpm run lint:images
