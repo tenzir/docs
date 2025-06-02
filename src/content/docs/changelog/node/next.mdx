@@ -27,6 +27,45 @@ satisfy a given predicate. For example, `[1, 2, 3].count_if(x => x > 1)` returns
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5150](https://github.com/tenzir/tenzir/pull/5150).
 
+#### Implement `from_http` client
+
+The `from_http` operator now supports HTTP client functionality. This allows
+sending HTTP/1.1 requests, including support for custom methods, headers,
+payloads, pagination, retries, and connection timeouts. The operator can be used
+to fetch data from HTTP APIs and ingest it directly into pipelines.
+
+Make a simple GET request auto-selecting the parser:
+
+```tql
+from_http "https://api.example.com/data"
+```
+
+Post data to some API:
+
+```tql
+from_http "https://api.example.com/submit", payload={foo: "bar"}.print_json(),
+          headers={"Content-Type": "application/json"}
+```
+
+Paginating APIs:
+
+```tql
+from_http "https://api.example.com/items",
+          paginate=(x => x.next_url if x.has_more? == true)
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5177](https://github.com/tenzir/tenzir/pull/5177).
+
+### Changes
+
+#### `load_http` deprecated
+
+The `from` operator now dispatches to `from_http` for `http[s]` URLs.
+
+The `load_http` operator is now deprecated in favor of `from_http`.
+
+By [@raxyte](https://github.com/raxyte) in [#5177](https://github.com/tenzir/tenzir/pull/5177).
+
 ### Bug Fixes
 
 #### Fix a segfault in `save_amqp` on connection loss
