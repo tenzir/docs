@@ -50,6 +50,11 @@ PR_BASE_URLS: Dict[str, Optional[str]] = {
     "platform": "https://github.com/tenzir/platform/pull/",
 }
 
+RELEASE_BASE_URLS: Dict[str, Optional[str]] = {
+    "node": "https://github.com/tenzir/tenzir/releases/tag/",
+    "platform": "https://github.com/tenzir/platform/releases/tag/",
+}
+
 # Maximum number of releases to show directly in sidebar before archiving
 MAX_VISIBLE_RELEASES: int = 10
 
@@ -275,6 +280,7 @@ def process_release(
     changes_map: Dict[str, Path],
     output_path: Path,
     pr_base_url: Optional[str],
+    release_base_url: Optional[str],
 ) -> bool:
     """
     Processes a single release YAML file and generates the corresponding MDX changelog.
@@ -358,6 +364,13 @@ def process_release(
             # Add description if present
             if description:
                 content_parts.append(description)
+
+            # Add GitHub release link if present (not for "next" release)
+            if release_base_url and version != "next":
+                release_link = (
+                    f"Download the release on [GitHub]({release_base_url}{version})."
+                )
+                content_parts.append(release_link)
 
             # Add sections if present
             sections_written = []
@@ -495,7 +508,7 @@ def update_sidebar_file(
         ts_archive_paths = []
 
         # Always include "next" entry regardless of whether it exists
-        ts_paths.append(f'changelog/{product}/next')
+        ts_paths.append(f"changelog/{product}/next")
 
         # Split releases into visible and archived based on MAX_VISIBLE_RELEASES
         for i, (version_name, filename_version, _) in enumerate(other_versions):
@@ -514,14 +527,14 @@ def update_sidebar_file(
 
             # Add archive section if there are archived releases
             if ts_archive_paths:
-                ts_content += f'  {{\n'
+                ts_content += f"  {{\n"
                 ts_content += f'    label: "Archive",\n'
-                ts_content += f'    collapsed: true,\n'
-                ts_content += f'    items: [\n'
+                ts_content += f"    collapsed: true,\n"
+                ts_content += f"    items: [\n"
                 for path in ts_archive_paths:
                     ts_content += f'      "{path}",\n'
-                ts_content += f'    ],\n'
-                ts_content += f'  }},\n'
+                ts_content += f"    ],\n"
+                ts_content += f"  }},\n"
 
             ts_content += "];\n"
         else:
@@ -636,6 +649,9 @@ def main():
     # Get PR base URL for the product
     pr_base_url = PR_BASE_URLS.get(args.product)
 
+    # Get release base URL for the product
+    release_base_url = RELEASE_BASE_URLS.get(args.product)
+
     print(f"ℹ️ Processing changelog for '{args.product}' product")
     try:
         print(f"ℹ️ Input directory: {args.dir.relative_to(Path.cwd())}")
@@ -693,7 +709,9 @@ def main():
         filename_version = version.replace(".", "-")
         output_path = output_dir / f"{filename_version}.mdx"
 
-        if process_release(release_file, changes_map, output_path, pr_base_url):
+        if process_release(
+            release_file, changes_map, output_path, pr_base_url, release_base_url
+        ):
             success_count += 1
             versions_info.append((version, filename_version))
 
