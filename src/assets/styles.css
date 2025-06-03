@@ -16,18 +16,24 @@ html {
   --sl-font: var(--tnz-font-sans);
   --sl-font-mono: var(--tnz-font-mono);
 
-  /* Dark mode colors (default) */
-  --sl-color-accent-low: #0c214d;
+  /* Dark mode colors (default, mapped to Tenzir neutrals) */
+  --sl-color-accent-low: #0c214d; /* Specific dark accent, no direct Tenzir token */
   --sl-color-accent: var(--tnz-primary-500);
   --sl-color-accent-high: var(--tnz-primary-300);
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #ecedf2;
-  --sl-color-gray-2: #c0c2c7;
-  --sl-color-gray-3: #888b95;
-  --sl-color-gray-4: #555861;
-  --sl-color-gray-5: #353840;
-  --sl-color-gray-6: #24262e;
-  --sl-color-black: #17181c;
+  --sl-color-white: var(--tnz-neutral-100);      /* Main text color */
+  --sl-color-gray-1: var(--tnz-neutral-200);     /* Lightest gray */
+  --sl-color-gray-2: var(--tnz-neutral-300);
+  --sl-color-gray-3: var(--tnz-neutral-400);
+  --sl-color-gray-4: var(--tnz-neutral-500);
+  --sl-color-gray-5: var(--tnz-neutral-600);
+  --sl-color-gray-6: var(--tnz-neutral-700);     /* Darkest gray */
+  --sl-color-black: var(--tnz-neutral-800);       /* Main background color */
+
+  /* Page backgrounds */
+  --sl-color-bg: var(--tnz-neutral-800);          /* Main page background */
+  --sl-color-bg-sidebar: var(--tnz-neutral-800);  /* Sidebar background */
+  --sl-color-bg-nav: var(--tnz-neutral-800);      /* Navbar background */
+  --sl-color-bg-inset: var(--tnz-neutral-700);    /* Inset element backgrounds */
 
   /* Text sizes mapped from Tenzir system */
   --sl-text-xs: var(--tnz-text-xs);
@@ -39,10 +45,6 @@ html {
   --sl-text-3xl: var(--tnz-text-3xl);
   --sl-text-4xl: var(--tnz-text-4xl);
 
-  /* Additional Starlight overrides */
-  --sl-color-bg-nav: var(--sl-color-black);
-  --sl-color-bg-sidebar: var(--sl-color-bg);
-
   /* Expressive Code border radius */
   --ec-brdRad: var(--tnz-radius) !important;
 
@@ -52,7 +54,7 @@ html {
   --tnz-nav-active-border: var(--sl-color-accent);
 
   /* Text color for inverted contexts (buttons, etc) */
-  --sl-color-text-invert: var(--sl-color-white);
+  --sl-color-text-invert: var(--tnz-neutral-100); /* Text on accent-colored backgrounds */
 }
 
 /* Light mode colors */
@@ -70,6 +72,12 @@ html {
   --sl-color-gray-6: var(--tnz-neutral-200);
   --sl-color-gray-7: var(--tnz-neutral-100);
   --sl-color-black: var(--tnz-neutral-50);
+
+  /* Page backgrounds */
+  --sl-color-bg: var(--tnz-neutral-50);           /* Main page background */
+  --sl-color-bg-sidebar: var(--tnz-neutral-50);   /* Sidebar background */
+  --sl-color-bg-nav: var(--tnz-neutral-50);       /* Navbar background */
+  --sl-color-bg-inset: var(--tnz-neutral-100);    /* Inset element backgrounds */
 
   /* Navigation highlight colors for light mode */
   --tnz-nav-hover-bg: rgba(0, 0, 0, 0.04);
@@ -464,7 +472,145 @@ html[data-theme="dark"] {
 }
 
 :global(.sl-markdown-content) .sl-link-button:not(:where(p *)) {
-  margin-block: 1rem;
+  margin-block: 2rem;
+}
+
+/* Light Mode Specific Button Styles */
+
+/* === Light Mode Primary/Default Buttons - Explicit DARK Text Color === */
+:root[data-theme="light"] .sl-markdown-content .sl-link-button,
+:root[data-theme="light"] .sl-link-button.primary {
+  /* The background color (e.g., --tnz-primary-500) is set by generic Starlight rules */
+  color: var(--tnz-neutral-800) !important; /* Ensure text is dark */
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="light"] .sl-link-button.primary:hover {
+  /* Hover background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
+  color: var(--tnz-neutral-800) !important; /* Ensure text remains dark */
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-button:active {
+  /* Active background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
+  color: var(--tnz-neutral-800) !important; /* Ensure text remains dark */
+}
+
+:root[data-theme="light"] .sl-link-button.primary:active {
+  /* Active background for .primary (e.g., --tnz-primary-500) is set by generic Starlight rules */
+  color: var(--tnz-neutral-800) !important; /* Ensure text remains dark */
+}
+/* =================================================================== */
+
+/* === Light Mode Secondary Buttons - FORCE DARK TEXT === */
+/* === Light Mode Secondary Buttons - TRICK to FORCE DARK TEXT === */
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary,
+:root[data-theme="light"] .sl-link-button.secondary { /* Fallback for buttons not in .sl-markdown-content */
+  /* Locally redefine --sl-color-text-invert for secondary buttons in light mode */
+  --sl-color-text-invert: var(--tnz-neutral-800) !important; /* Force it to be dark */
+
+  /* The generic .sl-link-button rule will now use this dark color for text. */
+  /* Other styles remain for appearance: */
+  background-color: transparent !important;
+  border: 1px solid var(--tnz-primary-500) !important; /* Tenzir primary blue outline */
+  /* 'color' property here is mostly for explicitness but also as a fallback; the variable trick is key. */
+  color: var(--tnz-neutral-800) !important; 
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:hover,
+:root[data-theme="light"] .sl-link-button.secondary:hover {
+  /* Ensure the variable redefinition persists AND set color directly for robustness */
+  --sl-color-text-invert: var(--tnz-neutral-800) !important;
+  color: var(--tnz-neutral-800) !important;
+  
+  background-color: color-mix(in srgb, var(--tnz-primary-100) 50%, transparent) !important;
+  border-color: var(--tnz-primary-600) !important;
+}
+
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:active,
+:root[data-theme="light"] .sl-link-button.secondary:active {
+  /* Ensure the variable redefinition persists AND set color directly for robustness */
+  --sl-color-text-invert: var(--tnz-neutral-800) !important;
+  color: var(--tnz-neutral-800) !important;
+
+  background-color: color-mix(in srgb, var(--tnz-primary-200) 50%, transparent) !important;
+  border-color: var(--tnz-primary-600) !important;
+}
+
+/* === Light Mode Minimal Buttons === */
+:root[data-theme="light"] .sl-link-button.minimal {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--tnz-primary-500) !important; /* Primary blue text */
+}
+
+:root[data-theme="light"] .sl-link-button.minimal:hover {
+  background-color: color-mix(in srgb, var(--tnz-primary-100) 50%, transparent) !important; /* Subtle light primary tint */
+  color: var(--tnz-primary-600) !important;
+}
+
+:root[data-theme="light"] .sl-link-button.minimal:active {
+  background-color: color-mix(in srgb, var(--tnz-primary-200) 50%, transparent) !important;
+  color: var(--tnz-primary-600) !important;
+}
+
+/* Dark Mode Button Styles - Balanced Appearance */
+
+/* Primary / Default Buttons in Dark Mode */
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button,
+:root[data-theme="dark"] .sl-link-button.primary {
+  background-color: var(--tnz-primary-500) !important;
+  color: var(--tnz-neutral-50) !important;
+  border-color: var(--tnz-primary-500) !important;
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="dark"] .sl-link-button.primary:hover {
+  background-color: var(--tnz-primary-400) !important;
+  color: var(--tnz-neutral-50) !important;
+  border-color: var(--tnz-primary-400) !important;
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button:active,
+:root[data-theme="dark"] .sl-link-button.primary:active {
+  background-color: var(--tnz-primary-600) !important;
+  color: var(--tnz-neutral-50) !important;
+  border-color: var(--tnz-primary-600) !important;
+}
+
+/* Secondary Buttons in Dark Mode */
+:root[data-theme="dark"] .sl-link-button.secondary {
+  background-color: transparent !important;
+  border-color: var(--tnz-primary-400) !important;
+  color: var(--tnz-primary-300) !important;
+}
+
+:root[data-theme="dark"] .sl-link-button.secondary:hover {
+  background-color: color-mix(in srgb, var(--tnz-primary-500) 10%, transparent) !important; /* dim blue effect as button fill */
+  border-color: var(--tnz-primary-500) !important;    /* nice primary blue border */
+  color: var(--tnz-primary-500) !important;           /* text also primary blue */
+}
+
+:root[data-theme="dark"] .sl-link-button.secondary:active {
+  background-color: color-mix(in srgb, var(--tnz-primary-500) 25%, transparent) !important;
+  border-color: var(--tnz-primary-200) !important;
+  color: var(--tnz-primary-100) !important;
+}
+
+/* Minimal Buttons in Dark Mode */
+:root[data-theme="dark"] .sl-link-button.minimal {
+  background-color: transparent !important;
+  color: var(--tnz-primary-300) !important;
+  border-color: transparent !important;
+}
+
+:root[data-theme="dark"] .sl-link-button.minimal:hover {
+  background-color: color-mix(in srgb, var(--tnz-primary-500) 10%, transparent) !important;
+  color: var(--tnz-primary-200) !important;
+}
+
+:root[data-theme="dark"] .sl-link-button.minimal:active {
+  background-color: color-mix(in srgb, var(--tnz-primary-500) 20%, transparent) !important;
+  color: var(--tnz-primary-100) !important;
 }
 
 /* LinkCard component styling (if used in future) */
@@ -477,8 +623,12 @@ html[data-theme="dark"] {
 
 .sl-markdown-content .sl-link-card:hover {
   background-color: var(--sl-color-gray-7);
-  border-color: var(--tnz-primary-500);
   box-shadow: var(--tnz-shadow-s);
+  transform: translateY(-1px);
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card:hover {
+  background-color: var(--sl-color-gray-6); /* Dark mode: tnz-neutral-700, a step lighter than base */
 }
 
 .sl-markdown-content .sl-link-card .title {
@@ -508,9 +658,7 @@ html[data-theme="dark"] {
   border-color: var(--sl-color-gray-5);
 }
 
-:root[data-theme="light"] .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-7);
-}
+
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-card .title {
   color: var(--sl-color-text);
@@ -1229,40 +1377,138 @@ mobile-starlight-toc a[aria-current="true"]::before {
   --sl-color-black: var(--sl-color-text-invert) !important;
 }
 
-/* Badge styling - using same semantic colors as asides with better contrast */
+/* Badge styling for dark mode - aligned with aside styling */
+/* These rules will apply in dark mode. Ensure light mode has its own overrides if needed. */
 .sl-badge.note,
 .sidebar-content .sl-badge.note {
-  background-color: var(--tnz-lightblue-500) !important;
-  border-color: var(--tnz-lightblue-600) !important;
-  color: white !important;
+  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 25%, var(--sl-color-bg-sidebar)) !important;
+  border: 1px solid var(--tnz-lightblue-500) !important;
+  color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.tip,
 .sidebar-content .sl-badge.tip {
-  background-color: var(--tnz-purple-500) !important;
-  border-color: var(--tnz-purple-600) !important;
-  color: white !important;
+  background-color: color-mix(in srgb, var(--tnz-green-600) 25%, var(--sl-color-bg-sidebar)) !important; /* Changed to Green */
+  border: 1px solid var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.success,
 .sidebar-content .sl-badge.success {
-  background-color: var(--tnz-green-600) !important;
-  border-color: var(--tnz-green-600) !important;
-  color: white !important;
+  background-color: color-mix(in srgb, var(--tnz-green-600) 25%, var(--sl-color-bg-sidebar)) !important;
+  border: 1px solid var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.caution,
 .sidebar-content .sl-badge.caution {
-  background-color: var(--tnz-orange-500) !important;
-  border-color: var(--tnz-orange-600) !important;
-  color: white !important;
+  background-color: color-mix(in srgb, var(--tnz-yellow-600) 25%, var(--sl-color-bg-sidebar)) !important; /* Changed to Yellow */
+  border: 1px solid var(--tnz-yellow-500) !important;
+  color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.danger,
-.sidebar-content .sl-badge.danger {
-  background-color: var(--tnz-red-500) !important;
-  border-color: var(--tnz-red-600) !important;
-  color: white !important;
+/* === Consolidated Badge Styling === */
+
+/* Base Badge Style */
+.sl-badge {
+  padding: 0.15em 0.5em;
+  border-radius: var(--tnz-radius-sm);
+  font-size: var(--tnz-text-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+/* Light Mode Badge Styles - Aligned with Asides */
+:root[data-theme="light"] .sl-badge.note,
+:root[data-theme="light"] .sidebar-content .sl-badge.note {
+  background-color: color-mix(in srgb, var(--tnz-lightblue-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-lightblue-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+:root[data-theme="light"] .sl-badge.tip, /* Tip is Green */
+:root[data-theme="light"] .sidebar-content .sl-badge.tip {
+  background-color: color-mix(in srgb, var(--tnz-green-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+:root[data-theme="light"] .sl-badge.success,
+:root[data-theme="light"] .sidebar-content .sl-badge.success {
+  background-color: color-mix(in srgb, var(--tnz-green-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+:root[data-theme="light"] .sl-badge.caution, /* Caution is Yellow */
+:root[data-theme="light"] .sidebar-content .sl-badge.caution {
+  background-color: color-mix(in srgb, var(--tnz-yellow-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-yellow-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+:root[data-theme="light"] .sl-badge.danger,
+:root[data-theme="light"] .sidebar-content .sl-badge.danger {
+  background-color: color-mix(in srgb, var(--tnz-red-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-red-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+:root[data-theme="light"] .sl-badge.default,
+:root[data-theme="light"] .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
+:root[data-theme="light"] .sidebar-content .sl-badge.default,
+:root[data-theme="light"] .sidebar-content .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
+  background-color: color-mix(in srgb, var(--tnz-neutral-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-neutral-500) !important;
+  color: var(--tnz-neutral-800) !important;
+}
+
+/* Dark Mode Badge Styles - Aligned with Asides */
+:root[data-theme="dark"] .sl-badge.note,
+:root[data-theme="dark"] .sidebar-content .sl-badge.note {
+  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-lightblue-500) !important;
+  color: var(--tnz-neutral-100) !important;
+}
+
+:root[data-theme="dark"] .sl-badge.tip, /* Tip is Green */
+:root[data-theme="dark"] .sidebar-content .sl-badge.tip {
+  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-100) !important;
+}
+
+:root[data-theme="dark"] .sl-badge.success,
+:root[data-theme="dark"] .sidebar-content .sl-badge.success {
+  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-green-500) !important;
+  color: var(--tnz-neutral-100) !important;
+}
+
+:root[data-theme="dark"] .sl-badge.caution, /* Caution is Yellow */
+:root[data-theme="dark"] .sidebar-content .sl-badge.caution {
+  background-color: color-mix(in srgb, var(--tnz-yellow-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-yellow-500) !important;
+  color: var(--tnz-neutral-100) !important;
+}
+
+:root[data-theme="dark"] .sl-badge.danger,
+:root[data-theme="dark"] .sidebar-content .sl-badge.danger {
+  background-color: color-mix(in srgb, var(--tnz-red-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-red-500) !important;
+  color: var(--tnz-neutral-100) !important;
+}
+
+:root[data-theme="dark"] .sl-badge.default,
+:root[data-theme="dark"] .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
+:root[data-theme="dark"] .sidebar-content .sl-badge.default,
+:root[data-theme="dark"] .sidebar-content .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
+  background-color: color-mix(in srgb, var(--tnz-neutral-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  border-color: var(--tnz-neutral-500) !important;
+  color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.default,

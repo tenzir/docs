@@ -47,12 +47,40 @@ const renderedDescription = renderMarkdown(description);
     display: flex;
     flex-direction: column;
     min-width: 150px;
+    /* TQL syntax highlighting color variables - Light mode default */
+    --tql-type-color: #0969da;
+    --tql-operator-color: #953800;
+    --tql-param-color: #6f42c1;
+    --tql-punctuation-color: #656d76;
   }
 
   .function-card:hover {
     background-color: var(--sl-color-gray-7);
     border-color: var(--sl-color-text-accent);
     box-shadow: var(--tnz-shadow-s);
+  }
+
+  :global([data-theme="dark"]) .function-card {
+    /* TQL syntax highlighting color variables - Dark mode */
+    --tql-type-color: #79c0ff;
+    --tql-operator-color: #ffa657;
+    --tql-param-color: #d2a8ff;
+    --tql-punctuation-color: #8b949e;
+  }
+
+  :global([data-theme="dark"]) .function-card:hover {
+    background-color: var(--sl-color-gray-6); /* Dark theme hover bg (tnz-neutral-700) */
+    border-color: var(--sl-color-text-accent); /* Keep accent border */
+    /* Custom light shadow for dark mode */
+    box-shadow: 0px 3px 6px -3px rgba(255, 255, 255, 0.08), 0px 8px 16px -8px rgba(255, 255, 255, 0.08);
+  }
+
+  /* Dark mode specific hover for function-card */
+  :global([data-theme="dark"]) .function-card:hover {
+    /* --sl-color-gray-7 in dark is var(--tnz-neutral-700), background will be darker */
+    /* --sl-color-text-accent is var(--tnz-primary-500) */
+    /* Use a lighter shadow for dark backgrounds */
+    box-shadow: 0px 2px 8px 0px rgba(255, 255, 255, 0.07), 0px 1px 4px 0px rgba(255, 255, 255, 0.05);
   }
 
   .function-card-link {
@@ -174,18 +202,20 @@ const renderedDescription = renderMarkdown(description);
   }
 
   /* TQL syntax highlighting color variables */
-  :root {
-    --tql-type-color: #0969da;
-    --tql-operator-color: #953800;
-    --tql-param-color: #6f42c1;
-    --tql-punctuation-color: #656d76;
+  /* Light Mode TQL Colors */
+  :global([data-theme="light"]) {
+    --tql-type-color: #0969da;       /* Blue */
+    --tql-operator-color: #953800;   /* Brown */
+    --tql-param-color: #6f42c1;      /* Purple */
+    --tql-punctuation-color: #57606a;/* Gray */
   }
 
-  .dark {
-    --tql-type-color: #79c0ff;
-    --tql-operator-color: #ffa657;
-    --tql-param-color: #d2a8ff;
-    --tql-punctuation-color: #8b949e;
+  /* Dark Mode TQL Colors */
+  :global([data-theme="dark"]) {
+    --tql-type-color: #79c0ff;       /* Light Blue */
+    --tql-operator-color: #ffa657;   /* Orange */
+    --tql-param-color: #d2a8ff;      /* Light Purple */
+    --tql-punctuation-color: #8b949e;/* Light Gray */
   }
 
   .function-card-arrow {
