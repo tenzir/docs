@@ -82,6 +82,13 @@ warning.
 
 By [@jachris](https://github.com/jachris) in [#5223](https://github.com/tenzir/tenzir/pull/5223).
 
+#### Fix a crash in `to_clickhouse`
+
+We fixed an issue when trying to send lists in `to_clickhouse` that would cause
+the ClickHouse server to drop the connection.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5231](https://github.com/tenzir/tenzir/pull/5231).
+
 #### Fix evaluation of `null if true else …`
 
 The expression `null if true else 42` previously returned `42`. It now correctly
