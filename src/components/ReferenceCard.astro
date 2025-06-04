@@ -38,17 +38,51 @@ const renderedDescription = renderMarkdown(description);
 
 <style>
   .reference-card {
-    border: 1px solid var(--sl-color-gray-5);
+    border: 1px solid var(--tnz-neutral-600);
     border-radius: var(--tnz-radius);
-    padding: 1rem;
-    background: var(--sl-color-bg-sidebar);
+    padding: var(--tnz-space-4);
+    background: var(--tnz-neutral-800);
     height: 100%;
     display: flex;
     flex-direction: column;
+    transition: all var(--tnz-transition-base);
   }
 
-  .reference-card:hover {
-    border-color: var(--sl-color-text-accent);
+
+
+  /* Light mode styles */
+  :root[data-theme="light"] .reference-card {
+    background-color: var(--tnz-neutral-50);
+    border-color: var(--tnz-neutral-300);
+  }
+
+  :root[data-theme="light"] .reference-card:hover {
+    background-color: var(--tnz-nav-hover-bg);
+    box-shadow: var(--tnz-shadow-s-light);
+  }
+
+  :root[data-theme="light"] .reference-card-title {
+    color: var(--tnz-neutral-800);
+  }
+
+  :root[data-theme="light"] .reference-card-description {
+    color: var(--tnz-neutral-600);
+  }
+
+  :root[data-theme="light"] .reference-card-description code {
+    background: var(--tnz-neutral-50);
+    border-color: var(--tnz-neutral-300);
+  }
+
+  :root[data-theme="light"] .reference-card-example pre {
+    background: var(--tnz-neutral-50);
+    border-color: var(--tnz-neutral-300);
+  }
+
+  /* Dark mode hover effect to match card component */
+  :root[data-theme="dark"] .reference-card:hover {
+    background-color: var(--tnz-nav-hover-bg);
+    box-shadow: var(--tnz-shadow-s);
   }
 
   .reference-card-title-link {
@@ -70,34 +104,34 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card-header {
-    margin-bottom: 12px;
+    margin-bottom: var(--tnz-space-3);
   }
 
   .reference-card-title {
     margin: 0;
     font-size: var(--tnz-text-lg);
     font-weight: 600;
-    color: var(--sl-color-white);
+    color: var(--tnz-neutral-100);
   }
 
   .reference-card-description {
-    margin: 0 0 1rem 0;
-    color: var(--sl-color-gray-2);
+    margin: 0 0 var(--tnz-space-4) 0;
+    color: var(--tnz-neutral-300);
     line-height: 1.5;
     flex-grow: 1;
   }
 
   .reference-card-description code {
-    background: var(--sl-color-bg-sidebar);
-    border: 1px solid var(--sl-color-gray-6);
-    padding: 0.125rem 0.25rem;
+    background: var(--tnz-neutral-800);
+    border: 1px solid var(--tnz-neutral-700);
+    padding: var(--tnz-space-1) var(--tnz-space-2);
     border-radius: var(--tnz-radius-sm);
     font-family: var(--tnz-font-mono);
     font-size: 0.875em;
   }
 
   .reference-card-description a {
-    color: var(--sl-color-text-accent);
+    color: var(--tnz-primary-500);
     text-decoration: none;
   }
 
@@ -106,14 +140,14 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card-example {
-    margin-top: 0.75rem;
+    margin-top: var(--tnz-space-3);
   }
 
   .reference-card-example pre {
     margin: 0;
-    padding: 0.5rem;
-    background: var(--tnz-color-gray-950);
-    border: 1px solid var(--tnz-color-gray-800);
+    padding: var(--tnz-space-2);
+    background: var(--tnz-neutral-800);
+    border: 1px solid var(--tnz-neutral-700);
     border-radius: var(--tnz-radius-md);
     font-size: var(--tnz-text-xs);
     overflow-x: auto;
@@ -121,9 +155,10 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card-arrow {
-    color: var(--sl-color-text-accent);
+    color: var(--tnz-primary-500);
     font-size: 1.25rem;
     opacity: 0;
+    transition: opacity var(--tnz-transition-base);
   }
 
   .reference-card-title-link:hover .reference-card-arrow {
