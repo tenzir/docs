@@ -827,36 +827,31 @@ html[data-theme="dark"] {
 /* === Light Mode Secondary Buttons - FORCE DARK TEXT === */
 /* === Light Mode Secondary Buttons - TRICK to FORCE DARK TEXT === */
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary,
-:root[data-theme="light"] .sl-link-button.secondary { /* Fallback for buttons not in .sl-markdown-content */
-  /* Locally redefine --sl-color-text-invert for secondary buttons in light mode */
-  --sl-color-text-invert: var(--tnz-neutral-800) !important; /* Force it to be dark */
-
-  /* The generic .sl-link-button rule will now use this dark color for text. */
-  /* Other styles remain for appearance: */
+:root[data-theme="light"] .sl-link-button.secondary {
   background-color: transparent !important;
-  border: 1px solid var(--tnz-primary-500) !important; /* Tenzir primary blue outline */
-  /* 'color' property here is mostly for explicitness but also as a fallback; the variable trick is key. */
-  color: var(--tnz-neutral-800) !important; 
+  border-color: #E3E6ED !important;
+  color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:hover,
 :root[data-theme="light"] .sl-link-button.secondary:hover {
-  /* Ensure the variable redefinition persists AND set color directly for robustness */
-  --sl-color-text-invert: var(--tnz-neutral-800) !important;
+  background-color: #F0F4FF !important;
+  border-color: #ADC6FF !important;
   color: var(--tnz-neutral-800) !important;
-  
-  background-color: color-mix(in srgb, var(--tnz-primary-100) 50%, transparent) !important;
-  border-color: var(--tnz-primary-600) !important;
 }
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:active,
 :root[data-theme="light"] .sl-link-button.secondary:active {
-  /* Ensure the variable redefinition persists AND set color directly for robustness */
-  --sl-color-text-invert: var(--tnz-neutral-800) !important;
+  background-color: #E0EAFF !important;
+  border-color: #477EFF !important;
   color: var(--tnz-neutral-800) !important;
+}
 
-  background-color: color-mix(in srgb, var(--tnz-primary-200) 50%, transparent) !important;
-  border-color: var(--tnz-primary-600) !important;
+/* Additional specificity for overriding base button color */
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary,
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:hover,
+:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:active {
+  --sl-color-text-invert: var(--tnz-neutral-800) !important;
 }
 
 /* === Light Mode Minimal Buttons === */
