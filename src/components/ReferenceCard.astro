@@ -36,4 +36,274 @@ const renderedDescription = renderMarkdown(description);
   </div>
 </div>
 
+<style>
+  .function-card {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: var(--tnz-radius);
+  padding: 1rem;
+  background: var(--sl-color-bg-sidebar);
+  transition: all 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  /* TQL syntax highlighting color variables - Light mode default */
+  --tql-type-color: #0969da;
+  --tql-operator-color: #953800;
+  --tql-param-color: #6f42c1;
+  --tql-punctuation-color: #656d76;
+  }
 
+  .function-card:hover {
+    background-color: var(--sl-color-gray-7);
+    border-color: var(--sl-color-text-accent);
+    box-shadow: var(--tnz-shadow-s);
+  }
+
+  :root[data-theme="dark"] .function-card {
+    /* TQL syntax highlighting color variables - Dark mode */
+    --tql-type-color: #79c0ff;
+    --tql-operator-color: #ffa657;
+    --tql-param-color: #d2a8ff;
+    --tql-punctuation-color: #8b949e;
+  }
+
+  :root[data-theme="dark"] .function-card:hover {
+    background-color: var(--sl-color-gray-6);
+    border-color: var(--sl-color-text-accent);
+    /* Custom light shadow for dark mode */
+    box-shadow:
+      0px 3px 6px -3px rgba(255, 255, 255, 0.08),
+      0px 8px 16px -8px rgba(255, 255, 255, 0.08);
+  }
+
+  :root[data-theme="dark"] .function-card:hover {
+    box-shadow:
+      0px 2px 8px 0px rgba(255, 255, 255, 0.07),
+      0px 1px 4px 0px rgba(255, 255, 255, 0.05);
+  }
+
+  .function-card-title-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color 0.2s ease;
+  }
+
+  .function-card-title-link:hover {
+    text-decoration: none !important;
+    color: var(--tnz-color-purple-300);
+  }
+
+  .function-card-title-link:hover * {
+    text-decoration: none !important;
+    color: inherit;
+  }
+
+  .function-card-header {
+    margin-bottom: 12px;
+  }
+
+  .function-card-title {
+    margin: 0;
+    font-size: var(--tnz-text-lg);
+    font-weight: 600;
+    color: var(--sl-color-white);
+    font-family: var(--tnz-font-sans);
+    transition: color 0.2s ease;
+  }
+
+  .function-card-description {
+    margin: 0 0 1rem 0;
+    color: var(--sl-color-gray-2);
+    line-height: 1.5;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 3em;
+    word-break: break-word;
+  }
+
+  .function-card-description code {
+    background: var(--sl-color-bg-sidebar);
+    border: 1px solid var(--sl-color-gray-6);
+    padding: 0.125rem 0.25rem;
+    border-radius: var(--tnz-radius-sm);
+    font-family: var(--tnz-font-mono);
+    font-size: 0.875em;
+    color: var(--sl-color-text);
+  }
+
+  .function-card-description strong {
+    font-weight: 700;
+    color: var(--sl-color-white);
+  }
+
+  .function-card-description em {
+    font-style: italic;
+  }
+
+  .function-card-description a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .function-card-description a:hover {
+    text-decoration: underline;
+  }
+
+  .function-card-example {
+    margin-top: 0.75rem;
+    position: relative;
+  }
+
+  .function-card-example pre {
+    margin: 0;
+    padding: 0.5rem;
+    background: var(--tnz-color-gray-950);
+    border: 1px solid var(--tnz-color-gray-800);
+    border-radius: var(--tnz-radius-md);
+    font-size: var(--tnz-text-xs);
+    overflow-x: auto;
+    overflow-y: hidden;
+    font-family: var(--tnz-font-mono);
+    max-width: 100%;
+    white-space: nowrap;
+    line-height: 1.4;
+    cursor: text;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .function-card-example pre:hover {
+    overflow-x: auto;
+  }
+
+  .function-card-example code {
+    background: none;
+    padding: 0;
+    font-family: var(--tnz-font-mono);
+    color: var(--sl-color-text);
+    font-size: var(--tnz-text-xs);
+    line-height: 1.4;
+    white-space: nowrap;
+    display: block;
+  }
+
+  .function-card-arrow {
+    color: var(--sl-color-text-accent);
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .function-card-title-link:hover .function-card-arrow {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .function-card {
+      padding: 0.75rem;
+      max-width: none;
+    }
+
+    .function-card-title {
+      font-size: var(--tnz-text-base);
+    }
+
+    .function-card-example pre {
+      padding: 0.375rem;
+      font-size: calc(var(--tnz-text-xs) * 0.9);
+      overflow-x: auto;
+    }
+
+    .function-card-example code {
+      font-size: calc(var(--tnz-text-xs) * 0.9);
+    }
+  }
+
+  /* Reference card code blocks */
+  .function-card-example pre,
+  .function-card-example pre[class*="language-"] {
+    margin: 0 !important;
+    padding: 0.5rem !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  .function-card-example pre::-webkit-scrollbar,
+  .function-card-example pre[class*="language-"]::-webkit-scrollbar {
+    height: 6px !important;
+  }
+
+  .function-card-example pre::-webkit-scrollbar-track,
+  .function-card-example pre[class*="language-"]::-webkit-scrollbar-track {
+    background: var(--tnz-color-gray-900) !important;
+    border-radius: 3px !important;
+  }
+
+  .function-card-example pre::-webkit-scrollbar-thumb,
+  .function-card-example pre[class*="language-"]::-webkit-scrollbar-thumb {
+    background: var(--tnz-color-gray-700) !important;
+    border-radius: 3px !important;
+  }
+
+  .function-card-example pre::-webkit-scrollbar-thumb:hover,
+  .function-card-example pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+    background: var(--tnz-color-gray-600) !important;
+  }
+
+  .function-card-example code,
+  .function-card-example code[class*="language-"] {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: block !important;
+  }
+
+  .function-card-example .expressive-code {
+    overflow: visible !important;
+    max-width: 100% !important;
+  }
+
+  .function-card-example .ec-line {
+    overflow: visible !important;
+  }
+
+  .function-card-example .expressive-code pre {
+    background: var(--tnz-color-gray-950) !important;
+    border: 1px solid var(--tnz-color-gray-800) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    cursor: text !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Force override of Starlight button text colors at the end of CSS cascade */
+  /* This ensures our custom color is applied after all component styles */
+
+  .function-card-example .expressive-code pre::-webkit-scrollbar {
+    height: 6px !important;
+  }
+
+  .function-card-example .expressive-code pre::-webkit-scrollbar-track {
+    background: var(--tnz-color-gray-900) !important;
+    border-radius: 3px !important;
+  }
+
+  .function-card-example .expressive-code pre::-webkit-scrollbar-thumb {
+    background: var(--tnz-color-gray-700) !important;
+    border-radius: 3px !important;
+  }
+
+  .function-card-example .expressive-code pre::-webkit-scrollbar-thumb:hover {
+    background: var(--tnz-color-gray-600) !important;
+  }
+
+</style>
