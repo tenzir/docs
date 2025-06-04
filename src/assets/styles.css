@@ -369,10 +369,10 @@ html[data-theme="dark"] {
   --sl-text-h4: var(--tnz-text-xl);
   --sl-text-h5: var(--tnz-text-lg);
 
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid var(--tnz-neutral-600);
   border-radius: var(--tnz-radius);
-  padding: clamp(1rem, calc(0.125rem + 1.5vw), 2.5rem);
-  background-color: var(--sl-color-bg-sidebar);
+  padding: clamp(var(--tnz-space-4), calc(0.125rem + 1.5vw), 2.5rem);
+  background-color: var(--tnz-neutral-800);
   transition: all var(--tnz-transition-base);
   margin-bottom: 1rem;
 }
@@ -386,8 +386,8 @@ html[data-theme="dark"] {
 .sl-markdown-content .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: var(--tnz-space-6);
+  margin-bottom: var(--tnz-space-8);
 }
 
 /* Ensure cards in grid have consistent height */
@@ -399,7 +399,7 @@ html[data-theme="dark"] {
 
 /* Stagger effect for card grid */
 .sl-markdown-content .card-grid.stagger {
-  --stagger-height: 3rem;
+  --stagger-height: var(--tnz-space-6);
 }
 
 @media (min-width: 50rem) {
@@ -416,12 +416,12 @@ html[data-theme="dark"] {
 .sl-markdown-content .card .title {
   font-weight: 600;
   font-size: var(--tnz-text-xl);
-  color: var(--sl-color-white);
+  color: var(--tnz-neutral-100);
   line-height: var(--sl-line-height-headings);
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--tnz-space-3);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--tnz-space-3);
 }
 
 /* Card body content styling */
@@ -429,12 +429,12 @@ html[data-theme="dark"] {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--tnz-space-4);
 }
 
 .sl-markdown-content .card .body p {
   margin: 0;
-  color: var(--sl-color-gray-2);
+  color: var(--tnz-neutral-300);
   line-height: var(--sl-line-height-body);
   font-size: var(--tnz-text-base);
 }
@@ -452,14 +452,14 @@ html[data-theme="dark"] {
   content: attr(data-icon);
   display: block;
   font-size: var(--tnz-text-2xl);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--tnz-space-2);
 }
 
 /* Enlarge card icons */
 .sl-markdown-content .card .sl-icon,
 .sl-markdown-content .card svg {
-  width: 1.75rem !important;
-  height: 1.75rem !important;
+  width: var(--tnz-space-6) !important;
+  height: var(--tnz-space-6) !important;
   background: transparent !important;
 }
 
@@ -470,26 +470,26 @@ html[data-theme="dark"] {
 
 /* Light mode adjustments for cards */
 :root[data-theme="light"] .sl-markdown-content .card {
-  background-color: var(--sl-color-bg);
-  border-color: var(--sl-color-gray-5);
+  background-color: var(--tnz-neutral-50);
+  border-color: var(--tnz-neutral-300);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card:hover {
   background-color: var(--tnz-nav-hover-bg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--tnz-shadow-s-light);
 }
 
 :root[data-theme="dark"] .sl-markdown-content .card:hover {
   background-color: var(--tnz-nav-hover-bg);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--tnz-shadow-s);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card .title {
-  color: var(--sl-color-text);
+  color: var(--tnz-neutral-800);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card .body p {
-  color: var(--sl-color-gray-2);
+  color: var(--tnz-neutral-600);
 }
 
 /* Code blocks */
