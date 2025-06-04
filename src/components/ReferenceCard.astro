@@ -22,22 +22,22 @@ function renderMarkdown(text: string): string {
 const renderedDescription = renderMarkdown(description);
 ---
 
-<div class="function-card">
-  <div class="function-card-header">
-    <a href={href} class="function-card-title-link">
-      <h3 class="function-card-title">{title}</h3>
-      <span class="function-card-arrow">→</span>
+<div class="reference-card">
+  <div class="reference-card-header">
+    <a href={href} class="reference-card-title-link">
+      <h3 class="reference-card-title">{title}</h3>
+      <span class="reference-card-arrow">→</span>
     </a>
   </div>
   {/* eslint-disable-next-line astro/no-set-html-directive */}
-  <div class="function-card-description" set:html={renderedDescription} />
-  <div class="function-card-example">
+  <div class="reference-card-description" set:html={renderedDescription} />
+  <div class="reference-card-example">
     <slot />
   </div>
 </div>
 
 <style>
-  .function-card {
+  .reference-card {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: var(--tnz-radius);
     padding: 1rem;
@@ -47,11 +47,11 @@ const renderedDescription = renderMarkdown(description);
     flex-direction: column;
   }
 
-  .function-card:hover {
+  .reference-card:hover {
     border-color: var(--sl-color-text-accent);
   }
 
-  .function-card-title-link {
+  .reference-card-title-link {
     text-decoration: none;
     color: inherit;
     display: flex;
@@ -59,35 +59,35 @@ const renderedDescription = renderMarkdown(description);
     justify-content: space-between;
   }
 
-  .function-card-title-link:hover {
+  .reference-card-title-link:hover {
     color: var(--tnz-color-purple-300);
     text-decoration: none;
   }
 
   /* Override global markdown link hover styles with higher specificity */
-  :global(.sl-markdown-content .function-card-title-link:hover) {
+  :global(.sl-markdown-content .reference-card-title-link:hover) {
     text-decoration: none !important;
   }
 
-  .function-card-header {
+  .reference-card-header {
     margin-bottom: 12px;
   }
 
-  .function-card-title {
+  .reference-card-title {
     margin: 0;
     font-size: var(--tnz-text-lg);
     font-weight: 600;
     color: var(--sl-color-white);
   }
 
-  .function-card-description {
+  .reference-card-description {
     margin: 0 0 1rem 0;
     color: var(--sl-color-gray-2);
     line-height: 1.5;
     flex-grow: 1;
   }
 
-  .function-card-description code {
+  .reference-card-description code {
     background: var(--sl-color-bg-sidebar);
     border: 1px solid var(--sl-color-gray-6);
     padding: 0.125rem 0.25rem;
@@ -96,20 +96,20 @@ const renderedDescription = renderMarkdown(description);
     font-size: 0.875em;
   }
 
-  .function-card-description a {
+  .reference-card-description a {
     color: var(--sl-color-text-accent);
     text-decoration: none;
   }
 
-  .function-card-description a:hover {
+  .reference-card-description a:hover {
     text-decoration: none;
   }
 
-  .function-card-example {
+  .reference-card-example {
     margin-top: 0.75rem;
   }
 
-  .function-card-example pre {
+  .reference-card-example pre {
     margin: 0;
     padding: 0.5rem;
     background: var(--tnz-color-gray-950);
@@ -120,13 +120,13 @@ const renderedDescription = renderMarkdown(description);
     font-family: var(--tnz-font-mono);
   }
 
-  .function-card-arrow {
+  .reference-card-arrow {
     color: var(--sl-color-text-accent);
     font-size: 1.25rem;
     opacity: 0;
   }
 
-  .function-card-title-link:hover .function-card-arrow {
+  .reference-card-title-link:hover .reference-card-arrow {
     opacity: 1;
   }
 </style>
