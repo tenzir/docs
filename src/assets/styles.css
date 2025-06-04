@@ -30,7 +30,9 @@ html {
   --ec-brdRad: var(--tnz-radius) !important;
 
   /* Text color for inverted contexts (buttons, etc) */
-  --sl-color-text-invert: var(--tnz-neutral-100); /* Text on accent-colored backgrounds */
+  --sl-color-text-invert: var(
+    --tnz-neutral-100
+  ); /* Text on accent-colored backgrounds */
 }
 
 /* Dark mode (default) colors and backgrounds */
@@ -38,19 +40,19 @@ html {
   --sl-color-accent-low: #0c214d; /* Specific dark accent, no direct Tenzir token */
   --sl-color-accent: var(--tnz-primary-500);
   --sl-color-accent-high: var(--tnz-primary-300);
-  --sl-color-white: var(--tnz-neutral-100);      /* Main text color */
-  --sl-color-gray-1: var(--tnz-neutral-200);     /* Lightest gray */
+  --sl-color-white: var(--tnz-neutral-100); /* Main text color */
+  --sl-color-gray-1: var(--tnz-neutral-200); /* Lightest gray */
   --sl-color-gray-2: var(--tnz-neutral-300);
   --sl-color-gray-3: var(--tnz-neutral-400);
   --sl-color-gray-4: var(--tnz-neutral-500);
   --sl-color-gray-5: var(--tnz-neutral-600);
-  --sl-color-gray-6: var(--tnz-neutral-700);     /* Darkest gray */
-  --sl-color-black: var(--tnz-neutral-800);       /* Main background color */
+  --sl-color-gray-6: var(--tnz-neutral-700); /* Darkest gray */
+  --sl-color-black: var(--tnz-neutral-800); /* Main background color */
 
-  --sl-color-bg: var(--tnz-neutral-800);          /* Main page background */
-  --sl-color-bg-sidebar: var(--tnz-neutral-800);  /* Sidebar background */
-  --sl-color-bg-nav: var(--tnz-neutral-800);      /* Navbar background */
-  --sl-color-bg-inset: var(--tnz-neutral-700);    /* Inset element backgrounds */
+  --sl-color-bg: var(--tnz-neutral-800); /* Main page background */
+  --sl-color-bg-sidebar: var(--tnz-neutral-800); /* Sidebar background */
+  --sl-color-bg-nav: var(--tnz-neutral-800); /* Navbar background */
+  --sl-color-bg-inset: var(--tnz-neutral-700); /* Inset element backgrounds */
 
   --tnz-nav-hover-bg: rgba(255, 255, 255, 0.08);
   --tnz-nav-active-bg: rgba(255, 255, 255, 0.15);
@@ -73,10 +75,10 @@ html {
   --sl-color-gray-7: var(--tnz-neutral-100);
   --sl-color-black: var(--tnz-neutral-50);
 
-  --sl-color-bg: var(--tnz-neutral-50);           /* Main page background */
-  --sl-color-bg-sidebar: var(--tnz-neutral-50);   /* Sidebar background */
-  --sl-color-bg-nav: var(--tnz-neutral-50);       /* Navbar background */
-  --sl-color-bg-inset: var(--tnz-neutral-100);    /* Inset element backgrounds */
+  --sl-color-bg: var(--tnz-neutral-50); /* Main page background */
+  --sl-color-bg-sidebar: var(--tnz-neutral-50); /* Sidebar background */
+  --sl-color-bg-nav: var(--tnz-neutral-50); /* Navbar background */
+  --sl-color-bg-inset: var(--tnz-neutral-100); /* Inset element backgrounds */
 
   --tnz-nav-hover-bg: rgba(0, 0, 0, 0.04);
   --tnz-nav-active-bg: rgba(0, 0, 0, 0.08);
@@ -229,8 +231,6 @@ html[data-theme="dark"] {
   border-color: var(--tnz-red-500);
 }
 
-
-
 /* ReferenceCard component styles (migrated from ReferenceCard.astro) */
 .function-card {
   border: 1px solid var(--sl-color-gray-5);
@@ -382,46 +382,38 @@ html[data-theme="dark"] {
   background-color: var(--sl-color-gray-6);
   border-color: var(--sl-color-text-accent);
   /* Custom light shadow for dark mode */
-  box-shadow: 0px 3px 6px -3px rgba(255, 255, 255, 0.08), 0px 8px 16px -8px rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0px 3px 6px -3px rgba(255, 255, 255, 0.08),
+    0px 8px 16px -8px rgba(255, 255, 255, 0.08);
 }
 
 :root[data-theme="dark"] .function-card:hover {
-  box-shadow: 0px 2px 8px 0px rgba(255, 255, 255, 0.07), 0px 1px 4px 0px rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0px 2px 8px 0px rgba(255, 255, 255, 0.07),
+    0px 1px 4px 0px rgba(255, 255, 255, 0.05);
 }
 
-.function-card-link {
+.function-card-title-link {
   text-decoration: none;
   color: inherit;
   display: flex;
-  flex-direction: column;
-  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  transition: color 0.2s ease;
 }
 
-.function-card-link:hover {
+.function-card-title-link:hover {
   text-decoration: none !important;
+  color: var(--tnz-color-purple-300);
 }
 
-.function-card-link:hover * {
+.function-card-title-link:hover * {
   text-decoration: none !important;
-}
-
-.function-card-title,
-.function-card-description,
-.function-card-arrow {
-  text-decoration: none !important;
-}
-
-.function-card-link:hover .function-card-title,
-.function-card-link:hover .function-card-description,
-.function-card-link:hover .function-card-arrow {
-  text-decoration: none !important;
+  color: inherit;
 }
 
 .function-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 12px;
 }
 
 .function-card-title {
@@ -430,6 +422,7 @@ html[data-theme="dark"] {
   font-weight: 600;
   color: var(--sl-color-white);
   font-family: var(--tnz-font-sans);
+  transition: color 0.2s ease;
 }
 
 .function-card-description {
@@ -475,23 +468,29 @@ html[data-theme="dark"] {
 }
 
 .function-card-example {
-  margin-top: auto;
-  pointer-events: none;
+  margin-top: 0.75rem;
+  position: relative;
 }
 
 .function-card-example pre {
   margin: 0;
   padding: 0.5rem;
-  background: var(--sl-color-bg-nav);
-  border: 1px solid var(--sl-color-gray-6);
+  background: var(--tnz-color-gray-950);
+  border: 1px solid var(--tnz-color-gray-800);
   border-radius: var(--tnz-radius-md);
   font-size: var(--tnz-text-xs);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   font-family: var(--tnz-font-mono);
   max-width: 100%;
   white-space: nowrap;
-  text-overflow: ellipsis;
   line-height: 1.4;
+  cursor: text;
+  -webkit-overflow-scrolling: touch;
+}
+
+.function-card-example pre:hover {
+  overflow-x: auto;
 }
 
 .function-card-example code {
@@ -502,8 +501,6 @@ html[data-theme="dark"] {
   font-size: var(--tnz-text-xs);
   line-height: 1.4;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   display: block;
 }
 
@@ -530,7 +527,7 @@ html[data-theme="dark"] {
   flex-shrink: 0;
 }
 
-.function-card-link:hover .function-card-arrow {
+.function-card-title-link:hover .function-card-arrow {
   opacity: 1;
 }
 
@@ -548,6 +545,7 @@ html[data-theme="dark"] {
   .function-card-example pre {
     padding: 0.375rem;
     font-size: calc(var(--tnz-text-xs) * 0.9);
+    overflow-x: auto;
   }
 
   .function-card-example code {
@@ -555,7 +553,7 @@ html[data-theme="dark"] {
   }
 }
 
- /* Markdown content cards */
+/* Markdown content cards */
 .sl-markdown-content .card {
   --sl-text-h1: var(--tnz-text-4xl);
   --sl-text-h2: var(--tnz-text-3xl);
@@ -829,28 +827,30 @@ html[data-theme="dark"] {
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary,
 :root[data-theme="light"] .sl-link-button.secondary {
   background-color: transparent !important;
-  border-color: #E3E6ED !important;
+  border-color: #e3e6ed !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:hover,
 :root[data-theme="light"] .sl-link-button.secondary:hover {
-  background-color: #F0F4FF !important;
-  border-color: #ADC6FF !important;
+  background-color: #f0f4ff !important;
+  border-color: #adc6ff !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:active,
 :root[data-theme="light"] .sl-link-button.secondary:active {
-  background-color: #E0EAFF !important;
-  border-color: #477EFF !important;
+  background-color: #e0eaff !important;
+  border-color: #477eff !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 /* Additional specificity for overriding base button color */
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary,
 :root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:hover,
-:root[data-theme="light"] .sl-markdown-content .sl-link-button.secondary:active {
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button.secondary:active {
   --sl-color-text-invert: var(--tnz-neutral-800) !important;
 }
 
@@ -862,12 +862,20 @@ html[data-theme="dark"] {
 }
 
 :root[data-theme="light"] .sl-link-button.minimal:hover {
-  background-color: color-mix(in srgb, var(--tnz-primary-100) 50%, transparent) !important; /* Subtle light primary tint */
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-100) 50%,
+    transparent
+  ) !important; /* Subtle light primary tint */
   color: var(--tnz-primary-600) !important;
 }
 
 :root[data-theme="light"] .sl-link-button.minimal:active {
-  background-color: color-mix(in srgb, var(--tnz-primary-200) 50%, transparent) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-200) 50%,
+    transparent
+  ) !important;
   color: var(--tnz-primary-600) !important;
 }
 
@@ -903,13 +911,23 @@ html[data-theme="dark"] {
 }
 
 :root[data-theme="dark"] .sl-link-button.secondary:hover {
-  background-color: color-mix(in srgb, var(--tnz-primary-500) 10%, transparent) !important; /* dim blue effect as button fill */
-  border-color: var(--tnz-primary-500) !important;    /* nice primary blue border */
-  color: var(--tnz-primary-500) !important;           /* text also primary blue */
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-500) 10%,
+    transparent
+  ) !important; /* dim blue effect as button fill */
+  border-color: var(
+    --tnz-primary-500
+  ) !important; /* nice primary blue border */
+  color: var(--tnz-primary-500) !important; /* text also primary blue */
 }
 
 :root[data-theme="dark"] .sl-link-button.secondary:active {
-  background-color: color-mix(in srgb, var(--tnz-primary-500) 25%, transparent) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-500) 25%,
+    transparent
+  ) !important;
   border-color: var(--tnz-primary-200) !important;
   color: var(--tnz-primary-100) !important;
 }
@@ -922,12 +940,20 @@ html[data-theme="dark"] {
 }
 
 :root[data-theme="dark"] .sl-link-button.minimal:hover {
-  background-color: color-mix(in srgb, var(--tnz-primary-500) 10%, transparent) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-500) 10%,
+    transparent
+  ) !important;
   color: var(--tnz-primary-200) !important;
 }
 
 :root[data-theme="dark"] .sl-link-button.minimal:active {
-  background-color: color-mix(in srgb, var(--tnz-primary-500) 20%, transparent) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-primary-500) 20%,
+    transparent
+  ) !important;
   color: var(--tnz-primary-100) !important;
 }
 
@@ -946,7 +972,9 @@ html[data-theme="dark"] {
 }
 
 :root[data-theme="dark"] .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-6); /* Dark mode: tnz-neutral-700, a step lighter than base */
+  background-color: var(
+    --sl-color-gray-6
+  ); /* Dark mode: tnz-neutral-700, a step lighter than base */
 }
 
 .sl-markdown-content .sl-link-card .title {
@@ -975,8 +1003,6 @@ html[data-theme="dark"] {
   background-color: var(--sl-color-bg);
   border-color: var(--sl-color-gray-5);
 }
-
-
 
 :root[data-theme="light"] .sl-markdown-content .sl-link-card .title {
   color: var(--sl-color-text);
@@ -1237,16 +1263,32 @@ header[data-scrolled] {
 /* Reference card code blocks */
 .function-card-example pre,
 .function-card-example pre[class*="language-"] {
-  overflow: hidden !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  margin: 0 !important;
+  padding: 0.5rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
 }
 
 .function-card-example pre::-webkit-scrollbar,
 .function-card-example pre[class*="language-"]::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  height: 6px !important;
+}
+
+.function-card-example pre::-webkit-scrollbar-track,
+.function-card-example pre[class*="language-"]::-webkit-scrollbar-track {
+  background: var(--tnz-color-gray-900) !important;
+  border-radius: 3px !important;
+}
+
+.function-card-example pre::-webkit-scrollbar-thumb,
+.function-card-example pre[class*="language-"]::-webkit-scrollbar-thumb {
+  background: var(--tnz-color-gray-700) !important;
+  border-radius: 3px !important;
+}
+
+.function-card-example pre::-webkit-scrollbar-thumb:hover,
+.function-card-example pre[class*="language-"]::-webkit-scrollbar-thumb:hover {
+  background: var(--tnz-color-gray-600) !important;
 }
 
 .function-card-example code,
@@ -1257,9 +1299,13 @@ header[data-scrolled] {
   display: block !important;
 }
 
-.function-card-example .expressive-code,
+.function-card-example .expressive-code {
+  overflow: visible !important;
+  max-width: 100% !important;
+}
+
 .function-card-example .ec-line {
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 /* Language selector hover styling */
@@ -1576,18 +1622,34 @@ mobile-starlight-toc a[aria-current="true"]::before {
 }
 
 .function-card-example .expressive-code pre {
-  overflow: hidden !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  background: var(--tnz-color-gray-950) !important;
+  border: 1px solid var(--tnz-color-gray-800) !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  cursor: text !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 
 /* Force override of Starlight button text colors at the end of CSS cascade */
 /* This ensures our custom color is applied after all component styles */
 
 .function-card-example .expressive-code pre::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  height: 6px !important;
+}
+
+.function-card-example .expressive-code pre::-webkit-scrollbar-track {
+  background: var(--tnz-color-gray-900) !important;
+  border-radius: 3px !important;
+}
+
+.function-card-example .expressive-code pre::-webkit-scrollbar-thumb {
+  background: var(--tnz-color-gray-700) !important;
+  border-radius: 3px !important;
+}
+
+.function-card-example .expressive-code pre::-webkit-scrollbar-thumb:hover {
+  background: var(--tnz-color-gray-600) !important;
 }
 
 /* TQL Code Block Fusion Styling */
@@ -1699,28 +1761,44 @@ mobile-starlight-toc a[aria-current="true"]::before {
 /* These rules will apply in dark mode. Ensure light mode has its own overrides if needed. */
 .sl-badge.note,
 .sidebar-content .sl-badge.note {
-  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 25%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-lightblue-600) 25%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border: 1px solid var(--tnz-lightblue-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.tip,
 .sidebar-content .sl-badge.tip {
-  background-color: color-mix(in srgb, var(--tnz-green-600) 25%, var(--sl-color-bg-sidebar)) !important; /* Changed to Green */
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-green-600) 25%,
+    var(--sl-color-bg-sidebar)
+  ) !important; /* Changed to Green */
   border: 1px solid var(--tnz-green-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.success,
 .sidebar-content .sl-badge.success {
-  background-color: color-mix(in srgb, var(--tnz-green-600) 25%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-green-600) 25%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border: 1px solid var(--tnz-green-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 .sl-badge.caution,
 .sidebar-content .sl-badge.caution {
-  background-color: color-mix(in srgb, var(--tnz-yellow-600) 25%, var(--sl-color-bg-sidebar)) !important; /* Changed to Yellow */
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-yellow-600) 25%,
+    var(--sl-color-bg-sidebar)
+  ) !important; /* Changed to Yellow */
   border: 1px solid var(--tnz-yellow-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
@@ -1742,44 +1820,71 @@ mobile-starlight-toc a[aria-current="true"]::before {
 /* Light Mode Badge Styles - Aligned with Asides */
 :root[data-theme="light"] .sl-badge.note,
 :root[data-theme="light"] .sidebar-content .sl-badge.note {
-  background-color: color-mix(in srgb, var(--tnz-lightblue-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-lightblue-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-lightblue-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-badge.tip, /* Tip is Green */
 :root[data-theme="light"] .sidebar-content .sl-badge.tip {
-  background-color: color-mix(in srgb, var(--tnz-green-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-green-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-green-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-badge.success,
 :root[data-theme="light"] .sidebar-content .sl-badge.success {
-  background-color: color-mix(in srgb, var(--tnz-green-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-green-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-green-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-badge.caution, /* Caution is Yellow */
 :root[data-theme="light"] .sidebar-content .sl-badge.caution {
-  background-color: color-mix(in srgb, var(--tnz-yellow-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-yellow-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-yellow-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-badge.danger,
 :root[data-theme="light"] .sidebar-content .sl-badge.danger {
-  background-color: color-mix(in srgb, var(--tnz-red-200) 50%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-red-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-red-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] .sl-badge.default,
-:root[data-theme="light"] .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
+:root[data-theme="light"]
+  .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
 :root[data-theme="light"] .sidebar-content .sl-badge.default,
-:root[data-theme="light"] .sidebar-content .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
-  background-color: color-mix(in srgb, var(--tnz-neutral-200) 50%, var(--sl-color-bg-sidebar)) !important;
+:root[data-theme="light"]
+  .sidebar-content
+  .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-neutral-200) 50%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-neutral-500) !important;
   color: var(--tnz-neutral-800) !important;
 }
@@ -1787,44 +1892,71 @@ mobile-starlight-toc a[aria-current="true"]::before {
 /* Dark Mode Badge Styles - Aligned with Asides */
 :root[data-theme="dark"] .sl-badge.note,
 :root[data-theme="dark"] .sidebar-content .sl-badge.note {
-  background-color: color-mix(in srgb, var(--tnz-lightblue-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-lightblue-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-lightblue-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 :root[data-theme="dark"] .sl-badge.tip, /* Tip is Purple */
 :root[data-theme="dark"] .sidebar-content .sl-badge.tip {
-  background-color: color-mix(in srgb, var(--tnz-purple-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-purple-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-purple-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 :root[data-theme="dark"] .sl-badge.success,
 :root[data-theme="dark"] .sidebar-content .sl-badge.success {
-  background-color: color-mix(in srgb, var(--tnz-green-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-green-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-green-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 :root[data-theme="dark"] .sl-badge.caution, /* Caution is Yellow */
 :root[data-theme="dark"] .sidebar-content .sl-badge.caution {
-  background-color: color-mix(in srgb, var(--tnz-yellow-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-yellow-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-yellow-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 :root[data-theme="dark"] .sl-badge.danger,
 :root[data-theme="dark"] .sidebar-content .sl-badge.danger {
-  background-color: color-mix(in srgb, var(--tnz-red-600) 15%, var(--sl-color-bg-sidebar)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-red-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-red-500) !important;
   color: var(--tnz-neutral-100) !important;
 }
 
 :root[data-theme="dark"] .sl-badge.default,
-:root[data-theme="dark"] .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
+:root[data-theme="dark"]
+  .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger),
 :root[data-theme="dark"] .sidebar-content .sl-badge.default,
-:root[data-theme="dark"] .sidebar-content .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
-  background-color: color-mix(in srgb, var(--tnz-neutral-600) 15%, var(--sl-color-bg-sidebar)) !important;
+:root[data-theme="dark"]
+  .sidebar-content
+  .sl-badge:not(.note):not(.tip):not(.success):not(.caution):not(.danger) {
+  background-color: color-mix(
+    in srgb,
+    var(--tnz-neutral-600) 15%,
+    var(--sl-color-bg-sidebar)
+  ) !important;
   border-color: var(--tnz-neutral-500) !important;
   color: var(--tnz-neutral-100) !important;
 }

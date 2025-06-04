@@ -23,14 +23,14 @@ const renderedDescription = renderMarkdown(description);
 ---
 
 <div class="function-card">
-  <a href={href} class="function-card-link">
-    <div class="function-card-header">
+  <div class="function-card-header">
+    <a href={href} class="function-card-title-link">
       <h3 class="function-card-title">{title}</h3>
       <span class="function-card-arrow">→</span>
-    </div>
-    {/* eslint-disable-next-line astro/no-set-html-directive */}
-    <div class="function-card-description" set:html={renderedDescription} />
-  </a>
+    </a>
+  </div>
+  {/* eslint-disable-next-line astro/no-set-html-directive */}
+  <div class="function-card-description" set:html={renderedDescription} />
   <div class="function-card-example">
     <slot />
   </div>
