@@ -75,6 +75,7 @@ export default defineConfig({
         SiteTitle: "./src/components/SiteTitle.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
         Footer: "./src/components/Footer.astro",
+        MobileMenuToggle: "./src/components/MobileMenuToggle.astro",
       },
       routeMiddleware: "./src/routeData.ts",
       plugins: [
