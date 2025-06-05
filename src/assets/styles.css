@@ -1102,15 +1102,6 @@ starlight-theme-select button:hover {
 }
 
 /* Mobile menu button hover */
-starlight-menu-button button {
-  border-radius: var(--tnz-radius-sm);
-  padding: 0.375rem 0.5rem;
-  font-size: var(--tnz-text-sm);
-}
-
-starlight-menu-button button:hover {
-  background-color: var(--tnz-nav-hover-bg);
-}
 
 /* Search modal and dialog styling - minimal approach */
 site-search dialog {
@@ -1766,4 +1757,55 @@ mobile-starlight-toc a[aria-current="true"]::before {
 /* Sidebar badge spacing adjustment */
 .starlight-sidebar-topics-badge {
   margin-inline-start: 0.5rem;
+}
+
+/* Mobile Menu Button Styling - Match Social Icons Design */
+starlight-menu-button button {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--sl-color-gray-1) !important;
+  transition: all var(--tnz-transition-base) !important;
+}
+
+starlight-menu-button button:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
+}
+
+starlight-menu-button[aria-expanded="true"] button {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
+  box-shadow: none !important;
+}
+
+/* Light mode overrides */
+:root[data-theme="light"] starlight-menu-button button {
+  background-color: transparent !important;
+  color: var(--sl-color-gray-1) !important;
+}
+
+:root[data-theme="light"] starlight-menu-button button:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
+}
+
+:root[data-theme="light"] starlight-menu-button[aria-expanded="true"] button {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
+}
+
+/* Dark mode overrides */
+:root[data-theme="dark"] starlight-menu-button button {
+  background-color: transparent !important;
+  color: var(--sl-color-gray-1) !important;
+}
+
+:root[data-theme="dark"] starlight-menu-button button:hover {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
+}
+
+:root[data-theme="dark"] starlight-menu-button[aria-expanded="true"] button {
+  background-color: var(--tnz-nav-hover-bg) !important;
+  color: var(--sl-color-gray-2) !important;
 }
