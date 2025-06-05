@@ -17,15 +17,15 @@ const customizeLinks: any[] = [];
 // For each intermediate segment, check if we need to customize it
 for (let i = 0; i < segments.length - 1; i++) {
   const pathToCheck = '/' + segments.slice(0, i + 1).join('/');
-  
+
   // Check if a page exists at this path
   let pageExists = true;
   try {
     // Use import.meta.glob to check if there's an index page at this path
     const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { query: '?raw', import: 'default' });
-    
+
     // Check if this path has a corresponding page
-    const hasIndex = Object.keys(allPages).some(key => 
+    const hasIndex = Object.keys(allPages).some(key =>
       key === `/src/content/docs${pathToCheck}/index.md` ||
       key === `/src/content/docs${pathToCheck}/index.mdx` ||
       key === `/src/content/docs${pathToCheck}/index.mdoc` ||
@@ -33,13 +33,13 @@ for (let i = 0; i < segments.length - 1; i++) {
       key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdx` ||
       key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdoc`
     );
-    
+
     pageExists = hasIndex;
   } catch (e) {
     // If we can't determine, assume it exists
     pageExists = true;
   }
-  
+
   if (!pageExists) {
     // This intermediate path doesn't exist, so make it non-clickable
     customizeLinks.push({
@@ -95,5 +95,104 @@ for (let i = 0; i < segments.length - 1; i++) {
 <style>
   .page-title-with-breadcrumbs {
     display: contents;
+  }
+
+  /* Breadcrumb Component Styles */
+  :global(.c-breadcrumbs) {
+    margin-bottom: 1.5rem;
+    font-size: var(--tnz-text-xs);
+    line-height: var(--sl-line-height-headings);
+  }
+
+  :global(.c-breadcrumbs__crumbs) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  :global(.c-breadcrumbs__crumb) {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  :global(.c-breadcrumbs__link) {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    transition: all var(--tnz-transition-base);
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.25rem;
+    border-radius: var(--tnz-radius-sm);
+  }
+
+  :global(.c-breadcrumbs__link:hover) {
+    color: var(--sl-color-gray-3);
+    background-color: var(--tnz-nav-hover-bg);
+  }
+
+  :global(.c-breadcrumbs__link.is-current) {
+    color: var(--sl-color-white);
+    font-weight: 600;
+    pointer-events: none;
+  }
+
+  :global(.c-breadcrumbs__link.is-index) {
+    padding: 0.25rem;
+  }
+
+  :global(.c-breadcrumbs__link.is-index svg) {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  :global(.c-breadcrumbs__separator) {
+    color: var(--sl-color-gray-4);
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    margin: 0 0.125rem;
+  }
+
+  :global(.c-breadcrumbs__separator svg) {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  @media (max-width: 50rem) {
+    :global(.c-breadcrumbs) {
+      font-size: var(--tnz-text-xxs);
+      margin-bottom: 1rem;
+    }
+
+    :global(.c-breadcrumbs__crumbs) {
+      gap: 0.125rem;
+    }
+
+    :global(.c-breadcrumbs__link) {
+      padding: 0.125rem;
+    }
+
+    :global(.c-breadcrumbs__link.is-index) {
+      padding: 0.125rem;
+    }
+
+    :global(.c-breadcrumbs__link.is-index svg) {
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+
+    :global(.c-breadcrumbs__separator) {
+      margin: 0;
+    }
+
+    :global(.c-breadcrumbs__separator svg) {
+      width: 0.625rem;
+      height: 0.625rem;
+    }
   }
 </style>
