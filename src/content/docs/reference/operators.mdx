@@ -195,26 +195,6 @@ operators:
     description: 'Updates a context with new data.'
     example: 'context::update "ctx", key=x, value=y'
     path: 'reference/operators/context/update'
-  - name: 'package::remove'
-    description: 'Uninstalls a package.'
-    example: 'package::remove "suricata-ocsf"'
-    path: 'reference/operators/package/remove'
-  - name: 'context::list'
-    description: 'Lists all contexts'
-    example: 'context::list'
-    path: 'reference/operators/context/list'
-  - name: 'packag::list'
-    description: 'Shows installed packages.'
-    example: 'package::list'
-    path: 'reference/operators/package/list'
-  - name: 'package::add'
-    description: 'Installs a package.'
-    example: 'package::add "suricata-ocsf"'
-    path: 'reference/operators/package/add'
-  - name: 'pipeline::list'
-    description: 'Shows managed pipelines.'
-    example: 'pipeline::list'
-    path: 'reference/operators/pipeline/list'
   - name: 'cron'
     description: 'Runs a pipeline periodically according to a cron expression.'
     example: 'cron "* */10 * * * MON-FRI" { from "https://example.org" }'
@@ -423,6 +403,22 @@ operators:
     description: 'Receives ZeroMQ messages.'
     example: 'load_zmq'
     path: 'reference/operators/load_zmq'
+  - name: 'package::add'
+    description: 'Installs a package.'
+    example: 'package::add "suricata-ocsf"'
+    path: 'reference/operators/package/add'
+  - name: 'package::list'
+    description: 'Shows installed packages.'
+    example: 'package::list'
+    path: 'reference/operators/package/list'
+  - name: 'package::remove'
+    description: 'Uninstalls a package.'
+    example: 'package::remove "suricata-ocsf"'
+    path: 'reference/operators/package/remove'
+  - name: 'pipeline::list'
+    description: 'Shows managed pipelines.'
+    example: 'pipeline::list'
+    path: 'reference/operators/pipeline/list'
   - name: 'pipeline::activity'
     description: 'Summarizes the activity of pipelines.'
     example: 'pipeline::activity range=1d, interval=1h'
@@ -953,14 +949,6 @@ context::update "ctx", key=x, value=y
 
 </ReferenceCard>
 
-<ReferenceCard title="package::remove" description="Uninstalls a package." href="/reference/operators/package/remove">
-
-```tql
-package::remove "suricata-ocsf"
-```
-
-</ReferenceCard>
-
 </CardGrid>
 
 ## Detection
@@ -1471,15 +1459,15 @@ unroll names
 
 <CardGrid>
 
-<ReferenceCard title="context::list" description="Lists all contexts" href="/reference/operators/context/list">
+<ReferenceCard title="package::add" description="Installs a package." href="/reference/operators/package/add">
 
 ```tql
-context::list
+package::add "suricata-ocsf"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="packag::list" description="Shows installed packages." href="/reference/operators/package/list">
+<ReferenceCard title="package::list" description="Shows installed packages." href="/reference/operators/package/list">
 
 ```tql
 package::list
@@ -1487,10 +1475,10 @@ package::list
 
 </ReferenceCard>
 
-<ReferenceCard title="package::add" description="Installs a package." href="/reference/operators/package/add">
+<ReferenceCard title="package::remove" description="Uninstalls a package." href="/reference/operators/package/remove">
 
 ```tql
-package::add "suricata-ocsf"
+package::remove "suricata-ocsf"
 ```
 
 </ReferenceCard>
