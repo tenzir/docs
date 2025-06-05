@@ -95,20 +95,20 @@ const getHref = (section: string) => {
 </div>
 
 <style>
-  .interactive-diagram-container {
+    .interactive-diagram-container {
     position: relative;
     display: inline-block;
     max-width: 100%;
     margin: 2rem auto;
-  }
+    }
 
-  .diagram-image {
+    .diagram-image {
     width: 100%;
     height: auto;
     display: block;
-  }
+    }
 
-  .overlay-container {
+    .overlay-container {
     position: absolute;
     top: 0;
     left: 0;
@@ -118,9 +118,9 @@ const getHref = (section: string) => {
     grid-template-columns: 3.52% 39.55% 13.93% 39.55% 3.45%;
     grid-template-rows: 2% 32% 24% 32% 10%;
     gap: 0;
-  }
+    }
 
-  .overlay-area {
+    .overlay-area {
     position: relative;
     text-decoration: none;
     color: inherit;
@@ -130,82 +130,82 @@ const getHref = (section: string) => {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+    }
 
-  .overlay-area:hover {
+    .overlay-area:hover {
     background-color: rgba(128, 128, 128, 0.1);
-  }
+    }
 
-  /* Dark mode: more prominent hover effect */
-  :global([data-theme="dark"]) .overlay-area:hover {
+    /* Dark mode: more prominent hover effect */
+    :root[data-theme="dark"] .overlay-area:hover {
     background-color: rgba(255, 255, 255, 0.08);
-  }
+    }
 
-  .overlay-area:focus {
+    .overlay-area:focus {
     outline: 2px solid var(--sl-color-text-accent);
     outline-offset: -2px;
-  }
+    }
 
-  .overlay-area.inactive {
+    .overlay-area.inactive {
     cursor: default;
     pointer-events: none;
-  }
+    }
 
-  .overlay-area.inactive:hover {
+    .overlay-area.inactive:hover {
     background-color: transparent;
     border-color: transparent;
-  }
+    }
 
-  .overlay-content {
+    .overlay-content {
     display: none;
-  }
-
-  /* Specific positioning adjustments */
-  .tutorials {
-    grid-column: 2;
-    grid-row: 2;
-  }
-
-  .guides {
-    grid-column: 4;
-    grid-row: 2;
-  }
-
-  .explanations {
-    grid-column: 2;
-    grid-row: 4;
-  }
-
-  .reference {
-    grid-column: 4;
-    grid-row: 4;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .interactive-diagram-container {
-      margin: 1.5rem auto;
     }
-  }
 
-  @media (max-width: 480px) {
-    .interactive-diagram-container {
-      margin: 1rem auto;
+    /* Specific positioning adjustments */
+    .tutorials {
+      grid-column: 2;
+      grid-row: 2;
     }
-  }
 
-  /* Accessibility improvements */
-  @media (prefers-reduced-motion: reduce) {
-    .overlay-area {
-      transition: none;
+    .guides {
+      grid-column: 4;
+      grid-row: 2;
     }
-  }
 
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .overlay-area:hover {
-      background-color: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.5);
+    .explanations {
+      grid-column: 2;
+      grid-row: 4;
     }
-  }
+
+    .reference {
+      grid-column: 4;
+      grid-row: 4;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 72rem) {
+      .interactive-diagram-container {
+        margin: 1.5rem auto;
+      }
+    }
+
+    @media (max-width: 50rm) {
+      .interactive-diagram-container {
+        margin: 1rem auto;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      .overlay-area {
+        transition: none;
+      }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .overlay-area:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+    }
 </style>
