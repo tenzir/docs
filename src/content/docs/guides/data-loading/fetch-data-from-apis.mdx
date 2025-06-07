@@ -2,10 +2,11 @@
 title: Fetch data from APIs
 ---
 
-This guide covers how to fetch data from HTTP APIs using the `http` operator.
-Whether you make simple GET requests, handle authentication, or implement
-pagination, the `http` operator provides flexible HTTP client capabilities for
-API integration.
+This guide covers how to fetch data from HTTP APIs using the
+[`from_http`](/reference/operators/from_http) and
+[`http`](/reference/operators/http) operators. Whether you make simple
+GET requests, handle authentication, or implement pagination, the operators
+provide flexible HTTP client capabilities for API integration.
 
 ## Basic API Requests
 
@@ -14,37 +15,45 @@ Start with these fundamental patterns for making HTTP requests to APIs.
 ### Simple GET Requests
 
 To fetch data from an API endpoint, pass the URL as the first parameter to the
-`http` operator:
+`from_http` operator:
 
 ```tql
-from {}
-http "https://api.example.com/data"
+from_http "https://api.example.com/data"
 ```
 
 The operator makes a GET request by default and forwards the response as an
-event. Since `http` is a transformation, you can also specify the URL as a field
-by referencing an event field that contains the URL:
+event. The `from_http` operator is an input operator, i.e., it starts a
+pipeline. The companion operator `http` is a transformation, allowing you to
+specify the URL as a field by referencing an event field that contains the URL:
 
 ```tql
 from {url: "https://api.example.com/data"}
 http url
 ```
 
-This pattern is useful when processing multiple URLs or when URLs are generated dynamically.
+This pattern is useful when processing multiple URLs or when URLs are generated
+dynamically. Most of our subsequent examples use `from_http`, as the operator
+options are very similar.
 
-### Parsing JSON Responses
+### Parsing the HTTP Rsponse Body
 
-Most APIs return JSON data. Parse JSON responses by providing a parsing
-pipeline with the `read_json` operator:
+The `from_http` and `http` operators attempt to find the right parser for the
+HTTP response body by inspecting the `Content-Type` header. For example, if the
+`Content-Type` is `application/json`, then Tenzir applies the
+[`read_json`](/reference/operators/read_json) operator.
+
+You can manually override the parser for the response body by specifying a
+parsing pipeline, i.e., a pipeline that transforms bytes to events. For example,
+if an API returns CSV data without a proper `Conten-Type`, you can specify the
+parsing pipeline as follows:
 
 ```tql
-from {url: "https://api.example.com/users"}
-http url {
-  read_json
+from_http "https://api.example.com/users" {
+  read_csv
 }
 ```
 
-This parses the JSON response into structured events that you can process
+This parses the response from CSV into structured events that you can process
 further.
 
 ### POST Requests with Data
@@ -53,18 +62,13 @@ Send data to APIs by specifying the `method` parameter as "post" and providing
 the request body in the `payload` parameter:
 
 ```tql
-from {
-  url: "https://api.example.com/users",
-  method: "post",
-  payload: '{"name": "John", "email": "john@example.com"}'
-}
-http url,
-  method=method,
-  payload=payload
+from_http "https://api.example.com/users",
+  method="post",
+  payload={"name": "John", "email": "john@example.com"}
 ```
 
-You can also parameterize the entire HTTP request using event fields by
-referencing field values for each parameter:
+Similarly, with the `http` operator you can also parameterize the entire HTTP
+request using event fields by referencing field values for each parameter:
 
 ```tql
 from {
@@ -78,7 +82,7 @@ from {
 http url, method=method, payload=data
 ```
 
-The operator automatically uses POST method when you specify a payload.
+The operators automatically uses POST method when you specify a payload.
 
 ## Request Configuration
 
@@ -91,14 +95,10 @@ Include custom headers by providing the `headers` parameter as a record
 containing key-value pairs:
 
 ```tql
-from {
-  url: "https://api.example.com/data",
-  headers: {
+from_http "https://api.example.com/data", headers={
     "Authorization": "Bearer your-token-here",
     "Content-Type": "application/json"
   }
-}
-http url, headers=headers
 ```
 
 Headers help you authenticate with APIs and specify request formats.
@@ -109,13 +109,10 @@ Enable TLS by setting the `tls` parameter to `true` and configure client
 certificates using the `certfile` and `keyfile` parameters:
 
 ```tql
-from {
-  url: "https://secure-api.example.com/data",
-  tls: true,
-  certfile: "/path/to/client.crt",
-  keyfile: "/path/to/client.key"
-}
-http url, tls=tls, certfile=certfile, keyfile=keyfile
+from_http "https://secure-api.example.com/data",
+  tls=true,
+  certfile="/path/to/client.crt",
+  keyfile="/path/to/client.key"
 ```
 
 Use these options when APIs require client certificate authentication.
@@ -126,16 +123,10 @@ Configure timeouts and retry behavior by setting the `connection_timeout`,
 `max_retry_count`, and `retry_delay` parameters:
 
 ```tql
-from {
-  url: "https://api.example.com/data",
-  timeout: 10s,
-  max_retries: 3,
-  retry_delay: 2s
-}
-http url,
-  connection_timeout=timeout,
-  max_retry_count=max_retries,
-  retry_delay=retry_delay
+from_http "https://api.example.com/data",
+  timeout=10s,
+  max_retries=3,
+  retry_delay=2s
 ```
 
 These settings help handle network issues and API rate limiting gracefully.
@@ -154,9 +145,9 @@ from {
   domain: "example.com",
   severity: "HIGH",
   api_url: "https://threat-intel.example.com/lookup",
-  response_field: "threat_data"
+  response_field: "threat_data",
 }
-http api_url + "?domain=" + domain, response_field=response_field
+http f"{api_url}?domain={domain}", response_field=response_field
 ```
 
 This approach preserves your original data and adds API responses in a specific
@@ -168,12 +159,9 @@ Capture HTTP response metadata by specifying the `metadata_field` parameter to
 store status codes and headers separately from the response body:
 
 ```tql
-from {
-  url: "https://api.example.com/status",
-  response_field: "data",
-  metadata_field: "http_meta"
-}
-http url, response_field=response_field, metadata_field=metadata_field
+from_http "https://api.example.com/status",
+  response_field=data,
+  metadata_field=http_meta
 ```
 
 The metadata includes status codes and response headers for debugging and
@@ -185,20 +173,15 @@ Handle APIs that return large datasets across multiple pages.
 
 ### Simple Pagination
 
-Implement automatic pagination by providing an expression to the `paginate`
+Implement automatic pagination by providing a lambda function to the `paginate`
 parameter that extracts the next page URL from the response:
 
 ```tql
-from {
-  url: "https://api.example.com/search?q=query"
-}
-http url,
-  paginate="next_page_url" if has_more {
-  read_json
-}
+from_http "https://api.example.com/search?q=query",
+  paginate=(response => "next_page_url" if response.has_more)
 ```
 
-The operator continues making requests as long as the pagination expression
+The operator continues making requests as long as the pagination lambda function
 returns a valid URL.
 
 ### Complex Pagination Logic
@@ -208,13 +191,8 @@ dynamically using expressions that reference response data:
 
 ```tql
 let $base_url = "https://api.example.com/items"
-from {
-  url: $base_url + "?page=1",
-  paginate_delay: 1s
-}
-http url,
-  paginate=$base_url + "?page=" + (page + 1) if page < total_pages,
-  paginate_delay=paginate_delay
+from_http f"{$base_url}?page=1",
+  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages,
 ```
 
 This example builds pagination URLs dynamically based on response data.
@@ -239,6 +217,15 @@ http url,
 
 Use `paginate_delay` and `parallel` to manage request rates appropriately.
 
+:::note[HTTP Pipelining]
+The `parallel` option effectively controls HTTP request pipelining. It exists
+only for the `http` operator, because unlike `from_http`, it can receive several
+events from its upstream operator, each of which fire off a new HTTP
+request. The corresponding responses may still be in transit before the next
+request arrives. With the `parallel` option, you specify the exact number of
+in-flight responses.
+:::
+
 ## Practical Examples
 
 These examples demonstrate typical use cases for API integration in real-world
@@ -249,31 +236,15 @@ scenarios.
 Monitor API health and response times:
 
 ```tql
-from {
-  url: "https://api.example.com/health",
-  metadata_field: "response_meta"
-}
-http url, metadata_field=metadata_field {
-  read_json
-}
-response_meta.response_time = now() - response_meta.timestamp
+from_http "https://api.example.com/health", metadata_field=metadata
+select date=metdata.headers["Date"].parse_time("%a, %d %b %Y %H:%M:%S %Z")
+latency = now() - date
 ```
 
-### Webhook Processing
-
-Process incoming webhook data and make follow-up API calls:
-
-```tql
-from {
-  webhook_id: "12345",
-  user_id: "user123",
-  api_base: "https://api.example.com/users/",
-  response_field: "user_details"
-}
-http api_base + user_id, response_field=response_field {
-  read_json
-}
-```
+The above example parses the `Date` header from the HTTP response via
+[`parse_time`](/reference/functions/parse_time) into a timestamp and then
+compares it to the current wallclock time using the
+[`now`](/reference/functions/now) function.
 
 ## Error Handling
 
@@ -286,16 +257,9 @@ specify the number of retry attempts and `retry_delay` to control the time
 between retries:
 
 ```tql
-from {
-  url: "https://unreliable-api.example.com/data",
-  max_retries: 5,
-  retry_delay: 2s
-}
-http url,
-  max_retry_count=max_retries,
-  retry_delay=retry_delay {
-  read_json
-}
+from_http "https://unreliable-api.example.com/data",
+  max_retries=5,
+  retry_delay=2s
 ```
 
 ### Status Code Handling
@@ -304,28 +268,23 @@ Check HTTP status codes by capturing metadata and filtering based on the
 `code` field to handle different response types:
 
 ```tql
-from {
-  url: "https://api.example.com/data",
-  metadata_field: "meta"
-}
-http url, metadata_field=metadata_field {
-  read_json
-}
-where meta.code >= 200 and meta.code < 300
+from_http "https://api.example.com/data", metadata_field=metadata
+where metadata.code >= 200 and metadata.code < 300
 ```
 
 ## Best Practices
 
 Follow these practices for reliable and efficient API integration:
 
-1. **Use appropriate timeouts** - Set reasonable connection timeouts for your
-   use case
-2. **Implement retry logic** - Configure retries for handling transient
-   failures
-3. **Respect rate limits** - Use `parallel` and `paginate_delay` to control
-   request rates
-4. **Handle errors gracefully** - Check status codes and implement fallback
-   logic
-5. **Secure credentials** - Store API keys and tokens securely, not in code
-6. **Monitor API usage** - Track response times and error rates for
-   performance
+1. **Use appropriate timeouts**. Set a reasonable `connection_timeout` for your
+   use case.
+2. **Implement retry logic**. Configure `max_retry_count` and `retry_delay` for
+   handling transient failures.
+3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control
+   request rates.
+4. **Handle errors gracefully**. Check status codes in metdata
+   (`metadata_field`) and implement fallback logic.
+5. **Secure credentials**. Access API keys and tokens via
+   [secrets](/explanations/secrets), not in code.
+6. **Monitor API usage**. Track response times and error rates for
+   performance.
