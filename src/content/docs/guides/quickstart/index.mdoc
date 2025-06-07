@@ -23,14 +23,14 @@ You need zero infrastructure to get started—just a browser and access to
 It helps if you have basic familiarity with logs or security telemetry, but it's
 not required.
 
-## Setup & Deploy a Demo Node
+## Setup & deploy a demo node
 
 Visit [app.tenzir.com](https://app.tenzir.com), sign in to [create a free
 account](/guides/account-creation), and you'll see this page:
 
 ![Landing page](../node-setup/provision-a-node/new-account.png)
 
-Let's get us a demo node so that we can run pipelines:
+Deploy node so that we can run pipelines:
 
 {% steps %}
 
@@ -41,64 +41,305 @@ Let's get us a demo node so that we can run pipelines:
 {% /steps %}
 
 Our node is starting up. This can take up to 2 minutes. Sorry for the wait!
-We'll cut down this time soon. Grab a coffee and relax while we get everything
-set up. ☕
+We'll cut down this time soon. Grab a coffee or browse our [explanation
+docs](/explanations) while we get everything set up. ☕
 
 ![Demo node starting](./demo-node-starting.png)
 
-## Your First Pipeline: Ingest, Filter, Import
+## Get started with pipelines from the library
 
-Now that our node is up and running, let's create a pipeline that:
+The easiest way to get started is by installing pipeline
+[packages](/explanations/packages) in the library. Packages bundle pre-written
+pipelines and contexts, optionally templated so that you can make adaptations
+that best fit your needs.
 
-1. Reads a sample log file
-2. Filters out unnecessary events
-3. Stores the data in the node's edge storage
+### Install the Demo Node package
 
-{% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
+We are going to install the **Demo Node** package with sample pipelines that
+fetch data from a public bucket and [store it into the node's edge
+storage](/guides/edge-storage/import-into-a-node). Once we have the data in the
+node, it will be faster to play with it.
+
+{% steps %}
+
+1. Click **Library** in the top navigation
+2. Enter **demo** in the search bar
+3. Select the **Demo Node** package
+4. Click on the **Install** tab
+5. Select your node in the node dropdown in the bottom right
+6. Click **Install**
+
+{% /steps %}
+
+The demo node package is now installed. The **Packages** tab in the Nodes page
+should show this:
+
+![Demo node package installed](./demo-node-packages.png)
+
+When we go back to the **Nodes** page, we see the pipelines churning away:
+
+![Nodes page after demo node package](./demo-node-nodes.png)
+
+There are two pipelines that import data into our demo node. If you click on
+them, a context pane opens you'll see details about their activity as well as
+the their definition in the **Tenzir Query Language (TQL)**. We'll learn more
+about TQL shortly, but for now think of it a as dataflow language similar to
+Splunk's SPL or Microsoft's KQL, just with a lot more power when it comes to
+transforming data.
+
+### Explore the demo data
+
+The first step in understanding new data sources is getting a sense of their
+structural complexlity, or simply put, how messy or clean the data is. Let's
+take a taste of the demo data. Click the **Explorer** tab and [run a
+pipeline](/guides/basic-usage/run-pipelines):
+
+```tql
+export
+taste
+```
+
+![Getting a taste](./export-taste.png)
+
+This pipelines does the following: [`export`](/reference/operators/export)
+references all data in the node's edge storage, and
+[`taste`](/reference/operators/taste) samples 10 events of every unique schema.
+You'll now see Explorer filling up with events.
+
+{% aside type="note" title="Auto-completion of pipelines" %}
+The above pipeline doesn't end with an output operator. Just an input (`export`)
+and a transformation (`taste`). But for a
+[pipeline](/explanations/architecture/pipeline) to be well-formed, it must have
+at least one input and one output. Otherwise data would leak somewhere! So
+what's happening? 🤔
+
+If you don't write an output operator in the Explorer, the platform
+auto-completes the [`serve`](/reference/operators/serve) operator, turning your
+pipeline into a tiny REST API, so that platform can extract events from it and
+show them to you in the browser.
 {% /aside %}
 
-## End-to-End Use Case: Collect, Normalize, Enrich, Optimize, Route
+Also note the **Schemas** pane. It gives you an overview of how heterogeneous
+the data is. Click on a schema to zoom into all events having the same shape.
+Later, you'll learn to normalize the data to make it more homogeneous by
+reducing the number of unique schemas.
 
-### Step 1: Ingest Sample Logs
+Now click on a row in the results table. The Inspector pops up for a vertical
+view of the event, which can be helpful for seeing the full structure of an
+event, especially for wide schemas with many fields.
 
-{% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
+One more detail: you can **uncollapse nested records** in the results table by
+clicking on the column name. This switches from the record-style display to more
+of a data-frame-style view, allowing you to see more data at once.
+
+## Reshape data at ease
+
+Now that we have a rough understanding of our cockpit, let's wrangle that data.
+This is what we've designed TQL for, so it should be fun—at least more fun
+compared to other tools.
+
+Let's focus on Zeek events:
+
+```tql
+export
+where @name.starts_with("zeek")
+```
+
+Here we filter on event metadata, starting with `@`. The special `@name` field
+is a string that contains the name of the event. Actually, let's hone in on the
+connection logs only, once for Zeek and once for Suricata:
+
+{% tabs %}
+{% tabitem label="Zeek" %}
+
+```tql
+export
+where @name == "zeek.conn"
+set src_endpoint = {
+  ip: id.orig_h,
+  port: id.orig_p,
+}
+set dst_endpoint = {
+  ip: id.resp_h,
+  port: id.resp_p,
+}
+select src_endpoint, dst_endpoint, protocol=proto
+set @name = "flow"
+```
+
+```tql
+{
+  src_endpoint: {
+    ip: 89.248.165.145,
+    port: 43831
+  },
+  dst_endpoint: {
+    ip: 198.71.247.91,
+    port: 52806
+  },
+  protocol: "tcp"
+}
+```
+
+{% /tabitem %}
+
+{% tabitem label="Suricata" %}
+
+```tql
+export
+where @name == "suricata.flow"
+set src_endpoint = {
+  ip: src_ip,
+  port: src_port,
+}
+set dst_endpoint = {
+  ip: dest_ip,
+  port: dest_port,
+}
+select src_endpoint, dst_endpoint, protocol=proto.to_lower()
+set @name = "flow"
+```
+
+```tql
+{
+  src_endpoint: {
+    ip: 10.0.0.167,
+    port: 51666
+  },
+  dst_endpoint: {
+    ip: 97.74.135.10,
+    port: 993
+  },
+  protocol: "tcp"
+}
+```
+
+{% /tabitem %}
+{% /tabs %}
+
+![Reshaping Zeek conn logs](./reshape-to-flow.png)
+
+A few notes:
+
+- The [`set`](/reference/operators/set) operator performs an assignment and
+  creates new fields.
+- Because `set` is *the* most frequently used operator, it is "implied" and you
+  just write `x = y` instead of `set x = y`. We generally recommend doing so and
+  write it out only out for didactic reasons.
+- You can use `set` to assign schema names, e.g., `@name = "new-schema-name"`.
+- [`select`](/reference/operators/select) selects the fields to keep, but also
+  supports an assignment to rename the new field in one shot.
+- As you can see in the `select` expression (Suricata tab) above, TQL
+  expressions have [functions](/reference/functions) like
+  [`to_lower`](/reference/functions/to_lower), which makes working with values a
+  breeze.
+
+Now what do we do with this normalized data from these two data sources? It just
+has a new shape, so what? Read on, we'll show you next.
+
+## Composing pipelines via publish/subscribe
+
+The above example starts with a specific input operator (`export`) and no output
+operator (we used the Explorer). This is good for explorative data analysis, but
+in practice we'd want these sorts of transformations to run continuously. We
+want a streaming pipeline that accepts data, potentially from multiple sources,
+and exposes its results in a way so that we can route it to multiple
+destinations.
+
+Nodes have a publish/subscribe feature to accomplish this, allowing you to
+efficiently connect pipelines using static topics (and very soon dynamic
+routes). The [`publish`](/reference/operators/publish) output operator and
+[`subscribe`](/reference/operators/subscribe) input operator are all you need
+for this. The typical pipeline pattern for composable pipelines looks like this:
+
+```tql
+subscribe "in"
+// transformations go here
+publish "out"
+```
+
+Let's adapt our transformation pipelines from above:
+
+{% tabs %}
+{% tabitem label="Zeek" %}
+```tql
+subscribe "zeek"
+where @name == "zeek.conn"
+set src_endpoint = {
+  ip: id.orig_h,
+  port: id.orig_p,
+}
+set dst_endpoint = {
+  ip: id.resp_h,
+  port: id.resp_p,
+}
+select src_endpoint, dst_endpoint, protocol=proto
+publish "flow"
+```
+{% /tabitem %}
+{% tabitem label="Suricata" %}
+```tql
+subscribe "suricata"
+where @name == "suricata.flow"
+set src_endpoint = {
+  ip: src_ip,
+  port: src_port,
+}
+set dst_endpoint = {
+  ip: dest_ip,
+  port: dest_port,
+}
+select src_endpoint, dst_endpoint, protocol=proto.to_lower()
+publish "flow"
+```
+{% /tabitem %}
+{% /tabs %}
+
+When clicking the **Run** button for these pipeline, the events will *not* show
+up in the Explorer because we provided an output operator. Instead, you'll see this deployment modal:
+
+![Deployment modal](./deploy-pipeline.png)
+
+After you gave the pipeline a name (or left it blank for a dummy name), click
+**Confirm** to deploy the pipeline. You'll see it popping up on the Nodes page:
+
+![New pipeline](./new-pipeline.png)
+
+Now that you've deployed one pipeline, with two topics as their "interface," you
+can direct data to it from other pipelines. For example, you can create a
+pipeline that accepts logs via [Syslog](/integrations/syslog) and forwards them
+to the transformation pipeline.
+
+{% aside type="tip" title="Data fabric as network of pipelines" %}
+Extrapolate from here: Your data fabric becomes a network of pipelines,
+distributed over multiple nodes. With [packages](/explanations/packages) for
+1-click deplayability and—of course—AI, this powerful model is here already
+today.
 {% /aside %}
 
-### Step 2: Normalize Logs to OCSF
+## Reducing log volume to save costs
 
 {% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
+🚧 This section is still being finalized.
 {% /aside %}
 
-### Step 3: Enrich Events with Threat Intelligence
+## Enrich events with threat intelligence
 
 {% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
-{% /aside %}
-
-### Step 4: Cut Out Noise, Forward Detection Findings
-
-{% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
-{% /aside %}
-
-### Step 5: Quantify Your Volume Reduction
-
-{% aside type="caution" title="Work in Progress" %}
-This section is still being finalized.
+🚧 This section is still being finalized.
 {% /aside %}
 
 ## What's Next?
 
 You've just scratched the surface. Here's where to go next:
 
-1. Deploy your own node
-2. Visualize pipeline insights and build dashboards
-3. Map your logs to OCSF
-4. Send enriched data to your data lake
+1. Explore the **Library** for pre-built pipelines.
+2. [Visualize pipeline insights and build dashboards](/tutorials/plot-data-with-charts)
+3. [Map your logs to OCSF](/tutorials/map-data-to-ocsf)
+4. Send enriched data to your data lake, such as [Amazon Security
+   Lake](/integrations/amazon/security-lake)
 
-Need help? Join us on the [Tenzir Discord](/discord). Curious how it all fits
-together? Head over to the [architecture
-overview](/explanations/architecture).
+Curious how it all fits together? Brush up on the [Tenzir
+architecture](/explanations/architecture) and learn more about all moving parts.
+We're here to help. Join us at our friendly [Tenzir Discord](/discord) if you
+have any questions.
