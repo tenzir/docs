@@ -10,10 +10,7 @@ export const guides = [
     items: [
       "guides/node-setup/provision-a-node",
       "guides/node-setup/size-a-node",
-      {
-        label: "Deploy a node",
-        autogenerate: { directory: "guides/node-setup/deploy-a-node" },
-      },
+      "guides/node-setup/deploy-a-node",
       "guides/node-setup/configure-a-node",
       "guides/node-setup/start-the-node-api",
       "guides/node-setup/tune-performance",

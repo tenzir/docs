@@ -1,0 +1,316 @@
+---
+title: Deploy a Node
+---
+
+## Linux
+
+We offer a native deployment on various Linux distributions. Follow the
+instructions below to deploy a node on Linux.
+
+### Install a node
+
+Second, choose the Linux tab and proceed as follows:
+
+import { Steps } from "@astrojs/starlight/components";
+
+<Steps>
+
+1. Download the config for your node.
+1. Create a directory for the platform configuration.
+   ```bash
+   mkdir -p /opt/tenzir/etc/tenzir/plugin
+   ```
+1. Move the downloaded `platform.yaml` configuration file to the directory so
+   that the node can find it during startup:
+   ```bash
+   mv platform.yaml /opt/tenzir/etc/tenzir/plugin
+   ```
+1. Run the installer and follow the instructions to download and start the node:
+   ```bash
+   curl https://get.tenzir.app | sh
+   ```
+
+</Steps>
+
+The installer script asks for confirmation before performing the installation.
+If you prefer a manual installation you can also perform the installer steps
+yourself. See the [configuration files
+documentation](/explanations/configuration) for
+details on how the node loads config files at startup.
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+<Tabs>
+<TabItem value="debian" label="Debian">
+
+Download the latest [Debian package][tenzir-debian-package] and install it via
+`dpkg`:
+
+```bash
+dpkg -i tenzir-static-amd64-linux.deb
+```
+
+You can uninstall the Tenzir package via `apt-get remove tenzir`. Use `purge`
+instead of `remove` if you also want to delete the state directory and leave no
+trace.
+
+[tenzir-debian-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.deb
+
+</TabItem>
+<TabItem value="rpm_based" label="RPM-based (RedHat, OpenSUSE, Fedora)">
+
+Download the latest [RPM package][tenzir-rpm-package] and install it via
+`rpm`:
+
+```bash
+rpm -i tenzir-static-amd64-linux.rpm
+```
+
+[tenzir-rpm-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.rpm
+
+</TabItem>
+<TabItem value="nix" label="Nix" icon="nix">
+
+Use our `flake.nix`:
+
+```bash
+nix run github:tenzir/tenzir/stable
+```
+
+Install Tenzir by adding `github:tenzir/tenzir/stable` to your flake inputs, or
+use your preferred method to include third-party modules on classic NixOS.
+
+</TabItem>
+<TabItem value="any" label="Any" icon="linux">
+
+Download a tarball with our [static binary][tenzir-tarball] for all Linux
+distributions and unpack it into `/opt/tenzir`:
+
+```bash
+tar xzf tenzir-static-x86_64-linux.tar.gz -C /
+```
+
+[tenzir-tarball]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-x86_64-linux.tar.gz
+
+We also offer prebuilt statically linked binaries for every Git commit to the
+`main` branch.
+
+```bash
+curl -O https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
+```
+
+</TabItem>
+</Tabs>
+
+### Start a node manually
+
+The installer script uses the package manager of your Linux distribution to
+install the Tenzir package. This typically also creates a systemd unit and
+starts the node automatically.
+
+For testing, development, our troubleshooting, run the `tenzir-node` executable
+to start a node manually:
+
+```bash
+tenzir-node
+```
+
+```
+      _____ _____ _   _ ________ ____
+     |_   _| ____| \ | |__  /_ _|  _ \
+       | | |  _| |  \| | / / | || |_) |
+       | | | |___| |\  |/ /_ | ||  _ <
+       |_| |_____|_| \_/____|___|_| \_\
+
+          v4.0.0-rc6-0-gf193b51f1f
+Visit https://app.tenzir.com to get started.
+
+[16:50:26.741] node listens for node-to-node connections on tcp://127.0.0.1:5158
+[16:50:26.982] node connected to platform via wss://ws.tenzir.app:443/production
+```
+
+### Stop a node
+
+There exist two ways stop a server:
+
+<Steps>
+
+1. Hit CTRL+C in the same TTY where you ran `tenzir-node`.
+2. Send the process a SIGINT or SIGTERM signal, e.g., via
+   `pkill -2 tenzir-node`.
+
+</Steps>
+
+Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
+
+## Docker
+
+### Install and run a node
+
+We provide Docker images and a Docker Compose file for a container setup.
+
+After [provisioning a node](/guides/node-setup/provision-a-node), proceed as follows:
+
+<Steps>
+
+1. Select the Docker tab and click the download button to obtain the
+   `docker-compose.NODE.yaml` configuration file, where `NODE` is the name you
+   entered for your node.
+1. Run
+   ```bash
+   docker compose -f docker-compose.NODE.yaml up --detach
+   ```
+
+</Steps>
+
+Edit the Docker Compose file and change [environment
+variables](/explanations/configuration) to
+adjust your configuration.
+
+### Stop a node
+
+Stop a node via the `down` command:
+
+```bash
+docker compose -f docker-compose.NODE.yaml down
+```
+
+Stop a node and delete its persistent state by adding `--volumes`:
+
+```bash
+docker compose -f docker-compose.NODE.yaml down --volumes
+```
+
+### Update a node
+
+Run the following commands to update a Docker Compose deployment with a
+configuration file `docker-compose.NODE.yaml`:
+
+```bash
+docker compose -f docker-compose.NODE.yaml pull
+docker compose -f docker-compose.NODE.yaml down
+docker compose -f docker-compose.NODE.yaml up --detach
+```
+
+Note that we `pull` first so that the subsequent downtime between `down` and
+`up` is minimal.
+
+## Azure
+
+To run a node in Azure, we recommend using [Azure Container Instances
+(ACI)](https://azure.microsoft.com/en-us/products/container-instances), which
+allows you to run Docker containers without having to setup VMs.
+
+### Azure Container Instances (ACI)
+
+Prior to getting started, you need a valid `TENZIR_TOKEN` that you can obtain
+after [provisioning a node](/guides/node-setup/provision-a-node) and downloading the Docker
+Compose configuraiton file.
+
+#### Create a new container instance
+
+<Steps>
+
+1. Open https://portal.azure.com/.
+1. Navigate to the _Container instances_.
+1. Click the _Create_ button.
+
+</Steps>
+
+#### Basics
+
+In the _Basics_ tab, perform the following action:
+
+<Steps>
+
+1. Choose a container name.
+1. For _Image source_, select _Other registry_.
+1. For _Image_, enter `tenzir/tenzir-node`.
+
+</Steps>
+
+![Basics](azure/basics.png)
+
+#### Networking
+
+In the _Networking_ tab, configure the ports you plan to use for pipeliens that
+receive incoming connections.
+
+![Networking](azure/networking.png)
+
+#### Advanced
+
+In the _Advanced_ tab, enter the `TENZIR_TOKEN` environment variable from your
+Docker Compose file.
+
+![Advanced](azure/advanced.png)
+
+#### Create
+
+Once you've completed the configuration, click the _Create_ button. Your node is
+now up and running.
+
+## macOS
+
+Looking for a native macOS package? We're not quite there yet—but you can still
+run Tenzir smoothly on macOS using [Docker](/guides/node-setup/deploy-a-node#docker).
+
+Want to see a native macOS build? Let us know! Drop your vote in our
+[Discord community](/discord)—we prioritize what our users need most.
+
+Tenzir _does_ run well on macOS under the hood. Docker just bridges the gap for
+now.
+
+## Ansible
+
+The Ansible role for Tenzir allows for easy integration of Tenzir into
+existing Ansible setups. The role uses either the Tenzir Debian package or
+the tarball installation method depending on which is appropriate for the
+target environment. The role definition is in the
+[`ansible/roles/tenzir`][tenzir-repo-ansible] directory of the Tenzir
+repository. You need a local copy of this directory so you can use it in your
+playbook.
+
+[tenzir-repo-ansible]: https://github.com/tenzir/tenzir/tree/main/ansible/roles/tenzir
+
+### Example
+
+This example playbook shows how to run a Tenzir service on the machine
+`example_tenzir_server`:
+
+```yaml
+- name: Deploy Tenzir
+  become: true
+  hosts: example_tenzir_server
+  remote_user: example_ansible_user
+  roles:
+    - role: tenzir
+      vars:
+        tenzir_config_dir: ./tenzir
+        tenzir_read_write_paths: [/tmp]
+        tenzir_archive: ./tenzir.tar.gz
+        tenzir_debian_package: ./tenzir.deb
+```
+
+### Variables
+
+#### `tenzir_config_dir` (required)
+
+A path to directory containing a [`tenzir.yaml`](/reference/configuration)
+relative to the playbook.
+
+#### `tenzir_read_write_paths`
+
+A list of paths that Tenzir shall be granted access to in addition to its own
+state and log directories.
+
+#### `tenzir_archive`
+
+A tarball of Tenzir structured like those that can be downloaded from the
+[GitHub Releases Page](https://github.com/tenzir/tenzir/releases). This is used
+for target distributions that are not based on the `apt` package manager.
+
+#### `tenzir_debian_package`
+
+A Debian package (`.deb`). This package is used for Debian and Debian-based
+Linux distributions.
