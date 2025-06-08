@@ -8,6 +8,7 @@ export const guides = [
     label: "Node Setup",
     collapsed: true,
     items: [
+      "guides/node-setup",
       "guides/node-setup/provision-a-node",
       "guides/node-setup/size-a-node",
       "guides/node-setup/deploy-a-node",
