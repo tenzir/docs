@@ -2,10 +2,64 @@
 title: Deploy a Node
 ---
 
+Deploying a node means spinning it up in one of the supported runtimes. The
+primary choice is between a containerized with Docker or a native deployment
+with our static binary that runs on amd64 and arm64 architectures.
+
+## Docker
+
+We recommend using Docker to deploy a Tenzir node, as it's the easiest way to
+get started.
+
+After [provisioning a node](/guides/node-setup/provision-a-node), proceed as
+follows:
+
+<Steps>
+
+1. Select the Docker tab and click the download button to obtain the
+   `docker-compose.NODE.yaml` configuration file, where `NODE` is the name you
+   entered for your node.
+1. Run
+   ```bash
+   docker compose -f docker-compose.NODE.yaml up --detach
+   ```
+
+</Steps>
+
+Edit the Docker Compose file and change [environment
+variables](/explanations/configuration) to adjust your configuration.
+
+### Stop a node
+
+Stop a node via the `down` command:
+
+```bash
+docker compose -f docker-compose.NODE.yaml down
+```
+
+Stop a node and delete its persistent state by adding `--volumes`:
+
+```bash
+docker compose -f docker-compose.NODE.yaml down --volumes
+```
+
+### Update a node
+
+Run the following commands to update a Docker Compose deployment with a
+configuration file `docker-compose.NODE.yaml`:
+
+```bash
+docker compose -f docker-compose.NODE.yaml pull
+docker compose -f docker-compose.NODE.yaml down
+docker compose -f docker-compose.NODE.yaml up --detach
+```
+
+Note that we `pull` first so that the subsequent downtime between `down` and
+`up` is minimal.
+
 ## Linux
 
-We offer a native deployment on various Linux distributions. Follow the
-instructions below to deploy a node on Linux.
+We offer a static binary package on various Linux distributions.
 
 ### Install a node
 
@@ -15,7 +69,7 @@ import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
-1. Download the config for your node.
+1. [Provision the node](/guides/node-setup/provision-a-node) and download its config.
 1. Create a directory for the platform configuration.
    ```bash
    mkdir -p /opt/tenzir/etc/tenzir/plugin
@@ -35,8 +89,8 @@ import { Steps } from "@astrojs/starlight/components";
 The installer script asks for confirmation before performing the installation.
 If you prefer a manual installation you can also perform the installer steps
 yourself. See the [configuration files
-documentation](/explanations/configuration) for
-details on how the node loads config files at startup.
+documentation](/explanations/configuration) for details on how the node loads
+config files at startup.
 
 import { Tabs, TabItem } from "@astrojs/starlight/components";
 
@@ -105,8 +159,8 @@ curl -O https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/
 ### Start a node manually
 
 The installer script uses the package manager of your Linux distribution to
-install the Tenzir package. This typically also creates a systemd unit and
-starts the node automatically.
+install the Tenzir package. This typically also creates a
+[systemd](https://systemd.io) unit and starts the node automatically.
 
 For testing, development, our troubleshooting, run the `tenzir-node` executable
 to start a node manually:
@@ -142,58 +196,6 @@ There exist two ways stop a server:
 </Steps>
 
 Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
-
-## Docker
-
-### Install and run a node
-
-We provide Docker images and a Docker Compose file for a container setup.
-
-After [provisioning a node](/guides/node-setup/provision-a-node), proceed as follows:
-
-<Steps>
-
-1. Select the Docker tab and click the download button to obtain the
-   `docker-compose.NODE.yaml` configuration file, where `NODE` is the name you
-   entered for your node.
-1. Run
-   ```bash
-   docker compose -f docker-compose.NODE.yaml up --detach
-   ```
-
-</Steps>
-
-Edit the Docker Compose file and change [environment
-variables](/explanations/configuration) to
-adjust your configuration.
-
-### Stop a node
-
-Stop a node via the `down` command:
-
-```bash
-docker compose -f docker-compose.NODE.yaml down
-```
-
-Stop a node and delete its persistent state by adding `--volumes`:
-
-```bash
-docker compose -f docker-compose.NODE.yaml down --volumes
-```
-
-### Update a node
-
-Run the following commands to update a Docker Compose deployment with a
-configuration file `docker-compose.NODE.yaml`:
-
-```bash
-docker compose -f docker-compose.NODE.yaml pull
-docker compose -f docker-compose.NODE.yaml down
-docker compose -f docker-compose.NODE.yaml up --detach
-```
-
-Note that we `pull` first so that the subsequent downtime between `down` and
-`up` is minimal.
 
 ## Azure
 
