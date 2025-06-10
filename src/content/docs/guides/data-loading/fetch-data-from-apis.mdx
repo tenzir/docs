@@ -237,7 +237,7 @@ Monitor API health and response times:
 
 ```tql
 from_http "https://api.example.com/health", metadata_field=metadata
-select date=metdata.headers["Date"].parse_time("%a, %d %b %Y %H:%M:%S %Z")
+select date=metadata.headers["Date"].parse_time("%a, %d %b %Y %H:%M:%S %Z")
 latency = now() - date
 ```
 
