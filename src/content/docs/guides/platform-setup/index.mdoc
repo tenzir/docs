@@ -22,7 +22,7 @@ diagram below:
 There are three types of services:
 
 1. **Internal**: The (gray) Tenzir services are internal to the workings of
-   platform. You do not need to configure them.
+   platform. They are provided by Tenzir.
 2. **External**: The (blue) services are external. We do not ship with them and
    you have to bring them to the table.
 3. **Configurable**: The (yellow) services can be both internal and external.
@@ -34,15 +34,17 @@ Setting up the platform involves the following steps:
 
 {% steps %}
 
-1. [**Choose a scenario**](/guides/platform-setup/choose-a-scenario): You can deploy the platform in
-  various ways. We provide a few scenarios that match common use cases.
+1. [**Choose a scenario**](/guides/platform-setup/choose-a-scenario): You can
+   deploy the platform in various ways. We provide a few scenarios that match
+   common use cases.
 2. **Configure the services**: You must configure at least the
-   [reverse proxy](/guides/platform-setup/configure-reverse-proxy). Optionally, configure the
-   [identity provider](/guides/platform-setup/configure-identity-provider), the
+   [external endpoints](/guides/platform-setup/configure-reverse-proxy). Optionally,
+   configure the [identity provider](/guides/platform-setup/configure-identity-provider), the
    [database](/guides/platform-setup/configure-database), and the
    [blob storage](/guides/platform-setup/configure-blob-storage).
-3. [**Adjust TLS settings**](/guides/platform-setup/adjust-tls-settings): Optionally, tweak the TLS
-   settings to match your needs.
+3. [**Configure the platform**](/guides/platform-setup/configure-platform): Configure
+   instance-wide settings of the platform, such as admin rules, demo node settings,
+   and the config file location for static workspaces.
 4. [**Run the platform**](/guides/platform-setup/run-the-platform): Once you've created a
    configuration, start the platform. This can be as easy as `docker compose
    up`.

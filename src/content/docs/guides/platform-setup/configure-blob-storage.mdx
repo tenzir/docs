@@ -2,9 +2,9 @@
 title: Configure blob storage
 ---
 
-**Blob storage** is a platform service for exchanging files between the platform
-and nodes. It facilitates not only downloading data from nodes, but also
-uploading files from your browser to the platform.
+The **blob storage** is a platform service for exchanging files between the
+platform and nodes. It facilitates not only downloading data from nodes, but
+also uploading files from your browser to the platform.
 
 For example, when you click the _Download_ button in the Explorer, you get
 prompted with various formats in which to download the data, such as JSON, CSV,
@@ -16,9 +16,16 @@ nodes.
 The following variables contol the blob storage service:
 
 ```sh
-TENANT_MANAGER_SIDEPATH_BUCKET_NAME=${TENZIR_PLATFORM_INTERNAL_BUCKET_NAME}
-BLOB_STORAGE__ENDPOINT_URL=http://seaweed:8333
-BLOB_STORAGE__PUBLIC_ENDPOINT_URL=${TENZIR_PLATFORM_DOWNLOADS_ENDPOINT}
-BLOB_STORAGE__ACCESS_KEY_ID=${TENZIR_PLATFORM_INTERNAL_ACCESS_KEY_ID}
-BLOB_STORAGE__SECRET_ACCESS_KEY=${TENZIR_PLATFORM_INTERNAL_SECRET_ACCESS_KEY}
+TENZIR_PLATFORM_DOWNLOADS_ENDPOINT=
+TENZIR_PLATFORM_INTERNAL_BUCKET_NAME=
+TENZIR_PLATFORM_INTERNAL_ACCESS_KEY_ID=
+TENZIR_PLATFORM_INTERNAL_SECRET_ACCESS_KEY=
 ```
+
+When using S3 or another external blob storage, the bucket must exist and
+the access key must be valid and must have read and write permissions on the
+bucket.
+
+When using the bundled seaweed instance, these values can be set to arbitrary
+strings. The bundled seaweed container will be automatically generated to
+contain a bucket with the configured name and access key.
