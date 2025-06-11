@@ -44,38 +44,21 @@ Spinning up a demo node can take up to 2 minutes. Sorry for the wait, we'll cut
 down this time soon! Grab a coffee or learn more about the [key Tenzir
 concepts](/explanations/architecture) while we get everything set up. ☕
 
-![Demo node starting](./demo-node-starting.png)
+## Get started with demo data
 
-## Get started with pipelines from the library
+Our demo nodes have the Demo Node [package](/explanations/packages)
+pre-installed, giving you sample pipelines that fetch data from a public cloud
+bucket and [store it into the node's edge
+storage](/guides/edge-storage/import-into-a-node). Once you have the sample data
+in the node, it will be simpler to work with it.
 
-The easiest way to get started is by installing
-[packages](/explanations/packages) from the library. A **package** bundles
-pre-written pipelines and contexts, optionally templated so that you can make
-adaptations that best fit your needs.
-
-We are going to install the **Demo Node** package with sample pipelines that
-fetch data from a public bucket and [store it into the node's edge
-storage](/guides/edge-storage/import-into-a-node). Once we have the data in the
-node, it will be simpler to work with it.
-
-{% steps %}
-
-1. Click **Library** in the top navigation
-2. Enter **demo** in the search bar
-3. Select the **Demo Node** package
-4. Click on the **Install** tab
-5. Select your node in the node dropdown in the bottom right
-6. Click **Install**
-
-{% /steps %}
-
-The demo node package is now installed. The **Packages** tab should show this:
+The **Packages** tab shows that the demo node package is installed:
 
 ![Demo node package installed](./demo-node-packages.png)
 
-When we go back to the **Pipelines** tab, we see the pipelines churning away:
+When you go back to the **Pipelines** tab, you see the pipelines churning away:
 
-![Nodes page after demo node package](./demo-node-nodes.png)
+![Nodes page after demo node package](./demo-node-pipelines.png)
 
 Note the two new pipelines that import data into our demo node. If you click on
 them, a context pane opens on the right and you'll see details about their
@@ -109,7 +92,7 @@ references all data in the node's edge storage, and
 [`taste`](/reference/operators/taste) samples 10 events of every unique schema.
 You'll now see Explorer filling up with events.
 
-![Getting a taste](./export-taste.png)
+![Getting a taste](./demo-node-export-taste.png)
 
 {% aside type="note" title="Auto-completion of pipelines" %}
 If you look carefully, you'll note that the above pipeline doesn't end with an
@@ -139,11 +122,11 @@ of a data-frame-style view, allowing you to see more data at once.
 
 ## Reshape data at ease
 
-Now that we have a rough understanding of our cockpit, let's wrangle that data.
+Now that you have a rough understanding of our cockpit, let's wrangle that data.
 This is what we've designed TQL for, so it should be fun—or at least more fun
 compared to other tools.
 
-We begin with selecting a subset of available schemas:
+Begin with selecting a subset of available schemas:
 
 ```tql
 export
@@ -238,19 +221,19 @@ A few notes:
   [`to_lower`](/reference/functions/to_lower), which makes working with values a
   breeze.
 
-![Reshaping Zeek conn logs](./reshape-to-flow.png)
+![Reshaping Suricata flow logs](./demo-node-reshape-flow.png)
 
-Now what do we do with this normalized data from these two data sources? It just
+Now what do you do with this normalized data from these two data sources? It just
 has a new shape, so what? Read on, we'll show you next.
 
 ## Composing pipelines via publish/subscribe
 
 The above example starts with a specific input operator (`export`) and no output
 operator (we used the Explorer). This is useful for explorative data analysis,
-but in practice we'd want these sorts of transformations to run continuously.
-What we really want is a streaming pipeline that accepts data, potentially from
-multiple sources, and exposes its results in a way so that we can route it to
-multiple destinations.
+but in practice you'd want these sorts of transformations to run continuously.
+In fact, what you really want is a streaming pipeline that accepts data,
+potentially from multiple sources, and exposes its results in a way so that you
+can route it to multiple destinations.
 
 To this end, nodes have a publish/subscribe feature, allowing you to efficiently
 connect pipelines using static topics (and very soon dynamic routes). The
@@ -305,13 +288,13 @@ When clicking the **Run** button for these pipeline, the events will *not* show
 up in the Explorer because we now use `publish` as output operator. Instead,
 you'll see this deployment modal:
 
-![Deployment modal](./deploy-pipeline.png)
+![Deployment modal](./demo-node-deploy-modal.png)
 
 After you give the pipeline a name (or leave it blank for a dummy name), click
 **Confirm** to deploy the pipeline. You'll see it popping up on the
 **Pipelines** tab:
 
-![New pipeline](./new-pipeline.png)
+![New pipeline](./demo-node-pipelines-new.png)
 
 Now that you've deployed one pipeline with two topics as its "interface," you
 can direct data to it from other pipelines. For example, you can create a
@@ -326,18 +309,6 @@ multiple nodes. With our growing library of [packages](/explanations/packages)
 to 1-click-deploy pre-packaged pipelines, and of course AI to generate
 pipelines, you can roll out sophisticated use cases without the need for
 dedicated data engineers.
-{% /aside %}
-
-## Reducing log volume to save costs
-
-{% aside type="caution" title="Work in Progress" %}
-🚧 This section is still being finalized.
-{% /aside %}
-
-## Enrich events with threat intelligence
-
-{% aside type="caution" title="Work in Progress" %}
-🚧 This section is still being finalized.
 {% /aside %}
 
 ## What's Next?
