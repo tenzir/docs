@@ -38,3 +38,13 @@ goes for the closing brace `}`, which needs to be written as `}}` within format
 strings.
 
 By [@jachris](https://github.com/jachris), [@IyeOnline](https://github.com/IyeOnline) in [#5254](https://github.com/tenzir/tenzir/pull/5254).
+
+### Bug Fixes
+
+#### Gracefully handle null values when charting with resolution
+
+The `chart_bar` and `chart_pie` operators had a bug when the x-axis had a
+`null` value and the `resolution` option was specified. The unfortunate panic
+due to this bug has now been fixed.
+
+By [@raxyte](https://github.com/raxyte) in [#5273](https://github.com/tenzir/tenzir/pull/5273).
