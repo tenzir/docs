@@ -34,13 +34,16 @@ function collectOriginalSVGs() {
  */
 function inlineSVGsInBuiltPages(dir) {
   const htmlFiles = findHtmlFiles(dir);
+  let totalInlined = 0;
   for (const file of htmlFiles) {
     const filePath = path.join(dir, file);
     let html = fs.readFileSync(filePath, "utf8");
 
-    const newHtml = inlineSVGsInHTML(html);
+    const { html: newHtml, count } = inlineSVGsInHTML(html);
+    totalInlined += count;
     fs.writeFileSync(filePath, newHtml, "utf8");
   }
+  console.log(`✅ Inlined ${totalInlined} SVGs`);
 }
 
 /**
@@ -69,6 +72,7 @@ function findHtmlFiles(dir) {
  */
 function inlineSVGsInHTML(html) {
   const root = parse(html);
+  let inlinedCount = 0;
 
   root.querySelectorAll("img").forEach((img) => {
     const src = img.getAttribute("src");
@@ -99,11 +103,12 @@ function inlineSVGsInHTML(html) {
 
         // Replace <img> with inline <svg>
         img.replaceWith(svgNode);
+        inlinedCount++;
       }
     }
   });
 
-  return root.toString();
+  return { html: root.toString(), count: inlinedCount };
 }
 
 /**
@@ -122,7 +127,6 @@ function extractBaseFilename(svgPath) {
 function loadSVG(filePath) {
   try {
     if (fs.existsSync(filePath)) {
-      console.log(`✅ Inlining SVG from content: ${filePath}`);
       return fs.readFileSync(filePath, "utf8");
     }
 
