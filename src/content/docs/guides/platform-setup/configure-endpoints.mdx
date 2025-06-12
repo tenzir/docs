@@ -2,7 +2,7 @@
 title: Configure reverse proxy
 ---
 
-The platform uses 4 URLs that require are exposed externally. These URLs may be
+The platform uses 4 URLs that are exposed externally. These URLs may be
 mapped to the same or different hostnames.
 
 1. The URL that the user's browser connects to, e.g.,
@@ -138,7 +138,7 @@ services:
       - ./ssl/ca.pem:/etc/ssl/certs/ca-certificates.crt
 ```
 
-### Gateway:
+### Gateway
 
 To enable TLS serving for the Platform API, mount the certificate into the
 container and set the `TLS_CERTFILE` and `TLS_KEYFILE` environment variables:
@@ -147,10 +147,10 @@ container and set the `TLS_CERTFILE` and `TLS_KEYFILE` environment variables:
 services:
   websocket-gateway:
     environment:
-      - TLS_CERTFILE=/ssl/platform-cert.pem
-      - TLS_KEYFILE=/ssl/platform-cert.pem
+      - TLS_CERTFILE=/ssl/gateway-cert.pem
+      - TLS_KEYFILE=/ssl/gateway-cert.pem
     volumes:
-      - ./ssl/app-cert.pem:/ssl/app-cert.pem
+      - ./ssl/gateway-cert.pem:/ssl/gateway-cert.pem
 ```
 
 When using a private certificate authority, the following additional
