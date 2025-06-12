@@ -2,18 +2,18 @@
 title: Configure reverse proxy
 ---
 
-The platform uses 4 URLs that are exposed externally. These URLs may be
-mapped to the same or different hostnames.
+The platform uses 4 URLs that it exposes externally. You may
+map these URLs to the same or different hostnames.
 
-1. The URL that the user's browser connects to, e.g.,
-   `app.platform.example`. This serves a web frontend where the user can
+1. The URL that your browser connects to, e.g.,
+   `app.platform.example`. This serves a web frontend where you can
    interact with the platform.
 2. The URL that the nodes connect to, e.g., `nodes.platform.example`. Tenzir
    Nodes connect to this URL to establish long-running WebSocket connections.
-3. The URL that the platform's S3-compatible blob storage is accessible at,
-   e.g., `downloads.platform.example`. When using the _Download_ button
-   the platform generates download links under this URL. When dragging files
-   into the explorer window, they are stored here so that Tenzir Nodes can
+3. The URL where the platform's S3-compatible blob storage is accessible,
+   e.g., `downloads.platform.example`. When you use the _Download_ button,
+   the platform generates download links under this URL. When you drag files
+   into the explorer window, the platform stores them here so that Tenzir Nodes can
    access them.
 4. The URL that the Tenzir Platform CLI connects to, e.g.,
    `api.platform.example`.
@@ -44,11 +44,11 @@ handles TLS termination for all of the above domains and forwards the traffic
 
 # Native TLS
 
-In some environments the reverse proxy cannot be guaranteed
-to run on the same host machine as the other platform containers, or
+In some environments you cannot guarantee that the reverse proxy
+runs on the same host machine as the other platform containers, or
 the containers themselves are deployed to different machines.
 
-In these scenarios, it becomes necessary to enable native TLS support
+In these scenarios, you need to enable native TLS support
 for the individual platform containers.
 
 ## Obtaining Certificates
@@ -56,55 +56,53 @@ for the individual platform containers.
 ### From a Certificate Authority
 
 The most straightforward and recommended way to obtain certificates is to
-purchase the domain name you want to for the platform and use one of the
+purchase the domain name you want for the platform and use one of the
 globally trusted certificate authorities to obtain a valid certificate.
 
-If the platform is running in a private or air-gapped network, methods
-like the DNS challenge offered by Let's Encrypt and other providers can be
-used to generate a certificate that can be transferred to the target
-machine.
+If you run the platform in a private or air-gapped network, you can use
+methods like the DNS challenge offered by Let's Encrypt and other providers to
+generate a certificate and transfer it to the target machine.
 
 ### Private Certificate Authority
 
-When the use of a globally trusted certificate authority is not possible,
+When you cannot use a globally trusted certificate authority,
 the alternative is to create your own CA. Naturally, certificates from this
 CA will only be trusted inside your organization or your platform setup.
 
 Signing and provisioning root certificates is a complex task. If your
 organization does not already have infrastructure to create and distribute
-certificates from you internal certificate authority, we recommend the use of
+certificates from your internal certificate authority, we recommend the use of
 a tool like `trustme`.
 
-We prepared a [sample script](https://github.com/tenzir/platform/tree/main/examples/native-tls) that shows
+We provide a [sample script](https://github.com/tenzir/platform/tree/main/examples/native-tls) that shows
 how to create the necessary certificates for all components.
 
 Note that some libraries ignore the system-wide CA certificate store and
 alternative, more strictly curated bundles. For example, Mozilla's NSS root
-store is a popular choice. Therefore, when using a private certificate authority
-there will some configuration necessary even when the CA's root certificate
+store is a popular choice. Therefore, when you use a private certificate authority,
+you will need to perform some configuration even when the CA's root certificate
 is already installed and trusted on all host systems.
 
 ### Self-signed certificates
 
-Instead of creating a private certificate authority, it is also possible to
+Instead of creating a private certificate authority, you can also
 create a self-signed certificate which combines certificate and CA in one
 single file.
 
-However, we do not recommend this approach since it circumvents several of the
-security guarantees of TLS, only providing a mere protection against passive
+However, we do not recommend this approach since it nullifies several of the
+security guarantees of TLS, only providing mere protection against passive
 eavesdropping.
 
 ## Configuration
 
-Below we assume that the valid TLS certificates are in files named
+Below we assume that you store the valid TLS certificates in files named
 `ssl/app-cert.pem`, `ssl/platform-cert.pem`, etc., where each file contains
-both the TLS certificate and private key. If the certificate and private key
-are stored in separate files, both need to be mounted into the containers and
-the environment variables and the environment variables need to be adjusted to
-point towards the correct file.
+both the TLS certificate and private key. If you store the certificate and private key
+in separate files, you need to mount both into the containers and
+adjust the environment variables to point towards the correct file.
 
-When a private certificate authority is used, we assume that the public key
-of that certificate authority is stored in the file `ssl/ca.pem`.
+When you use a private certificate authority, we assume that you store the public key
+of that certificate authority in the file `ssl/ca.pem`.
 
 ### UI
 
@@ -122,7 +120,7 @@ services:
       - ./ssl/app-cert.pem:/ssl/app-cert.pem
 ```
 
-When using a private certificate authority, the following additional
+When you use a private certificate authority, the following additional
 configuration is necessary:
 
 ```yaml
@@ -153,7 +151,7 @@ services:
       - ./ssl/gateway-cert.pem:/ssl/gateway-cert.pem
 ```
 
-When using a private certificate authority, the following additional
+When you use a private certificate authority, the following additional
 configuration is necessary:
 
 ```yaml
@@ -181,7 +179,7 @@ services:
       - ./ssl/platform-cert.pem:/ssl/platform-cert.pem
 ```
 
-When using a private certificate authority, the following additional
+When you use a private certificate authority, the following additional
 configuration is necessary:
 
 ```yaml
@@ -204,8 +202,8 @@ bundled database, S3 storage and IdP services.
 
 # Node Settings
 
-On the node, in order to trust a custom CA certificate, the following option
-needs to point to a CA certificate file in PEM format without password protection:
+On the node, to trust a custom CA certificate, set the following option
+to point to a CA certificate file in PEM format without password protection:
 
 ```sh
 TENZIR_PLATFORM_CACERT=/path/to/ca-certificate.pem
@@ -218,6 +216,6 @@ TLS certificate validation by setting:
 TENZIR_PLATFORM_SKIP_PEER_VERIFICATION=true
 ```
 
-Note that these settings only apply to the connection that is established
-between the node and the platform, not to any TLS connections that may
-be created by running pipelines on the node.
+Note that these settings only apply to the connection that the node establishes
+with the platform, not to any TLS connections that pipelines may
+create when running on the node.
