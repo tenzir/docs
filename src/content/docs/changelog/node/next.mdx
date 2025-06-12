@@ -57,3 +57,16 @@ The `chart_bar` and `chart_pie` operators had a bug when the x-axis had a
 due to this bug has now been fixed.
 
 By [@raxyte](https://github.com/raxyte) in [#5273](https://github.com/tenzir/tenzir/pull/5273).
+
+#### Invalid scientific notation when using `write_json`
+
+When using `write_json` with large floating-point numbers, the resulting JSON
+was ill-formed. For example, the number `5483819555176798000.0` was previously
+printed as `5.483819555176798e+18.0`. The extra `.0` at the end is not valid
+JSON. Thus, the output was rejected by some parsers. Now, `write_json` renders
+this number as `5.483819555176798e+18` instead.
+
+This bug was also observable on the Tenzir Platform, where it could lead to
+request timeouts. Now, large numbers are shown correctly.
+
+By [@jachris](https://github.com/jachris) in [#5274](https://github.com/tenzir/tenzir/pull/5274).
