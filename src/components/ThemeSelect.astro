@@ -140,12 +140,15 @@ const options = Astro.props.options || [
 			if (select) {
 				select.value = theme;
 
-				// Hide the theme selector if theme is forced via URL or session
+				// Hide the icon if theme is forced via URL or session
 				const urlParams = new URLSearchParams(window.location.search);
 				const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
 				if (urlParams.has('theme') || forcedTheme) {
-					// Hide the entire theme selector component
-					this.style.display = 'none';
+					// Hide only the icon, not the entire component
+					const icon = this.querySelector('.icon');
+					if (icon) {
+						icon.style.display = 'none';
+					}
 
 					// Also hide the divider after social icons
 					const socialIcons = document.querySelector('.social-icons');
@@ -161,8 +164,11 @@ const options = Astro.props.options || [
 						if (typeof sessionStorage !== 'undefined') {
 							sessionStorage.removeItem('forced-theme');
 						}
-						// Show the theme selector again
-						this.style.display = 'inline-block';
+						// Show the icon again
+						const icon = this.querySelector('.icon');
+						if (icon) {
+							icon.style.display = 'block';
+						}
 						// Restore the social icons divider
 						const socialIcons = document.querySelector('.social-icons');
 						if (socialIcons) {
