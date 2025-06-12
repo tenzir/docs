@@ -2,9 +2,9 @@
 title: Configure core services
 ---
 
-The Tenzir Platform is usually run as a set of containers in a docker compose
-stack. Our example files [example files](https://github.com/tenzir/platform/tree/main/examples)
-are set up to pick up certain configuration parameters from environment variables.
+The Tenzir Platform usually runs as a set of containers in a docker compose
+stack. Our [example files](https://github.com/tenzir/platform/tree/main/examples)
+pick up certain configuration parameters from environment variables.
 
 To configure the platform, create a file named `.env` in the same directory
 as the `docker-compose.yaml` file with your Tenzir Platform stack and set
@@ -13,13 +13,14 @@ the environment variables described below.
 ## Admin Rules
 
 The Tenzir Platform distinguishes between regular and admin users.
-Admin users have the permission to create new workspaces and to view, edit and
+Admin users have permission to create new workspaces and to view, edit and
 delete all existing workspaces.
 
 At the moment, only admins can create shared workspaces by creating a new
 workspace and editing the access rules.
 
-A list of authentication rules. Every user matching any of the provided rules
+To configure who is an administrator, you provide a list of
+authentication rules. Every user matching any of the provided rules
 is considered to be an administrator of this platform instance, and will
 be allowed to use the `tenzir-platform admin` CLI commands.
 
@@ -39,8 +40,8 @@ TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_user","user_id":"google-oauth2:123
 ## Random Seeds
 
 The Tenzir Platform requires some random strings to perform some encryption
-functions. These should be generated from a secure random number generator and
-be unique for each instance of the Tenzir Platform.
+functions. You should generate these from a secure random number generator and
+use unique values for each instance of the Tenzir Platform.
 
 ```
 # An arbitrary random string used as key to encrypt frontend cookies.
