@@ -3,10 +3,48 @@ import Default from '@astrojs/starlight/components/SiteTitle.astro'
 import NavbarTopicList from './NavbarTopicList.astro'
 ---
 
-<div>
-  <Default><slot /></Default>
+<div id="site-title-wrapper">
+  <div id="logo-wrapper">
+    <Default><slot /></Default>
+  </div>
   <NavbarTopicList />
 </div>
+
+<script is:inline>
+  // Hide logo immediately to prevent flash
+  (function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+
+    if (urlParams.has('theme') || forcedTheme) {
+      // Apply hiding immediately via CSS
+      const style = document.createElement('style');
+      style.textContent = '#logo-wrapper { display: none !important; }';
+      document.head.appendChild(style);
+    }
+  })();
+</script>
+
+<script>
+  // Handle navigation for SPA-like behavior
+  function handleLogoVisibility() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const forcedTheme = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('forced-theme');
+    const logoWrapper = document.getElementById('logo-wrapper');
+
+    if (logoWrapper) {
+      if (urlParams.has('theme') || forcedTheme) {
+        logoWrapper.style.display = 'none';
+      } else {
+        logoWrapper.style.display = '';
+      }
+    }
+  }
+
+  // Run on page load and navigation
+  handleLogoVisibility();
+  document.addEventListener('astro:page-load', handleLogoVisibility);
+</script>
 
 <style>
   div {
