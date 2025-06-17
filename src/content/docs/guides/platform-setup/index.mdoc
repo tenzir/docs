@@ -37,15 +37,19 @@ Setting up the platform involves the following steps:
 1. [**Choose a scenario**](/guides/platform-setup/choose-a-scenario): You can
    deploy the platform in various ways. We provide a few scenarios that match
    common use cases.
-2. **Configure the services**: You must configure at least the
-   [external endpoints](/guides/platform-setup/configure-endpoints). Optionally,
-   configure the [identity provider](/guides/platform-setup/configure-identity-provider), the
-   [database](/guides/platform-setup/configure-database), and the
-   [blob storage](/guides/platform-setup/configure-blob-storage).
-3. [**Configure the platform**](/guides/platform-setup/configure-core-services): Configure
-   instance-wide settings of the platform, such as admin rules, demo node settings,
-   and the config file location for static workspaces.
-4. [**Run the platform**](/guides/platform-setup/run-the-platform): Once you've created a
+2. **Configure the services**: You must configure at least the external endpoints
+   so that Tenzir Nodes and your Browser can interact with the Tenzir Platform.
+   Depending on your chosen deployment scenario, you may skip some of the steps below.
+   For example, if using the `keycloak` example the database and blob storage
+   are already set up to automatically point to the bundled services in the
+   same docker compose stack.
+
+   2.1: Configure at the [external endpoints](/guides/platform-setup/configure-endpoints).
+   2.2: Configure the [internal services](/guides/platform-setup/configure-internal-services)
+   2.3: Configure the [identity provider](/guides/platform-setup/configure-identity-provider)
+   2.4: Configure the [database](/guides/platform-setup/configure-database)
+   2.5: Configure the [blob storage](/guides/platform-setup/configure-blob-storage)
+3. [**Run the platform**](/guides/platform-setup/run-the-platform): Once you've created a
    configuration, start the platform. This can be as easy as `docker compose
    up`.
 
