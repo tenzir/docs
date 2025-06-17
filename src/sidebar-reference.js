@@ -42,6 +42,7 @@ export const referenceFunctions = [
   "reference/functions/encode_url",
   "reference/functions/encrypt_cryptopan",
   "reference/functions/ends_with",
+  "reference/functions/entropy",
   "reference/functions/env",
   "reference/functions/file_contents",
   "reference/functions/file_name",
