@@ -43,7 +43,23 @@ to compare entropy across datasets with different numbers of unique values.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#4852](https://github.com/tenzir/tenzir/pull/4852).
 
+#### Rename files after reading them
+
+The `from_file` operator now supports moving files after reading them.
+
+For example, `from_file "logs/*.log", rename=path => f"{path}.done"` reads all
+`.log` files in the `logs` directory, and after reading them renames the files
+to have the extension `.log.done`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
+
 ### Bug Fixes
+
+#### Fixed panic in `parent_dir`
+
+The `parent_dir` function no longer panics on some inputs.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
 
 #### Fixed stack traces in Docker images
 
