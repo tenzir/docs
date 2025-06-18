@@ -1,5 +1,9 @@
 import { openAPISidebarGroups } from "starlight-openapi";
 import { referenceFunctions, referenceOperators } from "./sidebar-reference.js";
+import {
+  nodeAPISidebarGroup,
+  platformAPISidebarGroup,
+} from "./sidebar-shared-groups.js";
 
 export const guides = [
   "guides/quickstart",
@@ -23,7 +27,7 @@ export const guides = [
     items: [
       "guides/platform-setup",
       "guides/platform-setup/choose-a-scenario",
-      "guides/platform-setup/configure-core-services",
+      "guides/platform-setup/configure-internal-services",
       "guides/platform-setup/configure-endpoints",
       "guides/platform-setup/configure-identity-provider",
       "guides/platform-setup/configure-database",
@@ -141,10 +145,18 @@ export const reference = [
       "reference/language/types",
     ],
   },
-  "reference/configuration-node",
-  "reference/configuration-platform",
-  "reference/platform-cli",
-  ...openAPISidebarGroups,
+  {
+    label: "Node",
+    items: ["reference/node/configuration", nodeAPISidebarGroup],
+  },
+  {
+    label: "Platform",
+    items: [
+      "reference/platform/configuration",
+      "reference/platform/command-line-interface",
+      platformAPISidebarGroup,
+    ],
+  },
 ];
 
 export const integrations = [

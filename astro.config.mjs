@@ -12,6 +12,10 @@ import markdoc from "@astrojs/markdoc";
 import { topics } from "./src/topics";
 import { bundledLanguages } from "shiki";
 import { generateRedirects } from "./src/utils/redirects.mjs";
+import {
+  nodeAPISidebarGroup,
+  platformAPISidebarGroup,
+} from "./src/sidebar-shared-groups.ts";
 
 // A GitHub Actions workflow pushes upstream changes in tenzir/vscode-tql
 // directly into this repository, keeping this file up to date.
@@ -19,6 +23,9 @@ import tqlLang from "./tql.tmLanguage.json" assert { type: "json" };
 
 const runLinkCheck = process.env.RUN_LINK_CHECK || false;
 const isProd = process.env.NODE_ENV === "production";
+
+// Sidebar groups are now imported from shared-sidebar-groups.ts to ensure
+// the same symbols are used in both astro.config.mjs and sidebar.ts
 
 // https://astro.build/config
 export default defineConfig({
@@ -103,14 +110,14 @@ export default defineConfig({
           : []),
         starlightOpenAPI([
           {
-            base: "reference/platform-api",
-            label: "Platform API",
+            base: "reference/platform/api",
             schema: "./src/content/apis/openapi.platform.json",
+            sidebar: { label: "API", group: platformAPISidebarGroup },
           },
           {
-            base: "reference/node-api",
-            label: "Node API",
+            base: "reference/node/api",
             schema: "./src/content/apis/openapi.node.yaml",
+            sidebar: { label: "API", group: nodeAPISidebarGroup },
           },
         ]),
         starlightSidebarTopics(topics, {
@@ -118,10 +125,10 @@ export default defineConfig({
             changelog_node: ["/changelog/node/*"],
             changelog_platform: ["/changelog/platform/*"],
             reference: [
-              "/reference/node-api",
-              "/reference/node-api/**/*",
-              "/reference/platform-api",
-              "/reference/platform-api/**/*",
+              "/reference/node/api",
+              "/reference/node/api/**/*",
+              "/reference/platform/api",
+              "/reference/platform/api/**/*",
               "/reference/functions/*",
               "/reference/operators/**/*",
               "/reference/operators/*",
