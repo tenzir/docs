@@ -42,6 +42,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.TENZIR_BOT_GITHUB_TOKEN }}
           script: |
             const title = `Broken links detected - ${new Date().toISOString().split('T')[0]}`;
             const body = `Automated link checking has detected broken links in the documentation.
@@ -57,7 +58,7 @@ jobs:
               owner: context.repo.owner,
               repo: 'issues',
               state: 'open',
-              labels: 'broken-links',
+              labels: ['broken-links'],
             });
 
             if (issues.length === 0) {
@@ -66,7 +67,7 @@ jobs:
                 repo: 'issues',
                 title: title,
                 body: body,
-                labels: [],
+                labels: ['broken-links'],
               });
             } else {
               // Update existing issue with new run information
