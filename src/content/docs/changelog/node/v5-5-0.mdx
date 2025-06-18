@@ -1,0 +1,146 @@
+---
+title: OCSF Support
+sidebar:
+  badge:
+    text: v5.5.0
+    variant: success
+---
+
+Built-in support for normalizing OCSF events to their upstream schema makes normalizations easier than ever with Tenzir Node v5.5.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.5.0).
+
+### Features
+
+#### Entropy Calculation
+
+TQL now supports calculating the Shannon entropy of data using the new `entropy`
+aggregation function. This function measures the amount of uncertainty or
+randomness in your data, which is particularly useful for analyzing data
+distributions and information content.
+
+The entropy function calculates Shannon entropy using the formula `H(x) =
+-sum(p(x[i]) \* log(p(x[i])))`, where `p(x[i])` is the probability of each
+unique value. Higher entropy values indicate more randomness, while lower values
+indicate more predictability in your data.
+
+For example, if you have a dataset with different categories and want to measure
+how evenly distributed they are:
+
+```tql
+from {category: "A"}, {category: "A"}, {category: "B"}, {category: "C"}
+summarize entropy_value = category.entropy()
+```
+
+This will return an entropy value of approximately 1.04, indicating moderate
+randomness in the distribution.
+
+The function also supports normalization via an optional `normalize` parameter.
+When set to `true`, the entropy is normalized between 0 and 1 by dividing by
+the logarithm of the number of unique values:
+
+```tql
+from {category: "A"}, {category: "A"}, {category: "B"}, {category: "C"}
+summarize normalized_entropy = category.entropy(normalize=true)
+```
+
+This returns a normalized entropy value of approximately 0.95, making it easier
+to compare entropy across datasets with different numbers of unique values.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#4852](https://github.com/tenzir/tenzir/pull/4852).
+
+#### Rename files after reading them
+
+The `from_file` operator now supports moving files after reading them.
+
+For example, `from_file "logs/*.log", rename=path => f"{path}.done"` reads all
+`.log` files in the `logs` directory, and after reading them renames the files
+to have the extension `.log.done`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
+
+#### Dedicated OCSF operator
+
+The new operator `ocsf::apply` converts events to the OCSF schema, making sure
+that all events have the same type. It supports all OCSF versions (including
+`-dev` versions), all OCSF classes and all OCSF profiles. The schema to use is
+determined by `class_uid`, `metadata.version` and `metadata.profiles` (if it
+exists). The operator emits warnings if it finds unexpected fields or mismatched
+types. Expect more OCSF-native functionality coming to Tenzir soon!
+
+By [@jachris](https://github.com/jachris) in [#5220](https://github.com/tenzir/tenzir/pull/5220).
+
+#### Writing CEF and LEEF
+
+We have added two new functions `print_leef` and `print_cef`. With
+these and the already existing `write_syslog`, you are now able to write
+nested CEF or LEEF in a syslog frame. In combination with the already existing
+ability to read nested CEF and LEEF, this enables you to transparently forward
+firewall logs.
+
+For example, you can read in CEF messages, enrich them, and send them out
+again:
+
+```tql
+// Accept syslog over TCP
+load_tcp "127.0.0.1:1234" {
+  read_syslog
+}
+// Parse the nested message as structured CEF data
+message = message.parse_cef()
+// Enrich the message, if its a high severity message
+if message.severity in ["High", "Very High", "7", "8", "9"] {
+  context::enrich "my-context",
+    key=message.extension.source_ip,
+    into=message.extension
+}
+// Re-write the message as CEF
+message = message.extension.print_cef(
+  cef_version=message.cef_version,
+  device_vendor=message.device_vendor, device_product=message.device_product,
+  device_version=message.device_version, signature_id=signature_id,
+  severity=message.severity,
+  name=r#"enriched via "my-context": "# + message.name
+)
+// Write as syslog again
+write_syslog
+// Send the bytestream to some destination
+```
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5280](https://github.com/tenzir/tenzir/pull/5280).
+
+### Changes
+
+#### Updated OCSF functions
+
+The functions available under `ocsf::` were updated to fully reflect the newest
+OCSF schema. Additionally, the functions `ocsf::type_uid` and `ocsf::type_name`
+were added.
+
+By [@jachris](https://github.com/jachris) in [#5220](https://github.com/tenzir/tenzir/pull/5220).
+
+### Bug Fixes
+
+#### Fixed panic in `parent_dir`
+
+The `parent_dir` function no longer panics on some inputs.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
+
+#### SNI support in `from_http`
+
+The `from_http` operator now correctly sets the domain for TLS SNI (Server Name Indication).
+
+By [@tobim](https://github.com/tobim) in [#5288](https://github.com/tenzir/tenzir/pull/5288).
+
+#### CPU limits in containers
+
+Nodes now correctly respect cgroup CPU limits on Linux. Previously, such limits were ignored, and the node always used the physical number of cores available, unless a lower number was explicitly configured through the `caf.scheduler.max-threads` option. This bug fix may improve performance and resource utilization for nodes running in environments with such limitations.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5288](https://github.com/tenzir/tenzir/pull/5288).
+
+#### Fixed stack traces in Docker images
+
+Backtraces no longer miss function identifiers when running the official Docker images.
+
+By [@tobim](https://github.com/tobim) in [#5283](https://github.com/tenzir/tenzir/pull/5283).
