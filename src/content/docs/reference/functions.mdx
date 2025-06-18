@@ -631,6 +631,10 @@ functions:
     description: 'Parses a string as a YAML value.'
     example: 'string.parse_yaml()'
     path: 'reference/functions/parse_yaml'
+  - name: 'print_cef'
+    description: 'Prints records as Common Event Format (CEF) messages'
+    example: 'extension.print_cef(cef_version="0", device_vendor="Tenzir", device_product="Tenzir Node", device_version="5.5.0", signature_id=id, name="description", severity="7")'
+    path: 'reference/functions/print_cef'
   - name: 'print_csv'
     description: 'Prints a record as a comma-separated string of values.'
     example: 'record.print_csv()'
@@ -643,6 +647,10 @@ functions:
     description: 'Prints records in a key-value format.'
     example: 'record.print_kv()'
     path: 'reference/functions/print_kv'
+  - name: 'print_leef'
+    description: 'Prints records as LEEF messages'
+    example: 'attributes.print_leef(vendor="Tenzir",product_name="Tenzir Node", product_name="5.5.0",event_class_id=id)'
+    path: 'reference/functions/print_leef'
   - name: 'print_ndjson'
     description: 'Transforms a value into a single-line JSON string.'
     example: 'record.print_ndjson()'
@@ -1414,6 +1422,14 @@ string.parse_yaml()
 
 <CardGrid>
 
+<ReferenceCard title="print_cef" description="Prints records as Common Event Format (CEF) messages" href="/reference/functions/print_cef">
+
+```tql
+extension.print_cef(cef_version="0", device_vendor="Tenzir", device_product="Tenzir Node", device_version="5.5.0", signature_id=id, name="description", severity="7")
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="print_csv" description="Prints a record as a comma-separated string of values." href="/reference/functions/print_csv">
 
 ```tql
@@ -1434,6 +1450,14 @@ record.print_json()
 
 ```tql
 record.print_kv()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="print_leef" description="Prints records as LEEF messages" href="/reference/functions/print_leef">
+
+```tql
+attributes.print_leef(vendor="Tenzir",product_name="Tenzir Node", product_name="5.5.0",event_class_id=id)
 ```
 
 </ReferenceCard>
