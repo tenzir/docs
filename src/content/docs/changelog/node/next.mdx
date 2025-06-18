@@ -53,6 +53,27 @@ to have the extension `.log.done`.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
 
+#### Dedicated OCSF operator
+
+The new operator `ocsf::apply` converts events to the OCSF schema, making sure
+that all events have the same type. It supports all OCSF versions (including
+`-dev` versions), all OCSF classes and all OCSF profiles. The schema to use is
+determined by `class_uid`, `metadata.version` and `metadata.profiles` (if it
+exists). The operator emits warnings if it finds unexpected fields or mismatched
+types. Expect more OCSF-native functionality coming to Tenzir soon!
+
+By [@jachris](https://github.com/jachris) in [#5220](https://github.com/tenzir/tenzir/pull/5220).
+
+### Changes
+
+#### Updated OCSF functions
+
+The functions available under `ocsf::` were updated to fully reflect the newest
+OCSF schema. Additionally, the functions `ocsf::type_uid` and `ocsf::type_name`
+were added.
+
+By [@jachris](https://github.com/jachris) in [#5220](https://github.com/tenzir/tenzir/pull/5220).
+
 ### Bug Fixes
 
 #### Fixed panic in `parent_dir`
