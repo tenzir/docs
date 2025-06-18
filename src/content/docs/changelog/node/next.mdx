@@ -121,6 +121,18 @@ The `parent_dir` function no longer panics on some inputs.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5285](https://github.com/tenzir/tenzir/pull/5285).
 
+#### SNI support in `from_http`
+
+The `from_http` operator now correctly sets the domain for TLS SNI (Server Name Indication).
+
+By [@tobim](https://github.com/tobim) in [#5288](https://github.com/tenzir/tenzir/pull/5288).
+
+#### CPU limits in containers
+
+Nodes now correctly respect cgroup CPU limits on Linux. Previously, such limits were ignored, and the node always used the physical number of cores available, unless a lower number was explicitly configured through the `caf.scheduler.max-threads` option. This bug fix may improve performance and resource utilization for nodes running in environments with such limitations.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5288](https://github.com/tenzir/tenzir/pull/5288).
+
 #### Fixed stack traces in Docker images
 
 Backtraces no longer miss function identifiers when running the official Docker images.
