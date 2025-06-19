@@ -1,4 +1,3 @@
-import { openAPISidebarGroups } from "starlight-openapi";
 import { referenceFunctions, referenceOperators } from "./sidebar-reference.js";
 import {
   nodeAPISidebarGroup,
