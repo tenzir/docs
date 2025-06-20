@@ -3,3 +3,12 @@ title: Next
 ---
 
 Unreleased changes.
+
+### Bug Fixes
+
+#### Fixed panic in `write_parquet`
+
+The `write_parquet` operator no longer panics when specifying
+`compression_type="snappy"` without a `compression_level`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5293](https://github.com/tenzir/tenzir/pull/5293).
