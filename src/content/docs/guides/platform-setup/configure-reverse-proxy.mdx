@@ -2,34 +2,210 @@
 title: Configure reverse proxy
 ---
 
-The platform uses 4 URLs that require a HTTP reverse proxy. These URLs may be
-mapped to the same or different hostnames.
+This guide explains how to configure a reverse proxy for the platform to route
+incoming requests to the corresponding backend services. The platform uses 4
+distinct entry points with 4 different URLs:
 
-1. The URL that the user's browser connects to, e.g.,
-   `app.platform.example`. This serves a web frontend where the user can
-   interact with the platform.
-2. The URL that the nodes connect to, e.g., `nodes.platform.example`. Tenzir
-   Nodes connect to this URL to establish long-running WebSocket connections.
-3. The URL that the platform's S3-compatible blob storage is accessible at,
-   e.g., `downloads.platform.example`. When using the _Download_ button
-   the platform generates download links under this URL.
-4. The URL that the Tenzir Platform CLI connects to, e.g.,
+1. **Tenzir UI**: The URL your browser connects to, e.g., `app.platform.example`.
+   This serves the web frontend where you interact with the platform.
+2. **Tenzir Gateway**: The URL nodes connect to, e.g., `nodes.platform.example`.
+   Tenzir Nodes connect to this URL to establish long-running WebSocket
+   connections.
+3. **Blob Storage**: The URL where the platform's S3-compatible blob storage is
+   accessible, e.g., `downloads.platform.example`. When you click the _Download_
+   button, the platform generates download links under this URL. When you drag
+   files into the explorer window, the platform stores them here so that Tenzir
+   Nodes can access them.
+4. **Platform API**: The URL the Tenzir Platform CLI connects to, e.g.,
    `api.platform.example`.
 
-You must provide the following environment variables to the platform:
+Set the following environment variables to reach these 4 services:
 
 ```sh
-# The domain under which the platform frontend is reachable. Must include the
-# `http://` or `https://` scheme.
-TENZIR_PLATFORM_DOMAIN=https://app.platform.example
+# The domain under which the platform frontend is reachable.
+# Must include the `http://` or `https://` scheme.
+TENZIR_PLATFORM_UI_ENDPOINT=https://app.platform.example
 
-# The endpoint to which Tenzir nodes should connect. Must include the `ws://`
-# or `wss://` scheme.
-TENZIR_PLATFORM_CONTROL_ENDPOINT=wss://nodes.platform.example
+# The endpoint to which Tenzir nodes should connect.
+# Must include the `ws://` or `wss://` scheme.
+TENZIR_PLATFORM_NODES_ENDPOINT=wss://nodes.platform.example
 
-# The URL at which the platform's S3-compatible blob storage is accessible at.
-TENZIR_PLATFORM_BLOBS_ENDPOINT=https://downloads.platform.example
+# The URL at which the platform's S3-compatible blob storage is accessible.
+TENZIR_PLATFORM_DOWNLOADS_ENDPOINT=https://downloads.platform.example
 
-# The URL at which the platform's S3-compatible blob storage is accessible at.
+# The URL at which the platform API is accessible.
 TENZIR_PLATFORM_API_ENDPOINT=https://api.platform.example
 ```
+
+## Native TLS
+
+The reverse proxy typically runs on the same host as other platform containers
+and terminates TLS. When you cannot guarantee that the reverse proxy runs on
+the same host as other platform containers, or deploy the containers to
+different machines, enable native TLS support for individual platform
+containers.
+
+### Obtaining Certificates
+
+Purchase the domain name you want for the platform and use one of the globally
+trusted certificate authorities (CAs) to obtain a valid certificate. This
+approach provides the most straightforward and recommended certificate
+acquisition method.
+
+If you run the platform in a private or air-gapped network, use methods like
+the DNS challenge offered by [Let's Encrypt](https://letsencrypt.org/) and
+other providers to generate a certificate and transfer it to the target machine.
+
+When you cannot use a globally trusted CA, use a corporate root CA instead.
+Naturally, certificates from this CA will only be trusted inside your
+organization or your Tenzir Platform setup.
+
+If you do not possess a corporate root CA, create a private CA for yourself.
+Signing and provisioning root certificates is a complex task, so we recommend
+using a tool like `trustme` for this purpose.
+
+We provide a [sample
+script](https://github.com/tenzir/platform/tree/main/examples/native-tls) that
+shows how to create the necessary certificates for all components.
+
+:::caution[Certificate Validation Idiosyncrasies]
+Some libraries ignore the system-wide CA certificate store and use alternative,
+more strictly curated bundles. For example, Mozilla's NSS root store is a
+popular choice. Additionally, the operating system's default certificate
+bundles shipped within our Docker containers will not trust private CAs by
+default. Therefore, when you use a private CA, perform the same configuration
+for corporate root CAs from a publicly trusted CA or your self-created private
+CA.
+:::
+
+### Self-signed Certificates
+
+Instead of creating a private CA, create a self-signed certificate that combines
+certificate and CA in a single file.
+
+This approach simplifies setup and management compared to a private CA, but
+reduces security guarantees. For example, it nullifies several TLS security
+guarantees and only provides protection against passive eavesdropping.
+
+Below we assume you store valid TLS certificates in files named
+`ssl/app-cert.pem`, `ssl/platform-cert.pem`, etc., where each file contains
+both the TLS certificate and private key. If you store the certificate and
+private key in separate files, mount both into the containers and adjust the
+environment variables to point towards the correct file.
+
+When you use a private CA, store the public key of that CA in the file
+`ssl/ca.pem`.
+
+#### Tenzir UI
+
+To have the Tenzir UI serve its traffic using TLS, add the following environment
+variables and volumes to your `docker-compose.yaml`:
+
+```yaml
+services:
+  app:
+    environment:
+      - TLS_CERTFILE=/ssl/app-cert.pem
+      - TLS_KEYFILE=/ssl/app-cert.pem
+
+    volumes:
+      - ./ssl/app-cert.pem:/ssl/app-cert.pem
+```
+
+When you use a private CA, add the following configuration:
+
+```yaml
+services:
+  app:
+    environment:
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
+
+    volumes:
+      - ./ssl/ca.pem:/etc/ssl/certs/ca-certificates.crt
+```
+
+#### Tenzir Gateway
+
+To enable TLS serving for the gateway, mount the certificate into the container
+and set the `TLS_CERTFILE` and `TLS_KEYFILE` environment variables:
+
+```yaml
+services:
+  websocket-gateway:
+    environment:
+      - TLS_CERTFILE=/ssl/gateway-cert.pem
+      - TLS_KEYFILE=/ssl/gateway-cert.pem
+    volumes:
+      - ./ssl/gateway-cert.pem:/ssl/gateway-cert.pem
+```
+
+When you use a private CA, add the following configuration:
+
+```yaml
+services:
+  websocket-gateway:
+    environment:
+      - TLS_CAFILE=/ssl/ca.pem
+    volumes:
+      - ./ssl/ca.pem:/ssl/ca.pem
+```
+
+#### Platform API
+
+To enable TLS serving for the Platform API, mount the certificate into the
+container and set the `TLS_CERTFILE` and `TLS_KEYFILE` environment variables.
+This follows the same process as for the `websocket-gateway` container:
+
+```yaml
+services:
+  platform:
+    environment:
+      - TLS_CERTFILE=/ssl/platform-cert.pem
+      - TLS_KEYFILE=/ssl/platform-cert.pem
+    volumes:
+      - ./ssl/platform-cert.pem:/ssl/platform-cert.pem
+```
+
+When you use a private CA, add the following configuration:
+
+```yaml
+services:
+  platform:
+    environment:
+      # 'requests' uses a baked-in CA bundle, so point it to our CA explicitly.
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - SSL_CERT_FILE=/ssl/ca.pem
+    volumes:
+      - ./ssl/ca.pem:/etc/ssl/certs/ca-certificates.crt
+```
+
+### Example
+
+Refer to our [native TLS example](https://github.com/tenzir/platform/tree/main/examples/native-tls) for a
+complete configuration example, including the native TLS setup for the default
+bundled database, S3 storage and IdP services.
+
+## Node TLS Settings
+
+Nodes connect to the platform using the Tenzir Gateway via a TLS connection.
+When using a custom certificate for the gateway, provide it to the node to
+successfully establish a connection.
+
+Set the following option to point to a CA certificate file in PEM format
+without password protection:
+
+```sh
+TENZIR_PLATFORM_CACERT=/path/to/ca-certificate.pem
+```
+
+When using a self-signed TLS certificate, additionally disable TLS certificate
+validation:
+
+```sh
+TENZIR_PLATFORM_SKIP_PEER_VERIFICATION=true
+```
+
+:::note[TLS: Platform vs. Pipeline]
+These settings only apply to the connection the node establishes with the
+platform, not to any TLS connections that pipelines may create within the node.
+:::

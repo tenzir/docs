@@ -2,35 +2,35 @@
 title: Configure identity provider
 ---
 
-To use an external identity provider (IdP), ensure it supports the OIDC
-protocol, including the OIDC Discovery extension, and configure it to provide
-valid RS256 ID tokens.
+The identity provider (IdP) handles authentication for the Tenzir Platform. To
+use an external IdP, ensure it supports the OIDC protocol, including the _OIDC
+Discovery_ extension, and configure it to provide valid RS256 ID tokens.
 
 Set up the external identity provider by creating two clients (also called
-Applications in Auth0 or App Registrations in Microsoft Entra) named
+Applications in Auth0, or App Registrations in Microsoft Entra) named
 `tenzir-app` and `tenzir-cli`.
 
 The `tenzir-app` client is used for logging into the Tenzir Platform in the web
 browser.
 
-- The **Authorization Code** flow must be enabled.
+- You must enable the **Authorization Code** flow.
 - The allowed redirect URLs must include
   `https://app.platform.example/login/oauth/callback`.
-- The client secret should be noted down so it can be added to the configuration
+- You should note down the client secret so you can add it to the configuration
   of the Tenzir Platform in the next step.
 
 The `tenzir-cli` client is used to authenticate with the `tenzir-platform` CLI.
 
-- The **Device Code** flow must be enabled.
+- You must enable the **Device Code** flow.
 - The identity provider must either return an `id_token` for the device code
   flow, or an `access_token` in JWT format.
 
-You may want to to run CLI commands in environments where no user
+You may want to run CLI commands in environments where no user
 is available to perform the device code authorization flow, for example
 when running CLI commands as part of a CI job.
 
 In this case, you can set up another client with the **Client Credentials** flow
-enabled. The `access_token` obtained from this client must be in JWT format. The
+enabled. The `access_token` you obtain from this client must be in JWT format. The
 CLI will automatically attempt to use the client credentials flow if
 the `TENZIR_PLATFORM_CLI_CLIENT_SECRET` environment variable is set. You can
 also force the use of the client credentials flow by using the
@@ -50,8 +50,7 @@ TENZIR_PLATFORM_OIDC_APP_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 You must provide the following environment variable containing a JSON object
-with the OIDC issuer and audiences that should be accepted by the
-platform.
+with the OIDC issuer and audiences that the platform should accept.
 
 ```sh
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"https://my.idp.example": ["tenzir-cli", "tenzir-app"]}'
@@ -62,7 +61,7 @@ user is a user who is permitted to run the `tenzir-platform admin` CLI command.
 
 The `TENZIR_PLATFORM_OIDC_ADMIN_RULES` setting contains a JSON list of access
 rules that determine who is considered an admin for this platform instance. If
-any of the provided rules match, the user is considered to be an admin. The
+any of the provided rules match, the platform considers the user an admin. The
 example rule grants admin access to all users with a valid and signed `id_token`
 containing the fields `{"tenzir/org": "TenzirPlatformAdmins"}`.
 
@@ -70,18 +69,19 @@ containing the fields `{"tenzir/org": "TenzirPlatformAdmins"}`.
 TENZIR_PLATFORM_OIDC_ADMIN_RULES='[{"organization_claim": "tenzir/org", "organization": "TenzirPlatformAdmins", "auth_fn": "auth_organization"}]'
 ```
 
-See the documentation on [Access Rules](/reference/platform-cli#configure-access-rules)
-for more information about the possible types of rules and their syntax. Use the
-`tenzir-platform tools` subcommand of the CLI to generate valid JSON objects that
-you can enter here.
+See the documentation on [Access
+Rules](/reference/platform/command-line-interface#configure-access-rules) for
+more information about the possible types of rules and their syntax. Use the
+`tenzir-platform tools` subcommand of the CLI to generate valid JSON objects
+that you can enter here.
 
 ## Keycloak
 
 This section explains how to configure Keycloak as an external Identity Provider
 for use with the Tenzir Platform.
 
-We assume that you already have a Keycloak instance up and running that is
-reachable with a browser.
+We assume that you already have a Keycloak instance up and running that you can
+reach with a browser.
 We provide an example stack of the Tenzir Platform with a bundled Keycloak
 instance [here](https://github.com/tenzir/platform/tree/main/examples/keycloak).
 The remainder of this section assumes you're running this example stack, but
@@ -101,7 +101,7 @@ and to set up 2-factor authentication for your admin user.
 #### Create a new `tenzir` realm (optional)
 
 Keycloak defaults to the `master` realm and the bundled Docker Compose
-stack is configured to use this realm.
+stack uses this realm by default.
 
 If you want to use a different realm, or already have an existing one,
 update the `TENZIR_PLATFORM_OIDC_ISSUER_URL` variable to point to the
@@ -111,8 +111,8 @@ new realm instead.
 
 #### Create a Client for the App
 
-Use the `Add Client` button in the `Clients` menu on the left. The new
-client should be configured as follows:
+Use the `Add Client` button in the `Clients` menu on the left. You should configure the new
+client as follows:
 
 Under _General settings_, set the client type to _OpenID Connect_ and the
 client id to `tenzir-app`. If you use a different client id,
@@ -127,21 +127,21 @@ access method.
 ![Configuration 1](configure-identity-provider/keycloak-create-app-client-1.png)
 
 Under _Login settings_, enter a redirect URL that points to `${TENZIR_PLATFORM_DOMAIN}/login/oauth/callback`,
-where `TENZIR_PLATFORM_DOMAIN` is the domain that is configured in your Tenzir Platform configuration.
-For example, if the app is running under `https://tenzir-app.example.org` then this should be
+where `TENZIR_PLATFORM_DOMAIN` is the domain you configure in your Tenzir Platform configuration.
+For example, if the app runs under `https://tenzir-app.example.org` then this should be
 `https://tenzir-app.example.org/login/oauth/callback`.
 
 ![Configuration 2](configure-identity-provider/keycloak-create-app-client-2.png)
 
 Finally, in the client view, go to the Credentials tab and copy the value of
-the generated client secret. This must be added to the Tenzir Platform configuration
+the generated client secret. You must add this to the Tenzir Platform configuration
 under `TENZIR_PLATFORM_OIDC_PROVIDER_CLIENT_SECRET`.
 
 ![Configuration 3](configure-identity-provider/keycloak-create-app-client-3.png)
 
 ### Create a Client for the CLI
 
-In order to use the `tenzir-platform` CLI we need to set up an additional
+In order to use the `tenzir-platform` CLI you need to set up an additional
 client that supports device code authentication. (It is possible but not
 recommended to use the same client for both Tenzir UI and Tenzir Platform CLI)
 
@@ -199,8 +199,8 @@ Follow these steps to create the required resources:
 
 ![Copy Issuer URL](./configure-identity-provider/entra-oidc-issuer-url.png)
 
-Now you can supply the created resources and values to the stack by setting
-editing the `.env` file in your compose folder:
+Now you can supply the created resources and values to the stack by editing
+the `.env` file in your compose folder:
 
 ```sh
 TENZIR_PLATFORM_OIDC_PROVIDER_NAME="Entra ID"
@@ -230,10 +230,10 @@ to a space-separated list of scope names.
 ### Profile Pictures
 
 To include custom profile pictures, include a `picture` claim in the returned
-ID token containing an URL to the image file.
+ID token containing a URL to the image file.
 
 The Tenzir Platform will read that claim and use it as the profile picture in
-the top right corner of user interface, or fall back to a default image if the
+the top right corner of the user interface, or fall back to a default image if the
 claim is not present.
 
 ### Refresh Tokens

@@ -2,56 +2,62 @@
 title: Overview
 ---
 
-The **Tenzir Platform** is the fleet management control plane for Tenzir Nodes.
-The platform also provides a web interface to explore data, create pipelines,
-and build dashboards.
+The **Tenzir Platform** acts as a fleet management control plane for Tenzir
+Nodes. Use its web interface to explore data, create pipelines, and build
+dashboards.
 
 {% aside type="tip" title="Sovereign Edition required" %}
-This guide explains how you setup the platform on your own premises using the
-[Sovereign Edition](https://tenzir.com/pricing). We also offer a cloud-hosted
-version of the Platform at [app.tenzir.com](https://app.tenzir.com).
+This guide shows you how to set up the platform on your own premises with the
+[Sovereign Edition](https://tenzir.com/pricing). We also offer a hosted
+cloud version of the platform at [app.tenzir.com](https://app.tenzir.com).
 {% /aside %}
 
 ## Services
 
-The platform consists of three types of several services, as illustrated in the
-diagram below:
+The platform integrates three types of services, as the diagram below
+illustrates:
 
 ![Platform Services](./platform-services.svg)
 
-There are three types of services:
-
-1. **Internal**: The (gray) Tenzir services are internal to the workings of
-   platform. You do not need to configure them.
-2. **External**: The (blue) services are external. We do not ship with them and
-   you have to bring them to the table.
-3. **Configurable**: The (yellow) services can be both internal and external.
-   You can either bring your own or use the bundled services that we ship.
+1. **Internal**: Tenzir provides the (gray) internal services. They are core
+   to the platform's operation.
+2. **External**: You provide the (blue) external services. We do not ship
+   these, so you must bring your own.
+3. **Configurable**: You can use our bundled (yellow) configurable services or
+   provide your own.
 
 ## Get Started
 
-Setting up the platform involves the following steps:
+Follow these steps to set up the platform:
 
 {% steps %}
 
-1. [**Choose a scenario**](/guides/platform-setup/choose-a-scenario): You can deploy the platform in
-  various ways. We provide a few scenarios that match common use cases.
-2. **Configure the services**: You must configure at least the
-   [reverse proxy](/guides/platform-setup/configure-reverse-proxy). Optionally, configure the
-   [identity provider](/guides/platform-setup/configure-identity-provider), the
-   [database](/guides/platform-setup/configure-database), and the
-   [blob storage](/guides/platform-setup/configure-blob-storage).
-3. [**Adjust TLS settings**](/guides/platform-setup/adjust-tls-settings): Optionally, tweak the TLS
-   settings to match your needs.
-4. [**Run the platform**](/guides/platform-setup/run-the-platform): Once you've created a
-   configuration, start the platform. This can be as easy as `docker compose
-   up`.
+1. [**Choose a scenario**](/guides/platform-setup/choose-a-scenario): First,
+   choose a deployment scenario that best fits your use case. We provide
+   several options that match common deployments.
+
+2. **Configure the services**: Next, configure the platform's services. You must
+   set up the external endpoints so nodes and browsers can interact with the
+   platform.
+
+   - [Configure reverse proxy](/guides/platform-setup/configure-reverse-proxy)
+   - [Configure internal services](/guides/platform-setup/configure-internal-services)
+   - [Configure identity provider](/guides/platform-setup/configure-identity-provider)
+   - [Configure database](/guides/platform-setup/configure-database)
+   - [Configure blob storage](/guides/platform-setup/configure-blob-storage)
+
+   You may skip some steps depending on your chosen scenario.
+
+3. [**Run the platform**](/guides/platform-setup/run-the-platform): After you
+   create a configuration, start the platform. This can be as simple as
+   running `docker compose up`.
 
 {% /steps %}
 
 {% aside type="note" title="Usage Guides" %}
-The above guides are about deploying the platform. Check out our user-centric
-guides on how to manage the platform:
+The guides above cover platform deployment. For platform management, see our
+user-centric guides:
+
 1. [Configure workspaces](/guides/platform-management/configure-workspaces)
 2. [Configure dashboards](/guides/platform-management/configure-dashboards)
 3. [Use ephemeral nodes](/guides/platform-management/use-ephemeral-nodes)
