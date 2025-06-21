@@ -26,8 +26,8 @@ export const guides = [
     items: [
       "guides/platform-setup",
       "guides/platform-setup/choose-a-scenario",
+      "guides/platform-setup/configure-reverse-proxy",
       "guides/platform-setup/configure-internal-services",
-      "guides/platform-setup/configure-endpoints",
       "guides/platform-setup/configure-identity-provider",
       "guides/platform-setup/configure-database",
       "guides/platform-setup/configure-blob-storage",

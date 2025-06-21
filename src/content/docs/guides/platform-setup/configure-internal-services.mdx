@@ -1,73 +1,74 @@
 ---
-title: Configure core services
+title: Configure internal services
 ---
 
-The Tenzir Platform usually runs as a set of containers in a docker compose
-stack. Our [example files](https://github.com/tenzir/platform/tree/main/examples)
-pick up certain configuration parameters from environment variables.
+This guide covers configuration for the three internal Tenzir services: the
+**Tenzir UI**, **Tenzir Gateway**, and **Platform API**. These are the core
+platform services provided by Tenzir that require internal configuration.
 
-To configure the platform, create a file named `.env` in the same directory
-as the `docker-compose.yaml` file with your Tenzir Platform stack and set
-the environment variables described below.
+The platform runs as a set of containers in a Docker Compose stack. Our
+[example files](https://github.com/tenzir/platform/tree/main/examples) read
+configuration parameters from environment variables.
+
+Create a file named `.env` in the same directory as your `docker-compose.yaml`
+file and set the environment variables described below.
 
 ## Admin Rules
 
-The Tenzir Platform distinguishes between regular and admin users.
-Admin users have permission to create new workspaces and to view, edit and
-delete all existing workspaces.
+The platform distinguishes between _regular_ and _admin_ users. Admin users can
+create new workspaces and view, edit, and delete all existing workspaces.
 
-At the moment, only admins can create shared workspaces by creating a new
-workspace and editing the access rules.
+Currently, only admins can create shared workspaces by creating a new workspace
+and editing the access rules.
 
-To configure who is an administrator, you provide a list of
-authentication rules. Every user matching any of the provided rules
-is considered to be an administrator of this platform instance, and will
-be allowed to use the `tenzir-platform admin` CLI commands.
+Configure admins by providing a list of authentication rules. The platform
+considers any user matching the provided rules an admin and allows them to use
+the `tenzir-platform admin` CLI commands.
 
-Use the `tenzir-platform tools print-auth-rule` CLI command to
-get valid rules to insert here.
+Use the `tenzir-platform tools print-auth-rule` CLI command to generate valid
+rules for insertion here.
 
 ```sh
-# Everybody is an admin. Suitable for deployments with just a few users who
-# fully trust each other.
+# Make everybody an admin.
+# Use for deployments with few users who fully trust each other.
 TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_allow_all"}]
 
-# The two users with the ids `google-oauth2:12345678901` and `google-oauth2:12345678902`
-# are the admins of this Tenzir Platform instance.
+# Make the two users with IDs `google-oauth2:12345678901` and
+# `google-oauth2:12345678902` admins of this platform instance.
 TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_user","user_id":"google-oauth2:12345678901"}, {"auth_fn":"auth_user","user_id":"google-oauth2:12345678902"}]
 ```
 
 ## Random Seeds
 
-The Tenzir Platform requires some random strings to perform some encryption
-functions. You should generate these from a secure random number generator and
-use unique values for each instance of the Tenzir Platform.
+The platform requires random strings for encryption functions. Generate these
+from a secure random number generator and use unique values for each platform
+instance.
 
-```
-# An arbitrary random string used as key to encrypt frontend cookies.
+```sh
+# Random string to encrypt frontend cookies.
 # Generate with `openssl rand -hex 32`.
 TENZIR_PLATFORM_INTERNAL_AUTH_SECRET=
 
-# An arbitrary random string used to generate user keys.
+# Random string to generate user keys.
 # Generate with `openssl rand 32 | base64`.
 TENZIR_PLATFORM_INTERNAL_TENANT_TOKEN_ENCRYPTION_KEY=
 
-# An arbitrary random string used by the app to access restricted API endpoints.
+# Random string for the app to access restricted API endpoints.
 # Generate with `openssl rand -hex 32`.
 TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
 ```
 
 ## Internal Proxy
 
-By default, the Tenzir UI is doing requests directly from the browser to the
-Tenzir Gateway to query the status of connected nodes. This can be problematic
-in some network topologies, in particular in zero-trust networks where
-accessing the Tenzir Gateway requires some additional authentication headers.
+By default, the Tenzir UI sends requests directly from the browser to the
+Tenzir Gateway to query connected node status. This can cause problems in some
+network topologies, particularly in zero-trust networks where accessing the
+Tenzir Gateway requires additional authentication headers.
 
-It is possible to proxy these requests through the Tenzir UI Backend instead,
-making all requests from the Tenzir UI Frontend go to the same domain, at
-the cost of some additional latency introduced by an additional proxy hop.
+Enable the internal proxy to route these requests through the Tenzir UI Backend
+instead, making all requests from the Tenzir UI Frontend go to the same domain.
+This approach adds some latency through an additional proxy hop.
 
-```
+```sh
 TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true
 ```
