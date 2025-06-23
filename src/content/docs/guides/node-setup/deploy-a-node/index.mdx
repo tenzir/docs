@@ -125,14 +125,27 @@ rpm -i tenzir-static-amd64-linux.rpm
 </TabItem>
 <TabItem value="nix" label="Nix" icon="nix">
 
-Use our `flake.nix`:
+Use our `flake.nix` to run an ad-hoc `tenzir` pipeline:
 
 ```bash
-nix run github:tenzir/tenzir/stable
+nix run github:tenzir/tenzir/latest
 ```
 
-Install Tenzir by adding `github:tenzir/tenzir/stable` to your flake inputs, or
-use your preferred method to include third-party modules on classic NixOS.
+Or run a node without installing:
+
+```bash
+nix shell github:tenzir/tenzir/latest -c tenzir-node
+```
+
+Install a Tenzir Node by adding `github:tenzir/tenzir/latest` to your flake
+inputs, or use your preferred method to include third-party modules on classic
+NixOS.
+
+:::note[Pre-built only!]
+The default attributes of the flake contain some closed source plugins and will
+fail to download locally. The flake is only for public consumption together with
+the [Tenzir cachix cache](https://tenzir.cachix.org).
+:::
 
 </TabItem>
 <TabItem value="any" label="Any" icon="linux">
