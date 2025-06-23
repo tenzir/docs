@@ -267,6 +267,8 @@ export const referenceOperators = [
   "reference/operators/read_bitz",
   "reference/operators/read_cef",
   "reference/operators/read_csv",
+  "reference/operators/read_delimited",
+  "reference/operators/read_delimited_regex",
   "reference/operators/read_feather",
   "reference/operators/read_gelf",
   "reference/operators/read_grok",

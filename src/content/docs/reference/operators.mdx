@@ -487,6 +487,14 @@ operators:
     description: 'Read CSV (Comma-Separated Values) from a byte stream.'
     example: 'read_csv null_value="-"'
     path: 'reference/operators/read_csv'
+  - name: 'read_delimited'
+    description: 'Parses an incoming bytes stream into events using a string as delimiter.'
+    example: 'read_delimited "|"'
+    path: 'reference/operators/read_delimited'
+  - name: 'read_delimited_regex'
+    description: 'Parses an incoming bytes stream into events using a regular expression as delimiter.'
+    example: 'read_delimited_regex r"\s+"'
+    path: 'reference/operators/read_delimited_regex'
   - name: 'read_feather'
     description: 'Parses an incoming Feather byte stream into events.'
     example: 'read_feather'
@@ -1535,6 +1543,22 @@ read_cef
 
 ```tql
 read_csv null_value="-"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="read_delimited" description="Parses an incoming bytes stream into events using a string as delimiter." href="/reference/operators/read_delimited">
+
+```tql
+read_delimited "|"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="read_delimited_regex" description="Parses an incoming bytes stream into events using a regular expression as delimiter." href="/reference/operators/read_delimited_regex">
+
+```tql
+read_delimited_regex r"\s+"
 ```
 
 </ReferenceCard>
