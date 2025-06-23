@@ -88,22 +88,24 @@ function inlineSVGsInHTML(html) {
       const originalSVG = originalSVGs.get(baseName);
       const svgContent = loadSVG(originalSVG);
       if (svgContent) {
-        const svgNode = parse(svgContent).firstChild;
+        const svgNode = parse(svgContent).querySelector("svg");
 
-        // Copy attributes from <img> to <svg>
-        ["width", "height", "alt", "class"].forEach((attr) => {
-          if (img.hasAttribute(attr)) {
-            svgNode.setAttribute(attr, img.getAttribute(attr));
-          }
-        });
+        if (svgNode) {
+          // Copy attributes from <img> to <svg>
+          ["width", "height", "alt", "class"].forEach((attr) => {
+            if (img.hasAttribute(attr)) {
+              svgNode.setAttribute(attr, img.getAttribute(attr));
+            }
+          });
 
-        // Ensure SVG has the correct class for styling
-        const existingClass = svgNode.getAttribute("class") || "";
-        svgNode.setAttribute("class", `inline-svg ${existingClass}`.trim());
+          // Ensure SVG has the correct class for styling
+          const existingClass = svgNode.getAttribute("class") || "";
+          svgNode.setAttribute("class", `inline-svg ${existingClass}`.trim());
 
-        // Replace <img> with inline <svg>
-        img.replaceWith(svgNode);
-        inlinedCount++;
+          // Replace <img> with inline <svg>
+          img.replaceWith(svgNode);
+          inlinedCount++;
+        }
       }
     }
   });
