@@ -210,6 +210,19 @@ There exist two ways stop a server:
 
 Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
 
+## AWS
+
+To run a node in AWS, we recommend using [Elastic Container Service (ECS)](...)
+which allow you to configure nodes without having to set up EC2 instances.
+
+This guide describes how to set up a single Tenzir Node on AWS manually. For
+a more automated process, check out the sections on Terraform and Ansible below.
+
+### ECS
+
+...
+
+
 ## Azure
 
 To run a node in Azure, we recommend using [Azure Container Instances
@@ -264,6 +277,35 @@ Docker Compose file.
 
 Once you've completed the configuration, click the _Create_ button. Your node is
 now up and running.
+
+## terraform
+
+In order to deploy a Tenzir Node using Terraform, you generally define a
+container service that runs the Tenzir Node container image and that contains
+the appropriate `TENZIR_TOKEN` configuration variable.
+
+Of course, more advanced deployments like a kubernetes cluster can also be
+configured according to your needs.
+
+### AWS
+
+```tf
+
+resource "" "tenzir_node" {
+
+}
+
+```
+
+### GCP
+
+```tf
+resource "" "tenzir_node" {
+
+}
+```
+
+
 
 ## macOS
 
