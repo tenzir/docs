@@ -13,7 +13,9 @@ configuration parameters from environment variables.
 Create a file named `.env` in the same directory as your `docker-compose.yaml`
 file and set the environment variables described below.
 
-## Admin Rules
+## Tenzir Platform
+
+### Admin Rules
 
 The platform distinguishes between _regular_ and _admin_ users. Admin users can
 create new workspaces and view, edit, and delete all existing workspaces.
@@ -38,7 +40,7 @@ TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_allow_all"}]
 TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_user","user_id":"google-oauth2:12345678901"}, {"auth_fn":"auth_user","user_id":"google-oauth2:12345678902"}]
 ```
 
-## Random Seeds
+### Random Seeds
 
 The platform requires random strings for encryption functions. Generate these
 from a secure random number generator and use unique values for each platform
@@ -58,7 +60,9 @@ TENZIR_PLATFORM_INTERNAL_TENANT_TOKEN_ENCRYPTION_KEY=
 TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
 ```
 
-## Internal Proxy
+## Tenzir UI
+
+### Internal Proxy
 
 By default, the Tenzir UI sends requests directly from the browser to the
 Tenzir Gateway to query connected node status. This can cause problems in some
@@ -72,3 +76,8 @@ This approach adds some latency through an additional proxy hop.
 ```sh
 TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true
 ```
+
+
+## Tenzir Gateway
+
+The Tenzir Gateway does not offer any user-controlled settings at the moment.
