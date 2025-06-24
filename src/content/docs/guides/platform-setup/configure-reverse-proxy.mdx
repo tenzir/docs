@@ -2,9 +2,7 @@
 title: Configure reverse proxy
 ---
 
-This guide explains how to configure a reverse proxy for the platform to route
-incoming requests to the corresponding backend services. The platform uses 4
-distinct entry points with 4 different URLs:
+The platform uses 4 distinct entry points with 4 different URLs:
 
 1. **Tenzir UI**: The URL your browser connects to, e.g., `app.platform.example`.
    This serves the web frontend where you interact with the platform.
@@ -19,7 +17,15 @@ distinct entry points with 4 different URLs:
 4. **Platform API**: The URL the Tenzir Platform CLI connects to, e.g.,
    `api.platform.example`.
 
-Set the following environment variables to reach these 4 services:
+The typical setup for the Tenzir Platform uses a reverse proxy to terminate
+TLS connections and forward incoming traffic to the correct services. The choice
+of technology varies with your deployment scenario and ranges from an additional
+`traefik` container within the docker compose stack, over an nginx instance
+running on the same host, to global load balancing services offered by a
+commercial cloud provider.
+
+In our examples scenarios, set the following environment variables to configure
+these 4 endpoints:
 
 ```sh
 # The domain under which the platform frontend is reachable.
@@ -39,7 +45,7 @@ TENZIR_PLATFORM_API_ENDPOINT=https://api.platform.example
 
 ## Native TLS
 
-The reverse proxy typically runs on the same host as other platform containers
+A reverse proxy typically runs on the same host as other platform containers
 and terminates TLS. When you cannot guarantee that the reverse proxy runs on
 the same host as other platform containers, or deploy the containers to
 different machines, enable native TLS support for individual platform
