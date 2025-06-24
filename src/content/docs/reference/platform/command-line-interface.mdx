@@ -4,8 +4,8 @@ sidebar:
   label: Command Line Interface
 ---
 
-The _Tenzir Platform CLI_ allows users to interact with the _Tenzir Platform_
-from the command-line to manage their workspaces and nodes.
+The Tenzir Platform Command-Line Interface (CLI) allows users to interact with
+the Tenzir Platform from the command line to manage workspaces and nodes.
 
 ## Installation
 
@@ -28,11 +28,11 @@ tenzir-platform workspace select <workspace_id>
 
 ### Description
 
-The `tenzir-platform auth login` command authenticates the current user.
+The `tenzir-platform auth login` command authenticates you with the platform.
 
-The `tenzir-platform workspace list` and `tenzir-platform workspace select`
-commands show workspaces available to the authenticated user and select one,
-respectively.
+The `tenzir-platform workspace list` command shows all workspaces available to
+you. The `tenzir-platform workspace select` command selects a workspace for
+subsequent operations.
 
 #### `<workspace_id>`
 
@@ -52,21 +52,19 @@ tenzir-platform node run [--name <node_name>] [--image <container_image>]
 
 ### Description
 
-The following commands interact with the selected workspace. See
-[Authentication](#authentication) above for how to select a workspace:
+The following commands interact with the selected workspace:
 
 - `tenzir-platform node list` lists all nodes in the selected workspace,
   including their ID, name, and connection status.
 - `tenzir-platform node ping` pings the specified node.
-- `tenzir-platform node create` registers a new node at the platform so that it
-  can be connected to the platform. Note that this neither starts a new node
-  nor configures one, it just creates a new API key that a node can use to
-  connect to the platform with.
-- `tenzir-platform node delete` removes a node from the platform. Note that
-  this does not stop the node, it just removes it from the platform.
-- `tenzir-platform node run` creates and registers an ad-hoc node, and starts
-  it on the local host. Requires Docker Compose to be available. The node is
-  temporary and will be deleted when the `run` command is stopped.
+- `tenzir-platform node create` registers a new node at the platform. This
+  command creates a new API key that a node can use to connect to the platform.
+  It does not start or configure a node.
+- `tenzir-platform node delete` removes a node from the platform. This command
+  does not stop the node; it only removes it from the platform.
+- `tenzir-platform node run` creates and registers an ad-hoc node, then starts
+  it on the local host. This command requires Docker Compose. The platform
+  deletes the temporary node when you stop the `run` command.
 
 #### `<node_id>`
 
@@ -78,8 +76,8 @@ The name of the node as shown in the app.
 
 #### `<container_image>`
 
-The Docker image to use for ad-hoc created node. We recommend using one of the
-following images:
+The Docker image to use for the ad-hoc created node. We recommend using one of
+the following images:
 
 - `tenzir/tenzir:latest` to use the latest release.
 - `tenzir/tenzir:main` to use the current development version.
@@ -89,8 +87,8 @@ following images:
 
 ## Manage Secrets
 
-The Tenzir Platform provides storage of secrets, which can be accessed by
-pipelines running on a Tenzir Node.
+The Tenzir Platform provides secret storage that pipelines running on a Tenzir
+Node can access.
 
 ### Synopsis
 
@@ -103,29 +101,29 @@ tenzir-platform secret list [--json]
 
 ### Description
 
-The following commands allow for managing secrets in the Tenzir Platform.
-Secrets can be securely stored and accessed by pipelines running on nodes.
+The following commands manage secrets in the Tenzir Platform:
 
-- `tenzir-platform secret add` adds a new secret to the platform. The secret
-  value can be provided directly via the `--value` option, read from a file
-  using the `--file` option, or sourced from an environment variable using the
-  `--env` flag. The secret is identified by the provided `<name>`.
+- `tenzir-platform secret add` adds a new secret to the platform. You can
+  provide the secret value directly via the `--value` option, read it from a
+  file using the `--file` option, or source it from an environment variable
+  using the `--env` flag. The platform identifies the secret by the provided
+  `<name>`.
 
 - `tenzir-platform secret update` updates an existing secret identified by
-  `<secret_id>`. Similar to adding a secret, the new value can be provided via
+  `<secret_id>`. Like adding a secret, you can provide the new value via
   `--value`, `--file`, or `--env`.
 
 - `tenzir-platform secret delete` removes a secret from the platform. The
-  secret to be deleted is identified by its `<secret_id>`.
+  command identifies the secret to delete by its `<secret_id>`.
 
 - `tenzir-platform secret list` lists all secrets available in the platform.
-  The `--json` flag can be used to output the list in JSON format for easier
+  Use the `--json` flag to output the list in JSON format for easier
   integration with other tools.
 
 #### `<name>`
 
-The unique name to identify the secret. This name is used when accessing the
-secret in pipelines.
+The unique name to identify the secret. Pipelines use this name when accessing
+the secret.
 
 #### `<secret_id>`
 
@@ -134,8 +132,8 @@ The unique identifier of the secret, as shown in the output of
 
 #### `--file=<file>`
 
-Specifies a file containing the secret value. The file's contents will be
-securely stored as the secret value.
+Specifies a file containing the secret value. The platform securely stores the
+file's contents as the secret value.
 
 #### `--value=<value>`
 
@@ -143,8 +141,8 @@ Specifies the secret value directly as a command-line argument.
 
 #### `--env`
 
-Indicates that the secret value should be sourced from an environment variable.
-The environment variable must be set before running the command.
+Indicates that the command should source the secret value from an environment
+variable. You must set the environment variable before running the command.
 
 #### `--json`
 
@@ -153,16 +151,16 @@ Outputs the list of secrets in JSON format when used with the
 
 ## Manage External Secret Stores
 
-Instead of using the built-in secret store of the Tenzir Platform, users can
-configure their workspaces to use secrets from an external secret store.
+Users can configure workspaces to use external secret stores instead of the
+Tenzir Platform's built-in secret store.
 
-At the moment, only AWS Secrets Manager is supported as an external store,
-although we're planning to add more options in the near future.
+Currently, the platform only supports
+[AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) as an external
+store.
 
-By default, external secret stores are mounted read-only, i.e., it will not be
-possible to add or update secrets from the CLI or the web interface. Some
-external secret store implementations may offer options to also allow write
-access to the secrets.
+By default, the platform mounts external secret stores as read-only. You cannot
+add or update secrets from the CLI or web interface. Some external secret store
+implementations may offer write access options.
 
 ### Synopsis
 
@@ -181,33 +179,33 @@ tenzir-platform secret store list [--json]
 
 ### Description
 
-When the Tenzir Node accesses a secret by using the `secret("foo")` function
-in a pipeline, the Tenzir Platform will look up the secret with the name `foo`
-in the default secret store of that node's workspace and return the secret
-value to the node.
+When a node accesses a secret using the `secret("foo")` function in a pipeline,
+the platform looks up the secret named `foo` in the workspace's default secret
+store and returns the value to the node.
 
-When using an external secret store, the Tenzir Platform needs to have the
-necessary permissions to read secret values from that store.
+When using an external secret store, the platform needs the necessary
+permissions to read secret values from that store.
 
-For the AWS Secrets Manager, the Tenzir Platform uses STS to assume a role with
-the necessary permissions. It is your responsibility to create that role and configure one of the following options:
+For AWS Secrets Manager, the Tenzir Platform uses [AWS Security Token Service
+(STS)](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html) to
+assume a role with the necessary permissions. You must create this role and
+configure one of the following options:
 
 1. Create an IAM user. Download access keys and pass them via the
    `--access-key-id` and `--secret-access-key` arguments. This approach is the
-   easiest to set up, but only acceptable for self-hosted testing or
-   development instances of the Tenzir Platform because it stores long-term
-   credentials in the Tenzir Platform.
+   easiest to set up but only acceptable for self-hosted testing or development
+   instances of the Tenzir Platform because it stores long-term credentials in
+   the Tenzir Platform.
 
-2. Assign the permissions to the task role of the websocket gateway.
-   This is the recommended option for users running the Sovereign Edition of the
+2. Assign the permissions to the task role of the websocket gateway. We
+   recommend this option for users running the Sovereign Edition of the
    Platform and deploying it to their own AWS account.
 
 3. Assign the permission to assume the configured role to Tenzir's AWS account
-   with the id `660178929208`. This option will only work with our publicly
-   hosted platform instance on `https://app.tenzir.com`.
+   with the ID `660178929208`. This option only works with our publicly hosted
+   platform instance on `https://app.tenzir.com`.
 
-We're working on expanding this to offer an OIDC-based option as well, as an
-alternative to options (1) and (3) above.
+We plan to add an OIDC-based option as an alternative to options (1) and (3).
 
 ## Manage Alerts
 
@@ -221,14 +219,14 @@ tenzir-platform alert list
 
 ### Description
 
-The following commands allow for setting up alerts for specific nodes. After a
-node has been disconnected for the configured amount of time, an alert fires by
-performing a POST request against the configured webhook URL.
+The following commands set up alerts for specific nodes. When a
+node remains disconnected for the configured duration, an alert triggers by
+sending a POST request to the configured webhook URL.
 
 #### `<node>`
 
-The node to be monitored. Can be provided as a node ID or a node name,
-as long as the name is unambiguous.
+The node to monitor. You can provide either a node ID or a node name, as long
+as the name is unambiguous.
 
 #### `<duration>`
 
@@ -236,16 +234,17 @@ The amount of time to wait between the node disconnect and triggering the alert.
 
 #### `<webhook_url>`
 
-The platform performs a POST request against this URL when the alert triggers.
+The platform sends a POST request to this URL when the alert triggers.
 
 #### `<webhook_body>`
 
-The body to send along with the webhook. Must be valid JSON. The body may
-contain the string `$NODE_NAME`, which will be replaced by the name of the
-node that triggered the alert.
+The body to send with the webhook. Must be valid JSON. The body may contain
+`$NODE_NAME`, which the platform replaces with the name of the node that
+triggered the alert.
 
 Defaults to `{"text": "Node $NODE_NAME disconnected for more than {duration}s"}`,
-where `$NODE_NAME` and `{duration}` are set dynamically from the CLI parameters.
+where the platform sets `$NODE_NAME` and `{duration}` dynamically from the CLI
+parameters.
 
 ### Example
 
@@ -259,7 +258,7 @@ $ tenzir-platform node list
 ```
 
 We want to receive a Slack notification whenever Node-3 is offline for more
-than 3 minutes. First we create a webhook as described in the
+than 3 minutes. First, we create a webhook as described in the
 [Slack docs](https://api.slack.com/messaging/webhooks). Next, we configure the
 alert in the Tenzir Platform:
 
@@ -267,21 +266,19 @@ alert in the Tenzir Platform:
 tenzir-platform alert add Node-3 3m "https://hooks.slack.com/services/XXXXX/YYYYY/ZZZZZ" '{"text": "Alert! Look after node $NODE_NAME"}'
 ```
 
-Unless Node-3 reconnects, we should see a message appear after 3 minutes in the
+If Node-3 doesn't reconnect within 3 minutes, a message appears in the
 configured Slack channel.
 
 ## Manage Workspaces
 
 :::caution[On-Premise Setup Required]
-This functionality of the CLI can only be used in combination
-with an on-premise platform deployment, which is available to users
-of the [Sovereign Edition](https://tenzir.com/pricing).
+This CLI functionality requires an on-premise platform deployment, available
+with the [Sovereign Edition](https://tenzir.com/pricing).
 :::
 
-These CLI commands are only available to local platform administrators.
-The `TENZIR_PLATFORM_OIDC_ADMIN_RULES` variable described
-[here](/guides/platform-setup/configure-identity-provider) is used
-to define who is an administrator in your platform deployment.
+These CLI commands are only available to local platform administrators. The
+[`TENZIR_PLATFORM_OIDC_ADMIN_RULES` variable](/guides/platform-setup/configure-identity-provider)
+defines who is an administrator in your platform deployment.
 
 ### Synopsis
 
@@ -299,26 +296,24 @@ list, create, or delete workspaces, respectively.
 
 #### `<owner_namespace>`
 
-Either `user` or `organization`, depending on whether the workspace is
-associated with a user or an organization.
+Either `user` or `organization`, depending on whether the workspace associates
+with a user or an organization.
 
-The selected namespace will determine the _default_ access rules for the
-workspace:
+The selected namespace determines the _default_ access rules for the workspace:
 
-- For a user workspace, a single access rule will be created that allows
-  access to the user whose user id matches the given `owner_id`.
-- For an organization workspace, no rules will be created by default and
-  they have to be manually added using the `add-auth-rule` subcommand
-  described below.
+- For a user workspace, the platform creates a single access rule that allows
+  access to the user whose user ID matches the given `owner_id`.
+- For an organization workspace, the platform creates no rules by default. You
+  must manually add them using the `add-auth-rule` subcommand described below.
 
 #### `<owner_id>`
 
 The unique ID of the workspace owner:
 
-- If `<owner_namespace>` is `user`, then this matches the user's `sub` claim in
-  the OIDC token.
-- If `<owner_namespace>` is `organization`, then this is an arbitrary string
-  uniquely identifying the organization the workspace belongs to.
+- If `<owner_namespace>` is `user`, this matches the user's `sub` claim in the
+  OIDC token.
+- If `<owner_namespace>` is `organization`, this is an arbitrary string that
+  uniquely identifies the organization the workspace belongs to.
 
 #### `--name <workspace_name>`
 
@@ -332,15 +327,14 @@ The unique ID of the workspace, as shown in `tenzir-platform workspace list` or
 ## Configure Access Rules
 
 :::caution[On-Premise Setup Required]
-This functionality of the CLI can only be used in combination
-with an on-premise platform deployment, which is available to users
-of the [Sovereign Edition](https://tenzir.com/pricing).
+You can only use this CLI functionality with an on-premise platform deployment,
+which is available to users of the
+[Sovereign Edition](https://tenzir.com/pricing).
 :::
 
-These CLI commands are only available to local platform administrators.
-The `TENZIR_PLATFORM_OIDC_ADMIN_RULES` variable described
-[here](/guides/platform-setup/configure-identity-provider) is used
-to define who is an administrator in your platform deployment.
+These CLI commands are only available to local platform administrators. The
+[`TENZIR_PLATFORM_OIDC_ADMIN_RULES` variable](/guides/platform-setup/configure-identity-provider)
+defines who is an administrator in your platform deployment.
 
 ### Synopsis
 
@@ -361,45 +355,45 @@ tenzir-platform admin delete-auth-rule <workspace_id> <auth_rule_index>
 
 ### Description
 
-Users with admin permissions can use the `tenzir-platform admin
-list-auth-rules`, `tenzir-platform admin add-auth-rule`, and `tenzir-platform
-admin delete-auth-rule` commands to list, create, or delete authentication
-rules for all users, respectively.
+Users with admin permissions can use the `tenzir-platform admin list-auth-rules`,
+`tenzir-platform admin add-auth-rule`, and `tenzir-platform admin delete-auth-rule`
+commands to list, create, or delete authentication rules for all users,
+respectively.
 
 Authentication rules allow users to access the workspace with the provided
 `<workspace_id>` if the user's `id_token` matches the configured rule. Users
-have access to a workspace if any configured rule allows access. The following
+gain access to a workspace if any configured rule allows access. The following
 rules exist:
 
 - **Email Suffix Rule**: `tenzir-platform admin add-auth-rule email-domain`
-  allows access if the `id_token` contains a field `connection` that exactly
-  matches the provided `<connection>` and a field `email` that ends with the
+  allows access if the `id_token` contains a `connection` field that exactly
+  matches the provided `<connection>` and an `email` field that ends with the
   configured `<domain>`.
 
 - **Organization Membership**: `tenzir-platform admin add-auth-rule
-organization-membership` allows
-  access if the `id_token` contains a field `connection` that exactly matches
-  the provided `<connection>` and a field `<organization_claim>` that exactly
-  matches the provided `<organization>`.
+  organization-membership` allows access if the `id_token` contains a
+  `connection` field that exactly matches the provided `<connection>` and an
+  `<organization_claim>` field that exactly matches the provided
+  `<organization>`.
 
-  Note that the `<organization_claim>` and `<organization>` can be freely
-  chosen, so this rule can also be repurposed for generic claims that are not
-  necessarily related to organizations.
+  Note that you can freely choose the `<organization_claim>` and
+  `<organization>`, so you can also repurpose this rule for generic claims that
+  are not necessarily related to organizations.
 
-  - **Organization Role Rule**: `tenzir-platform admin add-auth-rule
-organization-role` allows access if the `id_token` contains a field
-    `connection` that exactly matches the provided `<connection>`, a field
-    `<organization_claim>` that exactly matches the provided `<organization>`, and
-    a field `<roles_claim>` that must be a list containing a value exactly
-    matching `<role>`.
+- **Organization Role Rule**: `tenzir-platform admin add-auth-rule
+  organization-role` allows access if the `id_token` contains a `connection`
+  field that exactly matches the provided `<connection>`, an
+  `<organization_claim>` field that exactly matches the provided
+  `<organization>`, and a `<roles_claim>` field that must be a list containing
+  a value exactly matching `<role>`.
 
   We recommend using organization role rules to check if a user has a specific
   role with an organization.
 
 - **User Rule**: `tenzir-platform admin add-auth-rule user` allows access if
-  the `id_token` contains a field `sub` that exactly matches the provided
+  the `id_token` contains a `sub` field that exactly matches the provided
   `<user_id>`.
 
 - **Allow All Rule**: `tenzir-platform admin add-auth-rule allow-all` allows
-  access to every user. This can be useful to e.g. set up a workspace that is
-  shared by all users of a platform instance.
+  access to every user. Use this rule to set up a workspace that all users of a
+  platform instance can access.
