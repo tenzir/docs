@@ -1,0 +1,86 @@
+---
+title: Dynamic Publish
+sidebar:
+  badge:
+    text: v5.6.0
+    variant: success
+---
+
+The  operator now supports event-dependent topics, making routing between pipelines more flexible. Additionally, new  and  operators make taking apart custom logs easier than before.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.6.0).
+
+### Features
+
+#### `read_delimited` and `read_delimited_regex`
+
+TQL now supports two new operators for parsing data streams with custom
+delimiters: `read_delimited` and `read_delimited_regex`. These operators provide a more
+intuitive and discoverable way to split data on custom separators compared to
+the deprecated `split_at_regex` option in `read_lines`.
+
+The `read_delimited` operator splits input on exact string or blob matches:
+
+```tql
+load_file "data.txt"
+read_delimited "||"
+```
+
+The `read_delimited_regex` operator splits input using regular expression patterns:
+
+```tql
+load_tcp "0.0.0.0:514" {
+  read_delimited_regex "(?=<[0-9]+>)"
+}
+```
+
+Both operators support binary data processing and optionally including the
+separator in the output. The `split_at_regex` option in `read_lines` is now
+deprecated in favor of these dedicated operators.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5291](https://github.com/tenzir/tenzir/pull/5291).
+
+#### Publishing to dynamic topics
+
+The `publish` operator now allows for dynamic topics to be derived from each
+individual event.
+
+For example, assuming Suricata logs, `publish f"suricata.{event_type}"` now
+publishes to the topic `suricata.alert` for alert events and `suricata.flow` for
+flow events. This works with any expression that evaluates to a string,
+including `publish @name` to use the schema name of the event.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5294](https://github.com/tenzir/tenzir/pull/5294).
+
+#### HTTP request metadata
+
+The `from_http` operator now supports the `metadata_field` option when using the
+server mode and not just client mode. The request metadata has the following
+schema:
+
+| Field                | Type     | Description                           |
+| :------------------- | :------- | :------------------------------------ |
+| `headers`            | `record` | The request headers.                 |
+| `query`              | `record` | The query parameters of the request.  |
+| `path`               | `string` | The path requested.                   |
+| `fragment`           | `string` | The URI fragment of the request.      |
+| `method`             | `string` | The HTTP method of the request.       |
+| `version`            | `string` | The HTTP version of the request.      |
+
+By [@raxyte](https://github.com/raxyte) in [#5295](https://github.com/tenzir/tenzir/pull/5295).
+
+### Bug Fixes
+
+#### OCSF `-dev` versions
+
+The `ocsf::apply` operator can now be used with the newest development version
+of OCSF (v1.6.0-dev). Previously, it claimed that this version does not exist.
+
+By [@jachris](https://github.com/jachris) in [#5296](https://github.com/tenzir/tenzir/pull/5296).
+
+#### Fixed panic in `write_parquet`
+
+The `write_parquet` operator no longer panics when specifying
+`compression_type="snappy"` without a `compression_level`.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5293](https://github.com/tenzir/tenzir/pull/5293).
