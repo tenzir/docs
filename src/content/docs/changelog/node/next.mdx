@@ -34,6 +34,18 @@ deprecated in favor of these dedicated operators.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5291](https://github.com/tenzir/tenzir/pull/5291).
 
+#### Publishing to dynamic topics
+
+The `publish` operator now allows for dynamic topics to be derived from each
+individual event.
+
+For example, assuming Suricata logs, `publish f"suricata.{event_type}"` now
+publishes to the topic `suricata.alert` for alert events and `suricata.flow` for
+flow events. This works with any expression that evaluates to a string,
+including `publish @name` to use the schema name of the event.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5294](https://github.com/tenzir/tenzir/pull/5294).
+
 #### HTTP request metadata
 
 The `from_http` operator now supports the `metadata_field` option when using the
@@ -52,6 +64,13 @@ schema:
 By [@raxyte](https://github.com/raxyte) in [#5295](https://github.com/tenzir/tenzir/pull/5295).
 
 ### Bug Fixes
+
+#### OCSF `-dev` versions
+
+The `ocsf::apply` operator can now be used with the newest development version
+of OCSF (v1.6.0-dev). Previously, it claimed that this version does not exist.
+
+By [@jachris](https://github.com/jachris) in [#5296](https://github.com/tenzir/tenzir/pull/5296).
 
 #### Fixed panic in `write_parquet`
 
