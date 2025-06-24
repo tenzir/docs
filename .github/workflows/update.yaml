@@ -114,7 +114,7 @@ jobs:
           cd /tmp/platform
           git submodule update --init --depth 1 components/tenant-manager
 
-      - name: Finalize platform docs update
+      - name: Finalize platform changelog update
         if: inputs.product == 'platform'
         run: |
           cd /tmp/platform
@@ -128,13 +128,8 @@ jobs:
             fi
           done
           cd -
-
           # Run changelog script
           uv run ./changelog/changelog.py --product=platform /tmp/platform/changelog
-          # Copy reference
-          cp /tmp/platform/docs/platform-cli.mdx ./src/content/docs/reference/platform-cli.mdx
-          # Clean up
-          rm -rf /tmp/platform
 
       - name: Generate an app token
         id: generate_token
