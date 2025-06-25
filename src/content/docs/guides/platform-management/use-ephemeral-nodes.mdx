@@ -59,10 +59,11 @@ tenzir-node --config=config.yaml
 
 ### Workspace Token Format
 
-A valid workspace token consists of the string `wsk_`, followed by 24 bytes
-of hex-encoded randomness, followed by the base58-encoded workspace id.
+A valid workspace token starts with the string `wsk_`, continues with 24 bytes
+of hex-encoded randomness, and ends with the base58-encoded workspace id.
 
-More precisely, a workspace token is encoded according to the following logic:
+More precisely, the Tenzir Platform CLI generates a workspace token according
+to the following logic:
 
 ```python
 import os
@@ -74,7 +75,7 @@ def print_workspace_token(workspace_id: str) -> None:
     print(f"wsk_{random_bytes}{base58_workspace_id}")
 ```
 
-The `tenzir-platform tools generate-workspace-token` implements exactly this logic
-to generate a valid workspace key. However, if you want to avoid external
-dependencies for generating the key, any other tool that can print a string in
-the format described above can be used as well.
+The `tenzir-platform tools generate-workspace-token` command generates a valid
+workspace key using exactly this logic. However, if you want to avoid external
+dependencies, you can use any other tool that prints a string in the format
+described above.
