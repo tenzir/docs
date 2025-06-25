@@ -21,7 +21,8 @@ workspaces:
 :::caution
 Workspace tokens have a specific format. Do not create them manually!
 Use the `tenzir-platform tools generate-workspace-token` command to create
-valid tokens.
+valid tokens, or read the _Workspace Token Format_ section below for more
+details.
 :::
 
 For improved security, store the token in a separate file:
@@ -38,7 +39,11 @@ This approach works well when you use Docker or Kubernetes secrets.
 
 ### Deploy an ephemeral node
 
-To spawn an ephemeral node, create configuration file with the workspace token:
+:::note
+Workspace tokens require a Tenzir Node v5.1.6 or later.
+:::
+
+To spawn an ephemeral node, create a configuration file with the workspace token:
 
 ```yaml title="config.yaml"
 tenzir:
@@ -51,3 +56,25 @@ Then run the node with this configuration:
 ```bash
 tenzir-node --config=config.yaml
 ```
+
+### Workspace Token Format
+
+A valid workspace token consists of the string `wsk_`, followed by 24 bytes
+of hex-encoded randomness, followed by the base58-encoded workspace id.
+
+More precisely, a workspace token is encoded according to the following logic:
+
+```python
+import os
+import base58
+
+def print_workspace_token(workspace_id: str) -> None:
+    base58_workspace_id = base58.b58encode(workspace_id.encode()).decode()
+    random_bytes = os.urandom(24).hex()
+    print(f"wsk_{random_bytes}{base58_workspace_id}")
+```
+
+The `tenzir-platform tools generate-workspace-token` implements exactly this logic
+to generate a valid workspace key. However, if you want to avoid external
+dependencies for generating the key, any other tool that can print a string in
+the format described above can be used as well.
