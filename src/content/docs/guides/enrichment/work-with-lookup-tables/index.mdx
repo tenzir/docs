@@ -226,10 +226,12 @@ values. The lookup performs a longest-prefix match, perfect for network
 inventory and CMDB use cases:
 
 ```tql
-// Create and populate a network inventory
 context::create_lookup_table "network_inventory"
+```
 
-// Populate with network infrastructure data
+Populate with network infrastructure data:
+
+```tql
 from {subnet: 10.0.0.0/22, owner: "IT", location: "Datacenter-A"},
      {subnet: 10.0.0.0/24, owner: "IT-Web", location: "Datacenter-A"},
      {subnet: 10.0.1.0/24, owner: "IT-DB", location: "Datacenter-A"},
@@ -241,7 +243,6 @@ context::update "network_inventory", key=subnet
 Now enrich network traffic with infrastructure context:
 
 ```tql
-// Enrich a simplified flow event
 from {
   timestamp: 2024-01-15T14:23:45,
   src_ip: 10.0.0.15,
@@ -321,21 +322,27 @@ context::create_lookup_table "access_rules"
 ```
 
 Define rules for zone pairs:
-```tql
-from {
-  key: {source_zone: "internet", dest_zone: "dmz"},
-  action: "allow",
-  log: true
-},
-{
-  key: {source_zone: "internet", dest_zone: "internal"},
-  action: "deny",
-  log: true,
-  alert: true
-}
-context::update "access_rules", key=key, value=this
 
-// Check access for firewall events
+```tql
+from (
+  {
+    key: {source_zone: "internet", dest_zone: "dmz"},
+    action: "allow",
+    log: true
+  },
+  {
+    key: {source_zone: "internet", dest_zone: "internal"},
+    action: "deny",
+    log: true,
+    alert: true
+  }
+)
+context::update "access_rules", key=key, value=this
+```
+
+Check access for firewall events:
+
+```tql
 from {
   timestamp: 2024-01-15T10:30:00,
   source_zone: "internet",
@@ -343,12 +350,9 @@ from {
   src_ip: "203.0.113.10",
   dst_ip: "10.0.1.50"
 }
-// Create compound key for lookup
-set lookup_key = {
-  source_zone: source_zone,
-  dest_zone: dest_zone
-}
-context::enrich "access_rules", key=lookup_key, into=policy
+context::enrich "access_rules",
+  key={source_zone: source_zone, dest_zone: dest_zone},
+  into=policy
 ```
 
 Compound keys enable sophisticated matching based on multiple fields.
@@ -385,26 +389,6 @@ context::update "user_logins", key=user, value={
   last_ip: source_ip,
   status: if success then "active" else "failed"
 }
-```
-
-Build passive DNS by aggregating data:
-
-```tql
-context::create_lookup_table "passive_dns"
-
-from {
-  timestamp: 2024-01-15T10:30:00,
-  query: "suspicious.site.com",
-  response: "198.51.100.50",
-  client: "10.0.1.100"
-}
-context::update "passive_dns",
-  key={domain: query, ip: response},
-  value={
-    first_seen: min(timestamp),
-    last_seen: max(timestamp),
-    query_count: count()
-  }
 ```
 
 ### Associate timeouts with entries
