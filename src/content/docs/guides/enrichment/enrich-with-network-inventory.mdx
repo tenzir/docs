@@ -45,8 +45,9 @@ context::create_lookup_table "subnets"
 Then populate it:
 
 ```tql
-load_file "inventory.csv"
-read_csv
+from_file "inventory.csv" {
+  read_csv
+}
 context::update "subnets", key=subnet
 ```
 
@@ -79,24 +80,22 @@ context::enrich "subnets", key=src_ip, into=src_ip_context
 context::enrich "subnets", key=dest_ip, into=dest_ip_context
 ```
 
-This yields the following output:
-
-```json
+```tql
 {
-  "timestamp": "2021-11-17T13:32:43.237882",
-  "src_ip": "10.0.0.1",
-  "src_port": 54402,
-  "dest_ip": "10.1.1.254",
-  "dest_port": 53,
-  "proto": "UDP",
-  "event_type": "flow",
-  "app_proto": "dns",
-  "src_ip_context": {
-    "subnet": "10.0.0.0/24",
-    "owner": "Derek",
-    "function": "servers"
+  timestamp: 2021-11-17T13:32:43.237882,
+  src_ip: 10.0.0.1,
+  src_port: 54402,
+  dest_ip: 10.1.1.254,
+  dest_port: 53,
+  proto: "UDP",
+  event_type: "flow",
+  app_proto: "dns",
+  src_ip_context: {
+    subnet: 10.0.0.0/24,
+    owner: "Derek",
+    function: "servers",
   },
-  "dest_ip_context": null
+  dest_ip_context: null
 }
 ```
 
