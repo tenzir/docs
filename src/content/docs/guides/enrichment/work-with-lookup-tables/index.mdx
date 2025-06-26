@@ -629,7 +629,7 @@ save_file "network_inventory_prod.bin"
 Automated daily backup:
 
 ```tql
-every 1d run {
+every 1d {
   context::save "asset_tracking"
   save_file f"backups/assets_{now().format('%Y%m%d')}.bin"
 }
