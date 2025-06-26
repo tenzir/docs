@@ -34,30 +34,6 @@ operator creates a new, empty lookup table:
 context::create_lookup_table "my_lookup_table"
 ```
 
-```tql
-{num_entries: 0, name: "my_lookup_table"}
-```
-
-You can chain this with other operators to immediately populate the table:
-
-```tql
-// Create and populate in one pipeline
-context::create_lookup_table "threat_indicators"
-from_file "indicators.csv" {
-  read_csv
-}
-context::update "threat_indicators", key=domain
-```
-
-Check if a context already exists before creating it:
-
-```tql
-// List existing contexts and create if not present
-context::list
-where name != "my_lookup_table"
-context::create_lookup_table "my_lookup_table"
-```
-
 ### Create a lookup table as code
 
 You can also create a lookup table as code by adding it to `tenzir.contexts` in
@@ -98,7 +74,11 @@ databases. Here's an example output after creating different context types:
 // First, create some contexts.
 context::create_lookup_table "threat_intel"
 context::create_bloom_filter "malware_hashes", capacity=1M, fp_probability=0.01
-// Now list them.
+```
+
+Now list them.
+
+```tql
 context::list
 ```
 
@@ -124,7 +104,7 @@ Filter the results to find specific contexts:
 
 ```tql
 context::list
-where name == /.*threat.*/
+where name.match_regex("[T|t]hreat")
 ```
 
 ## Delete a lookup table
@@ -145,12 +125,15 @@ enrich events with data from a lookup table.
 
 ### Perform a point lookup
 
-First, create and populate a simple lookup table:
+First, create a simple lookup table:
 
 ```tql
-// Create the lookup table
 context::create_lookup_table "user_roles"
-// Populate it with data
+```
+
+Populate it with data:
+
+```tql
 from {user_id: 1001, role: "admin", department: "IT"},
      {user_id: 1002, role: "analyst", department: "Security"},
      {user_id: 1003, role: "engineer", department: "DevOps"}
@@ -281,13 +264,13 @@ The IP `10.0.0.15` matches `10.0.0.0/24` (Web frontends) rather than
 
 Use record types as compound keys for complex matching scenarios.
 
-Track threats using multiple indicators as compound keys:
+```tql
+context::create_lookup_table "threat_intel"
+```
+
+Populate a table with a compound key:
 
 ```tql
-// Create a lookup table for threat intelligence
-context::create_lookup_table "threat_intel"
-
-// Populate with multiple indicators per threat
 from {
   threat_id: "APT-2024-001",
   indicators: {
@@ -299,26 +282,30 @@ from {
   first_seen: 2024-01-10T00:00:00
 }
 context::update "threat_intel", key=indicators
+```
 
-// Enrich network events
+Pick a compound key for the table lookup:
+
+```tql
 from {
   timestamp: 2024-01-15T10:30:00,
   dest_domain: "malicious.example.com",
   dest_port: 443,
   src_ip: "10.0.1.50"
 }
-// Create compound key for lookup
-extend threat_key = {domain: dest_domain, port: dest_port}
-context::enrich "threat_intel", key=threat_key, into=threat_info
+context::enrich "threat_intel",
+  key={domain: dest_domain, port: dest_port},
+  into=threat_info
 ```
 
 Implement zone-based access control using compound keys:
 
 ```tql
-// Create access control lookup table
 context::create_lookup_table "access_rules"
+```
 
-// Define rules for zone pairs
+Define rules for zone pairs:
+```tql
 from {
   key: {source_zone: "internet", dest_zone: "dmz"},
   action: "allow",
@@ -341,7 +328,7 @@ from {
   dst_ip: "10.0.1.50"
 }
 // Create compound key for lookup
-extend lookup_key = {
+set lookup_key = {
   source_zone: source_zone,
   dest_zone: dest_zone
 }
@@ -593,9 +580,9 @@ polls that update a lookup table:
 ```tql
 every 1h {
   from_http "https://threatfeed.example.com/api/v1/indicators"
-  where confidence >= 80
-  context::update "threat_indicators", key=indicator, value=metadata
 }
+where confidence >= 80
+context::update "threat_indicators", key=indicator, value=metadata
 ```
 
 ### Update with expiration
@@ -605,17 +592,17 @@ Combine periodic updates with timeouts to automatically remove stale entries:
 ```tql
 every 30min {
   from_http "https://dns-blocklist.example.com/domains.json"
-  unroll domains
-  context::update "blocklist",
-    key=domains.domain,
-    value={
-      category: domains.category,
-      severity: domains.severity,
-      last_updated: now()
-    },
-    create_timeout=24h,    // Remove after 24 hours
-    write_timeout=2h       // Remove if not updated for 2 hours
 }
+unroll domains
+context::update "blocklist",
+  key=domains.domain,
+  value={
+    category: domains.category,
+    severity: domains.severity,
+    last_updated: now()
+  },
+  create_timeout=24h,    // Remove after 24 hours
+  write_timeout=2h       // Remove if not updated for 2 hours
 ```
 
 ## Export and import lookup table state
@@ -653,28 +640,10 @@ every 1d run {
 Use the [`context::load`](/reference/operators/context/load) operator to
 restore lookup tables from backups or migrate data:
 
-Restore from backup:
-
 ```tql
-from_file "threat_intel_backup_2024_01_15.bin"
+load_file "threat_intel_backup_2024_01_15.bin"
 context::load "threat_indicators"
 ```
-
-Migrate from another environment:
-
-```tql
-from_file "network_inventory_staging.bin"
-context::load "network_inventory"
-```
-
-Load pre-built context from threat intel provider:
-
-```tql
-from_http "https://ti-provider.com/contexts/latest-iocs.bin",
-  headers={Authorization: f"Bearer {secret('ti_api_key')}"}
-context::load "vendor_threat_intel"
-```
-
 :::caution
 Loading replaces the entire lookup table state. Existing entries will be lost.
 Consider backing up with `context::save` before loading new data.
