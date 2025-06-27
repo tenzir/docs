@@ -2,8 +2,23 @@
 title: Configure identity provider
 ---
 
-The identity provider (IdP) handles authentication for the Tenzir Platform. To
-use an external IdP, ensure it supports the OIDC protocol, including the _OIDC
+The identity provider (IdP) handles authentication for the Tenzir Platform.
+When clicking on the *Login* button in the Tenzir UI, you will be redirected
+to your chosen identity provider, who creates a signed token certifying your
+identity.
+
+You can either use an external identity provider that is already set up inside
+your organization, or run an Identity Provider that is bundled with our
+example `docker-compose.yaml`.
+
+The Tenzir Platform supports the OpenID Connect (OIDC) protocol for external
+identity providers. Below, we describe the requirements for using a generic
+identity provider, as well as two hands-on guides for setting up Keycloak
+and EntraID as Identity Providers for the Tenzir Platform.
+
+## Generic Identity Provider
+
+To use an external IdP, ensure it supports the OIDC protocol, including the _OIDC
 Discovery_ extension, and configure it to provide valid RS256 ID tokens.
 
 Set up the external identity provider by creating two clients (also called
@@ -55,25 +70,6 @@ with the OIDC issuer and audiences that the platform should accept.
 ```sh
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"https://my.idp.example": ["tenzir-cli", "tenzir-app"]}'
 ```
-
-You must configure the set of `admin` users in your platform instance. An admin
-user is a user who is permitted to run the `tenzir-platform admin` CLI command.
-
-The `TENZIR_PLATFORM_OIDC_ADMIN_RULES` setting contains a JSON list of access
-rules that determine who is considered an admin for this platform instance. If
-any of the provided rules match, the platform considers the user an admin. The
-example rule grants admin access to all users with a valid and signed `id_token`
-containing the fields `{"tenzir/org": "TenzirPlatformAdmins"}`.
-
-```sh
-TENZIR_PLATFORM_OIDC_ADMIN_RULES='[{"organization_claim": "tenzir/org", "organization": "TenzirPlatformAdmins", "auth_fn": "auth_organization"}]'
-```
-
-See the documentation on [Access
-Rules](/reference/platform/command-line-interface#configure-access-rules) for
-more information about the possible types of rules and their syntax. Use the
-`tenzir-platform tools` subcommand of the CLI to generate valid JSON objects
-that you can enter here.
 
 ## Keycloak
 
