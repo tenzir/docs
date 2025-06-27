@@ -70,6 +70,7 @@ export const guides = [
   {
     label: "Enrichment",
     items: [
+      "guides/enrichment/work-with-lookup-tables",
       "guides/enrichment/enrich-with-network-inventory",
       "guides/enrichment/enrich-with-threat-intel",
       "guides/enrichment/execute-sigma-rules",
