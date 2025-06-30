@@ -43,6 +43,40 @@ This includes the `win` and `linux` extensions.
 
 By [@jachris](https://github.com/jachris) in [#5306](https://github.com/tenzir/tenzir/pull/5306).
 
+#### Enhanced file renaming in `from_file` operator
+
+The `from_file` operator now provides enhanced file renaming capabilities when
+using the `rename` parameter. These improvements make file operations more
+robust and user-friendly.
+
+**Directory creation**: The operator now automatically creates intermediate
+directories when renaming files to paths that don't exist yet. For example, if
+you rename a file to `/new/deep/directory/structure/file.txt`, all necessary
+parent directories (`/new`, `/new/deep`, `/new/deep/directory`,
+`/new/deep/directory/structure`) will be created automatically.
+
+```tql
+from_file "/data/*.json", rename=path => f"/processed/by-date/2024/01/{path.file_name()}"
+```
+
+**Trailing slash handling**: When the rename target ends with a trailing slash,
+the operator now automatically appends the original filename. This makes it easy
+to move files to different directories while preserving their names.
+
+```tql
+// This will rename "/input/data.json" to "/output/data.json"
+from_file "/input/*.json", rename=path => "/output/"
+```
+
+Previously, you would have needed to manually extract and append the filename:
+
+```tql
+// Old approach - no longer necessary
+from_file "/input/*.json", rename=path => f"/output/{path.file_name()}"
+```
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5303](https://github.com/tenzir/tenzir/pull/5303).
+
 ### Changes
 
 #### TQL2 support in compaction plugin
@@ -61,3 +95,19 @@ Nodes periodically merge and optimize their storage over time. We fixed a hang
 on shutdown for nodes while this process was ongoing.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5301](https://github.com/tenzir/tenzir/pull/5301).
+
+#### `from_file` with a per-file sink
+
+The `from_file` operator no longer fails when its per-file pipeline argument is
+a sink. Before this fix, the following pipeline which opens a new TCP connection
+per file would not work:
+
+```tql
+from_file "./*.csv" {
+  read_csv
+  write_ndjson
+  save_tcp "localhost:8080"
+}
+```
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5303](https://github.com/tenzir/tenzir/pull/5303).
