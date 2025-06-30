@@ -77,7 +77,60 @@ from_file "/input/*.json", rename=path => f"/output/{path.file_name()}"
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5303](https://github.com/tenzir/tenzir/pull/5303).
 
+#### Secrets
+
+Tenzir now features a new first class type: `secret`. As the name suggests, this
+type contains a secret value that cannot be accessed by a user:
+
+```tql
+from { s: secret("my-secret") }
+```
+```tql
+{
+  s: "***", // Does not render the secret value
+}
+```
+
+A secret is created by the `secret` function, which changes its behavior with this
+release.
+
+Operators now accept secrets where appropriate, most notably for username and
+password arguments, but also for URLs:
+
+```tql
+let $url = "https://" + secret("splunk-host") + ":8088"
+to_splunk $url, hec_token=secret("splunk-hec-token")
+```
+
+However, a `string` is implicitly convertible to a `secret` in an operator
+argument, meaning that you do not have to configure a secret if you are fine
+with just a string literal:
+
+```tql
+to_splunk "https://localhost:8088", hec_token="my-plaintext-token"
+```
+
+Along with this feature in the Tenzir Node, we introduced secret stores to the
+Tenzir Platform. You can now centrally manage secrets in the platform, which
+will usable by all nodes within the workspace. Read more about this in the
+release notes for the Tenzir Platform and our Explanations page on secrets.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5065](https://github.com/tenzir/tenzir/pull/5065), [#5197](https://github.com/tenzir/tenzir/pull/5197).
+
 ### Changes
+
+#### The `secret` function returns secrets
+
+The `secret` function now returns a `secret`, the strong type introduced in this
+release. Previously it returned a plaintext `string`. This change protects
+secrets from being leaked, as only operators can resolve secrets now.
+
+If you want to retain the old behavior , you can enable the configuration option
+`tenzir.legacy-secret-model`. In this mode, the `secret` function can only
+resolve secrets from the Tenzir Node's configuration file and not access any
+external secret store.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5065](https://github.com/tenzir/tenzir/pull/5065), [#5197](https://github.com/tenzir/tenzir/pull/5197).
 
 #### TQL2 support in compaction plugin
 
