@@ -14,6 +14,23 @@ without needing to open the bulk actions menu.
 
 By [@gitryder](https://github.com/gitryder).
 
+#### Add secrets support for the Platform
+
+With this release, the Tenzir Platform now supports storing secrets on a per-workspace level.
+
+In the Tenzir UI, you can click on the new gears icon in the workspace switcher to get to the Workspace settings, where you can add, modify or delete secrets for you workspace.
+
+In the Tenzir CLI, you can use the new `tenzir-platform secret` subcommand for the same purpose: 
+
+```plain
+tenzir-platform secret add <name> [--file=<file>] [--value=<value>] [--env]
+tenzir-platform secret update <secret> [--file=<file>] [--value=<value>] [--env]
+tenzir-platform secret delete <secret>
+tenzir-platform secret list [--json]
+```
+
+By [@lava](https://github.com/lava) in [#73](https://github.com/tenzir/platform/pull/73).
+
 #### Support using different blob storage URLs for UI and Nodes
 
 The Tenzir Platform now supports the `BLOB_STORAGE__NODES_PUBLIC_ENDPOINT_URL` environment variable that allows overriding the URL used by the nodes to reach the configured S3-compatible blob storage.
@@ -47,6 +64,12 @@ After your feedback, it became apparent that we should have kept it as it was.
 
 By [@avaq](https://github.com/avaq).
 
+#### Better error messages for HTTP errors
+
+The Tenzir Platform CLI now prints better error messages for HTTP errors encountered when communicating with the Tenzir Platform, including the contents of the `detail` field if provided.
+
+By [@lava](https://github.com/lava) in [#73](https://github.com/tenzir/platform/pull/73).
+
 #### Chronological diagnostics sorting in the explorer
 
 Diagnostics listed next to the editor are now sorted chronologically, making it easier to follow the order in which issues occur.
@@ -68,3 +91,9 @@ When a deployed pipeline fails, a "Toast" popup is shown in the bottom right tha
 And while we were at it, we also improved the text for these toasts a little to make it clearer that it's specifically about a *deployed* pipeline.
 
 By [@avaq](https://github.com/avaq).
+
+#### Correctly set workspace category when creating new workspaces
+
+The Tenzir Platform CLI now correctly sets the workspace category when creating a new workspace.
+
+By [@lava](https://github.com/lava) in [#73](https://github.com/tenzir/platform/pull/73).
