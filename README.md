@@ -3,17 +3,15 @@
 ## 🌟 What's Inside
 
 This repository powers the official Tenzir documentation at
-**[docs.tenzir.com](https://docs.tenzir.com)**, built with modern web
-technologies to provide an exceptional developer experience.
+[docs.tenzir.com](https://docs.tenzir.com), built with modern web technologies
+to provide an exceptional developer experience.
 
 ### 📋 Documentation Structure
 
-| Section | Description | Icon |
-|---------|-------------|------|
-| **📚 Guides** | In-depth explanations and best practices | ![Guides](https://docs.tenzir.com/guides) |
-| **🎯 Tutorials** | Step-by-step guides to get you started | ![Tutorials](https://docs.tenzir.com/tutorials) |
-| **💡 Explanations** | Deep dives into concepts and architecture | ![Explanations](https://docs.tenzir.com/explanations) |
-| **📖 Reference** | Complete API and configuration reference | ![Reference](https://docs.tenzir.com/reference) |
+- 📚 [Guides](https://docs.tenzir.com/guides): In-depth explanations and best practices
+- 🎯 [Tutorials](https://docs.tenzir.com/tutorials): Step-by-step guides to get you started
+- 💡 [Explanations](https://docs.tenzir.com/explanations): Deep dives into concepts and architecture
+- 📖 [Reference](https://docs.tenzir.com/reference): Complete API and configuration reference
 
 ## 🚀 Quick Start
 
