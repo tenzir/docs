@@ -6,25 +6,65 @@ Unreleased changes.
 
 ### Features
 
-#### Explorer schema search and filter
+#### Three-dot menu for pipeline items
 
-The schemas pane/ dropdown in the explorer page now has a search functionality.
+You can now quickly start, stop, copy the ID, or delete a pipeline right from the pipelines table.
+Just click the three-dot menu at the far right of any pipeline row. It's a simple way to manage one pipeline at a time,
+without needing to open the bulk actions menu.
 
-By [@dit7ya](https://github.com/dit7ya).
+By [@gitryder](https://github.com/gitryder).
 
-#### Add option for showing total diagnostics count in heatmap cells
+#### Support using different blob storage URLs for UI and Nodes
 
-Users can now switch between counting unique pipelines with diagnostics
-(default) or total diagnostic message counts in heatmap cells. The new "Count
-by" option is available in the time range dropdown of the diagnostics heatmap
-in the pipelines tab of the nodes page.
+The Tenzir Platform now supports the `BLOB_STORAGE__NODES_PUBLIC_ENDPOINT_URL` environment variable that allows overriding the URL used by the nodes to reach the configured S3-compatible blob storage.
+This is useful if the Tenzir Nodes run in a separate network from the Tenzir UI, and the blob storage is exposed under different domains in both networks.
+
+By [@lava](https://github.com/lava).
+
+#### Partial pipeline execution
+
+You can now run a selected portion of the pipeline by highlighting it with your mouse or keyboard. When a selection is active,
+the **Run** button changes to **Run selected**, allowing you to execute just the highlighted section for quicker iteration and testing.
+
+By [@gitryder](https://github.com/gitryder).
+
+#### Secret data type display
+
+Secret data types now display as `<secret>` in the platform, for example,
+in the explorer table. A tooltip explains that secret values are not transported
+to the platform for security reasons.
+
+In TQL exports (such as copy to clipboard), secrets are copied as `null`.
 
 By [@dit7ya](https://github.com/dit7ya).
 
 ### Changes
 
-#### Fix total activity change getting capped at 99.9
+#### Make the list of nodes reload more often again
 
-The percentage change in the ingress/egress widget was wrongly capped at 99.9 even when the actual value was much higher.
+We recently raised the refresh time on the list of nodes to 30 seconds.
+After your feedback, it became apparent that we should have kept it as it was.
 
-By [@dit7ya](https://github.com/dit7ya).
+By [@avaq](https://github.com/avaq).
+
+#### Chronological diagnostics sorting in the explorer
+
+Diagnostics listed next to the editor are now sorted chronologically, making it easier to follow the order in which issues occur.
+
+By [@gitryder](https://github.com/gitryder).
+
+### Bug Fixes
+
+#### Fix false 'deployed pipeline failed' toasts
+
+We no longer show 'deployed pipeline failed' toasts for pipelines that
+weren't actually deployed, but were running via the Explorer,
+Dashboard, or other sources like that.
+
+#### Fix 'View'-button in failed pipeline Toast
+
+When a deployed pipeline fails, a "Toast" popup is shown in the bottom right that allows you to view the error, except, that button didn't work. Now it does!
+
+And while we were at it, we also improved the text for these toasts a little to make it clearer that it's specifically about a *deployed* pipeline.
+
+By [@avaq](https://github.com/avaq).
