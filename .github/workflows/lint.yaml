@@ -7,9 +7,37 @@ on:
   pull_request:
 
 jobs:
+  lint:
+    name: Lint Changed Files
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run differential linting
+        run: pnpm lint:diff
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+
   markdown:
     name: Markdown
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,6 +60,7 @@ jobs:
   eslint:
     name: ESLint
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,6 +83,7 @@ jobs:
   prettier:
     name: Prettier
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
