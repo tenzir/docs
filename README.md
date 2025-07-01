@@ -27,24 +27,11 @@ pnpm dev        # Start development server
 guidelines, see our [Documentation
 Guide](https://docs.tenzir.com/guides/contribution/documentation/)**
 
-## 🤝 Community & Support
-
-<div align="center">
-
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.tenzir.com)
-[![GitHub Discussions](https://img.shields.io/badge/GitHub-Discussions-181717?style=for-the-badge&logo=github)](https://github.com/tenzir/tenzir/discussions)
-[![Documentation](https://img.shields.io/badge/Documentation-docs.tenzir.com-blue?style=for-the-badge)](https://docs.tenzir.com)
-
-**Join our community of security data engineers!**
-
-</div>
-
 ---
 
 <div align="center">
   <p>
     <strong>Built with ❤️ by Tenzir</strong><br>
-    <em>Making security data pipelines accessible to everyone</em>
   </p>
 
   <sub>
