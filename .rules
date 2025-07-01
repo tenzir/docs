@@ -1,24 +1,52 @@
-This is a [Starlight](https://starlight.astro.build/) repository that hosts the
-documentation for Tenzir (https://tenzir.com).
+This is an [Astro](https://astro.build/)
+[Starlight](https://starlight.astro.build/) project hosting the documentation
+for Tenzir (https://tenzir.com).
 
 ## Project Architecture
 
-- Use `pnpm` for package management: `pnpm dev` starts a development server,
-  `pnpm build` builds the site, and `pnpm preview` previews the built site. Make
-  sure to run `pnpm dev` and `pnpm preview` in the background and to kill them
-  after a while, as they do not terminate on their own.
-- Prefer [Markdoc](https://markdoc.dev/) for writing documentation over MDX
-  where possible.
+- File Structure: `/src/content/docs/` contains all documentation pages.
+- Components: Custom components live in `/src/components/`, partials in
+  `/src/partials/`.
+- Static Assets: Images and files go in `/src/assets/` or `/public/`.
+- Configuration: `/astro.config.mjs`
+- Styling: Custom CSS in `/src/styles/`
+- Sidebar: manually managed in `/src/sidebar.ts`.
+
+## Writing Style
+
+Adhere to the [Google Style Guide](https://developers.google.com/style) with
+editorial guidelines for writing clear and consistent technical documentation.
+
+Most notably:
+
+- In general, use *active voice*.
+- Avoid anthropomorphic language: Don't attribute human qualities to software or
+  hardware.
+- Include definite and indefinite articles (a, an, and the) in your writing.
+  Don't skip articles for brevity, including in headings and titles.
+- In document titles and headings, use sentence case. That is, capitalize only
+  the first word in the title, the first word in a subheading after a colon, and
+  any proper nouns or other terms that are always capitalized a certain way.
+- Capitalize product names.
+- Write documentation in an informal tone, e.g., use common two-word
+  contractions such as "you're," "don't," and "there's."
 
 ## Workflow
 
+### Building and Testing
+
+- Do not use `pnpm dev` to start a dev server, as the user most likely runs an
+  instance and you'll get a colliding port.
+- Instead, use `pnpm build` to build the site and inspect the generated (HTML)
+  files in the `/build` directory.
+
+### Git Branching and Commit Messages
+
 - For new features or fixes, use *topic branches* that branch off `main` with
-  a naming convention of `topic/description`.
+  a naming convention of `topic/description`, e.g., `topic/improve-spelling
 
-- Use `gh` to create a pull request. Make sure to write a separate file for
-  the PR body to avoid escaping issues.
-
-### Commit Messages
+- If availble, use `gh` to manage pull requests. Make sure to write a separate
+  file for the PR body to avoid escaping issues.
 
 - The first line succinctly summarizes the changes in no more than 50
   characters. It is capitalized and written in and imperative present tense:
@@ -33,13 +61,21 @@ documentation for Tenzir (https://tenzir.com).
 
 ## Formatting
 
-- Every file must end with a newline character, but avoid empty lines at the end of a file.
+### General
+
+- Every file must end with a newline character, but avoid empty lines at the end
+  of a file.
+
+### Markdown Content
+
+- When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
+  lint:prettier:fix` when you're done.
+
+### Code
+
 - Avoid empty lines within functions.
-- There exist CI jobs for linting, testing, and deploying the site in
-  `.github/workflows`. For Markdown, format and lint with
-  [markdownlint](https://github.com/DavidAnson/markdownlint). For JavaScript and
-  Typescript, use [Prettier](https://prettier.io/) for formatting and
-  [ESLint](https://eslint.org/) for linting.
+- When editing source code (.js,.jsx,.ts,.tsx,.astro files),
+  run `pnpm lint:eslint:fix` when you're done.
 
 ## Best Practices
 
