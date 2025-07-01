@@ -3,8 +3,9 @@ title: Configure internal services
 ---
 
 This guide covers configuration for the three internal Tenzir services: the
-**Tenzir UI**, **Tenzir Gateway**, and **Platform API**. These are the core
-platform services provided by Tenzir that require internal configuration.
+**Tenzir UI**, **Tenzir Gateway**, and the **Tenzir Platform API**. These are
+the core platform services provided by Tenzir that require internal
+configuration.
 
 The platform runs as a set of containers in a Docker Compose stack. Our
 [example files](https://github.com/tenzir/platform/tree/main/examples) read
@@ -13,7 +14,9 @@ configuration parameters from environment variables.
 Create a file named `.env` in the same directory as your `docker-compose.yaml`
 file and set the environment variables described below.
 
-## Tenzir Platform
+## Tenzir Platform API
+
+This section describes how to configure the Tenzir Platform API.
 
 ### Admin Rules
 
@@ -62,6 +65,8 @@ TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
 
 ## Tenzir UI
 
+This section describes how to configure the Tenzir Platform UI.
+
 ### Internal Proxy
 
 By default, the Tenzir UI sends requests directly from the browser to the
@@ -76,7 +81,6 @@ This approach adds some latency through an additional proxy hop.
 ```sh
 TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true
 ```
-
 
 ## Tenzir Gateway
 
