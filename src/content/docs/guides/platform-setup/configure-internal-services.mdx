@@ -2,31 +2,35 @@
 title: Configure internal services
 ---
 
-This guide covers configuration for the three internal Tenzir services: the
-**Tenzir UI**, **Tenzir Gateway**, and **Platform API**. These are the core
-platform services provided by Tenzir that require internal configuration.
+This guide explains how to configure the three internal Tenzir services: the Tenzir UI,
+the Tenzir Gateway, and the Tenzir Platform API. These core platform services require
+internal configuration.
 
-The platform runs as a set of containers in a Docker Compose stack. Our
+The platform runs as a set of containers in a Docker Compose stack. The
 [example files](https://github.com/tenzir/platform/tree/main/examples) read
 configuration parameters from environment variables.
 
-Create a file named `.env` in the same directory as your `docker-compose.yaml`
-file and set the environment variables described below.
+Create a file named `.env` in the same directory as your `docker-compose.yaml` file,
+and set the environment variables described below.
 
-## Admin Rules
+## Tenzir Platform API
+
+This section describes how to configure the Tenzir Platform API.
+
+### Admin rules
 
 The platform distinguishes between _regular_ and _admin_ users. Admin users can
 create new workspaces and view, edit, and delete all existing workspaces.
 
-Currently, only admins can create shared workspaces by creating a new workspace
+Currently, only admin users can create shared workspaces by creating a new workspace
 and editing the access rules.
 
-Configure admins by providing a list of authentication rules. The platform
-considers any user matching the provided rules an admin and allows them to use
+Configure admin users by providing a list of authentication rules. The platform
+considers any user who matches the provided rules an admin and allows them to use
 the `tenzir-platform admin` CLI commands.
 
-Use the `tenzir-platform tools print-auth-rule` CLI command to generate valid
-rules for insertion here.
+Use the `tenzir-platform tools print-auth-rule` CLI command to generate valid rules
+for insertion here.
 
 ```sh
 # Make everybody an admin.
@@ -38,11 +42,10 @@ TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_allow_all"}]
 TENZIR_PLATFORM_ADMIN_RULES=[{"auth_fn":"auth_user","user_id":"google-oauth2:12345678901"}, {"auth_fn":"auth_user","user_id":"google-oauth2:12345678902"}]
 ```
 
-## Random Seeds
+### Random seeds
 
-The platform requires random strings for encryption functions. Generate these
-from a secure random number generator and use unique values for each platform
-instance.
+The platform requires random strings for encryption functions. Generate these strings
+with a secure random number generator and use unique values for each platform instance.
 
 ```sh
 # Random string to encrypt frontend cookies.
@@ -58,17 +61,25 @@ TENZIR_PLATFORM_INTERNAL_TENANT_TOKEN_ENCRYPTION_KEY=
 TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
 ```
 
-## Internal Proxy
+## Tenzir UI
 
-By default, the Tenzir UI sends requests directly from the browser to the
-Tenzir Gateway to query connected node status. This can cause problems in some
-network topologies, particularly in zero-trust networks where accessing the
-Tenzir Gateway requires additional authentication headers.
+This section describes how to configure the Tenzir Platform UI.
 
-Enable the internal proxy to route these requests through the Tenzir UI Backend
-instead, making all requests from the Tenzir UI Frontend go to the same domain.
+### Internal proxy
+
+By default, the Tenzir UI sends requests directly from the browser to the Tenzir Gateway
+to query the status of connected nodes. This setup can cause problems in some network
+topologies, especially in zero-trust networks where accessing the Tenzir Gateway
+requires additional authentication headers.
+
+Enable the internal proxy to route these requests through the Tenzir UI backend
+instead, which makes all requests from the Tenzir UI frontend go to the same domain.
 This approach adds some latency through an additional proxy hop.
 
 ```sh
 TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true
 ```
+
+## Tenzir Gateway
+
+The Tenzir Gateway doesn't offer any user-controlled settings at the moment.

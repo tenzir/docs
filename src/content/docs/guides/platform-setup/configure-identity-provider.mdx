@@ -2,15 +2,30 @@
 title: Configure identity provider
 ---
 
-The identity provider (IdP) handles authentication for the Tenzir Platform. To
-use an external IdP, ensure it supports the OIDC protocol, including the _OIDC
+The identity provider (IdP) handles authentication for the Tenzir Platform.
+When you click the _Login_ button in the Tenzir UI, the system redirects you
+to your chosen identity provider, which creates a signed token that certifies your
+identity.
+
+You can either use an external identity provider that's already set up inside
+your organization, or run an identity provider that's bundled with our
+example `docker-compose.yaml`.
+
+The Tenzir Platform supports the OpenID Connect (OIDC) protocol for external
+identity providers. Below, we describe the requirements for using a generic
+identity provider, as well as two hands-on guides for setting up Keycloak
+and Entra ID as identity providers for the Tenzir Platform.
+
+## Generic Identity Provider
+
+To use an external IdP, ensure that it supports the OIDC protocol, including the _OIDC
 Discovery_ extension, and configure it to provide valid RS256 ID tokens.
 
 Set up the external identity provider by creating two clients (also called
-Applications in Auth0, or App Registrations in Microsoft Entra) named
+applications in Auth0, or app registrations in Microsoft Entra) named
 `tenzir-app` and `tenzir-cli`.
 
-The `tenzir-app` client is used for logging into the Tenzir Platform in the web
+The `tenzir-app` client handles logging into the Tenzir Platform in the web
 browser.
 
 - You must enable the **Authorization Code** flow.
@@ -19,7 +34,7 @@ browser.
 - You should note down the client secret so you can add it to the configuration
   of the Tenzir Platform in the next step.
 
-The `tenzir-cli` client is used to authenticate with the `tenzir-platform` CLI.
+The `tenzir-cli` client handles authentication with the `tenzir-platform` CLI.
 
 - You must enable the **Device Code** flow.
 - The identity provider must either return an `id_token` for the device code
@@ -27,11 +42,11 @@ The `tenzir-cli` client is used to authenticate with the `tenzir-platform` CLI.
 
 You may want to run CLI commands in environments where no user
 is available to perform the device code authorization flow, for example
-when running CLI commands as part of a CI job.
+when you run CLI commands as part of a CI job.
 
 In this case, you can set up another client with the **Client Credentials** flow
 enabled. The `access_token` you obtain from this client must be in JWT format. The
-CLI will automatically attempt to use the client credentials flow if
+CLI automatically attempts to use the client credentials flow if
 the `TENZIR_PLATFORM_CLI_CLIENT_SECRET` environment variable is set. You can
 also force the use of the client credentials flow by using the
 `tenzir-platform auth login --non-interactive` option.
@@ -55,25 +70,6 @@ with the OIDC issuer and audiences that the platform should accept.
 ```sh
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"https://my.idp.example": ["tenzir-cli", "tenzir-app"]}'
 ```
-
-You must configure the set of `admin` users in your platform instance. An admin
-user is a user who is permitted to run the `tenzir-platform admin` CLI command.
-
-The `TENZIR_PLATFORM_OIDC_ADMIN_RULES` setting contains a JSON list of access
-rules that determine who is considered an admin for this platform instance. If
-any of the provided rules match, the platform considers the user an admin. The
-example rule grants admin access to all users with a valid and signed `id_token`
-containing the fields `{"tenzir/org": "TenzirPlatformAdmins"}`.
-
-```sh
-TENZIR_PLATFORM_OIDC_ADMIN_RULES='[{"organization_claim": "tenzir/org", "organization": "TenzirPlatformAdmins", "auth_fn": "auth_organization"}]'
-```
-
-See the documentation on [Access
-Rules](/reference/platform/command-line-interface#configure-access-rules) for
-more information about the possible types of rules and their syntax. Use the
-`tenzir-platform tools` subcommand of the CLI to generate valid JSON objects
-that you can enter here.
 
 ## Keycloak
 
@@ -103,19 +99,19 @@ and to set up 2-factor authentication for your admin user.
 Keycloak defaults to the `master` realm and the bundled Docker Compose
 stack uses this realm by default.
 
-If you want to use a different realm, or already have an existing one,
+If you want to use a different realm, or if you already have an existing one,
 update the `TENZIR_PLATFORM_OIDC_ISSUER_URL` variable to point to the
 new realm instead.
 
 ![Configuration 0](configure-identity-provider/keycloak-create-realm.png)
 
-#### Create a Client for the App
+#### Create a client for the app
 
-Use the `Add Client` button in the `Clients` menu on the left. You should configure the new
+Use the `Add Client` button in the `Clients` menu on the left. Configure the new
 client as follows:
 
 Under _General settings_, set the client type to _OpenID Connect_ and the
-client id to `tenzir-app`. If you use a different client id,
+client ID to `tenzir-app`. If you use a different client ID,
 remember to update the `TENZIR_PLATFORM_OIDC_PROVIDER_CLIENT_ID` variable
 in your Tenzir Platform configuration accordingly.
 
@@ -139,22 +135,22 @@ under `TENZIR_PLATFORM_OIDC_PROVIDER_CLIENT_SECRET`.
 
 ![Configuration 3](configure-identity-provider/keycloak-create-app-client-3.png)
 
-### Create a Client for the CLI
+### Create a client for the CLI
 
-In order to use the `tenzir-platform` CLI you need to set up an additional
-client that supports device code authentication. (It is possible but not
-recommended to use the same client for both Tenzir UI and Tenzir Platform CLI)
+To use the `tenzir-platform` CLI, you need to set up an additional
+client that supports device code authentication. (It's possible but not
+recommended to use the same client for both the Tenzir UI and Tenzir Platform CLI)
 
 To do this, proceed exactly as above, but use `tenzir-cli` as
-the client id and under _Capability config_ disable the _Client authentication_
+the client ID and under _Capability config_ disable the _Client authentication_
 setting and enable the _OAuth 2.0 Device Authorization Grant_ authentication flow.
 
 ![Create CLI client](configure-identity-provider/keycloak-create-cli-client-0.png)
 
 ## Microsoft Entra Identity
 
-To use Microsoft Entra Identity as an OIDC provider, you need to create two App
-registrations in Entra ID and configure them to use with the Tenzir UI and the
+To use Microsoft Entra Identity as an OIDC provider, you need to create two app
+registrations in Entra ID and configure them for use with the Tenzir UI and the
 Tenzir Platform CLI.
 
 Follow these steps to create the required resources:
@@ -200,7 +196,7 @@ Follow these steps to create the required resources:
 ![Copy Issuer URL](./configure-identity-provider/entra-oidc-issuer-url.png)
 
 Now you can supply the created resources and values to the stack by editing
-the `.env` file in your compose folder:
+the `.env` file in your Compose folder:
 
 ```sh
 TENZIR_PLATFORM_OIDC_PROVIDER_NAME="Entra ID"
@@ -217,40 +213,40 @@ TENZIR_PLATFORM_OIDC_PROVIDER_ISSUER_URL=https://login.microsoftonline.com/40431
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0","audiences": ["d8ea5612-6745-47bc-b9fe-5024b1ca18fe", "082a9391-b645-4278-a16e-3cf54fb1bcf0"]}'
 ```
 
-Now you can restart your Tenzir Platform stack and you will be redirected to a Microsoft login page when you next login to the Tenzir UI.
+Now you can restart your Tenzir Platform stack and the system will redirect you to a Microsoft login page when you next log in to the Tenzir UI.
 
 ## Advanced Topics
 
 ### Custom Scopes
 
 By default, the Tenzir Platform requests the `profile email openid offline_access` scopes
-when logging in. To adjust this, set the `PUBLIC_OIDC_SCOPES` environment variable
+when you log in. To adjust this, set the `PUBLIC_OIDC_SCOPES` environment variable
 to a space-separated list of scope names.
 
 ### Profile Pictures
 
 To include custom profile pictures, include a `picture` claim in the returned
-ID token containing a URL to the image file.
+ID token that contains a URL to the image file.
 
-The Tenzir Platform will read that claim and use it as the profile picture in
-the top right corner of the user interface, or fall back to a default image if the
-claim is not present.
+The Tenzir Platform reads that claim and uses it as the profile picture in
+the top right corner of the user interface, or falls back to a default image if the
+claim isn't present.
 
 ### Refresh Tokens
 
-The Tenzir Platform supports the use of refresh tokens and will by default request
+The Tenzir Platform supports the use of refresh tokens and by default requests
 the `offline_access` scope to automatically refresh sessions after the initial
-id token has expired. To this end, the `offline_access` scope is requested by
+ID token has expired. To this end, the `offline_access` scope is requested by
 default.
 
 Unfortunately, the OIDC spec is ambiguous on the precise semantics of
-the `offline_access` scope, and Keycloak's interpretation is different
-from most other OIDC providers: It always includes refresh tokens by default,
+the `offline_access` scope, and Keycloak's interpretation differs
+from most other OIDC providers: it always includes refresh tokens by default,
 and adds additional permissions to the token when the `offline_access` scope
 is requested.
 
 Therefore, some organizations forbid the use of tokens with `offline_access`
 permissions for security reasons. In that case, add an environment variable
-`PUBLIC_OIDC_SCOPES=profile email oidc` to the `app` environment in order to explicitly
+`PUBLIC_OIDC_SCOPES=profile email oidc` to the `app` environment to explicitly
 remove the scope request. The bundled Docker Compose file in this directory does this
 by default.

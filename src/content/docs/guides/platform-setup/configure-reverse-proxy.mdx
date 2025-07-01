@@ -2,9 +2,7 @@
 title: Configure reverse proxy
 ---
 
-This guide explains how to configure a reverse proxy for the platform to route
-incoming requests to the corresponding backend services. The platform uses 4
-distinct entry points with 4 different URLs:
+The platform uses four distinct entry points with four different URLs:
 
 1. **Tenzir UI**: The URL your browser connects to, e.g., `app.platform.example`.
    This serves the web frontend where you interact with the platform.
@@ -19,7 +17,15 @@ distinct entry points with 4 different URLs:
 4. **Platform API**: The URL the Tenzir Platform CLI connects to, e.g.,
    `api.platform.example`.
 
-Set the following environment variables to reach these 4 services:
+The typical setup for the Tenzir Platform uses a reverse proxy to terminate
+TLS connections and forward incoming traffic to the correct services. The choice
+of technology varies with your deployment scenario and ranges from an additional
+[Traefik](https://doc.traefik.io/traefik/getting-started/install-traefik/) container
+within the Docker Compose stack, over an nginx instance running on the same host,
+to global load balancing services offered by a commercial cloud provider.
+
+In our example scenarios, set the following environment variables to configure
+these four endpoints:
 
 ```sh
 # The domain under which the platform frontend is reachable.
@@ -39,9 +45,9 @@ TENZIR_PLATFORM_API_ENDPOINT=https://api.platform.example
 
 ## Native TLS
 
-The reverse proxy typically runs on the same host as other platform containers
-and terminates TLS. When you cannot guarantee that the reverse proxy runs on
-the same host as other platform containers, or deploy the containers to
+A reverse proxy typically runs on the same host as other platform containers
+and terminates TLS. When you can't guarantee that the reverse proxy runs on
+the same host as other platform containers, or when you deploy the containers to
 different machines, enable native TLS support for individual platform
 containers.
 
@@ -56,11 +62,11 @@ If you run the platform in a private or air-gapped network, use methods like
 the DNS challenge offered by [Let's Encrypt](https://letsencrypt.org/) and
 other providers to generate a certificate and transfer it to the target machine.
 
-When you cannot use a globally trusted CA, use a corporate root CA instead.
+When you can't use a globally trusted CA, use a corporate root CA instead.
 Naturally, certificates from this CA will only be trusted inside your
 organization or your Tenzir Platform setup.
 
-If you do not possess a corporate root CA, create a private CA for yourself.
+If you don't possess a corporate root CA, create a private CA for yourself.
 Signing and provisioning root certificates is a complex task, so we recommend
 using a tool like `trustme` for this purpose.
 
@@ -72,7 +78,7 @@ shows how to create the necessary certificates for all components.
 Some libraries ignore the system-wide CA certificate store and use alternative,
 more strictly curated bundles. For example, Mozilla's NSS root store is a
 popular choice. Additionally, the operating system's default certificate
-bundles shipped within our Docker containers will not trust private CAs by
+bundles shipped within our Docker containers won't trust private CAs by
 default. Therefore, when you use a private CA, perform the same configuration
 for corporate root CAs from a publicly trusted CA or your self-created private
 CA.
@@ -85,7 +91,7 @@ certificate and CA in a single file.
 
 This approach simplifies setup and management compared to a private CA, but
 reduces security guarantees. For example, it nullifies several TLS security
-guarantees and only provides protection against passive eavesdropping.
+guarantees and provides only protection against passive eavesdropping.
 
 Below we assume you store valid TLS certificates in files named
 `ssl/app-cert.pem`, `ssl/platform-cert.pem`, etc., where each file contains
@@ -205,7 +211,7 @@ validation:
 TENZIR_PLATFORM_SKIP_PEER_VERIFICATION=true
 ```
 
-:::note[TLS: Platform vs. Pipeline]
-These settings only apply to the connection the node establishes with the
+:::note[TLS: Platform vs. pipeline]
+These settings apply only to the connection that the node establishes with the
 platform, not to any TLS connections that pipelines may create within the node.
 :::
