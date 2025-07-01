@@ -132,6 +132,15 @@ external secret store.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5065](https://github.com/tenzir/tenzir/pull/5065), [#5197](https://github.com/tenzir/tenzir/pull/5197).
 
+#### Kafka operators now automatically configure SASL mechanism for AWS IAM
+
+The `load_kafka` and `save_kafka` operators now automatically set
+`sasl.mechanism` option to the expected `OAUTHBEARER` when using the `aws_iam`
+option. If the mechanism has already been set to a different value, an error is
+emitted.
+
+By [@raxyte](https://github.com/raxyte) in [#5307](https://github.com/tenzir/tenzir/pull/5307).
+
 #### TQL2 support in compaction plugin
 
 The pipelines defined as part of the compaction configuration can now use TQL2.
