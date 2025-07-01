@@ -6,56 +6,77 @@ The source code of the Tenzir documentation is at
 https://github.com/tenzir/docs. We use [Astro](https://astro.build) with
 [Starlight](https://starlight.astro.build) as our site framework.
 
-**TL;DR**: Here's a summary about frequently used commands:
+## Quick Reference
+
+### Essential Commands
 
 | Command                | Action                                           |
 | :--------------------- | :----------------------------------------------- |
-| `pnpm install`         | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
+| `pnpm install`         | Install dependencies                             |
+| `pnpm dev`             | Start local dev server at `localhost:4321`      |
+| `pnpm build`           | Build production site to `./dist/`              |
+| `pnpm preview`         | Preview build locally before deploying          |
+
+### Development Commands
+
+| Command                | Action                                           |
+| :--------------------- | :----------------------------------------------- |
+| `pnpm lint:markdown`   | Lint all Markdown files                         |
+| `pnpm lint:linkcheck`  | Validate all internal and external links        |
+| `pnpm lint:prettier`   | Check code formatting                            |
 | `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `pnpm astro -- --help` | Get help using the Astro CLI                     |
 
-For anything beyond editing Markdown content, check out [Starlight’s
+For anything beyond editing Markdown content, check out [Starlight's
 docs](https://starlight.astro.build/) or read [Astro's
 documentation](https://docs.astro.build).
 
-## Develop and View Locally
+## Local Development
 
-To view the docs site locally, you must first the needed dependencies:
+### First-Time Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/tenzir/docs.git
+   cd docs
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Start development server**:
+   ```bash
+   pnpm dev
+   ```
+
+4. **View the site**: Browse to `http://localhost:4321/`
+
+The development server includes:
+- 🔥 Hot module reloading for instant updates
+- 📝 Live Markdown rendering
+- 🔍 Error reporting in the browser
+
+### Production Build
+
+Create and preview a production build:
 
 ```bash
-pnpm install
-```
-
-Thereafter, build a development version of the docs:
-
-```bash
-pnpm dev
-```
-
-Then browse to `http://localhost:4321/` to view the site.
-
-## Build for Production
-
-Create a production build as follows:
-
-```bash
+# Build the site
 pnpm build
-```
 
-Preview the generated files by spinning up a web server:
-
-```bash
+# Preview the build
 pnpm preview
 ```
 
-Then browse to `http://localhost:4321/` to view the site.
+Then browse to `http://localhost:4321/` to view the production site.
 
-We create a production build in CI. Check out our [GitHub
+:::tip[CI/CD Pipeline]
+Production builds are automatically created in CI. Check out our [GitHub
 workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/docs.yaml)
-for the gory details.
+for implementation details.
+:::
 
 ## Link Checking
 
