@@ -58,11 +58,24 @@ fi
 # Get list of changed files
 print_info "Getting list of changed files compared to $BASE_BRANCH..."
 
-# Use git diff to get changed files
-if ! CHANGED_FILES=$(git diff --name-only "$BASE_BRANCH"...HEAD 2>/dev/null); then
+# Use git diff to get added and modified files (exclude deleted files)
+if ! ALL_CHANGED_FILES=$(git diff --name-only --diff-filter=AM "$BASE_BRANCH"...HEAD 2>/dev/null); then
     print_error "Failed to get changed files. Make sure $BASE_BRANCH exists and is accessible."
     exit 1
 fi
+
+# Filter to only include files that actually exist on disk
+CHANGED_FILES=""
+for file in $ALL_CHANGED_FILES; do
+    if [ -f "$file" ]; then
+        if [ -z "$CHANGED_FILES" ]; then
+            CHANGED_FILES="$file"
+        else
+            CHANGED_FILES="$CHANGED_FILES
+$file"
+        fi
+    fi
+done
 
 # Check if any files were actually changed
 if [ -z "$CHANGED_FILES" ]; then
