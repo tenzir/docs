@@ -11,12 +11,14 @@
     "generate:reference": "node scripts/generate-reference.js",
     "lint:markdown": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro",
     "lint:markdown:fix": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro --fix",
+    "lint:markdown:check-pr": "bash -c 'files=$(git diff --name-only --diff-filter=AM \"${GITHUB_BASE_REF:-origin/main}\"...HEAD | grep -E \"\\.(md|mdx|mdoc)$\" | while read file; do [ -f \"$file\" ] && echo \"$file\"; done | tr \"\\n\" \" \"); [ -n \"$files\" ] && pnpm exec markdownlint $files || echo \"No markdown files to check\"'",
     "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
     "lint:eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
+    "lint:eslint:check-pr": "bash -c 'files=$(git diff --name-only --diff-filter=AM \"${GITHUB_BASE_REF:-origin/main}\"...HEAD | grep -E \"\\.(js|jsx|ts|tsx|astro|mjs|cjs)$\" | while read file; do [ -f \"$file\" ] && echo \"$file\"; done | tr \"\\n\" \" \"); [ -n \"$files\" ] && pnpm exec eslint $files || echo \"No JS/TS/Astro files to check\"'",
     "lint:prettier": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
-    "lint:linkcheck": "RUN_LINK_CHECK=true pnpm build",
-    "lint:diff": ".github/scripts/lint-diff.sh"
+    "lint:prettier:check-pr": "bash -c 'files=$(git diff --name-only --diff-filter=AM \"${GITHUB_BASE_REF:-origin/main}\"...HEAD | while read file; do [ -f \"$file\" ] && echo \"$file\"; done | tr \"\\n\" \" \"); [ -n \"$files\" ] && pnpm exec prettier --check $files || echo \"No files to check\"'",
+    "lint:linkcheck": "RUN_LINK_CHECK=true pnpm build"
   },
   "dependencies": {
     "@astrojs/markdoc": "^0.15.0",

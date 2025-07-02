@@ -7,10 +7,9 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    name: Lint Changed Files
+  markdown:
+    name: Markdown
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,41 +28,24 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run differential linting
-        run: pnpm lint:diff
+      - name: Run markdown linter
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:markdown:check-pr
+          else
+            pnpm lint:markdown
+          fi
         env:
           GITHUB_BASE_REF: ${{ github.base_ref }}
-
-  markdown:
-    name: Markdown
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Setup Node.js and pnpm
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run markdown linter
-        run: pnpm lint:markdown
 
   eslint:
     name: ESLint
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -78,15 +60,23 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: pnpm lint:eslint
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:eslint:check-pr
+          else
+            pnpm lint:eslint
+          fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   prettier:
     name: Prettier
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -101,7 +91,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Prettier
-        run: pnpm lint:prettier
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:prettier:check-pr
+          else
+            pnpm lint:prettier
+          fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   linkcheck:
     name: Link Check
