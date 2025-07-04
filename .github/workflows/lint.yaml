@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -27,7 +29,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run markdown linter
-        run: pnpm lint:markdown
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:markdown:check-pr
+          else
+            pnpm lint:markdown
+          fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   eslint:
     name: ESLint
@@ -35,6 +44,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -49,7 +60,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: pnpm lint:eslint
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:eslint:check-pr
+          else
+            pnpm lint:eslint
+          fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   prettier:
     name: Prettier
@@ -57,6 +75,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -71,7 +91,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run Prettier
-        run: pnpm lint:prettier
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm lint:prettier:check-pr
+          else
+            pnpm lint:prettier
+          fi
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   linkcheck:
     name: Link Check
