@@ -104,12 +104,12 @@ of the URL or HTTP headers.
 ### POST Requests with Data
 
 Send data to APIs by specifying the `method` parameter as "post" and providing
-the request body in the `payload` parameter:
+the request body in the `body` parameter:
 
 ```tql
 from_http "https://api.example.com/users",
   method="post",
-  payload={"name": "John", "email": "john@example.com"}
+  body={"name": "John", "email": "john@example.com"}
 ```
 
 Similarly, with the `http` operator you can also parameterize the entire HTTP
@@ -124,10 +124,10 @@ from {
     email: "john@example.com"
   }
 }
-http url, method=method, payload=data
+http url, method=method, body=data
 ```
 
-The operators automatically uses POST method when you specify a payload.
+The operators automatically uses POST method when you specify a body.
 
 ## Request Configuration
 
