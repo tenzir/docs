@@ -237,7 +237,7 @@ dynamically using expressions that reference response data:
 ```tql
 let $base_url = "https://api.example.com/items"
 from_http f"{$base_url}?page=1",
-  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages,
+  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages),
 ```
 
 This example builds pagination URLs dynamically based on response data.
