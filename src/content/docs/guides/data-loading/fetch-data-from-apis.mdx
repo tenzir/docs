@@ -204,9 +204,7 @@ Capture HTTP response metadata by specifying the `metadata_field` parameter to
 store status codes and headers separately from the response body:
 
 ```tql
-from_http "https://api.example.com/status",
-  response_field=data,
-  metadata_field=http_meta
+from_http "https://api.example.com/status", metadata_field=http_meta
 ```
 
 The metadata includes status codes and response headers for debugging and
