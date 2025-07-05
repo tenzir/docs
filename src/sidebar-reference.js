@@ -161,6 +161,7 @@ export const referenceFunctions = [
   "reference/functions/type_of",
   "reference/functions/uint",
   "reference/functions/unflatten",
+  "reference/functions/uuid",
   "reference/functions/value_counts",
   "reference/functions/variance",
   "reference/functions/weeks",
