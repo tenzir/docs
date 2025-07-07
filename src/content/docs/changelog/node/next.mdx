@@ -6,6 +6,15 @@ Unreleased changes.
 
 ### Changes
 
+#### Respecting error responses from Azure Log Analytics
+
+The `to_azure_log_analytics` operator now emits an error when it receives any
+response considering an internal error. Those normally indicate configuration
+errors and the pipeline will now stop with an error instead of continuing to
+send data that will not be received correctly.
+
+By [@tobim](https://github.com/tobim) in [#5314](https://github.com/tenzir/tenzir/pull/5314).
+
 #### `kv` parser no longer produces empty fields
 
 Our Key-Value parsers (the `read_kv` operator and `parse_kv` function) previously
