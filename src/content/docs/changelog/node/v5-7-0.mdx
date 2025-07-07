@@ -12,6 +12,14 @@ Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v
 
 ### Features
 
+#### `save_tcp` now reconnects on network outages
+
+The `save_tcp` (`from "tcp://..."`) operator now tries to reconnect in case of recoverable errors such as network outages and in case the remote end disconnects.
+
+You can use the new options `retry_delay: duration` and `max_retry_count: int` to tune the behavior to your needs. The default values are set to 30 seconds and 10 times respectively.
+
+By [@tobim](https://github.com/tobim) in [#5230](https://github.com/tenzir/tenzir/pull/5230).
+
 #### Add an option to add extra headers to the platform request
 
 The new option `tenzir.platform-extra-headers` causes the Tenzir Node to add the given extra HTTP headers when
