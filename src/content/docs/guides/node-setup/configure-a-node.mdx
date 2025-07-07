@@ -22,3 +22,15 @@ option. For example, to bind to an IPv6 address use `[::1]:42000`.
 Set `tenzir.endpoint` to `false` to disable the endpoint, making the node
 exclusively accessible through the Tenzir Platform. This effectively prevents
 connections from other `tenzir` or `tenzir-node` processes.
+
+## Configure forked pipelines
+
+Pipelines that run in a node are now partially moved to a subprocess for
+improved error resilience and resource utilization. Operators that need to
+communicate with a component still run inside the main node process for
+architectural reasons. You can set `tenzir.disable-forked-pipelines: true` in
+`tenzir.yaml` or `TENZIR_DISABLE_FORKED_PIPELINES=true` on the command line to
+opt out. This feature is enabled by default on Linux.
+
+Learn more about [forked pipelines](/explanations/architecture/node#forked-pipelines)
+and their trade-offs.
