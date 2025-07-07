@@ -1,9 +1,9 @@
 ---
-title: Tune node performance
+title: Tune performance
 ---
 
-This section describes tuning knobs that have a notable effect on system
-performance.
+This section describes tuning configuration knobs that have a notable effect on
+the performance of the node.
 
 ## Demand
 
@@ -74,7 +74,7 @@ The central component of Tenzir's storage engine is the _catalog_. It owns the
 partitions, keeps metadata about them, and maintains a set of sparse secondary
 indexes to identify relevant partitions for a given query.
 
-![Catalog Indexes](tune-performance/catalog-indexes.svg)
+![Catalog Indexes](./catalog-indexes.svg)
 
 The catalog's secondary indexes are space-efficient sketch data structures
 (e.g., Bloom filters, min-max summaries) that have a low memory footprint but
@@ -179,7 +179,7 @@ a newer version, or recreate persistent state after changing configuration
 parameters, e.g., switching from the Feather to the Parquet store backend. The
 following diagram illustrates this "defragmentation" process:
 
-![Rebuild](tune-performance/rebuild.svg)
+![Rebuild](./rebuild.svg)
 
 Rebuilding partitions also recreates their sketches. The process takes place
 asynchronously in the background. Control this behavior in your `tenzir.yaml`

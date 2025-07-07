@@ -1,5 +1,5 @@
 ---
-title: Start the node API
+title: Start the API
 ---
 
 The node offers a [REST API](/reference/node-api) for CRUD-style pipeline
@@ -59,7 +59,7 @@ There exist four modes to start the REST API, each of which suits a slightly dif
 
 The developer mode bypasses encryption and authentication token verification.
 
-![Developer Mode](start-the-node-api/rest-api-mode-developer.svg)
+![Developer Mode](./rest-api-mode-developer.svg)
 
 Pass `--mode=dev` to start the REST API in developer mode.
 
@@ -70,7 +70,7 @@ binds to a network interface. This mode only accepts HTTPS connections and
 requires a valid authentication token for every request. This is the default
 mode of operation.
 
-![Server Mode](start-the-node-api/rest-api-mode-server.svg)
+![Server Mode](./rest-api-mode-server.svg)
 
 Pass `--mode=server` to start the REST API in server mode.
 
@@ -80,7 +80,7 @@ The upstream TLS mode is suitable when Tenzir sits upstream of a separate
 TLS terminator that is running on the same machine. This kind of setup
 is commonly encountered when running nginx as a reverse proxy.
 
-![Upstream TLS Mode](start-the-node-api/rest-api-mode-upstream.svg)
+![Upstream TLS Mode](./rest-api-mode-upstream.svg)
 
 Tenzir only listens on localhost addresses, accepts plain HTTP but still
 checks authentication tokens.
@@ -98,6 +98,6 @@ Tenzir only accepts HTTPS requests, requires TLS client certificates for incomin
 connections, and requires valid authentication tokens for any authenticated
 endpoints.
 
-![mTLS Mode](start-the-node-api/rest-api-mode-mtls.svg)
+![mTLS Mode](./rest-api-mode-mtls.svg)
 
 Pass `--mode=mtls` to start the REST API in server mode.
