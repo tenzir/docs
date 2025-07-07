@@ -117,7 +117,12 @@ export const tutorials = [
 export const explanations = [
   {
     label: "Architecture",
-    autogenerate: { directory: "explanations/architecture" },
+    items: [
+      "explanations/architecture",
+      "explanations/architecture/pipeline",
+      "explanations/architecture/node",
+      "explanations/architecture/platform",
+    ],
   },
   "explanations/configuration",
   "explanations/secrets",
