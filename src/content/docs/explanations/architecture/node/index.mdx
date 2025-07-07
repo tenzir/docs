@@ -33,34 +33,34 @@ binary or by running the Docker container that contains this binary:
 
 ![Managed Execution](./managed-execution.svg)
 
-## Forked Pipelines
+## Pipeline Subprocesses
 
-A node can execute pipelines in two different modes: as forked processes or
-within the same `tenzir-node` process. By default, pipelines run as forked
-processes. Each approach offers distinct advantages and trade-offs.
+A node can execute pipelines in two different modes: as separate subprocesses or
+within the same `tenzir-node` process. By default, pipelines run as separate
+subprocesses. Each approach offers distinct advantages and trade-offs.
 
 ![Forked Pipelines](./forked-pipelines.svg)
 
-When pipelines run as separate forked processes, they don't share fate with
+When pipelines run as separate subprocesses, they don't share fate with
 each other. If one pipeline crashes, it won't affect other running pipelines,
 which improves overall reliability. This isolation also enables better scaling
 across available CPU cores since each pipeline can utilize cores independently.
 Vertically scaling a node becomes more efficient as this approach reduces
 pressure on the node's internal scheduler and improves overall system
-responsiveness. However, forked execution comes with costs: each process
+responsiveness. However, subprocess execution comes with costs: each process
 requires its own memory space and system resources, and the system must
 serialize data when crossing process boundaries.
 
 In contrast, when pipelines run within the same `tenzir-node` process, they
 operate with less OS pressure due to running as a single process with a fixed
 number of threads and efficient user-level task scheduling. Pipelines can pass
-data directly without serialization at their boundaries, which significantly
-lowers overall resource consumption. The trade-off here involves shared fate—a
+data directly without serialization at their boundaries, which can noticeably
+lower overall resource consumption. The trade-off here involves shared fate—a
 critical error in one pipeline could potentially affect the entire node
 process. Additionally, all pipelines must share the same process resources,
 which can create bottlenecks under heavy load and limit parallelism.
 
-Choose between forked and in-process execution based on your specific
+Choose between subprocess and in-process execution based on your specific
 requirements for reliability, performance, and resource efficiency. You can
-[configure this behavior](/guides/node-setup/configure-a-node#configure-forked-pipelines)
+[configure this behavior](/guides/node-setup/configure-a-node#configure-pipeline-subprocesses)
 in your node settings.
