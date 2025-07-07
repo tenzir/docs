@@ -1,7 +1,5 @@
 ---
 title: Pipeline
-sidebar:
-  order: 1
 ---
 
 A Tenzir **pipeline** is a chain of **operators** that represents a dataflow.
@@ -9,12 +7,12 @@ Operators are the atomic building blocks that produce, transform, or consume
 data. Think of them as Unix or Powershell commands where the result from one
 command is feeding into the next:
 
-![Pipeline Chaining](pipeline/operator-chaining.svg)
+![Pipeline Chaining](./operator-chaining.svg)
 
 Our pipelines have 3 types of operators: **inputs** that produce data,
 **outputs** that consume data, and **transformations** that do both:
 
-![Pipeline Structure](pipeline/operator-types.svg)
+![Pipeline Structure](./operator-types.svg)
 
 ## Structured and Unstructured Dataflow
 
@@ -22,7 +20,7 @@ Tenzir pipelines make one more distinction: the elements that the operators push
 through the pipeline are _typed_. An operator has an **upstream** and
 **downstream** type:
 
-![Upstream and Downstream Types](pipeline/operator-table.svg)
+![Upstream and Downstream Types](./operator-table.svg)
 
 When composing pipelines out of operators, upstream/downstream types of adjacent
 operators have to match. Otherwise the pipeline is malformed. We call any
@@ -54,7 +52,7 @@ to "s3://bucket/dir/file.parquet"
 
 This pipelines consists of three operators:
 
-![Operator Composition Example 1](pipeline/operator-composition-example-1.svg)
+![Operator Composition Example 1](./operator-composition-example-1.svg)
 
 The operator [`from`](/reference/operators/from) is a void-to-events
 input operator, [`where`](/reference/operators/where) an
@@ -72,14 +70,14 @@ write_yaml
 save_zmq "tcp://1.2.3.4"
 ```
 
-![Operator Composition Example 2](pipeline/operator-composition-example-2.svg)
+![Operator Composition Example 2](./operator-composition-example-2.svg)
 
 With these building blocks in place, you can create all kinds of pipelines, as
 long as they follow the two principal rules of (1) sequencing inputs,
 transformations, and outputs, and (2) ensuring that operator upstream/downstream
 types match. Here is an example of other valid pipeline instances:
 
-![Operator Composition Examples](pipeline/operator-composition-variations.svg)
+![Operator Composition Examples](./operator-composition-variations.svg)
 
 ## Multi-Schema Dataflows
 
@@ -109,7 +107,7 @@ stream into N homogeneous streams. The
 operator; it pushes its ordering requirements upstream, allowing parsers to
 efficiently create multiple streams events in parallel.
 
-![Multi-schema Example](pipeline/multi-schema-example.svg)
+![Multi-schema Example](./multi-schema-example.svg)
 
 Some operators only work with exactly one instance per schema internally, such
 as [`write_csv`](/reference/operators/write_csv), which first writes a
@@ -132,7 +130,7 @@ workloads incredibly easy: just pick a input operator at the beginning the a
 pipeline that points to your data source, be it infinitely streaming or stored
 dataset. Tenzir will figure out the rest.
 
-![Unified Processing](pipeline/unified-processing.svg)
+![Unified Processing](./unified-processing.svg)
 
 Our desired user experience for interacting with historical data looks like
 this:
@@ -165,7 +163,7 @@ replace partitions during compaction.
 
 The diagram below shows the main components of the storage engine:
 
-![Database Architecture](pipeline/storage-engine-architecture.svg)
+![Database Architecture](./storage-engine-architecture.svg)
 
 Because of this transparent optimization, you can just exchange the input
 operator of a pipeline and switch between historical and streaming execution
@@ -180,7 +178,7 @@ distributed fabric of dataflows to express intricate use cases that go beyond
 single-machine processing. There are two types of network connections:
 _implicit_ and _explicit_ ones:
 
-![Implicit vs. Explicit](pipeline/implicit-vs-explicit-networking.svg)
+![Implicit vs. Explicit](./implicit-vs-explicit-networking.svg)
 
 An implicit network connection exists, for example, when you use the `tenzir`
 binary on the command line to run a pipeline that ends in
@@ -203,7 +201,7 @@ to "/tmp/result.json"
 Tenzir pipelines are eschewing networking to minimize latency and maximize
 throughput, which results in the following operator placement for the above examples:
 
-![Implicit Networking](pipeline/implicit-networking.svg)
+![Implicit Networking](./implicit-networking.svg)
 
 The executor generally transfers ownership of operators between
 processes as late as possible to prefer local, high-bandwidth communication. For
@@ -215,7 +213,7 @@ The above examples are implicit network connections because they're not visible
 in the pipeline definition. An explicit network connection terminates a pipeline
 as with an input or output operator:
 
-![Pipeline Fabric](pipeline/pipeline-fabric.excalidraw.svg)
+![Pipeline Fabric](./pipeline-fabric.excalidraw.svg)
 
 This fictive data fabric above consists of a heterogeneous set of technologies,
 interconnected by pipelines. Because you have full control over the location
