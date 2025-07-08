@@ -137,7 +137,7 @@ functions:
     path: 'reference/functions/sort'
   - name: 'where'
     description: 'Filters list elements based on a predicate.'
-    example: 'xs.where(x, x > 5)'
+    example: 'xs.where(x => x > 5)'
     path: 'reference/functions/where'
   - name: 'zip'
     description: 'Combines two lists into a list of pairs.'
@@ -543,6 +543,30 @@ functions:
     description: 'Computes an XXH3 hash digest.'
     example: 'hash_xxh3("foo")'
     path: 'reference/functions/hash_xxh3'
+  - name: 'ip_category'
+    description: 'Returns the type classification of an IP address.'
+    example: 'ip_category(8.8.8.8)'
+    path: 'reference/functions/ip_category'
+  - name: 'is_global'
+    description: 'Checks whether an IP address is a global address.'
+    example: 'is_global(8.8.8.8)'
+    path: 'reference/functions/is_global'
+  - name: 'is_link_local'
+    description: 'Checks whether an IP address is a link-local address.'
+    example: 'is_link_local(169.254.1.1)'
+    path: 'reference/functions/is_link_local'
+  - name: 'is_loopback'
+    description: 'Checks whether an IP address is a loopback address.'
+    example: 'is_loopback(127.0.0.1)'
+    path: 'reference/functions/is_loopback'
+  - name: 'is_multicast'
+    description: 'Checks whether an IP address is a multicast address.'
+    example: 'is_multicast(224.0.0.1)'
+    path: 'reference/functions/is_multicast'
+  - name: 'is_private'
+    description: 'Checks whether an IP address is a private address.'
+    example: 'is_private(192.168.1.1)'
+    path: 'reference/functions/is_private'
   - name: 'is_v4'
     description: 'Checks whether an IP address has version number 4.'
     example: 'is_v4(1.2.3.4)'
@@ -1086,6 +1110,54 @@ hash_xxh3("foo")
 
 <CardGrid>
 
+<ReferenceCard title="ip_category" description="Returns the type classification of an IP address." href="/reference/functions/ip_category">
+
+```tql
+ip_category(8.8.8.8)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_global" description="Checks whether an IP address is a global address." href="/reference/functions/is_global">
+
+```tql
+is_global(8.8.8.8)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_link_local" description="Checks whether an IP address is a link-local address." href="/reference/functions/is_link_local">
+
+```tql
+is_link_local(169.254.1.1)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_loopback" description="Checks whether an IP address is a loopback address." href="/reference/functions/is_loopback">
+
+```tql
+is_loopback(127.0.0.1)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_multicast" description="Checks whether an IP address is a multicast address." href="/reference/functions/is_multicast">
+
+```tql
+is_multicast(224.0.0.1)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_private" description="Checks whether an IP address is a private address." href="/reference/functions/is_private">
+
+```tql
+is_private(192.168.1.1)
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="is_v4" description="Checks whether an IP address has version number 4." href="/reference/functions/is_v4">
 
 ```tql
@@ -1175,7 +1247,7 @@ xs.sort()
 <ReferenceCard title="where" description="Filters list elements based on a predicate." href="/reference/functions/where">
 
 ```tql
-xs.where(x, x > 5)
+xs.where(x => x > 5)
 ```
 
 </ReferenceCard>
