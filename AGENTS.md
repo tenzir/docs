@@ -19,7 +19,7 @@ editorial guidelines for writing clear and consistent technical documentation.
 
 Most notably:
 
-- In general, use *active voice*.
+- In general, use _active voice_.
 - Avoid anthropomorphic language: Don't attribute human qualities to software or
   hardware.
 - Include definite and indefinite articles (a, an, and the) in your writing.
@@ -42,7 +42,7 @@ Most notably:
 
 ### Git Branching and Commit Messages
 
-- For new features or fixes, use *topic branches* that branch off `main` with
+- For new features or fixes, use _topic branches_ that branch off `main` with
   a naming convention of `topic/description`, e.g., `topic/improve-spelling
 
 - If availble, use `gh` to manage pull requests. Make sure to write a separate
@@ -56,8 +56,8 @@ Most notably:
 
 - The first line does not contain a dot at the end. The second line is empty.
   Optional long descriptions as full sentences begin on the third line, indented
-  at 72 characters per line, explaining *why* the change is needed, *how* it
-  addresses the underlying issue, and what *side-effects* it might have.
+  at 72 characters per line, explaining _why_ the change is needed, _how_ it
+  addresses the underlying issue, and what _side-effects_ it might have.
 
 ## Formatting
 
@@ -70,7 +70,7 @@ Most notably:
 
 - Break lines at 80 characters.
 - When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
-  lint:prettier:fix` when you're done.
+lint:prettier:fix` when you're done.
 
 ### Code
 
