@@ -31,6 +31,9 @@ For anything beyond editing Markdown content, check out [Starlight's
 docs](https://starlight.astro.build/) or read [Astro's
 documentation](https://docs.astro.build).
 
+For git workflow, branching strategy, and commit message conventions, see our
+[Git and GitHub Workflow](/guides/contribution/workflow) guide.
+
 ## Local Development
 
 ### First-Time Setup
@@ -231,3 +234,68 @@ Tenzir developers have access to our Excalidraw [Documentation
 collection](https://app.excalidraw.com/o/6dBWEFf9h1l/9RErQkL9e2v). For everyone
 else, please reach out to us on our [Discord server](/discord) to request
 changes to existing SVGs.
+
+## Writing Style and Formatting
+
+This section covers the editorial and technical standards for contributing to
+the Tenzir documentation.
+
+### Writing Guidelines
+
+We follow the [Google Style Guide](https://developers.google.com/style) for
+clear and consistent technical documentation. Most notably:
+
+- Use **active voice** in general.
+- Avoid anthropomorphic language—don't attribute human qualities to software or
+  hardware.
+- Include definite and indefinite articles (a, an, and the) in your writing.
+  Don't skip articles for brevity, including in headings and titles.
+- In document titles and headings, use **sentence case**. Capitalize only the
+  first word in the title, the first word in a subheading after a colon, and
+  any proper nouns or other terms that are always capitalized a certain way.
+- Capitalize product names.
+- Write documentation in an **informal tone**—use common two-word contractions
+  such as "you're," "don't," and "there's."
+- **Define technical terms and acronyms** on first use. Don't assume readers
+  know specialized vocabulary.
+- **Put the most important information first**. Don't bury key details in the
+  middle of paragraphs.
+- **Use consistent terminology** throughout. Don't use different words for the
+  same concept (e.g., don't alternate between "node" and "instance").
+- **Avoid unclear pronouns** like "it," "this," or "that" without clear
+  antecedents. Be explicit about what you're referring to.
+- **Choose strong, specific verbs** over weak ones. Use "use" instead of
+  "utilize," "help" instead of "facilitate," and "show" instead of
+  "demonstrate."
+- **Eliminate redundant phrases**. Write "to" instead of "in order to," "now"
+  instead of "at this point in time," and "because" instead of "due to the
+  fact that."
+- **Avoid vague qualifiers** like "simply," "just," "easily," or "obviously."
+  These don't add clarity and may frustrate readers who find the task
+  difficult.
+- **Provide context** for why something matters. Don't just explain what to do—
+  explain when and why to do it.
+- **Use hyperlinks judiciously**. Link to external tools, products, or
+  resources when first mentioned, but avoid overlinking within the same
+  document.
+
+### Formatting Standards
+
+Follow these conventions to maintain consistency across all documentation files.
+
+#### General
+
+- Every file must end with a newline character, but avoid empty lines at the
+  end of a file.
+
+#### Markdown Content
+
+- Break lines at **80 characters**.
+- When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
+  lint:prettier:fix` when you're done.
+
+#### Code
+
+- Avoid empty lines within functions.
+- When editing source code (`.js`, `.jsx`, `.ts`, `.tsx`, `.astro` files), run
+  `pnpm lint:eslint:fix` when you're done.
