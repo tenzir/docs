@@ -2,22 +2,22 @@
 title: Security Lake
 ---
 
-[Amazon Security Lake (ASL)][asl] is an OCSF event collection service.
+[Amazon Security Lake][asl] is an OCSF event collection service.
 
 [asl]: https://aws.amazon.com/security-lake/
 
 ![Amazon security Lake](security-lake.svg)
 
-Tenzir can send events to ASL via the [`to_asl`
-operator](/reference/operators/to_asl).
+Tenzir can send events to ASL via the
+[`to_amazon_security_lake` operator](/reference/operators/to_amazon_security_lake).
 
 ## Configuration
 
-Follow the [standard configuration instructions](/integrations/amazon) to authenticate with your
-AWS credentials.
+Follow the [standard configuration instructions](/integrations/amazon) to
+authenticate with your AWS credentials.
 
-Set up a custom source in ASL and use its S3 bucket URI with the `to_asl`
-operator.
+Set up a custom source in Amazon Security Lake and use its S3 bucket URI with
+the `to_amazon_security_lake` operator.
 
 ## Examples
 
@@ -33,7 +33,7 @@ let $s3_uri = "s3://aws-security-data-lake-eu-west-2-lake-abcdefghijklmnopqrstuv
 load_kafka "ocsf_events"
 read_ndjson
 where class_uid == ocsf::class_uid("Network Activity")
-to_asl $s3_uri,
+to_amazon_security_lake $s3_uri,
   region="eu-west-2",
   accountId="123456789012"
 ```
