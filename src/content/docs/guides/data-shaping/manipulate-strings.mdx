@@ -576,7 +576,13 @@ Use an actual file path on your system for this example to work.
 
 ### Parse structured logs
 
-Check for patterns in Apache access logs:
+Let's explore three approaches to parsing Apache access logs, from manual to
+fully automated.
+
+#### 1. Manual approach with regex
+
+Start by checking for patterns using
+[`match_regex()`](/reference/functions/match_regex):
 
 ```tql
 from {
@@ -597,6 +603,67 @@ set has_status = log.match_regex("\" \\d{3}")
   has_status: true,
 }
 ```
+
+#### 2. Structured parsing with custom Grok patterns
+
+Use [`parse_grok()`](/reference/functions/parse_grok) to extract fields with
+custom patterns:
+
+```tql
+from {
+  log: '192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] "GET /api/users HTTP/1.1" 200 1234'
+}
+parsed = log.parse_grok("%{IPV4:client_ip} %{USER:ident} %{USER:auth} \\[%{HTTPDATE:timestamp}\\] \"%{WORD:method} %{URIPATH:path} HTTP/%{NUMBER:http_version}\" %{INT:status} %{INT:bytes}")
+```
+
+```tql
+{
+  log: "192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] \"GET /api/users HTTP/1.1\" 200 1234",
+  parsed: {
+    client_ip: 192.168.1.10,
+    ident: "-",
+    auth: "-",
+    timestamp: "15/Jan/2024:10:30:45 +0000",
+    method: "GET",
+    path: "/api/users",
+    http_version: 1.1,
+    status: 200,
+    bytes: 1234,
+  },
+}
+```
+
+#### 3. One-liner with built-in patterns
+
+Grok comes with many pre-defined patterns. Simply use `COMMONAPACHELOG`:
+
+```tql
+from {
+  log: '192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] "GET /api/users HTTP/1.1" 200 1234'
+}
+parsed = log.parse_grok("%{COMMONAPACHELOG}")
+```
+
+```tql
+{
+  log: "192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] \"GET /api/users HTTP/1.1\" 200 1234",
+  parsed: {
+    "source.address": 192.168.1.10,
+    "apache.access.user.identity": null,
+    "user.name": null,
+    timestamp: "15/Jan/2024:10:30:45 +0000",
+    "http.request.method": "GET",
+    "url.original": "/api/users",
+    "http.version": 1.1,
+    "http.response.status_code": 200,
+    "http.response.body.bytes": 1234,
+  },
+}
+```
+
+The progression from manual regex to built-in patterns shows how Tenzir provides
+tools for every level of complexity, letting you choose the right approach for
+your use case.
 
 ### Clean and normalize user input
 
