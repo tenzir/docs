@@ -14,6 +14,8 @@ get started.
 After [provisioning a node](/guides/node-setup/provision-a-node), proceed as
 follows:
 
+import { Steps } from "@astrojs/starlight/components";
+
 <Steps>
 
 1. Select the Docker tab and click the download button to obtain the
@@ -64,8 +66,6 @@ We offer a static binary package on various Linux distributions.
 ### Install a node
 
 Second, choose the Linux tab and proceed as follows:
-
-import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
@@ -212,64 +212,79 @@ Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
 
 ## AWS
 
-The best way to run a node in AWS is to use [Elastic Container Service (ECS)](https://aws.amazon.com/ecs/)
-to run the Tenzir Node container.
+The recommended way to run a Tenzir node in AWS is with [Elastic Container Service
+(ECS)](https://aws.amazon.com/ecs/).
 
-This guide describes how to set up a single Tenzir Node on AWS manually. For
-a more automated process, check out the sections on Terraform and Ansible below.
+This guide walks through manual setup of a single Tenzir node. For automated
+deployment, see the Terraform and Ansible sections below.
+
+:::note[Prerequisites]
+Before you begin, you'll need a valid `TENZIR_TOKEN`. You can obtain this by
+[provisioning a node](/guides/node-setup/provision-a-node) and downloading
+the Docker Compose configuration file.
+:::
 
 ### ECS
 
-Prior to getting started, you need a valid `TENZIR_TOKEN` that you can obtain
-after [provisioning a node](/guides/node-setup/provision-a-node) and downloading
-the Docker Compose configuration file.
+<Steps>
 
-#### Subscribe on the Marketplace
+1. Go to [AWS Marketplace](https://console.aws.amazon.com/marketplace/) and
+   subscribe to the free [Tenzir
+   Node](https://console.aws.amazon.com/marketplace/search/listing/prodview-gsofc3z6f3vsu)
+   product.
 
-Go to AWS Marketplace and subscribe to the free Tenzir Node product.
+   ![AWS Marketplace Tenzir Node](./aws/01-aws-marketplace.png)
 
-[screenshot of marketplace]
+2. Accept the terms to subscribe to the offering.
 
-#### Create a Cluster
+   ![AWS Marketplace Tenzir Node](./aws/02-subscribe.png)
 
-To run the image, you need to create an ECS cluster first.
+3. Navigate to [Amazon Elastic Container Service (ECS)](https://console.aws.amazon.com/ecs).
 
-[screenshot of creating ECS cluster]
+   ![Amazon Elastic Container Service (ECS)](./aws/03-ecs.png)
 
-You can choose to run an EC2 or a Fargate cluster. Which one is best depends
-on your use case:
+4. Create a new cluster. Choose between **EC2** or **Fargate** based on your
+   needs:
 
-- With an EC2 cluster, you have full control over the EC2 instances that make
-  up your cluster. This is best suited for long-running workloads with
-  a constant load.
-- With a Fargate cluster, you're using a serverless container runtime, only
-  paying for the resources that you actually use. This is generally cheaper,
-  and particularly useful for workloads that have usage spikes.
+   - **EC2 clusters** give you full control over the underlying instances.
+     They're ideal for long-running workloads with consistent resource
+     requirements.
+   - **Fargate clusters** provide serverless container execution where you pay
+     only for the resources you use. They're cost-effective for workloads with
+     variable demand.
 
-When in doubt, Fargate is probably the better choice.
+   ![Create a Cluster](./aws/04-create-cluster.png)
 
-#### Create a Task Definition
+5. Create a task definition to specify how the Tenzir node container should run.
 
-You need to create a Task Definition that launches the Tenzir Node container.
+   ![Create a Cluster](./aws/05-create-task-definition.png)
 
-For the container image, enter the repository URL you received after subscribing
-to AWS Marketplace.
+   In the _Containers_ section, enter the repository URL from your AWS
+   Marketplace subscription:
 
-[screenshot of Task Definition creation]
+   ```
+   709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-node:v5.9.0
+   ```
 
-#### Run a Task
+   Each node version has its own image tag. The example above uses version
+   5.9.0. Check the [node changelog](/changelog/node/) for the latest version.
 
-Go to your cluster, click on _Run Task_ and select the task definition
-created in the previous step.
+6. Return to your cluster, navigate to the _Tasks_ tab, and click _Run new
+   task_. Select the task definition you just created.
 
-When launching the task, add an environment variable `TENZIR_TOKEN` that
-has the value of the token you obtained at the beginning of this guide.
+   ![Create a Cluster](./aws/06-run-task.png)
 
-[screenshot of running a task with modified environment]
+   In the _Container overrides_ section, add the `TENZIR_TOKEN` environment
+   variable with the token value from the prerequisites.
 
-After the Container is provisioned and started successfully, the Node will
-connect to your Tenzir Workspace. From here on, follow one of our
-[usage guides](...) to start working with your Tenzir Node.
+   ![Container Overrides](./aws/07-container-overrides.png)
+
+   Click _Create_ to launch your node.
+
+7. Once the container starts successfully, your node will automatically connect
+   to your workspace.
+
+</Steps>
 
 ## Azure
 
