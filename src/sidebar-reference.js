@@ -330,7 +330,7 @@ export const referenceOperators = [
   "reference/operators/throttle",
   "reference/operators/timeshift",
   "reference/operators/to",
-  "reference/operators/to_asl",
+  "reference/operators/to_amazon_security_lake",
   "reference/operators/to_azure_log_analytics",
   "reference/operators/to_clickhouse",
   "reference/operators/to_fluent_bit",
