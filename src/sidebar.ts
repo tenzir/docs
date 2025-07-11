@@ -55,6 +55,7 @@ export const guides = [
     label: "Data Shaping",
     items: [
       "guides/data-shaping/shape-data",
+      "guides/data-shaping/manipulate-strings",
       "guides/data-shaping/parse-nested-data",
       "guides/data-shaping/deduplicate-events",
     ],

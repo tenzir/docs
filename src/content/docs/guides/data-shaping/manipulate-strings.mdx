@@ -1,0 +1,653 @@
+---
+title: Manipulate strings
+---
+
+Tenzir provides a comprehensive set of string manipulation functions to help you
+clean, transform, and extract information from text data. This guide covers
+common string manipulation use cases with practical examples.
+
+## Transform string case
+
+Convert strings between different case formats for standardization or display
+purposes.
+
+### Convert to lowercase
+
+Use [`to_lower()`](/reference/functions/to_lower) to normalize text for
+case-insensitive comparisons:
+
+```tql
+from {user: "John.DOE@EXAMPLE.COM"}
+set email = user.to_lower()
+```
+
+```tql
+{
+  user: "John.DOE@EXAMPLE.COM",
+  email: "john.doe@example.com",
+}
+```
+
+### Convert to uppercase
+
+Use [`to_upper()`](/reference/functions/to_upper) for formatting constants or
+headers:
+
+```tql
+from {status: "active"}
+set status_code = status.to_upper()
+```
+
+```tql
+{
+  status: "active",
+  status_code: "ACTIVE",
+}
+```
+
+### Capitalize first letters
+
+Use [`capitalize()`](/reference/functions/capitalize) for the first character
+or [`to_title()`](/reference/functions/to_title) for each word:
+
+```tql
+from {name: "john doe", company: "acme corp"}
+set display_name = name.to_title()
+set sentence = company.capitalize()
+```
+
+```tql
+{
+  name: "john doe",
+  company: "acme corp",
+  display_name: "John Doe",
+  sentence: "Acme corp",
+}
+```
+
+## Pad strings for alignment
+
+Format text into fixed-width columns or align numeric values.
+
+### Left padding for numbers
+
+Use `pad_left()` to format numbers with leading zeros or align text to the
+right:
+
+```tql
+from {invoice: "42", amount: "1250"}
+set invoice_no = invoice.pad_left(5, "0")
+set display = amount.pad_left(10)
+```
+
+```tql
+{
+  invoice: "42",
+  amount: "1250",
+  invoice_no: "00042",
+  display: "      1250",
+}
+```
+
+The padded strings look like this in plain text:
+
+```
+invoice_no: "00042"       (padded with zeros)
+display:    "      1250"  (padded with spaces)
+```
+
+### Right padding for columns
+
+Use `pad_right()` to create fixed-width fields:
+
+```tql
+from {name: "Alice", role: "Admin"}
+set formatted = name.pad_right(10) + " | " + role.pad_right(15)
+```
+
+```tql
+{
+  name: "Alice",
+  role: "Admin",
+  formatted: "Alice      | Admin          ",
+}
+```
+
+The formatted string creates aligned columns:
+
+```
+"Alice      | Admin          "
+```
+
+### Custom padding characters
+
+Both functions support custom padding characters, including Unicode:
+
+```tql
+from {title: "Report", price: "99"}
+set header = title.pad_right(20, ".")
+set fancy = price.pad_left(5, "★")
+```
+
+```tql
+{
+  title: "Report",
+  price: "99",
+  header: "Report..............",
+  fancy: "★★★99",
+}
+```
+
+The padded strings with custom characters:
+
+```
+header: "Report.............."
+fancy:  "★★★99"
+```
+
+## Clean and trim whitespace
+
+Remove unwanted spaces from log entries or user input.
+
+### Remove all surrounding whitespace
+
+Use [`trim()`](/reference/functions/trim) to clean both ends:
+
+```tql
+from {input: "  hello world  \n"}
+set cleaned = input.trim()
+```
+
+```tql
+{
+  input: "  hello world  \n",
+  cleaned: "hello world",
+}
+```
+
+### Remove specific sides
+
+Use [`trim_start()`](/reference/functions/trim_start) or
+[`trim_end()`](/reference/functions/trim_end) for one-sided trimming:
+
+```tql
+from {path: "/var/log/", indent: "    data"}
+set no_slash = path.trim_end("/")
+set content = indent.trim_start()
+```
+
+```tql
+{
+  path: "/var/log/",
+  indent: "    data",
+  no_slash: "/var/log",
+  content: "data",
+}
+```
+
+## Extract substrings
+
+Pull out specific portions of strings using position or patterns.
+
+### Extract by position
+
+Use [`slice()`](/reference/functions/slice) to get substring by character
+positions:
+
+```tql
+from {timestamp: "2024-01-15T10:30:45Z"}
+set date = timestamp.slice(0, 10)
+set time = timestamp.slice(11, 19)
+```
+
+```tql
+{
+  timestamp: "2024-01-15T10:30:45Z",
+  date: "2024-01-15",
+  time: "10:30:45",
+}
+```
+
+### Check with regex
+
+Use [`match_regex()`](/reference/functions/match_regex) to check if patterns
+exist:
+
+```tql
+from {log: "User ID: 12345 logged in from 192.168.1.100"}
+set has_user_id = log.match_regex("ID: \\d+")
+set has_ip = log.match_regex("\\d+\\.\\d+\\.\\d+\\.\\d+")
+```
+
+```tql
+{
+  log: "User ID: 12345 logged in from 192.168.1.100",
+  has_user_id: true,
+  has_ip: true,
+}
+```
+
+## Check string contents
+
+Validate or filter strings based on their content.
+
+### Check prefixes and suffixes
+
+Use [`starts_with()`](/reference/functions/starts_with) and
+[`ends_with()`](/reference/functions/ends_with) for filtering:
+
+```tql
+from {file: "report_2024.pdf", url: "https://api.example.com"}
+where file.ends_with(".pdf") and url.starts_with("https://")
+```
+
+```tql
+{
+  file: "report_2024.pdf",
+  url: "https://api.example.com",
+}
+```
+
+### Validate character types
+
+Check if strings contain only certain character types using
+[`is_numeric()`](/reference/functions/is_numeric),
+[`is_alpha()`](/reference/functions/is_alpha), and
+[`is_alnum()`](/reference/functions/is_alnum):
+
+```tql
+from {input: "12345"}
+set is_numeric = input.is_numeric()
+set is_alpha = input.is_alpha()
+set is_alnum = input.is_alnum()
+```
+
+```tql
+{
+  input: "12345",
+  is_numeric: true,
+  is_alpha: false,
+  is_alnum: true,
+}
+```
+
+## Split and join strings
+
+Parse delimited data or combine multiple values.
+
+### Split on delimiters
+
+Use [`split()`](/reference/functions/split) for simple delimiters:
+
+```tql
+from {csv: "alice,30,engineer", path: "/var/log/app.log"}
+set fields = csv.split(",")
+set parts = path.split("/")
+```
+
+```tql
+{
+  csv: "alice,30,engineer",
+  path: "/var/log/app.log",
+  fields: ["alice", "30", "engineer"],
+  parts: ["", "var", "log", "app.log"],
+}
+```
+
+### Split with regex patterns
+
+Use [`split_regex()`](/reference/functions/split_regex) for complex patterns:
+
+```tql
+from {log: "Error: 500   |   Timeout   |   Retry"}
+set parts = log.split_regex(/\s*\|\s*/)
+```
+
+```tql
+{
+  log: "Error: 500   |   Timeout   |   Retry",
+  parts: ["Error: 500", "Timeout", "Retry"],
+}
+```
+
+### Join arrays into strings
+
+Use [`join()`](/reference/functions/join) to combine array elements:
+
+```tql
+from {tags: ["security", "audit", "critical"]}
+set tag_string = tags.join(", ")
+set path = ["var", "log", "app.log"].join("/")
+```
+
+```tql
+{
+  tags: ["security", "audit", "critical"],
+  tag_string: "security, audit, critical",
+  path: "var/log/app.log",
+}
+```
+
+## Format strings with interpolation
+
+Use f-strings to embed expressions directly in strings, similar to Python's
+f-string syntax.
+
+### Basic interpolation
+
+Insert variable values into strings:
+
+```tql
+from {name: "Alice", role: "Admin"}
+set message = f"User {name} has {role} privileges"
+```
+
+```tql
+{
+  name: "Alice",
+  role: "Admin",
+  message: "User Alice has Admin privileges",
+}
+```
+
+### Interpolate with expressions
+
+Include calculations and function calls:
+
+```tql
+from {items: 5, price: 9.99}
+set total = items * price
+set summary = f"Total for {items} items: ${total}"
+```
+
+```tql
+{
+  items: 5,
+  price: 9.99,
+  total: 49.95,
+  summary: "Total for 5 items: $49.95",
+}
+```
+
+### Combine with string functions
+
+Use f-strings with other string operations:
+
+```tql
+from {first: "john", last: "doe", domain: "EXAMPLE.COM"}
+set email = f"{first}.{last}@{domain.to_lower()}"
+set header = f"Welcome, {first.to_title()} {last.to_title()}"
+```
+
+```tql
+{
+  first: "john",
+  last: "doe",
+  domain: "EXAMPLE.COM",
+  email: "john.doe@example.com",
+  header: "Welcome, John Doe",
+}
+```
+
+## Replace text
+
+Find and replace content within strings.
+
+### Simple replacement
+
+Use [`replace()`](/reference/functions/replace) for literal string replacement:
+
+```tql
+from {message: "Error in module A: failed to connect"}
+set cleaned = message.replace("Error", "Warning")
+set masked = message.replace("module A", "module X")
+```
+
+```tql
+{
+  message: "Error in module A: failed to connect",
+  cleaned: "Warning in module A: failed to connect",
+  masked: "Error in module X: failed to connect",
+}
+```
+
+### Pattern-based replacement
+
+Use [`replace_regex()`](/reference/functions/replace_regex) for complex
+replacements:
+
+```tql
+from {log: "IP: 192.168.1.100, User: john@example.com"}
+set anonymized = log.replace_regex(/\d+\.\d+\.\d+\.\d+/, "XXX.XXX.XXX.XXX")
+set domain_masked = log.replace_regex(/\w+@(\w+\.com)/, "user@$1")
+```
+
+```tql
+{
+  log: "IP: 192.168.1.100, User: john@example.com",
+  anonymized: "IP: XXX.XXX.XXX.XXX, User: john@example.com",
+  domain_masked: "IP: 192.168.1.100, User: user@example.com",
+}
+```
+
+## Encode and decode strings
+
+Convert between different string encodings for data transmission or storage.
+
+### Base64 encoding
+
+Encode binary data or sensitive information using
+[`encode_base64()`](/reference/functions/encode_base64):
+
+```tql
+from {secret: "my-api-key-123", data: "Hello, World!"}
+set encoded_secret = secret.encode_base64()
+set encoded_data = data.encode_base64()
+```
+
+```tql
+{
+  secret: "my-api-key-123",
+  data: "Hello, World!",
+  encoded_secret: "bXktYXBpLWtleS0xMjM=",
+  encoded_data: "SGVsbG8sIFdvcmxkIQ==",
+}
+```
+
+Decode Base64 strings using
+[`decode_base64()`](/reference/functions/decode_base64):
+
+```tql
+from {token: "bXktYXBpLWtleS0xMjM="}
+set decoded = token.decode_base64()
+```
+
+```tql
+{
+  token: "bXktYXBpLWtleS0xMjM=",
+  decoded: "my-api-key-123",
+}
+```
+
+### Hex encoding
+
+Work with hexadecimal representations using
+[`encode_hex()`](/reference/functions/encode_hex) and
+[`decode_hex()`](/reference/functions/decode_hex):
+
+```tql
+from {binary: "ABC", hash: "414243"}
+set hex = binary.encode_hex()
+set text = hash.decode_hex()
+```
+
+```tql
+{
+  binary: "ABC",
+  hash: "414243",
+  hex: "414243",
+  text: "ABC",
+}
+```
+
+### URL encoding
+
+Safely encode URLs and query parameters using
+[`encode_url()`](/reference/functions/encode_url):
+
+```tql
+from {param: "hello world", special: "name=John&age=30"}
+set encoded = param.encode_url()
+set query = special.encode_url()
+```
+
+```tql
+{
+  param: "hello world",
+  special: "name=John&age=30",
+  encoded: "hello%20world",
+  query: "name%3DJohn%26age%3D30",
+}
+```
+
+## Work with file paths
+
+Extract components from file paths using
+[`file_name()`](/reference/functions/file_name) and
+[`parent_dir()`](/reference/functions/parent_dir).
+
+```tql
+from {path: "/var/log/system/app.log"}
+set filename = path.file_name()
+set directory = path.parent_dir()
+```
+
+```tql
+{
+  path: "/var/log/system/app.log",
+  filename: "app.log",
+  directory: "/var/log/system",
+}
+```
+
+## Calculate string properties
+
+Get information about string length and content using
+[`length_chars()`](/reference/functions/length_chars),
+[`length_bytes()`](/reference/functions/length_bytes), and
+[`reverse()`](/reference/functions/reverse).
+
+```tql
+from {text: "Hello 世界", data: "ABC"}
+set char_count = text.length_chars()
+set byte_count = text.length_bytes()
+set reversed = data.reverse()
+```
+
+```tql
+{
+  text: "Hello 世界",
+  data: "ABC",
+  char_count: 8,
+  byte_count: 12,
+  reversed: "CBA",
+}
+```
+
+## Read file contents
+
+Load text from files into string fields using
+[`file_contents()`](/reference/functions/file_contents):
+
+```tql
+from {config_path: "/etc/myapp/config.ini"}
+set config = config_path.file_contents()
+```
+
+This loads the entire file content as a string, which you can then parse or
+process using other string functions.
+
+:::note
+The `file_contents()` function requires the file to exist at the specified path.
+Use an actual file path on your system for this example to work.
+:::
+
+## Practical examples
+
+### Parse structured logs
+
+Check for patterns in Apache access logs:
+
+```tql
+from {
+  log: '192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] "GET /api/users HTTP/1.1" 200 1234'
+}
+set has_ip = log.match_regex("^\\d+\\.\\d+\\.\\d+\\.\\d+")
+set has_timestamp = log.match_regex("\\[.+\\]")
+set has_method = log.match_regex("\"(GET|POST|PUT|DELETE)")
+set has_status = log.match_regex("\" \\d{3}")
+```
+
+```tql
+{
+  log: "192.168.1.10 - - [15/Jan/2024:10:30:45 +0000] \"GET /api/users HTTP/1.1\" 200 1234",
+  has_ip: true,
+  has_timestamp: true,
+  has_method: true,
+  has_status: true,
+}
+```
+
+### Clean and normalize user input
+
+Sanitize form data:
+
+```tql
+from {
+  email: "  JOHN.DOE@EXAMPLE.COM  ",
+  phone: "+1 (555) 123-4567",
+  name: "john   doe"
+}
+set email = email.trim().to_lower()
+set phone = phone.replace_regex("[^\\d+]", "")
+set name = name.replace_regex("\\s+", " ").to_title()
+```
+
+```tql
+{
+  email: "john.doe@example.com",
+  phone: "+15551234567",
+  name: "John Doe",
+}
+```
+
+### Format report output
+
+Process list items for display:
+
+```tql
+from {
+  items: [
+    {name: "CPU Usage", value: "85.2%"},
+    {name: "Memory", value: "4.1GB"},
+    {name: "Disk", value: "72%"}
+  ]
+}
+items = items.map(item => {
+  label: item.name + ":",
+  metric: item.value
+})
+```
+
+```tql
+{
+  items: [
+    {label: "CPU Usage:", metric: "85.2%"},
+    {label: "Memory:", metric: "4.1GB"},
+    {label: "Disk:", metric: "72%"},
+  ],
+}
+```
+
+With `pad_left()` and `pad_right()`, you can create perfectly aligned output
+for reports and displays.
