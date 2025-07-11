@@ -215,16 +215,13 @@ Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
 The recommended way to run a Tenzir node in AWS is with [Elastic Container Service
 (ECS)](https://aws.amazon.com/ecs/).
 
-This guide walks through manual setup of a single Tenzir node. For automated
-deployment, see the Terraform and Ansible sections below.
+This guide walks through manual setup of a single Tenzir node.
 
 :::note[Prerequisites]
 Before you begin, you'll need a valid `TENZIR_TOKEN`. You can obtain this by
 [provisioning a node](/guides/node-setup/provision-a-node) and downloading
 the Docker Compose configuration file.
 :::
-
-### ECS
 
 <Steps>
 
@@ -340,135 +337,6 @@ Docker Compose file.
 
 Once you've completed the configuration, click the _Create_ button. Your node is
 now up and running.
-
-## terraform
-
-Instead of using a cloud providers website to manually create Tenzir Nodes,
-it is often desirable to create the required infrastructure programmatically
-and track it using version control.
-
-In this section, we show examples
-
-In order to deploy a Tenzir Node using Terraform, you generally define a
-container service that runs the Tenzir Node container image and that contains
-the appropriate `TENZIR_TOKEN` configuration variable.
-
-Of course, more advanced deployments like a kubernetes cluster can also be
-configured according to your needs.
-
-### AWS
-
-The following example shows how to programmatically declare the infrastructure
-created in the _AWS_ guide above in a terraform config file.
-
-It is assumed that the Tenzir Token is available in a secret called
-`tenzir-token-secret`.
-
-To deploy this, save the following into a file and then run `terraform init`
-and `terraform apply` in the same directory:
-
-```tf
-
-# Variables for subnet and VPC
-variable "subnet_id" {
-  description = "The subnet ID for the ECS task."
-  type        = string
-}
-
-variable "vpc_id" {
-  description = "The VPC ID for the ECS task."
-  type        = string
-}
-
-# Create a security group that allows outgoing TCP connections on ports 80 and 443
-resource "aws_security_group" "tenzir_node_sg" {
-  name        = "tenzir-node-sg"
-  description = "Allow outbound HTTP and HTTPS"
-  vpc_id      = var.vpc_id
-
-  egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# Create an ECS cluster
-resource "aws_ecs_cluster" "tenzir" {
-  name = "tenzir-cluster"
-}
-
-# Create an IAM role for ECS tasks
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
-}
-
-# Attach the AWS managed policy for ECS task execution
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-}
-
-# Define a task definition for the Tenzir Node
-resource "aws_ecs_task_definition" "tenzir_node" {
-  family                   = "tenzir-node-task"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = "512"
-  memory                   = "1024"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-
-  container_definitions = jsonencode([
-    {
-      name      = "tenzir-node"
-      image     = "tenzir/tenzir-node:latest"
-      essential = true
-      environment = [
-      {
-        name      = "TENZIR_TOKEN"
-        valueFrom = {
-          secretKeyRef = {
-            name = "tenzir-token-secret"
-            key  = "TENZIR_TOKEN"
-          }
-        }
-      }
-      ]
-      portMappings = [
-        {
-          containerPort = 5158
-          protocol      = "tcp"
-        }
-      ]
-    }
-  ])
-}
-
-# Run a task using the above task definition
-resource "aws_ecs_task" "tenzir_node_task" {
-  cluster         = aws_ecs_cluster.tenzir.id
-  task_definition = aws_ecs_task_definition.tenzir_node.arn
-  launch_type     = "FARGATE"
-  network_configuration {
-    subnets          = [var.subnet_id]
-    assign_public_ip = true
-    security_groups  = [aws_security_group.tenzir_node_sg.id]
-  }
-}
-
-```
 
 ## macOS
 
