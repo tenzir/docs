@@ -14,6 +14,8 @@ get started.
 After [provisioning a node](/guides/node-setup/provision-a-node), proceed as
 follows:
 
+import { Steps } from "@astrojs/starlight/components";
+
 <Steps>
 
 1. Select the Docker tab and click the download button to obtain the
@@ -64,8 +66,6 @@ We offer a static binary package on various Linux distributions.
 ### Install a node
 
 Second, choose the Linux tab and proceed as follows:
-
-import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
@@ -210,6 +210,79 @@ There exist two ways stop a server:
 
 Hitting CTRL+C is equivalent to manually sending a SIGTERM signal.
 
+## AWS
+
+The recommended way to run a Tenzir node in AWS is with [Elastic Container Service
+(ECS)](https://aws.amazon.com/ecs/).
+
+This guide walks through manual setup of a single Tenzir node.
+
+:::note[Prerequisites]
+Before you begin, you'll need a valid `TENZIR_TOKEN`. You can obtain this by
+[provisioning a node](/guides/node-setup/provision-a-node) and downloading
+the Docker Compose configuration file.
+:::
+
+<Steps>
+
+1. Go to [AWS Marketplace](https://console.aws.amazon.com/marketplace/) and
+   subscribe to the free [Tenzir
+   Node](https://console.aws.amazon.com/marketplace/search/listing/prodview-gsofc3z6f3vsu)
+   product.
+
+   ![AWS Marketplace Tenzir Node](./aws/01-aws-marketplace.png)
+
+2. Accept the terms to subscribe to the offering.
+
+   ![AWS Marketplace Tenzir Node](./aws/02-subscribe.png)
+
+3. Navigate to [Amazon Elastic Container Service (ECS)](https://console.aws.amazon.com/ecs).
+
+   ![Amazon Elastic Container Service (ECS)](./aws/03-ecs.png)
+
+4. Create a new cluster. Choose between **EC2** or **Fargate** based on your
+   needs:
+
+   - **EC2 clusters** give you full control over the underlying instances.
+     They're ideal for long-running workloads with consistent resource
+     requirements.
+   - **Fargate clusters** provide serverless container execution where you pay
+     only for the resources you use. They're cost-effective for workloads with
+     variable demand.
+
+   ![Create a Cluster](./aws/04-create-cluster.png)
+
+5. Create a task definition to specify how the Tenzir node container should run.
+
+   ![Create a Cluster](./aws/05-create-task-definition.png)
+
+   In the _Containers_ section, enter the repository URL from your AWS
+   Marketplace subscription:
+
+   ```
+   709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-node:v5.9.0
+   ```
+
+   Each node version has its own image tag. The example above uses version
+   5.9.0. Check the [node changelog](/changelog/node/) for the latest version.
+
+6. Return to your cluster, navigate to the _Tasks_ tab, and click _Run new
+   task_. Select the task definition you just created.
+
+   ![Create a Cluster](./aws/06-run-task.png)
+
+   In the _Container overrides_ section, add the `TENZIR_TOKEN` environment
+   variable with the token value from the prerequisites.
+
+   ![Container Overrides](./aws/07-container-overrides.png)
+
+   Click _Create_ to launch your node.
+
+7. Once the container starts successfully, your node will automatically connect
+   to your workspace.
+
+</Steps>
+
 ## Azure
 
 To run a node in Azure, we recommend using [Azure Container Instances
@@ -220,7 +293,7 @@ allows you to run Docker containers without having to setup VMs.
 
 Prior to getting started, you need a valid `TENZIR_TOKEN` that you can obtain
 after [provisioning a node](/guides/node-setup/provision-a-node) and downloading the Docker
-Compose configuraiton file.
+Compose configuration file.
 
 #### Create a new container instance
 
@@ -248,7 +321,7 @@ In the _Basics_ tab, perform the following action:
 
 #### Networking
 
-In the _Networking_ tab, configure the ports you plan to use for pipeliens that
+In the _Networking_ tab, configure the ports you plan to use for pipelines that
 receive incoming connections.
 
 ![Networking](azure/networking.png)
