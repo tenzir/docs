@@ -63,8 +63,7 @@ Most notably:
 
 ### General
 
-- Every file must end with a newline character, but avoid empty lines at the end
-  of a file.
+- Avoid empty lines at the end of a file.
 
 ### Markdown Content
 
