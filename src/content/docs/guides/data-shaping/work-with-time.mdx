@@ -1,0 +1,452 @@
+---
+title: Work with time
+---
+
+Time is fundamental in data analysis. Whether you're analyzing logs, tracking
+events, or monitoring systems, you need to parse timestamps, calculate
+durations, and format dates. This guide shows you how to work with time values
+in TQL.
+
+## Understand time types
+
+TQL has two main time-related types:
+
+- **`time`**: A specific point in time (timestamp)
+- **`duration`**: A span of time (interval)
+
+```tql
+from {
+  timestamp: 2024-01-15T10:30:45.123456,
+  interval: 5min
+}
+set later = timestamp + interval
+set earlier = timestamp - 2h
+```
+
+```tql
+{
+  timestamp: 2024-01-15T10:30:45.123456,
+  interval: 5min,
+  later: 2024-01-15T10:35:45.123456,
+  earlier: 2024-01-15T08:30:45.123456
+}
+```
+
+## Get the current time
+
+Use [`now()`](/reference/functions/now) to get the current timestamp:
+
+```tql
+from {}
+set current_time = now()
+set today = current_time.round(1d)
+```
+
+```tql
+{
+  current_time: 2024-01-15T14:32:18.745321,
+  today: 2024-01-15T00:00:00.000000
+}
+```
+
+## Parse time from strings
+
+Convert string representations to proper timestamps with [`parse_time()`](/reference/functions/parse_time):
+
+```tql
+from {
+  iso: "2024-01-15T10:30:45",
+  custom: "15/Jan/2024:10:30:45",
+  unix: "1705316445"
+}
+set iso_time = iso.parse_time()
+set custom_time = custom.parse_time("%d/%b/%Y:%H:%M:%S")
+set unix_time = unix.int().from_epoch(1s)
+```
+
+```tql
+{
+  iso: "2024-01-15T10:30:45",
+  custom: "15/Jan/2024:10:30:45",
+  unix: "1705316445",
+  iso_time: 2024-01-15T10:30:45.000000,
+  custom_time: 2024-01-15T10:30:45.000000,
+  unix_time: 2024-01-15T10:30:45.000000
+}
+```
+
+Common format specifiers:
+
+- `%Y` - 4-digit year
+- `%m` - Month (01-12)
+- `%d` - Day (01-31)
+- `%H` - Hour (00-23)
+- `%M` - Minute (00-59)
+- `%S` - Second (00-59)
+- `%b` - Month name (Jan, Feb, etc.)
+- `%a` - Weekday name (Mon, Tue, etc.)
+
+## Format time to strings
+
+Convert timestamps to custom string formats with [`format_time()`](/reference/functions/format_time):
+
+```tql
+from {event_time: 2024-01-15T10:30:45.123456}
+set iso = event_time.format_time()
+set date_only = event_time.format_time("%Y-%m-%d")
+set us_format = event_time.format_time("%m/%d/%Y %I:%M %p")
+set log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
+```
+
+```tql
+{
+  event_time: 2024-01-15T10:30:45.123456,
+  iso: "2024-01-15T10:30:45.123456",
+  date_only: "2024-01-15",
+  us_format: "01/15/2024 10:30 AM",
+  log_format: "15/Jan/2024:10:30:45"
+}
+```
+
+## Extract time components
+
+Get individual parts of a timestamp using [`year()`](/reference/functions/year), [`month()`](/reference/functions/month), [`day()`](/reference/functions/day), [`hour()`](/reference/functions/hour), [`minute()`](/reference/functions/minute), and [`second()`](/reference/functions/second):
+
+```tql
+from {timestamp: 2024-01-15T10:30:45.123456}
+set year = timestamp.year()
+set month = timestamp.month()
+set day = timestamp.day()
+set hour = timestamp.hour()
+set minute = timestamp.minute()
+set second = timestamp.second()
+```
+
+```tql
+{
+  timestamp: 2024-01-15T10:30:45.123456,
+  year: 2024,
+  month: 1,
+  day: 15,
+  hour: 10,
+  minute: 30,
+  second: 45
+}
+```
+
+## Work with durations
+
+Create and manipulate time intervals:
+
+```tql
+from {start: 2024-01-15T10:00:00, end: 2024-01-15T14:30:00}
+set elapsed = end - start
+set hours = elapsed.count_hours()
+set minutes = elapsed.count_minutes()
+set seconds = elapsed.count_seconds()
+```
+
+```tql
+{
+  start: 2024-01-15T10:00:00.000000,
+  end: 2024-01-15T14:30:00.000000,
+  elapsed: 4.5h,
+  hours: 4,
+  minutes: 270,
+  seconds: 16200
+}
+```
+
+### Count duration components
+
+Extract different time units from durations:
+
+```tql
+from {
+  duration: 90d + 4h + 30min + 45s + 123ms + 456us + 789ns
+}
+set years = duration.count_years()
+set months = duration.count_months()  
+set weeks = duration.count_weeks()
+set days = duration.count_days()
+set hours = duration.count_hours()
+set minutes = duration.count_minutes()
+set seconds = duration.count_seconds()
+set milliseconds = duration.count_milliseconds()
+set microseconds = duration.count_microseconds()
+set nanoseconds = duration.count_nanoseconds()
+```
+
+```tql
+{
+  duration: 90d4h30.5min45.123456789s,
+  years: 0,
+  months: 2,
+  weeks: 12,
+  days: 90,
+  hours: 2164,
+  minutes: 129870,
+  seconds: 7792245,
+  milliseconds: 7792245123,
+  microseconds: 7792245123456,
+  nanoseconds: 7792245123456789
+}
+```
+
+### Convert between time units
+
+Use [`months()`](/reference/functions/months) to create month-based durations:
+
+```tql
+from {quarterly_period: 3}
+set quarter = quarterly_period.months()
+set days_in_quarter = quarter.count_days()
+set weeks_in_quarter = quarter.count_weeks()
+```
+
+```tql
+{
+  quarterly_period: 3,
+  quarter: 3mo,
+  days_in_quarter: 90,
+  weeks_in_quarter: 12
+}
+```
+
+### Create durations
+
+Use duration literals or functions:
+
+```tql
+from {}
+set five_minutes = 5min
+set one_hour = 1h
+set custom = 90.seconds()
+set from_parts = 2.hours() + 30.minutes()
+```
+
+```tql
+{
+  five_minutes: 5min,
+  one_hour: 1h,
+  custom: 1.5min,
+  from_parts: 2.5h
+}
+```
+
+Duration units:
+
+- `ns` or `nanoseconds()` - Nanoseconds
+- `us` or `microseconds()` - Microseconds
+- `ms` or `milliseconds()` - Milliseconds
+- `s` or `seconds()` - Seconds
+- `min` or `minutes()` - Minutes
+- `h` or `hours()` - Hours
+- `d` or `days()` - Days (24 hours)
+- `w` or `weeks()` - Weeks (7 days)
+- `y` or `years()` - Years (365 days)
+
+## Calculate time differences
+
+Find elapsed time between events:
+
+```tql
+from {
+  login: 2024-01-15T09:00:00,
+  first_action: 2024-01-15T09:05:30,
+  logout: 2024-01-15T17:30:00
+}
+set time_to_action = first_action - login
+set session_duration = logout - login
+set active_hours = session_duration.count_hours()
+```
+
+```tql
+{
+  login: 2024-01-15T09:00:00.000000,
+  first_action: 2024-01-15T09:05:30.000000,
+  logout: 2024-01-15T17:30:00.000000,
+  time_to_action: 5.5min,
+  session_duration: 8.5h,
+  active_hours: 8
+}
+```
+
+## Add and subtract time
+
+Perform time arithmetic:
+
+```tql
+from {event_time: 2024-01-15T10:30:00}
+set one_hour_later = event_time + 1h
+set yesterday = event_time - 1d
+set next_week = event_time + 7d
+set thirty_mins_ago = event_time - 30min
+```
+
+```tql
+{
+  event_time: 2024-01-15T10:30:00.000000,
+  one_hour_later: 2024-01-15T11:30:00.000000,
+  yesterday: 2024-01-14T10:30:00.000000,
+  next_week: 2024-01-22T10:30:00.000000,
+  thirty_mins_ago: 2024-01-15T10:00:00.000000
+}
+```
+
+## Round timestamps
+
+Round timestamps to specific intervals:
+
+```tql
+from {precise_time: 2024-01-15T10:37:42.847621}
+set to_minute = precise_time.round(1min)
+set to_hour = precise_time.round(1h)
+set to_day = precise_time.round(1d)
+set to_5min = precise_time.round(5min)
+```
+
+```tql
+{
+  precise_time: 2024-01-15T10:37:42.847621,
+  to_minute: 2024-01-15T10:38:00.000000,
+  to_hour: 2024-01-15T11:00:00.000000,
+  to_day: 2024-01-16T00:00:00.000000,
+  to_5min: 2024-01-15T10:40:00.000000
+}
+```
+
+## Convert Unix timestamps
+
+Work with Unix epoch timestamps using [`from_epoch()`](/reference/functions/from_epoch) and [`since_epoch()`](/reference/functions/since_epoch):
+
+```tql
+from {
+  unix_seconds: 1705316445,
+  unix_millis: 1705316445123,
+  unix_micros: 1705316445123456
+}
+set from_seconds = unix_seconds.from_epoch(1s)
+set from_millis = unix_millis.from_epoch(1ms)
+set from_micros = unix_micros.from_epoch(1us)
+set back_to_unix = from_seconds.since_epoch().count_seconds()
+```
+
+```tql
+{
+  unix_seconds: 1705316445,
+  unix_millis: 1705316445123,
+  unix_micros: 1705316445123456,
+  from_seconds: 2024-01-15T10:40:45.000000,
+  from_millis: 2024-01-15T10:40:45.123000,
+  from_micros: 2024-01-15T10:40:45.123456,
+  back_to_unix: 1705316445
+}
+```
+
+## Practical examples
+
+### Calculate request duration
+
+```tql
+from {
+  request_start: "2024-01-15T10:30:45.123",
+  request_end: "2024-01-15T10:30:47.456"
+}
+set start = request_start.parse_time()
+set end = request_end.parse_time()
+set duration = end - start
+set duration_ms = duration.count_milliseconds()
+```
+
+```tql
+{
+  request_start: "2024-01-15T10:30:45.123",
+  request_end: "2024-01-15T10:30:47.456",
+  start: 2024-01-15T10:30:45.123000,
+  end: 2024-01-15T10:30:47.456000,
+  duration: 2.333s,
+  duration_ms: 2333
+}
+```
+
+### Group events by time window
+
+```tql
+from {
+  event_time: 2024-01-15T10:37:42.847621,
+  event_type: "login"
+}
+set hour_bucket = event_time.round(1h)
+set day_bucket = event_time.round(1d)
+set five_min_bucket = event_time.round(5min)
+```
+
+```tql
+{
+  event_time: 2024-01-15T10:37:42.847621,
+  event_type: "login",
+  hour_bucket: 2024-01-15T11:00:00.000000,
+  day_bucket: 2024-01-16T00:00:00.000000,
+  five_min_bucket: 2024-01-15T10:40:00.000000
+}
+```
+
+### Calculate age from timestamp
+
+```tql
+from {created_at: 2024-01-01T00:00:00}
+set age = now() - created_at
+set days_old = age.count_days()
+set hours_old = age.count_hours()
+set human_readable = f"{days_old} days ago"
+```
+
+```tql
+{
+  created_at: 2024-01-01T00:00:00.000000,
+  age: 14d14h32m18.745s,
+  days_old: 14,
+  hours_old: 350,
+  human_readable: "14 days ago"
+}
+```
+
+### Parse various log timestamps
+
+```tql
+from {
+  apache: "15/Jan/2024:10:30:45 +0000",
+  nginx: "2024/01/15 10:30:45",
+  syslog: "Jan 15 10:30:45"
+}
+set apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S %z")
+set nginx_time = nginx.parse_time("%Y/%m/%d %H:%M:%S")
+// For syslog, we need to add the year
+set syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
+```
+
+```tql
+{
+  apache: "15/Jan/2024:10:30:45 +0000",
+  nginx: "2024/01/15 10:30:45",
+  syslog: "Jan 15 10:30:45",
+  apache_time: 2024-01-15T10:30:45.000000,
+  nginx_time: 2024-01-15T10:30:45.000000,
+  syslog_time: 2024-01-15T10:30:45.000000
+}
+```
+
+## Best practices
+
+1. **Use proper types**: Convert strings to time values early in your pipeline
+2. **Be consistent**: Standardize timestamp formats across your data
+3. **Consider timezones**: Be aware that TQL timestamps are timezone-aware
+4. **Round appropriately**: Use rounding to group events into time buckets
+5. **Handle null values**: Check for missing timestamps before calculations
+
+## Related guides
+
+- [Transform basic values](/guides/data-shaping/transform-basic-values) - Convert between data types
+- [Extract structured data from text](/guides/data-shaping/extract-structured-data-from-text) - Parse timestamps from logs
+- [Filter and select data](/guides/data-shaping/filter-and-select-data) - Filter by time ranges

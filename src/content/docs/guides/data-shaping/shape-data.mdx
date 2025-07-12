@@ -7,231 +7,83 @@ TQL comes with numerous transformation
 TQL has [functions](/reference/functions) that work on values within
 a single event.
 
-This guides showcases the operators and functions that you need for day-to-day
-data shaping tasks.
+This guide provides an overview of data shaping capabilities in TQL, showcasing
+the operators and functions that you need for day-to-day data transformation
+tasks.
 
-## Use operators to reshape data flows
+## Understanding operators vs functions
 
-Operators work on streams of events and—unlike functions—can keep state between
-multiple events. Here is a visual overview of transformations that you can
-perform over a stream of events:
+Before diving into specific operations, it's important to understand a key
+distinction in TQL:
+
+- **Operators** work on streams of events and can keep state between multiple
+  events (e.g., [`where`](/reference/operators/where),
+  [`select`](/reference/operators/select), [`summarize`](/reference/operators/summarize))
+- **Functions** work on individual values within a single event (e.g.,
+  [`starts_with()`](/reference/functions/starts_with), [`round()`](/reference/functions/round), [`merge()`](/reference/functions/merge))
+
+Here is a visual overview of transformations that you can perform over a stream
+of events:
 
 ![Shaping Overview](shape-data.svg)
 
-Let's dive right in.
+## Common data shaping tasks
 
-### Filter events with `where`
+Here are the most common data shaping operations organized by use case:
 
-Use [`where`](/reference/operators/where) to filter events in the
-input with an [expression](/reference/language/expressions):
+### Filter and select data
 
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"}
-where x != 2 and y.starts_with("b")
-```
+The fundamental operations for controlling which events and fields flow through
+your pipeline. See the [Filter and select data](/guides/data-shaping/filter-and-select-data)
+guide for detailed examples of:
 
-```tql
-{x: 3, y: "baz"}
-```
+- Filtering events with [`where`](/reference/operators/where)
+- Selecting fields with [`select`](/reference/operators/select)
+- Removing fields with [`drop`](/reference/operators/drop)
+- Adding fields with [`set`](/reference/operators/set)
 
-### Slice events with `head`, `tail`, and `slice`
+### Control event flow
 
-Use the [`head`](/reference/operators/head) and
-[`tail`](/reference/operators/tail) operators to get the first or
-last N records of the input.
+Manage how many events pass through your pipeline and in what order. See the
+[Slice and sample data](/guides/data-shaping/slice-and-sample-data) guide for:
 
-Get the first event:
+- Getting first/last events with [`head`](/reference/operators/head) and [`tail`](/reference/operators/tail)
+- Slicing ranges with [`slice`](/reference/operators/slice)
+- Sampling by schema with [`taste`](/reference/operators/taste)
+- Reversing order with [`reverse`](/reference/operators/reverse)
 
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"}
-head 1
-```
+### Transform values
 
-```tql
-{x: 1, y: "foo"}
-```
+Convert and manipulate individual values within events. See the
+[Transform basic values](/guides/data-shaping/transform-basic-values) guide for:
 
-Get the last two events:
+- Type conversions ([`int()`](/reference/functions/int), [`float()`](/reference/functions/float), [`string()`](/reference/functions/string), [`time()`](/reference/functions/time))
+- String operations ([`to_upper()`](/reference/functions/to_upper), [`trim()`](/reference/functions/trim), [`capitalize()`](/reference/functions/capitalize))
+- Mathematical operations ([`round()`](/reference/functions/round), [`abs()`](/reference/functions/abs), [`sqrt()`](/reference/functions/sqrt))
+- Handling null values with [`otherwise()`](/reference/functions/otherwise)
 
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"}
-tail 2
-```
+### Work with complex structures
 
-```tql
-{x: 2, y: "bar"}
-{x: 3, y: "baz"}
-```
+#### Relocate fields with `move`
 
-:::caution[`tail` is blocking]
-The `tail` operator must wait for its entire input, whereas `head N` terminates
-immediately after the first `N` records have arrived. Use `head` for the
-majority of use cases and `tail` only when you have to.
-:::
-
-The [`slice`](/reference/operators/slice) operator generalizes `head` and
-`tail` by allowing for more flexible slicing. For example, to return every
-other event starting from the third:
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"},
-     {x: 4, y: "qux"},
-     {x: 5, y: "corge"},
-     {x: 6, y: "grault"}
-slice begin=3, stride=2
-```
-
-```tql
-{x: 4, y: "qux"}
-{x: 6, y: "grault"}
-```
-
-### Pick fields with `select` and `drop`
-
-Use the [`select`](/reference/operators/select) operator to pick
-fields:
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"}
-select x
-```
-
-```tql
-{x: 1}
-{x: 2}
-{x: 3}
-```
-
-The [`drop`](/reference/operators/drop) operator is the dual to `select` and
-removes the specified fields:
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 3, y: "baz"}
-drop x
-```
-
-```tql
-{y: "foo"}
-{y: "bar"}
-{y: "baz"}
-```
-
-### Sample schemas with `taste`
-
-The [`taste`](/reference/operators/taste) operator provides a sample of the
-first N events of every unique schemas. For example, to get 3 unique samples:
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"},
-     {x: 1},
-     {x: 2},
-     {y: "foo"}
-taste 1
-```
-
-```tql
-{x: 1, y: "foo"}
-{x: 1}
-{y: "foo"}
-```
-
-### Invert event ordering with `reverse`
-
-Use `reverse` to invert the order of a stream of events:
-
-```tql
-from {x: 1},
-     {x: 2},
-     {x: 3}
-reverse
-```
-
-```tql
-{x: 3}
-{x: 2}
-{x: 1}
-```
-
-### Add fields with `set` assignment
-
-Use the [`set`](/reference/operators/set) operator to add new fields
-to the output.
-
-```tql
-from {x: 1},
-     {x: 2}
-set y = x + 1
-```
-
-```tql
-{x: 1, y: 2}
-{x: 2, y: 3}
-```
-
-You can assign a field name name and project at the same time with an assignment
-in [`select`](/reference/operators/select):
-
-```tql
-from {x: 1, y: "foo"},
-     {x: 2, y: "bar"}
-select y=x
-```
-
-```tql
-{y: 1}
-{y: 2}
-```
-
-### Relocate fields with `move`
-
-Use the `move` operator to combine `set` and `drop`. This pipeline
+Use the [`move`](/reference/operators/move) operator to rename and relocate
+fields in one operation:
 
 ```tql
 from {old: 42}
 move new = old
 ```
 
-produces the same output as this one:
-
-```tql
-from {old: 42}
-set new = old
-drop old
-```
-
 ```tql
 {new: 42}
 ```
 
-Moving multiple fields is also possible. The pipeline
+Moving multiple fields:
 
 ```tql
 from {foo: 1, bar: 2}
 move foo=bar, qux=foo
 ```
-
-is equivalent to
-
-```tql
-from {foo: 1, bar: 2}
-set foo=bar, qux=foo
-drop bar, foo
-```
-
-and produces:
 
 ```tql
 {
@@ -240,29 +92,10 @@ and produces:
 }
 ```
 
-However, it is not equivalent to the following pipeline containing single
-assignments:
+#### Aggregate events with `summarize`
 
-```tql
-from {foo: 1, bar: 2}
-set foo=bar
-drop bar
-set qux=foo
-drop foo
-```
-
-which yields:
-
-```tql
-{
-  qux: 2,
-}
-```
-
-### Aggreate events with `summarize`
-
-Use [`summarize`](/reference/operators/summarize) to group and
-aggregate data.
+Use [`summarize`](/reference/operators/summarize) to group and aggregate data. This
+example groups events by the `y` field and sums up the `x` values for each group:
 
 ```tql
 from {x: 0, y: 0, z: 1},
@@ -276,14 +109,18 @@ summarize y, x=sum(x)
 {y: 1, x: 2}
 ```
 
-A variety of [aggregation
-functions](/reference/functions#aggregation) make it possible to
-combine grouped data.
+In this example:
 
-### Reorder events with `sort`
+- Events are grouped by the value of `y` (0 or 1)
+- For `y=0`, there's one event with `x=0`, so `sum(x)=0`
+- For `y=1`, there are two events with `x=1` each, so `sum(x)=2`
 
-Use [`sort`](/reference/operators/sort) to arrange the output records
-according to the order of a specific field.
+See the [aggregation functions](/reference/functions#aggregation) reference for
+all available aggregation functions like `count()`, `mean()`, `max()`, etc.
+
+#### Reorder events with `sort`
+
+Use [`sort`](/reference/operators/sort) to arrange events by field values:
 
 ```tql
 from {x: 2, y: "bar"},
@@ -300,10 +137,9 @@ sort -x
 
 Prepending the field with `-` reverses the sort order.
 
-### Break up lists of records with `unroll`
+#### Break up lists with `unroll`
 
-Working with lists of can be cumbersome. To break up a list into a sequence of
-events, use the [`unroll`](/reference/operators/unroll) operator:
+Use [`unroll`](/reference/operators/unroll) to expand lists into separate events:
 
 ```tql
 from {
@@ -328,18 +164,12 @@ unroll xs
 }
 ```
 
-Note that `unroll` produces as many events as there are elements in the
-unrolled list. All other fields are simply copied over.
+### Manipulate records and lists
 
-## Use functions to change single events
+#### Combine records with `merge`
 
-Functions work on single values, including the top-level event that you can
-reference with the `this` keyword.
-
-### Combine records with `merge`
-
-Use the [`merge`](/reference/functions/merge) function to combine two
-records:
+Use the [`merge`](/reference/functions/merge) function to combine records. This is
+useful when you need to consolidate data from multiple sources:
 
 ```tql
 from {
@@ -353,7 +183,7 @@ from {
     bar: 5,
   }
 }
-this = merge(foo, qux)
+set this = merge(foo, qux)
 ```
 
 ```tql
@@ -365,36 +195,25 @@ this = merge(foo, qux)
 }
 ```
 
-Note that the field `bar`, which is present in both record `foo` and `qux`, has
-the value `5` in the output because _fields from the second argument to `merge`
-overwrite fields from the first if they have the have the same name_.
+Note that the field `bar` appears in both records. The value from the second
+argument (`qux.bar = 5`) overwrites the value from the first (`foo.bar = 1`).
 
-Instead of writing
-
-```tql
-this = merge(foo, qux)
-```
-
-you can also write
+You can also use the spread expression as shorthand:
 
 ```tql
-this = {...foo, ...qux}
+set this = {...foo, ...qux}
 ```
 
-as an idiomatic shorthand. The spread expression `...` expands records in the
-exact same was as `merge`.
+#### Combine lists with `concatenate`
 
-### Combine lists with `concatenate`
-
-Use [`concatenate`](/reference/functions/concatenate) to add one list
-add the end of another:
+Use [`concatenate`](/reference/functions/concatenate) to join lists:
 
 ```tql
 from {
   xs: [1,2,3],
   ys: [4,5,6],
 }
-select result = concatenate(xs, ys)'
+select result = concatenate(xs, ys)
 ```
 
 ```tql
@@ -410,38 +229,27 @@ select result = concatenate(xs, ys)'
 }
 ```
 
-The spread expression `...` also works for lists. You can rewrite the above
-example
+Or use the spread expression:
 
 ```tql
-select result = concatenate(xs, ys)'
+select result = [...xs, ...ys]
 ```
 
-more idiomatically as
+#### Add values to lists
 
-```tql
-select result = [...xs, ...ys]'
-```
-
-and get the same result.
-
-### Add values to lists with `append` and `prepend`
-
-To add a single value to a list, use
-[`append`](/reference/functions/append) to add it to the back and
-[`prepend`](/reference/functions/prepend) to add it to the front:
+Use [`append`](/reference/functions/append) and [`prepend`](/reference/functions/prepend):
 
 ```tql
 from {
   xs: [2],
 }
-xs = append(xs, 3)
-xs = prepend(xs, 1)
+set xs = append(xs, 3)
+set xs = prepend(xs, 1)
 ```
 
 ```tql
 {
-  result: [
+  xs: [
     1,
     2,
     3,
@@ -449,9 +257,14 @@ xs = prepend(xs, 1)
 }
 ```
 
-### Perform bitwise operations
+### Specialized operations
 
-TQL comes with bitwise functions on numeric data types:
+#### Perform bitwise operations
+
+TQL provides bitwise functions for low-level data manipulation using [`bit_and()`](/reference/functions/bit_and),
+[`bit_or()`](/reference/functions/bit_or), [`bit_xor()`](/reference/functions/bit_xor),
+[`bit_not()`](/reference/functions/bit_not), [`shift_left()`](/reference/functions/shift_left),
+and [`shift_right()`](/reference/functions/shift_right):
 
 ```tql
 from {
@@ -475,4 +288,44 @@ from {
 }
 ```
 
-Note that integral types in Tenzir have 64 bits, and we're only showing the least significant bits for brevity.
+## Best practices
+
+1. **Understand the operator/function distinction**: Use operators for
+   stream-level operations and functions for value-level transformations.
+
+2. **Filter early**: Apply [`where`](/reference/operators/where) conditions as
+   early as possible to reduce data volume.
+
+3. **Select only what you need**: Use [`select`](/reference/operators/select) to
+   keep only necessary fields, especially with large events.
+
+4. **Choose the right tool**:
+
+   - Use [`select`](/reference/operators/select) to keep specific fields
+   - Use [`drop`](/reference/operators/drop) to remove a few fields from many
+   - Use [`set`](/reference/operators/set) to add fields without changing existing ones
+   - Use [`move`](/reference/operators/move) to rename fields efficiently
+
+5. **Be mindful of performance**: Some operators like [`tail`](/reference/operators/tail)
+   and [`reverse`](/reference/operators/reverse) must buffer all input before
+   producing output.
+
+## Where to go from here
+
+Explore these specialized guides for deeper coverage of specific topics:
+
+- [Filter and select data](/guides/data-shaping/filter-and-select-data) - Master filtering and field selection
+- [Transform basic values](/guides/data-shaping/transform-basic-values) - Type conversions and value manipulation
+- [Manipulate strings](/guides/data-shaping/manipulate-strings) - Text processing and formatting
+- [Work with time](/guides/data-shaping/work-with-time) - Parse, format, and calculate with timestamps
+- [Transform collections](/guides/data-shaping/transform-collections) - Work with lists and records
+- [Aggregate and summarize](/guides/data-shaping/aggregate-and-summarize) - Statistical operations and grouping
+- [Slice and sample data](/guides/data-shaping/slice-and-sample-data) - Control event flow
+- [Extract structured data from text](/guides/data-shaping/extract-structured-data-from-text) - Parse complex text formats
+- [Convert data formats](/guides/data-shaping/convert-data-formats) - Transform between JSON, CSV, YAML, and more
+- [Reshape complex data](/guides/data-shaping/reshape-complex-data) - Advanced structural transformations
+- [Deduplicate events](/guides/data-shaping/deduplicate-events) - Remove duplicate events
+
+For a complete list of available operators and functions, see the
+[operators](/reference/operators) and [functions](/reference/functions)
+reference documentation.

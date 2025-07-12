@@ -1,0 +1,561 @@
+---
+title: Transform collections
+---
+
+Lists and records are fundamental data structures in TQL. This guide shows you
+how to work with these collections - accessing elements, transforming values,
+and combining data structures.
+
+## Work with lists
+
+Lists (arrays) contain ordered sequences of values. Let's explore how to
+manipulate them.
+
+### Access list elements
+
+Get values from specific positions:
+
+```tql
+from {items: ["first", "second", "third", "fourth"]}
+set first_item = items[0]
+set last_item = items[-1]
+set length = items.length()
+```
+
+```tql
+{
+  items: ["first", "second", "third", "fourth"],
+  first_item: "first",
+  last_item: "fourth",
+  length: 4
+}
+```
+
+Index notation:
+
+- `[0]` - First element (0-based indexing)
+- `[-1]` - Last element (negative indices count from end)
+- `.length()` - Get the number of elements
+
+### Add elements to lists
+
+Use [`append()`](/reference/functions/append) and [`prepend()`](/reference/functions/prepend):
+
+```tql
+from {colors: ["red", "green"]}
+set with_blue = colors.append("blue")
+set with_yellow = with_blue.prepend("yellow")
+set multi_append = colors.append("blue").append("purple")
+```
+
+```tql
+{
+  colors: ["red", "green"],
+  with_blue: ["red", "green", "blue"],
+  with_yellow: ["yellow", "red", "green", "blue"],
+  multi_append: ["red", "green", "blue", "purple"]
+}
+```
+
+### Combine lists
+
+Join multiple lists with [`concatenate()`](/reference/functions/concatenate) or spread syntax:
+
+```tql
+from {
+  list1: [1, 2, 3],
+  list2: [4, 5, 6],
+  list3: [7, 8, 9]
+}
+set combined = concatenate(list1, list2, list3)
+set spread = [...list1, ...list2, ...list3]
+set with_value = [...list1, 10, ...list2]
+```
+
+```tql
+{
+  list1: [1, 2, 3],
+  list2: [4, 5, 6],
+  list3: [7, 8, 9],
+  combined: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  spread: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  with_value: [1, 2, 3, 10, 4, 5, 6]
+}
+```
+
+### Transform list elements
+
+Apply functions to each element with [`map()`](/reference/functions/map):
+
+```tql
+from {
+  prices: [10, 20, 30],
+  names: ["alice", "bob", "charlie"]
+}
+set with_tax = prices.map(p => p * 1.1)
+set uppercase = names.map(n => n.to_upper())
+set squared = prices.map(x => x * x)
+```
+
+```tql
+{
+  prices: [10, 20, 30],
+  names: ["alice", "bob", "charlie"],
+  with_tax: [11.0, 22.0, 33.0],
+  uppercase: ["ALICE", "BOB", "CHARLIE"],
+  squared: [100, 400, 900]
+}
+```
+
+### Filter list elements
+
+Keep only elements that match a condition with [`where()`](/reference/functions/where):
+
+```tql
+from {
+  numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  users: ["alice", "bob", "anna", "alex"]
+}
+set evens = numbers.where(n => n % 2 == 0)
+set odds = numbers.where(n => n % 2 != 0)
+set a_names = users.where(u => u.starts_with("a"))
+```
+
+```tql
+{
+  numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  users: ["alice", "bob", "anna", "alex"],
+  evens: [2, 4, 6, 8, 10],
+  odds: [1, 3, 5, 7, 9],
+  a_names: ["alice", "anna", "alex"]
+}
+```
+
+### Sort lists
+
+Order elements with [`sort()`](/reference/functions/sort):
+
+```tql
+from {
+  numbers: [3, 1, 4, 1, 5, 9],
+  words: ["zebra", "apple", "banana"]
+}
+set sorted_nums = numbers.sort()
+set sorted_words = words.sort()
+set reverse_nums = numbers.sort().reverse()
+```
+
+```tql
+{
+  numbers: [3, 1, 4, 1, 5, 9],
+  words: ["zebra", "apple", "banana"],
+  sorted_nums: [1, 1, 3, 4, 5, 9],
+  sorted_words: ["apple", "banana", "zebra"],
+  reverse_nums: [9, 5, 4, 3, 1, 1]
+}
+```
+
+### Get unique values
+
+Remove duplicates with [`unique()`](/reference/functions/unique):
+
+```tql
+from {
+  items: ["a", "b", "a", "c", "b", "d"],
+  numbers: [1, 2, 2, 3, 3, 3, 4]
+}
+set unique_items = items.unique()
+set unique_nums = numbers.unique()
+```
+
+```tql
+{
+  items: ["a", "b", "a", "c", "b", "d"],
+  numbers: [1, 2, 2, 3, 3, 3, 4],
+  unique_items: ["a", "b", "c", "d"],
+  unique_nums: [1, 2, 3, 4]
+}
+```
+
+### Flatten nested lists
+
+Convert nested lists to a single level with [`flatten()`](/reference/functions/flatten):
+
+```tql
+from {
+  nested: [[1, 2], [3, 4], [5, 6]],
+  mixed: [1, [2, 3], 4, [5, [6, 7]]]
+}
+set flat = nested.flatten()
+set flat_mixed = mixed.flatten()
+set deep_flat = mixed.flatten(2)
+```
+
+```tql
+{
+  nested: [[1, 2], [3, 4], [5, 6]],
+  mixed: [1, [2, 3], 4, [5, [6, 7]]],
+  flat: [1, 2, 3, 4, 5, 6],
+  flat_mixed: [1, 2, 3, 4, 5, [6, 7]],
+  deep_flat: [1, 2, 3, 4, 5, 6, 7]
+}
+```
+
+## Work with records
+
+Records (objects) contain key-value pairs. Here's how to manipulate them.
+
+### Access record fields
+
+Get values using dot notation or brackets:
+
+```tql
+from {
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {
+      city: "NYC",
+      zip: "10001"
+    }
+  }
+}
+set name = user.name
+set city = user.address.city
+set zip = user["address"]["zip"]
+set has_email = user.has("email")
+```
+
+```tql
+{
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {city: "NYC", zip: "10001"}
+  },
+  name: "Alice",
+  city: "NYC",
+  zip: "10001",
+  has_email: false
+}
+```
+
+### Get keys and values
+
+Extract field names and values:
+
+```tql
+from {
+  config: {
+    host: "localhost",
+    port: 8080,
+    ssl: true
+  }
+}
+set field_names = config.keys()
+set field_values = config.values()
+set num_fields = config.keys().length()
+```
+
+```tql
+{
+  config: {host: "localhost", port: 8080, ssl: true},
+  field_names: ["host", "port", "ssl"],
+  field_values: ["localhost", 8080, true],
+  num_fields: 3
+}
+```
+
+### Merge records
+
+Combine multiple records with [`merge()`](/reference/functions/merge) or spread syntax:
+
+```tql
+from {
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true}
+}
+set merged = merge(defaults, custom)
+set spread = {...defaults, ...custom}
+set with_extra = {...defaults, ...custom, debug: true}
+```
+
+```tql
+{
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true},
+  merged: {host: "localhost", port: 8080, ssl: true},
+  spread: {host: "localhost", port: 8080, ssl: true},
+  with_extra: {host: "localhost", port: 8080, ssl: true, debug: true}
+}
+```
+
+### Transform record values
+
+Apply transformations to all values:
+
+```tql
+from {
+  prices: {
+    apple: 1.50,
+    banana: 0.75,
+    orange: 2.00
+  }
+}
+set with_tax = prices.map_values(p, p * 1.1)
+set labels = prices.map_values(p, f"${p}")
+```
+
+```tql
+{
+  prices: {apple: 1.50, banana: 0.75, orange: 2.00},
+  with_tax: {apple: 1.65, banana: 0.825, orange: 2.20},
+  labels: {apple: "$1.5", banana: "$0.75", orange: "$2"}
+}
+```
+
+### Filter record fields
+
+Keep only specific fields:
+
+```tql
+from {
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  }
+}
+set public_info = user.filter_keys(k, k != "password" and k != "api_key")
+set contact = user.select(["name", "email"])
+```
+
+```tql
+{
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  },
+  public_info: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com"
+  },
+  contact: {
+    name: "Alice",
+    email: "alice@example.com"
+  }
+}
+```
+
+## Combine lists and records
+
+Work with collections of records:
+
+```tql
+from {
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ]
+}
+set names = users.map(u => u.name)
+set nyc_users = users.where(u => u.city == "NYC")
+set avg_age = users.map(u => u.age).sum() / users.length()
+```
+
+```tql
+{
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ],
+  names: ["Alice", "Bob", "Charlie"],
+  nyc_users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ],
+  avg_age: 30
+}
+```
+
+## Advanced transformations
+
+### Zip lists together
+
+Combine parallel lists with [`zip()`](/reference/functions/zip):
+
+```tql
+from {
+  names: ["Alice", "Bob", "Charlie"],
+  ages: [30, 25, 35],
+  cities: ["NYC", "SF", "LA"]
+}
+set zipped = zip(names, ages, cities)
+set users = zipped.map(t => {name: t[0], age: t[1], city: t[2]})
+```
+
+```tql
+{
+  names: ["Alice", "Bob", "Charlie"],
+  ages: [30, 25, 35],
+  cities: ["NYC", "SF", "LA"],
+  zipped: [
+    ["Alice", 30, "NYC"],
+    ["Bob", 25, "SF"],
+    ["Charlie", 35, "LA"]
+  ],
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "LA"}
+  ]
+}
+```
+
+### Group by key
+
+Create groups from a list of records:
+
+```tql
+from {
+  events: [
+    {type: "login", user: "alice"},
+    {type: "logout", user: "alice"},
+    {type: "login", user: "bob"},
+    {type: "error", user: "alice"}
+  ]
+}
+set by_type = events.group_by(e, e.type)
+set by_user = events.group_by(e, e.user)
+```
+
+```tql
+{
+  events: [...],
+  by_type: {
+    login: [{type: "login", user: "alice"}, {type: "login", user: "bob"}],
+    logout: [{type: "logout", user: "alice"}],
+    error: [{type: "error", user: "alice"}]
+  },
+  by_user: {
+    alice: [{type: "login", user: "alice"}, {type: "logout", user: "alice"}, {type: "error", user: "alice"}],
+    bob: [{type: "login", user: "bob"}]
+  }
+}
+```
+
+### Enumerate with indices
+
+Add index numbers with [`enumerate()`](/reference/functions/enumerate):
+
+```tql
+from {items: ["first", "second", "third"]}
+set indexed = items.enumerate()
+set as_records = indexed.map(pair => {index: pair[0], value: pair[1]})
+```
+
+```tql
+{
+  items: ["first", "second", "third"],
+  indexed: [
+    [0, "first"],
+    [1, "second"],
+    [2, "third"]
+  ],
+  as_records: [
+    {index: 0, value: "first"},
+    {index: 1, value: "second"},
+    {index: 2, value: "third"}
+  ]
+}
+```
+
+## Practical examples
+
+### Extract and transform nested data
+
+```tql
+from {
+  response: {
+    status: 200,
+    data: {
+      users: [
+        {id: 1, name: "Alice", scores: [85, 92, 88]},
+        {id: 2, name: "Bob", scores: [78, 81, 85]}
+      ]
+    }
+  }
+}
+set users = response.data.users
+set summaries = users.map(u, {
+  name: u.name,
+  avg_score: u.scores.sum() / u.scores.length(),
+  max_score: u.scores.max()
+})
+```
+
+```tql
+{
+  response: {...},
+  users: [
+    {id: 1, name: "Alice", scores: [85, 92, 88]},
+    {id: 2, name: "Bob", scores: [78, 81, 85]}
+  ],
+  summaries: [
+    {name: "Alice", avg_score: 88.33, max_score: 92},
+    {name: "Bob", avg_score: 81.33, max_score: 85}
+  ]
+}
+```
+
+### Work with indexed data
+
+Create lookups by extracting specific fields:
+
+```tql
+from {
+  items: [
+    {id: "A001", name: "Widget", price: 10},
+    {id: "B002", name: "Gadget", price: 20},
+    {id: "C003", name: "Tool", price: 15}
+  ]
+}
+set first_item = items.first()
+set ids = items.map(item => item.id)
+set names = items.map(item => item.name)
+set expensive = items.where(item => item.price > 15)
+```
+
+```tql
+{
+  items: [...],
+  first_item: {id: "A001", name: "Widget", price: 10},
+  ids: ["A001", "B002", "C003"],
+  names: ["Widget", "Gadget", "Tool"],
+  expensive: [
+    {id: "B002", name: "Gadget", price: 20}
+  ]
+}
+```
+
+## Best practices
+
+1. **Choose the right structure**: Use lists for ordered data, records for named fields
+2. **Avoid deep nesting**: Flatten structures when possible for easier access
+3. **Use functional methods**: Prefer `map()`, `filter()`, etc. over manual loops
+4. **Handle empty collections**: Check length before accessing elements
+5. **Preserve immutability**: Collection functions return new values, not modify existing
+
+## Related guides
+
+- [Filter and select data](/guides/data-shaping/filter-and-select-data) - Filter entire event streams
+- [Transform basic values](/guides/data-shaping/transform-basic-values) - Work with simple types
+- [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations
