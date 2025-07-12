@@ -16,6 +16,39 @@ package from PyPI.
 pip install tenzir-platform
 ```
 
+## Environment Variable Configuration
+
+The Tenzir Platform CLI supports several environment variables to configure
+authentication and platform connection settings. All configuration variables
+for the CLI share the prefix `TENZIR_PLATFORM_CLI_`.
+
+### Supported Settings
+
+- `TENZIR_PLATFORM_CLI_API_ENDPOINT`: The URL of the Tenzir Platform API
+  instance to connect to. Defaults to `https://rest.tenzir.app/production-v1`.
+
+- `TENZIR_PLATFORM_CLI_EXTRA_HEADERS`: Additional headers that should be sent
+  with any request to the Tenzir Platform. Must be provided as a JSON object.
+
+- `TENZIR_PLATFORM_CLI_ISSUER_URL`: The OIDC issuer URL for authentication.
+  Defaults to the issuer URL used by the public Tenizr Platform instance at
+  https://app.tenzir.com .
+
+- `TENZIR_PLATFORM_CLI_CLIENT_ID`: The client ID for the CLI client.
+  Defaults to the client id used by the public Tenizr Platform instance at
+  https://app.tenzir.com .
+
+- `TENZIR_PLATFORM_CLI_CLIENT_SECRET`: The client secret for the CLI client.
+  When set, the CLI automatically attempts to use the client credentials flow
+  instead of the device code flow for authentication.
+
+- `TENZIR_PLATFORM_CLI_CLIENT_SECRET_FILE`: Path to a file containing the
+  client secret. Alternative to providing the secret directly via
+  `TENZIR_PLATFORM_CLI_CLIENT_SECRET`.
+
+- `TENZIR_PLATFORM_CLI_ID_TOKEN`: If provided, skip the login workflow
+  completely and use this token for authentication.
+
 ## Authentication
 
 ### Synopsis
