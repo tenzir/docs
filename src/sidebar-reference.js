@@ -256,6 +256,8 @@ export const referenceOperators = [
   "reference/operators/move",
   "reference/operators/nics",
   "reference/operators/ocsf/apply",
+  "reference/operators/ocsf/derive",
+  "reference/operators/ocsf/trim",
   "reference/operators/openapi",
   "reference/operators/package/add",
   "reference/operators/package/list",
