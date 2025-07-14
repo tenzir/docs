@@ -62,8 +62,10 @@ complex conditional logic to be implemented.
 
 ```tql
 if score < 100 {
-  severity = "medium"
+  severity = "low"
   drop details
+} else if score < 200 {
+  severity = "medium"
 } else {
   severity = "high"
 }
