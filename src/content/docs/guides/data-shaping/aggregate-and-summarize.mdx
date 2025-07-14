@@ -18,7 +18,9 @@ summarize <aggregation>, <aggregation>, ..., <group>, <group>, ...
 
 Where:
 
-- Aggregations are expressions like [`sum()`](/reference/functions/sum), [`count()`](/reference/functions/count), [`mean()`](/reference/functions/mean), etc.
+- Aggregations are expressions like [`sum()`](/reference/functions/sum),
+  [`count()`](/reference/functions/count),
+  [`mean()`](/reference/functions/mean), etc.
 - Groups are field names to group by
 
 ## Basic aggregations
@@ -27,7 +29,9 @@ Start with fundamental aggregation functions on event streams.
 
 ### Count events
 
-Count total events and unique values with [`count()`](/reference/functions/count) and [`count_distinct()`](/reference/functions/count_distinct):
+Count total events and unique values with
+[`count()`](/reference/functions/count) and
+[`count_distinct()`](/reference/functions/count_distinct):
 
 ```tql
 from {product: "apple", price: 100, category: "fruit"},
@@ -155,7 +159,8 @@ summarize p50 = quantile(latency, 0.5), p90 = quantile(latency, 0.9), p95 = quan
 
 ### Standard deviation and variance
 
-Measure data spread with [`stddev()`](/reference/functions/stddev) and [`variance()`](/reference/functions/variance):
+Measure data spread with [`stddev()`](/reference/functions/stddev) and
+[`variance()`](/reference/functions/variance):
 
 ```tql
 from {server: "web1", cpu: 45},
@@ -174,7 +179,10 @@ summarize avg_cpu = mean(cpu), cpu_stddev = stddev(cpu), cpu_variance = variance
 
 ### Mode and distinct values
 
-Find most common values and collect unique values with [`mode()`](/reference/functions/mode), [`distinct()`](/reference/functions/distinct), and [`count_if()`](/reference/functions/count_if):
+Find most common values and collect unique values with
+[`mode()`](/reference/functions/mode),
+[`distinct()`](/reference/functions/distinct), and
+[`count_if()`](/reference/functions/count_if):
 
 ```tql
 from {user: "alice", browser: "chrome", action: "login"},
@@ -195,7 +203,8 @@ summarize most_common_browser = mode(browser), unique_browsers = distinct(browse
 
 ### Value frequencies and entropy
 
-Analyze value distributions with [`value_counts()`](/reference/functions/value_counts)
+Analyze value distributions with
+[`value_counts()`](/reference/functions/value_counts)
 and [`entropy()`](/reference/functions/entropy):
 
 ```tql
@@ -220,7 +229,8 @@ summarize frequencies = value_counts(category), info_entropy = entropy(category)
 
 ## Collecting values
 
-Use [`collect()`](/reference/functions/collect) and [`distinct()`](/reference/functions/distinct) to gather values:
+Use [`collect()`](/reference/functions/collect) and
+[`distinct()`](/reference/functions/distinct) to gather values:
 
 ```tql
 from {user: "alice", action: "login", timestamp: 2024-01-15T10:00:00},

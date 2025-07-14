@@ -48,8 +48,9 @@ set user = data.user, action = data.action
 
 ## Extract key-value pairs
 
-Many logs use simple key-value formats. The [`parse_kv()`](/reference/functions/parse_kv)
-function handles these automatically:
+Many logs use simple key-value formats. The
+[`parse_kv()`](/reference/functions/parse_kv) function handles these
+automatically:
 
 ```tql
 from {log: "status=200 method=GET path=/api/users duration=45ms"}
@@ -196,7 +197,8 @@ set fields = line.parse_xsv(sep="|", header=["name", "age", "role", "location"])
 
 ## Parse YAML data
 
-YAML is common in configuration files. Use [`parse_yaml()`](/reference/functions/parse_yaml):
+YAML is common in configuration files. Use
+[`parse_yaml()`](/reference/functions/parse_yaml):
 
 ```tql
 from {config: "user: alice\nrole: admin\npermissions:\n  - read\n  - write"}
@@ -216,8 +218,9 @@ set data = config.parse_yaml()
 
 ## Use Grok patterns for complex formats
 
-When data doesn't follow simple patterns, [`parse_grok()`](/reference/functions/parse_grok)
-provides powerful pattern matching:
+When data doesn't follow simple patterns,
+[`parse_grok()`](/reference/functions/parse_grok) provides powerful pattern
+matching:
 
 ```tql
 from {log: "2024-01-15 10:30:45 ERROR [UserService] Failed to authenticate user alice"}
@@ -251,7 +254,8 @@ Common Grok patterns include:
 
 ### Syslog messages
 
-Syslog is ubiquitous in system logging. Use [`parse_syslog()`](/reference/functions/parse_syslog):
+Syslog is ubiquitous in system logging. Use
+[`parse_syslog()`](/reference/functions/parse_syslog):
 
 ```tql
 from {line: "2024-01-15T10:30:45.123Z myhost myapp[1234]: User login failed"}
@@ -275,7 +279,8 @@ set syslog = line.parse_syslog()
 
 ### CEF (Common Event Format)
 
-For security tools using CEF, use [`parse_cef()`](/reference/functions/parse_cef):
+For security tools using CEF, use
+[`parse_cef()`](/reference/functions/parse_cef):
 
 ```tql
 from {log: "CEF:0|Security|Firewall|1.0|100|Connection Blocked|5|src=10.0.0.1 dst=192.168.1.1 spt=12345 dpt=443"}
@@ -305,7 +310,8 @@ set event = log.parse_cef()
 
 ### LEEF (Log Event Extended Format)
 
-For IBM QRadar's LEEF format, use [`parse_leef()`](/reference/functions/parse_leef):
+For IBM QRadar's LEEF format, use
+[`parse_leef()`](/reference/functions/parse_leef):
 
 ```tql
 from {log: "LEEF:1.0|Security|Firewall|1.0|100|src=10.0.0.1|dst=192.168.1.1|spt=12345|dpt=443"}
@@ -333,7 +339,8 @@ set event = log.parse_leef()
 
 ## Parse timestamps
 
-Convert time strings to proper timestamp values with [`parse_time()`](/reference/functions/parse_time):
+Convert time strings to proper timestamp values with
+[`parse_time()`](/reference/functions/parse_time):
 
 ```tql
 from {

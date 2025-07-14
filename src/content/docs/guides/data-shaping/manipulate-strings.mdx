@@ -306,7 +306,7 @@ set status = id.slice(begin=11)
 ```tql
 {
   text: "Hello, World!",
-  id: "USER-12345-ACTIVE",  
+  id: "USER-12345-ACTIVE",
   timestamp: "2024-01-15T10:30:45",
   greeting: "Hello",
   user_num: "12345",
@@ -336,19 +336,20 @@ set decoded = encoded.decode_base64()
 {
   secret: "my-api-key-12345",
   encoded: "bXktYXBpLWtleS0xMjM0NQ==",
-  decoded: "my-api-key-12345"
+  decoded: b"my-api-key-12345",
 }
 ```
 
 ### Hex encoding
 
-Use [`encode_hex()`](/reference/functions/encode_hex), [`decode_hex()`](/reference/functions/decode_hex), and [`from_hex()`](/reference/functions/from_hex):
+Use [`encode_hex()`](/reference/functions/encode_hex) and
+[`decode_hex()`](/reference/functions/decode_hex):
 
 ```tql
 from {data: "Hello", hex_string: "48656c6c6f"}
 set hex = data.encode_hex()
 set decoded = hex.decode_hex()
-set from_string = hex_string.from_hex()
+set decoded_blob = hex_string.decode_hex()
 ```
 
 ```tql
@@ -356,8 +357,8 @@ set from_string = hex_string.from_hex()
   data: "Hello",
   hex_string: "48656c6c6f",
   hex: "48656c6c6f",
-  decoded: "Hello",
-  from_string: "Hello"
+  decoded: b"Hello",
+  decoded_blob: b"Hello",
 }
 ```
 
@@ -373,7 +374,7 @@ set decoded = encoded.decode_url()
 {
   query: "search term with spaces & special=characters",
   encoded: "search%20term%20with%20spaces%20%26%20special%3Dcharacters",
-  decoded: "search term with spaces & special=characters"
+  decoded: b"search term with spaces & special=characters",
 }
 ```
 
@@ -419,19 +420,18 @@ Padding functions:
 Access text from files during processing:
 
 ```tql
-from {config_path: "/etc/hostname"}
-set hostname = config_path.file_contents()
+from {}
+set hostname = file_contents("/etc/hostname")
 ```
 
 ```tql
 {
-  config_path: "/etc/hostname",
-  hostname: "my-server\n"
+  hostname: "my-server\n",
 }
 ```
 
 The [`file_contents()`](/reference/functions/file_contents) function reads the
-entire file as a string. Use with caution on large files.
+entire file as a string. The file path must be a constant expression. Use with caution on large files.
 
 ## Practical examples
 
@@ -490,7 +490,7 @@ from {
 }
 set full_name = first.capitalize() + " " + last.to_upper()
 set email = first + "." + last + "@company.com"
-set badge = dept.to_upper().slice(0, 3) + "-" + id.string().pad_left(5, "0")
+set badge = dept.to_upper().slice(begin=0, end=3) + "-" + id.string()
 ```
 
 ```tql
@@ -501,7 +501,7 @@ set badge = dept.to_upper().slice(0, 3) + "-" + id.string().pad_left(5, "0")
   id: 42,
   full_name: "Alice SMITH",
   email: "alice.smith@company.com",
-  badge: "ENG-00042"
+  badge: "ENG-42",
 }
 ```
 
@@ -591,7 +591,8 @@ Process network data with specialized security functions:
 
 ### Generate Community IDs
 
-Use [`community_id()`](/reference/functions/community_id) to create standardized flow hashes:
+Use [`community_id()`](/reference/functions/community_id) to create standardized
+flow hashes:
 
 ```tql
 from {
@@ -602,8 +603,8 @@ from {
   proto: "tcp"
 }
 set flow_id = community_id(
-  src_addr=src_ip,
-  dst_addr=dst_ip,
+  src_ip=src_ip,
+  dst_ip=dst_ip,
   src_port=src_port,
   dst_port=dst_port,
   proto=proto
@@ -617,65 +618,11 @@ set flow_id = community_id(
   src_port: 54321,
   dst_port: 443,
   proto: "tcp",
-  flow_id: "1:LQU9qZlK+B5F3KDmev6m5PMibrg="
+  flow_id: "1:ZSU9hCO1tdr7pj3SCLkQ0XS3uvI=",
 }
 ```
 
-### Anonymize IP addresses
 
-Use [`encrypt_cryptopan()`](/reference/functions/encrypt_cryptopan) for consistent IP anonymization:
-
-```tql
-from {
-  client_ip: 192.168.1.100,
-  server_ip: 8.8.8.8,
-  internal_ip: 10.0.0.5
-}
-set anon_client = client_ip.encrypt_cryptopan("mysecretkey12345"),
-    anon_server = server_ip.encrypt_cryptopan("mysecretkey12345"),
-    anon_internal = internal_ip.encrypt_cryptopan("mysecretkey12345")
-```
-
-```tql
-{
-  client_ip: 192.168.1.100,
-  server_ip: 8.8.8.8,
-  internal_ip: 10.0.0.5,
-  anon_client: 192.168.26.244,
-  anon_server: 8.8.72.42,
-  anon_internal: 10.0.58.213
-}
-```
-
-### Decapsulate tunneled protocols
-
-Use [`decapsulate()`](/reference/functions/decapsulate) to extract inner packet data:
-
-```tql
-from {
-  packet: "45000054399f40004001f6f3c0a80164080808080800f7fc000100006162636465666768696a6b6c6d6e6f707172737475767761626364656667686901020304"
-}
-set outer = packet.from_hex().decapsulate(),
-    inner = outer.data?.decapsulate()
-```
-
-```tql
-{
-  packet: "45000054399f40004001f6f3c0a80164080808080800f7fc000100006162636465666768696a6b6c6d6e6f707172737475767761626364656667686901020304",
-  outer: {
-    protocol: "ip",
-    src: 192.168.1.100,
-    dst: 8.8.8.8,
-    data: "0800f7fc000100006162636465666768696a6b6c6d6e6f707172737475767761626364656667686901020304"
-  },
-  inner: {
-    protocol: "icmp",
-    type: 8,
-    code: 0,
-    data: "6162636465666768696a6b6c6d6e6f707172737475767761626364656667686901020304"
-  }
-}
-```
 
 ## Best practices
 

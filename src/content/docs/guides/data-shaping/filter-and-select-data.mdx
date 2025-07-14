@@ -91,7 +91,8 @@ where email.ends_with("example.com")
 
 ### Filtering with patterns
 
-Match patterns using regular expressions with [`match_regex()`](/reference/functions/match_regex):
+Match patterns using regular expressions with
+[`match_regex()`](/reference/functions/match_regex):
 
 ```tql
 from {log: "Error: Connection timeout"},
@@ -228,15 +229,15 @@ set total_bytes = bytes_sent + bytes_received
 {bytes_sent: 512, bytes_received: 1024, total_bytes: 1536}
 ```
 
-### Using the otherwise function
+### Using the `else` keyword
 
-Use the [`otherwise()`](/reference/functions/otherwise) function to provide default values for null fields:
+Use the `else` word to provide default values for null fields:
 
 ```tql
 from {name: "alice", score: 85},
      {name: "bob"},
      {name: "charlie", score: 95}
-set score = score?.otherwise(0)
+set score = score else 0
 ```
 
 ```tql
@@ -244,6 +245,16 @@ set score = score?.otherwise(0)
 {name: "bob", score: 0}
 {name: "charlie", score: 95}
 ```
+
+:::caution[Accessing non-existent fields]
+Because the second event had no `score` field, the `else` keyword filled in a
+default value of `0`. However, the access of the `score` field generated a
+warning that the field did not exist. If the field existed but had a `null`
+value, then there would be no warning.
+
+Use the question mark operator (`?`) to suppress warnings when accessing fields
+that may not exist. In that above example, this would be `score? else 0`.
+:::
 
 ## Combining operations
 
@@ -277,7 +288,9 @@ select method, path, duration_s = duration_ms / 1000.0
    - Use [`set`](/reference/operators/set) when you want to add fields without changing existing ones
 
 4. **Understand null handling**: The [`where`](/reference/operators/where)
-   operator skips events where the condition evaluates to null or false.
+   operator skips events where the condition evaluates to null or false. Use the
+   question mark operator (`?`) to suppress warnings when accessing fields that
+   may not exist.
 
 ## Related guides
 

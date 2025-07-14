@@ -10,7 +10,9 @@ optimizing costs and making threat detection and response more efficient.
 
 ## Basic deduplication
 
-Let's start with a simple example to understand how deduplication works. Imagine you're monitoring user logins and want to see only unique users, regardless of how many times they log in:
+Let's start with a simple example to understand how deduplication works. Imagine
+you're monitoring user logins and want to see only unique users, regardless of
+how many times they log in:
 
 ```tql
 from {user: "alice", action: "login", time: 1},
@@ -30,12 +32,15 @@ specified field(s). In this example:
 
 - Alice's first login (time: 1) is kept
 - Bob's login (time: 2) is kept
-- Alice's second login (time: 3) is dropped because we already saw `user: "alice"`
-- Note that Alice's logout (time: 4) would also be dropped with this simple deduplication
+- Alice's second login (time: 3) is dropped because we already saw
+  `user: "alice"`
+- Note that Alice's logout (time: 4) would also be dropped with this simple
+  deduplication
 
 ## Deduplicate by multiple fields
 
-Often you need more nuanced deduplication. For example, you might want to track unique user-action pairs to see each distinct activity per user:
+Often you need more nuanced deduplication. For example, you might want to track
+unique user-action pairs to see each distinct activity per user:
 
 ```tql
 from {user: "alice", action: "login", time: 1},
@@ -58,7 +63,8 @@ Now we keep unique combinations of user and action:
 - Alice's second login is dropped (duplicate: alice+login already seen)
 - Alice's logout is kept (unique: alice+logout is a new combination)
 
-This approach is useful for tracking distinct user activities rather than just unique users.
+This approach is useful for tracking distinct user activities rather than just
+unique users.
 
 ## Analyze unique host pairs
 
@@ -87,7 +93,8 @@ The deduplication works on the extracted host pairs:
 - Third connection (10.0.0.1 → 192.168.1.1) is dropped (duplicate of first)
 - Fourth connection (10.0.0.1 → 192.168.1.2) is kept (different destination)
 
-Note that flipped connections (A→B vs B→A) are considered different pairs. This helps identify bidirectional communication patterns.
+Note that flipped connections (A→B vs B→A) are considered different pairs. This
+helps identify bidirectional communication patterns.
 
 ## Remove duplicate alerts
 
@@ -119,10 +126,12 @@ This approach reduces alert volume while preserving visibility into distinct thr
 
 ### Using timeout for time-based deduplication
 
-In production environments, you often want to suppress duplicates only within a certain time
-window. This ensures you don't miss recurring issues that happen over longer periods.
+In production environments, you often want to suppress duplicates only within a
+certain time window. This ensures you don't miss recurring issues that happen
+over longer periods.
 
-The `create_timeout` parameter resets the deduplication state after the specified duration:
+The `create_timeout` parameter resets the deduplication state after the
+specified duration:
 
 ```tql
 deduplicate {src: src_ip, dst: dest_ip, sig: signature}, create_timeout=1h
@@ -130,7 +139,8 @@ deduplicate {src: src_ip, dst: dest_ip, sig: signature}, create_timeout=1h
 
 This configuration:
 
-- Suppresses duplicate alerts for the same source/destination/signature combination
+- Suppresses duplicate alerts for the same source/destination/signature
+  combination
 - Resets after 1 hour, allowing the same alert pattern through again
 - Helps balance noise reduction with visibility into persistent threats
 
@@ -147,19 +157,23 @@ For example, if a host is repeatedly targeted:
    events for your use case. Too few fields may drop important events; too many
    may not deduplicate effectively.
 
-2. **Consider order**: The [`deduplicate`](/reference/operators/deduplicate) operator keeps the _first_ occurrence.
-   If you need the latest, consider using [`reverse`](/reference/operators/reverse) first:
+2. **Consider order**: The [`deduplicate`](/reference/operators/deduplicate)
+   operator keeps the _first_ occurrence. If you need the latest, consider using
+   [`reverse`](/reference/operators/reverse) first:
 
    ```tql
    reverse | deduplicate user | reverse
    ```
 
-3. **Use timeout wisely**: For streaming data, `create_timeout` prevents memory from
-   growing indefinitely while still reducing noise. Choose durations based on your
-   threat detection windows.
+3. **Use timeout wisely**: For streaming data, `create_timeout` prevents memory
+   from growing indefinitely while still reducing noise. Choose durations based
+   on your threat detection windows.
 
-4. **Combine with other operators**: Often you'll want to filter ([`where`](/reference/operators/where)) or
-   transform ([`set`](/reference/operators/set)) data before deduplication to normalize keys:
+4. **Combine with other operators**: Often you'll want to filter
+   ([`where`](/reference/operators/where)) or transform
+   ([`set`](/reference/operators/set)) data before deduplication to normalize
+   keys:
+
    ```tql
    set normalized_ip = src_ip.string()
    deduplicate normalized_ip

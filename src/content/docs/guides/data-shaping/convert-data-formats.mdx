@@ -9,8 +9,9 @@ functions.
 
 ## Print to JSON
 
-JSON is the most common data exchange format. Use [`print_json()`](/reference/functions/print_json)
-to convert any data to JSON strings:
+JSON is the most common data exchange format. Use
+[`print_json()`](/reference/functions/print_json) to convert any data to JSON
+strings:
 
 ```tql
 from {
@@ -110,8 +111,9 @@ set csv = data.print_csv()
 
 ## Print to TSV and SSV
 
-For tab-separated and space-separated values, use [`print_tsv()`](/reference/functions/print_tsv)
-and [`print_ssv()`](/reference/functions/print_ssv):
+For tab-separated and space-separated values, use
+[`print_tsv()`](/reference/functions/print_tsv) and
+[`print_ssv()`](/reference/functions/print_ssv):
 
 ```tql
 from {
@@ -151,7 +153,8 @@ set colon_separated = item.print_xsv(sep=" :: ")
 
 ## Print to YAML
 
-Convert data to YAML format with [`print_yaml()`](/reference/functions/print_yaml):
+Convert data to YAML format with
+[`print_yaml()`](/reference/functions/print_yaml):
 
 ```tql
 from {
@@ -176,7 +179,8 @@ set yaml_string = config.print_yaml()
 
 ## Print key-value pairs
 
-Convert records to key-value format with [`print_kv()`](/reference/functions/print_kv):
+Convert records to key-value format with
+[`print_kv()`](/reference/functions/print_kv):
 
 ```tql
 from {
@@ -203,7 +207,8 @@ set kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
 
 ### CEF (Common Event Format)
 
-Print security events in CEF format with [`print_cef()`](/reference/functions/print_cef):
+Print security events in CEF format with
+[`print_cef()`](/reference/functions/print_cef):
 
 ```tql
 from {
@@ -413,7 +418,8 @@ set csv_row = [log_event].print_csv(no_header=true)
    - YAML for configuration files
    - Key-value for logging systems
 
-2. **Handle special characters**: Be aware of how each format handles quotes, newlines, and separators
+2. **Handle special characters**: Be aware of how each format handles quotes,
+   newlines, and separators
 
 3. **Consider file size**: JSON is verbose, CSV is compact
 
@@ -423,6 +429,9 @@ set csv_row = [log_event].print_csv(no_header=true)
 
 ## Related guides
 
-- [Extract structured data from text](/guides/data-shaping/extract-structured-data-from-text) - Parse different formats
-- [Transform collections](/guides/data-shaping/transform-collections) - Prepare data for printing
+- [Extract structured data from
+  text](/guides/data-shaping/extract-structured-data-from-text) - Parse
+  different formats
+- [Transform collections](/guides/data-shaping/transform-collections) - Prepare
+  data for printing
 - [Manipulate strings](/guides/data-shaping/manipulate-strings) - Work with printed output
