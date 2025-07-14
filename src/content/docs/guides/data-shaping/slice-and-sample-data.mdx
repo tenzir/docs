@@ -43,9 +43,9 @@ head 3
 {id: 3, value: "c"}
 ```
 
-### Getting a single event
+### Default behavior
 
-Without an argument, [`head`](/reference/operators/head) returns just the first event:
+Without an argument, [`head`](/reference/operators/head) returns all events:
 
 ```tql
 from {id: 1, value: "first"},
@@ -56,6 +56,8 @@ head
 
 ```tql
 {id: 1, value: "first"}
+{id: 2, value: "second"}
+{id: 3, value: "third"}
 ```
 
 ## Get events from the end
@@ -206,27 +208,35 @@ Like [`tail`](/reference/operators/tail), the [`reverse`](/reference/operators/r
 output. Use with caution on large streams.
 :::
 
-## Random sampling
+## Time-based sampling
 
-Use the [`sample`](/reference/operators/sample) operator to randomly select a
-fraction of events:
+Use the [`sample`](/reference/operators/sample) operator to sample events based
+on time intervals:
 
-### Sample by probability
+### Sample by duration
 
-Keep approximately 20% of events:
+Sample events at regular time intervals:
 
 ```tql
 from {id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5},
      {id: 6}, {id: 7}, {id: 8}, {id: 9}, {id: 10}
-sample 0.2
+sample 1s
 ```
 
 ```tql
+{id: 1}
+{id: 2}
 {id: 3}
+{id: 4}
+{id: 5}
+{id: 6}
+{id: 7}
+{id: 8}
+{id: 9}
 {id: 10}
 ```
 
-Note: Results will vary due to random sampling.
+Note: The sample operator uses duration-based sampling, not random probability sampling.
 
 ## Combining operators
 

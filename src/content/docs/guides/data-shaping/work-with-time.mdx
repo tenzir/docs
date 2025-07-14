@@ -25,10 +25,10 @@ set earlier = timestamp - 2h
 
 ```tql
 {
-  timestamp: 2024-01-15T10:30:45.123456,
+  timestamp: 2024-01-15T10:30:45.123456Z,
   interval: 5min,
-  later: 2024-01-15T10:35:45.123456,
-  earlier: 2024-01-15T08:30:45.123456
+  later: 2024-01-15T10:35:45.123456Z,
+  earlier: 2024-01-15T08:30:45.123456Z
 }
 ```
 
@@ -44,8 +44,8 @@ set today = current_time.round(1d)
 
 ```tql
 {
-  current_time: 2024-01-15T14:32:18.745321,
-  today: 2024-01-15T00:00:00.000000
+  current_time: 2024-01-15T14:32:18.745321Z,
+  today: 2024-01-15T00:00:00Z
 }
 ```
 
@@ -59,9 +59,9 @@ from {
   custom: "15/Jan/2024:10:30:45",
   unix: "1705316445"
 }
-set iso_time = iso.parse_time()
+set iso_time = iso.parse_time("%Y-%m-%dT%H:%M:%S")
 set custom_time = custom.parse_time("%d/%b/%Y:%H:%M:%S")
-set unix_time = unix.int().from_epoch(1s)
+set unix_time = unix.int().seconds().from_epoch()
 ```
 
 ```tql
@@ -69,9 +69,9 @@ set unix_time = unix.int().from_epoch(1s)
   iso: "2024-01-15T10:30:45",
   custom: "15/Jan/2024:10:30:45",
   unix: "1705316445",
-  iso_time: 2024-01-15T10:30:45.000000,
-  custom_time: 2024-01-15T10:30:45.000000,
-  unix_time: 2024-01-15T10:30:45.000000
+  iso_time: 2024-01-15T10:30:45Z,
+  custom_time: 2024-01-15T10:30:45Z,
+  unix_time: 2024-01-15T11:00:45Z
 }
 ```
 
@@ -92,7 +92,7 @@ Convert timestamps to custom string formats with [`format_time()`](/reference/fu
 
 ```tql
 from {event_time: 2024-01-15T10:30:45.123456}
-set iso = event_time.format_time()
+set iso = event_time.format_time("%Y-%m-%dT%H:%M:%S.%f")
 set date_only = event_time.format_time("%Y-%m-%d")
 set us_format = event_time.format_time("%m/%d/%Y %I:%M %p")
 set log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
@@ -100,11 +100,11 @@ set log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
 
 ```tql
 {
-  event_time: 2024-01-15T10:30:45.123456,
-  iso: "2024-01-15T10:30:45.123456",
+  event_time: 2024-01-15T10:30:45.123456Z,
+  iso: "2024-01-15T10:30:45.123456000.%f",
   date_only: "2024-01-15",
   us_format: "01/15/2024 10:30 AM",
-  log_format: "15/Jan/2024:10:30:45"
+  log_format: "15/Jan/2024:10:30:45.123456000"
 }
 ```
 
@@ -124,13 +124,13 @@ set second = timestamp.second()
 
 ```tql
 {
-  timestamp: 2024-01-15T10:30:45.123456,
+  timestamp: 2024-01-15T10:30:45.123456Z,
   year: 2024,
   month: 1,
   day: 15,
   hour: 10,
   minute: 30,
-  second: 45
+  second: 45.123456
 }
 ```
 
@@ -148,12 +148,12 @@ set seconds = elapsed.count_seconds()
 
 ```tql
 {
-  start: 2024-01-15T10:00:00.000000,
-  end: 2024-01-15T14:30:00.000000,
+  start: 2024-01-15T10:00:00Z,
+  end: 2024-01-15T14:30:00Z,
   elapsed: 4.5h,
-  hours: 4,
-  minutes: 270,
-  seconds: 16200
+  hours: 4.5,
+  minutes: 270.0,
+  seconds: 16200.0
 }
 ```
 
@@ -166,7 +166,7 @@ from {
   duration: 90d + 4h + 30min + 45s + 123ms + 456us + 789ns
 }
 set years = duration.count_years()
-set months = duration.count_months()  
+set months = duration.count_months()
 set weeks = duration.count_weeks()
 set days = duration.count_days()
 set hours = duration.count_hours()
@@ -179,16 +179,16 @@ set nanoseconds = duration.count_nanoseconds()
 
 ```tql
 {
-  duration: 90d4h30.5min45.123456789s,
-  years: 0,
-  months: 2,
-  weeks: 12,
-  days: 90,
-  hours: 2164,
-  minutes: 129870,
-  seconds: 7792245,
-  milliseconds: 7792245123,
-  microseconds: 7792245123456,
+  duration: 90.18802226223136d,
+  years: 0.24692641809819874,
+  months: 2.963117017178385,
+  weeks: 12.884003180318764,
+  days: 90.18802226223136,
+  hours: 2164.5125342935526,
+  minutes: 129870.75205761315,
+  seconds: 7792245.123456789,
+  milliseconds: 7792245123.456789,
+  microseconds: 7792245123456.789,
   nanoseconds: 7792245123456789
 }
 ```
@@ -207,9 +207,9 @@ set weeks_in_quarter = quarter.count_weeks()
 ```tql
 {
   quarterly_period: 3,
-  quarter: 3mo,
-  days_in_quarter: 90,
-  weeks_in_quarter: 12
+  quarter: 91.310625d,
+  days_in_quarter: 91.310625,
+  weeks_in_quarter: 13.044375
 }
 ```
 
@@ -263,12 +263,12 @@ set active_hours = session_duration.count_hours()
 
 ```tql
 {
-  login: 2024-01-15T09:00:00.000000,
-  first_action: 2024-01-15T09:05:30.000000,
-  logout: 2024-01-15T17:30:00.000000,
+  login: 2024-01-15T09:00:00Z,
+  first_action: 2024-01-15T09:05:30Z,
+  logout: 2024-01-15T17:30:00Z,
   time_to_action: 5.5min,
   session_duration: 8.5h,
-  active_hours: 8
+  active_hours: 8.5
 }
 ```
 
@@ -286,11 +286,11 @@ set thirty_mins_ago = event_time - 30min
 
 ```tql
 {
-  event_time: 2024-01-15T10:30:00.000000,
-  one_hour_later: 2024-01-15T11:30:00.000000,
-  yesterday: 2024-01-14T10:30:00.000000,
-  next_week: 2024-01-22T10:30:00.000000,
-  thirty_mins_ago: 2024-01-15T10:00:00.000000
+  event_time: 2024-01-15T10:30:00Z,
+  one_hour_later: 2024-01-15T11:30:00Z,
+  yesterday: 2024-01-14T10:30:00Z,
+  next_week: 2024-01-22T10:30:00Z,
+  thirty_mins_ago: 2024-01-15T10:00:00Z
 }
 ```
 
@@ -308,11 +308,11 @@ set to_5min = precise_time.round(5min)
 
 ```tql
 {
-  precise_time: 2024-01-15T10:37:42.847621,
-  to_minute: 2024-01-15T10:38:00.000000,
-  to_hour: 2024-01-15T11:00:00.000000,
-  to_day: 2024-01-16T00:00:00.000000,
-  to_5min: 2024-01-15T10:40:00.000000
+  precise_time: 2024-01-15T10:37:42.847621Z,
+  to_minute: 2024-01-15T10:38:00Z,
+  to_hour: 2024-01-15T11:00:00Z,
+  to_day: 2024-01-15T00:00:00Z,
+  to_5min: 2024-01-15T10:40:00Z
 }
 ```
 
@@ -326,9 +326,9 @@ from {
   unix_millis: 1705316445123,
   unix_micros: 1705316445123456
 }
-set from_seconds = unix_seconds.from_epoch(1s)
-set from_millis = unix_millis.from_epoch(1ms)
-set from_micros = unix_micros.from_epoch(1us)
+set from_seconds = unix_seconds.seconds().from_epoch()
+set from_millis = unix_millis.milliseconds().from_epoch()
+set from_micros = unix_micros.microseconds().from_epoch()
 set back_to_unix = from_seconds.since_epoch().count_seconds()
 ```
 
@@ -337,10 +337,10 @@ set back_to_unix = from_seconds.since_epoch().count_seconds()
   unix_seconds: 1705316445,
   unix_millis: 1705316445123,
   unix_micros: 1705316445123456,
-  from_seconds: 2024-01-15T10:40:45.000000,
-  from_millis: 2024-01-15T10:40:45.123000,
-  from_micros: 2024-01-15T10:40:45.123456,
-  back_to_unix: 1705316445
+  from_seconds: 2024-01-15T11:00:45Z,
+  from_millis: 2024-01-15T11:00:45.123Z,
+  from_micros: 2024-01-15T11:00:45.123456Z,
+  back_to_unix: 1705316445.0
 }
 ```
 
@@ -350,23 +350,19 @@ set back_to_unix = from_seconds.since_epoch().count_seconds()
 
 ```tql
 from {
-  request_start: "2024-01-15T10:30:45.123",
-  request_end: "2024-01-15T10:30:47.456"
+  request_start: 2024-01-15T10:30:45.123,
+  request_end: 2024-01-15T10:30:47.456
 }
-set start = request_start.parse_time()
-set end = request_end.parse_time()
-set duration = end - start
+set duration = request_end - request_start
 set duration_ms = duration.count_milliseconds()
 ```
 
 ```tql
 {
-  request_start: "2024-01-15T10:30:45.123",
-  request_end: "2024-01-15T10:30:47.456",
-  start: 2024-01-15T10:30:45.123000,
-  end: 2024-01-15T10:30:47.456000,
+  request_start: 2024-01-15T10:30:45.123Z,
+  request_end: 2024-01-15T10:30:47.456Z,
   duration: 2.333s,
-  duration_ms: 2333
+  duration_ms: 2333.0
 }
 ```
 
@@ -384,11 +380,11 @@ set five_min_bucket = event_time.round(5min)
 
 ```tql
 {
-  event_time: 2024-01-15T10:37:42.847621,
+  event_time: 2024-01-15T10:37:42.847621Z,
   event_type: "login",
-  hour_bucket: 2024-01-15T11:00:00.000000,
-  day_bucket: 2024-01-16T00:00:00.000000,
-  five_min_bucket: 2024-01-15T10:40:00.000000
+  hour_bucket: 2024-01-15T11:00:00Z,
+  day_bucket: 2024-01-15T00:00:00Z,
+  five_min_bucket: 2024-01-15T10:40:00Z
 }
 ```
 
@@ -431,9 +427,9 @@ set syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
   apache: "15/Jan/2024:10:30:45 +0000",
   nginx: "2024/01/15 10:30:45",
   syslog: "Jan 15 10:30:45",
-  apache_time: 2024-01-15T10:30:45.000000,
-  nginx_time: 2024-01-15T10:30:45.000000,
-  syslog_time: 2024-01-15T10:30:45.000000
+  apache_time: 2024-01-15T10:30:45Z,
+  nginx_time: 2024-01-15T10:30:45Z,
+  syslog_time: 2024-01-15T10:30:45Z
 }
 ```
 

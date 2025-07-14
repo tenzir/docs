@@ -64,7 +64,7 @@ set fields = log.parse_kv()
     status: 200,
     method: "GET",
     path: "/api/users",
-    duration: "45ms"
+    duration: 45ms,
   }
 }
 ```
@@ -73,7 +73,7 @@ Notice how `parse_kv()` automatically:
 
 - Detects the `=` separator
 - Converts numeric values (status becomes 200, not "200")
-- Preserves strings with units ("45ms")
+- Parses duration values (duration becomes `45ms`, not "45ms")
 
 ### Customize separators
 
@@ -90,7 +90,7 @@ set fields = log.parse_kv(field_split=" ", value_split=":")
   fields: {
     user: "alice",
     action: "login",
-    time: "2024-01-15"
+    time: 2024-01-15T00:00:00Z,
   }
 }
 ```
@@ -120,17 +120,22 @@ set fields = line.parse_csv(header=["name", "age", "role", "location"])
 }
 ```
 
-Without field names, you get an array:
+To get an array without field names, use `split()`:
 
 ```tql
 from {line: "alice,30,engineer,SF"}
-set values = line.parse_csv()
+set values = line.split(",")
 ```
 
 ```tql
 {
   line: "alice,30,engineer,SF",
-  values: ["alice", 30, "engineer", "SF"]
+  values: [
+    "alice",
+    "30",
+    "engineer",
+    "SF",
+  ],
 }
 ```
 
@@ -180,7 +185,7 @@ For custom separators, use [`parse_xsv()`](/reference/functions/parse_xsv):
 
 ```tql
 from {line: "alice|30|engineer|SF"}
-set fields = line.parse_xsv(sep="|", header=["name", "age", "role", "location"])
+set fields = line.parse_xsv(field_separator="|", list_separator=",", null_value="", header=["name", "age", "role", "location"])
 ```
 
 ```tql
@@ -231,7 +236,7 @@ set parsed = log.parse_grok("%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} \\
 {
   log: "2024-01-15 10:30:45 ERROR [UserService] Failed to authenticate user alice",
   parsed: {
-    timestamp: "2024-01-15 10:30:45",
+    timestamp: 2024-01-15T10:30:45Z,
     level: "ERROR",
     service: "UserService",
     message: "Failed to authenticate user alice"
@@ -291,7 +296,7 @@ set event = log.parse_cef()
 {
   log: "CEF:0|Security|Firewall|1.0|100|Connection Blocked|5|src=10.0.0.1 dst=192.168.1.1 spt=12345 dpt=443",
   event: {
-    cef_version: "0",
+    cef_version: 0,
     device_vendor: "Security",
     device_product: "Firewall",
     device_version: "1.0",
@@ -299,8 +304,8 @@ set event = log.parse_cef()
     name: "Connection Blocked",
     severity: "5",
     extension: {
-      src: "10.0.0.1",
-      dst: "192.168.1.1",
+      src: 10.0.0.1,
+      dst: 192.168.1.1,
       spt: 12345,
       dpt: 443
     }
@@ -324,14 +329,11 @@ set event = log.parse_leef()
   event: {
     leef_version: "1.0",
     vendor: "Security",
-    product: "Firewall",
-    version: "1.0",
-    event_id: "100",
+    product_name: "Firewall",
+    product_version: "1.0",
+    event_class_id: "100",
     attributes: {
-      src: "10.0.0.1",
-      dst: "192.168.1.1",
-      spt: 12345,
-      dpt: 443
+      src: "10.0.0.1|dst=192.168.1.1|spt=12345|dpt=443"
     }
   }
 }
@@ -348,7 +350,7 @@ from {
   log2: "Event at 15/Jan/2024:10:30:45",
   log3: "Event at Mon Jan 15 10:30:45 2024"
 }
-set time1 = log1.split(" at ")[1].parse_time()
+set time1 = log1.split(" at ")[1].parse_time("%Y-%m-%d")
 set time2 = log2.split(" at ")[1].parse_time("%d/%b/%Y:%H:%M:%S")
 set time3 = log3.split(" at ")[1].parse_time("%a %b %d %H:%M:%S %Y")
 ```
@@ -358,9 +360,9 @@ set time3 = log3.split(" at ")[1].parse_time("%a %b %d %H:%M:%S %Y")
   log1: "Event at 2024-01-15",
   log2: "Event at 15/Jan/2024:10:30:45",
   log3: "Event at Mon Jan 15 10:30:45 2024",
-  time1: 2024-01-15T00:00:00.000000,
-  time2: 2024-01-15T10:30:45.000000,
-  time3: 2024-01-15T10:30:45.000000
+  time1: 2024-01-15T00:00:00Z,
+  time2: 2024-01-15T10:30:45Z,
+  time3: 2024-01-15T10:30:45Z
 }
 ```
 
@@ -390,7 +392,7 @@ set client_ip = request.client.ip()
   syslog: {
     facility: null,
     severity: null,
-    timestamp: 2024-01-15T10:30:45.000Z,
+    timestamp: 2024-01-15T10:30:45Z,
     hostname: "web",
     app_name: "nginx",
     process_id: "5678",
@@ -400,8 +402,8 @@ set client_ip = request.client.ip()
     method: "POST",
     path: "/api/login",
     status: 401,
-    duration: "125ms",
-    client: "192.168.1.100"
+    duration: 125ms,
+    client: 192.168.1.100
   },
   method: "POST",
   path: "/api/login",
@@ -427,7 +429,7 @@ set parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:acti
 {
   log: "2024-01-15 10:30:45 FW01 BLOCK src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN",
   parts: {
-    time: "2024-01-15 10:30:45",
+    time: 2024-01-15T10:30:45Z,
     device: "FW01",
     action: "BLOCK",
     details: "src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN"
@@ -450,7 +452,7 @@ set parts.details = parts.details.parse_kv()
 {
   log: "2024-01-15 10:30:45 FW01 BLOCK src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN",
   parts: {
-    time: "2024-01-15 10:30:45",
+    time: 2024-01-15T10:30:45Z,
     device: "FW01",
     action: "BLOCK",
     details: {
@@ -476,7 +478,7 @@ set src_parts = parts.details.src.split(":")
 set dst_parts = parts.details.dst.split(":")
 // Step 4: Create clean output
 set this = {
-  timestamp: parts.time.parse_time(),
+  timestamp: parts.time,
   device: parts.device,
   action: parts.action,
   src_ip: src_parts[0].ip(),
@@ -490,7 +492,7 @@ set this = {
 
 ```tql
 {
-  timestamp: 2024-01-15T10:30:45.000000,
+  timestamp: 2024-01-15T10:30:45Z,
   device: "FW01",
   action: "BLOCK",
   src_ip: 10.0.0.5,

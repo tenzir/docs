@@ -38,8 +38,8 @@ set message = string(status) + " - " + string(ratio * 100) + "%"
 ```
 
 ```tql
-{status: 200, ratio: 0.95, message: "200 - 95%"}
-{status: 404, ratio: 0.05, message: "404 - 5%"}
+{status: 200, ratio: 0.95, message: "200 - 95.0%"}
+{status: 404, ratio: 0.05, message: "404 - 5.0%"}
 ```
 
 ### Parse times and durations
@@ -53,8 +53,8 @@ set parsed_time = time(timestamp)
 ```
 
 ```tql
-{timestamp: "2024-01-15", parsed_time: 2024-01-15T00:00:00.000000}
-{timestamp: "2024-02-20", parsed_time: 2024-02-20T00:00:00.000000}
+{timestamp: "2024-01-15", parsed_time: 2024-01-15T00:00:00Z}
+{timestamp: "2024-02-20", parsed_time: 2024-02-20T00:00:00Z}
 ```
 
 Convert strings to durations with [`duration()`](/reference/functions/duration):
@@ -231,13 +231,12 @@ from {a: 10, b: 3},
 set sum = a + b,
     diff = a - b,
     product = a * b,
-    quotient = a / b,
-    remainder = a % b
+    quotient = int(a / b)
 ```
 
 ```tql
-{a: 10, b: 3, sum: 13, diff: 7, product: 30, quotient: 3, remainder: 1}
-{a: 20, b: 4, sum: 24, diff: 16, product: 80, quotient: 5, remainder: 0}
+{a: 10, b: 3, sum: 13, diff: 7, product: 30, quotient: 3}
+{a: 20, b: 4, sum: 24, diff: 16, product: 80, quotient: 5}
 ```
 
 ### Rounding numbers
@@ -279,14 +278,14 @@ Handle missing or null values gracefully in your data.
 
 ### Provide default values
 
-Use the `otherwise()` function to replace null values:
+Use the `else` keyword to replace null values:
 
 ```tql
 from {name: "alice", age: 30},
      {name: "bob"},
      {name: "charlie", age: 25}
-set age = age?.otherwise(0),
-    status = status?.otherwise("unknown")
+set age = age? else 0,
+    status = status? else "unknown"
 ```
 
 ```tql
@@ -339,7 +338,7 @@ Use [`env()`](/reference/functions/env) to read environment variables:
 from {}
 set home_dir = env("HOME"),
     shell = env("SHELL"),
-    custom_var = env("MY_APP_CONFIG")?.otherwise("/default/config")
+    custom_var = env("MY_APP_CONFIG")? else "/default/config"
 ```
 
 ```tql
@@ -352,7 +351,7 @@ Examine data types at runtime:
 
 ### Get type information
 
-Use [`type_of()`](/reference/functions/type_of) to inspect value types:
+Use [`type_of()`](/reference/functions/type_of) to inspect value types. Note that this function returns detailed type information as objects:
 
 ```tql
 from {
@@ -379,12 +378,12 @@ set str_type = type_of(str),
   bool: true,
   arr: [1, 2, 3],
   obj: {key: "value"},
-  str_type: "string",
-  num_type: "int64", 
-  float_type: "double",
-  bool_type: "bool",
-  arr_type: "list",
-  obj_type: "record"
+  str_type: {name: null, kind: "string", attributes: [], state: null},
+  num_type: {name: null, kind: "int64", attributes: [], state: null},
+  float_type: {name: null, kind: "double", attributes: [], state: null},
+  bool_type: {name: null, kind: "bool", attributes: [], state: null},
+  arr_type: {name: null, kind: "list", attributes: [], state: {type: {name: null, kind: "int64", attributes: [], state: null}}},
+  obj_type: {name: null, kind: "record", attributes: [], state: {fields: [{name: "key", type: {name: null, kind: "string", attributes: [], state: null}}]}}
 }
 ```
 
@@ -401,7 +400,7 @@ set type1 = type_id(value1),
 ```
 
 ```tql
-{value1: "text", value2: 123, value3: "456", type1: 12345678, type2: 87654321, type3: 12345678, same_type: true}
+{value1: "text", value2: 123, value3: "456", type1: "2476398993549b5", type2: "5b0d4f0b0b167404", type3: "2476398993549b5", same_type: true}
 ```
 
 ## Combining transformations

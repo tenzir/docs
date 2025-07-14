@@ -139,7 +139,7 @@ from {
     "disk_root_total": 500
   }
 }
-set structured = metrics.unflatten(sep="_")
+set structured = metrics.unflatten("_")
 ```
 
 ```tql
@@ -245,10 +245,12 @@ from {
     total_items: 3
   }
 }
-set items = response.keys()
-  .where(k => k.starts_with("item_"))
-  .sort()
-  .map(k => response[k])
+// Extract items manually when keys are known
+set items = [
+  response.item_0,
+  response.item_1,
+  response.item_2
+]
 ```
 
 ```tql
@@ -284,6 +286,7 @@ summarize dept=records.dept, team=records.team, members=collect(records.member)
 ```
 
 ```tql
+// Note: Output order may vary
 {dept: "Engineering", team: "Backend", members: ["Alice", "Bob"]}
 {dept: "Engineering", team: "Frontend", members: ["Charlie"]}
 {dept: "Sales", team: "Direct", members: ["David"]}
@@ -304,8 +307,40 @@ set path_info = paths.map(path => {
   full_path: path,
   directory: path.parent_dir(),
   filename: path.file_name(),
-  parts: path.split("/").where(p => p != "")
+  parts: path.split("/").where(p => p.length_bytes() > 0)
 })
+```
+
+```tql
+{
+  paths: [...],
+  path_info: [
+    {
+      full_path: "/home/user/docs/report.pdf",
+      directory: "/home/user/docs",
+      filename: "report.pdf",
+      parts: ["home", "user", "docs", "report.pdf"]
+    },
+    {
+      full_path: "/home/user/docs/summary.txt",
+      directory: "/home/user/docs",
+      filename: "summary.txt",
+      parts: ["home", "user", "docs", "summary.txt"]
+    },
+    {
+      full_path: "/home/user/images/photo.jpg",
+      directory: "/home/user/images",
+      filename: "photo.jpg",
+      parts: ["home", "user", "images", "photo.jpg"]
+    },
+    {
+      full_path: "/var/log/system.log",
+      directory: "/var/log",
+      filename: "system.log",
+      parts: ["var", "log", "system.log"]
+    }
+  ]
+}
 ```
 
 ## Merge fragmented data
@@ -357,22 +392,16 @@ from {
     {type: "error", message: "Connection failed", code: 500}
   ]
 }
-set normalized = events.map(e, {
+set normalized = events.map(e => {
   event_type: e.type,
   timestamp: now(),
-  // Handle different structures
-  ...e.type == "user" ? {
-    user_name: e.data.name,
-    user_email: e.data.email
-  } : {},
-  ...e.type == "system" ? {
-    system_cpu: e.data.cpu,
-    system_memory: e.data.memory
-  } : {},
-  ...e.type == "error" ? {
-    error_message: e.message,
-    error_code: e.code
-  } : {}
+  // Use conditional assignment for type-specific fields
+  user_name: e.data.name if e.type == "user",
+  user_email: e.data.email if e.type == "user",
+  system_cpu: e.data.cpu if e.type == "system",
+  system_memory: e.data.memory if e.type == "system",
+  error_message: e.message if e.type == "error",
+  error_code: e.code if e.type == "error"
 })
 ```
 
@@ -384,17 +413,29 @@ set normalized = events.map(e, {
       event_type: "user",
       timestamp: 2024-01-15T14:32:18.745321,
       user_name: "Alice",
-      user_email: "alice@example.com"
+      user_email: "alice@example.com",
+      system_cpu: null,
+      system_memory: null,
+      error_message: null,
+      error_code: null
     },
     {
       event_type: "system",
       timestamp: 2024-01-15T14:32:18.745321,
+      user_name: null,
+      user_email: null,
       system_cpu: 45,
-      system_memory: 1024
+      system_memory: 1024,
+      error_message: null,
+      error_code: null
     },
     {
       event_type: "error",
       timestamp: 2024-01-15T14:32:18.745321,
+      user_name: null,
+      user_email: null,
+      system_cpu: null,
+      system_memory: null,
       error_message: "Connection failed",
       error_code: 500
     }
@@ -508,7 +549,7 @@ set user_record = {
   age: api_response.data.user.profile.personal.age,
   job_title: api_response.data.user.profile.professional.title,
   company: api_response.data.user.profile.professional.company,
-  last_updated: api_response.data.metadata.timestamp.parse_time()
+  last_updated: api_response.data.metadata.timestamp.parse_time("%Y-%m-%dT%H:%M:%S")
 }
 ```
 
@@ -521,7 +562,7 @@ set user_record = {
     age: 30,
     job_title: "Engineer",
     company: "TechCorp",
-    last_updated: 2024-01-15T10:00:00.000000
+    last_updated: 2024-01-15T10:00:00Z
   }
 }
 ```

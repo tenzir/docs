@@ -67,7 +67,7 @@ from {
   list2: [4, 5, 6],
   list3: [7, 8, 9]
 }
-set combined = concatenate(list1, list2, list3)
+set combined = concatenate(concatenate(list1, list2), list3)
 set spread = [...list1, ...list2, ...list3]
 set with_value = [...list1, 10, ...list2]
 ```
@@ -116,8 +116,10 @@ from {
   numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   users: ["alice", "bob", "anna", "alex"]
 }
-set evens = numbers.where(n => n % 2 == 0)
-set odds = numbers.where(n => n % 2 != 0)
+// Note: The modulo operator (%) is not currently supported in TQL
+// Here's an alternative approach for filtering:
+set big_nums = numbers.where(n => n > 5)
+set small_nums = numbers.where(n => n <= 5)
 set a_names = users.where(u => u.starts_with("a"))
 ```
 
@@ -125,8 +127,8 @@ set a_names = users.where(u => u.starts_with("a"))
 {
   numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   users: ["alice", "bob", "anna", "alex"],
-  evens: [2, 4, 6, 8, 10],
-  odds: [1, 3, 5, 7, 9],
+  big_nums: [6, 7, 8, 9, 10],
+  small_nums: [1, 2, 3, 4, 5],
   a_names: ["alice", "anna", "alex"]
 }
 ```
@@ -142,7 +144,8 @@ from {
 }
 set sorted_nums = numbers.sort()
 set sorted_words = words.sort()
-set reverse_nums = numbers.sort().reverse()
+// Note: reverse() is only for strings, not lists
+// To reverse a list, you would need to use the reverse operator in a pipeline
 ```
 
 ```tql
@@ -150,8 +153,7 @@ set reverse_nums = numbers.sort().reverse()
   numbers: [3, 1, 4, 1, 5, 9],
   words: ["zebra", "apple", "banana"],
   sorted_nums: [1, 1, 3, 4, 5, 9],
-  sorted_words: ["apple", "banana", "zebra"],
-  reverse_nums: [9, 5, 4, 3, 1, 1]
+  sorted_words: ["apple", "banana", "zebra"]
 }
 ```
 
@@ -164,8 +166,8 @@ from {
   items: ["a", "b", "a", "c", "b", "d"],
   numbers: [1, 2, 2, 3, 3, 3, 4]
 }
-set unique_items = items.unique()
-set unique_nums = numbers.unique()
+set unique_items = distinct(items)
+set unique_nums = distinct(numbers)
 ```
 
 ```tql
@@ -179,27 +181,7 @@ set unique_nums = numbers.unique()
 
 ### Flatten nested lists
 
-Convert nested lists to a single level with [`flatten()`](/reference/functions/flatten):
-
-```tql
-from {
-  nested: [[1, 2], [3, 4], [5, 6]],
-  mixed: [1, [2, 3], 4, [5, [6, 7]]]
-}
-set flat = nested.flatten()
-set flat_mixed = mixed.flatten()
-set deep_flat = mixed.flatten(2)
-```
-
-```tql
-{
-  nested: [[1, 2], [3, 4], [5, 6]],
-  mixed: [1, [2, 3], 4, [5, [6, 7]]],
-  flat: [1, 2, 3, 4, 5, 6],
-  flat_mixed: [1, 2, 3, 4, 5, [6, 7]],
-  deep_flat: [1, 2, 3, 4, 5, 6, 7]
-}
-```
+Note: Direct list flattening is not currently supported in TQL. The [`flatten()`](/reference/functions/flatten) function is designed for flattening records, not lists. To work with nested lists, you would need to process them element by element.
 
 ## Work with records
 
@@ -253,7 +235,7 @@ from {
   }
 }
 set field_names = config.keys()
-set field_values = config.values()
+// Note: values() function is not available
 set num_fields = config.keys().length()
 ```
 
@@ -261,7 +243,6 @@ set num_fields = config.keys().length()
 {
   config: {host: "localhost", port: 8080, ssl: true},
   field_names: ["host", "port", "ssl"],
-  field_values: ["localhost", 8080, true],
   num_fields: 3
 }
 ```
@@ -292,7 +273,7 @@ set with_extra = {...defaults, ...custom, debug: true}
 
 ### Transform record values
 
-Apply transformations to all values:
+Note: The `map_values` function is not available in TQL. To transform record values, you would need to reconstruct the record with transformed values manually:
 
 ```tql
 from {
@@ -302,15 +283,11 @@ from {
     orange: 2.00
   }
 }
-set with_tax = prices.map_values(p, p * 1.1)
-set labels = prices.map_values(p, f"${p}")
-```
-
-```tql
-{
-  prices: {apple: 1.50, banana: 0.75, orange: 2.00},
-  with_tax: {apple: 1.65, banana: 0.825, orange: 2.20},
-  labels: {apple: "$1.5", banana: "$0.75", orange: "$2"}
+// Manual transformation example:
+set with_tax = {
+  apple: prices.apple * 1.1,
+  banana: prices.banana * 1.1,
+  orange: prices.orange * 1.1
 }
 ```
 
@@ -328,8 +305,17 @@ from {
     api_key: "xyz123"
   }
 }
-set public_info = user.filter_keys(k, k != "password" and k != "api_key")
-set contact = user.select(["name", "email"])
+// Note: filter_keys and select functions are not available
+// Manual field selection:
+set public_info = {
+  id: user.id,
+  name: user.name,
+  email: user.email
+}
+set contact = {
+  name: user.name,
+  email: user.email
+}
 ```
 
 ```tql
@@ -382,7 +368,7 @@ set avg_age = users.map(u => u.age).sum() / users.length()
     {name: "Alice", age: 30, city: "NYC"},
     {name: "Charlie", age: 35, city: "NYC"}
   ],
-  avg_age: 30
+  avg_age: 30.0
 }
 ```
 
@@ -398,8 +384,14 @@ from {
   ages: [30, 25, 35],
   cities: ["NYC", "SF", "LA"]
 }
-set zipped = zip(names, ages, cities)
-set users = zipped.map(t => {name: t[0], age: t[1], city: t[2]})
+// Note: zip only takes 2 arguments, returns records with left/right fields
+set name_age = zip(names, ages)
+set zipped = zip(name_age, cities)
+set users = zipped.map(z => {
+  name: z.left.left,
+  age: z.left.right,
+  city: z.right
+})
 ```
 
 ```tql
@@ -407,10 +399,15 @@ set users = zipped.map(t => {name: t[0], age: t[1], city: t[2]})
   names: ["Alice", "Bob", "Charlie"],
   ages: [30, 25, 35],
   cities: ["NYC", "SF", "LA"],
+  name_age: [
+    {left: "Alice", right: 30},
+    {left: "Bob", right: 25},
+    {left: "Charlie", right: 35}
+  ],
   zipped: [
-    ["Alice", 30, "NYC"],
-    ["Bob", 25, "SF"],
-    ["Charlie", 35, "LA"]
+    {left: {left: "Alice", right: 30}, right: "NYC"},
+    {left: {left: "Bob", right: 25}, right: "SF"},
+    {left: {left: "Charlie", right: 35}, right: "LA"}
   ],
   users: [
     {name: "Alice", age: 30, city: "NYC"},
@@ -422,61 +419,11 @@ set users = zipped.map(t => {name: t[0], age: t[1], city: t[2]})
 
 ### Group by key
 
-Create groups from a list of records:
-
-```tql
-from {
-  events: [
-    {type: "login", user: "alice"},
-    {type: "logout", user: "alice"},
-    {type: "login", user: "bob"},
-    {type: "error", user: "alice"}
-  ]
-}
-set by_type = events.group_by(e, e.type)
-set by_user = events.group_by(e, e.user)
-```
-
-```tql
-{
-  events: [...],
-  by_type: {
-    login: [{type: "login", user: "alice"}, {type: "login", user: "bob"}],
-    logout: [{type: "logout", user: "alice"}],
-    error: [{type: "error", user: "alice"}]
-  },
-  by_user: {
-    alice: [{type: "login", user: "alice"}, {type: "logout", user: "alice"}, {type: "error", user: "alice"}],
-    bob: [{type: "login", user: "bob"}]
-  }
-}
-```
+Note: The `group_by` function is not available for lists. Use the [`group`](/reference/operators/group) operator in a pipeline for grouping operations.
 
 ### Enumerate with indices
 
-Add index numbers with [`enumerate()`](/reference/functions/enumerate):
-
-```tql
-from {items: ["first", "second", "third"]}
-set indexed = items.enumerate()
-set as_records = indexed.map(pair => {index: pair[0], value: pair[1]})
-```
-
-```tql
-{
-  items: ["first", "second", "third"],
-  indexed: [
-    [0, "first"],
-    [1, "second"],
-    [2, "third"]
-  ],
-  as_records: [
-    {index: 0, value: "first"},
-    {index: 1, value: "second"},
-    {index: 2, value: "third"}
-  ]
-}
-```
+Note: `enumerate` is an operator, not a function. Use the [`enumerate`](/reference/operators/enumerate) operator in a pipeline to add index numbers to events.
 
 ## Practical examples
 
@@ -510,8 +457,8 @@ set summaries = users.map(u, {
     {id: 2, name: "Bob", scores: [78, 81, 85]}
   ],
   summaries: [
-    {name: "Alice", avg_score: 88.33, max_score: 92},
-    {name: "Bob", avg_score: 81.33, max_score: 85}
+    {name: "Alice", avg_score: 88.33333333333333, max_score: 92},
+    {name: "Bob", avg_score: 81.33333333333333, max_score: 85}
   ]
 }
 ```
