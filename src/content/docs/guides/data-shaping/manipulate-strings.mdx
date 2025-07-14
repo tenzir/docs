@@ -622,6 +622,33 @@ set flow_id = community_id(
 }
 ```
 
+### Anonymize IP addresses
+
+Use [`encrypt_cryptopan()`](/reference/functions/encrypt_cryptopan) for
+consistent IP anonymization:
+
+```tql
+from {
+  client_ip: 192.168.1.100,
+  server_ip: 8.8.8.8,
+  internal_ip: 10.0.0.5
+}
+set anon_client = client_ip.encrypt_cryptopan(seed="mysecretkey12345")
+set anon_server = server_ip.encrypt_cryptopan(seed="mysecretkey12345")
+set anon_internal = internal_ip.encrypt_cryptopan(seed="mysecretkey12345")
+```
+
+```tql
+{
+  client_ip: 192.168.1.100,
+  server_ip: 8.8.8.8,
+  internal_ip: 10.0.0.5,
+  anon_client: 206.216.1.132,
+  anon_server: 110.0.51.203,
+  anon_internal: 109.255.195.194,
+}
+```
+
 ## Best practices
 
 1. **Chain operations efficiently**: Combine multiple string operations in one
