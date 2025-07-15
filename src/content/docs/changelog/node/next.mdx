@@ -241,6 +241,15 @@ We removed the 256MB file size limit from the Amazon Security Lake integration.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5340](https://github.com/tenzir/tenzir/pull/5340).
 
+#### Fix `context::create_geoip` without `db_path`
+
+The `context::create_geoip` operator failed with a `message_mismatch` error when
+no `db_path` option was provided. This was caused by an internal serialization
+error, which we now fixed. This is the only known place where this error
+occurred.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5342](https://github.com/tenzir/tenzir/pull/5342).
+
 #### Fix `http` operator pagination
 
 The `http` operator dropped all provided HTTP headers after the first request
