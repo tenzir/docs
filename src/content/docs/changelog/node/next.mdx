@@ -6,6 +6,17 @@ Unreleased changes.
 
 ### Features
 
+#### Improved node robustness
+
+Pipelines that are running in a node are now partially moved to a subprocess for
+improved error resilience and resource utilization. Operators that need to
+communicate with a component still run inside the main node process for
+architectural reasons. You can set `tenzir.disable-pipeline-subprocesses: true`
+in `tenzir.yaml` or `TENZIR_DISABLE_PIPELINE_SUBPROCESSES=true` on the command
+line to opt out. This feature is enabled by default on Linux.
+
+By [@tobim](https://github.com/tobim) in [#5233](https://github.com/tenzir/tenzir/pull/5233).
+
 #### Operations on concatenated secrets
 
 You can now arbitrarily nest operations on secrets. This is useful for APIs that
