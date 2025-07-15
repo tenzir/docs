@@ -241,6 +241,14 @@ We removed the 256MB file size limit from the Amazon Security Lake integration.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5340](https://github.com/tenzir/tenzir/pull/5340).
 
+#### Fixed `encrypt_cryptopan` function
+
+We fixed a bug that sometimes caused the `encrypt_cryptopan` function to fail
+with the error "got `ip`, expected `ip`", which was caused by an incorrect type
+check. The function now works as expected again.
+
+By [@dominiklohmann](https://github.com/dominiklohmann) in [#5345](https://github.com/tenzir/tenzir/pull/5345).
+
 #### Fix `context::create_geoip` without `db_path`
 
 The `context::create_geoip` operator failed with a `message_mismatch` error when
