@@ -30,6 +30,20 @@ let $headers = {
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5324](https://github.com/tenzir/tenzir/pull/5324).
 
+#### Sinks in HTTP Parsing Pipelines
+
+Parsing pipeline in the `from_http` and `http` operators now support sinks. This
+worked already in `from_file` parsing pipelines and now works, as expected, also
+in the HTTP parsing pipelines. For example, you can now write:
+
+```tql
+from_http "https://cra.circl.lu/opendata/geo-open/mmdb-country-asn/latest.mmdb" {
+  context::load "geo-open-country-asn"
+}
+```
+
+By [@mavam](https://github.com/mavam) in [#5343](https://github.com/tenzir/tenzir/pull/5343).
+
 #### HTTP request body encoding
 
 The `from_http` and `http` operators now support using `record` values for the
