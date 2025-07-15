@@ -81,8 +81,8 @@ service, you can override the public endpoint.
 
 Use the `BLOB_STORAGE__NODES_PUBLIC_ENDPOINT_URL` environment variable to
 override the URL that nodes use to access S3-compatible blob storage.
-Note that this variable needs to be added to the `platform` container directly,
-since it is currently not part of any of the example setups:
+Note that you need to add this variable to the `platform` container directly,
+since it currently doesn't appear in any of the example setups:
 
 ```sh
 # Override the blob storage URL for nodes
@@ -131,19 +131,19 @@ headers, which is useful when running behind authentication proxies like
 Google Cloud IAP or other enterprise authentication systems.
 
 Configure the `app` service to accept JWTs from a specific HTTP header.
-Note that this variable needs to be added to the `app` container directly,
-since it is currently not part of any of the example setups:
+Note that you need to add this variable to the `app` container directly,
+since it currently doesn't appear in any of the example setups:
 
 ```sh
 # Accept JWTs from the specified HTTP header
 PRIVATE_JWT_FROM_HEADER=X-Goog-IAP-JWT-Assertion
 ```
 
-When this variable is set, the platform bypasses the normal OIDC login flow
+When you set this variable, the platform bypasses the normal OIDC login flow
 and instead validates the JWT token provided in the specified header.
 
 You must also configure the trusted issuers and audiences to match the values
-contained in the external JWT using the `TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES`
+that the external JWT contains using the `TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES`
 environment variable for the Tenzir Platform API.
 
 For more information about external JWT configuration, see the
