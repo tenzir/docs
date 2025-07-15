@@ -250,3 +250,33 @@ permissions for security reasons. In that case, add an environment variable
 `PUBLIC_OIDC_SCOPES=profile email oidc` to the `app` environment to explicitly
 remove the scope request. The bundled Docker Compose file in this directory does this
 by default.
+
+### External JWT Authentication
+
+The Tenzir Platform supports authentication using externally-supplied JWTs,
+which is useful for scenarios where the platform runs behind a proxy that
+handles authentication, such as Google Cloud IAP or other enterprise proxies.
+
+To configure external JWT authentication, add the `PRIVATE_JWT_FROM_HEADER`
+environment variable with the name of the HTTP header that contains the JWT token
+to the environment of the Tenzir UI:
+
+```sh
+PRIVATE_JWT_FROM_HEADER=X-Goog-IAP-JWT-Assertion
+```
+
+You must also configure the trusted issuers and audiences using the
+`TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES` environment variable. This variable
+accepts a JSON object or array of objects containing the issuer and audiences
+that the platform should accept:
+
+```sh
+# Single issuer configuration
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://cloud.google.com/iap", "audiences": ["your-audience"]}'
+
+# Multiple issuers configuration
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='[
+  {"issuer": "https://accounts.google.com", "audiences": ["audience1"]},
+  {"issuer": "https://cloud.google.com/iap", "audiences": ["audience2"]}
+]'
+```

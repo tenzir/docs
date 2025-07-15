@@ -61,11 +61,50 @@ TENZIR_PLATFORM_INTERNAL_TENANT_TOKEN_ENCRYPTION_KEY=
 TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
 ```
 
+### Node blob storage configuration
+
+:::note[Advanced Topic]
+This is an advanced setting mostly relevant for enterprise use cases.
+You can most likely skip it when you first set up the Tenzir Platform.
+:::
+
+When the Tenzir UI and Tenzir Nodes run in separate networks, the nodes may need to use a
+different URL to reach the blob storage service from the one the UI uses.
+
+For example, the Tenzir UI may run on a browser of a remote employee, who
+accesses the configured blob storage via `https://downloads.example.com`.
+However, the nodes may run in a strictly regulated network that only allows
+access to the outside world through a reverse proxy. In this example, these
+nodes would have to talk to `https://downloads.corporate-proxy.example.com`.
+To allow both sides to use different URLs to talk to the same blob storage
+service, you can override the public endpoint.
+
+Use the `BLOB_STORAGE__NODES_PUBLIC_ENDPOINT_URL` environment variable to
+override the URL that nodes use to access S3-compatible blob storage.
+Note that you need to add this variable to the `platform` container directly,
+since it currently doesn't appear in any of the example setups:
+
+```sh
+# Override the blob storage URL for nodes
+BLOB_STORAGE__NODES_PUBLIC_ENDPOINT_URL=https://s3.internal.example.com
+```
+
+This setting is particularly useful when:
+
+- Nodes run in a separate network from the Tenzir UI
+- Internal DNS resolution differs between the UI and node networks
+- You need to route node traffic through specific network paths
+
 ## Tenzir UI
 
 This section describes how to configure the Tenzir Platform UI.
 
 ### Internal proxy
+
+:::note[Advanced Topic]
+This is an advanced setting mostly relevant for enterprise use cases.
+You can most likely skip it when you first set up the Tenzir Platform.
+:::
 
 By default, the Tenzir UI sends requests directly from the browser to the Tenzir Gateway
 to query the status of connected nodes. This setup can cause problems in some network
@@ -79,6 +118,37 @@ This approach adds some latency through an additional proxy hop.
 ```sh
 TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true
 ```
+
+### External JWT authentication
+
+:::note[Advanced Topic]
+This is an advanced setting mostly relevant for enterprise use cases.
+You can most likely skip it when you first set up the Tenzir Platform.
+:::
+
+The Tenzir Platform supports accepting externally-supplied JWTs from HTTP
+headers, which is useful when running behind authentication proxies like
+Google Cloud IAP or other enterprise authentication systems.
+
+Configure the `app` service to accept JWTs from a specific HTTP header.
+Note that you need to add this variable to the `app` container directly,
+since it currently doesn't appear in any of the example setups:
+
+```sh
+# Accept JWTs from the specified HTTP header
+PRIVATE_JWT_FROM_HEADER=X-Goog-IAP-JWT-Assertion
+```
+
+When you set this variable, the platform bypasses the normal OIDC login flow
+and instead validates the JWT token provided in the specified header.
+
+You must also configure the trusted issuers and audiences to match the values
+that the external JWT contains using the `TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES`
+environment variable for the Tenzir Platform API.
+
+For more information about external JWT configuration, see the
+[external JWT authentication section](/guides/platform-setup/configure-identity-provider#external-jwt-authentication)
+in the identity provider configuration guide.
 
 ## Tenzir Gateway
 
