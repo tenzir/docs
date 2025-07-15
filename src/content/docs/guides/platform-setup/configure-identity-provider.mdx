@@ -219,8 +219,8 @@ Now you can restart your Tenzir Platform stack and the system will redirect you 
 
 In some scenarios handling multiple users is not necessary for the Tenzir
 Platform. For example for purely local instances used for development or
-experimentation, or where access is already gated through some external
-mechanism.
+experimentation, or where access is already gated through some
+external mechanism.
 
 For these situations, the Tenzir Platform offers the single-user mode.
 In this mode, the Tenzir Platform itself acts as the identity provider,
@@ -231,12 +231,12 @@ full access to every Tenzir Node and every workspace, so this is not suitable
 for generic production deployments.
 
 To use the single-user mode, we recommend starting from [this](https://github.com/tenzir/platform/tree/main/examples/localdev)
-example setup. This example is already fully configured and can run as-is,
-skipping the manual configuration described in the sections below.
+example setup. This example is already fully configured and can run
+as-is, skipping the manual configuration described in the sections below.
 
 ### Tenzir Platform API
 
-In terms of configuration, the `platform` service needs to be put into
+In terms of configuration, a `platform` service needs to be put into
 single-user mode by setting the `TENANT_MANAGER_AUTH__SINGLE_USER_MODE`
 environment variable to true.
 
@@ -245,7 +245,7 @@ would usually be configured in the external identity provider, in particular
 the issuer url it should use for signing its own JWTs and the allowed redirect
 URLs and audiences of the UI and CLI:
 
-```
+```env
 TENANT_MANAGER_AUTH__SINGLE_USER_MODE=true
 
 TENANT_MANAGER_AUTH__ISSUER_URL=http://platform:5000/oidc
@@ -264,7 +264,7 @@ Since the single-user mode does not provide true user authentication,
 the corresponding client secret is also not truly secret but set to the
 static string "xxxx".
 
-```
+```env
 PRIVATE_OIDC_PROVIDER_NAME=tenzir
 PRIVATE_OIDC_PROVIDER_CLIENT_ID=tenzir-app
 PRIVATE_OIDC_PROVIDER_CLIENT_SECRET=xxxx
@@ -277,11 +277,12 @@ In single-user mode, the Tenzir Platform CLI can be set to non-interactive
 mode by adding the `TENZIR_PLATFORM_CLI_CLIENT_SECRET` environment variable.
 
 Note that when running the Tenzir Platform inside a docker compose stack,
-in single-user mode the CLI must run the same docker compose stack as the
-platform. When running outside of docker compose, the requirement is that the
-CLI must be able to establish a network connection to the configured ISSUER_URL.
+in single-user mode the CLI must run the same docker compose stack as
+the platform. When running outside of docker compose, the requirement is that
+the CLI must be able to establish a network connection to the configured
+ISSUER_URL.
 
-```
+```env
 TENZIR_PLATFORM_CLI_CLIENT_ID=tenzir-cli
 TENZIR_PLATFORM_CLI_CLIENT_SECRET=xxxx
 TENZIR_PLATFORM_CLI_ISSUER_URL=http://platform:5000/oidc
