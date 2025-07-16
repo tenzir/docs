@@ -237,7 +237,7 @@ Use the `else` word to provide default values for null fields:
 from {name: "alice", score: 85},
      {name: "bob"},
      {name: "charlie", score: 95}
-set score = score else 0
+set score = score? else 0
 ```
 
 ```tql
@@ -248,12 +248,11 @@ set score = score else 0
 
 :::caution[Accessing non-existent fields]
 Because the second event had no `score` field, the `else` keyword filled in a
-default value of `0`. However, the access of the `score` field generated a
-warning that the field did not exist. If the field existed but had a `null`
-value, then there would be no warning.
-
-Use the question mark operator (`?`) to suppress warnings when accessing fields
-that may not exist. In that above example, this would be `score? else 0`.
+default value of `0`. However, accessing non-existent fields generates a
+warning. We use the trailing question mark (`?`) to suppress warnings when
+accessing fields that may not exist, i.e., `score? else 0` in the above example.
+This is distinctively different from an existing field with a null value, which
+does not elicit a warning.
 :::
 
 ## Combining operations
