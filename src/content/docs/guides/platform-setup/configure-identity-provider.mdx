@@ -236,7 +236,7 @@ as-is, skipping the manual configuration described in the sections below.
 
 ### Tenzir Platform API
 
-In terms of configuration, a `platform` service needs to be put into
+In terms of configuration, the `platform` service needs to be put into
 single-user mode by setting the `TENANT_MANAGER_AUTH__SINGLE_USER_MODE`
 environment variable to true.
 
@@ -245,7 +245,7 @@ would usually be configured in the external identity provider, in particular
 the issuer url it should use for signing its own JWTs and the allowed redirect
 URLs and audiences of the UI and CLI:
 
-```env
+```sh
 TENANT_MANAGER_AUTH__SINGLE_USER_MODE=true
 
 TENANT_MANAGER_AUTH__ISSUER_URL=http://platform:5000/oidc
@@ -264,7 +264,7 @@ Since the single-user mode does not provide true user authentication,
 the corresponding client secret is also not truly secret but set to the
 static string "xxxx".
 
-```env
+```sh
 PRIVATE_OIDC_PROVIDER_NAME=tenzir
 PRIVATE_OIDC_PROVIDER_CLIENT_ID=tenzir-app
 PRIVATE_OIDC_PROVIDER_CLIENT_SECRET=xxxx
@@ -282,7 +282,7 @@ the platform. When running outside of docker compose, the requirement is that
 the CLI must be able to establish a network connection to the configured
 ISSUER_URL.
 
-```env
+```sh
 TENZIR_PLATFORM_CLI_CLIENT_ID=tenzir-cli
 TENZIR_PLATFORM_CLI_CLIENT_SECRET=xxxx
 TENZIR_PLATFORM_CLI_ISSUER_URL=http://platform:5000/oidc
