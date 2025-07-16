@@ -73,6 +73,10 @@ The following is only possible when a `tenzir` binary is avilable in your
 - If availble, use `gh` to manage pull requests. Make sure to write a separate
   file for the PR body to avoid escaping issues.
 
+- When reviewing a PR, only point out issues that violate one of the style guides
+  or issues where you have specific, actionable suggestions to improve the PR.
+  Keep your feedback terse and don't include any subheadings or emojis.
+
 - After updating a PR when you post a comment summarizing your changes, be brief
   and don't use emojis.
   The comment should only contain the name of the user who triggered the update,
