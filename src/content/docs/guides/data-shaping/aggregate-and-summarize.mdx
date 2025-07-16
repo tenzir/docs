@@ -110,8 +110,16 @@ summarize avg_price = mean(price), item_count = count(), category
 ```
 
 ```tql
-{avg_price: 191.67, item_count: 3, category: "fruit"}
-{avg_price: 150.0, item_count: 2, category: "vegetable"}
+{
+  avg_price: 191.66666666666666,
+  item_count: 3,
+  category: "fruit",
+}
+{
+  avg_price: 150.0,
+  item_count: 2,
+  category: "vegetable",
+}
 ```
 
 ### Group by multiple fields
@@ -128,10 +136,30 @@ summarize avg_duration = mean(duration), action_count = count(), user, action
 ```
 
 ```tql
-{avg_duration: 38.0, action_count: 1, user: "bob", action: "login"}
-{avg_duration: 89.0, action_count: 1, user: "bob", action: "edit"}
-{avg_duration: 48.5, action_count: 2, user: "alice", action: "login"}
-{avg_duration: 12.0, action_count: 1, user: "alice", action: "view"}
+{
+  avg_duration: 38.0,
+  action_count: 1,
+  user: "bob",
+  action: "login",
+}
+{
+  avg_duration: 89.0,
+  action_count: 1,
+  user: "bob",
+  action: "edit",
+}
+{
+  avg_duration: 48.5,
+  action_count: 2,
+  user: "alice",
+  action: "login",
+}
+{
+  avg_duration: 12.0,
+  action_count: 1,
+  user: "alice",
+  action: "view",
+}
 ```
 
 ## Statistical functions
@@ -149,12 +177,25 @@ from {endpoint: "/api/users", latency: 120},
      {endpoint: "/api/orders", latency: 245},
      {endpoint: "/api/orders", latency: 225},
      {endpoint: "/api/orders", latency: 280}
-summarize p50 = quantile(latency, 0.5), p90 = quantile(latency, 0.9), p95 = quantile(latency, 0.95), endpoint
+summarize p50 = quantile(latency, q=0.5),
+          p90 = quantile(latency, q=0.9),
+          p95 = quantile(latency, q=0.95),
+          endpoint
 ```
 
 ```tql
-{p50: 120, p90: 135, p95: 135, endpoint: "/api/users"}
-{p50: 245, p90: 280, p95: 280, endpoint: "/api/orders"}
+{
+  p50: 245.0,
+  p90: 280.0,
+  p95: 280.0,
+  endpoint: "/api/orders",
+}
+{
+  p50: 120.0,
+  p90: 135.0,
+  p95: 135.0,
+  endpoint: "/api/users",
+}
 ```
 
 ### Standard deviation and variance
@@ -169,12 +210,25 @@ from {server: "web1", cpu: 45},
      {server: "web2", cpu: 85},
      {server: "web2", cpu: 92},
      {server: "web2", cpu: 88}
-summarize avg_cpu = mean(cpu), cpu_stddev = stddev(cpu), cpu_variance = variance(cpu), server
+summarize avg_cpu = mean(cpu),
+          cpu_stddev = stddev(cpu),
+          cpu_variance = variance(cpu),
+          server
 ```
 
 ```tql
-{avg_cpu: 48.33, cpu_stddev: 3.51, cpu_variance: 12.33, server: "web1"}
-{avg_cpu: 88.33, cpu_stddev: 3.51, cpu_variance: 12.33, server: "web2"}
+{
+  avg_cpu: 48.333333333333336,
+  cpu_stddev: 2.8674417556808622,
+  cpu_variance: 8.222222222222145,
+  server: "web1",
+}
+{
+  avg_cpu: 88.33333333333333,
+  cpu_stddev: 2.8674417556810217,
+  cpu_variance: 8.22222222222306,
+  server: "web2",
+}
 ```
 
 ### Mode and distinct values
@@ -190,14 +244,20 @@ from {user: "alice", browser: "chrome", action: "login"},
      {user: "alice", browser: "chrome", action: "edit"},
      {user: "charlie", browser: "chrome", action: "login"},
      {user: "alice", browser: "safari", action: "login"}
-summarize most_common_browser = mode(browser), unique_browsers = distinct(browser), login_count = count_if(action == "login")
+summarize most_common_browser = mode(browser),
+          unique_browsers = distinct(browser),
+          login_count = count_if(action, x => x == "login")
 ```
 
 ```tql
 {
   most_common_browser: "chrome",
-  unique_browsers: ["chrome", "firefox", "safari"],
-  login_count: 3
+  unique_browsers: [
+    "chrome",
+    "firefox",
+    "safari",
+  ],
+  login_count: 3,
 }
 ```
 
@@ -213,17 +273,27 @@ from {category: "A", value: 10},
      {category: "A", value: 15},
      {category: "B", value: 25},
      {category: "C", value: 30}
-summarize frequencies = value_counts(category), info_entropy = entropy(category)
+summarize frequencies = value_counts(category),
+          info_entropy = entropy(category)
 ```
 
 ```tql
 {
   frequencies: [
-    {value: "A", count: 2},
-    {value: "B", count: 2},
-    {value: "C", count: 1}
+    {
+      value: "A",
+      count: 2,
+    },
+    {
+      value: "B",
+      count: 2,
+    },
+    {
+      value: "C",
+      count: 1,
+    },
   ],
-  info_entropy: 1.52
+  info_entropy: 1.0549201679861442,
 }
 ```
 
@@ -238,14 +308,26 @@ from {user: "alice", action: "login", timestamp: 2024-01-15T10:00:00},
      {user: "alice", action: "edit", timestamp: 2024-01-15T10:02:00},
      {user: "charlie", action: "login", timestamp: 2024-01-15T10:03:00},
      {user: "alice", action: "logout", timestamp: 2024-01-15T10:04:00}
-summarize all_actions = collect(action), unique_users = distinct(user), event_count = count()
+summarize all_actions = collect(action),
+          unique_users = distinct(user),
+          event_count = count()
 ```
 
 ```tql
 {
-  all_actions: ["login", "view", "edit", "login", "logout"],
-  unique_users: ["alice", "bob", "charlie"],
-  event_count: 5
+  all_actions: [
+    "login",
+    "view",
+    "edit",
+    "login",
+    "logout",
+  ],
+  unique_users: [
+    "alice",
+    "charlie",
+    "bob",
+  ],
+  event_count: 5,
 }
 ```
 
@@ -259,12 +341,25 @@ from {sensor: "temp1", reading: 72, time: 2024-01-15T09:00:00},
      {sensor: "temp1", reading: 78, time: 2024-01-15T11:00:00},
      {sensor: "temp2", reading: 68, time: 2024-01-15T09:00:00},
      {sensor: "temp2", reading: 71, time: 2024-01-15T10:00:00}
-summarize first_reading = first(reading), last_reading = last(reading), avg_reading = mean(reading), sensor
+summarize first_reading = first(reading),
+          last_reading = last(reading),
+          avg_reading = mean(reading),
+          sensor
 ```
 
 ```tql
-{first_reading: 72, last_reading: 78, avg_reading: 75.0, sensor: "temp1"}
-{first_reading: 68, last_reading: 71, avg_reading: 69.5, sensor: "temp2"}
+{
+  first_reading: 72,
+  last_reading: 78,
+  avg_reading: 75.0,
+  sensor: "temp1",
+}
+{
+  first_reading: 68,
+  last_reading: 71,
+  avg_reading: 69.5,
+  sensor: "temp2",
+}
 ```
 
 ## Boolean aggregations
@@ -276,7 +371,9 @@ from {test: "unit", passed: true, duration: 45},
      {test: "integration", passed: true, duration: 120},
      {test: "e2e", passed: false, duration: 300},
      {test: "performance", passed: true, duration: 180}
-summarize all_passed = all(passed), any_failed = any(not passed), total_duration = sum(duration)
+summarize all_passed = all(passed),
+          any_failed = any(not passed),
+          total_duration = sum(duration)
 ```
 
 ```tql
@@ -302,12 +399,22 @@ from {
   ]
 }
 unroll requests
-summarize endpoint=requests.endpoint, count=count(), avg_duration=mean(requests.duration)
+summarize endpoint=requests.endpoint,
+          count=count(),
+          avg_duration=mean(requests.duration)
 ```
 
 ```tql
-{endpoint: "/api/orders", count: 2, avg_duration: 122.5}
-{endpoint: "/api/users", count: 3, avg_duration: 67.67}
+{
+  endpoint: "/api/orders",
+  count: 2,
+  avg_duration: 122.5,
+}
+{
+  endpoint: "/api/users",
+  count: 3,
+  avg_duration: 67.66666666666667,
+}
 ```
 
 ### Calculate sales metrics
@@ -345,10 +452,10 @@ from {
     {timestamp: "10:04", cpu: 48, memory: 65, disk: 80}
   ]
 }
-set cpu_alert = metrics.map(m => m.cpu).any(c => c > 80)
-set avg_memory = metrics.map(m => m.memory).mean()
-set disk_trend = metrics.last().disk - metrics.first().disk
-set health_summary = {
+cpu_alert = metrics.map(m => m.cpu > 80).any()
+avg_memory = metrics.map(m => m.memory).mean()
+disk_trend = metrics.last().disk - metrics.first().disk
+health_summary = {
   cpu_max: metrics.map(m => m.cpu).max(),
   memory_avg: avg_memory,
   disk_growth: disk_trend,
@@ -358,7 +465,7 @@ set health_summary = {
 
 ```tql
 {
-  metrics: [...],
+  metrics: [ ... ],
   cpu_alert: true,
   avg_memory: 66.0,
   disk_trend: 2,
@@ -366,8 +473,8 @@ set health_summary = {
     cpu_max: 89,
     memory_avg: 66.0,
     disk_growth: 2,
-    critical: true
-  }
+    critical: true,
+  },
 }
 ```
 
@@ -382,13 +489,39 @@ from {method: "GET", endpoint: "/api/users", status: 200, duration: 45},
      {method: "GET", endpoint: "/api/users", status: 200, duration: 38},
      {method: "GET", endpoint: "/api/orders", status: 500, duration: 156},
      {method: "DELETE", endpoint: "/api/users/123", status: 204, duration: 67}
-summarize request_count = count(), avg_duration = mean(duration), error_rate = mean(status >= 400), unique_endpoints = count_distinct(endpoint), method
+summarize request_count = count(),
+          avg_duration = mean(duration),
+          error_count = count_if(status, s => s >= 400),
+          unique_endpoints = count_distinct(endpoint),
+          method
+error_rate = error_count / request_count
 ```
 
 ```tql
-{request_count: 1, avg_duration: 67.0, error_rate: 0.0, unique_endpoints: 1, method: "DELETE"}
-{request_count: 3, avg_duration: 57.33, error_rate: 0.0, unique_endpoints: 2, method: "GET"}
-{request_count: 1, avg_duration: 120.0, error_rate: 0.0, unique_endpoints: 1, method: "POST"}
+{
+  request_count: 1,
+  avg_duration: 120.0,
+  error_count: 0,
+  unique_endpoints: 1,
+  method: "POST",
+  error_rate: 0.0,
+}
+{
+  request_count: 1,
+  avg_duration: 67.0,
+  error_count: 0,
+  unique_endpoints: 1,
+  method: "DELETE",
+  error_rate: 0.0,
+}
+{
+  request_count: 4,
+  avg_duration: 82.0,
+  error_count: 1,
+  unique_endpoints: 2,
+  method: "GET",
+  error_rate: 0.25,
+}
 ```
 
 ## Best practices
