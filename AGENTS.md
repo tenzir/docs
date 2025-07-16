@@ -68,7 +68,6 @@ Most notably:
 
 ### Markdown Content
 
-- Break lines at 80 characters.
 - When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
 lint:prettier:fix` when you're done.
 
