@@ -19,7 +19,7 @@ Use [`int()`](/reference/functions/int) and [`float()`](/reference/functions/flo
 ```tql
 from {price: "42", quantity: "3.5"},
      {price: "99", quantity: "1.0"}
-set price = int(price), quantity = float(quantity)
+set price = price.int(), quantity = quantity.float()
 ```
 
 ```tql
@@ -34,7 +34,7 @@ Use [`string()`](/reference/functions/string) to convert any value to its string
 ```tql
 from {status: 200, ratio: 0.95},
      {status: 404, ratio: 0.05}
-set message = string(status) + " - " + string(ratio * 100) + "%"
+set message = status.string() + " - " + (ratio * 100).string() + "%"
 ```
 
 ```tql
@@ -49,7 +49,7 @@ Convert strings to time values with [`time()`](/reference/functions/time):
 ```tql
 from {timestamp: "2024-01-15"},
      {timestamp: "2024-02-20"}
-set parsed_time = time(timestamp)
+set parsed_time = timestamp.time()
 ```
 
 ```tql
@@ -62,7 +62,7 @@ Convert strings to durations with [`duration()`](/reference/functions/duration):
 ```tql
 from {interval: "5s"},
      {interval: "2.5min"}
-set parsed_duration = duration(interval)
+set parsed_duration = interval.duration()
 ```
 
 ```tql
@@ -77,7 +77,7 @@ Use [`uint()`](/reference/functions/uint) for non-negative integers:
 ```tql
 from {count: "42", ratio: 3.7},
      {count: "-5", ratio: 2.3}
-set count_uint = uint(count), ratio_uint = uint(ratio)
+set count_uint = count.uint(), ratio_uint = ratio.uint()
 ```
 
 ```tql
@@ -92,7 +92,7 @@ TQL supports IP address and subnet literals directly. You can also parse them fr
 ```tql
 from {direct_ip: 192.168.1.1, direct_subnet: 10.0.0.0/24},
      {direct_ip: ::1, direct_subnet: 2001:db8::/32}
-set ipv6_check = is_v6(direct_ip)
+set ipv6_check = direct_ip.is_v6()
 ```
 
 ```tql
@@ -105,7 +105,7 @@ Parse from strings when needed:
 ```tql
 from {client: "192.168.1.1", network: "10.0.0.0/24"},
      {client: "10.0.0.5", network: "192.168.0.0/16"}
-set client_ip = ip(client), network_subnet = subnet(network)
+set client_ip = client.ip(), network_subnet = network.subnet()
 ```
 
 ```tql
@@ -124,9 +124,9 @@ Use IP inspection functions like [`is_v4()`](/reference/functions/is_v4), [`is_v
 ```tql
 from {ip1: 192.168.1.1, ip2: 8.8.8.8, ip3: ::1},
      {ip1: 10.0.0.1, ip2: 224.0.0.1, ip3: 2001:db8::1}
-set is_v4 = is_v4(ip1), is_v6 = is_v6(ip3),
-    is_private = is_private(ip1), is_global = is_global(ip2),
-    is_loopback = is_loopback(ip3), is_multicast = is_multicast(ip2)
+set is_v4 = ip1.is_v4(), is_v6 = ip3.is_v6(),
+    is_private = ip1.is_private(), is_global = ip2.is_global(),
+    is_loopback = ip3.is_loopback(), is_multicast = ip2.is_multicast()
 ```
 
 ```tql
@@ -141,9 +141,9 @@ Get detailed IP address classification with [`ip_category()`](/reference/functio
 ```tql
 from {client: "192.168.1.100", server: "8.8.8.8", local: "127.0.0.1"},
      {client: "10.0.0.5", server: "224.0.0.251", local: "::1"}
-set client_category = ip_category(ip(client)),
-    server_category = ip_category(ip(server)),
-    local_category = ip_category(ip(local))
+set client_category = client.ip().ip_category(),
+    server_category = server.ip().ip_category(),
+    local_category = local.ip().ip_category()
 ```
 
 ```tql
@@ -158,9 +158,9 @@ Identify link-local addresses with [`is_link_local()`](/reference/functions/is_l
 ```tql
 from {addr1: 169.254.1.1, addr2: fe80::1, addr3: 192.168.1.1},
      {addr1: 169.254.0.1, addr2: 2001:db8::1, addr3: 10.0.0.1}
-set link_local1 = is_link_local(addr1),
-    link_local2 = is_link_local(addr2),
-    link_local3 = is_link_local(addr3)
+set link_local1 = addr1.is_link_local(),
+    link_local2 = addr2.is_link_local(),
+    link_local3 = addr3.is_link_local()
 ```
 
 ```tql
@@ -179,7 +179,7 @@ Convert strings to different cases:
 ```tql
 from {name: "alice smith", code: "xyz"},
      {name: "BOB JONES", code: "ABC"}
-set name = to_title(name), code = to_upper(code)
+set name = name.to_title(), code = code.to_upper()
 ```
 
 ```tql
@@ -194,7 +194,7 @@ Remove unwanted whitespace from strings:
 ```tql
 from {input: "  hello  ", data: "world   "},
      {input: "   test", data: "  value  "}
-set input = trim(input), data = trim(data)
+set input = input.trim(), data = data.trim()
 ```
 
 ```tql
@@ -209,7 +209,7 @@ Capitalize the first letter of a string:
 ```tql
 from {word: "hello", phrase: "good morning"},
      {word: "world", phrase: "how are you"}
-set word = capitalize(word)
+set word = word.capitalize()
 ```
 
 ```tql
@@ -231,7 +231,7 @@ from {a: 10, b: 3},
 set sum = a + b,
     diff = a - b,
     product = a * b,
-    quotient = int(a / b)
+    quotient = (a / b).int()
 ```
 
 ```tql
@@ -246,9 +246,9 @@ Round numbers to specific precision:
 ```tql
 from {value: 3.14159},
      {value: 2.71828}
-set rounded = round(value),
-    ceil_val = ceil(value),
-    floor_val = floor(value)
+set rounded = value.round(),
+    ceil_val = value.ceil(),
+    floor_val = value.floor()
 ```
 
 ```tql
@@ -264,7 +264,7 @@ Use [`abs()`](/reference/functions/abs) for absolute values and
 ```tql
 from {x: -5, y: 16},
      {x: -10, y: 25}
-set abs_x = abs(x), sqrt_y = sqrt(y)
+set abs_x = x.abs(), sqrt_y = y.sqrt()
 ```
 
 ```tql
@@ -321,7 +321,7 @@ Use [`random()`](/reference/functions/random) to generate random values:
 ```tql
 from {}, {}
 set random_float = random(),
-    random_int = int(random() * 100),
+    random_int = (random() * 100).int(),
     random_choice = if random() < 0.5 then "heads" else "tails"
 ```
 
@@ -362,12 +362,12 @@ from {
   arr: [1, 2, 3],
   obj: {key: "value"}
 }
-set str_type = type_of(str),
-    num_type = type_of(num),
-    float_type = type_of(float),
-    bool_type = type_of(bool),
-    arr_type = type_of(arr),
-    obj_type = type_of(obj)
+set str_type = str.type_of(),
+    num_type = num.type_of(),
+    float_type = float.type_of(),
+    bool_type = bool.type_of(),
+    arr_type = arr.type_of(),
+    obj_type = obj.type_of()
 ```
 
 ```tql
@@ -393,10 +393,10 @@ Use [`type_id()`](/reference/functions/type_id) for type comparison:
 
 ```tql
 from {value1: "text", value2: 123, value3: "456"}
-set type1 = type_id(value1),
-    type2 = type_id(value2),
-    type3 = type_id(value3),
-    same_type = type_id(value1) == type_id(value3)
+set type1 = value1.type_id(),
+    type2 = value2.type_id(),
+    type3 = value3.type_id(),
+    same_type = value1.type_id() == value3.type_id()
 ```
 
 ```tql
@@ -410,8 +410,8 @@ Real-world data often requires multiple transformations:
 ```tql
 from {temp_f: "72.5", location: "  new york  "},
      {temp_f: "89.1", location: "los angeles"}
-set temp_c = round((float(temp_f) - 32) * 5 / 9),
-    location = to_title(trim(location))
+set temp_c = ((temp_f.float() - 32) * 5 / 9).round(),
+    location = location.trim().to_title()
 set reading = f"{temp_c}°C in {location}"
 ```
 
