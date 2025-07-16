@@ -73,6 +73,12 @@ The following is only possible when a `tenzir` binary is avilable in your
 - If availble, use `gh` to manage pull requests. Make sure to write a separate
   file for the PR body to avoid escaping issues.
 
+- After updating a PR when you post a comment summarizing your changes, be brief
+  and don't use emojis.
+  The comment should only contain the name of the user who triggered the update,
+  their prompt, a link to the GH action, and a list of one-sentence bullet
+  points describing what was changed.
+
 - The first line succinctly summarizes the changes in no more than 50
   characters. It is capitalized and written in and imperative present tense:
   e.g., "Fix a bug" as opposed to "Fixes a bug" or "Fixed a bug". As a
