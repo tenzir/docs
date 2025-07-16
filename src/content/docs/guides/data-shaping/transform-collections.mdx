@@ -417,13 +417,22 @@ set users = zipped.map(z => {
 }
 ```
 
-### Group by key
-
-Note: The `group_by` function is not available for lists. Use the [`group`](/reference/operators/group) operator in a pipeline for grouping operations.
-
 ### Enumerate with indices
 
-Note: `enumerate` is an operator, not a function. Use the [`enumerate`](/reference/operators/enumerate) operator in a pipeline to add index numbers to events.
+Add row numbers to your data using the [`enumerate`](/reference/operators/enumerate) operator:
+
+```tql
+from {item: "apple"}, {item: "banana"}, {item: "cherry"}
+enumerate row
+```
+
+```tql
+{row: 0, item: "apple"}
+{row: 1, item: "banana"}
+{row: 2, item: "cherry"}
+```
+
+This is useful for tracking position in sequences or creating unique identifiers for each event.
 
 ## Practical examples
 
