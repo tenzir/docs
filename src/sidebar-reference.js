@@ -110,6 +110,8 @@ export const referenceFunctions = [
   "reference/functions/ocsf/type_name",
   "reference/functions/ocsf/type_uid",
   "reference/functions/otherwise",
+  "reference/functions/pad_end",
+  "reference/functions/pad_start",
   "reference/functions/parent_dir",
   "reference/functions/parse_cef",
   "reference/functions/parse_csv",
