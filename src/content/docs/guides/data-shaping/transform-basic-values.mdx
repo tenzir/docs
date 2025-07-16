@@ -264,12 +264,23 @@ Use [`abs()`](/reference/functions/abs) for absolute values and
 ```tql
 from {x: -5, y: 16},
      {x: -10, y: 25}
-set abs_x = x.abs(), sqrt_y = y.sqrt()
+abs_x = x.abs()
+sqrt_y = y.sqrt()
 ```
 
 ```tql
-{x: -5, y: 16, abs_x: 5, sqrt_y: 4.0}
-{x: -10, y: 25, abs_x: 10, sqrt_y: 5.0}
+{
+  x: -5,
+  y: 16,
+  abs_x: 5,
+  sqrt_y: 4.0,
+}
+{
+  x: -10,
+  y: 25,
+  abs_x: 10,
+  sqrt_y: 5.0,
+}
 ```
 
 ## Working with null values
@@ -284,8 +295,8 @@ Use the `else` keyword to replace null values:
 from {name: "alice", age: 30},
      {name: "bob"},
      {name: "charlie", age: 25}
-set age = age? else 0,
-    status = status? else "unknown"
+age = age? else 0
+status = status? else "unknown"
 ```
 
 ```tql
@@ -294,9 +305,9 @@ set age = age? else 0,
 {name: "charlie", age: 25, status: "unknown"}
 ```
 
-## Generate values
+## Create new values
 
-Create new values using generator functions:
+Generate new values using built-in functions:
 
 ### Generate unique identifiers
 
@@ -305,13 +316,23 @@ Use [`uuid()`](/reference/functions/uuid) to create unique identifiers:
 ```tql
 from {user: "alice", action: "login"},
      {user: "bob", action: "create"}
-set event_id = uuid(),
-    session_id = uuid()
+event_id = uuid(version="v7")
+session_id = uuid()
 ```
 
 ```tql
-{user: "alice", action: "login", event_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890", session_id: "f9e8d7c6-b5a4-3210-fedc-ba0987654321"}
-{user: "bob", action: "create", event_id: "12345678-90ab-cdef-1234-567890abcdef", session_id: "abcdef12-3456-7890-abcd-ef1234567890"}
+{
+  user: "alice",
+  action: "login",
+  event_id: "0198147a-d167-7292-80fa-2665c1263279",
+  session_id: "a09a7f44-b665-4f95-bc44-c52fbdb8f428",
+}
+{
+  user: "bob",
+  action: "create",
+  event_id: "0198147a-d167-72ad-80b4-e052c2287add",
+  session_id: "030349dc-2585-49ad-af58-d448ff718c05",
+}
 ```
 
 ### Generate random numbers
@@ -319,30 +340,74 @@ set event_id = uuid(),
 Use [`random()`](/reference/functions/random) to generate random values:
 
 ```tql
-from {}, {}
-set random_float = random(),
-    random_int = (random() * 100).int(),
-    random_choice = if random() < 0.5 then "heads" else "tails"
+from {
+  random_float: random(),
+  random_int: (random() * 100).int(),
+  random_choice: "heads" if random() < 0.5 else "tails",
+}
 ```
 
 ```tql
-{random_float: 0.7394, random_int: 42, random_choice: "tails"}
-{random_float: 0.2156, random_int: 21, random_choice: "heads"}
+{
+  random_float: 0.3215780368890365,
+  random_int: 88,
+  random_choice: "tails",
+}
 ```
 
-### Access environment variables
+## Access external values
 
-Use [`env()`](/reference/functions/env) to read environment variables:
+Retrieve values from external sources like the environment, configuration, or files:
+
+### Read environment variables
+
+Use [`env()`](/reference/functions/env) to access environment variables:
 
 ```tql
-from {}
-set home_dir = env("HOME"),
-    shell = env("SHELL"),
-    custom_var = env("MY_APP_CONFIG")? else "/default/config"
+from {
+  home_dir: env("HOME"),
+  shell: env("SHELL"),
+  custom_var: env("MY_APP_CONFIG") else "/default/config",
+}
 ```
 
 ```tql
-{home_dir: "/Users/alice", shell: "/bin/bash", custom_var: "/default/config"}
+{
+  home_dir: "/Users/alice",
+  shell: "/opt/homebrew/bin/fish",
+  custom_var: "/default/config",
+}
+```
+
+### Access configuration
+
+Use [`config()`](/reference/functions/config) to read Tenzir's configuration:
+
+```tql
+from {
+  tenzir_config: config(),
+}
+```
+
+### Read file contents
+
+Use [`file_contents()`](/reference/functions/file_contents) to read files:
+
+```tql
+from {
+  api_key: file_contents("/etc/secrets/api_key"),
+}
+```
+
+### Access secrets
+
+Use [`secret()`](/reference/functions/secret) to retrieve
+[secrets](/explanations/secrets):
+
+```tql
+from {
+  auth_token: secret("AUTH_TOKEN"),
+}
 ```
 
 ## Type inspection
