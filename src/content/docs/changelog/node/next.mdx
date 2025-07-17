@@ -345,6 +345,20 @@ We removed the 256MB file size limit from the Amazon Security Lake integration.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5340](https://github.com/tenzir/tenzir/pull/5340).
 
+#### Newlines before `else`
+
+Previously, the `if … { … } else { … }` construct required that there was no
+newline before `else`. This restriction is now lifted, which allows placing
+`else` at the beginning of the line:
+
+```tql
+if x { … }
+else if y { … }
+else { … }
+```
+
+By [@jachris](https://github.com/jachris) in [#5348](https://github.com/tenzir/tenzir/pull/5348).
+
 #### Fixed `encrypt_cryptopan` function
 
 We fixed a bug that sometimes caused the `encrypt_cryptopan` function to fail
