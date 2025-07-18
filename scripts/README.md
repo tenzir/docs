@@ -13,10 +13,12 @@ The function overview generation system automatically creates the main functions
 ### How it works
 
 1. **Individual function files** in `src/content/docs/reference/functions/` contain:
+
    - Frontmatter with `title` and `category` fields
    - Function description, signature, examples, etc.
 
 2. **Category system** supports:
+
    - **Subcategories** using forward slashes: `String/Inspection`, `Type System/Conversion`
    - **Multiple categories** for functions that work across domains
 
@@ -179,12 +181,14 @@ When adding new operator documentation:
 - For subcategories, use format: `Main Category/Subcategory`
 - Functions can belong to multiple categories if they work across domains
 - Examples of multi-category functions:
+
   - `get` - works on both `Record` and `List`
   - `sort` - works on both `Record` and `List`
   - `where` - both `Aggregation` and `List` function
   - `network` - appears in both `Subnet` and `IP` contexts
 
 - Current main function categories:
+
   - `Aggregation` - Functions that aggregate data
   - `Record` - Record manipulation functions
   - `List` - List manipulation functions
