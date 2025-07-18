@@ -64,15 +64,16 @@ example of a connection log in TSV format:
 #empty_field	(empty)
 #unset_field	-
 #path	conn
-#open	2014-05-23-18-02-04
-#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents
-#types	time	string	addr	port	addr	port	enum	string	interval	count	count	string	bool	count	string	count	count	count	count	table[string]
-1637155966.565338	C5luJD1ATrGDOcouW2	89.248.165.145	43831	198.71.247.91	52806	-	-	tcp	-	-	-	-	S0	-	-	0	S	1	40	0	0	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	GB	-	-	51.4964	-0.1224	US	VA	Ashburn	39.0469	-77.4903	1:c/CLmyk4xRElyzleEMhJ4Baf4Gk=
-1637156308.073703	C5VoWQz890uMGQ80i	50.18.18.14	8	198.71.247.91	0	-	-	icmp	-	0.000049	8	8	OTH	-	-	0	-	1	36	1	36	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	US	CA	San Jose	37.3388	-121.8916	US	VA	Ashburn	39.0469	-77.4903	1:g6Ic2EGNte5The4ZgH83QyBviYM=
-1637156441.248995	CoMNrWaF6TCc5v9F	198.71.247.91	53590	91.189.89.199	123	-	-	udp	ntp	0.132333	48	48	SF	-	-	0	Dd	1	76	1	76	-	-	-	00:16:3c:f1:fd:6d	64:9e:f3:be:db:66	US	VA	Ashburn	39.0469	-77.4903	GB	ENG	London	51.5095	-0.0955	1:+5Mf6akMTGuI1eAX/a9DaKSLPa8=
-1637156614.649079	Co2oVs4STLavNDKQwf	54.176.143.72	8	198.71.247.91	0	-	-	icmp	-	0.000131	8	8	OTH	-	-	0	-	1	36	1	36	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	US	CA	San Jose	37.3388	-121.8916	US	VA	Ashburn	39.0469	-77.4903	1:WHH+8OuOygRPi50vrH45p9WwgA4=
-1637156703.913656	C1UE8M1G6ok0h7OrJi	35.87.13.125	8	198.71.247.91	0	-	-	icmp	-	0.000058	8	8	OTH	-	-	0	-	1	36	1	36	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	US	OR	Boardman	45.8234	-119.7257	US	VA	Ashburn	39.0469	-77.4903	1:A+WZZOx8yg3UCoNV1IeiSNZUxEk=
+#open	2023-03-07-10-23-46
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	id.vlan	id.vlan_inner	proto	service	duration	orig_bytes	resp_bytes	conn_state	local_orig	local_resp	missed_bytes	history	orig_pkts	orig_ip_bytes	resp_pkts	resp_ip_bytes	tunnel_parents	vlan	inner_vlan	orig_l2_addr	resp_l2_addr	geo.orig.country_code	geo.orig.region	geo.orig.city	geo.orig.latitude	geo.orig.longitude	geo.resp.country_code	geo.resp.region	geo.resp.city	geo.resp.latitude	geo.resp.longitude	community_id
+#types	time	string	addr	port	addr	port	int	int	enum	string	interval	count	count	string	bool	bool	count	string	count	count	count	count	set[string]	int	int	string	string	string	string	string	double	double	string	string	string	double	double	string
+1637155963.237882	CZwqhx3td8eTfCSwJb	128.14.134.170	57468	198.71.247.91	80	-	-	tcp	http	5.162805	205	278	SF	-	-	0	ShADadfF	6	525	5	546	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	US	CA	Los Angeles	34.0544	-118.2441	US	VA	Ashburn	39.0469	-77.4903	1:YXWfTYEyYLKVv5Ge4WqijUnKTrM=
+1637157758.165570	CnrwFesjfOhI3fuu1	45.137.23.27	47958	198.71.247.91	53	-	-	udp	dns	-	-	-	S0	-	-	0	D	1	58	0	0	-	-	-	64:9e:f3:be:db:66	00:16:3c:f1:fd:6d	BD	-	-	23.7018	90.3742	US	VA	Ashburn	39.0469	-77.4903	1:0nZC/6S/pr+IceCZ04RjDZbX+KI=
+1637229399.549141	CBTne9tomX1ktuCQa	10.4.21.101	53824	107.23.103.216	587	-	-	tcp	smtp	606.747526	975904	11950	SF	-	-	0	ShAdDaTtTfF	1786	1069118	1070	55168	-	-	-	00:08:02:1c:47:ae	20:e5:2a:b6:93:f1	-	-	-	-	-	US	VA	Ashburn	39.0469	-77.4903	1:I6VoTvbCqaKvPrlFnNbRRbjlMsc=
 ```
+
+You can also [download this sample](/data/zeek/conn.log) to avoid dealing with
+tabs and spaces in the snippet above.
 
 ### Step 1: Parse the input
 
@@ -90,139 +91,85 @@ tenzir 'read_zeek_tsv' < conn.log
 
 ```tql
 {
-  "ts": "2021-11-17T13:32:43.237881",
-  "uid": "CZwqhx3td8eTfCSwJb",
-  "id": {
-    "orig_h": "128.14.134.170",
-    "orig_p": 57468,
-    "resp_h": "198.71.247.91",
-    "resp_p": 80
+  ts: 2021-11-17T13:32:43.237881856Z,
+  uid: "CZwqhx3td8eTfCSwJb",
+  id: {
+    orig_h: 128.14.134.170,
+    orig_p: 57468,
+    resp_h: 198.71.247.91,
+    resp_p: 80,
   },
-  "proto": "tcp",
-  "service": "http",
-  "duration": "5.16s",
-  "orig_bytes": 205,
-  "resp_bytes": 278,
-  "conn_state": "SF",
-  "local_orig": null,
-  "local_resp": null,
-  "missed_bytes": 0,
-  "history": "ShADadfF",
-  "orig_pkts": 6,
-  "orig_ip_bytes": 525,
-  "resp_pkts": 5,
-  "resp_ip_bytes": 546,
-  "tunnel_parents": null,
-  "community_id": "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM=",
-  "_write_ts": null
+  proto: "tcp",
+  service: "http",
+  duration: 5.162805s,
+  orig_bytes: 205,
+  resp_bytes: 278,
+  conn_state: "SF",
+  local_orig: null,
+  local_resp: null,
+  missed_bytes: 0,
+  history: "ShADadfF",
+  orig_pkts: 6,
+  orig_ip_bytes: 525,
+  resp_pkts: 5,
+  resp_ip_bytes: 546,
+  tunnel_parents: null,
+  community_id: "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM=",
+  _write_ts: null,
 }
 {
-  "ts": "2021-11-17T13:38:28.073703",
-  "uid": "C5VoWQz890uMGQ80i",
-  "id": {
-    "orig_h": "50.18.18.14",
-    "orig_p": 8,
-    "resp_h": "198.71.247.91",
-    "resp_p": 0
+  ts: 2021-11-17T14:02:38.165570048Z,
+  uid: "CnrwFesjfOhI3fuu1",
+  id: {
+    orig_h: 45.137.23.27,
+    orig_p: 47958,
+    resp_h: 198.71.247.91,
+    resp_p: 53,
   },
-  "proto": "icmp",
-  "service": null,
-  "duration": "49.0us",
-  "orig_bytes": 8,
-  "resp_bytes": 8,
-  "conn_state": "OTH",
-  "local_orig": null,
-  "local_resp": null,
-  "missed_bytes": 0,
-  "history": null,
-  "orig_pkts": 1,
-  "orig_ip_bytes": 36,
-  "resp_pkts": 1,
-  "resp_ip_bytes": 36,
-  "tunnel_parents": null,
-  "community_id": "1:g6Ic2EGNte5The4ZgH83QyBviYM=",
-  "_write_ts": null
+  proto: "udp",
+  service: "dns",
+  duration: null,
+  orig_bytes: null,
+  resp_bytes: null,
+  conn_state: "S0",
+  local_orig: null,
+  local_resp: null,
+  missed_bytes: 0,
+  history: "D",
+  orig_pkts: 1,
+  orig_ip_bytes: 58,
+  resp_pkts: 0,
+  resp_ip_bytes: 0,
+  tunnel_parents: null,
+  community_id: "1:0nZC/6S/pr+IceCZ04RjDZbX+KI=",
+  _write_ts: null,
 }
 {
-  "ts": "2021-11-17T13:40:41.248995",
-  "uid": "CoMNrWaF6TCc5v9F",
-  "id": {
-    "orig_h": "198.71.247.91",
-    "orig_p": 53590,
-    "resp_h": "91.189.89.199",
-    "resp_p": 123
+  ts: 2021-11-18T09:56:39.549140992Z,
+  uid: "CBTne9tomX1ktuCQa",
+  id: {
+    orig_h: 10.4.21.101,
+    orig_p: 53824,
+    resp_h: 107.23.103.216,
+    resp_p: 587,
   },
-  "proto": "udp",
-  "service": "ntp",
-  "duration": "132.33ms",
-  "orig_bytes": 48,
-  "resp_bytes": 48,
-  "conn_state": "SF",
-  "local_orig": null,
-  "local_resp": null,
-  "missed_bytes": 0,
-  "history": "Dd",
-  "orig_pkts": 1,
-  "orig_ip_bytes": 76,
-  "resp_pkts": 1,
-  "resp_ip_bytes": 76,
-  "tunnel_parents": null,
-  "community_id": "1:+5Mf6akMTGuI1eAX/a9DaKSLPa8=",
-  "_write_ts": null
-}
-{
-  "ts": "2021-11-17T13:43:34.649079",
-  "uid": "Co2oVs4STLavNDKQwf",
-  "id": {
-    "orig_h": "54.176.143.72",
-    "orig_p": 8,
-    "resp_h": "198.71.247.91",
-    "resp_p": 0
-  },
-  "proto": "icmp",
-  "service": null,
-  "duration": "131.0us",
-  "orig_bytes": 8,
-  "resp_bytes": 8,
-  "conn_state": "OTH",
-  "local_orig": null,
-  "local_resp": null,
-  "missed_bytes": 0,
-  "history": null,
-  "orig_pkts": 1,
-  "orig_ip_bytes": 36,
-  "resp_pkts": 1,
-  "resp_ip_bytes": 36,
-  "tunnel_parents": null,
-  "community_id": "1:WHH+8OuOygRPi50vrH45p9WwgA4=",
-  "_write_ts": null
-}
-{
-  "ts": "2021-11-17T13:45:03.913656",
-  "uid": "C1UE8M1G6ok0h7OrJi",
-  "id": {
-    "orig_h": "35.87.13.125",
-    "orig_p": 8,
-    "resp_h": "198.71.247.91",
-    "resp_p": 0
-  },
-  "proto": "icmp",
-  "service": null,
-  "duration": "58.0us",
-  "orig_bytes": 8,
-  "resp_bytes": 8,
-  "conn_state": "OTH",
-  "local_orig": null,
-  "local_resp": null,
-  "missed_bytes": 0,
-  "history": null,
-  "orig_pkts": 1,
-  "orig_ip_bytes": 36,
-  "resp_pkts": 1,
-  "resp_ip_bytes": 36,
-  "tunnel_parents": null,
-  "community_id": "1:A+WZZOx8yg3UCoNV1IeiSNZUxEk=",
-  "_write_ts": null
+  proto: "tcp",
+  service: "smtp",
+  duration: 10.112458766666666min,
+  orig_bytes: 975904,
+  resp_bytes: 11950,
+  conn_state: "SF",
+  local_orig: null,
+  local_resp: null,
+  missed_bytes: 0,
+  history: "ShAdDaTtTfF",
+  orig_pkts: 1786,
+  orig_ip_bytes: 1069118,
+  resp_pkts: 1070,
+  resp_ip_bytes: 55168,
+  tunnel_parents: null,
+  community_id: "1:I6VoTvbCqaKvPrlFnNbRRbjlMsc=",
+  _write_ts: null,
 }
 ```
 
@@ -256,21 +203,21 @@ this = { zeek: this }
 // (2) Populate the OCSF event. We use comments for the OCSF attribute group to
 // provide a bit of structure for the reader.
 // === Classification ===
-ocsf.activity_id: activity_id,
-...
+ocsf.activity_id = activity_id
+// ... more classification fields ...
 // === Occurrence ===
 move ocsf.time = zeek.ts // <--- remove source field while mapping
-...
+// ... more occurrence fields ...
 // === Context ===
 ocsf.metadata = {
   log_name: "conn.log",
-  ...
+  // ... more metadata fields ...
 }
 // === Primary ===
 ocsf.src_endpoint = {
   ip: zeek.id.orig_h,
   port: zeek.id.orig_p,
-  ...
+  // ... more endpoint fields ...
 }
 drop zeek.id // <--- remove source field after mapping
 
@@ -568,10 +515,10 @@ You should get the following output:
   severity_id: 1,
   severity: "Informational",
   type_uid: 400106,
-  time: 2021-11-17T13:45:03.913656064Z,
-  duration: 58us,
-  end_time: 2021-11-17T13:45:03.913714064Z,
-  start_time: 2021-11-17T13:45:03.913656064Z,
+  time: 2021-11-17T13:32:43.237881856Z,
+  duration: 5.162805s,
+  end_time: 2021-11-17T13:32:48.400686856Z,
+  start_time: 2021-11-17T13:32:43.237881856Z,
   metadata: {
     log_name: "conn.log",
     logged_time: null,
@@ -580,42 +527,164 @@ You should get the following output:
       vendor_name: "Zeek",
       cpe_name: "cpe:2.3:a:zeek:zeek",
     },
-    uid: "C1UE8M1G6ok0h7OrJi",
+    uid: "CZwqhx3td8eTfCSwJb",
     version: "1.5.0",
   },
-  app_name: null,
+  app_name: "http",
   src_endpoint: {
-    ip: 35.87.13.125,
-    port: 8,
+    ip: 128.14.134.170,
+    port: 57468,
   },
   dst_endpoint: {
     ip: 198.71.247.91,
-    port: 0,
+    port: 80,
   },
   connection_info: {
-    community_uid: "1:A+WZZOx8yg3UCoNV1IeiSNZUxEk=",
-    protocol_name: "icmp",
-    protocol_num: 1,
+    community_uid: "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM=",
+    protocol_name: "tcp",
+    protocol_num: 6,
     protocol_ver_id: 4,
     direction: "Unknown",
     direction_id: 0,
   },
   status: "Other",
-  status_code: "OTH",
+  status_code: "SF",
   status_id: 99,
   traffic: {
-    bytes_in: 8,
-    bytes_out: 8,
-    packets_in: 1,
-    packets_out: 1,
-    total_bytes: 16,
-    total_packets: 2,
+    bytes_in: 278,
+    bytes_out: 205,
+    packets_in: 5,
+    packets_out: 6,
+    total_bytes: 483,
+    total_packets: 11,
   },
   unmapped: {
     missed_bytes: 0,
-    history: null,
-    orig_ip_bytes: 36,
-    resp_ip_bytes: 36,
+    history: "ShADadfF",
+    orig_ip_bytes: 525,
+    resp_ip_bytes: 546,
+    tunnel_parents: null,
+  },
+}
+{
+  activity_id: 6,
+  activity_name: "Traffic",
+  category_uid: 4,
+  category_name: "Network Activity",
+  class_uid: 4001,
+  class_name: "Network Activity",
+  severity_id: 1,
+  severity: "Informational",
+  type_uid: 400106,
+  time: 2021-11-17T14:02:38.165570048Z,
+  duration: null,
+  end_time: null,
+  start_time: 2021-11-17T14:02:38.165570048Z,
+  metadata: {
+    log_name: "conn.log",
+    logged_time: null,
+    product: {
+      name: "Zeek",
+      vendor_name: "Zeek",
+      cpe_name: "cpe:2.3:a:zeek:zeek",
+    },
+    uid: "CnrwFesjfOhI3fuu1",
+    version: "1.5.0",
+  },
+  app_name: "dns",
+  src_endpoint: {
+    ip: 45.137.23.27,
+    port: 47958,
+  },
+  dst_endpoint: {
+    ip: 198.71.247.91,
+    port: 53,
+  },
+  connection_info: {
+    community_uid: "1:0nZC/6S/pr+IceCZ04RjDZbX+KI=",
+    protocol_name: "udp",
+    protocol_num: 17,
+    protocol_ver_id: 4,
+    direction: "Unknown",
+    direction_id: 0,
+  },
+  status: "Other",
+  status_code: "S0",
+  status_id: 99,
+  traffic: {
+    bytes_in: null,
+    bytes_out: null,
+    packets_in: 0,
+    packets_out: 1,
+    total_bytes: null,
+    total_packets: 1,
+  },
+  unmapped: {
+    missed_bytes: 0,
+    history: "D",
+    orig_ip_bytes: 58,
+    resp_ip_bytes: 0,
+    tunnel_parents: null,
+  },
+}
+{
+  activity_id: 6,
+  activity_name: "Traffic",
+  category_uid: 4,
+  category_name: "Network Activity",
+  class_uid: 4001,
+  class_name: "Network Activity",
+  severity_id: 1,
+  severity: "Informational",
+  type_uid: 400106,
+  time: 2021-11-18T09:56:39.549140992Z,
+  duration: 10.112458766666666min,
+  end_time: 2021-11-18T10:06:46.296666992Z,
+  start_time: 2021-11-18T09:56:39.549140992Z,
+  metadata: {
+    log_name: "conn.log",
+    logged_time: null,
+    product: {
+      name: "Zeek",
+      vendor_name: "Zeek",
+      cpe_name: "cpe:2.3:a:zeek:zeek",
+    },
+    uid: "CBTne9tomX1ktuCQa",
+    version: "1.5.0",
+  },
+  app_name: "smtp",
+  src_endpoint: {
+    ip: 10.4.21.101,
+    port: 53824,
+  },
+  dst_endpoint: {
+    ip: 107.23.103.216,
+    port: 587,
+  },
+  connection_info: {
+    community_uid: "1:I6VoTvbCqaKvPrlFnNbRRbjlMsc=",
+    protocol_name: "tcp",
+    protocol_num: 6,
+    protocol_ver_id: 4,
+    direction: "Unknown",
+    direction_id: 0,
+  },
+  status: "Other",
+  status_code: "SF",
+  status_id: 99,
+  traffic: {
+    bytes_in: 11950,
+    bytes_out: 975904,
+    packets_in: 1070,
+    packets_out: 1786,
+    total_bytes: 987854,
+    total_packets: 2856,
+  },
+  unmapped: {
+    missed_bytes: 0,
+    history: "ShAdDaTtTfF",
+    orig_ip_bytes: 1069118,
+    resp_ip_bytes: 55168,
     tunnel_parents: null,
   },
 }
