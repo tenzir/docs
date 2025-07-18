@@ -4,27 +4,25 @@ title: ClickHouse
 
 import { Steps } from "@astrojs/starlight/components";
 
-[ClickHouse](https://clickhouse.com/) is an open-source column-oriented database
-management system designed for efficient storage and retrieval of large amounts
-of data. It is particularly well-suited for real-time analytics and data
-warehousing applications.
+[ClickHouse](https://clickhouse.com/clickhouse) is an open-source analytical
+database that enables its users to generate powerful analytics, using SQL
+queries, in real-time.
 
 ![ClickHouse integration](clickhouse.svg)
 
 ## How Tenzir Connects to ClickHouse
 
 Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
-protocol. Tenzir communicates with ClickHouse via the host and port you specify
-in the [`to_clickhouse`](/reference/operators/to_clickhouse) operator. This
-means:
+protocol using the official
+[clickhouse-cpp](https://github.com/ClickHouse/clickhouse-cpp) library. Tenzir
+communicates with ClickHouse via the host and port you specify in the
+[`to_clickhouse`](/reference/operators/to_clickhouse) operator. This means:
 
 - **Network**: Tenzir and ClickHouse can run on the same machine (using
-  `localhost`) or on different machines in the same network. Ensure that the
-  ClickHouse server is reachable from the Tenzir instance, and that any
-  firewalls or security groups allow traffic on the ClickHouse port (default:
-  `9000`).
+  `localhost`) or on different machines in the same network. You just need to
+  make sure that Tenzir can reach the ClickHouse server.
 - **IPC**: There is no direct inter-process communication (IPC) mechanism; all
-  communication is over the network protocol, even if both run on the same host.
+  communication uses ClickHouse's network protocol.
 - **Co-deployment**: For best performance and security, deploy Tenzir and
   ClickHouse in the same trusted network or use secure tunnels if needed.
 
@@ -87,8 +85,7 @@ Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
 pipelines).
 
 You can find out more about how to configure TLS on the
-[`to_clickhouse` documentation](/reference/operators/to_clickhouse)
-and the
+[`to_clickhouse` documentation](/reference/operators/to_clickhouse) and the
 [Clickhouse SSL-TLS configuration guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
 
 ### 1. Easy Mode: Automatic table creation
@@ -103,9 +100,9 @@ to_clickhouse table="ocsf.network_activity", primary=timestamp, tls=false
 ```
 
 When creating a table, the [`to_clickhouse`](/reference/operators/to_clickhouse)
-operator uses the first event to determine the schema. This means, that there
-must not be any untyped nulls in the event, as those cannot be stored in
-ClickHouse.
+operator uses the first event to determine the schema. You must take care that
+there are no untyped nulls in this event, as the operator cannot transmit
+those.
 
 In this example, we use the [`ocsf::apply`](/reference/operators/ocsf/apply)
 operator, which will automatically align events with the correct OCSF schema,
@@ -123,9 +120,9 @@ GROUP BY *
 
 ### 2. Advanced: Explicit Table Creation
 
-For more control, you can create the table in ClickHouse first. This is
-primarily useful when you know the full schema of your table, but not all events
-contain all fields and as such the operator would not create the correct table.
+For more control, you can create the table in ClickHouse first. Use this
+approach when you know the full schema of your table, but not all events contain
+all fields and as such the operator would not create the correct table.
 
 <Steps>
 
@@ -133,9 +130,9 @@ contain all fields and as such the operator would not create the correct table.
 
    ```sql
    CREATE TABLE my_table (
-     id UInt64,
+     id Int64,
      name String,
-     mice_caught Nullable(Uint64)
+     mice_caught Nullable(Int64)
    ) ENGINE = MergeTree() ORDER BY id;
    ```
 
@@ -143,8 +140,8 @@ contain all fields and as such the operator would not create the correct table.
 
    ```csv title="my_file.csv"
    id,name,mice_caught
-   0,Tom,
-   1,Jerry,0
+   0,Jerry,
+   1,Tom,0
    ```
 
    ```tql
@@ -153,5 +150,8 @@ contain all fields and as such the operator would not create the correct table.
    ```
 
    We use the explicit `mode="append"` to ensure that the table already exists.
+
+   In this example _Jerry_, being a mouse, has no value for `mice_caught`. Since
+   we created a table with the expected type, this is not an issue.
 
 </Steps>
