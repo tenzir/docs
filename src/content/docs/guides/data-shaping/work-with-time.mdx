@@ -19,8 +19,8 @@ from {
   timestamp: 2024-01-15T10:30:45.123456,
   interval: 5min
 }
-set later = timestamp + interval
-set earlier = timestamp - 2h
+later = timestamp + interval
+earlier = timestamp - 2h
 ```
 
 ```tql
@@ -37,16 +37,18 @@ set earlier = timestamp - 2h
 Use [`now()`](/reference/functions/now) to get the current timestamp:
 
 ```tql
-from {}
-set current_time = now()
-set today = current_time.round(1d)
+from {
+  current_time: now()
+}
+today = current_time.round(1d)
 ```
 
 ```tql
 {
-  current_time: 2024-01-15T14:32:18.745321Z,
-  today: 2024-01-15T00:00:00Z
+  current_time: 2025-07-21T19:06:55.047259Z,
+  today: 2025-07-22T00:00:00Z,
 }
+
 ```
 
 ## Parse time from strings
@@ -59,9 +61,9 @@ from {
   custom: "15/Jan/2024:10:30:45",
   unix: "1705316445"
 }
-set iso_time = iso.parse_time("%Y-%m-%dT%H:%M:%S")
-set custom_time = custom.parse_time("%d/%b/%Y:%H:%M:%S")
-set unix_time = unix.int().seconds().from_epoch()
+iso_time = iso.parse_time("%Y-%m-%dT%H:%M:%S")
+custom_time = custom.parse_time("%d/%b/%Y:%H:%M:%S")
+unix_time = unix.int().seconds().from_epoch()
 ```
 
 ```tql
@@ -92,10 +94,10 @@ Convert timestamps to custom string formats with [`format_time()`](/reference/fu
 
 ```tql
 from {event_time: 2024-01-15T10:30:45.123456}
-set iso = event_time.format_time("%Y-%m-%dT%H:%M:%S.%f")
-set date_only = event_time.format_time("%Y-%m-%d")
-set us_format = event_time.format_time("%m/%d/%Y %I:%M %p")
-set log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
+iso = event_time.format_time("%Y-%m-%dT%H:%M:%S.%f")
+date_only = event_time.format_time("%Y-%m-%d")
+us_format = event_time.format_time("%m/%d/%Y %I:%M %p")
+log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
 ```
 
 ```tql
@@ -114,12 +116,12 @@ Get individual parts of a timestamp using [`year()`](/reference/functions/year),
 
 ```tql
 from {timestamp: 2024-01-15T10:30:45.123456}
-set year = timestamp.year()
-set month = timestamp.month()
-set day = timestamp.day()
-set hour = timestamp.hour()
-set minute = timestamp.minute()
-set second = timestamp.second()
+year = timestamp.year()
+month = timestamp.month()
+day = timestamp.day()
+hour = timestamp.hour()
+minute = timestamp.minute()
+second = timestamp.second()
 ```
 
 ```tql
@@ -139,11 +141,14 @@ set second = timestamp.second()
 Create and manipulate time intervals:
 
 ```tql
-from {start: 2024-01-15T10:00:00, end: 2024-01-15T14:30:00}
-set elapsed = end - start
-set hours = elapsed.count_hours()
-set minutes = elapsed.count_minutes()
-set seconds = elapsed.count_seconds()
+from {
+  start: 2024-01-15T10:00:00,
+  end: 2024-01-15T14:30:00
+}
+elapsed = end - start
+hours = elapsed.count_hours()
+minutes = elapsed.count_minutes()
+seconds = elapsed.count_seconds()
 ```
 
 ```tql
@@ -165,16 +170,16 @@ Extract different time units from durations:
 from {
   duration: 90d + 4h + 30min + 45s + 123ms + 456us + 789ns
 }
-set years = duration.count_years()
-set months = duration.count_months()
-set weeks = duration.count_weeks()
-set days = duration.count_days()
-set hours = duration.count_hours()
-set minutes = duration.count_minutes()
-set seconds = duration.count_seconds()
-set milliseconds = duration.count_milliseconds()
-set microseconds = duration.count_microseconds()
-set nanoseconds = duration.count_nanoseconds()
+years = duration.count_years()
+months = duration.count_months()
+weeks = duration.count_weeks()
+days = duration.count_days()
+hours = duration.count_hours()
+minutes = duration.count_minutes()
+seconds = duration.count_seconds()
+milliseconds = duration.count_milliseconds()
+microseconds = duration.count_microseconds()
+nanoseconds = duration.count_nanoseconds()
 ```
 
 ```tql
@@ -189,7 +194,7 @@ set nanoseconds = duration.count_nanoseconds()
   seconds: 7792245.123456789,
   milliseconds: 7792245123.456789,
   microseconds: 7792245123456.789,
-  nanoseconds: 7792245123456789
+  nanoseconds: 7792245123456789,
 }
 ```
 
@@ -198,10 +203,12 @@ set nanoseconds = duration.count_nanoseconds()
 Use [`months()`](/reference/functions/months) to create month-based durations:
 
 ```tql
-from {quarterly_period: 3}
-set quarter = quarterly_period.months()
-set days_in_quarter = quarter.count_days()
-set weeks_in_quarter = quarter.count_weeks()
+from {
+  quarterly_period: 3
+}
+quarter = quarterly_period.months()
+days_in_quarter = quarter.count_days()
+weeks_in_quarter = quarter.count_weeks()
 ```
 
 ```tql
@@ -218,11 +225,12 @@ set weeks_in_quarter = quarter.count_weeks()
 Use duration literals or functions:
 
 ```tql
-from {}
-set five_minutes = 5min
-set one_hour = 1h
-set custom = 90.seconds()
-set from_parts = 2.hours() + 30.minutes()
+from {
+  five_minutes: 5min,
+  one_hour: 1h,
+  custom: 90.seconds(),
+  from_parts: 2.hours() + 30.minutes(),
+}
 ```
 
 ```tql
@@ -230,7 +238,7 @@ set from_parts = 2.hours() + 30.minutes()
   five_minutes: 5min,
   one_hour: 1h,
   custom: 1.5min,
-  from_parts: 2.5h
+  from_parts: 2.5h,
 }
 ```
 
@@ -254,11 +262,11 @@ Find elapsed time between events:
 from {
   login: 2024-01-15T09:00:00,
   first_action: 2024-01-15T09:05:30,
-  logout: 2024-01-15T17:30:00
+  logout: 2024-01-15T17:30:00,
 }
-set time_to_action = first_action - login
-set session_duration = logout - login
-set active_hours = session_duration.count_hours()
+time_to_action = first_action - login
+session_duration = logout - login
+active_hours = session_duration.count_hours()
 ```
 
 ```tql
@@ -268,7 +276,7 @@ set active_hours = session_duration.count_hours()
   logout: 2024-01-15T17:30:00Z,
   time_to_action: 5.5min,
   session_duration: 8.5h,
-  active_hours: 8.5
+  active_hours: 8.5,
 }
 ```
 
@@ -277,11 +285,13 @@ set active_hours = session_duration.count_hours()
 Perform time arithmetic:
 
 ```tql
-from {event_time: 2024-01-15T10:30:00}
-set one_hour_later = event_time + 1h
-set yesterday = event_time - 1d
-set next_week = event_time + 7d
-set thirty_mins_ago = event_time - 30min
+from {
+  event_time: 2024-01-15T10:30:00
+}
+one_hour_later = event_time + 1h
+yesterday = event_time - 1d
+next_week = event_time + 7d
+thirty_mins_ago = event_time - 30min
 ```
 
 ```tql
@@ -299,11 +309,13 @@ set thirty_mins_ago = event_time - 30min
 Round timestamps to specific intervals:
 
 ```tql
-from {precise_time: 2024-01-15T10:37:42.847621}
-set to_minute = precise_time.round(1min)
-set to_hour = precise_time.round(1h)
-set to_day = precise_time.round(1d)
-set to_5min = precise_time.round(5min)
+from {
+  precise_time: 2024-01-15T10:37:42.847621
+}
+to_minute = precise_time.round(1min)
+to_hour = precise_time.round(1h)
+to_day = precise_time.round(1d)
+to_5min = precise_time.round(5min)
 ```
 
 ```tql
@@ -326,10 +338,10 @@ from {
   unix_millis: 1705316445123,
   unix_micros: 1705316445123456
 }
-set from_seconds = unix_seconds.seconds().from_epoch()
-set from_millis = unix_millis.milliseconds().from_epoch()
-set from_micros = unix_micros.microseconds().from_epoch()
-set back_to_unix = from_seconds.since_epoch().count_seconds()
+from_seconds = unix_seconds.seconds().from_epoch()
+from_millis = unix_millis.milliseconds().from_epoch()
+from_micros = unix_micros.microseconds().from_epoch()
+back_to_unix = from_seconds.since_epoch().count_seconds()
 ```
 
 ```tql
@@ -351,10 +363,10 @@ set back_to_unix = from_seconds.since_epoch().count_seconds()
 ```tql
 from {
   request_start: 2024-01-15T10:30:45.123,
-  request_end: 2024-01-15T10:30:47.456
+  request_end: 2024-01-15T10:30:47.456,
 }
-set duration = request_end - request_start
-set duration_ms = duration.count_milliseconds()
+duration = request_end - request_start
+duration_ms = duration.count_milliseconds()
 ```
 
 ```tql
@@ -362,7 +374,7 @@ set duration_ms = duration.count_milliseconds()
   request_start: 2024-01-15T10:30:45.123Z,
   request_end: 2024-01-15T10:30:47.456Z,
   duration: 2.333s,
-  duration_ms: 2333.0
+  duration_ms: 2333.0,
 }
 ```
 
@@ -371,11 +383,11 @@ set duration_ms = duration.count_milliseconds()
 ```tql
 from {
   event_time: 2024-01-15T10:37:42.847621,
-  event_type: "login"
+  event_type: "login",
 }
-set hour_bucket = event_time.round(1h)
-set day_bucket = event_time.round(1d)
-set five_min_bucket = event_time.round(5min)
+hour_bucket = event_time.round(1h)
+day_bucket = event_time.round(1d)
+five_min_bucket = event_time.round(5min)
 ```
 
 ```tql
@@ -384,27 +396,29 @@ set five_min_bucket = event_time.round(5min)
   event_type: "login",
   hour_bucket: 2024-01-15T11:00:00Z,
   day_bucket: 2024-01-15T00:00:00Z,
-  five_min_bucket: 2024-01-15T10:40:00Z
+  five_min_bucket: 2024-01-15T10:40:00Z,
 }
 ```
 
 ### Calculate age from timestamp
 
 ```tql
-from {created_at: 2024-01-01T00:00:00}
-set age = now() - created_at
-set days_old = age.count_days()
-set hours_old = age.count_hours()
-set human_readable = f"{days_old} days ago"
+from {
+  created_at: 2024-01-01T00:00:00
+}
+age = now() - created_at
+days_old = age.count_days()
+hours_old = age.count_hours()
+human_readable = f"{days_old.round()} days ago"
 ```
 
 ```tql
 {
-  created_at: 2024-01-01T00:00:00.000000,
-  age: 14d14h32m18.745s,
-  days_old: 14,
-  hours_old: 350,
-  human_readable: "14 days ago"
+  created_at: 2024-01-01T00:00:00Z,
+  age: 567.7989434994097d,
+  days_old: 567.7989434994097,
+  hours_old: 13627.174643985833,
+  human_readable: "568 days ago",
 }
 ```
 
@@ -416,10 +430,10 @@ from {
   nginx: "2024/01/15 10:30:45",
   syslog: "Jan 15 10:30:45"
 }
-set apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S %z")
-set nginx_time = nginx.parse_time("%Y/%m/%d %H:%M:%S")
+apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S %z")
+nginx_time = nginx.parse_time("%Y/%m/%d %H:%M:%S")
 // For syslog, we need to add the year
-set syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
+syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
 ```
 
 ```tql
@@ -429,7 +443,7 @@ set syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
   syslog: "Jan 15 10:30:45",
   apache_time: 2024-01-15T10:30:45Z,
   nginx_time: 2024-01-15T10:30:45Z,
-  syslog_time: 2024-01-15T10:30:45Z
+  syslog_time: 2024-01-15T10:30:45Z,
 }
 ```
 
