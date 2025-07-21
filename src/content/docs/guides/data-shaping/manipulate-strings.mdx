@@ -12,10 +12,10 @@ Transform strings to different cases for consistency and formatting:
 
 ```tql
 from {name: "john smith", title: "data ENGINEER", code: "xyz-123"}
-set lower_name = name.to_lower()
-set upper_code = code.to_upper()
-set title_case = title.to_title()
-set cap_name = name.capitalize()
+lower_name = name.to_lower()
+upper_code = code.to_upper()
+title_case = title.to_title()
+cap_name = name.capitalize()
 ```
 
 ```tql
@@ -26,7 +26,7 @@ set cap_name = name.capitalize()
   lower_name: "john smith",
   upper_code: "XYZ-123",
   title_case: "Data Engineer",
-  cap_name: "John smith"
+  cap_name: "John smith",
 }
 ```
 
@@ -51,9 +51,9 @@ from {
   prefix: "\t\tdata",
   suffix: "value   \n"
 }
-set trimmed = raw.trim()
-set no_prefix = prefix.trim_start()
-set no_suffix = suffix.trim_end()
+trimmed = raw.trim()
+no_prefix = prefix.trim_start()
+no_suffix = suffix.trim_end()
 ```
 
 ```tql
@@ -83,18 +83,28 @@ from {
   path: "/home/user/documents/report.pdf",
   tags: "security,network,alert"
 }
-set parts = path.split("/")
-set tag_list = tags.split(",")
-set rejoined = parts.join("-")
+parts = path.split("/")
+tag_list = tags.split(",")
+rejoined = parts.join("-")
 ```
 
 ```tql
 {
   path: "/home/user/documents/report.pdf",
   tags: "security,network,alert",
-  parts: ["", "home", "user", "documents", "report.pdf"],
-  tag_list: ["security", "network", "alert"],
-  rejoined: "-home-user-documents-report.pdf"
+  parts: [
+    "",
+    "home",
+    "user",
+    "documents",
+    "report.pdf",
+  ],
+  tag_list: [
+    "security",
+    "network",
+    "alert",
+  ],
+  rejoined: "-home-user-documents-report.pdf",
 }
 ```
 
@@ -104,13 +114,20 @@ Use [`split_regex()`](/reference/functions/split_regex) for complex splitting:
 
 ```tql
 from {text: "error:42|warning:7|info:125"}
-set entries = text.split_regex("[:|]")
+entries = text.split_regex("[:|]")
 ```
 
 ```tql
 {
   text: "error:42|warning:7|info:125",
-  entries: ["error", "42", "warning", "7", "info", "125"]
+  entries: [
+    "error",
+    "42",
+    "warning",
+    "7",
+    "info",
+    "125",
+  ],
 }
 ```
 
@@ -125,8 +142,8 @@ from {
   log: "User 192.168.1.1 accessed /admin",
   template: "Hello {name}, welcome to {place}"
 }
-set masked = log.replace("192.168.1.1", "xxx.xxx.xxx.xxx")
-set filled = template.replace("{name}", "Alice").replace("{place}", "Tenzir")
+masked = log.replace("192.168.1.1", "xxx.xxx.xxx.xxx")
+filled = template.replace("{name}", "Alice").replace("{place}", "Tenzir")
 ```
 
 ```tql
@@ -134,7 +151,7 @@ set filled = template.replace("{name}", "Alice").replace("{place}", "Tenzir")
   log: "User 192.168.1.1 accessed /admin",
   template: "Hello {name}, welcome to {place}",
   masked: "User xxx.xxx.xxx.xxx accessed /admin",
-  filled: "Hello Alice, welcome to Tenzir"
+  filled: "Hello Alice, welcome to Tenzir",
 }
 ```
 
@@ -148,8 +165,8 @@ from {
   text: "Contact us at 555-1234 or 555-5678",
   log: "Error at 2024-01-15 10:30:45: Connection failed"
 }
-set redacted = text.replace_regex("\\d{3}-\\d{4}", "XXX-XXXX")
-set simple_log = log.replace_regex(
+redacted = text.replace_regex("\\d{3}-\\d{4}", "XXX-XXXX")
+simple_log = log.replace_regex(
   "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}",
   "TIMESTAMP"
 )
@@ -160,7 +177,7 @@ set simple_log = log.replace_regex(
   text: "Contact us at 555-1234 or 555-5678",
   log: "Error at 2024-01-15 10:30:45: Connection failed",
   redacted: "Contact us at XXX-XXXX or XXX-XXXX",
-  simple_log: "Error at TIMESTAMP: Connection failed"
+  simple_log: "Error at TIMESTAMP: Connection failed",
 }
 ```
 
@@ -174,9 +191,9 @@ from {
   url: "https://tenzir.com",
   file: "report_2024.pdf"
 }
-set is_email = email.match_regex("^[^@]+@[^@]+\\.[^@]+$")
-set is_https = url.starts_with("https://")
-set is_pdf = file.ends_with(".pdf")
+is_email = email.match_regex("^[^@]+@[^@]+\\.[^@]+$")
+is_https = url.starts_with("https://")
+is_pdf = file.ends_with(".pdf")
 ```
 
 ```tql
@@ -186,7 +203,7 @@ set is_pdf = file.ends_with(".pdf")
   file: "report_2024.pdf",
   is_email: true,
   is_https: true,
-  is_pdf: true
+  is_pdf: true,
 }
 ```
 
@@ -209,12 +226,12 @@ from {
   mixed: "Hello World!",
   spaces: "hello world"
 }
-set id_numeric = id.is_numeric()
-set name_alpha = name.is_alpha()
-set code_alnum = code.is_alnum()
-set mixed_alpha = mixed.is_alpha()
-set has_lower = spaces.is_lower()
-set has_upper = name.is_title()
+id_numeric = id.is_numeric()
+name_alpha = name.is_alpha()
+code_alnum = code.is_alnum()
+mixed_alpha = mixed.is_alpha()
+has_lower = spaces.is_lower()
+has_upper = name.is_title()
 ```
 
 ```tql
@@ -229,7 +246,7 @@ set has_upper = name.is_title()
   code_alnum: true,
   mixed_alpha: false,
   has_lower: true,
-  has_upper: true
+  has_upper: true,
 }
 ```
 
@@ -257,11 +274,11 @@ from {
   emoji: "👋 Hello!",
   path: "/var/log/system.log"
 }
-set char_count = text.length_chars()
-set byte_count = text.length_bytes()
-set reversed = emoji.reverse()
-set filename = path.file_name()
-set directory = path.parent_dir()
+char_count = text.length_chars()
+byte_count = text.length_bytes()
+reversed = emoji.reverse()
+filename = path.file_name()
+directory = path.parent_dir()
 ```
 
 ```tql
@@ -273,7 +290,7 @@ set directory = path.parent_dir()
   byte_count: 12,
   reversed: "!olleH 👋",
   filename: "system.log",
-  directory: "/var/log"
+  directory: "/var/log",
 }
 ```
 
@@ -297,10 +314,10 @@ from {
   id: "USER-12345-ACTIVE",
   timestamp: "2024-01-15T10:30:45"
 }
-set greeting = text.slice(begin=0, end=5)
-set user_num = id.slice(begin=5, end=10)
-set date_part = timestamp.slice(begin=0, end=10)
-set status = id.slice(begin=11)
+greeting = text.slice(begin=0, end=5)
+user_num = id.slice(begin=5, end=10)
+date_part = timestamp.slice(begin=0, end=10)
+status = id.slice(begin=11)
 ```
 
 ```tql
@@ -311,7 +328,7 @@ set status = id.slice(begin=11)
   greeting: "Hello",
   user_num: "12345",
   date_part: "2024-01-15",
-  status: "ACTIVE"
+  status: "ACTIVE",
 }
 ```
 
@@ -329,8 +346,8 @@ Transform strings between different encodings:
 
 ```tql
 from {secret: "my-api-key-12345"}
-set encoded = secret.encode_base64()
-set decoded = encoded.decode_base64()
+encoded = secret.encode_base64()
+decoded = encoded.decode_base64()
 ```
 
 ```tql
@@ -348,9 +365,9 @@ Use [`encode_hex()`](/reference/functions/encode_hex) and
 
 ```tql
 from {data: "Hello", hex_string: "48656c6c6f"}
-set hex = data.encode_hex()
-set decoded = hex.decode_hex()
-set decoded_blob = hex_string.decode_hex()
+hex = data.encode_hex()
+decoded = hex.decode_hex()
+decoded_blob = hex_string.decode_hex()
 ```
 
 ```tql
@@ -367,8 +384,8 @@ set decoded_blob = hex_string.decode_hex()
 
 ```tql
 from {query: "search term with spaces & special=characters"}
-set encoded = query.encode_url()
-set decoded = encoded.decode_url()
+encoded = query.encode_url()
+decoded = encoded.decode_url()
 ```
 
 ```tql
@@ -397,8 +414,8 @@ from {
   id: "42",
   code: "ABC"
 }
-set padded_id = id.pad_start(5, "0")
-set padded_code = code.pad_end(10, "-")
+padded_id = id.pad_start(5, "0")
+padded_code = code.pad_end(10, "-")
 ```
 
 ```tql
@@ -422,7 +439,7 @@ Access text from files during processing:
 
 ```tql
 from {}
-set hostname = file_contents("/etc/hostname")
+hostname = file_contents("/etc/hostname")
 ```
 
 ```tql
@@ -443,8 +460,8 @@ from {
   user_input: "  JOHN.SMITH@EXAMPLE.COM  ",
   phone: "(555) 123-4567"
 }
-set email = user_input.trim().to_lower()
-set clean_phone = phone.replace_regex("[^0-9]", "")
+email = user_input.trim().to_lower()
+clean_phone = phone.replace_regex("[^0-9]", "")
 ```
 
 ```tql
@@ -463,10 +480,10 @@ from {
   log: "User ID: ABC-123-XYZ performed action",
   url: "https://api.example.com/v2/users/42"
 }
-set user_id = log.split("User ID: ")[1].split(" ")[0]
-set valid_id = user_id.match_regex("^[A-Z]{3}-\\d{3}-[A-Z]{3}$")
-set api_version = url.split("/")[4]
-set user_num = url.split("/").last()
+user_id = log.split("User ID: ")[1].split(" ")[0]
+valid_id = user_id.match_regex("^[A-Z]{3}-\\d{3}-[A-Z]{3}$")
+api_version = url.split("/")[4]
+user_num = url.split("/").last()
 ```
 
 ```tql
@@ -489,9 +506,9 @@ from {
   dept: "engineering",
   id: 42
 }
-set full_name = first.capitalize() + " " + last.to_upper()
-set email = first + "." + last + "@company.com"
-set badge = dept.to_upper().slice(begin=0, end=3) + "-" + id.string()
+full_name = first.capitalize() + " " + last.to_upper()
+email = first + "." + last + "@company.com"
+badge = dept.to_upper().slice(begin=0, end=3) + "-" + id.string()
 ```
 
 ```tql
@@ -517,13 +534,13 @@ from {
   data: "Hello, World!",
   secret: "my-api-key-123"
 }
-set md5 = data.hash_md5()
-set sha1 = data.hash_sha1()
-set sha224 = data.hash_sha224()
-set sha256 = data.hash_sha256()
-set sha384 = data.hash_sha384()
-set sha512 = data.hash_sha512()
-set xxh3 = data.hash_xxh3()
+md5 = data.hash_md5()
+sha1 = data.hash_sha1()
+sha224 = data.hash_sha224()
+sha256 = data.hash_sha256()
+sha384 = data.hash_sha384()
+sha512 = data.hash_sha512()
+xxh3 = data.hash_xxh3()
 ```
 
 ```tql
@@ -550,9 +567,9 @@ from {
   timestamp: "2024-01-15T10:30:00",
   action: "login"
 }
-set event_id = f"{user_id}-{timestamp}-{action}".hash_sha256().slice(begin=0, end=16)
-set short_hash = f"{user_id}{action}".hash_md5().slice(begin=0, end=8)
-set numeric_id = user_id.hash_xxh3()
+event_id = f"{user_id}-{timestamp}-{action}".hash_sha256().slice(begin=0, end=16)
+short_hash = f"{user_id}{action}".hash_md5().slice(begin=0, end=8)
+numeric_id = user_id.hash_xxh3()
 ```
 
 ```tql
@@ -560,9 +577,9 @@ set numeric_id = user_id.hash_xxh3()
   user_id: "alice123",
   timestamp: "2024-01-15T10:30:00",
   action: "login",
-  event_id: "d7f8c5e123a4b678",
-  short_hash: "a3f2d8e1",
-  numeric_id: "8b7c3d5f9a2e1c47"
+  event_id: "d5f456083b8fee43",
+  short_hash: "1616f7f2",
+  numeric_id: "ac6dfe13bd512d81",
 }
 ```
 
@@ -573,16 +590,16 @@ from {
   file_content: "Important document content here...",
   expected_checksum: "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
 }
-set actual_checksum = file_content.hash_sha256()
-set valid = actual_checksum == expected_checksum
+actual_checksum = file_content.hash_sha256()
+valid = actual_checksum == expected_checksum
 ```
 
 ```tql
 {
   file_content: "Important document content here...",
   expected_checksum: "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f",
-  actual_checksum: "8c3e7f2a9b4d5e6f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f",
-  valid: false
+  actual_checksum: "25f898ef7be64ead26e775e41778c6b5b5e5fe135d1b6658b6a27f9334c4f085",
+  valid: false,
 }
 ```
 
@@ -603,7 +620,7 @@ from {
   dst_port: 443,
   proto: "tcp"
 }
-set flow_id = community_id(
+flow_id = community_id(
   src_ip=src_ip,
   dst_ip=dst_ip,
   src_port=src_port,
@@ -634,9 +651,9 @@ from {
   server_ip: 8.8.8.8,
   internal_ip: 10.0.0.5
 }
-set anon_client = client_ip.encrypt_cryptopan(seed="mysecretkey12345")
-set anon_server = server_ip.encrypt_cryptopan(seed="mysecretkey12345")
-set anon_internal = internal_ip.encrypt_cryptopan(seed="mysecretkey12345")
+anon_client = client_ip.encrypt_cryptopan(seed="mysecretkey12345")
+anon_server = server_ip.encrypt_cryptopan(seed="mysecretkey12345")
+anon_internal = internal_ip.encrypt_cryptopan(seed="mysecretkey12345")
 ```
 
 ```tql
