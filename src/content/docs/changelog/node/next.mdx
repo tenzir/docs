@@ -295,6 +295,14 @@ By [@dominiklohmann](https://github.com/dominiklohmann) in [#5335](https://githu
 
 ### Changes
 
+#### Better query optimization
+
+Previously, queries that used `export` followed by a `where` that used fields
+such as `this["field name"]` were not optimized. Now, the same optimizations
+apply as with normal fields, improving the performance of such queries.
+
+By [@jachris](https://github.com/jachris) in [#5362](https://github.com/tenzir/tenzir/pull/5362).
+
 #### Improved `join` behavior
 
 The `join` function now also works with empty lists that are typed as
