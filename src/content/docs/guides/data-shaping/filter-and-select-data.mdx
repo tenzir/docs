@@ -199,6 +199,12 @@ drop internal_id, debug
 Use the [`set`](/reference/operators/set) operator to override existing fields
 and add new fields without removing existing ones.
 
+:::tip[Implied operator]
+The [`set`](/reference/operators/set) operator is *implied*, i.e., you can omit
+it to keep your pipeline definitions terse. In other words, it suffices to write
+an assignment in the form `x = y` instead of `set x = y`.
+:::
+
 ### Adding simple fields
 
 Add a constant field to all events:
@@ -237,7 +243,7 @@ Use the `else` word to provide default values for null fields:
 from {name: "alice", score: 85},
      {name: "bob"},
      {name: "charlie", score: 95}
-set score = score? else 0
+score = score? else 0
 ```
 
 ```tql
@@ -264,12 +270,12 @@ from {method: "GET", path: "/api/users", status: 200, duration_ms: 45},
      {method: "POST", path: "/api/users", status: 201, duration_ms: 120},
      {method: "GET", path: "/api/users/123", status: 404, duration_ms: 15}
 where status >= 200 and status < 300
-select method, path, duration_s = duration_ms / 1000.0
+select method, path, duration = duration_ms.milliseconds()
 ```
 
 ```tql
-{method: "GET", path: "/api/users", duration_s: 0.045}
-{method: "POST", path: "/api/users", duration_s: 0.12}
+{method: "GET", path: "/api/users", duration: 45ms}
+{method: "POST", path: "/api/users", duration: 120ms}
 ```
 
 ## Best practices
