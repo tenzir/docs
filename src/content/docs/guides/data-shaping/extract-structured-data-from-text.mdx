@@ -14,7 +14,7 @@ start with a simple example:
 
 ```tql
 from {message: "{\"user\": \"alice\", \"action\": \"login\", \"timestamp\": 1234567890}"}
-set data = message.parse_json()
+data = message.parse_json()
 ```
 
 ```tql
@@ -23,8 +23,8 @@ set data = message.parse_json()
   data: {
     user: "alice",
     action: "login",
-    timestamp: 1234567890
-  }
+    timestamp: 1234567890,
+  },
 }
 ```
 
@@ -33,8 +33,9 @@ string into a structured record. You can now access nested fields directly:
 
 ```tql
 from {message: "{\"user\": \"alice\", \"action\": \"login\", \"timestamp\": 1234567890}"}
-set data = message.parse_json()
-set user = data.user, action = data.action
+data = message.parse_json()
+user = data.user
+action = data.action
 ```
 
 ```tql
@@ -42,7 +43,7 @@ set user = data.user, action = data.action
   message: "{\"user\": \"alice\", \"action\": \"login\", \"timestamp\": 1234567890}",
   data: {user: "alice", action: "login", timestamp: 1234567890},
   user: "alice",
-  action: "login"
+  action: "login",
 }
 ```
 
@@ -54,7 +55,7 @@ automatically:
 
 ```tql
 from {log: "status=200 method=GET path=/api/users duration=45ms"}
-set fields = log.parse_kv()
+fields = log.parse_kv()
 ```
 
 ```tql
@@ -65,7 +66,7 @@ set fields = log.parse_kv()
     method: "GET",
     path: "/api/users",
     duration: 45ms,
-  }
+  },
 }
 ```
 
@@ -81,7 +82,7 @@ Not all key-value pairs use `=`. Specify custom separators:
 
 ```tql
 from {log: "user:alice action:login time:2024-01-15"}
-set fields = log.parse_kv(field_split=" ", value_split=":")
+fields = log.parse_kv(field_split=" ", value_split=":")
 ```
 
 ```tql
@@ -91,7 +92,7 @@ set fields = log.parse_kv(field_split=" ", value_split=":")
     user: "alice",
     action: "login",
     time: 2024-01-15T00:00:00Z,
-  }
+  },
 }
 ```
 
@@ -105,7 +106,7 @@ Use [`parse_csv()`](/reference/functions/parse_csv) for standard CSV:
 
 ```tql
 from {line: "alice,30,engineer,SF"}
-set fields = line.parse_csv(header=["name", "age", "role", "location"])
+fields = line.parse_csv(header=["name", "age", "role", "location"])
 ```
 
 ```tql
@@ -115,8 +116,8 @@ set fields = line.parse_csv(header=["name", "age", "role", "location"])
     name: "alice",
     age: 30,
     role: "engineer",
-    location: "SF"
-  }
+    location: "SF",
+  },
 }
 ```
 
@@ -124,7 +125,7 @@ To get an array without field names, use `split()`:
 
 ```tql
 from {line: "alice,30,engineer,SF"}
-set values = line.split(",")
+values = line.split(",")
 ```
 
 ```tql
@@ -145,7 +146,7 @@ For tab-separated data, use [`parse_tsv()`](/reference/functions/parse_tsv):
 
 ```tql
 from {line: "alice\t30\tengineer"}
-set fields = line.parse_tsv(header=["name", "age", "role"])
+fields = line.parse_tsv(header=["name", "age", "role"])
 ```
 
 ```tql
@@ -154,8 +155,8 @@ set fields = line.parse_tsv(header=["name", "age", "role"])
   fields: {
     name: "alice",
     age: 30,
-    role: "engineer"
-  }
+    role: "engineer",
+  },
 }
 ```
 
@@ -165,7 +166,7 @@ For space-separated data, use [`parse_ssv()`](/reference/functions/parse_ssv):
 
 ```tql
 from {line: "alice 30 engineer"}
-set fields = line.parse_ssv(header=["name", "age", "role"])
+fields = line.parse_ssv(header=["name", "age", "role"])
 ```
 
 ```tql
@@ -174,8 +175,8 @@ set fields = line.parse_ssv(header=["name", "age", "role"])
   fields: {
     name: "alice",
     age: 30,
-    role: "engineer"
-  }
+    role: "engineer",
+  },
 }
 ```
 
@@ -185,7 +186,10 @@ For custom separators, use [`parse_xsv()`](/reference/functions/parse_xsv):
 
 ```tql
 from {line: "alice|30|engineer|SF"}
-set fields = line.parse_xsv(field_separator="|", list_separator=",", null_value="", header=["name", "age", "role", "location"])
+fields = line.parse_xsv(field_separator="|",
+                        list_separator=",",
+                        null_value="",
+                        header=["name", "age", "role", "location"])
 ```
 
 ```tql
@@ -195,8 +199,8 @@ set fields = line.parse_xsv(field_separator="|", list_separator=",", null_value=
     name: "alice",
     age: 30,
     role: "engineer",
-    location: "SF"
-  }
+    location: "SF",
+  },
 }
 ```
 
@@ -207,7 +211,7 @@ YAML is common in configuration files. Use
 
 ```tql
 from {config: "user: alice\nrole: admin\npermissions:\n  - read\n  - write"}
-set data = config.parse_yaml()
+data = config.parse_yaml()
 ```
 
 ```tql
@@ -216,8 +220,11 @@ set data = config.parse_yaml()
   data: {
     user: "alice",
     role: "admin",
-    permissions: ["read", "write"]
-  }
+    permissions: [
+      "read",
+      "write",
+    ],
+  },
 }
 ```
 
@@ -229,7 +236,7 @@ matching:
 
 ```tql
 from {log: "2024-01-15 10:30:45 ERROR [UserService] Failed to authenticate user alice"}
-set parsed = log.parse_grok("%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} \\[%{DATA:service}\\] %{GREEDYDATA:message}")
+parsed = log.parse_grok("%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} \\[%{DATA:service}\\] %{GREEDYDATA:message}")
 ```
 
 ```tql
@@ -239,8 +246,8 @@ set parsed = log.parse_grok("%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} \\
     timestamp: 2024-01-15T10:30:45Z,
     level: "ERROR",
     service: "UserService",
-    message: "Failed to authenticate user alice"
-  }
+    message: "Failed to authenticate user alice",
+  },
 }
 ```
 
@@ -264,7 +271,7 @@ Syslog is ubiquitous in system logging. Use
 
 ```tql
 from {line: "2024-01-15T10:30:45.123Z myhost myapp[1234]: User login failed"}
-set syslog = line.parse_syslog()
+syslog = line.parse_syslog()
 ```
 
 ```tql
@@ -277,8 +284,8 @@ set syslog = line.parse_syslog()
     hostname: "myhost",
     app_name: "myapp",
     process_id: "1234",
-    content: "User login failed"
-  }
+    content: "User login failed",
+  },
 }
 ```
 
@@ -289,7 +296,7 @@ For security tools using CEF, use
 
 ```tql
 from {log: "CEF:0|Security|Firewall|1.0|100|Connection Blocked|5|src=10.0.0.1 dst=192.168.1.1 spt=12345 dpt=443"}
-set event = log.parse_cef()
+event = log.parse_cef()
 ```
 
 ```tql
@@ -307,9 +314,9 @@ set event = log.parse_cef()
       src: 10.0.0.1,
       dst: 192.168.1.1,
       spt: 12345,
-      dpt: 443
-    }
-  }
+      dpt: 443,
+    },
+  },
 }
 ```
 
@@ -320,7 +327,7 @@ For IBM QRadar's LEEF format, use
 
 ```tql
 from {log: "LEEF:1.0|Security|Firewall|1.0|100|src=10.0.0.1|dst=192.168.1.1|spt=12345|dpt=443"}
-set event = log.parse_leef()
+event = log.parse_leef()
 ```
 
 ```tql
@@ -333,9 +340,9 @@ set event = log.parse_leef()
     product_version: "1.0",
     event_class_id: "100",
     attributes: {
-      src: "10.0.0.1|dst=192.168.1.1|spt=12345|dpt=443"
-    }
-  }
+      src: "10.0.0.1|dst=192.168.1.1|spt=12345|dpt=443",
+    },
+  },
 }
 ```
 
@@ -350,9 +357,9 @@ from {
   log2: "Event at 15/Jan/2024:10:30:45",
   log3: "Event at Mon Jan 15 10:30:45 2024"
 }
-set time1 = log1.split(" at ")[1].parse_time("%Y-%m-%d")
-set time2 = log2.split(" at ")[1].parse_time("%d/%b/%Y:%H:%M:%S")
-set time3 = log3.split(" at ")[1].parse_time("%a %b %d %H:%M:%S %Y")
+time1 = log1.split(" at ")[1].parse_time("%Y-%m-%d")
+time2 = log2.split(" at ")[1].parse_time("%d/%b/%Y:%H:%M:%S")
+time3 = log3.split(" at ")[1].parse_time("%a %b %d %H:%M:%S %Y")
 ```
 
 ```tql
@@ -362,7 +369,7 @@ set time3 = log3.split(" at ")[1].parse_time("%a %b %d %H:%M:%S %Y")
   log3: "Event at Mon Jan 15 10:30:45 2024",
   time1: 2024-01-15T00:00:00Z,
   time2: 2024-01-15T10:30:45Z,
-  time3: 2024-01-15T10:30:45Z
+  time3: 2024-01-15T10:30:45Z,
 }
 ```
 
@@ -376,14 +383,14 @@ from {
   line: "2024-01-15T10:30:45Z web nginx[5678]: {\"method\":\"POST\",\"path\":\"/api/login\",\"status\":401,\"duration\":\"125ms\",\"client\":\"192.168.1.100\"}"
 }
 // First, parse the syslog wrapper
-set syslog = line.parse_syslog()
+syslog = line.parse_syslog()
 // Then parse the JSON content
-set request = syslog.content.parse_json()
+request = syslog.content.parse_json()
 // Extract specific fields we care about
-set method = request.method
-set path = request.path
-set status = request.status
-set client_ip = request.client.ip()
+method = request.method
+path = request.path
+status = request.status
+client_ip = request.client.ip()
 ```
 
 ```tql
@@ -396,19 +403,19 @@ set client_ip = request.client.ip()
     hostname: "web",
     app_name: "nginx",
     process_id: "5678",
-    content: "{\"method\":\"POST\",\"path\":\"/api/login\",\"status\":401,\"duration\":\"125ms\",\"client\":\"192.168.1.100\"}"
+    content: "{\"method\":\"POST\",\"path\":\"/api/login\",\"status\":401,\"duration\":\"125ms\",\"client\":\"192.168.1.100\"}",
   },
   request: {
     method: "POST",
     path: "/api/login",
     status: 401,
     duration: 125ms,
-    client: 192.168.1.100
+    client: 192.168.1.100,
   },
   method: "POST",
   path: "/api/login",
   status: 401,
-  client_ip: 192.168.1.100
+  client_ip: 192.168.1.100,
 }
 ```
 
@@ -422,7 +429,7 @@ from {
   log: "2024-01-15 10:30:45 FW01 BLOCK src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN"
 }
 // Step 1: Extract the basic structure
-set parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
+parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
 ```
 
 ```tql
@@ -432,8 +439,8 @@ set parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:acti
     time: 2024-01-15T10:30:45Z,
     device: "FW01",
     action: "BLOCK",
-    details: "src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN"
-  }
+    details: "src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN",
+  },
 }
 ```
 
@@ -443,9 +450,9 @@ Now parse the details field:
 from {
   log: "2024-01-15 10:30:45 FW01 BLOCK src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN"
 }
-set parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
+parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
 // Step 2: Parse the key-value pairs
-set parts.details = parts.details.parse_kv()
+parts.details = parts.details.parse_kv()
 ```
 
 ```tql
@@ -459,8 +466,8 @@ set parts.details = parts.details.parse_kv()
       src: "10.0.0.5:54321",
       dst: "93.184.216.34:443",
       proto: "TCP",
-      flags: "SYN"
-    }
+      flags: "SYN",
+    },
   }
 }
 ```
@@ -471,13 +478,13 @@ Finally, parse the IP:port combinations:
 from {
   log: "2024-01-15 10:30:45 FW01 BLOCK src=10.0.0.5:54321 dst=93.184.216.34:443 proto=TCP flags=SYN"
 }
-set parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
-set parts.details = parts.details.parse_kv()
+parts = log.parse_grok("%{TIMESTAMP_ISO8601:time} %{DATA:device} %{DATA:action} %{GREEDYDATA:details}")
+parts.details = parts.details.parse_kv()
 // Step 3: Split IP:port combinations
-set src_parts = parts.details.src.split(":")
-set dst_parts = parts.details.dst.split(":")
+src_parts = parts.details.src.split(":")
+dst_parts = parts.details.dst.split(":")
 // Step 4: Create clean output
-set this = {
+this = {
   timestamp: parts.time,
   device: parts.device,
   action: parts.action,
@@ -500,7 +507,7 @@ set this = {
   dst_ip: 93.184.216.34,
   dst_port: 443,
   protocol: "TCP",
-  flags: "SYN"
+  flags: "SYN",
 }
 ```
 
