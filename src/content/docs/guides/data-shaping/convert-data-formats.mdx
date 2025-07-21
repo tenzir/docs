@@ -23,8 +23,7 @@ from {
     metadata: {}
   }
 }
-set json_string = user.print_json()
-set json_stripped = user.print_json(strip=true)
+json_string = user.print_json()
 ```
 
 ```tql
@@ -41,6 +40,45 @@ set json_stripped = user.print_json(strip=true)
 }
 ```
 
+:::tip[Print & Write Siblings]
+Many `print_*` functions have a `write_*` sibling operator that operate on
+entire events instead of values within events. The `write_*` operators return
+*bytes* instead of events. As such, you need to pair it with an [output operator
+that accepts bytes](/reference/operators/#outputs).
+:::
+
+The [`print_json()`](/reference/functions/print_json) function has
+[`write_json`](/reference/operators/write_json) as sibling operator to format
+the entire event stream as JSON:
+
+```
+from {
+  user: {
+    name: "Alice",
+    age: 30,
+    roles: ["admin", "user"],
+    email: null,
+    metadata: {}
+  }
+}
+write_json
+```
+
+```json
+{
+  "user": {
+    "name": "Alice",
+    "age": 30,
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "email": null,
+    "metadata": {}
+  }
+}
+```
+
 ### Print newline-delimited JSON
 
 For streaming data, use [`print_ndjson()`](/reference/functions/print_ndjson):
@@ -53,14 +91,44 @@ from {
     {type: "logout", user: "alice"}
   ]
 }
-set ndjson = events.print_ndjson()
+ndjson = events.print_ndjson()
 ```
 
 ```tql
 {
-  events: [...],
-  ndjson: "{\"type\":\"login\",\"user\":\"alice\"}\n{\"type\":\"view\",\"user\":\"bob\"}\n{\"type\":\"logout\",\"user\":\"alice\"}"
+  events: [
+    {
+      type: "login",
+      user: "alice",
+    },
+    {
+      type: "view",
+      user: "bob",
+    },
+    {
+      type: "logout",
+      user: "alice",
+    },
+  ],
+  ndjson: "[{\"type\":\"login\",\"user\":\"alice\"},{\"type\":\"view\",\"user\":\"bob\"},{\"type\":\"logout\",\"user\":\"alice\"}]",
 }
+```
+
+And with the [`write_ndjson`](/reference/operators/write_ndjson) dual:
+
+```tql
+from {
+  events: [
+    {type: "login", user: "alice"},
+    {type: "view", user: "bob"},
+    {type: "logout", user: "alice"}
+  ]
+}
+write_ndjson
+```
+
+```json
+{"events":[{"type":"login","user":"alice"},{"type":"view","user":"bob"},{"type":"logout","user":"alice"}]}
 ```
 
 ## Print to CSV
@@ -68,45 +136,47 @@ set ndjson = events.print_ndjson()
 Convert tabular data to CSV with [`print_csv()`](/reference/functions/print_csv):
 
 ```tql
-from {
-  users: [
-    {name: "Alice", age: 30, city: "NYC"},
-    {name: "Bob", age: 25, city: "SF"},
-    {name: "Charlie", age: 35, city: "LA"}
-  ]
-}
-set csv_data = users.print_csv()
-set custom_csv = users.print_csv(sep=";", no_header=true)
+from {name: "Alice", age: 30, city: "NYC"},
+     {name: "Bob", age: 25, city: "SF"},
+     {name: "Charlie", age: 35, city: "LA"}
+csv_data = this.print_csv()
 ```
 
 ```tql
 {
-  users: [...],
-  csv_data: "name,age,city\nAlice,30,NYC\nBob,25,SF\nCharlie,35,LA",
-  custom_csv: "Alice;30;NYC\nBob;25;SF\nCharlie;35;LA"
+  name: "Alice",
+  age: 30,
+  city: "NYC",
+  csv_data: "Alice,30,NYC",
 }
-```
-
-### Handle special characters
-
-CSV printing automatically handles quoting and escaping:
-
-```tql
-from {
-  data: [
-    {text: "Hello, world", value: 123},
-    {text: "Line 1\nLine 2", value: 456},
-    {text: "Quote: \"test\"", value: 789}
-  ]
-}
-set csv = data.print_csv()
-```
-
-```tql
 {
-  data: [...],
-  csv: "text,value\n\"Hello, world\",123\n\"Line 1\nLine 2\",456\n\"Quote: \"\"test\"\"\",789"
+  name: "Bob",
+  age: 25,
+  city: "SF",
+  csv_data: "Bob,25,SF",
 }
+{
+  name: "Charlie",
+  age: 35,
+  city: "LA",
+  csv_data: "Charlie,35,LA",
+}
+```
+
+You get an extra header with [`write_csv`](/reference/operators/write_csv) dual:
+
+```tql
+from {name: "Alice", age: 30, city: "NYC"},
+     {name: "Bob", age: 25, city: "SF"},
+     {name: "Charlie", age: 35, city: "LA"}
+csv_data = this.print_csv()
+```
+
+```csv
+name,age,city
+Alice,30,NYC
+Bob,25,SF
+Charlie,35,LA
 ```
 
 ## Print to TSV and SSV
@@ -119,36 +189,91 @@ For tab-separated and space-separated values, use
 from {
   record: {id: 1, name: "Alice Smith", status: "active"}
 }
-set tsv = record.print_tsv()
-set ssv = record.print_ssv()
+tsv = record.print_tsv()
+ssv = record.print_ssv()
 ```
 
 ```tql
 {
-  record: {id: 1, name: "Alice Smith", status: "active"},
+  record: {
+    id: 1,
+    name: "Alice Smith",
+    status: "active",
+  },
   tsv: "1\tAlice Smith\tactive",
-  ssv: "1 \"Alice Smith\" active"
+  ssv: "1 \"Alice Smith\" active",
 }
 ```
 
+With [`write_tsv`](/reference/operators/write_tsv):
+
+```tql
+from {
+  record: {id: 1, name: "Alice Smith", status: "active"}
+}
+write_tsv
+```
+
+```txt
+record.id	record.name	record.status
+1	Alice Smith	active
+```
+
+Note the additional double quotes with
+[`write_ssv`](/reference/operators/write_ssv) because space is overloaded as
+field separator.
+
+```tql
+from {
+  record: {id: 1, name: "Alice Smith", status: "active"}
+}
+write_ssv
+```
+
+```txt
+record.id record.name record.status
+1 "Alice Smith" active
+```
+
 ## Print to custom-separated values
+
+If none of the existing *SV formats meet your needs, the
+[`print_xsv()`](/reference/functions/print_xsv) function to customize field
+separator, list separator, and what to render for absent values:
 
 Use [`print_xsv()`](/reference/functions/print_xsv) for custom separators:
 
 ```tql
 from {
-  item: {sku: "A001", desc: "Widget", price: 9.99}
+  item: {sku: "A001", desc: "Widget", price: 9.99, scores: [42, 84], details: null}
 }
-set pipe_separated = item.print_xsv(sep="|")
-set colon_separated = item.print_xsv(sep=" :: ")
+pipe_separated = item.print_xsv(field_separator=" ⏸︎ ",
+                                list_separator=" ⌘ ",
+                                null_value="∅")
 ```
+
+And for the entire event stream via
+[`write_xsv`](/reference/operators/write_xsv):
 
 ```tql
 {
-  item: {sku: "A001", desc: "Widget", price: 9.99},
-  pipe_separated: "A001|Widget|9.99",
-  colon_separated: "A001 :: Widget :: 9.99"
+  item: {
+    sku: "A001",
+    desc: "Widget",
+    price: 9.99,
+    scores: [
+      42,
+      84,
+    ],
+    details: null,
+  },
+  pipe_separated: "A001 ⏸︎ Widget ⏸︎ 9.99 ⏸︎ 42 ⌘ 84 ⏸︎ ∅",
 }
+```
+
+```txt
+item.sku ⏸︎ item.desc ⏸︎ item.price ⏸︎ item.scores ⏸︎ item.details
+A001 ⏸︎ Widget ⏸︎ 9.99 ⏸︎ 42 ⌘ 84 ⏸︎ ∅
 ```
 
 ## Print to YAML
@@ -167,14 +292,45 @@ from {
     features: ["auth", "api", "websocket"]
   }
 }
-set yaml_string = config.print_yaml()
+yaml = config.print_yaml()
 ```
 
 ```tql
 {
   config: {...},
-  yaml_string: "server:\n  host: localhost\n  port: 8080\n  ssl: true\nfeatures:\n  - auth\n  - api\n  - websocket"
+  yaml: "server:\n  host: localhost\n  port: 8080\n  ssl: true\nfeatures:\n  - auth\n  - api\n  - websocket"
 }
+```
+
+Turn the entire event stream into a YAML document stream via
+[`write_yaml`](/reference/operators/write_yaml):
+
+```tql
+from {
+  config: {
+    server: {
+      host: "localhost",
+      port: 8080,
+      ssl: true
+    },
+    features: ["auth", "api", "websocket"]
+  }
+}
+write_yaml
+```
+
+```yaml
+---
+config:
+  server:
+    host: localhost
+    port: 8080
+    ssl: true
+  features:
+    - auth
+    - api
+    - websocket
+...
 ```
 
 ## Print key-value pairs
@@ -191,15 +347,20 @@ from {
     code: 500
   }
 }
-set kv_default = event.print_kv()
-set kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
+kv_default = event.print_kv()
+kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
 ```
 
 ```tql
 {
-  event: {...},
+  event: {
+    timestamp: "2024-01-15T10:30:00",
+    level: "ERROR",
+    message: "Connection failed",
+    code: 500,
+  },
   kv_default: "timestamp=2024-01-15T10:30:00 level=ERROR message=\"Connection failed\" code=500",
-  kv_custom: "timestamp: 2024-01-15T10:30:00 | level: ERROR | message: Connection failed | code: 500"
+  kv_custom: "timestamp: 2024-01-15T10:30:00 | level: ERROR | message: Connection failed | code: 500",
 }
 ```
 
@@ -219,7 +380,7 @@ from {
     dpt: 22
   }
 }
-set cef_string = extension.print_cef(
+cef = extension.print_cef(
   cef_version="0",
   device_vendor="Security Corp",
   device_product="Firewall",
@@ -233,9 +394,25 @@ set cef_string = extension.print_cef(
 ```tql
 {
   extension: {src: "10.0.0.1", dst: "192.168.1.1", spt: 12345, dpt: 22},
-  cef_string: "CEF:0|Security Corp|Firewall|1.0|100|Port Scan Detected|7|src=10.0.0.1 dst=192.168.1.1 spt=12345 dpt=22"
+  cef: "CEF:0|Security Corp|Firewall|1.0|100|Port Scan Detected|7|src=10.0.0.1 dst=192.168.1.1 spt=12345 dpt=22"
 }
 ```
+
+:::tip[Turn print functions into write operators]
+There's no `write_cef` sibling operator, but you use a combination of
+[`select`](/reference/operators/select) and
+[`write_lines`](/reference/operators/write_lines). For example:
+
+```tql
+from { ... }
+cef = print_cef(...)
+select cef
+write_lines
+```
+You could now add [`save_file`](/reference/operators/save_file) or use
+[`write_lines`](/reference/operators/write_lines) as printing pipeline in
+[`to`](/reference/operators/to).
+:::
 
 ### LEEF (Log Event Extended Format)
 
@@ -249,7 +426,7 @@ from {
     action: "BLOCK"
   }
 }
-set leef_string = attributes.print_leef(
+leef = attributes.print_leef(
   vendor="Security Corp",
   product_name="IDS",
   product_version="2.0",
@@ -260,9 +437,11 @@ set leef_string = attributes.print_leef(
 ```tql
 {
   attributes: {srcIP: "10.0.0.5", dstIP: "192.168.1.10", action: "BLOCK"},
-  leef_string: "LEEF:2.0|Security Corp|IDS|2.0|200|srcIP=10.0.0.5|dstIP=192.168.1.10|action=BLOCK"
+  leef: "LEEF:2.0|Security Corp|IDS|2.0|200|srcIP=10.0.0.5|dstIP=192.168.1.10|action=BLOCK"
 }
 ```
+
+As above, add `select leef | write_lines` to create line-based LEEF output.
 
 ## Convert between formats
 
@@ -274,7 +453,7 @@ from {
 }
 // JSON to CSV
 set parsed = json_data.parse_json()
-set as_csv = [parsed].print_csv()
+set as_csv = parsed.print_csv()
 
 // JSON to YAML
 set as_yaml = parsed.print_yaml()
@@ -286,126 +465,14 @@ set as_kv = parsed.print_kv()
 ```tql
 {
   json_data: "{\"name\":\"Alice\",\"age\":30,\"city\":\"NYC\"}",
-  parsed: {name: "Alice", age: 30, city: "NYC"},
-  as_csv: "name,age,city\nAlice,30,NYC",
+  parsed: {
+    name: "Alice",
+    age: 30,
+    city: "NYC",
+  },
+  as_csv: "Alice,30,NYC",
   as_yaml: "name: Alice\nage: 30\ncity: NYC",
-  as_kv: "name=Alice age=30 city=NYC"
-}
-```
-
-## Practical examples
-
-### Export user data
-
-```tql
-from {
-  users: [
-    {id: 1, name: "Alice", email: "alice@example.com", joined: 2024-01-01},
-    {id: 2, name: "Bob", email: "bob@example.com", joined: 2024-01-15},
-    {id: 3, name: "Charlie", email: "charlie@example.com", joined: 2024-02-01}
-  ]
-}
-// Export as JSON
-set export_json = users.print_json()
-set export_ndjson = users.print_ndjson()
-
-// Export individual records as CSV
-set first_user_csv = users.first().print_csv()
-```
-
-```tql
-{
-  users: [...],
-  export_json: "[{\"id\":1,\"name\":\"Alice\",\"email\":\"alice@example.com\",\"joined\":\"2024-01-01T00:00:00.000000\"},{\"id\":2,\"name\":\"Bob\",\"email\":\"bob@example.com\",\"joined\":\"2024-01-15T00:00:00.000000\"},{\"id\":3,\"name\":\"Charlie\",\"email\":\"charlie@example.com\",\"joined\":\"2024-02-01T00:00:00.000000\"}]",
-  export_ndjson: "{\"id\":1,\"name\":\"Alice\",\"email\":\"alice@example.com\",\"joined\":\"2024-01-01T00:00:00.000000\"}\n{\"id\":2,\"name\":\"Bob\",\"email\":\"bob@example.com\",\"joined\":\"2024-01-15T00:00:00.000000\"}\n{\"id\":3,\"name\":\"Charlie\",\"email\":\"charlie@example.com\",\"joined\":\"2024-02-01T00:00:00.000000\"}",
-  first_user_csv: "1,Alice,alice@example.com,2024-01-01T00:00:00.000000"
-}
-```
-
-### Export event stream as CSV
-
-```tql
-from {id: 1, name: "Alice", email: "alice@example.com"},
-     {id: 2, name: "Bob", email: "bob@example.com"},
-     {id: 3, name: "Charlie", email: "charlie@example.com"}
-write_csv
-read_lines
-```
-
-```tql
-{line: "id,name,email"}
-{line: "1,Alice,alice@example.com"}
-{line: "2,Bob,bob@example.com"}
-{line: "3,Charlie,charlie@example.com"}
-```
-
-### Create configuration files
-
-```tql
-from {
-  settings: {
-    app_name: "MyApp",
-    version: "1.0.0",
-    database: {
-      host: "db.example.com",
-      port: 5432,
-      name: "myapp_db"
-    },
-    features: {
-      auth: true,
-      api: true,
-      websocket: false
-    }
-  }
-}
-// Generate different config formats
-set json_config = settings.print_json(indent=2)
-set yaml_config = settings.print_yaml()
-set env_vars = f"APP_NAME={settings.app_name}\nAPP_VERSION={settings.version}\nDB_HOST={settings.database.host}\nDB_PORT={settings.database.port}"
-```
-
-```tql
-{
-  settings: {...},
-  json_config: "{\n  \"app_name\": \"MyApp\",\n  \"version\": \"1.0.0\",\n  ...\n}",
-  yaml_config: "app_name: MyApp\nversion: 1.0.0\ndatabase:\n  host: db.example.com\n  port: 5432\n  name: myapp_db\nfeatures:\n  auth: true\n  api: true\n  websocket: false",
-  env_vars: "APP_NAME=MyApp\nAPP_VERSION=1.0.0\nDB_HOST=db.example.com\nDB_PORT=5432"
-}
-```
-
-### Format logs for different systems
-
-```tql
-from {
-  log_event: {
-    timestamp: 2024-01-15T10:30:45,
-    level: "ERROR",
-    service: "auth",
-    message: "Login failed",
-    user: "alice@example.com",
-    ip: "192.168.1.100"
-  }
-}
-// Syslog format
-set syslog = f"<131>{log_event.timestamp.format_time()} {log_event.service}: {log_event.level} - {log_event.message}"
-
-// JSON for modern logging
-set json_log = log_event.print_json()
-
-// Key-value for traditional systems
-set kv_log = log_event.print_kv()
-
-// CSV for analysis
-set csv_row = [log_event].print_csv(no_header=true)
-```
-
-```tql
-{
-  log_event: {...},
-  syslog: "<131>2024-01-15T10:30:45.000000 auth: ERROR - Login failed",
-  json_log: "{\"timestamp\":\"2024-01-15T10:30:45.000000\",\"level\":\"ERROR\",\"service\":\"auth\",\"message\":\"Login failed\",\"user\":\"alice@example.com\",\"ip\":\"192.168.1.100\"}",
-  kv_log: "timestamp=2024-01-15T10:30:45.000000 level=ERROR service=auth message=\"Login failed\" user=alice@example.com ip=192.168.1.100",
-  csv_row: "2024-01-15T10:30:45.000000,ERROR,auth,Login failed,alice@example.com,192.168.1.100"
+  as_kv: "name=Alice age=30 city=NYC",
 }
 ```
 
