@@ -447,6 +447,128 @@ syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
 }
 ```
 
+## Replay and adjust time series
+
+When working with historical data, you often need to replay events with their
+original timing or adjust timestamps for analysis. TQL provides two operators
+for this: [`delay`](/reference/operators/delay) and
+[`timeshift`](/reference/operators/timeshift).
+
+### Adjust timestamps with timeshift
+
+The `timeshift` operator adjusts timestamps to a new baseline while preserving
+relative time differences:
+
+```tql
+from {event: "login", ts: 2020-06-15T09:00:00},
+     {event: "action", ts: 2020-06-15T09:05:30},
+     {event: "logout", ts: 2020-06-15T17:30:00}
+timeshift ts, start=2024-01-01
+```
+
+```tql
+{event: "login", ts: 2024-01-01T00:00:00Z}
+{event: "action", ts: 2024-01-01T00:05:30Z}
+{event: "logout", ts: 2024-01-01T08:30:00Z}
+```
+
+Notice how the 5.5-minute gap between login and action, and the 8.5-hour
+session duration are preserved, but all timestamps now start from January 1, 2024.
+
+You can also scale the time intervals with the `speed` parameter:
+
+```tql
+from {event: "start", ts: 2020-01-01T00:00:00},
+     {event: "middle", ts: 2020-01-01T00:30:00},
+     {event: "end", ts: 2020-01-01T01:00:00}
+// Make intervals 10x longer
+timeshift ts, start=2024-01-01, speed=0.1
+```
+
+```tql
+{event: "start", ts: 2024-01-01T00:00:00Z}
+{event: "middle", ts: 2024-01-01T05:00:00Z}
+{event: "end", ts: 2024-01-01T10:00:00Z}
+```
+
+The 30-minute intervals became 5-hour intervals (10x longer with speed=0.1).
+
+### Replay events in real time with delay
+
+The `delay` operator replays events according to their timestamps by
+introducing sleep periods between events:
+
+```tql
+from {ts: 2024-01-01T00:00:00, msg: "first"},
+     {ts: 2024-01-01T00:00:02, msg: "second"},
+     {ts: 2024-01-01T00:00:03, msg: "third"}
+delay ts, start=now(), speed=0.1
+```
+
+With `speed=0.1`, the 2-second gap between first and second events becomes 20
+seconds, and the 1-second gap between second and third becomes 10 seconds. This
+slower replay makes it easy to observe the delay in action.
+
+For replaying historical data with original timing:
+
+```tql
+let $zeek_logs = "https://storage.googleapis.com/tenzir-datasets/M57/zeek-all.log.zst"
+from_http $zeek_logs {
+  decompress_zstd
+  read_zeek_tsv
+}
+delay ts
+```
+
+This replays the logs with real-world inter-arrival times. If an event
+occurred at 10:00:00 and the next at 10:00:05, the operator waits 5 seconds
+between emitting them.
+
+### Combine with periodic generation
+
+Use [`every`](/reference/operators/every) to generate events periodically, then
+replay them with modified timing:
+
+```tql
+every 1s {
+  from {
+    ts: now(),
+    message: "Periodic event"
+  }
+}
+head 5
+delay ts, speed=0.5
+```
+
+This generates events every second but replays them at half speed (2 seconds
+between events).
+
+### Practical example: Simulate real-time monitoring
+
+Combine both operators to replay historical logs as if they're happening now:
+
+```tql
+// Load historical logs
+from_file "/path/to/historical-logs.json"
+// Shift timestamps to current time
+timeshift timestamp, start=now()
+// Replay at 5x speed to quickly review a day's worth of logs
+delay timestamp, speed=5.0
+// Continue with normal processing
+// ...
+```
+
+### Key differences
+
+- **`timeshift`**: Instantly adjusts all timestamps without delays
+- **`delay`**: Introduces real-time delays between events based on their
+  timestamps
+
+Use `timeshift` when you need to analyze historical data with updated
+timestamps. Use `delay` when you want to replay events with realistic timing,
+such as for testing real-time processing systems or simulating live data
+streams.
+
 ## Best practices
 
 1. **Use proper types**: Convert strings to time values early in your pipeline
