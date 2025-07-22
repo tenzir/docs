@@ -389,6 +389,16 @@ check. The function now works as expected again.
 
 By [@dominiklohmann](https://github.com/dominiklohmann) in [#5345](https://github.com/tenzir/tenzir/pull/5345).
 
+#### Fixed `list_separator` option name in `print_csv`
+
+The `print_csv`, `print_ssv` and `print_tsv` functions had an option incorrectly
+named `field_separator`. Instead, these functions have an option `list_separator`
+now, allowing you to change the list separator.
+You cannot set a custom `field_separator` on these functions. If you want to
+print with custom `field_separator`s, use `print_xsv` instead.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5357](https://github.com/tenzir/tenzir/pull/5357).
+
 #### Fix `context::create_geoip` without `db_path`
 
 The `context::create_geoip` operator failed with a `message_mismatch` error when
