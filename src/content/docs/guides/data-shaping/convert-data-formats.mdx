@@ -43,7 +43,7 @@ json_string = user.print_json()
 :::tip[Print & Write Siblings]
 Many `print_*` functions have a `write_*` sibling operator that operate on
 entire events instead of values within events. The `write_*` operators return
-*bytes* instead of events. As such, you need to pair it with an [output operator
+_bytes_ instead of events. As such, you need to pair it with an [output operator
 that accepts bytes](/reference/operators/#outputs).
 :::
 
@@ -237,7 +237,7 @@ record.id record.name record.status
 
 ## Print to custom-separated values
 
-If none of the existing *SV formats meet your needs, the
+If none of the existing \*SV formats meet your needs, the
 [`print_xsv()`](/reference/functions/print_xsv) function to customize field
 separator, list separator, and what to render for absent values:
 
@@ -409,6 +409,7 @@ cef = print_cef(...)
 select cef
 write_lines
 ```
+
 You could now add [`save_file`](/reference/operators/save_file) or use
 [`write_lines`](/reference/operators/write_lines) as printing pipeline in
 [`to`](/reference/operators/to).
@@ -479,7 +480,6 @@ set as_kv = parsed.print_kv()
 ## Best practices
 
 1. **Choose appropriate formats**:
-
    - JSON for APIs and modern systems
    - CSV for spreadsheets and analysis
    - YAML for configuration files
