@@ -2,8 +2,6 @@
 title: ClickHouse
 ---
 
-import { Steps } from "@astrojs/starlight/components";
-
 [ClickHouse](https://clickhouse.com/clickhouse) is an open-source analytical
 database that enables its users to generate powerful analytics, using SQL
 queries, in real-time.
@@ -33,12 +31,15 @@ To get started with ClickHouse, follow the
 
 ### Native Binary
 
+import { Steps } from "@astrojs/starlight/components";
+
 <Steps>
+
 1. Download the binary:
 
-    ```sh
-    curl https://clickhouse.com/ | sh
-    ```
+   ```sh
+   curl https://clickhouse.com/ | sh
+   ```
 
 2. Start the server:
 
@@ -80,13 +81,14 @@ You can now connect to ClickHouse at `localhost:9000` (native protocol) or
 
 ## Usage Examples
 
-These examples assume that the clickhouse server is running on the same host as
+These examples assume that the ClickHouse server is running on the same host as
 Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
 pipelines).
 
 You can find out more about how to configure TLS on the
-[`to_clickhouse` documentation](/reference/operators/to_clickhouse) and the
-[Clickhouse SSL-TLS configuration guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
+[`to_clickhouse`](/reference/operators/to_clickhouse) documentation and the
+[Clickhouse SSL-TLS configuration
+guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
 
 ### 1. Easy Mode: Automatic table creation
 
