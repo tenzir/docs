@@ -31,6 +31,31 @@ Most notably:
 - Write documentation in an informal tone, e.g., use common two-word
   contractions such as "you're," "don't," and "there's."
 
+## Tenzir Query Language (TQL)
+
+This repository has a lot of TQL code examples.
+
+- Always wrap TQL code in a ```tql Markdown code block.
+- Two subsequent ```tql code blocks represent the pipeline definittion and its
+  output.
+
+### Validation
+
+The following is only possible when a `tenzir` binary is avilable in your
+`$PATH`.
+
+- Validate all TQL that you generate by passing the pipeline definition to the
+  `tenzir` binary, e.g., `tenzir 'from {x:42}'`.
+- The `tenzir` binary produces the pipeline output on stdout in TQL, unless you
+  use a different operator that changes the format, such as the `write_*`
+  operator family. When the output is TQL, wrap the output in an immediately
+  following `tql` code block as well. If the output is not TQL, attempt to find
+  the best fitting Markdown code language. E.g., when the pipeline ends in
+  `write_json`, use `json`.
+- For more structured or bigger pipelines, consider writing the definition into
+  a dedicated file, e.g., `pipeline.tql`, and then passing it to the `tenzir`
+  binary. For example, `tenzir -f pipeline.tql`.
+
 ## Workflow
 
 ### Building and Testing
