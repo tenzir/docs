@@ -61,19 +61,10 @@ Most notably:
 
 ## Formatting
 
-### General
+The `.claude/format-hook.sh` automatically handles formatting for all file edits:
 
-- Every file must end with a newline character, but avoid empty lines at the end
-  of a file.
+- **Markdown files** (.md, .mdx, .mdoc): Formatted with `markdownlint` and `prettier`
+- **Code files** (.js, .jsx, .ts, .tsx, .astro): Formatted with `prettier`
+- **Config files** (.json, .yaml, .yml): Formatted with `prettier`
 
-### Markdown Content
-
-- Break lines at 80 characters.
-- When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
-lint:prettier:fix` when you're done.
-
-### Code
-
-- Avoid empty lines within functions.
-- When editing source code (.js,.jsx,.ts,.tsx,.astro files),
-  run `pnpm lint:eslint:fix` when you're done.
+No manual formatting commands are needed as the hook runs automatically after each edit.
