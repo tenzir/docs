@@ -35,16 +35,48 @@ This pattern is useful when processing multiple URLs or when URLs are generated
 dynamically. Most of our subsequent examples use `from_http`, as the operator
 options are very similar.
 
-### Parsing the HTTP Rsponse Body
+### Parsing the HTTP Response Body
 
-The `from_http` and `http` operators attempt to find the right parser for the
-HTTP response body by inspecting the `Content-Type` header. For example, if the
-`Content-Type` is `application/json`, then Tenzir applies the
-[`read_json`](/reference/operators/read_json) operator.
+The `from_http` and `http` operators automatically determine how to parse the
+HTTP response body using multiple methods:
+
+1. **URL-based inference**: The operators first check the URL's file extension
+   to infer both the format (JSON, CSV, Parquet, etc.) and compression type
+   (gzip, zstd, etc.). This works just like the generic `from` operator.
+
+2. **Header-based inference**: If the format cannot be determined from the URL,
+   the operators fall back to using the HTTP `Content-Type` and
+   `Content-Encoding` response headers.
+
+3. **Manual specification**: You can always override automatic inference by
+   providing a parsing pipeline.
+
+#### Automatic Format and Compression Inference
+
+When the URL contains a recognizable file extension, the operators automatically
+handle decompression and parsing:
+
+```tql
+from_http "https://example.org/data/events.csv.zst"
+```
+
+This automatically infers `zstd` compression and `CSV` format from the file
+extension, decompresses, and parses accordingly.
+
+For URLs without clear extensions, the operators use HTTP headers:
+
+```tql
+from_http "https://example.org/download"
+```
+
+If the server responds with `Content-Type: application/json` and
+`Content-Encoding: gzip`, the operator will decompress and parse as JSON.
+
+#### Manual Format Specification
 
 You can manually override the parser for the response body by specifying a
 parsing pipeline, i.e., a pipeline that transforms bytes to events. For example,
-if an API returns CSV data without a proper `Conten-Type`, you can specify the
+if an API returns CSV data without a proper `Content-Type`, you can specify the
 parsing pipeline as follows:
 
 ```tql
@@ -56,15 +88,28 @@ from_http "https://api.example.com/users" {
 This parses the response from CSV into structured events that you can process
 further.
 
+Similarly, if you need to handle specific compression and format combinations
+that aren't automatically detected:
+
+```tql
+from_http "https://example.org/archive" {
+  decompress_gzip
+  read_json
+}
+```
+
+This explicitly specifies to decompress gzip and then parse as JSON, regardless
+of the URL or HTTP headers.
+
 ### POST Requests with Data
 
 Send data to APIs by specifying the `method` parameter as "post" and providing
-the request body in the `payload` parameter:
+the request body in the `body` parameter:
 
 ```tql
 from_http "https://api.example.com/users",
   method="post",
-  payload={"name": "John", "email": "john@example.com"}
+  body={"name": "John", "email": "john@example.com"}
 ```
 
 Similarly, with the `http` operator you can also parameterize the entire HTTP
@@ -79,10 +124,10 @@ from {
     email: "john@example.com"
   }
 }
-http url, method=method, payload=data
+http url, method=method, body=data
 ```
 
-The operators automatically uses POST method when you specify a payload.
+The operators automatically use POST method when you specify a body.
 
 ## Request Configuration
 
@@ -96,12 +141,13 @@ containing key-value pairs:
 
 ```tql
 from_http "https://api.example.com/data", headers={
-    "Authorization": "Bearer your-token-here",
-    "Content-Type": "application/json"
+    "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
   }
 ```
 
-Headers help you authenticate with APIs and specify request formats.
+Headers help you authenticate with APIs and specify request formats. Use the
+[`secret`](/reference/functions/secret) function to retrieve sensitive
+API tokens, as in the above example.
 
 ### TLS and Security
 
@@ -159,9 +205,7 @@ Capture HTTP response metadata by specifying the `metadata_field` parameter to
 store status codes and headers separately from the response body:
 
 ```tql
-from_http "https://api.example.com/status",
-  response_field=data,
-  metadata_field=http_meta
+from_http "https://api.example.com/status", metadata_field=http_meta
 ```
 
 The metadata includes status codes and response headers for debugging and
@@ -192,7 +236,7 @@ dynamically using expressions that reference response data:
 ```tql
 let $base_url = "https://api.example.com/items"
 from_http f"{$base_url}?page=1",
-  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages,
+  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages),
 ```
 
 This example builds pagination URLs dynamically based on response data.
@@ -237,7 +281,7 @@ Monitor API health and response times:
 
 ```tql
 from_http "https://api.example.com/health", metadata_field=metadata
-select date=metadata.headers["Date"].parse_time("%a, %d %b %Y %H:%M:%S %Z")
+select date=metadata.headers.Date.parse_time("%a, %d %b %Y %H:%M:%S %Z")
 latency = now() - date
 ```
 
@@ -284,9 +328,11 @@ Follow these practices for reliable and efficient API integration:
    handling transient failures.
 3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control
    request rates.
-4. **Handle errors gracefully**. Check status codes in metdata
+4. **Handle errors gracefully**. Check status codes in metadata
    (`metadata_field`) and implement fallback logic.
 5. **Secure credentials**. Access API keys and tokens via
    [secrets](/explanations/secrets), not in code.
 6. **Monitor API usage**. Track response times and error rates for
    performance.
+7. **Leverage automatic format inference**. Use descriptive file extensions in
+   URLs when possible to enable automatic format and compression detection.
