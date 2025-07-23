@@ -84,6 +84,14 @@ The following is only possible when a `tenzir` binary is avilable in your
   at 72 characters per line, explaining _why_ the change is needed, _how_ it
   addresses the underlying issue, and what _side-effects_ it might have.
 
+### Reviewing Pull Requests
+
+When reviewing a PR as the GitHub @claude bot, follow these guidelines:
+
+- Keep your feedback terse. Use concise and actionable instructions.
+- Prefer bullet lists. Use examples only where needed to improve clarity.
+- Avoid overly verbose explanations. Focus on the most important points.
+
 ## Formatting
 
 The `.claude/format-hook.sh` automatically handles formatting for all file edits:
