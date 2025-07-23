@@ -31,6 +31,31 @@ Most notably:
 - Write documentation in an informal tone, e.g., use common two-word
   contractions such as "you're," "don't," and "there's."
 
+## Tenzir Query Language (TQL)
+
+This repository has a lot of TQL code examples.
+
+- Always wrap TQL code in a ```tql Markdown code block.
+- Two subsequent ```tql code blocks represent the pipeline definittion and its
+  output.
+
+### Validation
+
+The following is only possible when a `tenzir` binary is avilable in your
+`$PATH`.
+
+- Validate all TQL that you generate by passing the pipeline definition to the
+  `tenzir` binary, e.g., `tenzir 'from {x:42}'`.
+- The `tenzir` binary produces the pipeline output on stdout in TQL, unless you
+  use a different operator that changes the format, such as the `write_*`
+  operator family. When the output is TQL, wrap the output in an immediately
+  following `tql` code block as well. If the output is not TQL, attempt to find
+  the best fitting Markdown code language. E.g., when the pipeline ends in
+  `write_json`, use `json`.
+- For more structured or bigger pipelines, consider writing the definition into
+  a dedicated file, e.g., `pipeline.tql`, and then passing it to the `tenzir`
+  binary. For example, `tenzir -f pipeline.tql`.
+
 ## Workflow
 
 ### Building and Testing
@@ -61,19 +86,10 @@ Most notably:
 
 ## Formatting
 
-### General
+The `.claude/format-hook.sh` automatically handles formatting for all file edits:
 
-- Every file must end with a newline character, but avoid empty lines at the end
-  of a file.
+- **Markdown files** (.md, .mdx, .mdoc): Formatted with `markdownlint` and `prettier`
+- **Code files** (.js, .jsx, .ts, .tsx, .astro): Formatted with `prettier`
+- **Config files** (.json, .yaml, .yml): Formatted with `prettier`
 
-### Markdown Content
-
-- Break lines at 80 characters.
-- When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
-lint:prettier:fix` when you're done.
-
-### Code
-
-- Avoid empty lines within functions.
-- When editing source code (.js,.jsx,.ts,.tsx,.astro files),
-  run `pnpm lint:eslint:fix` when you're done.
+No manual formatting commands are needed as the hook runs automatically after each edit.
