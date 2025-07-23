@@ -5,17 +5,19 @@ title: Read and watch files
 This guide covers how to read files and monitor directories for new files using
 the [`from_file`](/reference/operators/from_file) operator. Whether you process
 individual files, batch process directories, or set up real-time file
-monitoring, `from_file` provides a unified approach to file-based data
-ingestion.
+monitoring, [`from_file`](/reference/operators/from_file) provides a unified
+approach to file-based data ingestion.
 
 ## Basic File Reading
 
-The `from_file` operator handles various file types and formats. Start with
-these fundamental patterns for reading individual files.
+The [`from_file`](/reference/operators/from_file) operator handles various file
+types and formats. Start with these fundamental patterns for reading individual
+files.
 
 ### Single Files
 
-To read a single file, specify the path to the `from_file` operator:
+To read a single file, specify the path to the
+[`from_file`](/reference/operators/from_file) operator:
 
 ```tql
 from_file "/path/to/file.json"
@@ -153,7 +155,7 @@ across cloud storage hierarchies.
 ## Common Patterns
 
 These examples demonstrate typical use cases that combine multiple features of
-the `from_file` operator for real-world scenarios.
+the [`from_file`](/reference/operators/from_file) operator for real-world scenarios.
 
 ### Real-time Log Processing
 
@@ -185,12 +187,14 @@ from_file "/archive/*.csv.gz", remove=true
 ## Migration Notes
 
 :::info[Transitioning from Legacy Operators]
-We designed the `from_file` operator to replace the existing `load_file`,
-`load_s3`, and `load_gcs` operators. While we still support these legacy
-operators, `from_file` provides a more unified and feature-rich approach to
-file ingestion.
+We designed the [`from_file`](/reference/operators/from_file) operator to
+replace the existing [`load_file`](/reference/operators/load_file),
+[`load_s3`](/reference/operators/load_s3), and
+[`load_gcs`](/reference/operators/load_gcs) operators. While we still support
+these legacy operators, [`from_file`](/reference/operators/from_file) provides a
+more unified and feature-rich approach to file ingestion.
 
 We plan to add some advanced features from the legacy operators (such as file
 tailing, anonymous S3 access, and Unix domain socket support) in future
-releases of `from_file`.
+releases of [`from_file`](/reference/operators/from_file).
 :::
