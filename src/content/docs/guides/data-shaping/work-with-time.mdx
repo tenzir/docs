@@ -457,7 +457,11 @@ for this: [`delay`](/reference/operators/delay) and
 ### Adjust timestamps with timeshift
 
 The `timeshift` operator adjusts timestamps to a new baseline while preserving
-relative time differences:
+relative time differences. This is essential when you need to merge datasets
+from different time periods into a coherent timeline for comparative analysis.
+For example, you might want to overlay security incidents from multiple years
+to identify recurring patterns, or align test data from different runs to
+compare performance metrics side-by-side.
 
 ```tql
 from {event: "login", ts: 2020-06-15T09:00:00},
