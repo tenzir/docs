@@ -73,16 +73,6 @@ The following is only possible when a `tenzir` binary is avilable in your
 - If availble, use `gh` to manage pull requests. Make sure to write a separate
   file for the PR body to avoid escaping issues.
 
-- When reviewing a PR, only point out issues that violate one of the style guides
-  or issues where you have specific, actionable suggestions to improve the PR.
-  Keep your feedback terse and don't include any subheadings or emojis.
-
-- After updating a PR when you post a comment summarizing your changes, be brief
-  and don't use emojis.
-  The comment should only contain the name of the user who triggered the update,
-  their prompt, a link to the GH action, and a list of one-sentence bullet
-  points describing what was changed.
-
 - The first line succinctly summarizes the changes in no more than 50
   characters. It is capitalized and written in and imperative present tense:
   e.g., "Fix a bug" as opposed to "Fixes a bug" or "Fixed a bug". As a
@@ -93,6 +83,14 @@ The following is only possible when a `tenzir` binary is avilable in your
   Optional long descriptions as full sentences begin on the third line, indented
   at 72 characters per line, explaining _why_ the change is needed, _how_ it
   addresses the underlying issue, and what _side-effects_ it might have.
+
+### Reviewing Pull Requests
+
+When reviewing a PR as the GitHub @claude bot, follow these guidelines:
+
+- Keep your feedback terse. Use concise and actionable instructions.
+- Prefer bullet lists. Use examples only where needed to improve clarity.
+- Avoid overly verbose explanations. Focus on the most important points.
 
 ## Formatting
 
