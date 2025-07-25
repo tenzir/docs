@@ -220,6 +220,7 @@ export const referenceOperators = [
   "reference/operators/diagnostics",
   "reference/operators/discard",
   "reference/operators/drop",
+  "reference/operators/drop_null_fields",
   "reference/operators/enumerate",
   "reference/operators/every",
   "reference/operators/export",

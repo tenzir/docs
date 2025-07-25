@@ -255,6 +255,10 @@ operators:
     description: 'Removes fields from the event.'
     example: 'drop name, metadata.id'
     path: 'reference/operators/drop'
+  - name: 'drop_null_fields'
+    description: 'Removes fields containing null values from the event.'
+    example: 'drop_null_fields name, metadata.id'
+    path: 'reference/operators/drop_null_fields'
   - name: 'enumerate'
     description: 'Add a field with the number of preceding events.'
     example: 'enumerate num'
@@ -1413,6 +1417,14 @@ unordered { read_ndjson }
 
 ```tql
 drop name, metadata.id
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="drop_null_fields" description="Removes fields containing null values from the event." href="/reference/operators/drop_null_fields">
+
+```tql
+drop_null_fields name, metadata.id
 ```
 
 </ReferenceCard>
