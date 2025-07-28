@@ -15,6 +15,18 @@ range so you can handle them manually.
 
 By [@raxyte](https://github.com/raxyte) in [#5358](https://github.com/tenzir/tenzir/pull/5358).
 
+#### Versioned sources in `to_amazon_security_lake` operator
+
+The `to_amazon_security_lake` operator now supports versioned custom sources,
+such as
+
+```tql
+let $lake_url = "s3://aws-security-data-lake-eu-west-2-lake-abcdefghijklmnopqrstuvwxyz1234/ext/tnz-ocsf-dns/1.0/"
+to_amazon_security_lake $lake_url, …
+```
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5369](https://github.com/tenzir/tenzir/pull/5369).
+
 #### Dropping null fields
 
 The new `drop_null_fields` operator removes fields containing null values from
@@ -118,3 +130,10 @@ Multiple `to_clickhouse` operators can now attempt to create the same ClickHouse
 table at the same time without an error.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5360](https://github.com/tenzir/tenzir/pull/5360).
+
+#### Fixed `to_amazon_security_lake` partitioning
+
+The `to_amazon_security_lake` incorrectly partitioned as `…/accountID=…`. It now
+uses the correct `…/accountId=…`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5369](https://github.com/tenzir/tenzir/pull/5369).
