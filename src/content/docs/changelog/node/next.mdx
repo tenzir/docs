@@ -115,6 +115,19 @@ because `settings` was not specified.
 
 By [@mavam](https://github.com/mavam) in [#5370](https://github.com/tenzir/tenzir/pull/5370).
 
+#### Dynamic `log_type` for `to_google_secops`
+
+The `to_google_secops` operator now supports dynamic `log_type`s. You can set
+the option to any expression evaluating to a string, e.g.:
+
+```tql
+from {type: "CUSTOM_DNS", text: "..."},
+     {type: "BIND_DNS", text: "..."}
+to_google_secops log_type=type, log_text=text, ...
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5365](https://github.com/tenzir/tenzir/pull/5365).
+
 ### Bug Fixes
 
 #### Context operator metrics
