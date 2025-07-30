@@ -163,3 +163,11 @@ The `to_amazon_security_lake` incorrectly partitioned as `…/accountID=…`. It
 uses the correct `…/accountId=…`.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5369](https://github.com/tenzir/tenzir/pull/5369).
+
+#### Return type of `map` for empty lists
+
+Previously, the `map` function would return the input list when the input was
+empty, possibly producing type warnings downstream. It now correctly returns
+`list<null>` instead.
+
+By [@jachris](https://github.com/jachris) in [#5385](https://github.com/tenzir/tenzir/pull/5385).
