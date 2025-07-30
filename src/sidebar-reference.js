@@ -276,6 +276,7 @@ export const referenceOperators = [
   "reference/operators/publish",
   "reference/operators/python",
   "reference/operators/rare",
+  "reference/operators/read_all",
   "reference/operators/read_bitz",
   "reference/operators/read_cef",
   "reference/operators/read_csv",
