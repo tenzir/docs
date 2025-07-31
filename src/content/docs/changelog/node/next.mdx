@@ -6,6 +6,15 @@ Unreleased changes.
 
 ### Features
 
+#### Roles in `save_s3` and `to_amazon_security_lake`
+
+We have added new options to assume a role to the `save_s3` and
+`to_amazon_security_lake` operators. You can specify an AWS `role` and the
+operator(s) will assume this role for authorization and optionally. Additionally
+you can specify an `external_id` to use alongside the role.
+
+By [@raxyte](https://github.com/raxyte), [@IyeOnline](https://github.com/IyeOnline) in [#5391](https://github.com/tenzir/tenzir/pull/5391).
+
 #### Handling HTTP error status codes
 
 The `from_http` and `http` operators now provide an `error_field` option that
