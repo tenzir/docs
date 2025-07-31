@@ -115,6 +115,16 @@ because `settings` was not specified.
 
 By [@mavam](https://github.com/mavam) in [#5370](https://github.com/tenzir/tenzir/pull/5370).
 
+#### More supported types in `read_parquet
+
+Tenzir's does not support all types that Parquet supports. We have enabled the
+`read_parquet` operator to accept more types that are convertible to supported
+types. It will convert integer, floating point, and time types to the appropriate
+(wider) Tenzir type. For example, if your Parquet file contains a column of type
+`int32`, it will now be read in as `int64` instead of rejecting the entire file.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5373](https://github.com/tenzir/tenzir/pull/5373).
+
 #### Dynamic `log_type` for `to_google_secops`
 
 The `to_google_secops` operator now supports dynamic `log_type`s. You can set
@@ -169,6 +179,14 @@ We fixed a crash when using a secret in the `headers` argument of the `from_http
 operator.
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5376](https://github.com/tenzir/tenzir/pull/5376).
+
+#### Fixed crash in `read_parquet`
+
+Tenzir and the `read_parquet` operator only support a subset of all Parquet types.
+Reading an unsupported Parquet file could previously crash Tenzir in some
+situations. This is now fixed and the operator instead raises an error.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5373](https://github.com/tenzir/tenzir/pull/5373).
 
 #### Fixed issue with table creation in `to_clickhouse`
 
