@@ -48,6 +48,15 @@ TQL is the language for writing pipelines with a Unix-like philosophy of composi
 from "source" | operator1 | operator2 | to "destination"
 ```
 
+The pipe operator is only necessary when chaining multiple operators on a single line.
+This is equivalent to the previous pipeline:
+```tql
+from "source"
+operator1
+operator2
+to "destination"
+```
+
 Pipelines follow a data flow pattern:
 - **Input** operators produce data (from sources)
 - **Transformation** operators modify data
@@ -82,49 +91,48 @@ Pipelines follow a data flow pattern:
 ```tql
 // Read JSON logs and filter by severity
 from_file "logs/*.json"
-| read_json
-| where severity >= 4
-| select timestamp, host, message, severity
+read_json
+where severity >= 4
+select timestamp, host, message, severity
 ```
 
 **2. Field Manipulation and Assignment**
 ```tql
 // Enrich events with calculated fields
 from_kafka topic="events"
-| read_json
-| category = "security"
-| risk_score = severity * impact
-| formatted_message = f"[{severity}] {host}: {message}"
+read_json
+category = "security"
+risk_score = severity * impact
+formatted_message = f"[{severity}] {host}: {message}"
 ```
 
 **3. Conditional Processing**
 ```tql
 // Route events based on conditions
 from_syslog "514/udp"
-| if severity >= 5 {
-    alert_type = "critical"
-    to_splunk "critical-events"
-  } else if severity >= 3 {
-    alert_type = "warning"
-    to_s3 "s3://logs/warnings/"
-  } else {
-    drop alert_type
-    to_file "low-priority.json"
-  }
+if severity >= 5 {
+  alert_type = "critical"
+  to_splunk "critical-events"
+} else if severity >= 3 {
+  alert_type = "warning"
+  to_s3 "s3://logs/warnings/"
+} else {
+  drop alert_type
+  to_file "low-priority.json"
+}
 ```
 
 **4. Aggregation and Analytics**
 ```tql
 // Count events by host and calculate statistics
 from_http "0.0.0.0:8080"
-| read_json
-| summarize 
-    count = count(),
+read_json
+summarize count = count(),
     avg_response_time = mean(response_time),
     max_response_time = max(response_time)
   by host, status_code
-| where count > 100
-| sort count desc
+where count > 100
+sort count desc
 ```
 
 **5. Time-based Operations**
@@ -134,20 +142,20 @@ let $start = now() - 1h
 let $window = 5min
 
 from "s3://logs/today/"
-| read_parquet
-| where timestamp >= $start
-| timeshift timestamp, -$window
-| summarize events=count() by slot=floor(timestamp, $window)
+read_parquet
+where timestamp >= $start
+timeshift timestamp, -$window
+summarize events=count() by slot=floor(timestamp, $window)
 ```
 
 **6. Working with Complex Data Types**
 ```tql
 // Handle nested structures and lists
 from_file "events.json"
-| read_json
-| unroll tags                    // Expand list into individual events
-| where tags.name == "suspicious"
-| user_info = {                  // Create nested record
+read_json
+unroll tags                    // Expand list into individual events
+where tags.name == "suspicious"
+user_info = {                  // Create nested record
     name: user.first + " " + user.last,
     email: user.email,
     roles: user.permissions.map(p => p.name)
@@ -158,11 +166,11 @@ from_file "events.json"
 ```tql
 // Parse and manipulate strings
 from_tcp "0.0.0.0:5514"
-| read_lines
-| message = parse_kv(raw_line)   // Parse key=value pairs
-| url_parts = url.split("/")
-| domain = url_parts[2]
-| where domain.ends_with(".suspicious.com")
+read_lines
+message = parse_kv(raw_line)   // Parse key=value pairs
+url_parts = url.split("/")
+domain = url_parts[2]
+where domain.ends_with(".suspicious.com")
 ```
 
 **8. Multi-Source Data Collection**
@@ -170,18 +178,18 @@ from_tcp "0.0.0.0:5514"
 // Combine data from multiple sources
 publish "normalized" {
   from_kafka topic="app_logs" 
-  | read_json 
-  | set source="application"
+  read_json 
+  set source="application"
 }
 
 publish "normalized" {
   from_syslog "514/udp" 
-  | set source="syslog"
+  set source="syslog"
 }
 
 subscribe "normalized"
-| where timestamp > now() - 10min
-| to_opensearch "https://elastic:9200"
+where timestamp > now() - 10min
+to_opensearch "https://elastic:9200"
 ```
 
 **9. Real-time Enrichment**
@@ -191,26 +199,26 @@ context::create_lookup_table "threat_intel"
 
 // Populate context
 from_http "https://api.threats.com/indicators"
-| read_json
-| context::update "threat_intel", key=indicator, value=threat_data
+read_json
+context::update "threat_intel", key=indicator, value=threat_data
 
 // Enrich incoming events
 from_kafka topic="network_logs"
-| read_json
-| context::enrich "threat_intel", key=dest_ip
-| where threat_data != null
-| to_splunk "threats"
+read_json
+context::enrich "threat_intel", key=dest_ip
+where threat_data != null
+to_splunk "threats"
 ```
 
 **10. Detection with External Rules**
 ```tql
 // Apply Sigma rules for detection
 from_file "/var/log/security/*.json"
-| read_json
-| sigma "/rules/persistence/"
-| where rule.level == "high"
-| alert = f"Detection: {rule.title} on {hostname}"
-| to_email "soc@company.com", subject=alert
+read_json
+sigma "/rules/persistence/"
+where rule.level == "high"
+alert = f"Detection: {rule.title} on {hostname}"
+to_email "soc@company.com", subject=alert
 ```
 
 ### 3. Data Processing Features
