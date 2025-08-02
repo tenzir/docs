@@ -3,3 +3,13 @@ title: Next
 ---
 
 Unreleased changes.
+
+### Bug Fixes
+
+#### Optimization of the `delay` operator
+
+The `delay` operator optimization routine incorrectly declared that the behavior
+of the operator does not depend on the order of its input. As a result, chains
+such as `sort -> delay -> publish` did not correctly delay events.
+
+By [@jachris](https://github.com/jachris) in [#5399](https://github.com/tenzir/tenzir/pull/5399).
