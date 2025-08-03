@@ -1,4 +1,3 @@
-import { referenceFunctions, referenceOperators } from "./sidebar-reference.js";
 import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
@@ -144,13 +143,11 @@ export const explanations = [
 export const reference = [
   {
     label: "Operators",
-    collapsed: true,
-    items: ["reference/operators", ...referenceOperators],
+    link: "reference/operators",
   },
   {
     label: "Functions",
-    collapsed: true,
-    items: ["reference/functions", ...referenceFunctions],
+    link: "reference/functions",
   },
   {
     label: "Language",
