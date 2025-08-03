@@ -22,6 +22,7 @@ import { Steps, LinkButton } from "@astrojs/starlight/components";
    `docker-compose.NODE.yaml` configuration file, where `NODE` is the name you
    entered for your node.
 2. Run
+
    ```bash
    docker compose -f docker-compose.NODE.yaml up --detach
    ```
@@ -71,15 +72,20 @@ Second, choose the Linux tab and proceed as follows:
 
 1. [Provision the node](/guides/node-setup/provision-a-node) and download its config.
 2. Create a directory for the platform configuration.
+
    ```bash
    mkdir -p /opt/tenzir/etc/tenzir/plugin
    ```
+
 3. Move the downloaded `platform.yaml` configuration file to the directory so
    that the node can find it during startup:
+
    ```bash
    mv platform.yaml /opt/tenzir/etc/tenzir/plugin
    ```
+
 4. Run the installer and follow the instructions to download and start the node:
+
    ```bash
    curl https://get.tenzir.app | sh
    ```
@@ -229,6 +235,27 @@ You can deploy a Tenzir node using either
 manually through the AWS console. Both methods support deploying as many nodes
 as you need.
 
+### Subscribe to Tenzir Node on AWS Marketplace
+
+Before deploying with either method, you need to subscribe to the Tenzir Node product:
+
+<Steps>
+
+1. Go to [AWS Marketplace](https://console.aws.amazon.com/marketplace/) and
+   subscribe to the free [Tenzir
+   Node](https://console.aws.amazon.com/marketplace/search/listing/prodview-gsofc3z6f3vsu)
+   product.
+
+   ![AWS Marketplace Tenzir Node](./aws/01-aws-marketplace.png)
+
+2. Accept the terms to subscribe to the offering.
+
+   ![AWS Marketplace Tenzir Node](./aws/02-subscribe.png)
+
+</Steps>
+
+### Choose your deployment method
+
 <Tabs> <TabItem value="cloudformation" label="CloudFormation">
 
 Deploy a Tenzir node using our CloudFormation template for automated setup. Click the button below to launch the CloudFormation console with our template pre-loaded:
@@ -285,22 +312,11 @@ Follow these steps for manual deployment through the AWS console:
 
 <Steps>
 
-1. Go to [AWS Marketplace](https://console.aws.amazon.com/marketplace/) and
-   subscribe to the free [Tenzir
-   Node](https://console.aws.amazon.com/marketplace/search/listing/prodview-gsofc3z6f3vsu)
-   product.
+1. Navigate to [Amazon Elastic Container Service (ECS)](https://console.aws.amazon.com/ecs).
 
-   ![AWS Marketplace Tenzir Node](./aws/manual/01-aws-marketplace.png)
+   ![Amazon Elastic Container Service (ECS)](./aws/manual/01-ecs.png)
 
-2. Accept the terms to subscribe to the offering.
-
-   ![AWS Marketplace Tenzir Node](./aws/manual/02-subscribe.png)
-
-3. Navigate to [Amazon Elastic Container Service (ECS)](https://console.aws.amazon.com/ecs).
-
-   ![Amazon Elastic Container Service (ECS)](./aws/manual/03-ecs.png)
-
-4. Create a new cluster. Choose between **EC2** or **Fargate** based on your
+2. Create a new cluster. Choose between **EC2** or **Fargate** based on your
    needs:
    - **EC2 clusters** give you full control over the underlying instances.
      They're ideal for long-running workloads with consistent resource
@@ -309,11 +325,11 @@ Follow these steps for manual deployment through the AWS console:
      only for the resources you use. They're cost-effective for workloads with
      variable demand.
 
-   ![Create a Cluster](./aws/manual/04-create-cluster.png)
+   ![Create a Cluster](./aws/manual/02-create-cluster.png)
 
-5. Create a task definition to specify how the Tenzir node container should run.
+3. Create a task definition to specify how the Tenzir node container should run.
 
-   ![Create a Cluster](./aws/manual/05-create-task-definition.png)
+   ![Create a Cluster](./aws/manual/03-create-task-definition.png)
 
    In the _Containers_ section, enter the repository URL from your AWS
    Marketplace subscription:
@@ -325,19 +341,19 @@ Follow these steps for manual deployment through the AWS console:
    Each node version has its own image tag. The example above uses version
    5.9.0. Check the [node changelog](/changelog/node/) for the latest version.
 
-6. Return to your cluster, navigate to the _Tasks_ tab, and click _Run new
+4. Return to your cluster, navigate to the _Tasks_ tab, and click _Run new
    task_. Select the task definition you just created.
 
-   ![Create a Cluster](./aws/manual/06-run-task.png)
+   ![Create a Cluster](./aws/manual/04-run-task.png)
 
    In the _Container overrides_ section, add the `TENZIR_TOKEN` environment
    variable with the token value corresponding to your node.
 
-   ![Container Overrides](./aws/manual/07-container-overrides.png)
+   ![Container Overrides](./aws/manual/05-container-overrides.png)
 
    Click _Create_ to launch your node.
 
-7. Once the container starts successfully, your node will automatically connect
+5. Once the container starts successfully, your node will automatically connect
    to your workspace.
 
 </Steps>
@@ -365,7 +381,7 @@ The following steps guide you through deploying a Tenzir Node using ACI.
 
 <Steps>
 
-1. Open https://portal.azure.com/.
+1. Open [portal.azure.com](https://portal.azure.com/).
 2. Navigate to the _Container instances_.
 3. Click the _Create_ button.
 
