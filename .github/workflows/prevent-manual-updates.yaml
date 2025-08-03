@@ -37,10 +37,10 @@ jobs:
           auto_updated_files=(
             # Tenzir Node auto-updated files (exact paths)
             "src/content/apis/openapi.node.yaml"
+            "src/content/apis/openapi.platform.yaml"
             "tenzir.yaml.example"
             "src/content/docs/reference/functions.mdx"
             "src/content/docs/reference/operators.mdx"
-            "src/sidebar-reference.js"
           )
 
           auto_updated_directories=(
@@ -97,7 +97,7 @@ jobs:
               repo: context.repo.repo,
             });
 
-            const markerComment = comments.find(comment => 
+            const markerComment = comments.find(comment =>
               comment.body.includes('<!-- prevent-manual-updates-marker -->')
             );
 
@@ -138,10 +138,10 @@ jobs:
 
             **Files:**
             - \`src/content/apis/openapi.node.yaml\` (Tenzir Node API spec)
+            - \`src/content/apis/openapi.platform.yaml\` (Tenzir Platform API spec)
             - \`tenzir.yaml.example\` (Example configuration)
             - \`src/content/docs/reference/functions.mdx\` (Generated functions overview)
             - \`src/content/docs/reference/operators.mdx\` (Generated operators overview)
-            - \`src/sidebar-reference.js\` (Generated sidebar navigation)
             - \`src/content/docs/reference/platform-cli.mdx\` (Platform CLI reference)
 
             **Directories:**

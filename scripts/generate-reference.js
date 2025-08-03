@@ -168,27 +168,6 @@ async function processReferenceFiles(dirPath, items = [], basePath, urlPrefix) {
   return items;
 }
 
-function generateSidebarItems(categorizedItems) {
-  // Collect all items from all categories
-  const allItems = [];
-
-  Object.values(categorizedItems).forEach((categoryItems) => {
-    categoryItems.forEach((item) => {
-      allItems.push(item.path);
-    });
-  });
-
-  // Remove duplicates while preserving order
-  const uniqueItems = [...new Set(allItems)];
-
-  // Sort all items alphabetically by full path
-  const sortedItems = uniqueItems.sort((a, b) => {
-    return a.localeCompare(b);
-  });
-
-  return sortedItems;
-}
-
 async function generateOverviewPage(items, categorizedItems, type, outputPath) {
   // Collect all item data for frontmatter
   const allItemData = [];
@@ -444,21 +423,6 @@ async function generateReference() {
     "Operators",
     "src/content/docs/reference/operators.mdx",
   );
-
-  // Generate sidebar items
-  const functionsSidebarItems = generateSidebarItems(categorizedFunctions);
-  const operatorsSidebarItems = generateSidebarItems(categorizedOperators);
-
-  // Generate the sidebar configuration as a JavaScript module
-  const sidebarConfig = `// This file is auto-generated. Do not edit manually.
-// Run 'pnpm run generate:reference' to regenerate this file.
-
-export const referenceFunctions = ${JSON.stringify(functionsSidebarItems, null, 2)};
-
-export const referenceOperators = ${JSON.stringify(operatorsSidebarItems, null, 2)};
-`;
-
-  await fs.writeFile("src/sidebar-reference.js", sidebarConfig);
 
   console.warn("✅ Generated complete reference documentation");
 
