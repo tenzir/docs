@@ -231,19 +231,19 @@ as you need.
 
 <Tabs> <TabItem value="cloudformation" label="CloudFormation">
 
-Deploy a Tenzir node using our CloudFormation template for automated setup:
+Deploy a Tenzir node using our CloudFormation template for automated setup. Click the button below to launch the CloudFormation console with our template pre-loaded:
 
 <LinkButton href="https://console.aws.amazon.com/cloudformation/home?#/stacks/create?templateURL=https://s3.amazonaws.com/tenzir-marketplace-resources/single-node-container.yaml" variant="primary" icon="rocket">Launch CloudFormation Stack</LinkButton>
 
+After clicking the button above, follow these steps in the AWS console:
+
 <Steps>
 
-1. Create a new stack using [our
-   template](https://s3.amazonaws.com/tenzir-marketplace-resources/single-node-container.yaml):
+1. **Review the pre-filled template**: The CloudFormation console will open with our single-node container template already loaded:
 
    ![CloudFormation Create Stack](./aws/cloudformation/01-create-stack.png)
 
-2. Enter the stack details:
-
+2. **Configure your stack**:
    - **Stack name**: Choose a unique name for your stack (e.g.,
      `tenzir-node-prod`)
    - **Parameters**: Enter your `TENZIR_TOKEN` in the provided field
@@ -253,24 +253,25 @@ Deploy a Tenzir node using our CloudFormation template for automated setup:
 
    ![Stack Parameters](./aws/cloudformation/02-stack-parameters.png)
 
-3. Configure stack options (you can keep the defaults for most deployments):
+3. **Accept the default stack options**: For most deployments, the defaults work perfectly:
 
    ![Stack Options](./aws/cloudformation/03-stack-options.png)
 
-4. Review your configuration and acknowledge the capabilities:
+4. **Review and acknowledge**: Confirm your configuration and check the acknowledgment box:
 
    ![Review Stack](./aws/cloudformation/04-review-stack.png)
 
-5. Click _Submit_ and monitor the progress in the _Events_ tab.
+5. **Deploy your node**: Click _Submit_ to start the deployment. Monitor progress in the _Events_ tab.
 
-6. Once the stack creation completes, your node will automatically connect to
-   your workspace. This may take a few minutes.
+6. **Wait for connection**: Your node will automatically connect to your workspace once the stack creation completes (typically 2-3 minutes).
 
 </Steps>
 
-:::tip[Stack Management] You can update your node by updating the CloudFormation
-stack with new parameters. To remove the node and all associated resources,
-simply delete the stack. :::
+:::tip[Stack Management]
+You can update your node by updating the CloudFormation stack with new
+parameters. To remove the node and all associated resources,
+simply delete the stack.
+:::
 
 </TabItem>
 <TabItem value="manual" label="Manual">
@@ -296,7 +297,6 @@ Follow these steps for manual deployment through the AWS console:
 
 4. Create a new cluster. Choose between **EC2** or **Fargate** based on your
    needs:
-
    - **EC2 clusters** give you full control over the underlying instances.
      They're ideal for long-running workloads with consistent resource
      requirements.
