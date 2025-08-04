@@ -271,6 +271,10 @@ operators:
     description: 'Moves values from one field to another, removing the original field.'
     example: 'move id=parsed_id, ctx.message=incoming.status'
     path: 'reference/operators/move'
+  - name: 'replace'
+    description: 'Replaces all occurrences of a value with another value.'
+    example: 'replace what=42, with=null'
+    path: 'reference/operators/replace'
   - name: 'select'
     description: 'Selects some values and discards the rest.'
     example: 'select name, id=metadata.id'
@@ -1453,6 +1457,14 @@ http "example.com"
 
 ```tql
 move id=parsed_id, ctx.message=incoming.status
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="replace" description="Replaces all occurrences of a value with another value." href="/reference/operators/replace">
+
+```tql
+replace what=42, with=null
 ```
 
 </ReferenceCard>
