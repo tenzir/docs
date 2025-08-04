@@ -2,6 +2,8 @@
 title: Security Lake
 ---
 
+import { Steps } from "@astrojs/starlight/components";
+
 [Amazon Security Lake][asl] is a centralized security data lake service that
 collects and stores security data in the Open Cybersecurity Schema Framework
 (OCSF) format.
@@ -45,11 +47,18 @@ this limit.
 
 To set up a custom source:
 
+<Steps>
+
 1. Provide a globally unique 20-character source name using the pattern
    `tnz-${class_uid}` (for example, `tnz-ocsf-1001` for File System Activity)
+
 2. Select an OCSF event class (for example, "Network Activity" or "DNS Activity")
+
 3. Configure your AWS account ID and external ID
+
 4. Set up a service access role for the AWS Glue crawler
+
+</Steps>
 
 For detailed instructions, refer to the [AWS documentation on adding custom
 sources](https://docs.aws.amazon.com/security-lake/latest/userguide/adding-custom-sources.html).
