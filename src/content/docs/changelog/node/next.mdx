@@ -114,6 +114,17 @@ By [@jachris](https://github.com/jachris) in [#5407](https://github.com/tenzir/t
 
 ### Changes
 
+#### Handling of type conflicts when reading data
+
+Tenzir requires all items of a list to have the same type. As a result, items in
+lists that contain different types (such as `[1, "test"]`) are cast to the
+common type `string`. Previously, all items were stored with their JSON
+representation, leading to the result `["1", "\"test\""]`. Now, only lists and
+record are stored as JSON, and strings are preserved without extra quotes. Thus,
+the new output is `["1", "test"]`.
+
+By [@jachris](https://github.com/jachris) in [#5405](https://github.com/tenzir/tenzir/pull/5405).
+
 #### Automatic integer casting in `ocsf::apply`
 
 The `ocsf::apply` operator now automatically casts `uint64` values to `int64`
