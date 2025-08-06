@@ -73,13 +73,14 @@ to automate the setup process. The easiest way to use this tool is with
 ```bash
 # Create a custom source for Network Activity (class_uid 4001)
 uvx --from security-lake-tools security-lake-create-source \
-  --name "tnz-ocsf-4001" \
-  --event-class "Network Activity" \
-  --account-id "123456789012" \
-  --region "eu-west-2"
+  --region eu-west-1 \
+  --external-id tenzir \
+  --account-id 123456789012 \
+  --profile my-aws-profile \
+  4001
 
 # List all available OCSF event classes
-uvx --from security-lake-tools security-lake-create-source --list-event-classes
+uvx --from security-lake-tools security-lake-create-source --list
 ```
 
 The tool automates:
