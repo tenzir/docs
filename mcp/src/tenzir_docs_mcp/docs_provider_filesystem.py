@@ -45,9 +45,9 @@ def _doc_path_to_file_path(doc_path: str, content_path: Path) -> Path:
     Raises:
         DocumentNotFoundError: If no document file is found
     """
-    # If path ends with '/', append 'index'
+    # If path ends with '/', remove the trailing slash
     if doc_path.endswith('/'):
-        doc_path = doc_path + 'index'
+        doc_path = doc_path.rstrip('/')
     
     # Don't remove leading slash, but handle it properly
     if doc_path.startswith('/'):
@@ -64,7 +64,8 @@ def _doc_path_to_file_path(doc_path: str, content_path: Path) -> Path:
         content_path / f"{doc_path}.mdx",
         content_path / f"{doc_path}.mdoc",
         content_path / f"{doc_path}.svg",
-        content_path / f"{doc_path}.png"
+        content_path / f"{doc_path}.png",
+        content_path / f"{doc_path}/index.mdoc"  # Try index.mdoc as final alternative
     ]
     
     # Return the first path that exists
