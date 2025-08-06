@@ -3,22 +3,3 @@ title: Next
 ---
 
 Unreleased changes.
-
-### Bug Fixes
-
-#### Assertion failures in `to_google_secops`
-
-The `to_google_secops` operator failed assertions when a batch of data was
-missing `log_type` or if no input was received for longer than `batch_timeout`.
-
-By [@raxyte](https://github.com/raxyte) in [#5411](https://github.com/tenzir/tenzir/pull/5411).
-
-#### Fixed handling of `time` in `to_amazon_security_lake`
-
-Previously events with a `null` value for the OCSF `time` field would
-incorrectly be written to some partition in the lake. In rare circumstances,
-this could also cause a crash.
-
-The operator now correctly skips events without a valid `time`.
-
-By [@IyeOnline](https://github.com/IyeOnline) in [#5409](https://github.com/tenzir/tenzir/pull/5409).
