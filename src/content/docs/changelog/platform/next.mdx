@@ -19,3 +19,13 @@ By [@gitryder](https://github.com/gitryder).
 We refreshed the navigation experience in several areas. Tab bars in some places have been replaced with searchable dropdowns, and selectors like the node picker now show additional context such as version numbers. A new breadcrumb-style structure also makes navigation across pages more clear and visually streamlined.
 
 By [@gitryder](https://github.com/gitryder).
+
+### Bug Fixes
+
+#### Fix download links for Sovereign Edition platform
+
+We switched to use the AWS v4 signature algorithm for generating presigned URLs,
+rather than the deprecated v2 version. This fixes an incompatibility between
+recent versions of boto3 and seaweedfs.
+
+By [@lava](https://github.com/lava) in [#123](https://github.com/tenzir/platform/pull/123).
