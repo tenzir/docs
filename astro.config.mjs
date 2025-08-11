@@ -111,7 +111,12 @@ export default defineConfig({
               label: "Integrations",
               paths: ["integrations/**/*"],
             },
+            {
+              label: "Changelog",
+              paths: ["changelog/**/*"],
+            },
           ],
+          demote: ["changelog/**/*"],
         }),
         ...(runLinkCheck
           ? [
