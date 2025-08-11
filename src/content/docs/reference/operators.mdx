@@ -247,6 +247,10 @@ operators:
     description: 'Shows the current version.'
     example: 'version'
     path: 'reference/operators/version'
+  - name: 'dns_lookup'
+    description: 'Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses.'
+    example: 'dns_lookup ip_address, result=dns_info'
+    path: 'reference/operators/dns_lookup'
   - name: 'drop'
     description: 'Removes fields from the event.'
     example: 'drop name, metadata.id'
@@ -1412,6 +1416,14 @@ unordered { read_ndjson }
 ## Modify
 
 <CardGrid>
+
+<ReferenceCard title="dns_lookup" description="Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses." href="/reference/operators/dns_lookup">
+
+```tql
+dns_lookup ip_address, result=dns_info
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="drop" description="Removes fields from the event." href="/reference/operators/drop">
 
