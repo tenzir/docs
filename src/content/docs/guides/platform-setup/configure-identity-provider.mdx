@@ -65,10 +65,18 @@ TENZIR_PLATFORM_OIDC_APP_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 You must provide the following environment variable containing a JSON object
-with the OIDC issuer and audiences that the platform should accept.
+with the OIDC issuer and audiences that the platform should accept. You can
+also provide an array of objects to configure multiple trusted issuers.
 
 ```sh
-TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"https://my.idp.example": ["tenzir-cli", "tenzir-app"]}'
+# Single issuer configuration
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "http://platform.local:3004/realms/master","audiences": ["tenzir-app"]}'
+
+# Multiple issuers configuration
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='[
+  {"issuer": "https://accounts.google.com", "audiences": ["audience1"]},
+  {"issuer": "http://platform.local:3004/realms/master", "audiences": ["tenzir-app"]}
+]'
 ```
 
 ## Keycloak
