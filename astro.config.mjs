@@ -87,7 +87,32 @@ export default defineConfig({
       },
       routeMiddleware: "./src/routeData.ts",
       plugins: [
-        starlightLlmsTxt(),
+        starlightLlmsTxt({
+          projectName: "Tenzir",
+          description: "The low-code data pipeline solution for security teams",
+          customSets: [
+            {
+              label: "Reference",
+              paths: ["reference/**/*"],
+            },
+            {
+              label: "Guides",
+              paths: ["guides/**/*"],
+            },
+            {
+              label: "Tutorials",
+              paths: ["tutorials/**/*"],
+            },
+            {
+              label: "Explanations",
+              paths: ["explanations/**/*"],
+            },
+            {
+              label: "Integrations",
+              paths: ["integrations/**/*"],
+            },
+          ],
+        }),
         ...(runLinkCheck
           ? [
               starlightLinksValidator({
