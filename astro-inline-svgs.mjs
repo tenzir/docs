@@ -118,9 +118,9 @@ function inlineSVGsInHTML(html) {
  */
 function extractBaseFilename(svgPath) {
   const base = path.basename(svgPath);
-  // Match everything before the Astro hash (which starts with a capital letter)
+  // Match everything before the Astro hash
   // This handles filenames with multiple dots like "delay.excalidraw.svg"
-  const match = base.match(/^(.+?)\.([A-Z][A-Za-z0-9_-]+)\.svg$/);
+  const match = base.match(/^(.+?)\.([A-Za-z0-9_-]+)\.svg$/);
   return match ? match[1] + ".svg" : base;
 }
 
