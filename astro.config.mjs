@@ -130,8 +130,8 @@ export default defineConfig({
                   "/discord",
                   // Auto-generated OpenAPI pages that may not be ready during
                   // link checking
-                  "/reference/node-api",
-                  "/reference/platform-api",
+                  "/reference/node/api",
+                  "/reference/platform/api",
                   // These pages fail the link check for reasons unknown; maybe
                   // a timing issue during build?
                   "/explanations/configuration",
