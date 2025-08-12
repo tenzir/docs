@@ -6,6 +6,7 @@ import sitemap from "@astrojs/sitemap";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightOpenAPI from "starlight-openapi";
+import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
 import inlineSVGs from "./astro-inline-svgs.mjs";
 import markdoc from "@astrojs/markdoc";
@@ -86,6 +87,37 @@ export default defineConfig({
       },
       routeMiddleware: "./src/routeData.ts",
       plugins: [
+        starlightLlmsTxt({
+          projectName: "Tenzir",
+          description: "The low-code data pipeline solution for security teams",
+          customSets: [
+            {
+              label: "Reference",
+              paths: ["reference/**/*"],
+            },
+            {
+              label: "Guides",
+              paths: ["guides/**/*"],
+            },
+            {
+              label: "Tutorials",
+              paths: ["tutorials/**/*"],
+            },
+            {
+              label: "Explanations",
+              paths: ["explanations/**/*"],
+            },
+            {
+              label: "Integrations",
+              paths: ["integrations/**/*"],
+            },
+            {
+              label: "Changelog",
+              paths: ["changelog/**/*"],
+            },
+          ],
+          demote: ["changelog/**/*"],
+        }),
         ...(runLinkCheck
           ? [
               starlightLinksValidator({
