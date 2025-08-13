@@ -116,6 +116,16 @@ By [@raxyte](https://github.com/raxyte) in [#5419](https://github.com/tenzir/ten
 
 ### Changes
 
+#### `every` and `cron` subpipelines
+
+We changed the execution model for `every` and `cron` subpipelines, resulting
+in:
+- operators such as `context::load` now execute properly.
+- subpipelines can contain both `remote` and `local` operators.
+- subpipelines must not accept or output bytes.
+
+By [@raxyte](https://github.com/raxyte) in [#5410](https://github.com/tenzir/tenzir/pull/5410).
+
 #### Amazon Security Lake
 
 We have made two convenience changes to the `to_amazon_security_lake` operator:
