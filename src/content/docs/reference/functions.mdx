@@ -251,6 +251,22 @@ functions:
     description: 'Use the value of a secret.'
     example: 'secret("KEY")'
     path: 'reference/functions/secret'
+  - name: 'contains_null'
+    description: 'Checks whether the input contains any `null` values.'
+    example: '{x: 1, y: null}.contains_null() == true'
+    path: 'reference/functions/contains_null'
+  - name: 'is_empty'
+    description: 'Checks whether a value is empty.'
+    example: '"".is_empty()'
+    path: 'reference/functions/is_empty'
+  - name: 'random'
+    description: 'Generates a random number in *[0,1]*.'
+    example: 'random()'
+    path: 'reference/functions/random'
+  - name: 'uuid'
+    description: 'Generates a Universally Unique Identifier (UUID) string.'
+    example: 'uuid()'
+    path: 'reference/functions/uuid'
   - name: 'count_days'
     description: 'Counts the number of `days` in a duration.'
     example: 'count_days(100d)'
@@ -587,10 +603,6 @@ functions:
     description: 'Retrieves the network address of a subnet.'
     example: '10.0.0.0/8.network()'
     path: 'reference/functions/network'
-  - name: 'is_empty'
-    description: 'Checks whether a value is empty.'
-    example: '"".is_empty()'
-    path: 'reference/functions/is_empty'
   - name: 'network'
     description: 'Retrieves the network address of a subnet.'
     example: '10.0.0.0/8.network()'
@@ -703,14 +715,6 @@ functions:
     description: 'Prints a value as a YAML document.'
     example: 'record.print_yaml()'
     path: 'reference/functions/print_yaml'
-  - name: 'random'
-    description: 'Generates a random number in *[0,1]*.'
-    example: 'random()'
-    path: 'reference/functions/random'
-  - name: 'uuid'
-    description: 'Generates a Universally Unique Identifier (UUID) string.'
-    example: 'uuid()'
-    path: 'reference/functions/uuid'
   - name: 'type_id'
     description: 'Retrieves the type id of an expression.'
     example: 'type_id(1 + 3.2)'
@@ -1314,20 +1318,6 @@ round(4.6)
 
 ```tql
 sqrt(49)
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-## Misc
-
-<CardGrid>
-
-<ReferenceCard title="is_empty" description="Checks whether a value is empty." href="/reference/functions/is_empty">
-
-```tql
-"".is_empty()
 ```
 
 </ReferenceCard>
@@ -1945,6 +1935,22 @@ years(100)
 ## Utility
 
 <CardGrid>
+
+<ReferenceCard title="contains_null" description="Checks whether the input contains any `null` values." href="/reference/functions/contains_null">
+
+```tql
+{x: 1, y: null}.contains_null() == true
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="is_empty" description="Checks whether a value is empty." href="/reference/functions/is_empty">
+
+```tql
+"".is_empty()
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="random" description="Generates a random number in *[0,1]*." href="/reference/functions/random">
 
