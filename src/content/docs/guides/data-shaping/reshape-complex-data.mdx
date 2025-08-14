@@ -488,6 +488,114 @@ select normalized = events.map(e => {
 }
 ```
 
+## Working with aggregated events
+
+### Unroll arrays to individual events
+
+Some data sources aggregate multiple events into a single record. Use [`unroll`](/reference/operators/unroll) to expand these into individual events:
+
+```tql title="Expanding aggregated message types"
+// DHCP logs may contain multiple message types in one record
+from {
+  ts: 2024-01-15T10:00:00,
+  uid: "C123abc",
+  msg_types: ["DISCOVER", "OFFER", "REQUEST", "ACK"],
+  client_addr: 192.168.1.100
+}
+unroll msg_types
+// Now we have 4 separate events, one per message type
+activity_name = msg_types.to_title()
+```
+
+```tql
+{ts: 2024-01-15T10:00:00, uid: "C123abc", msg_types: "DISCOVER", client_addr: 192.168.1.100, activity_name: "Discover"}
+{ts: 2024-01-15T10:00:00, uid: "C123abc", msg_types: "OFFER", client_addr: 192.168.1.100, activity_name: "Offer"}
+{ts: 2024-01-15T10:00:00, uid: "C123abc", msg_types: "REQUEST", client_addr: 192.168.1.100, activity_name: "Request"}
+{ts: 2024-01-15T10:00:00, uid: "C123abc", msg_types: "ACK", client_addr: 192.168.1.100, activity_name: "Ack"}
+```
+
+This pattern is essential when:
+
+- Converting aggregated logs to event-per-row formats
+- Normalizing data for OCSF or other schemas that expect individual events
+- Processing batched API responses
+
+## Safe arithmetic with optional fields
+
+### Dynamic field computation with null safety
+
+When computing metrics from fields that might be null, use the `else` keyword for safe fallbacks:
+
+```tql title="Null-safe calculations"
+from {
+  packets_sent: 1000,
+  packets_received: 950,
+  duration: 10s,
+  bytes_sent: null,  // Missing data
+  bytes_received: 5000
+}
+
+// Safe division with fallback
+packets_per_second = packets_sent / duration.count_seconds() else 0
+
+// Handle missing values in arithmetic
+loss_rate = (packets_sent - packets_received) / packets_sent else 0
+
+// Compute only when both values exist
+throughput = (bytes_sent + bytes_received) / duration.count_seconds() if bytes_sent != null else null
+
+// Complex calculation with multiple fallbacks
+efficiency = (bytes_received / bytes_sent) * 100 if bytes_sent != null else
+              100 if bytes_received > 0 else 0
+```
+
+```tql
+{
+  packets_sent: 1000,
+  packets_received: 950,
+  duration: 10s,
+  bytes_sent: null,
+  bytes_received: 5000,
+  packets_per_second: 100.0,
+  loss_rate: 0.05,
+  throughput: null,
+  efficiency: 100
+}
+```
+
+## Conditional aggregation patterns
+
+### Selective data collection
+
+Collect values conditionally during aggregation:
+
+```tql title="Conditional collection in summarize"
+from {src_ip: 10.0.0.5, dst_port: 22, bytes: 1024},
+     {src_ip: 192.168.1.10, dst_port: 80, bytes: 2048},
+     {src_ip: 10.0.0.5, dst_port: 443, bytes: 4096},
+     {src_ip: 192.168.1.10, dst_port: 22, bytes: 512}
+
+let $critical_ports = [22, 3389, 5985]
+
+summarize src_ip,
+  total_bytes=sum(bytes),
+  // Collect all unique ports
+  all_ports=collect(dst_port),
+  // Collect with conditional transformation
+  port_types=collect("HIGH" if dst_port in $critical_ports else "LOW")
+```
+
+```tql
+{src_ip: 192.168.1.10, total_bytes: 2560, all_ports: [80, 22], port_types: ["LOW", "HIGH"]}
+{src_ip: 10.0.0.5, total_bytes: 5120, all_ports: [22, 443], port_types: ["HIGH", "LOW"]}
+```
+
+This pattern enables:
+
+- Building risk profiles during aggregation
+- Transforming values during collection based on conditions
+- Creating categorical metrics from raw data
+
 ## Advanced transformations
 
 ### Recursive flattening
@@ -509,7 +617,7 @@ from {
   }
 }
 // Use flatten function for automatic recursive flattening
-select flattened = flatten(data)
+select flattened = data.flatten()
 ```
 
 ```tql
@@ -629,7 +737,7 @@ from {
   }
 }
 // Flatten nested structure into individual events
-select flattened = flatten(log_stats)
+select flattened = log_stats.flatten()
 ```
 
 ```tql

@@ -417,6 +417,82 @@ set users = zipped.map(z => {
 }
 ```
 
+### Practical example: Pairing related data
+
+Combine parallel arrays with transformations for data normalization:
+
+```tql
+from {
+  // DNS query data with parallel arrays
+  answers: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+  ttls: [300s, 600s, 900s],
+  // Certificate SAN names
+  domains: ["example.com", "www.example.com", "api.example.com"]
+}
+
+// Pair DNS answers with their TTLs and transform
+dns_records = zip(answers, ttls).map(x => {
+  rdata: x.left,
+  ttl_seconds: x.right.count_seconds(),
+  cached_until: now() + x.right
+})
+
+// Transform simple arrays to structured data
+san_entries = domains.map(name => {
+  name: name,
+  type: "DNSName",
+  verified: name.ends_with(".example.com")
+})
+```
+
+```tql
+{
+  answers: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+  ttls: [300s, 600s, 900s],
+  domains: ["example.com", "www.example.com", "api.example.com"],
+  dns_records: [
+    {
+      rdata: "192.168.1.1",
+      ttl_seconds: 300,
+      cached_until: 2025-08-14T12:36:45.123456Z
+    },
+    {
+      rdata: "10.0.0.1",
+      ttl_seconds: 600,
+      cached_until: 2025-08-14T12:41:45.123456Z
+    },
+    {
+      rdata: "172.16.0.1",
+      ttl_seconds: 900,
+      cached_until: 2025-08-14T12:46:45.123456Z
+    }
+  ],
+  san_entries: [
+    {
+      name: "example.com",
+      type: "DNSName",
+      verified: true
+    },
+    {
+      name: "www.example.com",
+      type: "DNSName",
+      verified: true
+    },
+    {
+      name: "api.example.com",
+      type: "DNSName",
+      verified: true
+    }
+  ]
+}
+```
+
+This pattern is particularly useful when:
+
+- Converting parallel arrays from APIs or logs into structured records
+- Normalizing data for standard formats (like OCSF)
+- Adding computed fields during the transformation
+
 ### Enumerate with indices
 
 Add row numbers to your data using the [`enumerate`](/reference/operators/enumerate) operator:
