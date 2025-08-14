@@ -81,9 +81,9 @@ TQL can also process unstructured bytes, parsing them into events:
 
 ```tql title="Starting with bytes (e.g., from a file or network)"
 load_file "/var/log/app.json"     // void → bytes
-read_json                          // bytes → events
+read_json                         // bytes → events
 where severity == "critical"
-write_csv                          // events → bytes
+write_csv                         // events → bytes
 save_file "critical_events.csv"   // bytes → void
 ```
 
@@ -113,8 +113,8 @@ TQL adds domain-specific types:
 from {
   src_ip: 192.168.1.1,      // IP address type
   subnet: 10.0.0.0/8,       // Subnet type
-  duration: 5min,            // Duration type
-  timestamp: 2024-01-01      // Time type
+  duration: 5min,           // Duration type
+  timestamp: 2024-01-01     // Time type
 }
 ```
 
@@ -271,14 +271,14 @@ TQL operators fall into three categories based on their input/output behavior (s
 
 ```
 Input Operators              Transformations              Output Operators
-void → events/bytes          events → events              events/bytes → void
+void → events/bytes         events → events              events/bytes → void
                             bytes → bytes
                             bytes → events (parsers)
                             events → bytes (formatters)
 
 Examples:
 from (void → events)        where (events → events)      to (events → void)
-export (void → events)      select (events → events)      import (events → void)
+export (void → events)      select (events → events)     import (events → void)
 load_file (void → bytes)    read_json (bytes → events)   save_file (bytes → void)
                             write_json (events → bytes)
 ```
@@ -292,7 +292,7 @@ upstream type of the next.
 Each operator on a new line creates a clear data transformation flow:
 
 ```tql title="Data flows top to bottom"
-from "security_logs.json"      // Input: void → events
+from "security_logs.json"       // Input: void → events
 where severity == "high"        // Transform: events → events
 select timestamp, src_ip, alert // Transform: events → events
 to "high_priority.json"         // Output: events → void
@@ -436,7 +436,7 @@ select
   event_id,                     // Required field
   timestamp,                    // Required field
   severity?,                    // Optional field
-  enrichment?.geo?.country?    // Deep optional path - enrichment may fail
+  enrichment?.geo?.country?     // Deep optional path - enrichment may fail
 
 // Monitor data quality
 fork {
@@ -900,23 +900,23 @@ object → record
 ```tql
 from {
   // JSON-compatible types
-  event_id: 42,                    // number → int64
-  is_alert: true,                   // bool
+  event_id: 42,                      // number → int64
+  is_alert: true,                    // bool
   message: "Connection established", // string
-  tags: ["network", "established"], // array → list
-  metadata: {                      // object → record
+  tags: ["network", "established"],  // array → list
+  metadata: {                        // object → record
     source: "firewall",
     version: 2
   },
 
   // TQL-specific types for security/network data
-  src_ip: 192.168.1.100,           // IP address
-  network: 192.168.1.0/24,         // subnet
-  timestamp: 2024-01-15T10:30:00,  // time point
+  src_ip: 192.168.1.100,            // IP address
+  network: 192.168.1.0/24,          // subnet
+  timestamp: 2024-01-15T10:30:00,   // time point
   duration: 250ms,                  // duration
-  api_key: secret("sk_live_..."),  // secret (never logged)
+  api_key: secret("sk_live_..."),   // secret (never logged)
   severity: enum("low", "medium", "high"), // enumeration
-  packet_data: b"\x00\x01\x02"     // blob (binary data)
+  packet_data: b"\x00\x01\x02"      // blob (binary data)
 }
 ```
 
@@ -927,7 +927,7 @@ Real-world data isn't uniform. TQL handles heterogeneous data gracefully:
 ```tql title="Single pipeline, multiple event types"
 from "mixed_logs.json"
 where severity? == "high"        // Some events have severity
-where timestamp > now() - 1h    // All events have timestamp
+where timestamp > now() - 1h     // All events have timestamp
 select
   timestamp,
   message,
@@ -1103,10 +1103,10 @@ from
   {bytes: 2Ki, timestamp: 2024-01-15T09:30:00},
   {bytes: 512, timestamp: 2024-01-15T09:45:00},
   {bytes: 3Ki, timestamp: 2024-01-15T10:00:00}
-where bytes > $threshold          // Constant comparison
-where timestamp > $start_time     // Constant comparison
+where bytes > $threshold            // Constant comparison
+where timestamp > $start_time       // Constant comparison
 current_time = 2024-01-15T10:30:00  // Would be now() in real usage
-age = current_time - timestamp    // Runtime calculation
+age = current_time - timestamp      // Runtime calculation
 ```
 
 ### Network transparency
@@ -1498,7 +1498,8 @@ where geo?.country? == "US"    // Optional - enrichment may fail
 ❌ Suppressing all warnings blindly:
 
 ```tql
-where event_id? != null        // Hides missing required data
+where event_id? != null        // Hides missing required da:w
+ta
 where timestamp? != null       // Masks data quality problems
 ```
 
