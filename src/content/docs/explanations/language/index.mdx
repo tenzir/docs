@@ -224,7 +224,7 @@ Statements provide structure and control flow:
 
 - **Operator statements**: Transform data streams ([`where`](/reference/operators/where), [`select`](/reference/operators/select), [`summarize`](/reference/operators/summarize))
 - **Assignments**: Modify fields (using the implied [`set`](/reference/operators/set) operator)
-- **Control flow**: Route data conditionally ([`if`](/reference/operators/if) statements)
+- **Control flow**: Route data conditionally (`if` statements)
 - **Bindings**: Define constants (`let` statements)
 
 Operator statement:
@@ -782,6 +782,15 @@ message = replace(to_lower(trim(message)), " ", "_")
   message: "hello_world",
 }
 ```
+
+:::tip[Prefer method style]
+While both styles are valid, method chaining (UFCS) is generally preferred for:
+
+- **Readability**: Left-to-right data flow is easier to follow
+- **Discoverability**: IDEs can better suggest available methods
+- **Consistency**: Aligns with common programming patterns
+- **Chaining**: Natural for multi-step transformations
+  :::
 
 ### Function categories
 
