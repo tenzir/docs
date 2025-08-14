@@ -132,6 +132,7 @@ export const explanations = [
       "explanations/architecture/platform",
     ],
   },
+  "explanations/language",
   "explanations/configuration",
   "explanations/secrets",
   "explanations/enrichment",
