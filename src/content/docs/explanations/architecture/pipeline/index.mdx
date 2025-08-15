@@ -14,97 +14,87 @@ Our pipelines have 3 types of operators: **inputs** that produce data,
 
 ![Pipeline Structure](./operator-types.svg)
 
-## Structured and Unstructured Dataflow
+You write pipelines in the [Tenzir Query Language
+(TQL)](/explanations/language), a language that we developed from the ground up
+to concisely describe such dataflows.
 
-Tenzir pipelines make one more distinction: the elements that the operators push
-through the pipeline are _typed_. An operator has an **upstream** and
-**downstream** type:
+:::tip[Learn TQL]
+Head over to our [language documentation](/explanations/language) for an
+in-depth explanation of how TQL works. We're continuing here with high-level
+architectural aspects of the pipeline execution model.
+:::
+
+## Typed Operators
+
+Tenzir pipelines operate on *typed* data streams. The execution model ensures
+type safety while maintaining high performance through batching and parallel
+processing.
+
+An operator has an **upstream** and **downstream** type:
 
 ![Upstream and Downstream Types](./operator-table.svg)
 
-When composing pipelines out of operators, upstream/downstream types of adjacent
-operators have to match. Otherwise the pipeline is malformed. We call any
-void-to-void operator sequence a **closed pipeline**. Only closed pipelines
-can execute.
+This type system ensures pipelines are well-formed. Adjacent operators must
+have matching types: the downstream type of one operator must match the
+upstream type of the next, i.e., upstream/downstream types of adjacent
+operators have to match. Otherwise the pipeline is malformed.
 
-If a pipeline is not closed, Tenzir attempts to auto-complete missing input and
-output operators. When you [run a pipeline](/guides/basic-usage/run-pipelines) on
-the command line, we implicitly read JSON from stdin and write JSON to stdout.
-When you run a pipeline in the app and do not provide a sink, we only append
-[`serve`](/reference/operators/serve) to make the pipeline a REST API
-and extract data piecemeal through your browser.
+We call any void-to-void operator sequence a **closed pipeline**. Only closed
+pipelines can ultimately execute.
 
-Operators can be _polymorphic_ in that they can have more than a single upstream
-and downstream type. For example,
-[`buffer`](/reference/operators/buffer) accepts both bytes and events.
-
-Many Tenzir pipelines use the [`from`](/reference/operators/from) and
-[`to`](/reference/operators/to) operators to get data in and out,
-respectively. For example, to load data from a local JSON file system, filter
-events where a certain field matches a predicate, and store the result to an S3
-bucket in Parquet format, you can write the following pipeline:
-
-```tql
-from "/path/to/file.json"
-where src_ip in 10.0.0.0/8
-to "s3://bucket/dir/file.parquet"
-```
-
-This pipelines consists of three operators:
-
-![Operator Composition Example 1](./operator-composition-example-1.svg)
-
-The operator [`from`](/reference/operators/from) is a void-to-events
-input operator, [`where`](/reference/operators/where) an
-events-to-events transformation operator, and
-[`to`](/reference/operators/to) an events-to-void output operator.
-
-Other inputs provide bytes first and you need to interpret them in order to
-transform them as events.
-
-```tql
-load_kafka "topic"
-read_ndjson
-select host, message
-write_yaml
-save_zmq "tcp://1.2.3.4"
-```
-
-![Operator Composition Example 2](./operator-composition-example-2.svg)
-
-With these building blocks in place, you can create all kinds of pipelines, as
-long as they follow the two principal rules of (1) sequencing inputs,
+With these operators as building blocks, you can create all kinds of pipelines,
+as long as they follow the two principal rules of (1) sequencing inputs,
 transformations, and outputs, and (2) ensuring that operator upstream/downstream
-types match. Here is an example of other valid pipeline instances:
+types match. Here are examples of other valid pipeline variations:
 
 ![Operator Composition Examples](./operator-composition-variations.svg)
 
+:::note[Pipeline Auto-Completion]
+When a pipeline is not closed, Tenzir attempts to *auto-complete* it. On the
+[command line](/guides/basic-usage/run-pipelines/#on-the-command-line), it
+suffices to write a sequence of transformations because Tenzir automatically
+adds a JSON input operator at the beginning and TQL output operator at the end.
+In the [web inteface](/guides/basic-usage/run-pipelines/#in-the-platform),
+auto-completetion takes place with an output operator: The web app appends
+[`serve`](/reference/operators/serve) to turn the dataflow into a REST API,
+allowing your browser to access it by routing the data through the platform.
+:::
+
 ## Multi-Schema Dataflows
 
-Every event that flows through a pipeline is part of a _data frame_ with a
-schema. Internally, these data frames are represented as Apache Arrow record
-batch, encoding potentially of tens of thousands of events at once. This
-innate batching is the reason why the pipelines can achieve a high throughput.
+As mentioned above, pipelines can transport both *bytes* and *events*. Let's go
+deeper into the details of Tenzir represents events. Every event that flows
+through a pipeline is part of a _data frame_ with a schema. Internally, these
+data frames are represented as Apache Arrow record batches, encoding potentially
+of tens of thousands of events in a single block of data. This innate batching
+is the reason why the pipelines can achieve high throughput.
 
-Unique about Tenzir is that a single pipeline can run with _multiple schemas_,
-even though the events are data frames internally. Tenzir parsers
-(bytes-to-event operators) are capable of emitting events with changing schemas.
-This behavior is different from other engines that work with data frames where
-operators can only execute on a single schema. In this light, Tenzir combines
-the performance of structured query engines with the flexibility of
-document-oriented engines.
+Unique about Tenzir's pipeline executor is that a single pipeline can process
+events with _multiple schemas_. When you typically work with data frames, your
+workload runs on input with a fixed schema, e.g., when you query a database
+table. In Tenzir, schemas can change dynamically during the execution of a
+pipeline, much like document-oriented engines that work on JSON or have
+one-event-at-a-time processing semantics. Tenzir is unique in that it gives the
+user the feeling of operating on a single event at a time while hiding the
+structured data frame batching behind the scenes. Thus, Tenzir combines the
+performance of structured query engines with the flexibility of
+document-oriented engines, making it perfect fit for processing *semi-structured
+data* at scale:
 
-If an operator detects a schema changes, it creates a new batch of events. In
-terms of performance, the worst case for Tenzir is a ordered stream of
-schema-switching events, with every event having a new schema than the previous
-one. But even for those scenarios operators can efficiently build homogeneous
-batches when the inter-event order does not matter. Similar to predicate
-pushdown, Tenzir operators support "ordering pushdown" to signal to upstream
-operators that the event order only matters intra-schema but not inter-schema.
-In this case the operator transparently "demultiplex" a heterogeneous event
-stream into N homogeneous streams. The
-[`sort`](/reference/operators/sort) operator is an example of such an
-operator; it pushes its ordering requirements upstream, allowing parsers to
+![Structured vs document-oriented engines](./document-vs-structured.svg)
+
+The schema variance begins early in the data flow, where parsers emit events
+with changing schemas as they encounter changing fields. If an operator detects
+a schema changes, it creates a new batch of events. In terms of performance, the
+worst case for Tenzir is a ordered stream of schema-switching events, with every
+event having a new schema than the previous one. But even for those scenarios
+operators can efficiently build homogeneous batches when the inter-event order
+does not matter. Similar to predicate pushdown, Tenzir operators support
+*ordering pushdown* to signal to upstream operators that the event order only
+matters intra-schema but not inter-schema. In this case the operator
+transparently "demultiplex" a heterogeneous event stream into N homogeneous
+streams. The [`sort`](/reference/operators/sort) operator is an example of such
+an operator; it pushes its ordering requirements upstream, allowing parsers to
 efficiently create multiple streams events in parallel.
 
 ![Multi-schema Example](./multi-schema-example.svg)
@@ -123,100 +113,51 @@ that you define explicitly.
 
 ## Unified Live Stream Processing and Historical Queries
 
-Engines for event stream processing and batch processing of historical data have
-vastly different requirements. We believe that we found a sweetspot with our
-language and accompanying execution engine that makes working with both types of
-workloads incredibly easy: just pick a input operator at the beginning the a
-pipeline that points to your data source, be it infinitely streaming or stored
-dataset. Tenzir will figure out the rest.
+Tenzir's execution engine transparently processes both historical data and
+real-time event streams within a single, unified pipeline model.
+[TQL](/explanations/language) empowers you to switch between these workloads by
+simply changing the data source at the start of your pipeline.
 
 ![Unified Processing](./unified-processing.svg)
 
-Our desired user experience for interacting with historical data looks like
-this:
+This design lets you reuse the same logic for exploring existing data and for
+deploying it on live streams, which streamlines the entire analytics workflow.
 
-1. **Ingest**: to store data at a node, create a pipeline that ends with
-   [`import`](/reference/operators/import).
-2. **Query**: to run a historical query over data at the node, create a pipeline
-   that begins with [`export`](/reference/operators/export).
+Each Tenzir Node includes a lightweight **edge storage** engine for efficient
+local data persistence. You interact with this storage engine using just two
+dedicated operators to store and retrieve data. The retrievial goes much beyond replay.
 
-For example, to ingest JSON from a Kafka, you write `from "kafka://topic |
-import`. To query the stored data, you write `export | where file == 42`.
+A naive interpretation would be that [`export`](/reference/operators/export)
+first retrieves all its data, which subsequent operators then filter. However,
+Tenzir actively optimizes this process using **predicate pushdown**. Before a
+pipeline runs, Tenzir pushes filter conditions from later stages down to the
+initial storage source. This allows the source to intelligently fetch only the
+necessary data, often using fast index lookups and avoiding costly full scans.
 
-The example with `export` suggests that the pipeline _first_ exports everything,
-and only _then_ starts filtering with `where`, performing a full scan over the
-stored data. But this is not what's happening. Pipelines support **predicate
-pushdown** for every operator. This means that `export` receives the filter
-expression before it starts executing, enabling index lookups or other
-optimizations to efficiently execute queries with high selectivity where scans
-would be sub-optimal.
-
-The key insight here is to realize that optimizations like predicate pushdown
-extend to the storage engine and do not only apply to the streaming executor.
-
-The Tenzir native storage engine is not a full-fledged database, but rather a
-catalog with a thin indexing layer over a set of Parquet/Feather files. These
-sparse indexes (sketch data structures, such as min-max synopses, Bloom filters,
-etc.) avoid full scans for every query. The catalog tracks evolving schemas,
-performs expression binding, and provides a transactional interface to add and
-replace partitions during compaction.
-
-The diagram below shows the main components of the storage engine:
+Tenzir's unique edge storage engine enables this powerful optimization. The
+diagram below illustrates how the engine works:
 
 ![Database Architecture](./storage-engine-architecture.svg)
 
-Because of this transparent optimization, you can just exchange the input
-operator of a pipeline and switch between historical and streaming execution
-and everything works as expected. A typical use case begins some exploratory
-data analysis involving a few `export` pipelines, but then would deploy the
-pipeline on streaming data by exchanging the input with a Kafka stream.
+The edge storage engine is not a traditional database but a lightweight
+**catalog** that maintains a thin indexing layer over immutable Apache Parquet
+and Feather files. It maintains **sparse indexes**, such as min-max synopses and
+Bloom filters, that act as a table of contents. These indexes allow the engine
+to quickly rule out data partitions that do not match a query's filter, avoiding
+unnecessary scans. The catalog also tracks evolving schemas and provides a
+transactional interface for partition operations.
 
-## Built-in Networking to Create Data Fabrics
+Because the engine handles these optimizations automatically, the same pipeline
+logic can be seamlessly repurposed. A pipeline developed for historical analysis
+can be deployed on a live data stream by simply exchanging the historical data
+source for a streaming one. This unified model streamlines the path from
+interactive exploration to production deployment.
 
-Tenzir pipelines have built-in network communication, allowing you to create a
-distributed fabric of dataflows to express intricate use cases that go beyond
-single-machine processing. There are two types of network connections:
-_implicit_ and _explicit_ ones:
-
-![Implicit vs. Explicit](./implicit-vs-explicit-networking.svg)
-
-An implicit network connection exists, for example, when you use the `tenzir`
-binary on the command line to run a pipeline that ends in
-[`import`](/reference/operators/import):
-
-```tql
-from "/file/eve.json"
-where tag != "foo"
-import
-```
-
-Or one that begins with [`export`](/reference/operators/export):
-
-```tql
-export
-where src_ip in 10.0.0.0/8
-to "/tmp/result.json"
-```
-
-Tenzir pipelines are eschewing networking to minimize latency and maximize
-throughput, which results in the following operator placement for the above examples:
-
-![Implicit Networking](./implicit-networking.svg)
-
-The executor generally transfers ownership of operators between
-processes as late as possible to prefer local, high-bandwidth communication. For
-maximum control over placement of computation, you can override the automatic
-operator location with the [`local`](/reference/operators/local) and
-[`remote`](/reference/operators/remote) operators.
-
-The above examples are implicit network connections because they're not visible
-in the pipeline definition. An explicit network connection terminates a pipeline
-as with an input or output operator:
-
-![Pipeline Fabric](./pipeline-fabric.excalidraw.svg)
-
-This fictive data fabric above consists of a heterogeneous set of technologies,
-interconnected by pipelines. Because you have full control over the location
-where you run the pipeline, you can push it all the way to the "last mile." This
-helps especially when there are compliance and data residency concerns that must
-be properly addressed.
+:::tip[Federated Search]
+The Tenzir pipeline execution engine leverages powerful optimizations, such as
+predicate, limit, and ordering pushdowns. These optimizations are propagated to
+any pipeline source, including operators that fetch data from remote storage
+layers, databases, or SIEMs. This process enables efficient **federated search**
+across distributed systems and is a transparent, fundamental capability of the
+engine.
+:::

@@ -2,10 +2,15 @@
 title: Language (TQL)
 ---
 
-The Tenzir Query Language (TQL) is a dataflow language designed specifically for
-security and network data analysis. This page explains how TQL works as a
-complete language system, from its foundational concepts to advanced composition
+The **Tenzir Query Language (TQL)** is a dataflow language designed specifically
+for security data analysis. This page explains how TQL works as a complete
+language system, from its foundational concepts to advanced composition
 patterns.
+
+:::tip[Pipeline Basics]
+Make sure that you have a rough understanding of [how pipelines
+work](/explanations/architecture/pipelines) in general before diving deeper.
+:::
 
 ## Introduction: A pipeline language for security data
 
@@ -16,9 +21,11 @@ text, TQL operates on both **unstructured data (bytes)** and **structured data
 
 Every operator in TQL has an upstream and downstream type, which can be:
 
-- **void**: No data (used for pipeline boundaries)
+- **void**: No data (used at pipeline boundaries)
 - **bytes**: Unstructured binary data (files, network streams)
 - **events**: Structured, typed records (the primary data model)
+
+Adjacent operators must have identical types.
 
 The key insight: **TQL is a superset of JSON**. Every valid JSON document is
 valid TQL data, but TQL extends JSON with domain-specific types like IP
@@ -287,6 +294,8 @@ This type system ensures pipelines are well-formed. Adjacent operators must
 have matching types: the downstream type of one operator must match the
 upstream type of the next.
 
+![Upstream and Downstream Types](./operator-table.svg)
+
 ### Pipeline composition
 
 Each operator on a new line creates a clear data transformation flow:
@@ -300,6 +309,38 @@ to "high_priority.json"         // Output: events → void
 
 The vertical structure makes the dataflow visually apparent, with data
 "flowing" from top to bottom.
+
+### Operator composition examples
+
+Here's how operators compose to form complete pipelines:
+
+```tql
+from "/path/to/file.json"
+where src_ip in 10.0.0.0/8
+to "s3://bucket/dir/file.parquet"
+```
+
+This pipeline consists of three operators:
+
+![Operator Composition Example 1](./operator-composition-example-1.svg)
+
+The operator [`from`](/reference/operators/from) is a void-to-events
+input operator, [`where`](/reference/operators/where) an
+events-to-events transformation operator, and
+[`to`](/reference/operators/to) an events-to-void output operator.
+
+Other inputs provide bytes first and you need to interpret them in order to
+transform them as events:
+
+```tql
+load_kafka "topic"
+read_ndjson
+select host, message
+write_yaml
+save_zmq "tcp://1.2.3.4"
+```
+
+![Operator Composition Example 2](./operator-composition-example-2.svg)
 
 ### The implied `set` operator
 
