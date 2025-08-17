@@ -2,17 +2,11 @@
 title: Types
 ---
 
-Tenzir's type system is a superset of JSON. That is, every valid JSON object is
-a valid Tenzir value, but there also additional types available, such as `ip`
-and `subnet`.
+Tenzir's type system is a superset of JSON: Every valid JSON object is a valid
+Tenzir value, but there also additional types available, such as `ip` and
+`subnet`.
 
-## Terminology
-
-The diagram below illustrates the type system at a glance:
-
-![Type System](type-system.svg)
-
-### Basic Types
+## Basic Types
 
 Basic types are stateless types with a static structure. The following basic
 types exist:
@@ -32,7 +26,7 @@ types exist:
 | `subnet`   | An IPv4 or IPv6 subnet                |
 | `secret`   | A secret value                        |
 
-#### Secrets
+### Secrets
 
 The `secret` type is a special type created by the [`secret`](/reference/functions/secret)
 function. Secrets can only be used as arguments for operators that accept them
@@ -40,24 +34,17 @@ and only support a limited set of operations, such as concatenation.
 
 See the [explanation page for secrets](/explanations/secrets) for more details.
 
-### Complex Types
+## Complex Types
 
 Complex types are stateful types that carry additional runtime information.
 
-#### Enumeration
-
-The `enum` type is a list of predefined string values. It comes in handy for
-low-cardinality values from a fixed set of options.
-
-Tenzir implements an `enum` as an Arrow Dictionary.
-
-#### List
+### List
 
 The `list` type is an ordered sequence of values with a fixed element type.
 
 Lists have zero or more elements.
 
-#### Record
+### Record
 
 The `record` type consists of an ordered sequence _fields_, each of which have a
 name and type. Records must have at least one field.
@@ -66,28 +53,13 @@ The field name is an arbitrary UTF-8 string.
 
 The field type is any Tenzir type.
 
-### Optionality
+## Optionality
 
 All types are optional in that there exists an additional `null` data point in
 every value domain. Consequently, Tenzir does not have a special type to
 indicate optionality.
 
-### Attributes
+## Attributes
 
-Every type has zero or more **attributes**, which are free-form key-value pairs
-to enrich types with custom semantics.
-
-## Comparison to Arrow
-
-All Tenzir types have a lossless mapping to [Arrow](http://arrow.apache.org)
-types, however, not all Arrow types have a Tenzir equivalent. As a result, it is
-currently not yet possible to import arbitrary Arrow data. In the future, we
-plan to extend our support for Arrow-native types and also offer conversion
-options for seamless data handover.
-
-Tenzir has a few domain-specific types that map to Arrow [extension
-types][extension-types]. These are currently `enum`, `ip`, and `subnet`. Tenzir
-and Arrow attach type metadata to different entities: Tenzir attaches metadata
-to a type instance, whereas Arrow attaches metadata to a schema or record field.
-
-[extension-types]: https://arrow.apache.org/docs/format/Columnar.html#extension-types
+Every type has zero or more **attributes** that are free-form key-value pairs to
+enrich types with custom semantics.

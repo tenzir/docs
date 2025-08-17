@@ -2,865 +2,146 @@
 title: Language (TQL)
 ---
 
-The **Tenzir Query Language (TQL)** is a dataflow language designed specifically
-for security data analysis. This page explains how TQL works as a complete
-language system, from its foundational concepts to advanced composition
-patterns.
+The **Tenzir Query Language (TQL)** is a dataflow language designed for
+processing of unstructured byte-streams and semi-structured events.
 
-:::tip[Pipeline Basics]
-Make sure that you have a rough understanding of [how pipelines
-work](/explanations/architecture/pipelines) in general before diving deeper.
+## Introduction
+
+Security practitioners need to collect, transform, and analyze telemetry without
+the complexity of general-purpose data engineering tools. We created the Tenzir
+Query Language (TQL) to meet this need. TQL synthesizes the best ideas from
+languages that security teams already use:
+
+- **Splunk SPL's familiarity**: Operators that security analysts recognize
+- **Kusto's power**: Rich aggregation and time-series capabilities
+- **Unix pipes' composability**: Small, focused operators that chain together
+- **jq's flexibility**: Powerful transformations on semi-structured data
+
+TQL combines the power of a streaming execution engine with an intuitive
+pipeline syntax that mirrors how practitioners think about data processing. This
+approach is validated by nearly every modern SIEM (Splunk SPL, Elastic ES|QL,
+Microsoft KQL) and offers several advantages over traditional query languages
+like SQL.
+
+:::note[Why not SQL?]
+While SQL is the standard for relational databases, its design creates friction
+in security operations:
+
+- **Inside-out thinking**: SQL's rigid `SELECT ... FROM ... WHERE` structure
+  forces you to specify the output format before defining transformations,
+  leading to complex nested subqueries.
+- **Debugging complexity**: Tracing data flow through nested CTEs and subqueries
+  is cumbersome when investigating incidents under time pressure.
+- **Schema rigidity**: SQL assumes uniform, predefined schemas—a poor fit for
+  the heterogeneous mix of logs, alerts, and telemetry that security teams
+  process daily.
+
+The pipeline model offers a more natural workflow:
+
+- **Sequential reasoning**: Data flows top-to-bottom, matching your mental model.
+- **Incremental construction**: Build queries step-by-step, testing at each stage.
+- **Isolated debugging**: Inspect intermediate results by commenting out downstream operators.
+- **Composability**: Combine simple operators into sophisticated workflows.
 :::
 
-## Introduction: A pipeline language for security data
+### Unified streaming and batch processing
+
+TQL seamlessly handles both real-time and historical analysis. Unlike
+traditional tools that require separate codebases for streaming and batch
+workflows, TQL uses the same pipeline logic for both.
+
+You can process archived data from a data lake:
+
+```tql
+from "s3://bucket/logs/2024-01/*.parquet"
+where timestamp > 2024-01-15T00:00:00
+```
+
+Or monitor a live stream from a message bus:
+
+```tql
+from "kafka://topic:9092"
+where timestamp > now() - 1h
+```
 
 TQL draws inspiration from Unix pipes, where data flows through a sequence of
-transformations. But unlike traditional shell pipelines that only work with
-text, TQL operates on both **unstructured data (bytes)** and **structured data
-(events)**, with native support for security and network concepts.
+transformations. But unlike shell pipelines that primarily work on text, TQL
+operates on both unstructured data (bytes) and structured data (events).
 
-Every operator in TQL has an upstream and downstream type, which can be:
+### Core abstractions
 
-- **void**: No data (used at pipeline boundaries)
-- **bytes**: Unstructured binary data (files, network streams)
-- **events**: Structured, typed records (the primary data model)
+TQL is built on a powerful streaming execution engine, but it shields you from
+the complexity of low-level data processing. It provides a rich set of building
+blocks to create intricate [pipelines](/explanations/architecture/pipeline)
+that collect, transform, and route data. You can also embed your TQL programs
+into reusable [packages](/explanations/packages) to create one-click
+deployable use cases.
 
-Adjacent operators must have identical types.
+![TQL Layers](./tql-layers.svg)
 
-The key insight: **TQL is a superset of JSON**. Every valid JSON document is
-valid TQL data, but TQL extends JSON with domain-specific types like IP
-addresses, subnets, durations, and timestamps. This design leverages existing
-knowledge while adding the precision needed for security analytics.
+TQL organizes data processing into three levels of abstraction:
 
-Consider the evolution from simple filtering to complex analysis:
+1.  [Expressions](/explanations/language/#expressions) are the atoms of
+    computation. They evaluate to values and can be composed to build complex
+    transformations.
+2.  [Statements](/explanations/language/#statements) provide structure with
+    bindings, operators, assignments, and control-flow primitives.
+3.  [Programs](/explanations/language/#programs) compose statements into
+    complete, executable data processing workflows.
 
-```tql title="Working with events (structured data)"
-from {severity: "high", bytes: 150Ki, src_ip: 192.168.1.10}
-where severity == "high"
+## Type System
+
+TQL balances type safety with practical flexibility:
+
+- **Strong typing prevents errors**: Can't accidentally compare IPs as strings
+- **Automatic inference**: Types detected from data, no declarations needed
+- **Null semantics**: Every type is nullable (real data has gaps)
+- **Domain operations**: Types come with relevant methods
+
+```tql title="Type safety in action"
+where src_ip in 10.0.0.0/8           // Type-checked subnet membership
+where duration > 5min                // Type-checked duration comparison
+where timestamp.hour() >= 9          // Extract hour from timestamp
+where severity?.to_upper() == "HIGH" // Safe navigation with type conversion
 ```
 
-```tql
-{severity: "high", bytes: 153600, src_ip: 192.168.1.10}
-```
+### Available Types
 
-As data complexity grows, so does the pipeline. Adding field selection narrows
-the output to just what's needed:
+The diagram below illustrates the type system at a glance:
 
-```tql title="Intermediate: Filter and transform"
-from {
-  severity: "high",
-  bytes: 150Ki,
-  src_ip: 192.168.1.10,
-  timestamp: 2024-01-15T10:30:00,
-  alert_type: "intrusion"
-}
-where severity == "high" and bytes > 100Ki
-select timestamp, src_ip, alert_type
-```
+![Type System](./type-system.svg)
 
-```tql
-{timestamp: 2024-01-15T10:30:00, src_ip: 192.168.1.10, alert_type: "intrusion"}
-```
+See the [type reference](/reference/language/types) for a terse overview of all
+types.
 
-For analytics across multiple events, TQL's aggregation operators combined with
-conditional logic enable sophisticated analysis:
+### Why TQL has more types
 
-```tql title="Complex: Full analytics pipeline with multiple events"
-from
-  {severity: "high", bytes: 150Ki, src_ip: 10.0.0.5},
-  {severity: "high", bytes: 200Ki, src_ip: 192.168.1.10},
-  {severity: "high", bytes: 175Ki, src_ip: 10.0.0.8}
-where severity == "high" and bytes > 100Ki
-if src_ip in 10.0.0.0/8 {
-  zone = "internal"
-} else {
-  zone = "external"
-}
-summarize zone, total=sum(bytes), unique_sources=count_distinct(src_ip)
-```
-
-```tql
-{zone: "internal", total: 332800, unique_sources: 2}
-{zone: "external", total: 204800, unique_sources: 1}
-```
-
-TQL can also process unstructured bytes, parsing them into events:
-
-```tql title="Starting with bytes (e.g., from a file or network)"
-load_file "/var/log/app.json"     // void → bytes
-read_json                         // bytes → events
-where severity == "critical"
-write_csv                         // events → bytes
-save_file "critical_events.csv"   // bytes → void
-```
-
-Each step builds naturally on the previous, demonstrating TQL's philosophy of
-gradual complexity.
-
-## The core mental model
-
-### TQL as a JSON superset
-
-At its heart, TQL embraces JSON's simplicity while extending it for
-domain-specific needs:
-
-Valid JSON is valid TQL:
-
-```tql
-from {
-  "name": "alert",
-  "count": 42,
-  "tags": ["critical", "network"],
-}
-```
-
-TQL adds domain-specific types:
-
-```tql
-from {
-  src_ip: 192.168.1.1,      // IP address type
-  subnet: 10.0.0.0/8,       // Subnet type
-  duration: 5min,           // Duration type
-  timestamp: 2024-01-01,    // Time type
-}
-```
-
-This design means you can start with familiar JSON patterns and gradually adopt
-TQL's richer type system as needed.
-
-### Pipeline structure: Vertical clarity
-
-While TQL supports both pipe symbols (`|`) and newlines as operator separators,
-**vertical structuring with newlines is strongly preferred** for readability.
-
-✅ Preferred: Clear vertical structure:
-
-```tql
-from "logs.json"
-where port == 443
-select src_ip, dst_ip, bytes
-summarize src_ip, total=sum(bytes)
-```
-
-Using pipe operators inline:
-
-```tql
-from "logs.json" | where port == 443 | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
-```
-
-While the vertical approach (similar to languages like PRQL) is preferred for readability in files and documentation, the pipe operator style has important value in specific contexts:
-
-- **Command-line usage**: When running quick ad-hoc queries directly in the terminal
-- **API requests**: When submitting pipelines as single-line strings in JSON payloads
-- **Shell scripts**: When embedding TQL in bash scripts or other single-line contexts
-- **Interactive exploration**: When iteratively building pipelines in a REPL environment
-
-The vertical approach offers several benefits for multi-line contexts:
-
-- **Readability**: Easy to scan and understand data flow
-- **Debugging**: Simple to comment out individual operators
-- **Modification**: Easy to insert or remove pipeline stages
-- **Version Control**: Clear diffs when pipelines change
-
-### Programs, pipelines, and operators
-
-TQL organizes code into three levels:
-
-1. **Program**: The complete TQL script, containing pipelines and declarations
-2. **Pipeline**: A chain of operators that process data
-3. **Operator**: An individual transformation unit
-
-### Comments
-
-TQL uses C-style comments:
-
-- Single-line comments: `// This is a comment`
-- Multi-line comments: `/* This is a
-multi-line comment */`
-
-:::tip
-Use comments sparingly in production pipelines. Well-named fields and clear pipeline structure often communicate intent better than comments.
-:::
-
-```tql title="A complete TQL program"
-let $threshold = 1Ki          // Program-level declaration
-
-from                          // Pipeline starts here
-  {src_ip: 192.168.1.10, bytes: 2Ki},
-  {src_ip: 192.168.1.11, bytes: 512},
-  {src_ip: 192.168.1.12, bytes: 3Ki}
-where bytes > $threshold      // Individual operator
-select src_ip, bytes          // Another operator
-```
-
-## The three-layer architecture
-
-TQL's design separates concerns into three distinct layers, each with its own
-responsibility.
-
-### Layer 1: Expressions - computational building blocks
-
-Expressions are the atoms of computation in TQL. They evaluate to values and
-can be composed to build complex transformations:
-
-- **Evaluate once per event**: Each expression sees the current event as `this`
-- **Pure transformations**: Same input always produces same output
-- **Rich composition**: Build complex expressions from simple parts
-
-Simple expression:
-
-```tql
-bytes > 1000
-```
-
-Composite expression:
-
-```tql
-bytes > 1000 and port in [80, 443]
-```
-
-Complex expression with conditionals:
-
-```tql
-risk = "high" if bytes > 1Mi and port == 22 else "normal"
-```
-
-### Layer 2: Statements - control and structure
-
-Statements provide structure and control flow:
-
-- **Operator statements**: Transform data streams ([`where`](/reference/operators/where), [`select`](/reference/operators/select), [`summarize`](/reference/operators/summarize))
-- **Assignments**: Modify fields (using the implied [`set`](/reference/operators/set) operator)
-- **Control flow**: Route data conditionally (`if` statements)
-- **Bindings**: Define constants (`let` statements)
-
-Operator statement:
-
-```tql
-where severity == "high"
-```
-
-Assignment (implied set operator):
-
-```tql
-risk_score = bytes / 1Ki * severity_weight
-```
-
-Control flow:
-
-```tql
-if src_ip.is_private() {
-  zone = "internal"
-} else {
-  zone = "external"
-}
-```
-
-Binding:
-
-```tql
-let $critical_ports = [22, 3389, 5432]
-```
-
-### Layer 3: Programs - composition and execution
-
-Programs compose statements into complete data processing workflows:
-
-- **Sequential composition**: Operators chain through newlines
-- **Nested composition**: Subpipelines for complex logic
-- **Network-transparent**: Can span multiple nodes seamlessly
-
-## The pipeline model
-
-### Dataflow types
-
-TQL operators fall into three categories based on their input/output behavior (see the [Operators Reference](/reference/operators) for details on each operator):
-
-```
-Input Operators              Transformations              Output Operators
-void → events/bytes         events → events              events/bytes → void
-                            bytes → bytes
-                            bytes → events (parsers)
-                            events → bytes (formatters)
-
-Examples:
-from (void → events)        where (events → events)      to (events → void)
-export (void → events)      select (events → events)     import (events → void)
-load_file (void → bytes)    read_json (bytes → events)   save_file (bytes → void)
-                            write_json (events → bytes)
-```
-
-This type system ensures pipelines are well-formed. Adjacent operators must
-have matching types: the downstream type of one operator must match the
-upstream type of the next.
-
-![Upstream and Downstream Types](./operator-table.svg)
-
-### Pipeline composition
-
-Each operator on a new line creates a clear data transformation flow:
-
-```tql title="Data flows top to bottom"
-from "security_logs.json"       // Input: void → events
-where severity == "high"        // Transform: events → events
-select timestamp, src_ip, alert // Transform: events → events
-to "high_priority.json"         // Output: events → void
-```
-
-The vertical structure makes the dataflow visually apparent, with data
-"flowing" from top to bottom.
-
-### Operator composition examples
-
-Here's how operators compose to form complete pipelines:
-
-```tql
-from "/path/to/file.json"
-where src_ip in 10.0.0.0/8
-to "s3://bucket/dir/file.parquet"
-```
-
-This pipeline consists of three operators:
-
-![Operator Composition Example 1](./operator-composition-example-1.svg)
-
-The operator [`from`](/reference/operators/from) is a void-to-events
-input operator, [`where`](/reference/operators/where) an
-events-to-events transformation operator, and
-[`to`](/reference/operators/to) an events-to-void output operator.
-
-Other inputs provide bytes first and you need to interpret them in order to
-transform them as events:
-
-```tql
-load_kafka "topic"
-read_ndjson
-select host, message
-write_yaml
-save_zmq "tcp://1.2.3.4"
-```
-
-![Operator Composition Example 2](./operator-composition-example-2.svg)
-
-### The implied `set` operator
-
-TQL reduces verbosity through implied operators. When you write an assignment
-outside an explicit operator context, it implicitly uses the [`set`](/reference/operators/set) operator:
-
-```tql title="Implicit set operator"
-severity = "high"
-
-// ...is actually shorthand for:
-set severity = "high"
-```
-
-This design keeps pipelines concise while maintaining clarity about what's
-happening.
-
-### Streaming vs blocking
-
-Understanding operator behavior helps write efficient pipelines:
-
-- **Streaming operators** process events incrementally:
-  - `where`: Filters one event at a time
-  - `select`: Transforms fields immediately
-  - `drop`: Removes fields as events flow
-
-- **Blocking operators** need all input before producing output:
-  - `sort`: Must see all events to order them
-  - `summarize`: Aggregates across the entire stream
-  - `reverse`: Needs complete input to reverse order
-
-✅ Efficient: streaming operations first:
-
-```tql
-from "large_file.json"
-where severity == "critical"    // Streaming: reduces data early
-select relevant_fields          // Streaming: drops unnecessary data
-sort timestamp                  // Blocking: but on reduced dataset
-```
-
-❌ Less efficient: blocking operation on full data:
-
-```tql
-from "large_file.json"
-sort timestamp                  // Blocking: processes everything
-where severity == "critical"    // Then filters
-```
-
-## Expressions in detail
-
-### Expression evaluation model
-
-Expressions form the computational core of TQL:
-
-- **Context**: Expressions evaluate relative to the current event (`this`)
-- **Composition**: Complex expressions build from simple ones
-- **Type-aware**: Operations respect TQL's type system
-
-Literal value:
-
-```tql
-42
-```
-
-Field access (implicitly: this.src_ip):
-
-```tql
-src_ip
-```
-
-Operation:
-
-```tql
-bytes > 1Ki
-```
-
-Function call:
-
-```tql
-round(bytes / 1Ki)
-```
-
-Method chain (UFCS):
-
-```tql
-message.trim().to_upper()
-```
-
-Complex composition:
-
-```tql
-f"Alert: {'HIGH' if bytes > 1Mi else 'LOW'} from {src_ip}"
-```
-
-### Data quality through diagnostics
-
-TQL's diagnostic system is designed around a core principle: **every warning
-should matter**. The system distinguishes between expected data variance and
-actual quality issues.
-
-#### The philosophy
-
-Use the optional field access operator (`?`) to declare which variance is
-normal, so warnings only fire for actual data quality issues:
-
-```tql title="Processing login events that SHOULD have username"
-from "auth_logs.json"
-where event_type == "login"
-where username != null      // Warning if missing - data quality issue!
-
-// Scenario: Processing mixed logs where region is optional
-from "mixed_logs.json"
-where region? == "us-east-1"   // No warning - region is naturally optional
-```
-
-#### Diagnostic types
-
-- **Errors**: Stop pipeline execution immediately (critical failures)
-- **Warnings**: Signal data quality issues but continue processing
-- **The `?` operator**: Suppresses warnings for expected variance
-- **The `else` keyword**: Provides fallback values when used with `?`
-
-#### Intentional data quality management
-
-```tql title="Processing security events with strict and optional fields"
-from "security_events.json"
-
-// These fields MUST exist - warnings help catch data problems
-where event_id != null          // Warning if missing = data quality issue
-where timestamp > now() - 1h    // Warning if missing = data quality issue
-
-// These fields are naturally optional
-where severity? == "critical"   // No warning - not all events have severity
-select
-  event_id,                     // Required field
-  timestamp,                    // Required field
-  severity?,                    // Optional field
-  enrichment?.geo?.country?     // Deep optional path - enrichment may fail
-
-// Monitor data quality
-fork {
-  diagnostics
-  where level == "warning"
-  to "data_quality_issues.json"
-}
-```
-
-#### The `else` keyword for fallback values
-
-The `else` keyword works with the `?` operator to provide default values:
-
-```tql title="Using else for graceful fallbacks"
-// Basic field fallback
-severity_level = severity? else "unknown"
-priority = priority? else 3
-
-// Array index fallback (prevents out-of-bounds errors)
-let $ports = [80, 443, 8080]
-first_port = $ports[0]? else 80
-tenth_port = $ports[9]? else 0   // Fallback when index doesn't exist
-
-// Record key fallback
-let $status_codes = {
-  success: 200,
-  not_found: 404,
-  error: 500,
-}
-response_code = $status_codes[status]? else 500
-
-// Nested field fallback
-country = geo?.location?.country? else "unknown"
-
-// Complex expression fallback
-risk_score = (base_score * severity_multiplier)? else 0.5
-```
-
-Without `else`, the `?` operator returns `null` when the field/key/index doesn't exist. With `else`, you get a sensible default value instead of `null`.
-
-The `?` operator expresses your data contract: use it to distinguish between
-"this field should exist" and "this field naturally varies."
-
-#### The standalone `if` keyword
-
-The `if` keyword can be used independently as a conditional guard, evaluating an expression only when a condition is true:
-
-```tql title="Using if for conditional evaluation"
-// Conditional field access
-result = x.y.z if $threshold > 100
-value = expensive_function() if should_compute
-
-// Conditional assignment with variables
-metric = bytes * 1.5 if is_premium_user
-bonus = salary * 0.1 if years > 5
-
-// Works with method chaining
-formatted = text.trim().upper() if needs_formatting
-
-// Conditional nested field access
-detail = response.data.items[0].name if response.status == 200
-
-// Returns null when condition is false
-score = calculate_score() if has_data  // null if has_data is false
-```
-
-:::note[if vs else]
-
-- `if` alone: Returns the expression value when true, `null` when false
-- `field? else default`: Provides a fallback when field doesn't exist
-- `expression if condition else fallback`: Full ternary expression
-- Combine them: `field? else default if condition` for complex logic
-  :::
-
-### Progressive expression examples
-
-TQL expressions range from simple literals to complex computations:
-
-```tql title="Expression levels"
-42
-"text"
-192.168.1.1        // IP literal
-5min               // Duration literal
-
-// Level 2: Field access with intent
-src_ip             // Should exist - warning if missing
-metadata?          // May not exist - that's normal
-
-// Level 3: Operations
-bytes > 1Ki        // Note: Ki = 1024 (binary prefix)
-port in [80, 443, 8080]
-
-// Level 4: Function calls
-round(bytes / 1Ki)
-src_ip.is_private()
-
-// Level 5: Method chains (UFCS)
-message.trim().to_upper().length()
-
-// Level 6: Safe navigation for optional paths
-user?.profile?.settings?.theme?
-
-// Level 7: Ternary conditional (Python-style)
-alert_level = "HIGH" if bytes > 1Mi else "LOW"
-
-// Level 8: Complex expressions with format strings
-f"Alert: {'HIGH' if bytes > 1Mi else 'LOW'} volume from {src_ip}"
-```
-
-### Conditional expressions
-
-TQL uses Python-style conditionals, not ternary `?:` operators:
-
-```tql title="Conditional expression syntax (Python-style)"
-// Basic form: value_if_true if condition else value_if_false
-risk = "high" if port in [22, 3389] else "medium"
-
-// Can be chained for multiple conditions
-priority = 1 if severity == "critical" else 2 if severity == "high" else 3
-
-// Works in format strings
-message = f"Status: {'OK' if status == 200 else 'ERROR'}"
-
-// The else clause can be omitted (returns null if false)
-bonus = 1000 if performance == "excellent"
-
-// The if keyword can also be used for conditional field access
-value = x.y.z if $a == 42   // Access x.y.z only if $a equals 42
-result = field.method() if condition  // Call method only if condition is true
-
-// ❌ TQL does NOT have ternary ? operator
-// risk = port in [22, 3389] ? "high" : "medium"  // INVALID
-```
-
-:::tip[Expression vs. statement]
-The distinction between `if` expression and `if` statement is important:
-
-- **`if` expression**: Returns a value (`x = "high" if condition else "low"`)
-- **`if` statement**: Controls flow (covered in Control Flow section)
-  :::
-
-### The `move` expression
-
-The `move` expression transfers a field's value and removes the original field in one operation:
-
-```tql title="Using move to avoid separate drop operations"
-// ✅ Clean: move expression
-ocsf.src_ip = move original.source_address
-ocsf.dst_port = move original.destination.port
-ocsf.severity = move alert.level
-
-// ❌ Verbose: copy then drop
-ocsf.src_ip = original.source_address
-ocsf.dst_port = original.destination.port
-ocsf.severity = alert.level
-drop original.source_address, original.destination.port, alert.level
-```
-
-```tql title="move in data normalization"
-// Normalizing incoming data to OCSF format
-from {
-  original: {
-    source_address: 192.168.1.10,
-    destination: {port: 443},
-  },
-  alert: {level: "high"},
-  metadata: "extra",
-}
-
-// Move fields to new structure
-ocsf = {
-  src_ip: move original.source_address,
-  dst_port: move original.destination.port,
-  severity: move alert.level,
-}
-
-// Result: original fields are gone, values moved to ocsf
-```
-
-Key points about `move`:
-
-- **Expression only**: `move` can only be used in expression position (right side of `=`)
-- **Field required**: Can only move fields, not arbitrary expressions
-- **Atomic operation**: Combines read and delete in one step
-- **Prevents duplication**: Ensures data doesn't appear in both old and new locations
-
-:::note[Keyword vs. operator]
-Don't confuse the `move` expression with the [`move` operator](/reference/operators/move), which renames fields at the top level.
-:::
-
-## Operators: The pipeline components
-
-For a complete list of available operators, see the [Operators Reference](/reference/operators).
-
-### Common operator patterns
-
-Each operator gets its own line for maximum clarity:
-
-```tql title="Common operators"
-where port == 443 and proto == "tcp"
-
-// Selection and transformation
-select src_ip, dst_ip, volume=bytes/1Ki
-
-// Aggregation (note: no 'by' keyword - grouping fields listed first)
-summarize src_ip, total=sum(bytes), count()
-
-// Conditional routing - maintains vertical structure
-if severity == "critical" {
-  alert_type = "immediate"
-} else {
-  alert_type = "normal"
-}
-```
-
-### Building complex pipelines
-
-The vertical structure makes it easy to build and modify pipelines
-incrementally:
-
-Start with a basic filter to understand your data:
-
-```tql title="Step 1: Start simple"
-from
-  {status: 404, url: "/missing", response_time: 1.5s},
-  {status: 200, url: "/home", response_time: 0.1s},
-  {status: 404, url: "/broken", response_time: 2s}
-where status == 404
-```
-
-```tql
-{status: 404, url: "/missing", response_time: 1.5s}
-{status: 404, url: "/broken", response_time: 2s}
-```
-
-Layer additional conditions to refine your results:
-
-```tql title="Step 2: Add more filtering"
-from
-  {status: 404, url: "/missing", response_time: 1.5s, user_agent: "Mozilla/5.0"},
-  {status: 200, url: "/home", response_time: 0.1s, user_agent: "curl/7.68"},
-  {status: 404, url: "/broken", response_time: 2s, user_agent: "bot/1.0"}
-where status == 404
-where response_time > 1s
-```
-
-```tql
-{status: 404, url: "/missing", response_time: 1.5s, user_agent: "Mozilla/5.0"}
-{status: 404, url: "/broken", response_time: 2s, user_agent: "bot/1.0"}
-```
-
-Transform the output to include only relevant fields:
-
-```tql title="Step 3: Add transformation"
-from
-  {status: 404, url: "/missing", response_time: 1.5s, user_agent: "Mozilla/5.0"},
-  {status: 200, url: "/home", response_time: 0.1s, user_agent: "curl/7.68"},
-  {status: 404, url: "/broken", response_time: 2s, user_agent: "bot/1.0"}
-where status == 404
-where response_time > 1s
-select url, response_time, user_agent
-```
-
-```tql
-{url: "/missing", response_time: 1.5s, user_agent: "Mozilla/5.0"}
-{url: "/broken", response_time: 2s, user_agent: "bot/1.0"}
-```
-
-Finally, aggregate to gain insights:
-
-```tql title="Step 4: Add aggregation"
-from
-  {status: 404, url: "/missing", response_time: 1.5s, user_agent: "Mozilla/5.0"},
-  {status: 404, url: "/missing", response_time: 1.8s, user_agent: "curl/7.68"},
-  {status: 404, url: "/broken", response_time: 2s, user_agent: "bot/1.0"}
-where status == 404
-where response_time > 1s
-summarize url, count(), avg_time=mean(response_time)
-```
-
-```tql
-{url: "/missing", count: 2, avg_time: 1.65s}
-{url: "/broken", count: 1, avg_time: 2s}
-```
-
-This incremental approach helps during development: start with basic
-functionality, then add complexity as needed.
-
-## Functions: Reusable transformations
-
-### Uniform function call syntax (UFCS)
-
-TQL supports both traditional function calls and method syntax, enabling
-natural expression chaining:
-
-```tql title="Free function style"
-from {text: "  hello  "}
-result = capitalize(trim(text))
-```
-
-```tql
-{
-  result: "Hello",
-}
-```
-
-```tql title="Method style (UFCS)"
-from {text: "  hello  "}
-result = text.trim().capitalize()
-```
-
-```tql
-{
-  result: "Hello",
-}
-```
-
-UFCS particularly shines with function chaining:
-
-```tql title="Method chaining for readability"
-from {message: "  HELLO world  "}
-message = message
-  .trim()                       // Remove whitespace
-  .to_lower()                   // Normalize case
-  .replace(" ", "_")            // Replace spaces
-```
-
-```tql
-{
-  message: "hello_world",
-}
-```
-
-Compare with the nested function call style:
-
-```tql title="Nested function calls (harder to read)"
-from {message: "  HELLO world  "}
-message = replace(to_lower(trim(message)), " ", "_")
-```
-
-```tql
-{
-  message: "hello_world",
-}
-```
-
-:::tip[Prefer method style]
-While both styles are valid, method chaining (UFCS) is generally preferred for:
-
-- **Readability**: Left-to-right data flow is easier to follow
-- **Discoverability**: IDEs can better suggest available methods
-- **Consistency**: Aligns with common programming patterns
-- **Chaining**: Natural for multi-step transformations
-  :::
-
-### Function categories
-
-Functions in TQL serve different purposes. See the [Functions Reference](/reference/functions) for the complete list:
-
-- **Aggregation**: Reduce streams to summary values
-  - `sum()`, `count()`, `mean()`, `max()`, `min()`
-  - `count_distinct()`, `collect()`, `variance()`
-
-- **Transformation**: Modify values
-  - `round()`, `trim()`, `to_upper()`, `to_lower()`
-  - `parse_json()`, `format()`, `replace()`
-
-- **Type Conversion**: Change data types
-  - `string()`, `int()`, `double()`, `time()`
-  - `ip()`, `subnet()`, `duration()`
-
-- **Domain-Specific**: Security and network operations
-  - `is_private()`, `is_loopback()`, `is_multicast()`
-  - `community_id()`, `hash()`, `encrypt()`
-
-## Type system: Why JSON plus?
-
-### The motivation behind TQL's type system
-
-:::note
 TQL extends JSON's type system because **security and network data has specific
 patterns** that generic JSON cannot express efficiently or safely.
-:::
+
+Example:
+
+```tql
+from {
+  // JSON-compatible types
+  event_id: 42,                      // number → int64
+  is_alert: true,                    // bool
+  message: "Connection established", // string
+  tags: ["network", "established"],  // array → list
+  metadata: {                        // object → record
+    source: "firewall",
+    version: 2
+  },
+
+  // TQL-specific types for security/network data
+  src_ip: 192.168.1.100,                   // IP address
+  network: 192.168.1.0/24,                 // subnet
+  timestamp: 2024-01-15T10:30:00,          // time point
+  duration: 250ms,                         // duration
+  api_key: secret("sk_live_..."),          // secret (never logged)
+  packet_data: b"\x00\x01\x02"             // blob (binary data)
+}
+```
 
 #### Why IP address types?
 
@@ -921,113 +202,625 @@ where src_ip in $internal and dst_ip not in $internal  // Outbound traffic
 // Error-prone and hard to maintain
 ```
 
-### The complete type hierarchy
+#### Why binary blob types?
 
-```
-JSON Types              TQL Extensions           Why Added
-----------              --------------           ---------
-null                    duration                 Time calculations
-bool                    time                     Timestamp operations
-number → int64          ip                       Network analysis
-         uint64         subnet                   CIDR operations
-         double         blob                     Binary data
-string                  secret                   Secure credentials
-array → list            enum                     Low-cardinality fields
-object → record
-```
+Security and network data often contains raw binary content that needs special
+handling:
 
-### Type examples in context
+✅ Blob type for binary data:
 
 ```tql
-from {
-  // JSON-compatible types
-  event_id: 42,                      // number → int64
-  is_alert: true,                    // bool
-  message: "Connection established", // string
-  tags: ["network", "established"],  // array → list
-  metadata: {                        // object → record
-    source: "firewall",
-    version: 2
-  },
+// Handle packet captures, certificates, encrypted payloads
+packet_data = b"\x00\x01\x02\x03"
+cert_der = decode_base64(certificate_base64)  // Returns blob
+payload_hex = encode_hex(packet_data)         // blob → hex string
+hash = hash_sha256(packet_data)               // Direct hashing of binary
+```
 
-  // TQL-specific types for security/network data
-  src_ip: 192.168.1.100,            // IP address
-  network: 192.168.1.0/24,          // subnet
-  timestamp: 2024-01-15T10:30:00,   // time point
-  duration: 250ms,                  // duration
-  api_key: secret("sk_live_..."),   // secret (never logged)
-  severity: enum("low", "medium", "high"), // enumeration
-  packet_data: b"\x00\x01\x02"      // blob (binary data)
+❌ Without blob type (using strings):
+
+```tql
+// Binary data corrupts when treated as text
+packet_data = "\x00\x01\x02\x03"  // May lose null bytes
+// No safe way to handle non-UTF8 sequences
+// Length calculations are wrong for multi-byte encodings
+```
+
+Blobs preserve exact byte sequences for forensics, packet analysis, and
+cryptographic operations.
+
+#### Why secret types?
+
+Credentials and sensitive data need protection from accidental exposure:
+
+✅ Secret type for sensitive values:
+
+```tql
+// Secrets are never logged or displayed
+let $api_key = secret("sk_live_abc123...")
+auth_header = f"Bearer {secret(env("API_TOKEN"))}"
+
+// Use secrets without exposing them
+http "api.example.com", headers={Auth: $api_key}  // Use secret safely
+```
+
+❌ Without secret type (using strings):
+
+```tql
+// Dangerous: credentials visible in logs
+api_key = "sk_live_abc123..."   // Shows up in debug output
+
+// No protection against exposure
+to "debug.json"  // Oops, secret written to file
+```
+
+The secret type ensures sensitive data is never accidentally exposed in logs, outputs, or debugging.
+
+### Multi-schema philosophy
+
+Unlike traditional databases that require strict schemas, TQL embraces
+**heterogeneous data** as a first-class concept. Real-world data pipelines
+process multiple event types simultaneously—firewall logs, DNS queries,
+authentication events—each with different schemas.
+
+TQL's operators are **polymorphic**, adapting to different schemas at runtime:
+
+```tql
+// Single pipeline processing multiple event types
+from "mixed_security_logs.json"
+where timestamp > now() - 1h
+where severity? == "high" or risk_score? > 0.8
+select \
+  timestamp,
+  event_type=@name,            // Capture the schema name
+  message,                     // Common field
+  src_ip?,                     // Present in network events
+  username?,                   // Present in auth events
+  dns_query?                   // Present in DNS events
+```
+
+This philosophy enables powerful patterns:
+
+- **Type-aware aggregation**: Group and aggregate across different schemas
+- **Unified processing**: Apply common transformations to diverse data
+- **Schema evolution**: Handle changing schemas without pipeline updates
+- **Mixed-source correlation**: Join events from different systems
+
+### Comparison to Arrow
+
+All Tenzir types have a lossless mapping to [Arrow](http://arrow.apache.org)
+types, however, not all Arrow types have a Tenzir equivalent. As a result, it is
+currently not yet possible to import arbitrary Arrow data. In the future, we
+plan to extend our support for Arrow-native types and also offer conversion
+options for seamless data handover.
+
+Tenzir has a few domain-specific types that map to Arrow [extension
+types](https://arrow.apache.org/docs/format/Columnar.html#extension-types).
+These are currently `enum`, `ip`, and `subnet`. Tenzir and Arrow attach type
+metadata to different entities: Tenzir attaches metadata to a type instance,
+whereas Arrow attaches metadata to a schema or record field.
+
+## Expressions
+
+Expressions form the computational core of TQL. They range from simple literals
+to complex evaluations.
+
+Level 1: Simple literals:
+
+```tql
+42
+"text"
+192.168.1.1        // IP literal
+5min               // Duration literal
+```
+
+Level 2: Field access with intent:
+
+```tql
+src_ip             // Should exist - warning if missing
+metadata?          // May not exist - that's normal
+```
+
+Level 3: Operations:
+
+```tql
+bytes > 1Ki        // Note: Ki = 1024 (binary prefix)
+port in [80, 443, 8080]
+```
+
+Level 4: Function calls:
+
+```tql
+round(bytes / 1Ki)
+src_ip.is_private()
+```
+
+Level 5: Method chains:
+
+```tql
+message.trim().to_upper().length()
+```
+
+Level 6: Navigation for optional paths:
+
+```tql
+user?.profile?.settings?.theme?
+```
+
+Level 7: Ternary conditional (Python-style):
+
+```tql
+alert_level = "HIGH" if bytes > 1Mi else "LOW"
+```
+
+Level 8: Complex expressions with format strings:
+
+```tql
+f"Alert: {'HIGH' if bytes > 1Mi else 'LOW'} volume from {src_ip}"
+```
+
+### Optional field access with `?`
+
+Use the optional field access operator (`?`) to suppress warnings when accessing
+non-existant fields. This is useful when you want to treat optional fields as
+normal and not a data quality issue that elicits a warning.
+
+```tql title="Processing login events that should have username"
+from {event: "logon", user: {id: 123, name: "John Doe"}},
+     {event: "logon", user: {id: 456}},
+     {event: "logoff", user: {id: 123}}
+select event, user_id=user.id, name=user.name?
+```
+
+```tql
+{event: "logon", user_id:123, name:"John Doe"}
+{event: "logon", user_id:456, name:null}  // null instead of a warning
+{event: "logoff", user_id:123, name:null} // null instead of a warning
+```
+
+Optional field access also works on nested records:
+
+```tql
+from {event: "logon", user: {id: 123, name: "John Doe", address: {city: "New York"}}},
+     {event: "logon", user: {id: 456, address: {city: "Hamburg", country: "Germany"}}},
+     {event: "logoff", user: {id: 123, name: "Jane Doe", address: {country: "USA"}}}
+select city=user.address?.city?
+```
+
+```tql
+{user: {address: {city: "New York"}}}
+{user: {address: {city: "Hamburg"}}}
+{user: {address: {city: null}}} // null instead of a warning
+```
+
+### Fallback values with `else`
+
+The `else` keyword often works with the `?` operator to provide default values,
+e.g. to provide graceful fallback values:
+
+```tql
+severity_level = severity? else "unknown"
+priority = priority? else 3
+```
+
+Prevent out-of-bounds errors with array index fallback:
+
+```tql
+let $ports = [80, 443, 8080]
+first_port = $ports[0]? else 80
+tenth_port = $ports[9]? else 0   // Fallback when index doesn't exist
+```
+
+Provide a record key fallback:
+
+```tql
+let $status_codes = {
+  success: 200,
+  not_found: 404,
+  error: 500,
+}
+response_code = $status_codes[status]? else 500
+```
+
+:::tip[`else` vs `?`]
+Without `else`, the `?` operator returns `null` when the field/key/index doesn't
+exist. With `else`, you get a sensible default value instead of `null`.
+
+The `?` operator expresses your data contract: use it to distinguish between
+"this field should exist" and "this field naturally varies."
+:::
+
+### Conditional `if` standalone
+
+The `if` keyword can be used independently as a conditional guard, evaluating an
+expression only when a condition is true, and returning `null` otherwise:
+
+```tql
+result = x.y.z if $threshold > 100
+```
+
+Guard against expensive computations:
+
+```tql
+result = expensive_function() if $should_compute
+formatted = text.trim().upper() if $needs_formatting
+```
+
+:::tip[`if` vs `else`]
+
+- `if` alone: Returns the expression value when true, `null` when false
+- `field? else default`: Provides a fallback when field doesn't exist
+- `expression if condition else fallback`: see below
+- Combine all of them: `field? else default if condition` for complex logic
+  :::
+
+### Conditional `if`-`else`
+
+TQL uses Python-style conditionals, not ternary `?:` operators, with the basic
+form being:
+
+```tql
+value_if_true if condition else value_if_false
+```
+
+Conditionally assign a value:
+
+```tql
+risk = "high" if port in [22, 3389] else "medium"
+```
+
+Discouraged due to potential confusion, but chaining is allowed:
+
+```tql
+priority = 1 if severity == "critical" else 2 if severity == "high" else 3
+```
+
+Conditionals also work in format strings:
+
+```tql
+message = f"Status: {'OK' if status == 200 else 'ERROR'}"
+```
+
+You can omit the `else` clause (returns null if `false`):
+
+```tql
+bonus = 1000 if performance == "excellent"
+```
+
+You can also use the `if` keyword for conditional field access:
+
+```tql
+value = x.y.z if $a == 42   // Access x.y.z only if $a equals 42
+```
+
+:::tip[Expression vs. statement]
+The distinction between `if` expression and `if` statement is important:
+
+- **`if` expression**: Returns a value (`x = "high" if condition else "low"`)
+- **`if` statement**: Controls flow (covered in Control Flow section)
+  :::
+
+### The `move` expression
+
+The `move` expression transfers a field's value and removes the original field in one operation:
+
+✅ Clean: Using `move` to avoid separate drop operations:
+
+```tql
+ocsf.src_endpoint.ip = move original.source_address
+ocsf.severity = move alert.level
+```
+
+❌ Verbose: copy then drop:
+
+```tql
+ocsf.src_ip = original.source_address
+ocsf.severity = alert.level
+drop original.source_address, alert.level
+```
+
+Key points about `move`:
+
+- **Expression only**: `move` can only be used in expression position (right side of `=`)
+- **Field required**: Can only move fields, not arbitrary expressions
+- **Atomic operation**: Combines read and delete in one step
+- **Prevents duplication**: Ensures data doesn't appear in both old and new locations
+
+:::note[Keyword vs. operator]
+Don't confuse the `move` expression with the [`move`
+operator](/reference/operators/move), which renames fields at the top-level event.
+:::
+
+### Functions
+
+Functions appear in [expressions](/reference/language/expressions) and take
+positional and/or named arguments, producing a value as a result of their
+computation.
+
+TQL supports the [uniform function call syntax
+(UFCS)](https://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax), which
+allows you to interchangeably call a function with at least one argument either
+as _free function_ or _method_. For example, `length(str)` and `str.length()`
+resolve to the identical function call. The latter syntax is particularly
+suitable for function chaining, e.g., `x.f().g().h()` reads left-to-right as
+"start with `x`, apply `f()`, then `g()` and then `h()`," compared to
+`h(g(f(x)))`, which reads "inside out."
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="function-style">
+<TabItem label="Free function">
+
+```tql
+from {input: "  hello  "}
+output = capitalize(trim(input))
+```
+
+```tql
+{
+  input: "  hello  ",
+  output: "Hello",
 }
 ```
 
-### Multi-schema dataflows
+</TabItem>
+<TabItem label="Method">
 
-Real-world data isn't uniform. TQL handles heterogeneous data gracefully:
-
-```tql title="Single pipeline, multiple event types"
-from "mixed_logs.json"
-where severity? == "high"        // Some events have severity
-where timestamp > now() - 1h     // All events have timestamp
-select
-  timestamp,
-  message,
-  type=@name,                    // Capture event type
-  severity?                      // Include if present
+```tql
+from {input: "  hello  "}
+output = input.trim().capitalize()
 ```
 
-### Type safety with flexibility
-
-TQL balances type safety with practical flexibility:
-
-- **Strong typing prevents errors**: Can't accidentally compare IPs as strings
-- **Automatic inference**: Types detected from data, no declarations needed
-- **Null semantics**: Every type is nullable (real data has gaps)
-- **Domain operations**: Types come with relevant methods
-
-```tql title="Type safety in action"
-where src_ip in 10.0.0.0/8          // Type-checked subnet membership
-where duration > 5min                // Type-checked duration comparison
-where timestamp.hour() >= 9         // Extract hour from timestamp
-where severity?.to_upper() == "HIGH" // Safe navigation with type conversion
+```tql
+{
+  input: "  hello  ",
+  output: "Hello",
+}
 ```
 
-## Control flow and composition
+</TabItem>
+</Tabs>
 
-### Conditional execution
+Note the improved readability of function chaining:
 
-The `if` statement routes data through different transformation paths:
+<Tabs syncKey="function-style">
+<TabItem label="Free function">
 
-```tql title="Basic conditional routing"
-if src_ip in 10.0.0.0/8 {
+```tql
+from {message: "  HELLO world  "}
+message = replace(to_lower(trim(message)), " ", "_")
+```
+
+```tql
+{
+  message: "hello_world",
+}
+```
+
+</TabItem>
+<TabItem label="Method">
+
+```tql
+from {message: "  HELLO world  "}
+message = message
+  .trim()                       // Remove whitespace
+  .to_lower()                   // Normalize case
+  .replace(" ", "_")            // Replace spaces
+```
+
+```tql
+{
+  message: "hello_world",
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::tip[Prefer method style]
+While both styles are valid, we prefer the method syntax for:
+
+- **Readability**: Left-to-right data flow is easier to follow
+- **Discoverability**: IDEs can better suggest available methods
+- **Consistency**: Aligns with common programming patterns
+- **Chaining**: Natural for multi-step transformations
+  :::
+
+For a comprehensive list of functions, see the [functions
+reference](/reference/functions).
+
+## Statements
+
+[Statements](/reference/language/statements) provide control and structure with
+bindings, operators, assignments, and control-flow primitives.
+
+### Bindings
+
+Bindings define constants with the `let` statement:
+
+```tql
+let $critical_ports = [22, 3389, 5432]
+```
+
+### Operators
+
+Operators read, transform, and writ data:
+
+```tql
+where src_endpoint.port in $critical_ports
+```
+
+Operators have an _upstream_ and _downstream_ type, which can be:
+
+- **void**: No data (used at pipeline boundaries)
+- **bytes**: Unstructured binary data (files, network streams)
+- **events**: Structured, typed records (the primary data model)
+
+The diagram below illustrates the cross-product of upstream and downstream
+types:
+
+![Upstream and Downstream Types](./operator-table.svg)
+
+Here are visual examples that illustrate the upstream and downstream operator
+types.
+
+```tql
+from "/path/to/file.json"
+where src_ip in 10.0.0.0/8
+to "s3://bucket/dir/file.parquet"
+```
+
+This pipeline consists of three operators:
+
+![Operator Composition Example 1](./operator-composition-example-1.svg)
+
+Let's break it down:
+
+1. [`from`](/reference/operators/from): A void-to-events input operator that
+   reads events from a URI.
+2. [`where`](/reference/operators/where): An events-to-events transformation
+   operator that filters events matching a predicate.
+3. [`to`](/reference/operators/to): An events-to-void output operator the writes
+   to the specified URI.
+
+The [`from`](/reference/operators/from) and [`to`](/reference/operators/to)
+operators perform a bit "magic" in that they also infer the format of the data
+being read or written, i.e., JSON due to the `*.json` extension and Parquet due
+to the `*.parquet` extension. You can also bypass this magic by explicitly
+specifying the format:
+
+```tql
+load_kafka "topic"
+read_ndjson
+select host, message
+write_yaml
+save_zmq "tcp://1.2.3.4"
+```
+
+![Operator Composition Example 2](./operator-composition-example-2.svg)
+
+Here, we use a separate set of operators that go through bytes explicitly. Let's
+break it down as well:
+
+1. [`load_kafka`](/reference/operators/load_kafka): A void-to-events input
+   operator that reads from a Kafka topic.
+2. [`read_ndjson`](/reference/operators/read_ndjson): An bytes-to-events
+   transformation operator (aka. _parser_) that reads newline-delimited JSON.
+3. [`select`](/reference/operators/select): An events-to-events transformation
+   operator that selects specific fields from events.
+4. [`write_yaml`](/reference/operators/write_yaml): An events-to-bytes
+   transformation operator that turns events to YAML foramt.
+5. [`save_zmq`](/reference/operators/save_zmq): A bytes-to-void output
+   operator that writes bytes to a ZeroMQ socket.
+
+### Assignments
+
+Assignments modify fields:
+
+```tql
+risk_score = bytes / 1Ki * severity_weight
+```
+
+When you write an assignment outside an explicit operator context, it implicitly
+uses the [`set`](/reference/operators/set) operator:
+
+```tql
+severity = "high"
+// ...is actually shorthand for:
+set severity = "high"
+```
+
+This design keeps pipelines concise while maintaining clarity about what's
+happening.
+
+### Control flow
+
+The `if` statement allows for branching into different statements:
+
+```tql
+if src_ip.is_private() {
   zone = "internal"
-  drop sensitive_field          // Remove before logging
 } else {
   zone = "external"
-  context::update "external_ips", key=src_ip
-}
-
-// Chained conditions
-if severity == "critical" {
-  priority = 1
-  alert = true
-} else if severity == "high" {
-  priority = 2
-  alert = false
-} else {
-  priority = 3
-  alert = false
-}
-
-// Conditional aggregation
-if bytes > 1Mi {
-  // High-volume connections
-  summarize src_ip, total=sum(bytes), count()
-} else {
-  // Normal traffic - more detailed
-  select timestamp, src_ip, dst_ip, bytes
 }
 ```
+
+## Programs
+
+TQL **programs** compose [statements](/reference/language/statements) into
+complete data processing workflows that can execute. Valid TQL programs adhere
+to the following rules:
+
+1. Adjacent operators must have identical types.
+2. A pipeline must be **closed**, i.e., begin with void input and end with void
+   output.
+
+:::note[Pipeline Auto-Completion]
+When a pipeline is not closed, Tenzir attempts to _auto-complete_ it. On the
+[command line](/guides/basic-usage/run-pipelines/#on-the-command-line), it
+suffices to write a sequence of transformations because Tenzir automatically
+adds a JSON input operator at the beginning and TQL output operator at the end.
+In the [web inteface](/guides/basic-usage/run-pipelines/#in-the-platform),
+auto-completetion takes place with an output operator: The web app appends
+[`serve`](/reference/operators/serve) to turn the dataflow into a REST API,
+allowing your browser to access it by routing the data through the platform.
+:::
+
+### Chaining statements
+
+You chain statements with either a newline (`\n`) or pipe symbol (`|`). We
+purposefully offer choice to cater to two primary styles:
+
+1. Vertical structuring with newlines for full-text editing
+2. Horizontal inline pipe composition for command-line usage
+
+Prefer the vertical approach for readability in files and documentation.
+Throughout this documentation, we only use the vertical style for clarity and
+consistency.
+
+Let's juxtapose the two styles. Here's a vertical TQL program:
+
+```tql
+let $ports = [22, 443]
+
+from_file "/tmp/logs.json"
+where port in $ports
+select src_ip, dst_ip, bytes
+summarize src_ip, total=sum(bytes)
+```
+
+And here a horziontal one:
+
+```tql
+let $ports = [22, 443] | from "/tmp/logs.json" | where port in $ports | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
+```
+
+In theory, you can combine pipes and newlines to write programs that resemble
+Kusto and similar languages. However, we discourage this practice because it can
+make the code harder to read and maintain—especially when adding nested
+pipelines that increase the level of indentation.
+
+### Diagnostics
+
+TQL's diagnostic system is designed to give you insights into what happens
+during data processing. There exist two types of diagnostics:
+
+1. **Errors**: Stop pipeline execution immediately (critical failures)
+2. **Warnings**: Signal data quality issues but continue processing
+
+When a pipeline emits an error, it stops execution. Unless you configured the
+pipeline to restart on error, it now requires human intervention to resolve the
+issue and resume execution.
+
+Warnings do not cause a screeching halt of the pipeline. They are useful for
+identifying potential issues that may impact the quality of the processed data,
+such as missing or unexpected values.
+
+:::tip[Best Practices]
+We have a dedicated [section on warnings and
+errors](/tutorials/learn-idiomatic-tql/#data-quality) in our [learning idiomatic
+TQL tutorial](/tutorials/learn-idiomatic-tql).
+:::
 
 ### Pipeline nesting
 
@@ -1082,50 +875,98 @@ load_balance {
 }
 ```
 
-## Advanced concepts
+### Comments
 
-### Data quality monitoring
+Comments make implicit choices and assumptions explicit. They have no semantic
+effect and the compiler ignores them during parsing.
 
-Maintain data quality through intentional warning management:
+TQL features C-style comments, both single and multi-line.
 
-```tql title="Production pipeline with quality monitoring"
-from "production_logs.json"
+#### Single-line comments
 
-// Required fields - warnings indicate problems
-where transaction_id != null
-where timestamp != null
-where amount > 0
+Use a double slash (`//`) to comment until the end of the line.
 
-// Expected optional fields
-where region? in ["us-east", "eu-west"]
-where customer_tier? == "premium"
+Here's an example where a comment spans a full line:
 
-// Process data
-summarize
-  region?,
-  total=sum(amount),
-  count()
-
-// Parallel quality monitoring
-fork {
-  // Capture all diagnostics
-  diagnostics
-  summarize
-    level,
-    field,
-    count()
-  // Alert if warnings spike
-  where level == "warning" and count > 100
-  to "quality_alerts.json"
-}
+```tql
+// the app only supports lower-case user names
+let $user = "jane"
 ```
 
-:::tip[Data quality strategy]
+Here's an example where a comment starts in the middle of a line:
 
-- Start strict (no `?`) and add optionality as you learn the data
-- Monitor warning trends to detect schema drift
-- Use diagnostics to track pipeline health
-  :::
+```tql
+let $users = [
+  "jane", // NB: also admin!
+  "john", // Been here since day 1.
+]
+```
+
+#### Multi-line comments
+
+Use a slash-star (`/*`) to start a multi-line comment and a star-slash (`*/`)
+to end it.
+
+Here's an example where a comment spans multiple lines:
+
+```tql
+/*
+ * User validation logic
+ * ---------------------
+ * Validate user input against a set of rules.
+ * If any rule fails, the user is rejected.
+ * If all rules pass, the user is accepted.
+ */
+let $user = "jane"
+```
+
+## Execution Model
+
+TQL pipelines execute on a streaming engine that processes data incrementally.
+Understanding the execution model helps you write efficient pipelines and
+predict performance characteristics.
+
+Key execution principles:
+
+- **Stream processing by default**: Data flows through operators as it arrives
+- **Lazy evaluation**: Operations execute only when data flows through them
+- **Back-pressure handling**: Automatic flow control prevents memory exhaustion
+- **Network transparency**: Pipelines can span multiple nodes seamlessly
+
+### Streaming vs blocking
+
+Understanding operator behavior helps write efficient pipelines:
+
+**Streaming operators** process events incrementally:
+
+- [`where`](/reference/operators/where): Filters one event at a time
+- [`select`](/reference/operators/select): Transforms fields immediately
+- [`drop`](/reference/operators/drop): Removes fields as events flow
+
+**Blocking operators** need all input before producing output:
+
+- [`sort`](/reference/operators/sort): Must see all events to order them
+- [`summarize`](/reference/operators/summarize): Aggregates across the entire
+  stream
+- [`reverse`](/reference/operators/reverse): Needs complete input to reverse
+  order
+
+✅ Efficient: streaming operations first:
+
+```tql
+from "large_file.json"
+where severity == "critical"    // Streaming: reduces data early
+select relevant_fields          // Streaming: drops unnecessary data
+sort timestamp                  // Blocking: but on reduced dataset
+```
+
+❌ Less efficient: blocking operation on full data:
+
+```tql
+from "large_file.json"
+sort timestamp                  // Blocking: processes everything
+where severity == "critical"    // Then filters
+```
 
 ### Constant vs runtime evaluation
 
@@ -1176,602 +1017,43 @@ where reputation?.score? > 0.8
 to "high_risk.json"
 ```
 
-## Best practices and idiomatic TQL
-
-### Pipeline structure
-
-#### Always use newlines to separate operators, never pipes
-
-✅ Idiomatic: Clear vertical data flow:
-
-```tql
-from "logs.json"
-where severity == "high"
-select timestamp, message
-summarize count()
-```
-
-❌ Avoid: Pipe operators make pipelines harder to maintain:
-
-```tql
-from "logs.json" | where severity == "high" | select timestamp, message | summarize count()
-```
-
-Vertical structure with newlines:
-
-- Improves readability and scanning
-- Simplifies debugging (easy to comment out individual operators)
-- Produces cleaner version control diffs
-- Makes pipeline modification easier
-- Is the standard TQL style
-
-:::caution
-The pipe operator (`|`) exists primarily for command-line one-liners and API requests where single-line format is necessary. In all other contexts, use newlines.
-:::
-
-### Expression clarity
-
-#### Use meaningful names for computed fields
-
-✅ Clear intent:
-
-```tql
-summarize
-  src_ip,
-  total_traffic=sum(bytes),
-  avg_response=mean(response_time),
-  error_rate=count(status >= 400) / count()
-```
-
-❌ Unclear:
-
-```tql
-summarize src_ip, sum(bytes), mean(response_time)
-```
-
-### Field management
-
-#### Use `move` expressions to prevent field duplication
-
-✅ Clean field transfers with move:
-
-```tql
-// Moving fields during transformation
-normalized.src_ip = move raw.source_address
-normalized.dst_port = move raw.destination.port
-normalized.severity = move alert.level
-```
-
-❌ Avoid copy-then-drop pattern:
-
-```tql
-normalized.src_ip = raw.source_address
-normalized.dst_port = raw.destination.port
-normalized.severity = alert.level
-drop raw.source_address, raw.destination.port, alert.level
-```
-
-#### Be intentional about field preservation
-
-✅ Move fields that are transformed:
-
-```tql
-ocsf.activity_id = move http_methods[method]? else 99
-```
-
-✅ Drop only static metadata fields:
-
-```tql
-drop event_kind  // Same across all events
-```
-
-❌ Don't leave transformed data in original location:
-
-```tql
-ocsf.src_ip = original.ip  // Bad: original.ip still exists
-```
-
-When normalizing data (e.g., to OCSF format):
-
-- Use `move` for fields being transformed to prevent duplication
-- Ensure transformed values don't appear in both old and new locations
-- Only drop fields you're certain are constant across events
-- Verify no critical data ends up in `unmapped` fields
-- Treat all input-derived values as dynamic, not constants
-- Don't hardcode field values based on example data
-
-### Trailing commas
-
-#### Use trailing commas in vertical contexts for better maintainability
-
-✅ Use trailing commas in vertical lists (except after the last event in `from`):
-
-❌ Event lists - NO trailing comma after last event:
-
-```tql
-from
-  {status: 200, path: "/api", bytes: 1024},
-  {status: 404, path: "/missing", bytes: 512}  // No comma here
-```
-
-✅ Field lists - trailing comma recommended:
-
-```tql
-select
-  timestamp,
-  src_ip,
-  dst_ip,
-  bytes,
-```
-
-✅ Aggregations - trailing comma recommended:
-
-```tql
-summarize
-  src_ip,
-  total=sum(bytes),
-  count=count(),
-```
-
-✅ Vertical lists - trailing comma recommended:
-
-```tql
-let $ports = [
-  22,
-  80,
-  443,
-  3306,
-]
-```
-
-✅ Vertical records - trailing comma recommended:
-
-```tql
-let $config = {
-  threshold: 100,
-  timeout: 30s,
-  enabled: true,
-}
-```
-
-❌ Don't use trailing commas in horizontal contexts:
-
-✅ Correct - no trailing comma in horizontal lists:
-
-```tql
-let $ports = [22, 80, 443, 3306]
-let $weekend = ["Saturday", "Sunday"]
-```
-
-❌ Incorrect - trailing comma in horizontal list:
-
-```tql
-let $ports = [22, 80, 443, 3306,]  // Wrong!
-```
-
-✅ Correct - no trailing comma in horizontal records:
-
-```tql
-let $config = {threshold: 100, timeout: 30s}
-```
-
-❌ Incorrect - trailing comma in horizontal record:
-
-```tql
-let $config = {threshold: 100, timeout: 30s,}  // Wrong!
-```
-
-Trailing commas in vertical contexts make it easier to:
-
-- Add new items without modifying existing lines
-- Reorder items without worrying about comma placement
-- Get cleaner diffs in version control
-- Avoid syntax errors when adding/removing items
-
-### Type awareness
-
-#### Leverage TQL's domain-specific types
-
-✅ Use native types:
-
-```tql
-where src_ip in 10.0.0.0/8
-where duration > 5min
-let $weekend = timestamp.day_of_week() in ["Saturday", "Sunday"]
-```
-
-⚠️ Less expressive and error-prone:
-
-```tql
-where src_ip.string().starts_with("10.")
-where duration_ms > 300000
-let $weekend = timestamp_day in [0, 6]  // What do 0 and 6 mean?
-```
-
-### Performance considerations
-
-#### Place filters early in pipelines
-
-✅ Filter first, reduce data volume:
-
-```tql
-from "large_dataset.json"
-where severity == "critical"     // Reduce early
-where timestamp > now() - 1h     // Further reduction
-select relevant_fields           // Drop unnecessary data
-summarize ...                    // Aggregate reduced dataset
-```
-
-❌ Process everything, then filter:
-
-```tql
-from "large_dataset.json"
-select all_fields
-summarize ...
-where result > threshold        // Filter after expensive operation
-```
-
-### Composition patterns
-
-#### Use constants for reusable values
-
-✅ Maintainable and self-documenting:
-
-```tql
-let $internal_net = 10.0.0.0/8
-let $critical_ports = [22, 3389, 5432]  // SSH, RDP, PostgreSQL
-let $high_risk_threshold = 0.8
-
-where src_ip in $internal_net
-where dst_port in $critical_ports
-where risk_score > $high_risk_threshold
-```
-
-❌ Magic numbers scattered throughout:
-
-```tql
-where src_ip in 10.0.0.0/8
-where dst_port in [22, 3389, 5432]
-where risk_score > 0.8          // What does 0.8 mean?
-```
-
-### Record constants and mappings
-
-#### Use record constants for mappings instead of complex if-else chains
-
-✅ Clean record-based mappings with else fallback:
-
-```tql
-let $http_methods = {
-  CONNECT: 1,
-  DELETE: 2,
-  GET: 3,
-  HEAD: 4,
-  OPTIONS: 5,
-  POST: 6,
-  PUT: 7,
-  TRACE: 8,
-  PATCH: 9,
-}
-
-let $activity_names = [
-  "Unknown",
-  "Connect",
-  "Delete",
-  "Get",
-  "Head",
-  "Options",
-  "Post",
-  "Put",
-  "Trace",
-  "Patch",
-]
-
-let $dispositions = {
-  OBSERVED: {id: 15, name: "Detected"},
-  LOGGED: {id: 17, name: "Logged"},
-  ALLOWED: {id: 1, name: "Allowed"},
-  BLOCKED: {id: 2, name: "Blocked"},
-  DENIED: {id: 2, name: "Blocked"},
-}
-
-// Use record indexing with else for fallback values
-activity_id = $http_methods[method]? else 99
-activity_name = $activity_names[activity_id]? else "Other"
-disposition = $dispositions[action]? else {id: 0, name: "Unknown"}
-```
-
-❌ Complex if-else chains:
-
-```tql
-// Hard to maintain and extend
-if method == "GET" {
-  activity_id = 3
-} else if method == "POST" {
-  activity_id = 6
-} else if method == "PUT" {
-  activity_id = 7
-} else if method == "DELETE" {
-  activity_id = 2
-} else {
-  activity_id = 99
-}
-
-// Error-prone string building
-if activity_id == 1 {
-  activity_name = "Connect"
-} else if activity_id == 2 {
-  activity_name = "Delete"
-} else if activity_id == 3 {
-  activity_name = "Get"
-} // ... many more conditions
-```
-
-The `else` keyword provides a fallback value when:
-
-- A field doesn't exist (`field? else default`)
-- An array index is out of bounds (`array[index]? else default`)
-- A record key doesn't exist (`record[key]? else default`)
-
-This pattern is particularly powerful for:
-
-- Normalizing data to standard formats (like OCSF)
-- Mapping between different naming conventions
-- Providing sensible defaults for missing data
-- Creating reusable transformation logic
-
-### Data quality through intentional warnings
-
-#### Be deliberate about optional field access
-
-✅ Clear data expectations:
-
-```tql title="Core fields that MUST exist"
-where event_id != null         // Warning = data quality issue
-where timestamp != null         // Warning = data quality issue
-```
-
-```tql title="Naturally variable fields"
-where customer_id? != null     // Optional - B2B events may not have it
-where geo?.country? == "US"    // Optional - enrichment may fail
-```
-
-❌ Suppressing all warnings blindly:
-
-```tql
-where event_id? != null        // Hides missing required da:w
-ta
-where timestamp? != null       // Masks data quality problems
-```
-
-:::tip
-The `?` operator expresses your data contract. Use it to distinguish between
-"this field should exist" and "this field naturally varies."
-:::
-
-### Incremental development
-
-Build pipelines incrementally:
-
-Start by examining your raw data:
-
-```tql title="Step 1: Get the data"
-from
-  {url: "/api/users", status: 404, response_time: 1.2s},
-  {url: "/api/login", status: 200, response_time: 0.3s},
-  {url: "/api/data", status: 500, response_time: 2.1s}
-```
-
-```tql
-{url: "/api/users", status: 404, response_time: 1.2s}
-{url: "/api/login", status: 200, response_time: 0.3s}
-{url: "/api/data", status: 500, response_time: 2.1s}
-```
-
-Focus on errors by filtering for status codes >= 400:
-
-```tql title="Step 2: Add basic filtering"
-from
-  {url: "/api/users", status: 404, response_time: 1.2s},
-  {url: "/api/login", status: 200, response_time: 0.3s},
-  {url: "/api/data", status: 500, response_time: 2.1s}
-where status >= 400
-```
-
-```tql
-{url: "/api/users", status: 404, response_time: 1.2s}
-{url: "/api/data", status: 500, response_time: 2.1s}
-```
-
-Refine further to find slow errors and select relevant fields:
-
-```tql title="Step 3: Refine and transform"
-from
-  {url: "/api/users", status: 404, response_time: 1.2s, user_agent: "Mozilla/5.0"},
-  {url: "/api/login", status: 200, response_time: 0.3s, user_agent: "curl/7.68"},
-  {url: "/api/data", status: 500, response_time: 2.1s, user_agent: "bot/1.0"}
-where status >= 400
-where response_time > 1s
-select url, status, response_time
-```
-
-```tql
-{url: "/api/users", status: 404, response_time: 1.2s}
-{url: "/api/data", status: 500, response_time: 2.1s}
-```
-
-Aggregate to understand patterns:
-
-```tql title="Step 4: Add analysis"
-from
-  {url: "/api/users", status: 404, response_time: 1.2s},
-  {url: "/api/users", status: 404, response_time: 1.5s},
-  {url: "/api/data", status: 500, response_time: 2.1s}
-where status >= 400
-where response_time > 1s
-summarize url, count(), avg_time=mean(response_time)
-```
-
-```tql
-{url: "/api/users", count: 2, avg_time: 1.35s}
-{url: "/api/data", count: 1, avg_time: 2.1s}
-```
-
-## Complete example: Security log analysis
-
-This comprehensive example demonstrates all TQL concepts working together:
-
-```tql title="Complete example: Security event analysis"
-let $internal_net = 10.0.0.0/8
-let $dmz = 192.168.100.0/24
-let $threshold = 100Ki
-let $critical_ports = [22, 3389, 5985]  // SSH, RDP, WinRM
-let $time_window = 5min
-
-// Start pipeline - vertical flow for clarity
-from "firewall_logs.json"
-
-// Data quality: required fields
-where action != null             // Must exist
-where bytes != null              // Must exist
-where src_ip != null            // Must exist
-where dst_ip != null            // Must exist
-where timestamp != null         // Must exist
-
-// Early filtering for performance
-where action == "allow"
-where bytes > $threshold
-where timestamp > now() - 1h
-
-// Traffic classification with native types
-if src_ip in $internal_net {
-  if dst_ip in $internal_net {
-    direction = "internal"
-    zone = "trusted"
-  } else if dst_ip in $dmz {
-    direction = "outbound-dmz"
-    zone = "controlled"
-  } else {
-    direction = "outbound"
-    zone = "internet"
-  }
-  // Risk assessment using ternary conditional
-  risk = "high" if dst_port in $critical_ports else "medium"
-} else {
-  direction = "inbound"
-  zone = "external"
-  risk = "high"
-
-  // Enrichment - naturally optional
-  context::enrich "geoip", key=src_ip
-  country = geo?.country?       // May not resolve
-  asn = geo?.asn?               // May not resolve
-
-  // Threat intelligence - also optional
-  context::enrich "threatintel", key=src_ip
-  threat_score = threat?.score? else 0
-  threat_category = threat?.category?
-}
-
-// Time-based grouping
-time_bucket = round(timestamp, $time_window)
-
-// Connection metrics
-session_duration = session_end? - session_start? else 0s
-packets_per_second = packet_count? / session_duration.seconds() else 0
-
-// Meaningful aggregation
-summarize
-  time_bucket,
-  direction,
-  zone,
-  risk,
-  total_bytes=sum(bytes),
-  avg_bytes=mean(bytes),
-  unique_sources=count_distinct(src_ip),
-  unique_destinations=count_distinct(dst_ip),
-  max_threat=max(threat_score),
-  countries=collect(country?),          // Collect non-null countries
-  high_risk_ports=collect(dst_port) if dst_port in $critical_ports else null
-
-// Multi-level alerting based on risk and volume
-if risk == "high" and total_bytes > 500Ki {
-  severity = "critical"
-  alert = "Critical security event detected"
-} else if risk == "high" or total_bytes > 300Ki {
-  severity = "high"
-  alert = "High priority security event"
-} else if unique_sources > 2 {
-  severity = "medium"
-  alert = "Anomaly detected: multiple sources"
-} else {
-  severity = "low"
-  alert = "Standard traffic pattern"
-}
-
-// Final output shows enriched events
-select time_bucket, direction, zone, risk, severity, alert, total_bytes, unique_sources
-```
-
-## Language philosophy
-
-### Design principles
-
-TQL's design reflects several core principles:
-
-1. **Vertical Clarity**: Each operator on its own line for readability
-2. **JSON Compatibility**: Familiar data model with purpose-built extensions
-3. **Domain-Specific Types**: Purpose-built for security and network analysis
-4. **Composability**: Small operators that combine powerfully
-5. **Type Safety**: Strong typing without ceremony
-6. **Gradual Complexity**: Simple tasks stay simple
-7. **Intentional Data Quality**: Every warning should matter
-
-### The TQL mental model
-
-Think of TQL through multiple lenses:
-
-- **Functional** for pure transformations (expressions and functions)
-- **Imperative** for control flow (if statements and routing)
-- **Declarative** for intent (describe what, not how)
-- **Quality-focused** through intentional diagnostics
-
-All unified through the vertical pipeline structure that makes data flow visible.
-
-### Why TQL works this way
-
-Every design decision in TQL has a purpose:
-
-- **Vertical structure**: Natural for data flow visualization
-- **JSON superset**: Leverages existing knowledge while adding domain types
-- **Native network types**: Security data needs IP addresses, not strings
-- **Time arithmetic**: Log analysis needs duration math, not millisecond integers
-- **Python-style conditionals**: Familiar syntax reduces cognitive load
-- **Optional field access**: Express natural data variance vs quality issues
-- **Warning philosophy**: Every warning should indicate a real problem
-- **Implied operators**: Reduces noise without sacrificing clarity
-- **UFCS**: Enables intuitive method chaining
-- **Multi-schema support**: Real-world data is heterogeneous
-
-These choices create a language that's both powerful for experts and accessible
-for beginners, with a clear path from simple queries to complex analytics.
-
 ## Summary
 
-TQL combines the simplicity of JSON with the power of domain-specific types,
-the clarity of vertical pipeline structure, and the flexibility of functional
-and imperative paradigms. By understanding its three-layer architecture,
-type system motivations, and composition patterns, you can write pipelines
-that are both powerful and maintainable.
+TQL's design is guided by core principles that make it both powerful for complex
+security analytics and accessible for everyday data processing. It combines the
+simplicity of a JSON-compatible data model with the flexibility of functional
+and imperative paradigms.
 
-The key to mastering TQL is to:
+The key design choices in TQL serve specific purposes:
 
-1. Start with simple pipelines and build incrementally
-2. Use the type system to express domain concepts clearly
-3. Be intentional about data quality through proper use of `?`
-4. Leverage vertical structure for readability
-5. Compose small operators into complex workflows
+- **Clarity and Composability**: TQL prioritizes readability. The vertical
+  structure, where each operator occupies its own line, visualizes the data flow
+  naturally. Small, single-purpose operators are designed to be composed into
+  powerful and maintainable workflows. Syntactic choices like Python-style
+  conditionals, Uniform Function Call Syntax (UFCS) for method chaining, and
+  implicit operators for common assignments reduce boilerplate without
+  sacrificing clarity.
 
-Whether you're filtering logs, aggregating metrics, or building complex
-security analytics, TQL provides the tools to express your intent clearly
-and efficiently.
+- **Domain-Specific Data Model**: TQL extends the familiar JSON data model with
+  types crucial for security and network analysis. Native types for IP
+  addresses, subnets, timestamps, and durations enable type-safe, intuitive
+  operations that are clumsy or error-prone with generic types. The language
+  also embraces heterogeneous, multi-schema data streams, reflecting the reality
+  of modern data sources.
+
+- **Type Safety and Intentional Data Quality**: The language enforces strong
+  typing without verbose declarations, preventing common errors while inferring
+  types automatically. This philosophy extends to handling missing data. The
+  optional access operator (`?`) allows users to explicitly distinguish between
+  fields that are expected to exist (raising a warning if absent) and those that
+  may naturally vary, making every diagnostic warning meaningful.
+
+Mastering TQL involves starting with simple pipelines and building
+incrementally. By composing operators, using the type system to express domain
+concepts, and manage data quality explicitly, you can write pipelines that are
+both robust and maintainable.
+
+:::tip[Learn Idiomatic TQL]
+Ready to get hands-on? Read the [tutorial on learning idiomatic
+TQL](/tutorials/learn-idiomatic-tql), with concrete examples and best practices.
+:::

@@ -26,21 +26,18 @@ architectural aspects of the pipeline execution model.
 
 ## Typed Operators
 
-Tenzir pipelines operate on *typed* data streams. The execution model ensures
-type safety while maintaining high performance through batching and parallel
-processing.
+Tenzir pipelines operate both ond unstructured stream of bytes and typed event
+streams. The execution model ensures type safety while maintaining high
+performance through batching and parallel processing.
 
 An operator has an **upstream** and **downstream** type:
 
 ![Upstream and Downstream Types](./operator-table.svg)
 
-This type system ensures pipelines are well-formed. Adjacent operators must
-have matching types: the downstream type of one operator must match the
-upstream type of the next, i.e., upstream/downstream types of adjacent
-operators have to match. Otherwise the pipeline is malformed.
-
-We call any void-to-void operator sequence a **closed pipeline**. Only closed
-pipelines can ultimately execute.
+This typing ensures pipelines are well-formed. Adjacent operators must have
+matching types: the downstream type of one operator must match the upstream type
+of the next, i.e., upstream/downstream types of adjacent operators have to
+match. Otherwise the pipeline is malformed.
 
 With these operators as building blocks, you can create all kinds of pipelines,
 as long as they follow the two principal rules of (1) sequencing inputs,
@@ -48,17 +45,6 @@ transformations, and outputs, and (2) ensuring that operator upstream/downstream
 types match. Here are examples of other valid pipeline variations:
 
 ![Operator Composition Examples](./operator-composition-variations.svg)
-
-:::note[Pipeline Auto-Completion]
-When a pipeline is not closed, Tenzir attempts to *auto-complete* it. On the
-[command line](/guides/basic-usage/run-pipelines/#on-the-command-line), it
-suffices to write a sequence of transformations because Tenzir automatically
-adds a JSON input operator at the beginning and TQL output operator at the end.
-In the [web inteface](/guides/basic-usage/run-pipelines/#in-the-platform),
-auto-completetion takes place with an output operator: The web app appends
-[`serve`](/reference/operators/serve) to turn the dataflow into a REST API,
-allowing your browser to access it by routing the data through the platform.
-:::
 
 ## Multi-Schema Dataflows
 
