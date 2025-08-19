@@ -139,6 +139,15 @@ We have made two convenience changes to the `to_amazon_security_lake` operator:
 
 By [@mavam](https://github.com/mavam), [@IyeOnline](https://github.com/IyeOnline) in [#5412](https://github.com/tenzir/tenzir/pull/5412).
 
+#### Sorting Improvements
+
+We have re-done the internals of the `sort` operator. You will now be able to
+more reliably sort events using lists or records as keys. Lists are compared
+lexicographically between their values, while records are compared by their
+sorted key-value pairs.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5425](https://github.com/tenzir/tenzir/pull/5425).
+
 ### Bug Fixes
 
 #### Rare crash in `save_tcp` operator
