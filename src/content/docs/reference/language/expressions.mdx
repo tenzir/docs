@@ -308,7 +308,7 @@ result = get(my_list[2], "default")
 Access fields in a record using `record.fieldname`. If the field name contains
 spaces or depends on a runtime value, use an indexing expression:
 
-```tql title="Accessing a fieldname with a space"
+```tql
 let $answers = {"the ultimate question": 42}
 result = $answers["the ultimate question"]
 ```
@@ -317,7 +317,9 @@ result = $answers["the ultimate question"]
 {result: 42}
 ```
 
-```tql title="Accessing a field based on a runtime value"
+To access a field based on a runtime value, provide a field:
+
+```tql
 let $severity_to_level = {"ERROR": 1, "WARNING": 2, "INFO": 3}
 from {severity: "ERROR"}
 level = $severity_to_level[severity]
