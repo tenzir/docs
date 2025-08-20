@@ -766,7 +766,7 @@ auto-completetion takes place with an output operator: The web app appends
 allowing your browser to access it by routing the data through the platform.
 :::
 
-### Chaining statements
+### Statement chaining
 
 You chain statements with either a newline (`\n`) or pipe symbol (`|`). We
 purposefully offer choice to cater to two primary styles:
@@ -824,33 +824,29 @@ TQL tutorial](/tutorials/learn-idiomatic-tql).
 
 ### Pipeline nesting
 
-Operators can contain entire subpipelines:
+Operators can contain entire subpipelines that execute based on the operator's
+semantics. For example, the [`every`](/reference/operators/every) operator
+executes its subpipeline at regular intervals:
 
-```tql title="Periodic execution"
+```tql
 every 1h {
-  from "metrics.json"
-  summarize host, avg_cpu=mean(cpu)
-  where avg_cpu > 80
-  to "alerts.json"
-}
-
-// Scoped operations
-local {
-  from "local_cache.json"
-  where timestamp > now() - 5min
-}
-
-// Remote execution
-remote {
-  export
-  where severity == "high"
-  select timestamp, message
+  from_http "api.example.com"
+  select domain, risk
+  context::update "domains", key=domain, value=risk
 }
 ```
 
+You define subpipelines syntactically within a block of curly braces (`{}`).
+
+Some operators require that you define a closed (void-to-void) pipeline, whereas
+others exhibit parsing (bytes-to-events) or printing (events-to-bytes)
+semantics.
+
 ### Parallel processing
 
-Fork pipelines for parallel processing paths:
+The [`fork`](/reference/operators/fork) operator splits a pipeline into multiple
+parallel legs. It takes a nested pipeline as an argument that represents the
+secondary leg.
 
 ```tql title="Split processing"
 fork {
@@ -866,13 +862,6 @@ fork {
 // Main pipeline continues
 select timestamp, message
 to "all_events.json"
-
-// Load balancing across workers
-load_balance {
-  // Each worker processes a subset
-  where hash(src_ip) % 4 == worker_id
-  expensive_enrichment()
-}
 ```
 
 ### Comments
@@ -993,29 +982,12 @@ age = current_time - timestamp      // Runtime calculation
 
 ### Network transparency
 
-TQL pipelines can span network boundaries seamlessly:
-
-```tql title="Implicit networking"
-from "local.json"
-where severity == "high"
-import                           // Sends to configured node
-
-// Explicit networking with remote execution
-remote {
-  export                         // Fetch from remote node
-  where severity == "high"
-  select timestamp, message
-}
-
-// Bidirectional flow
-from "local_source.json"
-where needs_enrichment
-remote {
-  context::enrich "reputation", key=ip
-}
-where reputation?.score? > 0.8
-to "high_risk.json"
-```
+TQL pipelines can span network boundaries seamlessly. For example, the
+[`import`](/reference/operators/import) operator implicitly performs a network
+connection based on where it runs. If the `tenzir` binary executes the pipeline,
+the executor establishesa transparent network connection. If the pipeline runs
+within a node, the executor passes the data directly to the next operator in the
+same process.
 
 ## Summary
 
