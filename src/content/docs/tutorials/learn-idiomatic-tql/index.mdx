@@ -81,7 +81,8 @@ from "/tmp/logs.json"
 | summarize src_ip, total=sum(bytes)
 ```
 
-This Kusto-like style makes code harder to read and maintain, especially with nested pipelines that increase indentation.
+This Kusto-like style makes code harder to read and maintain, especially with
+nested pipelines that increase indentation.
 
 :::tip[Quick rule]
 
@@ -134,36 +135,17 @@ let $ports = [22, 80, 443, 3306,]  // Wrong!
 let $config = {threshold: 100, timeout: 30s,}  // Wrong!
 ```
 
-#### Special case: Event lists in `from`
-
-❌ No trailing comma after the last event:
+❌ No trailing comma after an operator argument sequence:
 
 ```tql
 from {status: 200, path: "/api"},
      {status: 404, path: "/missing"}  // No comma here
 ```
 
-This is the one exception to the trailing comma rule in vertical contexts.
-
-## Expression clarity
-
-### Use meaningful names for computed fields
-
-✅ Clear intent:
-
-```tql
-summarize \
-  src_ip,
-  total_traffic=sum(bytes),
-  avg_response=mean(response_time),
-  error_rate=count(status >= 400) / count()
-```
-
-❌ Unclear:
-
-```tql
-summarize src_ip, sum(bytes), mean(response_time)
-```
+:::tip[Quick rule]
+Trailing commas are only allowed in contexts with parentheses ('()'), brackets
+('[]'), or braces ('{}').
+:::
 
 ## Field management
 
@@ -216,6 +198,24 @@ When normalizing data (e.g., to OCSF format):
 - Treat all input-derived values as dynamic, not constants
 - Don't hardcode field values based on example data
 
+### Use meaningful names for computed fields
+
+✅ Clear intent:
+
+```tql
+summarize \
+  src_ip,
+  total_traffic=sum(bytes),
+  avg_response=mean(response_time),
+  error_rate=count(status >= 400) / count()
+```
+
+❌ Unclear:
+
+```tql
+summarize src_ip, sum(bytes), mean(response_time)
+```
+
 ## Type awareness
 
 ### Leverage TQL's domain-specific types
@@ -223,17 +223,21 @@ When normalizing data (e.g., to OCSF format):
 ✅ Use native types:
 
 ```tql
+let $timestamp = now()
+let $weekend = $timestamp.day_of_week() in ["Saturday", "Sunday"]
+
 where src_ip in 10.0.0.0/8
 where duration > 5min
-let $weekend = timestamp.day_of_week() in ["Saturday", "Sunday"]
 ```
 
 ⚠️ Less expressive and error-prone:
 
 ```tql
+let $timestamp = now()
+let $weekend = $timestamp_day in [0, 6]  // What do 0 and 6 mean?
+
 where src_ip.string().starts_with("10.")
 where duration_ms > 300000
-let $weekend = timestamp_day in [0, 6]  // What do 0 and 6 mean?
 ```
 
 ## Performance considerations
@@ -516,9 +520,8 @@ Only use `assert` when you specifically want warnings for violated conditions.
 
 ### Treat warnings as errors with `strict`
 
-The `strict` operator escalates all warnings to errors within its scope,
-stopping the pipeline when data quality issues occur. This is essential for
-production pipelines where data integrity is critical.
+The [`strict`](/reference/operators/strict) operator escalates all warnings to
+errors within its scope, stopping the pipeline when data quality issues occur.
 
 ✅ Use `strict` for critical data processing:
 
@@ -540,6 +543,12 @@ strict {
   select customer_id
 }
 ```
+
+:::tip[Quick rule]
+By default, trust the operator to accurately distinguish between warnings and
+errors. Only use `strict` when warnings should halt the pipeline, and when data
+loss is less important than data correctness.
+:::
 
 ### Choose the right quality control
 
