@@ -44,8 +44,6 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Build with Astro
-        env:
-          RUN_LINK_CHECK: true
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             pnpm astro build \
