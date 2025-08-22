@@ -176,13 +176,33 @@ the most values:
 
 #### Overflow and Error Handling
 
-TQL handles numeric errors gracefully:
+TQL handles numeric errors gracefully by emitting warnings in the following cases:
 
 - **Overflow/Underflow**: Returns `null` (no wrapping)
 - **Division by zero**: Returns `null`
 - **Invalid operations**: Returns `null`
 
 This design prevents silent data corruption and makes errors explicit in your data.
+
+Example:
+
+```tql
+let $x = 42 / 0
+from {
+  x: $x,
+}
+```
+
+This emits the following warning:
+
+```
+warning: division by zero
+ --> <input>:1:10
+  |
+1 | let $x = 42 / 0
+  |          ~~~~~~
+  |
+```
 
 ### Duration
 
