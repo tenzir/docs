@@ -439,26 +439,6 @@ this = {type: type, ...context}
 
 Fields must be unique, and later values overwrite earlier ones.
 
-Records support field access with `.` and bracket notation:
-
-```tql
-let $user = {
-  name: "Alice",
-  "user-id": 123,
-}
-from {
-  name: user.name,
-  id: user["user-id"],
-}
-```
-
-```tql
-{
-  name: "Alice",
-  id: 123,
-}
-```
-
 The spread operator `...` expands records:
 
 ```tql
