@@ -618,8 +618,8 @@ from {
 }
 ```
 
-Both indexing expressions and the [`get`](/reference/functions/get) function
-(see next section below) support numeric indices for records:
+Indexing expressions (see next section below) support numeric indices for
+records:
 
 ```tql title="Accessing a field by position"
 from {
@@ -627,40 +627,6 @@ from {
   bar: "World",
 }
 select first_field = this[0]  // "Hello"
-```
-
-#### The `get` Function
-
-The [`get`](/reference/functions/get) function provides safe access with
-fallback values:
-
-```tql
-let $config = {timeout: 30}
-retries = $config.get("retries", 3)  // Returns 3 if "retries" doesn't exist
-```
-
-To suppress warnings when the list index is out of bounds, use
-[`get`](/reference/functions/get) with a fallback value:
-
-```tql
-let $my_list = ["Hello", "World"]
-result = $my_list.get(2, "default")
-```
-
-```tql
-{result: "default"}
-```
-
-To suppress warnings when the record field is missing, use
-[`get`](/reference/functions/get) with a fallback value:
-
-```tql
-from {foo: 1, bar: 2}
-result = this.get("baz", "default")
-```
-
-```tql
-{result: "default"}
 ```
 
 ### Moving Fields
