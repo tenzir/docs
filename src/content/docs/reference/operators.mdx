@@ -347,14 +347,14 @@ operators:
     description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
     path: 'reference/operators/from_opensearch'
-  - name: 'from_velociraptor'
-    description: 'Submits VQL to a Velociraptor server and returns the response as events.'
-    example: 'from_velociraptor subscribe="Windows"'
-    path: 'reference/operators/from_velociraptor'
   - name: 'from_udp'
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'from_udp "0.0.0.0:8090"'
     path: 'reference/operators/from_udp'
+  - name: 'from_velociraptor'
+    description: 'Submits VQL to a Velociraptor server and returns the response as events.'
+    example: 'from_velociraptor subscribe="Windows"'
+    path: 'reference/operators/from_velociraptor'
   - name: 'load_amqp'
     description: 'Loads a byte stream via AMQP messages.'
     example: 'load_amqp'
@@ -2116,23 +2116,18 @@ from_opensearch
 
 </ReferenceCard>
 
-<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
-
-```tql
-from_velociraptor subscribe="Windows"
-```
-
-</ReferenceCard>
-
-</CardGrid>
-### Structured
-
-<CardGrid>
-
 <ReferenceCard title="from_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/from_udp">
 
 ```tql
 from_udp "0.0.0.0:8090"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
+
+```tql
+from_velociraptor subscribe="Windows"
 ```
 
 </ReferenceCard>
