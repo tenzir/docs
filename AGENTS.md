@@ -19,7 +19,7 @@ editorial guidelines for writing clear and consistent technical documentation.
 
 Most notably:
 
-- In general, use _active voice_.
+- ULTRA IMPORTANT: Always use _active voice_.
 - Avoid anthropomorphic language: Don't attribute human qualities to software or
   hardware.
 - Include definite and indefinite articles (a, an, and the) in your writing.

@@ -1,0 +1,590 @@
+---
+title: Learn Idiomatic TQL
+---
+
+This tutorial teaches you how to write TQL that is clear, efficient, and
+maintainable. It assumes you already know basic TQL syntax and operators. You'll
+learn the patterns and practices that make TQL code idiomatic—the way
+experienced TQL developers write it.
+
+:::tip[Understanding TQL First]
+If you're new to TQL or want to understand its design philosophy and
+architecture, read the [TQL language explanation](/explanations/language) first.
+This tutorial focuses on practical patterns, while the explanation covers the
+conceptual foundations.
+:::
+
+## What makes TQL idiomatic?
+
+Idiomatic TQL follows consistent patterns that leverage the language's strengths:
+
+- **Vertical clarity**: Pipelines flow top-to-bottom for readability
+- **Explicit data contracts**: Clear about what data should vs. might exist
+- **Domain-aware types**: Uses IP addresses, not strings; durations, not integers
+- **Composition over complexity**: Small, focused operators that combine well
+- **Performance-conscious**: Filters early, aggregates late
+
+This tutorial shows you these patterns through concrete examples, comparing idiomatic approaches with common pitfalls.
+
+## Pipeline structure
+
+### Vertical vs horizontal: choosing the right style
+
+TQL offers two ways to chain statements: a newline `\n` (vertical) or pipe `|`
+(horizontal). While both are valid, each has its place.
+
+#### Always use vertical structure in files
+
+✅ Idiomatic vertical structure:
+
+```tql
+let $ports = [22, 443]
+
+from "/tmp/logs.json"
+where port in $ports
+select src_ip, dst_ip, bytes
+summarize src_ip, total=sum(bytes)
+```
+
+Benefits of vertical structure:
+
+- **Readability**: Easy to scan and understand data flow
+- **Debugging**: Simple to comment out individual operators
+- **Modification**: Easy to insert or remove pipeline stages
+- **Version Control**: Clear diffs when pipelines change
+
+#### Use horizontal structure only for command-line
+
+✅ Appropriate for one-liners:
+
+```tql
+tenzir 'from "logs.json" | where severity == "high" | summarize count()'
+```
+
+The horizontal approach is ideal for:
+
+- **Command-line usage**: Quick ad-hoc queries in the terminal
+- **API requests**: Single-line strings in JSON payloads
+- **Shell scripts**: Embedding TQL in bash scripts
+- **Interactive exploration**: Building pipelines in a REPL
+
+#### Never mix styles
+
+❌ Avoid hybrid approaches:
+
+```tql
+let $ports = [22, 443]
+
+from "/tmp/logs.json"
+| where port in $ports
+| select src_ip, dst_ip, bytes
+| summarize src_ip, total=sum(bytes)
+```
+
+This Kusto-like style makes code harder to read and maintain, especially with
+nested pipelines that increase indentation.
+
+:::tip[Quick rule]
+
+- **In files**: Always use newlines (vertical)
+- **On command-line**: Use pipes (horizontal)
+- **Never**: Mix both styles
+  :::
+
+### Trailing commas in vertical structures
+
+When writing vertical structures, use trailing commas consistently to improve maintainability.
+
+#### Lists and records
+
+✅ Vertical structures with trailing commas:
+
+```tql
+let $ports = [
+  22,
+  80,
+  443,
+  3306,
+]
+
+let $config = {
+  threshold: 100,
+  timeout: 30s,
+  enabled: true,
+}
+```
+
+Benefits:
+
+- Add new items without modifying existing lines
+- Reorder items without worrying about comma placement
+- Get cleaner diffs in version control
+- Avoid syntax errors when adding/removing items
+
+✅ Horizontal structures without trailing commas:
+
+```tql
+let $ports = [22, 80, 443, 3306]
+let $config = {threshold: 100, timeout: 30s}
+```
+
+❌ Never use trailing commas horizontally:
+
+```tql
+let $ports = [22, 80, 443, 3306,]  // Wrong!
+let $config = {threshold: 100, timeout: 30s,}  // Wrong!
+```
+
+❌ No trailing comma after an operator argument sequence:
+
+```tql
+from {status: 200, path: "/api"},
+     {status: 404, path: "/missing"}  // No comma here
+```
+
+:::tip[Quick rule]
+Trailing commas are only allowed in contexts with parentheses ('()'), brackets
+('[]'), or braces ('{}').
+:::
+
+## Field management
+
+### Use `move` expressions to prevent field duplication
+
+✅ Clean field transfers with move:
+
+```tql
+// Moving fields during transformation
+normalized.src_ip = move raw.source_address
+normalized.dst_port = move raw.destination.port
+normalized.severity = move alert.level
+```
+
+❌ Avoid copy-then-drop pattern:
+
+```tql
+normalized.src_ip = raw.source_address
+normalized.dst_port = raw.destination.port
+normalized.severity = alert.level
+drop raw.source_address, raw.destination.port, alert.level
+```
+
+### Be intentional about field preservation
+
+✅ Move fields that are transformed:
+
+```tql
+ocsf.activity_id = move http_methods[method]? else 99
+```
+
+✅ Drop only static metadata fields:
+
+```tql
+drop event_kind  // Same across all events
+```
+
+❌ Don't leave transformed data in original location:
+
+```tql
+ocsf.src_ip = original.ip  // Bad: original.ip still exists
+```
+
+When normalizing data (e.g., to OCSF format):
+
+- Use `move` for fields being transformed to prevent duplication
+- Ensure transformed values don't appear in both old and new locations
+- Only drop fields you're certain are constant across events
+- Verify no critical data ends up in `unmapped` fields
+- Treat all input-derived values as dynamic, not constants
+- Don't hardcode field values based on example data
+
+### Use meaningful names for computed fields
+
+✅ Clear intent:
+
+```tql
+summarize \
+  src_ip,
+  total_traffic=sum(bytes),
+  avg_response=mean(response_time),
+  error_rate=count(status >= 400) / count()
+```
+
+❌ Unclear:
+
+```tql
+summarize src_ip, sum(bytes), mean(response_time)
+```
+
+## Type awareness
+
+### Leverage TQL's domain-specific types
+
+✅ Use native types:
+
+```tql
+let $timestamp = now()
+let $weekend = $timestamp.day_of_week() in ["Saturday", "Sunday"]
+
+where src_ip in 10.0.0.0/8
+where duration > 5min
+```
+
+⚠️ Less expressive and error-prone:
+
+```tql
+let $timestamp = now()
+let $weekend = $timestamp_day in [0, 6]  // What do 0 and 6 mean?
+
+where src_ip.string().starts_with("10.")
+where duration_ms > 300000
+```
+
+## Performance considerations
+
+### Place filters early in pipelines
+
+✅ Filter first, reduce data volume:
+
+```tql
+from "large_dataset.json"
+where severity == "critical"     // Reduce early
+where timestamp > now() - 1h     // Further reduction
+select relevant_fields           // Drop unnecessary data
+summarize ...                    // Aggregate reduced dataset
+```
+
+❌ Process everything, then filter:
+
+```tql
+from "large_dataset.json"
+select all_fields
+summarize ...
+where result > threshold        // Filter after expensive operation
+```
+
+## Composition patterns
+
+### Use constants for reusable values
+
+✅ Maintainable and self-documenting:
+
+```tql
+let $internal_net = 10.0.0.0/8
+let $critical_ports = [22, 3389, 5432]  // SSH, RDP, PostgreSQL
+let $high_risk_threshold = 0.8
+
+where src_ip in $internal_net
+where dst_port in $critical_ports
+where risk_score > $high_risk_threshold
+```
+
+❌ Magic numbers scattered throughout:
+
+```tql
+where src_ip in 10.0.0.0/8
+where dst_port in [22, 3389, 5432]
+where risk_score > 0.8          // What does 0.8 mean?
+```
+
+## Record constants and mappings
+
+### Use record constants for mappings instead of complex if-else chains
+
+✅ Clean record-based mappings with else fallback:
+
+```tql
+let $http_methods = {
+  CONNECT: 1,
+  DELETE: 2,
+  GET: 3,
+  HEAD: 4,
+  OPTIONS: 5,
+  POST: 6,
+  PUT: 7,
+  TRACE: 8,
+  PATCH: 9,
+}
+
+let $activity_names = [
+  "Unknown",
+  "Connect",
+  "Delete",
+  "Get",
+  "Head",
+  "Options",
+  "Post",
+  "Put",
+  "Trace",
+  "Patch",
+]
+
+let $dispositions = {
+  OBSERVED: {id: 15, name: "Detected"},
+  LOGGED: {id: 17, name: "Logged"},
+  ALLOWED: {id: 1, name: "Allowed"},
+  BLOCKED: {id: 2, name: "Blocked"},
+  DENIED: {id: 2, name: "Blocked"},
+}
+
+// Use record indexing with else for fallback values
+activity_id = $http_methods[method]? else 99
+activity_name = $activity_names[activity_id]? else "Other"
+disposition = $dispositions[action]? else {id: 0, name: "Unknown"}
+```
+
+❌ Complex if-else chains:
+
+```tql
+// Hard to maintain and extend
+if method == "GET" {
+  activity_id = 3
+} else if method == "POST" {
+  activity_id = 6
+} else if method == "PUT" {
+  activity_id = 7
+} else if method == "DELETE" {
+  activity_id = 2
+} else {
+  activity_id = 99
+}
+
+// Error-prone string building
+if activity_id == 1 {
+  activity_name = "Connect"
+} else if activity_id == 2 {
+  activity_name = "Delete"
+} else if activity_id == 3 {
+  activity_name = "Get"
+} // ... many more conditions
+```
+
+The `else` keyword provides a fallback value when:
+
+- A field doesn't exist (`field? else default`)
+- An array index is out of bounds (`array[index]? else default`)
+- A record key doesn't exist (`record[key]? else default`)
+
+This pattern is particularly powerful for:
+
+- Normalizing data to standard formats (like OCSF)
+- Mapping between different naming conventions
+- Providing sensible defaults for missing data
+- Creating reusable transformation logic
+
+## Writing comments
+
+Good comments explain the reasoning, business logic, or non-obvious decisions
+behind code. The code itself should show what it does; comments should explain
+why it does it.
+
+❌ Bad; explains what (redundant):
+
+```tql
+// Increment counter by 1
+set counter = counter + 1
+```
+
+✅ Good; Explains why:
+
+```tql
+/*
+ * Binary field curves are deprecated due to:
+ * 1. Weak reduction polynomials in some cases
+ * 2. Complex implementation leading to side-channel vulnerabilities
+ * 3. Patent concerns that historically limited adoption
+ * 4. Generally slower performance compared to prime field curves
+ * 5. Less scrutiny from cryptographic community
+ * RFC 8422 deprecates these for TLS 1.3.
+ */
+let $weak_prime_curves = [
+  "secp160k1", // 160-bit curves
+  "secp160r1",
+  "secp160r2",
+  "secp192k1", // 192-bit curves
+  "secp224k1", // 224-bit curves
+  "secp224r1", // NIST P-224
+]
+```
+
+:::tip[Why you should comment your code]
+Don't be skimpy with your comments—here's why:
+
+- **Prevent "improvements" that break things**: Future developers won't
+  accidentally "fix" your intentional design choices.
+- **Save investigation time**: Document your research so others don't repeat
+  the same Stack Overflow searches.
+- **Explain business constraints**: Code reviews can't capture why you chose
+  the "worse" technical solution for valid business reasons.
+- **Help your future self**: You'll forget your own reasoning faster than you
+  think.
+- **Speed up onboarding**: New team members understand decisions instead of
+  guessing at intent.
+
+Remember: well-named fields and clear structure communicate _what_ your code
+does—comments explain _why_ you chose to do it that way.
+:::
+
+## Data quality
+
+TQL's diagnostic system helps you maintain data quality by distinguishing
+between expected variations and genuine problems. Understanding how to work with
+warnings intentionally is key to building robust pipelines.
+
+In TQL, warnings are not annoyances to suppress—they're signals about your
+data's health. The language provides tools to express your expectations clearly:
+
+- **No `?`**: Field should exist; warning indicates a problem
+- **With `?`**: Field naturally varies; absence is normal
+- **`assert`**: Enforce invariants with warnings
+- **`strict`**: Escalate warnings to errors when quality matters
+
+### Be deliberate about optional field access
+
+The `?` operator controls whether missing fields trigger warnings. Use it to
+express your data contract clearly.
+
+✅ Clear data expectations in transformations:
+
+```tql
+// Required field - warning if missing
+result = {id: event_id, severity: severity}
+
+// Optional field - no warning if missing
+result = {id: event_id, customer: customer_id?}
+```
+
+✅ Express expectations in selections:
+
+```tql
+// Required field - warning if missing
+select event_id, timestamp
+
+// Mix required and optional fields
+select event_id, customer_id?
+```
+
+❌ Suppressing warnings on required fields:
+
+```tql
+// Bad: This hides data quality problems
+select event_id?  // Should warn if missing!
+```
+
+:::tip
+The `?` operator expresses your data contract. Use it to distinguish between
+"this field should exist" and "this field naturally varies."
+:::
+
+### Enforce invariants with `assert`
+
+Use `assert` when specific conditions must be true for your pipeline to work
+correctly. Unlike `where`, which silently filters, `assert` emits warnings when
+invariants are violated.
+
+✅ Use `assert` for data quality checks:
+
+```tql
+// Ensure critical field has valid values
+assert severity in ["low", "medium", "high", "critical"]
+
+// Verify schema expectations
+subscribe "ocsf"
+assert @name == "ocsf.network_activity"  // Wrong event type = warning
+```
+
+✅ Combine `assert` with filtering:
+
+```tql
+// First assert invariant (with warning)
+assert src_ip != null
+
+// Then filter normally (silent)
+where src_ip.is_private()
+```
+
+❌ Don't use `assert` for normal filtering:
+
+```tql
+// Wrong: This creates unnecessary warnings
+assert severity == "critical"
+
+// Right: Use where for filtering
+where severity == "critical"
+```
+
+:::note[Performance]
+`where` is faster than `assert` due to optimizations like predicate pushdown.
+Only use `assert` when you specifically want warnings for violated conditions.
+:::
+
+### Treat warnings as errors with `strict`
+
+The [`strict`](/reference/operators/strict) operator escalates all warnings to
+errors within its scope, stopping the pipeline when data quality issues occur.
+
+✅ Use `strict` for critical data processing:
+
+```tql
+// Stop pipeline if any required field is missing
+strict {
+  select transaction_id  // Warning → Error if missing
+}
+```
+
+✅ Combine with `assert` for comprehensive checks:
+
+```tql
+strict {
+  // Assertion becomes fatal if violated
+  assert amount > 0
+
+  // Missing field also becomes fatal
+  select customer_id
+}
+```
+
+:::tip[Quick rule]
+By default, trust the operator to accurately distinguish between warnings and
+errors. Only use `strict` when warnings should halt the pipeline, and when data
+loss is less important than data correctness.
+:::
+
+### Choose the right quality control
+
+| Tool         | Use When             | Behavior           |
+| ------------ | -------------------- | ------------------ |
+| `field`      | Field must exist     | Warning if missing |
+| `field?`     | Field is optional    | Silent if missing  |
+| `where`      | Filtering data       | Silent filter      |
+| `assert`     | Enforcing invariants | Warning + filter   |
+| `strict { }` | Zero tolerance       | Warnings → Errors  |
+
+✅ Production pipeline with layered quality control:
+
+```tql
+// Constants for validation
+let $valid_severities = ["low", "medium", "high", "critical"]
+let $required_fields = ["event_id", "timestamp", "source"]
+
+// Strict mode for critical path
+strict {
+  subscribe "prod"
+
+  // Assertions for data integrity
+  assert severity in $valid_severities
+  assert timestamp > 2024-01-01
+
+  // Required field access (warnings → errors)
+  where event_id != null and source != null
+
+  // Normal processing
+  context::enrich "geo", key=source
+}
+
+// Optional enrichment (outside strict)
+where geo?.country? == "US"  // No warning if geo missing
+```
+
+This layered approach ensures critical data meets requirements while allowing
+flexibility for optional enrichments.

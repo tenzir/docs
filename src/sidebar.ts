@@ -117,6 +117,7 @@ export const guides = [
 ];
 
 export const tutorials = [
+  "tutorials/learn-idiomatic-tql",
   "tutorials/map-data-to-ocsf",
   "tutorials/plot-data-with-charts",
   "tutorials/write-a-package",
@@ -130,6 +131,16 @@ export const explanations = [
       "explanations/architecture/pipeline",
       "explanations/architecture/node",
       "explanations/architecture/platform",
+    ],
+  },
+  {
+    label: "Language (TQL)",
+    items: [
+      "explanations/language",
+      "explanations/language/types",
+      "explanations/language/expressions",
+      "explanations/language/statements",
+      "explanations/language/programs",
     ],
   },
   "explanations/configuration",
@@ -148,14 +159,6 @@ export const reference = [
   {
     label: "Functions",
     link: "reference/functions",
-  },
-  {
-    label: "Language",
-    items: [
-      "reference/language/statements",
-      "reference/language/expressions",
-      "reference/language/types",
-    ],
   },
   {
     label: "Node",
