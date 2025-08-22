@@ -228,7 +228,7 @@ TODO: the following functions still need to be documented:
 
 */}
 
-Functions appear in [expressions](/reference/language/expressions) and take
+Functions appear in [expressions](/explanations/language/expressions) and take
 positional and/or named arguments, producing a value as a result of their
 computation.
 

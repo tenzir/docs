@@ -48,7 +48,7 @@ types match. Here are examples of other valid pipeline variations:
 
 ## Multi-Schema Dataflows
 
-As mentioned above, pipelines can transport both *bytes* and *events*. Let's go
+As mentioned above, pipelines can transport both _bytes_ and _events_. Let's go
 deeper into the details of Tenzir represents events. Every event that flows
 through a pipeline is part of a _data frame_ with a schema. Internally, these
 data frames are represented as Apache Arrow record batches, encoding potentially
@@ -64,8 +64,8 @@ one-event-at-a-time processing semantics. Tenzir is unique in that it gives the
 user the feeling of operating on a single event at a time while hiding the
 structured data frame batching behind the scenes. Thus, Tenzir combines the
 performance of structured query engines with the flexibility of
-document-oriented engines, making it perfect fit for processing *semi-structured
-data* at scale:
+document-oriented engines, making it perfect fit for processing _semi-structured
+data_ at scale:
 
 ![Structured vs document-oriented engines](./document-vs-structured.svg)
 
@@ -76,7 +76,7 @@ worst case for Tenzir is a ordered stream of schema-switching events, with every
 event having a new schema than the previous one. But even for those scenarios
 operators can efficiently build homogeneous batches when the inter-event order
 does not matter. Similar to predicate pushdown, Tenzir operators support
-*ordering pushdown* to signal to upstream operators that the event order only
+_ordering pushdown_ to signal to upstream operators that the event order only
 matters intra-schema but not inter-schema. In this case the operator
 transparently "demultiplex" a heterogeneous event stream into N homogeneous
 streams. The [`sort`](/reference/operators/sort) operator is an example of such

@@ -1,0 +1,1175 @@
+---
+title: Expressions
+---
+
+Expressions form the computational core of TQL. They range from simple literals
+to complex evaluations.
+
+## Type Operations
+
+Each type in TQL provides specific operations, starting from the simplest and
+building up to more complex types. For functions that work with these types,
+see the [functions reference](/reference/functions).
+
+### None
+
+The `none` type represents absent or invalid values using the literal `null`:
+
+```tql
+from {
+  value: null,
+  is_null: null == null,
+  has_value: 42 != null,
+}
+```
+
+```tql
+{
+  value: null,
+  is_null: true,
+  has_value: true,
+}
+```
+
+The `else` operator provides null coalescing:
+
+```tql
+from {
+  result: null else "default",
+}
+```
+
+```tql
+{
+  result: "default",
+}
+```
+
+### Boolean
+
+Boolean values (`bool`) support logical operations `and`, `or`, and `not`:
+
+```tql
+from {
+  x: true and false,
+  y: true or false,
+  z: not true,
+}
+```
+
+```tql
+{
+  x: false,
+  y: true,
+  z: false,
+}
+```
+
+TQL implements _short-circuit evaluation_: it stops evaluating once it determines
+the result.
+
+### String
+
+Strings support several formats:
+
+- **Regular strings**: `"hello\nworld"` (with escape sequences)
+- **Raw strings**: `r"C:\path\to\file"` (no escape processing)
+- **Raw strings with quotes**: `r#"They said "hello""#` (allows quotes inside)
+
+Strings support concatenation via `+` and substring checking via `in`:
+
+```tql
+from {
+  name: "World",
+  greeting: "Hello, " + name + "!",
+  has_hello: "Hello" in greeting,
+}
+```
+
+```tql
+{
+  name: "World",
+  greeting: "Hello, World!",
+  has_hello: true,
+}
+```
+
+#### Format Strings (f-strings)
+
+Format strings provide a concise way to build dynamic strings using embedded
+expressions. They're much more readable than string concatenation. For example,
+instead of:
+
+```tql
+percent = round(found / total * 100).string()
+message = "Found " + found.string() + "/" + total.string() + ": " + percent + "%"
+```
+
+You can simply write:
+
+```tql
+message = f"Found {found}/{total}: {round(found / total * 100)}%"
+```
+
+To include literal braces, double them:
+
+```tql
+from {
+  name: "TQL",
+  template: f"Use {{braces}} in {name} like this: {{example}}",
+}
+```
+
+```tql
+{
+  name: "TQL",
+  template: "Use {braces} in TQL like this: {example}",
+}
+```
+
+### Blob
+
+TODO: write this section
+
+### Numbers
+
+Numeric literals can include magnitude suffixes for readability:
+
+- **Power-of-ten suffixes**: `k` (1,000), `M` (1,000,000), `G`, `T`, `P`, `E`
+- **Power-of-two suffixes**: `Ki` (1,024), `Mi` (1,048,576), `Gi`, `Ti`, `Pi`, `Ei`
+
+For example, `2k` equals `2000` and `2Ki` equals `2048`.
+
+All numeric types support standard arithmetic operations:
+
+```tql
+from {
+  sum: 10 + 5,
+  diff: 10 - 5,
+  product: 10 * 5,
+  quotient: 10 / 5,
+}
+```
+
+```tql
+{
+  sum: 15,
+  diff: 5,
+  product: 50,
+  quotient: 2.0,
+}
+```
+
+#### Type Coercion
+
+When mixing numeric types, TQL automatically coerces to the type that can hold
+the most values:
+
+| Left Type |  Operator   | Right Type | Result Type |
+| :-------- | :---------: | :--------- | :---------- |
+| `int64`   | +, -, \*, / | `int64`    | `int64`     |
+| `int64`   | +, -, \*, / | `uint64`   | `int64`     |
+| `int64`   | +, -, \*, / | `double`   | `double`    |
+| `uint64`  | +, -, \*, / | `uint64`   | `uint64`    |
+| `uint64`  | +, -, \*, / | `double`   | `double`    |
+| `double`  | +, -, \*, / | `double`   | `double`    |
+
+#### Overflow and Error Handling
+
+TQL handles numeric errors gracefully:
+
+- **Overflow/Underflow**: Returns `null` (no wrapping)
+- **Division by zero**: Returns `null`
+- **Invalid operations**: Returns `null`
+
+This design prevents silent data corruption and makes errors explicit in your data.
+
+### Duration
+
+Create durations using time unit suffixes:
+
+- Nanoseconds: `ns`
+- Microseconds: `us`
+- Milliseconds: `ms`
+- Seconds: `s`
+- Minutes: `min`
+- Hours: `h`
+- Days: `d`
+- Weeks: `w`
+- Months: `mo`
+- Years: `y`
+
+Example: `30s`, `5min`, `2h30min`
+
+Durations support arithmetic operations for time calculations:
+
+```tql
+from {
+  total: 1h + 30min,
+  doubled: 30min * 2,
+  half: 2h / 4,
+  ratio: 30min / 1h,  // 0.5
+}
+```
+
+```tql
+{
+  total: 1h30min,
+  doubled: 1h,
+  half: 30min,
+  ratio: 0.5,
+}
+```
+
+### Time
+
+Write dates and timestamps using the [ISO 8601
+standard](https://en.wikipedia.org/wiki/ISO_8601):
+
+- Date only: `2024-10-03`
+- Full timestamp: `2024-10-03T14:30:00Z`
+- With timezone offset: `2024-10-03T14:30:00+02:00`
+
+Time points represent specific moments and support arithmetic with durations:
+
+```tql
+from {
+  start: 2024-01-01T00:00:00Z,
+  one_day_later: start + 24h,
+  one_hour_earlier: start - 1h,
+}
+```
+
+```tql
+{
+  start: 2024-01-01T00:00:00Z,
+  one_day_later: 2024-01-02T00:00:00Z,
+  one_hour_earlier: 2023-12-31T23:00:00Z,
+}
+```
+
+Calculating elapsed time is a common operation that converts two time points into
+a duration via subtraction:
+
+```tql
+from {
+  start: 2024-01-01T00:00:00Z,
+  end: 2024-01-01T12:30:00Z,
+  elapsed: end - start,
+}
+```
+
+```tql
+{
+  start: 2024-01-01T00:00:00Z,
+  end: 2024-01-01T12:30:00Z,
+  elapsed: 12h30min,
+}
+```
+
+### IP and Subnet
+
+The `ip` type handles both IPv4 and IPv6 addresses.
+
+- IPv4: `192.168.1.1`, `10.0.0.1`
+- IPv6: `::1`, `2001:db8::1`
+
+This also applies to subnets: both `10.0.0.0/8` and `2001:db8::/32` are valid
+subnets.
+
+IP addresses and subnets support membership and containment testing:
+
+```tql
+let $ip = 192.168.1.100;
+let $network = 10.1.0.0/24;
+from {
+  ip: $ip,
+  network: $network,
+  is_private: $ip in 192.168.0.0/16,
+  is_loopback: $ip in 127.0.0.0/8,
+  contains_ip: 10.1.0.5 in $network,
+  contains_subnet: 10.1.0.0/28 in $network,
+}
+```
+
+```tql
+{
+  ip: 192.168.1.100,
+  network: 10.1.0.0/24,
+  is_private: true,
+  is_loopback: false,
+  contains_ip: true,
+  contains_subnet: true,
+}
+```
+
+### Secret
+
+[Secrets](/explanations/secrets) protect sensitive values like authentication
+tokens and passwords. The `secret` type contains only a secret's name, not its
+actual value, which is resolved asynchronously when needed.
+
+Create secrets using the [`secret`](/reference/functions/secret) function or
+pass string literals directly to operators that accept secrets:
+
+```tql
+// Using managed secret
+auth_header = "Bearer " + secret("api-token")
+
+// Using format string (produces a secret)
+connection = f"https://{secret("user")}:{secret("pass")}@api.example.com"
+```
+
+Secrets support concatenation with `+` and can be used in format strings. When
+a format string contains a secret, the result is also a secret. Converting a
+secret to a string yields a masked value (`"***"`) to prevent accidental exposure.
+
+### List
+
+TQL has _typed_ lists, which means that the type of the elements in a list is
+fixed and must not change per element. Lists use brackets to sequence data. `[]`
+denotes the empty list. Specify items with comma-delimited expressions:
+
+```tql
+let $ports = [80, 443, 8080]
+let $mixed = [1, 2+3, foo()]  // Can contain expressions
+```
+
+Lists support indexing with `[]` and membership testing with `in`, with negative
+indices counting from the end of the list (`-1` refers to the last element):
+
+```tql
+let $items = [10, 20, 30]
+from {
+  first: $items[0],
+  last: $items[-1],
+  has_twenty: 20 in $items,
+}
+```
+
+```tql
+{
+  first: 10,
+  last: 30,
+  has_twenty: true,
+}
+```
+
+Use `?` for safe indexing that returns `null` instead of generating a warning:
+
+```tql
+from {
+  items: [1, 2],
+  third: items[2]? else 0,
+}
+```
+
+```tql
+{
+  items: [
+    1,
+    2,
+  ],
+  third: 0,
+}
+```
+
+The spread operator `...` expands lists into other lists:
+
+```tql
+let $base = [1, 2]
+let $extended = [...$base, 3]  // Results in [1, 2, 3]
+```
+
+### Records
+
+Records use braces to structure data. `{}` denotes the empty record. Specify
+fields using identifiers followed by a colon and an expression. Use quoted
+strings for invalid field names. For example:
+
+```tql
+let $my_record = {
+  name: "Tom",
+  age: 42,
+  friends: ["Jerry", "Brutus"],
+  "detailed summary": "Jerry is a cat."  // strings for invalid identifiers
+}
+```
+
+The spread operator `...` expands records into other records:
+
+```tql title="Lifting nested fields"
+from {
+  type: "alert",
+  context: {
+    severity: "high",
+    source: 1.2.3.4,
+  }
+}
+this = {type: type, ...context}
+```
+
+```tql
+{
+  type: "alert",
+  severity: "high",
+  source: 1.2.3.4,
+}
+```
+
+Fields must be unique, and later values overwrite earlier ones.
+
+Records support field access with `.` and bracket notation:
+
+```tql
+let $user = {
+  name: "Alice",
+  "user-id": 123,
+}
+from {
+  name: user.name,
+  id: user["user-id"],
+}
+```
+
+```tql
+{
+  name: "Alice",
+  id: 123,
+}
+```
+
+The spread operator `...` expands records:
+
+```tql
+let $base = {a: 1, b: 2}
+from {
+  extended: {...$base, c: 3},
+}
+```
+
+```tql
+{
+  extended: {
+    a: 1,
+    b: 2,
+    c: 3,
+  },
+}
+```
+
+## Field Access
+
+TQL provides multiple ways to access and manipulate fields within records and events.
+
+### Basic Access
+
+Use a single identifier to refer to a top-level field:
+
+```tql
+from {
+  name: "Alice",
+  age: 30,
+}
+adult = age >= 18
+```
+
+Chain identifiers with dots to access nested fields:
+
+```tql
+from {
+  user: {
+    profile: {
+      name: "Alice"
+    }
+  },
+}
+username = user.profile.name
+```
+
+```tql
+{
+  user: {
+    profile: {
+      name: "Alice"
+    }
+  },
+  username: "Alice",
+}
+```
+
+### The `this` Keyword
+
+`this` references the entire top-level event:
+
+```tql
+from {
+  x: 1,
+  y: 2,
+}
+z = this
+```
+
+```tql
+{
+  x: 1,
+  y: 2,
+  z: {
+    x: 1,
+    y: 2,
+  },
+}
+```
+
+You can also overwrite the entire event:
+
+```tql
+this = {transformed: true, data: this}
+```
+
+### Safe Access with `?`
+
+The optional field access operator (`?`) suppresses warnings when accessing
+non-existent fields:
+
+```tql title="Processing events with optional fields"
+from {event: "logon", user: {id: 123, name: "John Doe"}},
+     {event: "logon", user: {id: 456}},
+     {event: "logoff", user: {id: 123}}
+select event, user_id=user.id, name=user.name?
+```
+
+```tql
+{event: "logon", user_id: 123, name: "John Doe"}
+{event: "logon", user_id: 456, name: null}  // null instead of warning
+{event: "logoff", user_id: 123, name: null} // null instead of warning
+```
+
+Optional access also works on nested paths:
+
+```tql
+from {
+  user: {address: {city: "NYC"}},
+  city: user.address?.city?,  // Safe even if address doesn't exist
+}
+```
+
+### Fallback with `else`
+
+The `else` keyword provides default values when used with `?`:
+
+```tql
+from {
+  severity_level: severity? else "unknown",
+  priority: priority? else 3,
+}
+```
+
+Without `else`, the `?` operator returns `null` when the field doesn't exist.
+With `else`, you get a sensible default value instead:
+
+```tql
+from {
+  foo: 1,
+  bar: 2,
+}
+select
+  value = missing?,           // null
+  with_default = missing? else "default"  // "default"
+```
+
+### Indexing
+
+Both lists and records support indexing operations to access their elements.
+
+#### List Indexing
+
+Access list elements using integral indices, starting with `0`:
+
+```tql
+let $my_list = ["Hello", "World"]
+first = $my_list[0]    // "Hello"
+second = $my_list[1]   // "World"
+```
+
+Use `?` to handle out-of-bounds access:
+
+```tql
+let $ports = [80, 443]
+third = $ports[2]? else 8080  // Fallback when index doesn't exist
+```
+
+#### Record Indexing
+
+Bracket notation accesses fields with special characters or runtime values:
+
+```tql
+let $answers = {"the ultimate question": 42}
+result = $answers["the ultimate question"]
+```
+
+Access fields based on runtime values:
+
+```tql
+let $severity_to_level = {"ERROR": 1, "WARNING": 2, "INFO": 3}
+from {
+  severity: "ERROR",
+  level: $severity_to_level[severity],  // Dynamic field access
+}
+```
+
+Both indexing expressions and the [`get`](/reference/functions/get) function
+(see next section below) support numeric indices for records:
+
+```tql title="Accessing a field by position"
+from {
+  foo: "Hello",
+  bar: "World",
+}
+select first_field = this[0]  // "Hello"
+```
+
+#### The `get` Function
+
+The [`get`](/reference/functions/get) function provides safe access with
+fallback values:
+
+```tql
+let $config = {timeout: 30}
+retries = $config.get("retries", 3)  // Returns 3 if "retries" doesn't exist
+```
+
+To suppress warnings when the list index is out of bounds, use
+[`get`](/reference/functions/get) with a fallback value:
+
+```tql
+let $my_list = ["Hello", "World"]
+result = $my_list.get(2, "default")
+```
+
+```tql
+{result: "default"}
+```
+
+To suppress warnings when the record field is missing, use
+[`get`](/reference/functions/get) with a fallback value:
+
+```tql
+from {foo: 1, bar: 2}
+result = this.get("baz", "default")
+```
+
+```tql
+{result: "default"}
+```
+
+### Moving Fields
+
+The `move` expression transfers a field's value and removes the original field
+in one atomic operation. Use the `move` keyword in front of a field to relocate
+it as part of an assignment:
+
+```tql
+from {foo: 1, bar: 2}
+qux = move bar + 2
+```
+
+```tql
+{foo: 1, qux: 4}  // Note: bar is gone
+```
+
+Use `move` in assignments to avoid separate delete operations:
+
+```tql
+// Clean approach
+new_field = move old_field
+
+// Instead of verbose
+new_field = old_field
+drop old_field
+```
+
+In addition to the `move` keyword, there exists a
+[`move`](/reference/operators/move) operator that is a convenient alternative
+when relocating multiple fields. For example, this
+sequence of assignments with the `move` keyword:
+
+```tql
+x = move foo
+y = move bar
+z = move baz
+```
+
+can be rewritten succinctly with the [`move`](/reference/operators/move)
+operator:
+
+```tql
+move x=foo, y=bar, z=baz
+```
+
+:::tip[Key points]
+
+- Only usable in expression position (right side of `=`)
+- Only works with fields, not arbitrary expressions
+- Different from the [`move`](/reference/operators/move) operator that is a
+  statement
+  :::
+
+### Metadata
+
+Events carry both data and metadata. Access metadata fields using the `@`
+prefix. For instance, `@name` holds the name of the event.
+
+Currently, available metadata fields include `@name`, `@import_time`, and
+`@internal`. Future updates may allow defining custom metadata fields.
+
+```tql
+from {
+  event_name: @name,           // The schema name
+  import_time: @import_time,   // When the event was imported
+}
+```
+
+## Additional Operations
+
+Beyond type-specific operations, TQL provides general-purpose operators for working with data.
+
+### Unary Operations
+
+TQL supports unary operators:
+
+- `-` for numbers and durations (negation)
+- `not` for boolean values (logical NOT)
+
+```tql
+from {
+  value: 42,
+  flag: true,
+  negative: -value,
+  inverted: not flag,
+}
+```
+
+```tql
+{
+  value: 42,
+  flag: true,
+  negative: -42,
+  inverted: false,
+}
+```
+
+### Binary Operations
+
+Binary operators work on two operands. The supported operations depend on the
+data types involved.
+
+#### Arithmetic Operations Summary
+
+| Operation      | Example | Behavior                         |
+| -------------- | ------- | -------------------------------- |
+| Addition       | `a + b` | Type coercion to wider type      |
+| Subtraction    | `a - b` | Returns null on underflow        |
+| Multiplication | `a * b` | Returns null on overflow         |
+| Division       | `a / b` | Returns null on division by zero |
+
+#### Time and Duration Arithmetic Summary
+
+| Operation             | Result Type | Example                 |
+| --------------------- | ----------- | ----------------------- |
+| `time + duration`     | `time`      | `now() + 5min`          |
+| `time - duration`     | `time`      | `timestamp - 1h`        |
+| `time - time`         | `duration`  | `end_time - start_time` |
+| `duration + duration` | `duration`  | `5min + 30s`            |
+| `duration * number`   | `duration`  | `5min * 3`              |
+| `duration / number`   | `duration`  | `1h / 2`                |
+| `duration / duration` | `double`    | `30min / 1h` → `0.5`    |
+
+For detailed type coercion rules and more examples, see the specific type sections above.
+
+#### Comparison
+
+All types support equality comparison (`==`, `!=`). Additionally, ordered types
+support relational comparisons (`<`, `<=`, `>`, `>=`):
+
+```tql
+from {
+  a: 5,
+  b: 10,
+  equal: a == b,
+  not_equal: a != b,
+  less: a < b,
+  less_equal: a <= b,
+  greater: a > b,
+  greater_equal: a >= b,
+}
+```
+
+```tql
+{
+  a: 5,
+  b: 10,
+  equal: false,
+  not_equal: true,
+  less: true,
+  less_equal: true,
+  greater: false,
+  greater_equal: false,
+}
+```
+
+**Comparison rules by type:**
+
+- **All types**: Can compare equality with themselves and with `null`
+- **Numeric types**: Can compare across different numeric types; ordered by magnitude
+- **Strings**: Compare lexicographically (dictionary order)
+- **IP addresses**: Ordered by their IPv6 bit pattern
+- **Subnets**: Ordered by their IPv6 bit pattern
+- **Times**: Chronologically ordered
+- **Durations**: Ordered by length
+
+#### Logical
+
+Combine boolean expressions with `and` and `or`:
+
+```tql
+where timestamp > now() - 1d and severity == "critical"
+where port == 22 or port == 3389
+```
+
+These operators use short-circuit evaluation.
+
+#### Membership Testing (`in`)
+
+The `in` operator tests containment across different types:
+
+| Expression            | Checks if...                            |
+| :-------------------- | :-------------------------------------- |
+| `value in list`       | List contains the value                 |
+| `substring in string` | String contains the substring           |
+| `ip in subnet`        | IP address is within the subnet range   |
+| `subnet in subnet`    | First subnet is contained in the second |
+
+```tql
+from {
+  ip: 10.0.0.5,
+  port: 443,
+  message: "connection error",
+  in_private: ip in 10.0.0.0/8,
+  is_https: port in [443, 8443],
+  has_error: "error" in message,
+}
+```
+
+```tql
+{
+  ip: 10.0.0.5,
+  port: 443,
+  message: "connection error",
+  in_private: true,
+  is_https: true,
+  has_error: true,
+}
+```
+
+To negate membership tests, use `not in` or `not (value in container)`.
+
+### Operator Precedence
+
+Operations follow standard precedence rules:
+
+| Precedence  | Operators                                | Associativity |
+| ----------- | ---------------------------------------- | ------------- |
+| 1 (highest) | Method call, field access, `[]` indexing | -             |
+| 2           | Unary `+`, `-`                           | -             |
+| 3           | `*`, `/`                                 | Left          |
+| 4           | Binary `+`, `-`                          | Left          |
+| 5           | `==`, `!=`, `<`, `<=`, `>`, `>=`, `in`   | Left          |
+| 6           | `not`                                    | -             |
+| 7           | `and`                                    | Left          |
+| 8 (lowest)  | `or`                                     | Left          |
+
+Expressions like `1 - 2 * 3 + 4` follow these precedence and associativity rules.
+The expression evaluates as `(1 - (2 * 3)) + 4`. Example: `1 + 2 * 3` evaluates as `1 + (2 * 3)` = 7
+
+## Conditional Expressions
+
+### Python-style Conditionals
+
+TQL uses Python-style conditional expressions, i.e., `x if condition else y`
+where `x`, `y`, and `condition` are expressions.
+
+Use conditionals in assignments and format strings:
+
+```tql
+from {
+  response_code: 200,
+  success: true,
+  status: "OK" if response_code == 200 else "ERROR",
+  message: f"Status: {'✓' if success else '✗'}",
+}
+```
+
+Chaining is allowed but discouraged for readability:
+
+```tql
+from {
+  severity: "high",
+  priority: 1 if severity == "critical" else 2 if severity == "high" else 3,
+}
+```
+
+### Standalone `if`
+
+`if` acts as a guard, returning `null` when false:
+
+```tql
+from {
+  performance: "good",
+  should_compute: false,
+  bonus: 1000 if performance == "excellent",  // null otherwise
+  result: now() if should_compute,            // null since should_compute is false
+```
+
+### Standalone `else`
+
+`else` performs null coalescing:
+
+```tql
+from {
+  field: null,
+  value: field else "default",  // Use "default" if field is null
+}
+```
+
+## Functions and Methods
+
+Functions and take positional and/or named arguments, producing a value as a
+result of their computation.
+
+Call **free functions** with parentheses and comma-delimited arguments:
+
+```tql
+from {
+  result: sqrt(16),
+  rounded: round(3.7, 1),
+  current: now(),
+}
+```
+
+Call **methods** using dot notation:
+
+```tql
+from {
+  text: "  hello  ",
+  message: "world",
+  trimmed: text.trim(),
+  length: message.length(),
+}
+```
+
+### Uniform Function Call Syntax (UFCS)
+
+TQL supports the [uniform function call syntax
+(UFCS)](https://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax), which
+allows you to interchangeably call a function with at least one argument either
+as free function or method. For example, `length(str)` and `str.length()`
+resolve to the identical function call. The latter syntax is particularly
+suitable for function chaining, e.g., `x.f().g().h()` reads left-to-right as
+"start with `x`, apply `f()`, then `g()` and then `h()`," compared to
+`h(g(f(x)))`, which reads "inside out."
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Tabs syncKey="function-style">
+<TabItem label="Free function">
+
+```tql
+from {input: "  hello  "}
+output = capitalize(trim(input))
+```
+
+```tql
+{
+  input: "  hello  ",
+  output: "Hello",
+}
+```
+
+</TabItem>
+<TabItem label="Method">
+
+```tql
+from {input: "  hello  "}
+output = input.trim().capitalize()
+```
+
+```tql
+{
+  input: "  hello  ",
+  output: "Hello",
+}
+```
+
+</TabItem>
+</Tabs>
+
+Note the improved readability of function chaining:
+
+<Tabs syncKey="function-style">
+<TabItem label="Free function">
+
+```tql
+from {message: "  HELLO world  "}
+message = replace(to_lower(trim(message)), " ", "_")
+```
+
+```tql
+{
+  message: "hello_world",
+}
+```
+
+</TabItem>
+<TabItem label="Method">
+
+```tql
+from {message: "  HELLO world  "}
+message = message
+  .trim()                       // Remove whitespace
+  .to_lower()                   // Normalize case
+  .replace(" ", "_")            // Replace spaces
+```
+
+```tql
+{
+  message: "hello_world",
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::tip[Prefer method style]
+While both styles are valid, we prefer the method syntax for:
+
+- **Readability**: Left-to-right data flow is easier to follow
+- **Discoverability**: IDEs can better suggest available methods
+- **Consistency**: Aligns with common programming patterns
+- **Chaining**: Natural for multi-step transformations
+  :::
+
+For a comprehensive list of functions, see the [functions
+reference](/reference/functions).
+
+## Advanced Expressions
+
+### Lambda Expressions
+
+Some operators and functions accept **lambda expressions** of the form
+`arg => expr`:
+
+```tql
+let $list = [1, 2, 3, 4, 5]
+let $data = [{value: 1}, {value: 2}]
+from {
+  threshold: 3,
+  doubled: [1, 2, 3].map(x => x * 2),
+  filtered: $list.where(x => x > threshold),
+  transformed: $data.map(item => item.value * 100),
+}
+```
+
+```tql
+{
+  threshold: 3,
+  doubled: [
+    2,
+    4,
+    6,
+  ],
+  filtered: [],
+  transformed: [
+    100,
+    200,
+  ],
+}
+```
+
+The input gets an explicit name and the expression evaluates for each element.
+
+### Pipeline Expressions
+
+Some operators accept pipeline expressions as arguments, written with braces:
+
+```tql
+every 10s {
+  from_http "https://api.example.com/"
+  select id, data
+}
+fork {
+  to_hive "s3://bucket/path/", partition_by=[id], format="json"
+}
+```
+
+If the pipeline expression is the last argument, omit the preceding comma.
+Braces can contain multiple statements separated by newlines.
+
+### Let Substitution
+
+Reference previously defined `let` bindings using `$`-prefixed names:
+
+```tql
+let $pi = 3.14159
+let $radius = 5
+from {
+  area: $radius * $radius * $pi,
+}
+```
+
+```tql
+{
+  area: 78.53975,
+}
+```
+
+:::caution[Evaluation Time]
+Constants evaluate _once_ at pipeline start and remain available throughout.
+:::
+
+## Expression Evaluation
+
+TQL expressions can be evaluated at different times: at pipeline start (constant) or per event (runtime).
+
+### Constant Expressions
+
+A **constant expression** evaluates to a constant when the pipeline containing
+it starts. Many pipeline operators require constant arguments:
+
+```tql
+head 5           // Valid: 5 is constant
+head count       // Invalid: count depends on events
+```
+
+Functions like `now()` and `random()` can be constant-evaluated:
+
+```tql
+let $start_time = now()        // Evaluated once at pipeline start
+where timestamp > $start_time - 1h
+```
+
+They are evaluated once at pipeline start, and the result is treated as a constant.
+
+### Runtime Evaluation
+
+Most expressions evaluate per event at runtime:
+
+```tql
+// These evaluate for each event
+score = impact * likelihood
+is_recent = timestamp > now() - 5min
+formatted = f"Alert: {severity} at {timestamp}"
+```
+
+Type inference happens automatically, and null values propagate through
+operations according to each operation's semantics.

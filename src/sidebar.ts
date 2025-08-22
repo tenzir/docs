@@ -133,7 +133,16 @@ export const explanations = [
       "explanations/architecture/platform",
     ],
   },
-  "explanations/language",
+  {
+    label: "Language (TQL)",
+    items: [
+      "explanations/language",
+      "explanations/language/types",
+      "explanations/language/expressions",
+      "explanations/language/statements",
+      "explanations/language/programs",
+    ],
+  },
   "explanations/configuration",
   "explanations/secrets",
   "explanations/enrichment",
@@ -150,14 +159,6 @@ export const reference = [
   {
     label: "Functions",
     link: "reference/functions",
-  },
-  {
-    label: "Language",
-    items: [
-      "reference/language/statements",
-      "reference/language/expressions",
-      "reference/language/types",
-    ],
   },
   {
     label: "Node",
