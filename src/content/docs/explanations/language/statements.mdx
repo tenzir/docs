@@ -10,31 +10,6 @@ workflows.
 [Statements](/explanations/language/statements) provide control and structure with
 bindings, operators, assignments, and control-flow primitives.
 
-## `let`
-
-The `let` statement binds a constant to a specific name within the pipeline's
-scope. The syntax for a `let` statement is `let $<identifier> = <expression>`.
-For instance, `let $meaning = 42` creates a constant `$meaning` that holds the
-value 42.
-
-More complex expressions can also be assigned, such as `let $start = now() -
-1h`, which binds `$start` to a value representing one hour before the pipeline
-was started. Constants defined with `let` can be referenced in subsequent
-statements, including other `let` statements. For example, `let $end = $start +
-30min` can be used to define `$end` depending on the value of `$start`.
-
-```tql
-let $meaning = 42
-let $start = now() - 1h
-let $end = $start + 30min
-```
-
-Bindings define constants with the `let` statement:
-
-```tql
-let $critical_ports = [22, 3389, 5432]
-```
-
 ## Operator
 
 Operator statements consist of the operator name, followed by an arbitrary
@@ -159,6 +134,31 @@ set severity = "high"
 
 This design keeps pipelines concise while maintaining clarity about what's
 happening.
+
+## `let`
+
+The `let` statement binds a constant to a specific name within the pipeline's
+scope. The syntax for a `let` statement is `let $<identifier> = <expression>`.
+For instance, `let $meaning = 42` creates a constant `$meaning` that holds the
+value 42.
+
+More complex expressions can also be assigned, such as `let $start = now() -
+1h`, which binds `$start` to a value representing one hour before the pipeline
+was started. Constants defined with `let` can be referenced in subsequent
+statements, including other `let` statements. For example, `let $end = $start +
+30min` can be used to define `$end` depending on the value of `$start`.
+
+```tql
+let $meaning = 42
+let $start = now() - 1h
+let $end = $start + 30min
+```
+
+Bindings define constants with the `let` statement:
+
+```tql
+let $critical_ports = [22, 3389, 5432]
+```
 
 ## `if`
 

@@ -97,28 +97,6 @@ Some operators require that you define a closed (void-to-void) pipeline, whereas
 others exhibit parsing (bytes-to-events) or printing (events-to-bytes)
 semantics.
 
-## Parallel processing
-
-The [`fork`](/reference/operators/fork) operator splits a pipeline into multiple
-parallel legs. It takes a nested pipeline as an argument that represents the
-secondary leg.
-
-```tql title="Split processing"
-fork {
-  // Branch 1: Critical alerts
-  where severity == "critical"
-  to "urgent_alerts.json"
-}
-fork {
-  // Branch 2: Metrics
-  summarize severity, count()
-  to "metrics.json"
-}
-// Main pipeline continues
-select timestamp, message
-to "all_events.json"
-```
-
 ## Comments
 
 Comments make implicit choices and assumptions explicit. They have no semantic
@@ -225,10 +203,9 @@ let $config = {
 }
 
 // Runtime: evaluated per event
-from
-  {bytes: 2Ki, timestamp: 2024-01-15T09:30:00},
-  {bytes: 512, timestamp: 2024-01-15T09:45:00},
-  {bytes: 3Ki, timestamp: 2024-01-15T10:00:00}
+from {bytes: 2Ki, timestamp: 2024-01-15T09:30:00},
+     {bytes: 512, timestamp: 2024-01-15T09:45:00},
+     {bytes: 3Ki, timestamp: 2024-01-15T10:00:00}
 where bytes > $threshold            // Constant comparison
 where timestamp > $start_time       // Constant comparison
 current_time = 2024-01-15T10:30:00  // Would be now() in real usage
