@@ -181,10 +181,11 @@ handling:
 
 ```tql
 // Handle packet captures, certificates, encrypted payloads
-packet_data = b"\x00\x01\x02\x03"
-cert_der = decode_base64(certificate_base64)  // Returns blob
-payload_hex = encode_hex(packet_data)         // blob → hex string
-hash = hash_sha256(packet_data)               // Direct hashing of binary
+let $open_packet = b"\x00\x01\x02\x03"      // Blob literals
+packet_data = decode_base64(encoded_packet) // Returns blob
+where packet_data != $open_packet           // Comparing bytes directly
+payload_hex = encode_hex(packet_data)       // blob → hex string
+hash = hash_sha256(packet_data)             // Direct hashing of binary
 ```
 
 ❌ Without blob type (using strings):
@@ -207,11 +208,12 @@ Credentials and sensitive data need protection from accidental exposure:
 
 ```tql
 // Secrets are never logged or displayed
-let $api_key = secret("sk_live_abc123...")
-auth_header = f"Bearer {secret(env("API_TOKEN"))}"
+let $api_key = secret("API_TOKEN")
+auth_header = f"Bearer {$api_key}"
 
 // Use secrets without exposing them
 http "api.example.com", headers={Auth: $api_key}  // Use secret safely
+to "debug.json"  // Secret value is not written to file
 ```
 
 ❌ Without secret type (using strings):

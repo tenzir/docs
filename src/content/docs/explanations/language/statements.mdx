@@ -2,10 +2,10 @@
 title: Statements
 ---
 
-TQL programs are structured as a sequence of operators that perform various
-functions on data streams. Each operator can be thought of as a modular unit
-that processes data and can be combined with other operators to create complex
-workflows.
+TQL programs are a sequence of statements.
+Operator statements perform various actions on data streams.
+Each operator statement can be thought of as a modular unit that processes data
+and can be combined with other operators to create complex dataflows.
 
 [Statements](/explanations/language/statements) provide control and structure with
 bindings, operators, assignments, and control-flow primitives.
@@ -17,11 +17,20 @@ number of arguments. Arguments are delimited by commas and may optionally be
 enclosed in parentheses. If the last argument is a pipeline expression, the
 preceding comma can be omitted for brevity.
 
-Arguments can be specified in two ways: they can be positional, where the order
-matters, or named, where each argument is explicitly associated with a parameter
-name. Furthermore, arguments can be classified as required or optional. Some
-operators expect constant values, while others are designed to accept runtime
-values.
+Arguments can be of two kinds:
+
+- **Positional**, where the order matters
+- **Named**, where each argument is explicitly associated with a parameter name.
+
+Additionally, arguments can be either:
+
+- **Required**, meaning they must be provided
+- **Optional**, which means they do not necessarily need to be provided, usually
+  meaning they have a default value.
+
+Finally, some operators require [constant
+arguments](/explanations/language/expressions/#constant-expressions), while
+others can take expressions, which are evaluated per event.
 
 ```tql
 select foo, bar.baz
@@ -71,9 +80,9 @@ Let's break it down:
 
 The [`from`](/reference/operators/from) and [`to`](/reference/operators/to)
 operators perform a bit "magic" in that they also infer the format of the data
-being read or written, i.e., JSON due to the `*.json` extension and Parquet due
-to the `*.parquet` extension. You can also bypass this magic by explicitly
-specifying the format:
+being read or written, i.e., JSON due to the `.json` extension and Parquet due
+to the `.parquet` extension. You can also write the specific operators for these
+operations yourself:
 
 ```tql
 load_kafka "topic"
@@ -144,9 +153,11 @@ value 42.
 
 More complex expressions can also be assigned, such as `let $start = now() -
 1h`, which binds `$start` to a value representing one hour before the pipeline
-was started. Constants defined with `let` can be referenced in subsequent
-statements, including other `let` statements. For example, `let $end = $start +
-30min` can be used to define `$end` depending on the value of `$start`.
+was started.
+
+Constants defined with `let` can be referenced in subsequent statements,
+including other `let` statements. For example, `let $end = $start + 30min` can
+be used to define `$end` depending on the value of `$start`.
 
 ```tql
 let $meaning = 42
@@ -154,11 +165,8 @@ let $start = now() - 1h
 let $end = $start + 30min
 ```
 
-Bindings define constants with the `let` statement:
-
-```tql
-let $critical_ports = [22, 3389, 5432]
-```
+A `let` statement introduces a constant that gets substituted during [expression
+evaluation](/explanations/language/expressions/#let-substitution).
 
 ## `if`
 

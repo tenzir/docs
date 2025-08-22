@@ -5,7 +5,7 @@ title: Expressions
 Expressions form the computational core of TQL. They range from simple literals
 to complex evaluations.
 
-## Type Operations
+## Types and Operations
 
 Each type in TQL provides specific operations, starting from the simplest and
 building up to more complex types. For functions that work with these types,
@@ -129,7 +129,11 @@ from {
 
 ### Blob
 
-TODO: write this section
+Blobs represent raw binary data. Use them for handling non-textual data like
+network packets, encrypted payloads, or file contents.
+
+Read [why TQL has binary blob
+types](/explanations/language/types/#why-binary-blob-types) for details.
 
 ### Numbers
 
@@ -527,7 +531,12 @@ You can also overwrite the entire event:
 this = {transformed: true, data: this}
 ```
 
-### Safe Access with `?`
+### Non-existent Fields
+
+Trying to access a field that does not exist in an event will raise a warning
+and evaluate to `null`.
+
+### Optional Access with `?`
 
 The optional field access operator (`?`) suppresses warnings when accessing
 non-existent fields:
@@ -541,8 +550,8 @@ select event, user_id=user.id, name=user.name?
 
 ```tql
 {event: "logon", user_id: 123, name: "John Doe"}
-{event: "logon", user_id: 456, name: null}  // null instead of warning
-{event: "logoff", user_id: 123, name: null} // null instead of warning
+{event: "logon", user_id: 456, name: null}  // No warning for missing `user.name`
+{event: "logoff", user_id: 123, name: null} // No warning for missing `user.name`
 ```
 
 Optional access also works on nested paths:
@@ -550,8 +559,8 @@ Optional access also works on nested paths:
 ```tql
 from {
   user: {address: {city: "NYC"}},
-  city: user.address?.city?,  // Safe even if address doesn't exist
 }
+city = user.address?.city?  // No warning if `address` or `address.city` do not exist.
 ```
 
 ### Fallback with `else`
@@ -559,10 +568,11 @@ from {
 The `else` keyword provides default values when used with `?`:
 
 ```tql
-from {
-  severity_level: severity? else "unknown",
-  priority: priority? else 3,
-}
+from \
+  { severity: 10, priority: null }, \
+  { severity: null, priority: null }
+severity_level = severity? else "unknown" // If `severity` is `null`, use `"unknown"` instead
+priority =  priority? else 3              // if `priority` is `null`, default it to `3`
 ```
 
 Without `else`, the `?` operator returns `null` when the field doesn't exist.
@@ -614,8 +624,8 @@ Access fields based on runtime values:
 let $severity_to_level = {"ERROR": 1, "WARNING": 2, "INFO": 3}
 from {
   severity: "ERROR",
-  level: $severity_to_level[severity],  // Dynamic field access
 }
+level = $severity_to_level[severity]  // Dynamic field access
 ```
 
 Indexing expressions (see next section below) support numeric indices for
@@ -674,11 +684,12 @@ move x=foo, y=bar, z=baz
 ```
 
 :::tip[Key points]
+
 - Only usable in expression position (right side of `=`)
 - Only works with fields, not arbitrary expressions
 - Different from the [`move`](/reference/operators/move) operator that is a
   statement
-:::
+  :::
 
 ### Metadata
 
@@ -710,9 +721,9 @@ TQL supports unary operators:
 from {
   value: 42,
   flag: true,
-  negative: -value,
-  inverted: not flag,
 }
+negative = -value
+inverted = not flag
 ```
 
 ```tql
@@ -761,13 +772,13 @@ support relational comparisons (`<`, `<=`, `>`, `>=`):
 from {
   a: 5,
   b: 10,
-  equal: a == b,
-  not_equal: a != b,
-  less: a < b,
-  less_equal: a <= b,
-  greater: a > b,
-  greater_equal: a >= b,
 }
+set equal = a == b
+set not_equal = a != b
+set less = a < b
+set less_equal = a <= b
+set greater = a > b
+set greater_equal = a >= b
 ```
 
 ```tql
@@ -802,7 +813,11 @@ where timestamp > now() - 1d and severity == "critical"
 where port == 22 or port == 3389
 ```
 
-These operators use short-circuit evaluation.
+:::note[Short-circuit Evaluation]
+The `and` and `or` operators use short-circuit evaluation: they evaluate the
+second operand only if necessary. This means that if the first operand is
+sufficient to determine the result, the second operand is not evaluated.
+:::
 
 #### Membership Testing (`in`)
 
@@ -820,10 +835,10 @@ from {
   ip: 10.0.0.5,
   port: 443,
   message: "connection error",
-  in_private: ip in 10.0.0.0/8,
-  is_https: port in [443, 8443],
-  has_error: "error" in message,
 }
+in_private = ip in 10.0.0.0/8
+is_https = port in [443, 8443]
+has_error = "error" in message
 ```
 
 ```tql
@@ -870,9 +885,9 @@ Use conditionals in assignments and format strings:
 from {
   response_code: 200,
   success: true,
-  status: "OK" if response_code == 200 else "ERROR",
-  message: f"Status: {'✓' if success else '✗'}",
 }
+status = "OK" if response_code == 200 else "ERROR"
+message = f"Status: {'✓' if success else '✗'}"
 ```
 
 Chaining is allowed but discouraged for readability:
@@ -880,8 +895,8 @@ Chaining is allowed but discouraged for readability:
 ```tql
 from {
   severity: "high",
-  priority: 1 if severity == "critical" else 2 if severity == "high" else 3,
 }
+priority = 1 if severity == "critical" else 2 if severity == "high" else 3
 ```
 
 ### Standalone `if`
@@ -913,8 +928,8 @@ result = now() if should_compute            // null since should_compute is fals
 ```tql
 from {
   field: null,
-  value: field else "default",  // Use "default" if field is null
 }
+value = field else "default"  // Use "default" if field is null
 ```
 
 ## Functions and Methods
@@ -938,9 +953,9 @@ Call **methods** using dot notation:
 from {
   text: "  hello  ",
   message: "world",
-  trimmed: text.trim(),
-  length: message.length(),
 }
+trimmed = text.trim()
+length = message.length()
 ```
 
 ### Uniform Function Call Syntax (UFCS)
@@ -1027,11 +1042,12 @@ message = message
 
 :::tip[Prefer method style]
 While both styles are valid, we prefer the method syntax for:
+
 - **Readability**: Left-to-right data flow is easier to follow
 - **Discoverability**: IDEs can better suggest available methods
 - **Consistency**: Aligns with common programming patterns
 - **Chaining**: Natural for multi-step transformations
-:::
+  :::
 
 For a comprehensive list of functions, see the [functions
 reference](/reference/functions).
@@ -1048,10 +1064,10 @@ let $list = [1, 2, 3, 4, 5]
 let $data = [{value: 1}, {value: 2}]
 from {
   threshold: 3,
-  doubled: [1, 2, 3].map(x => x * 2),
-  filtered: $list.where(x => x > threshold),
-  transformed: $data.map(item => item.value * 100),
 }
+doubled = [1, 2, 3].map(x => x * 2)
+filtered = $list.where(x => x > threshold)
+transformed = $data.map(item => item.value * 100)
 ```
 
 ```tql
@@ -1091,7 +1107,8 @@ Braces can contain multiple statements separated by newlines.
 
 ### Let Substitution
 
-Reference previously defined `let` bindings using `$`-prefixed names:
+Reference previously defined [`let`](/explanations/language/statements#let)
+bindings using `$`-prefixed names:
 
 ```tql
 let $pi = 3.14159
