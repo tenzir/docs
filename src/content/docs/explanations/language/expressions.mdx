@@ -927,8 +927,18 @@ from {
 from {
   performance: "good",
   should_compute: false,
-  bonus: 1000 if performance == "excellent",  // null otherwise
-  result: now() if should_compute,            // null since should_compute is false
+}
+bonus = 1000 if performance == "excellent"  // null otherwise
+result = now() if should_compute            // null since should_compute is false
+```
+
+```tql
+{
+  performance: "good",
+  should_compute: false,
+  bonus: null,
+  result: null,
+}
 ```
 
 ### Standalone `else`
