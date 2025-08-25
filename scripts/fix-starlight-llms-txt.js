@@ -37,7 +37,7 @@ if (existsSync(pnpmDir)) {
       if (existsSync(targetPath)) {
         try {
           unlinkSync(targetPath);
-        } catch (e) {
+        } catch {
           // Ignore errors
         }
       }
@@ -54,16 +54,16 @@ if (existsSync(pnpmDir)) {
 
       try {
         symlinkSync(relativePath, targetPath, "dir");
-        console.log("✓ Fixed starlight-llms-txt symlink");
+        // Successfully fixed symlink
 
         // Install dependencies for the fork
         const { execSync } = await import("child_process");
-        console.log("Installing dependencies for starlight-llms-txt fork...");
+        // Installing dependencies for fork
         execSync("pnpm install", {
           cwd: actualPackagePath,
           stdio: "inherit",
         });
-        console.log("✓ Dependencies installed for starlight-llms-txt");
+        // Dependencies installed successfully
       } catch (error) {
         console.error(
           "Failed to create symlink or install dependencies:",
@@ -72,11 +72,11 @@ if (existsSync(pnpmDir)) {
         process.exit(1);
       }
     } else {
-      console.log("starlight-llms-txt package not found in expected location");
+      console.warn("starlight-llms-txt package not found in expected location");
     }
   } else {
-    console.log("starlight-llms-txt-monorepo not found in node_modules/.pnpm");
+    console.warn("starlight-llms-txt-monorepo not found in node_modules/.pnpm");
   }
 } else {
-  console.log("No .pnpm directory found - skipping symlink fix");
+  // No .pnpm directory found - skipping symlink fix
 }
