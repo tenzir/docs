@@ -90,6 +90,8 @@ export default defineConfig({
         starlightLlmsTxt({
           projectName: "Tenzir",
           description: "The low-code data pipeline solution for security teams",
+          generatePageMarkdown: true,
+          markdownFilePattern: "replace",
           customSets: [
             {
               label: "Reference",
