@@ -6,6 +6,18 @@ Unreleased changes.
 
 ### Features
 
+#### `from_azure_blob_storage` operator
+
+The new `from_azure_blob_storage` operator works similarly to `from_file` but
+supports additional Azure Blob Storage specific options.
+
+For example, you can set the `account_key`:
+```tql
+from_azure_blob_storage "abfs://container/data/*.csv", account_key="your-account-key"
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5429](https://github.com/tenzir/tenzir/pull/5429).
+
 #### Dynamic `namespace` and retry logic for `to_google_secops`
 
 The `to_google_secops` operator now retries requests which fail with a `5XX` or
