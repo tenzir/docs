@@ -289,7 +289,7 @@ where risk_score > 0.8          // What does 0.8 mean?
 
 ## Record constants and mappings
 
-### Use record constants for mappings instead of complex if-else chains
+### Use record constants for mappings instead of if-else chains
 
 ✅ Clean record-based mappings with else fallback:
 
@@ -357,6 +357,36 @@ if activity_id == 1 {
 } else if activity_id == 3 {
   activity_name = "Get"
 } // ... many more conditions
+```
+
+❌ Inline nested if-else expressions are especially problematic:
+
+```tql
+// TERRIBLE: Unreadable chain of inline conditionals
+activity_id = 3 if method == "GET" else 6 if method == "POST" else 7 if method == "PUT" else 2 if method == "DELETE" else 99
+
+// AWFUL: Complex nested logic impossible to follow
+severity_level = "critical" if score > 90 else "high" if score > 70 else "medium" if score > 50 else "low" if score > 30 else "info"
+
+// UNMAINTAINABLE: Mixed logic with nested conditions
+result = "blocked" if is_malicious else "allowed" if is_trusted else "quarantine" if risk > 0.8 else "review" if risk > 0.5 else "log"
+```
+
+These inline chains are a serious anti-pattern because:
+
+- **Unreadable**: Eyes can't parse the logic flow easily
+- **Error-prone**: Easy to mix up conditions and values
+- **Unmaintainable**: Adding/removing conditions requires rewriting the entire expression
+- **Debugging nightmare**: Can't set breakpoints or log intermediate values
+- **Performance issues**: Every condition is evaluated sequentially
+
+✅ Always use record constants instead:
+
+```tql
+// Clean, maintainable lookups with record indexing
+activity_id = $http_methods[method]? else 99
+activity_name = $activity_names[activity_id]? else "Other"
+disposition = $dispositions[action]? else {id: 0, name: "Unknown"}
 ```
 
 The `else` keyword provides a fallback value when:
