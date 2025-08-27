@@ -35,6 +35,11 @@ export const guides = [
     ],
   },
   {
+    label: "MCP Setup",
+    collapsed: true,
+    items: ["guides/mcp-setup/install-mcp-server"],
+  },
+  {
     label: "Basic Usage",
     items: [
       "guides/basic-usage/run-pipelines",
@@ -159,6 +164,10 @@ export const reference = [
   {
     label: "Functions",
     link: "reference/functions",
+  },
+  {
+    label: "MCP Server",
+    link: "reference/mcp-server",
   },
   {
     label: "Node",
