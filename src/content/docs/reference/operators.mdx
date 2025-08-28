@@ -351,6 +351,10 @@ operators:
     description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
     path: 'reference/operators/from_opensearch'
+  - name: 'from_s3'
+    description: 'Reads one or multiple files from Amazon S3.'
+    example: 'from_s3 "s3://my-bucket/data/**.json"'
+    path: 'reference/operators/from_s3'
   - name: 'from_udp'
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'from_udp "0.0.0.0:8090"'
@@ -2124,6 +2128,14 @@ from_http "0.0.0.0:8080"
 
 ```tql
 from_opensearch
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_s3" description="Reads one or multiple files from Amazon S3." href="/reference/operators/from_s3">
+
+```tql
+from_s3 "s3://my-bucket/data/**.json"
 ```
 
 </ReferenceCard>
