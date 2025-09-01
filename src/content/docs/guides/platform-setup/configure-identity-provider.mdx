@@ -179,27 +179,33 @@ Follow these steps to create the required resources:
 
 ![Enable public client flows](./configure-identity-provider/entra-oidc-cli-public-client-flows.png)
 
-5. Create a second registration named `Tenzir UI`.
+5. If you plan to use the client credentials flow for non-interactive CLI usage, you'll need to configure additional settings for the CLI registration:
+   - Navigate to "Expose an API" and add an Application ID URI (you can use the suggested default value)
+   - Add a scope under "Scopes defined by this API" (e.g., `user_access`) - this is required for Entra ID to work properly with client credentials flow
+
+![Expose API Configuration](./configure-identity-provider/entra-oidc-expose-api.png)
+
+6. Create a second registration named `Tenzir UI`.
 
 ![Register UI](./configure-identity-provider/entra-oidc-register-ui.png)
 
-6. For this registration, open "Certificates & Secrets".
+7. For this registration, open "Certificates & Secrets".
 
 ![Navigate Secrets](./configure-identity-provider/entra-oidc-create-secret-1.png)
 
-7. Create a new secret and give it a descriptive name.
+8. Create a new secret and give it a descriptive name.
 
 ![Create Secret](./configure-identity-provider/entra-oidc-create-secret-2.png)
 
-8. Make a local copy of the secret value.
+9. Make a local copy of the secret value.
 
 ![Copy Secret](./configure-identity-provider/entra-oidc-copy-secret.png)
 
-9. Copy the client id to your local machine.
+10. Copy the client id to your local machine.
 
 ![Copy Client ID](./configure-identity-provider/entra-oidc-client-id.png)
 
-10. Copy the issuer url to your local machine.
+11. Copy the issuer url to your local machine.
 
 ![Copy Issuer URL](./configure-identity-provider/entra-oidc-issuer-url.png)
 
@@ -216,7 +222,7 @@ TENZIR_PLATFORM_OIDC_CLI_CLIENT_ID=082a9391-b645-4278-a16e-3cf54fb1bcf0
 TENZIR_PLATFORM_OIDC_APP_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TENZIR_PLATFORM_OIDC_APP_CLIENT_ID=d8ea5612-6745-47bc-b9fe-5024b1ca18fe
 
-# The issuer url copied in step 10.
+# The issuer url copied in step 11.
 TENZIR_PLATFORM_OIDC_PROVIDER_ISSUER_URL=https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://login.microsoftonline.com/40431729-d276-4582-abb4-01e21c8b58fe/v2.0","audiences": ["d8ea5612-6745-47bc-b9fe-5024b1ca18fe", "082a9391-b645-4278-a16e-3cf54fb1bcf0"]}'
 ```
