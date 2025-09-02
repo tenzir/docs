@@ -179,32 +179,27 @@ Follow these steps to create the required resources:
 
 ![Enable public client flows](./configure-identity-provider/entra-oidc-cli-public-client-flows.png)
 
-5. If you plan to use the client credentials flow for non-interactive CLI usage, you'll need to configure additional settings for the CLI registration:
-   - Navigate to "Expose an API" and add an Application ID URI (you can use the suggested default value)
-
-![Expose API Configuration](./configure-identity-provider/entra-oidc-expose-api.png)
-
-6. Create a second registration named `Tenzir UI`.
+5. Create a second registration named `Tenzir UI`.
 
 ![Register UI](./configure-identity-provider/entra-oidc-register-ui.png)
 
-7. For this registration, open "Certificates & Secrets".
+6. For this registration, open "Certificates & Secrets".
 
 ![Navigate Secrets](./configure-identity-provider/entra-oidc-create-secret-1.png)
 
-8. Create a new secret and give it a descriptive name.
+7. Create a new secret and give it a descriptive name.
 
 ![Create Secret](./configure-identity-provider/entra-oidc-create-secret-2.png)
 
-9. Make a local copy of the secret value.
+8. Make a local copy of the secret value.
 
 ![Copy Secret](./configure-identity-provider/entra-oidc-copy-secret.png)
 
-10. Copy the client id to your local machine.
+9. Copy the client id to your local machine.
 
 ![Copy Client ID](./configure-identity-provider/entra-oidc-client-id.png)
 
-11. Copy the issuer url to your local machine.
+10. Copy the issuer url to your local machine.
 
 ![Copy Issuer URL](./configure-identity-provider/entra-oidc-issuer-url.png)
 
@@ -227,6 +222,20 @@ TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://login.microsoftonlin
 ```
 
 Now you can restart your Tenzir Platform stack and the system will redirect you to a Microsoft login page when you next log in to the Tenzir UI.
+
+### Additional Configuration for Client Credentials Flow (Optional)
+
+If you plan to use the client credentials flow for non-interactive CLI usage, you need to configure additional settings for the CLI registration created in step 3:
+
+11. Navigate to "Expose an API" and add an Application ID URI (you can use the suggested default value).
+
+![Expose API Configuration](./configure-identity-provider/entra-oidc-expose-api.png)
+
+12. Navigate to "Manifest" and update the `requestedAccessTokenVersion` to `2` in the JSON manifest, then save the changes.
+
+![Update Access Token Version](./configure-identity-provider/entra-oidc-client-api-version.png)
+
+13. When using the client credentials flow with this registration, you must override the scope by setting `TENZIR_PLATFORM_CLI_SCOPE` to `${APPLICATION_ID_URL}/.default`, where `${APPLICATION_ID_URL}` is the Application ID URI you configured in step 11.
 
 ## Single-user Mode
 
