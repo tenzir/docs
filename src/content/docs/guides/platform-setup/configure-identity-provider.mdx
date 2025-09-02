@@ -223,6 +223,20 @@ TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES='{"issuer": "https://login.microsoftonlin
 
 Now you can restart your Tenzir Platform stack and the system will redirect you to a Microsoft login page when you next log in to the Tenzir UI.
 
+### Additional Configuration for Client Credentials Flow (Optional)
+
+If you plan to use the client credentials flow for non-interactive CLI usage, you need to configure additional settings for the CLI registration created in step 3:
+
+11. Navigate to "Expose an API" and add an Application ID URI (you can use the suggested default value).
+
+![Expose API Configuration](./configure-identity-provider/entra-oidc-expose-api.png)
+
+12. Navigate to "Manifest" and update the `requestedAccessTokenVersion` to `2` in the JSON manifest, then save the changes.
+
+![Update Access Token Version](./configure-identity-provider/entra-oidc-client-api-version.png)
+
+13. When using the client credentials flow with this registration, you must override the scope by setting `TENZIR_PLATFORM_CLI_SCOPE` to `${APPLICATION_ID_URL}/.default`, where `${APPLICATION_ID_URL}` is the Application ID URI you configured in step 11.
+
 ## Single-user Mode
 
 In some scenarios handling multiple users is not necessary for the Tenzir
