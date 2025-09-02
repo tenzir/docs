@@ -16,6 +16,13 @@ package from PyPI.
 pip install tenzir-platform
 ```
 
+## Global Options
+
+The following options are available for all `tenzir-platform` commands:
+
+- `-v, --verbose`: Enable verbose logging for additional error information and
+  debugging output.
+
 ## Environment Variable Configuration
 
 The Tenzir Platform CLI supports several environment variables to configure
@@ -48,6 +55,14 @@ for the CLI share the prefix `TENZIR_PLATFORM_CLI_`.
 
 - `TENZIR_PLATFORM_CLI_ID_TOKEN`: If provided, skip the login workflow
   completely and use this token for authentication.
+
+- `TENZIR_PLATFORM_CLI_AUDIENCE`: Override the OIDC audience parameter.
+  Defaults to the client ID. Required for non-interactive logins with some
+  identity providers like Microsoft Entra.
+
+- `TENZIR_PLATFORM_CLI_SCOPE`: Override the default OIDC scopes. Defaults to
+  `openid email` for device code flow and `openid` for client credentials flow.
+  Use this to customize the requested permissions during authentication.
 
 ## Authentication
 
