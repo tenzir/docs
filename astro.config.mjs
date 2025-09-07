@@ -86,6 +86,23 @@ export default defineConfig({
         MobileMenuToggle: "./src/components/MobileMenuToggle.astro",
       },
       routeMiddleware: "./src/routeData.ts",
+      pagefind: {
+        // See https://pagefind.app/docs/ranking/ for details to tune the ranking.
+        // We are tuning the defaults to better accomodate the needs of our
+        // documentation structure. In particular, the reference should trump
+        // guides, tutorials, and explanations. That is, exact term matches
+        // always.
+        ranking: {
+          // No low pageLength to avoid suppressing shorter pages.
+          pageLength: 0.5, // default: 0.1
+          // Keep termFrequency low to avoid boosting longer documents.
+          termFrequency: 0.1, // default: 0.1
+          // Saturate more quickly.
+          termSaturation: 0.5, // default: 2
+          // Similarity should dominate the search result.
+          termSimilarity: 9, // default: 9
+        },
+      },
       plugins: [
         starlightLlmsTxt({
           projectName: "Tenzir",
