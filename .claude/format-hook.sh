@@ -28,8 +28,8 @@ if [[ "$FILE_PATH" =~ \.(md|mdx|mdoc)$ ]]; then
     fi
 fi
 
-# Run prettier on all supported files
-if [[ "$FILE_PATH" =~ \.(md|mdx|mdoc|js|jsx|ts|tsx|astro|json|yaml|yml)$ ]]; then
+# Run prettier on all supported files (excluding .astro due to plugin bug)
+if [[ "$FILE_PATH" =~ \.(md|mdx|mdoc|js|jsx|ts|tsx|json|yaml|yml)$ ]]; then
     if command -v prettier &> /dev/null; then
         prettier --write "$FILE_PATH"
     else
