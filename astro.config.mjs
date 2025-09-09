@@ -93,13 +93,9 @@ export default defineConfig({
         // guides, tutorials, and explanations. That is, exact term matches
         // always.
         ranking: {
-          // No low pageLength to avoid suppressing shorter pages.
-          pageLength: 0.5, // default: 0.1
-          // Keep termFrequency low to avoid boosting longer documents.
+          pageLength: 0.1, // default: 0.1
           termFrequency: 0.1, // default: 0.1
-          // Saturate more quickly.
-          termSaturation: 0.5, // default: 2
-          // Similarity should dominate the search result.
+          termSaturation: 0.1, // default: 2
           termSimilarity: 9, // default: 9
         },
       },
