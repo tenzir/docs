@@ -8,10 +8,10 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
-import inlineSVGs from "./astro-inline-svgs.mjs";
 import markdoc from "@astrojs/markdoc";
 import { topics } from "./src/topics";
 import { bundledLanguages } from "shiki";
+import inlineSVGs from "./src/utils/inline-svgs.mjs";
 import { generateRedirects } from "./src/utils/redirects.mjs";
 import {
   nodeAPISidebarGroup,
