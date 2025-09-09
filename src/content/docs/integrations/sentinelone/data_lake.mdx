@@ -1,0 +1,67 @@
+---
+title: SentinelOne Data Lake
+---
+
+[SentinelOne](https://www.sentinelone.com) is a cybersecurity platform that
+provides endpoint protection and threat detection. The SentinelOne Singularity
+Data Lake allows you to store and analyze security events at scale. Tenzir can
+send structured security events to the SentinelOne Data Lake via its REST API.
+
+
+## OCSF Event Support
+
+The operator provides special handling for [OCSF](https://ocsf.io/) (Open
+Cybersecurity Schema Framework) events. If it detects the event is an OCSF
+event, it will automatically set the special
+
+## Examples
+
+### Send security events to SentinelOne Data Lake
+
+To send security events from a pipeline to SentinelOne Data Lake, use the
+[`to_sentinelone_data_lake`](/reference/operators/to_sentinelone_data_lake)
+operator.
+
+For example, to forward [Suricata](/integrations/suricata) alerts to SentinelOne
+Data Lake:
+
+```tql
+subscribe "suricata"
+where @name == "suricata.alert"
+to_sentinelone_data_lake "https://xdr.us1.sentinelone.net",
+  bearer_token=secret("sentinelone-token")
+```
+
+Replace `https://xdr.us1.sentinelone.net` with your SentinelOne Data Lake console
+URL and configure the `sentinelone-token` secret with your bearer token.
+
+### Send events with additional session information
+
+You can include additional session information that identifies the source of the
+events:
+
+```tql
+subscribe "network-events"
+to_sentinelone_data_lake "https://xdr.us1.sentinelone.net",
+  bearer_token=secret("sentinelone-token"),
+  session_info={
+    serverHost: "Tenzir Node 01",
+    serverType: "Tenzir Node",
+    region: "US East"
+  }
+```
+
+### Send OCSF events
+
+In this case, the operator will automatically set the `ts` and `sev` fields on
+the events;
+
+```tql
+from_file "security-events.json"
+parse_json
+where ocsf.severity_id >= 4  // High and Critical events only
+ocsf::derive // Ensure that `severity_id` exists
+to_sentinelone_data_lake "https://xdr.us1.sentinelone.net",
+  bearer_token=secret("sentinelone-token"),
+  session_info={serverHost: "Security Gateway"}
+```

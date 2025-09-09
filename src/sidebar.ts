@@ -213,6 +213,12 @@ export const integrations = [
     ],
   },
   {
+    label: "SentinelOne",
+    items: [
+      "integrations/sentinelone/data_lake",
+    ],
+  },
+  {
     label: "Message Brokers",
     items: [
       "integrations/amqp",
