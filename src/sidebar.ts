@@ -213,12 +213,6 @@ export const integrations = [
     ],
   },
   {
-    label: "SentinelOne",
-    items: [
-      "integrations/sentinelone/data_lake",
-    ],
-  },
-  {
     label: "Message Brokers",
     items: [
       "integrations/amqp",
@@ -254,6 +248,7 @@ export const integrations = [
   {
     label: "Security Tools",
     items: [
+      "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
