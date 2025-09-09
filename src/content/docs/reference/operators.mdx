@@ -695,6 +695,10 @@ operators:
     description: 'Writes events to a URI using hive partitioning.'
     example: 'to_hive "s3://…", partition_by=[x]'
     path: 'reference/operators/to_hive'
+  - name: 'to_kafka'
+    description: 'Sends messages to an Apache Kafka topic.'
+    example: 'to_kafka "topic", message=this.print_json()'
+    path: 'reference/operators/to_kafka'
   - name: 'to_opensearch'
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
@@ -2430,6 +2434,14 @@ to_google_secops …
 
 ```tql
 to_hive "s3://…", partition_by=[x]
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
+
+```tql
+to_kafka "topic", message=this.print_json()
 ```
 
 </ReferenceCard>
