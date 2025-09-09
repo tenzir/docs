@@ -8,10 +8,10 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
-import inlineSVGs from "./astro-inline-svgs.mjs";
 import markdoc from "@astrojs/markdoc";
 import { topics } from "./src/topics";
 import { bundledLanguages } from "shiki";
+import inlineSVGs from "./src/utils/inline-svgs.mjs";
 import { generateRedirects } from "./src/utils/redirects.mjs";
 import {
   nodeAPISidebarGroup,
@@ -86,6 +86,19 @@ export default defineConfig({
         MobileMenuToggle: "./src/components/MobileMenuToggle.astro",
       },
       routeMiddleware: "./src/routeData.ts",
+      pagefind: {
+        // See https://pagefind.app/docs/ranking/ for details to tune the ranking.
+        // We are tuning the defaults to better accomodate the needs of our
+        // documentation structure. In particular, the reference should trump
+        // guides, tutorials, and explanations. That is, exact term matches
+        // always.
+        ranking: {
+          pageLength: 0.1, // default: 0.1
+          termFrequency: 0.1, // default: 0.1
+          termSaturation: 0.1, // default: 2
+          termSimilarity: 9, // default: 9
+        },
+      },
       plugins: [
         starlightLlmsTxt({
           projectName: "Tenzir",
