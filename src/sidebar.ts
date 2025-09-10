@@ -248,6 +248,7 @@ export const integrations = [
   {
     label: "Security Tools",
     items: [
+      "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
