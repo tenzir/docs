@@ -26,7 +26,7 @@ operator:
 subscribe "suricata"
 where @name == "suricata.alert"
 to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
-  bearer_token=secret("SENTINELONE_TOKEN")
+  token=secret("SENTINELONE_TOKEN")
 ```
 
 Replace `https://ingest.eu1.sentinelone.net` with your conigured SentinelOne
@@ -41,7 +41,7 @@ events:
 ```tql
 subscribe "network-events"
 to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
-  bearer_token=secret("SENTINELONE_TOKEN"),
+  token=secret("SENTINELONE_TOKEN"),
   session_info={
     serverHost: "Tenzir Node 01",
     serverType: "Tenzir Node",
@@ -59,6 +59,36 @@ Lake fields `ts` and `sev`:
 subscribe "ocsf"
 where severity_id >= 4  // High and Critical events only
 to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
-  bearer_token=secret("SENTINELONE_TOKEN"),
+  token=secret("SENTINELONE_TOKEN"),
   session_info={serverHost: "Security Gateway"}
 ```
+
+### Send unstructured data
+
+You can also use the operator to send unstructured data and let SentinelOne parse
+it. Simply give the operator a `message` field as input and specify a `parser`
+in the `session_info` argument:
+
+```tql
+select message = this.print_ndjson();         // Format the entire event as JSON
+to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
+  token=secret("sentinelone-token"),
+  session_info={
+    serverHost: "Node 42",
+    parser: "json",                           // Have SentinelOne parse the data
+  }
+```
+
+In this example, we are formatting the entire event as JSON and sending it
+as the message field. The SentinelOne `json` parser will then parse the event
+again.
+
+:::info[Ingest Costs]
+SentinelOne charges per ingested byte in any value, including the unstructured
+`message`. This means SentinelOne charges for keys, structural elements and
+whitespace in `message`.
+
+If you already have structured data in Tenzir, prefer sending structured data.
+SentinelOne will only charge for the values, one byte per key and nothing for
+the requests structure.
+:::
