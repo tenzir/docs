@@ -30,6 +30,21 @@ to_kafka "metrics", message=alert_msg, key="server-01"
 
 By [@raxyte](https://github.com/raxyte) in [#5460](https://github.com/tenzir/tenzir/pull/5460).
 
+#### SentinelOne Singularity Data Lake Integration
+
+We have added an integration for the SentinelOne Singularity™ Data Lake!
+
+The new `to_sentinelone_data_lake` operator allows you to easily send structured
+and unstructured events to the data lake:
+
+```tql
+subscribe "sentinelone-data-lake"
+to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
+  token=secret("sentinelone-token")
+```
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5455](https://github.com/tenzir/tenzir/pull/5455).
+
 #### `insert_separator` option for `load_zmq`
 
 The `load_zmq` operator now supports an optional `insert_separator` parameter to append
