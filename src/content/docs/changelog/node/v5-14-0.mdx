@@ -1,0 +1,77 @@
+---
+title: SentinelOne Data Lake
+sidebar:
+  badge:
+    text: v5.14.0
+    variant: success
+---
+
+This release introduces an integration fo SentinelOne Singularity™ Data Lake and a new message based `to_kafka` operator that features a one to one event to message relation.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.14.0).
+
+### Features
+
+#### Send data to Kafka topics with `to_kafka`
+
+The new `to_kafka` operator allows you to send one Kafka message per event,
+making it easier to integrate Tenzir with tools that rely on the 1:1 correlation
+between messages and events.
+
+**Examples**
+
+Use `to_kafka` to send JSON events to a topic:
+
+```tql
+subscribe "logs"
+to_kafka "events", message=this.print_json()
+```
+
+Send specific field values with custom keys for partitioning:
+
+```tql
+subscribe "alerts"
+to_kafka "metrics", message=alert_msg, key="server-01"
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5460](https://github.com/tenzir/tenzir/pull/5460).
+
+#### SentinelOne Singularity Data Lake Integration
+
+We have added an integration for the SentinelOne Singularity™ Data Lake!
+
+The new `to_sentinelone_data_lake` operator allows you to easily send structured
+and unstructured events to the data lake:
+
+```tql
+subscribe "sentinelone-data-lake"
+to_sentinelone_data_lake "https://ingest.eu1.sentinelone.net",
+  token=secret("sentinelone-token")
+```
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5455](https://github.com/tenzir/tenzir/pull/5455).
+
+#### `insert_separator` option for `load_zmq`
+
+The `load_zmq` operator now supports an optional `insert_separator` parameter to append
+a custom string to each received ZeroMQ message. This enables better message
+separation and parsing for downstream operators.
+
+By [@raxyte](https://github.com/raxyte) in [#5456](https://github.com/tenzir/tenzir/pull/5456).
+
+### Changes
+
+#### Use UUIDv7 for file naming in `to_hive` operator
+
+The `to_hive` operator now uses UUIDv7 instead of consecutive numbers for file naming within partitions. This change provides guaranteed uniqueness across concurrent processes and natural time-based ordering of files, preventing filename conflicts when multiple processes write to the same partition simultaneously.
+
+Example output paths changed from:
+- `/partition/1.json`
+- `/partition/2.json`
+To:
+- `/partition/01234567-89ab-cdef-0123-456789abcdef.json`
+- `/partition/01234568-cd01-2345-6789-abcdef012345.json`
+
+UUIDv7 combines the benefits of timestamp-based ordering with collision resistance, making it ideal for distributed data processing scenarios.
+
+By [@jachris](https://github.com/jachris) in [#5464](https://github.com/tenzir/tenzir/pull/5464).
