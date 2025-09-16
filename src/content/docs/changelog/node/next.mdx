@@ -6,6 +6,41 @@ Unreleased changes.
 
 ### Features
 
+#### Grouped enumeration
+
+The `enumerate` operator now supports a `group` option to enumerate events
+separately based on a value.
+
+For example, to have a field act as a counter for a value, use the following
+pipeline:
+
+```tql
+from {x: 1}, {x: 2}, {x: "1"}, {x: 2}
+enumerate count, group=x
+count = count + 1
+```
+
+```tql
+{
+  count: 1,
+  x: 1,
+}
+{
+  count: 1,
+  x: 2,
+}
+{
+  count: 1,
+  x: "1",
+}
+{
+  count: 2,
+  x: 2,
+}
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5475](https://github.com/tenzir/tenzir/pull/5475).
+
 #### Lambdas in `map` and `where` can capture surrounding fields
 
 Lambda expressions in the `map` and `where` functions can now capture and access fields from
