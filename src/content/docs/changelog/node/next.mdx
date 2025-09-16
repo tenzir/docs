@@ -78,10 +78,36 @@ ports = ports.map(p => {host: host, port: p})
 
 By [@raxyte](https://github.com/raxyte) in [#5457](https://github.com/tenzir/tenzir/pull/5457).
 
+#### Octet Counting in `read_syslog`
+
+We have added a new option `octet_counting` to the `read_syslog` operator.
+Enabling this option will determine messages boundaries according to [RFC6587](https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1)
+instead of our heuristic.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5472](https://github.com/tenzir/tenzir/pull/5472).
+
 ### Changes
+
+#### Dedicated Syslog Schema Names
+
+The `read_syslog` operator now produces dedicated schemas `syslog.rfc5425`,
+`syslog.rfc3164` and `syslog.unknown` instead of an unspecific `tenzir.syslog`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5472](https://github.com/tenzir/tenzir/pull/5472).
 
 #### Keep zeek TSV logs as-is in `read_zeek_tsv`
 
 Parsing Zeek TSV logs no longer attempts to cast the parsed events to a shipped Zeek schema.
 
 By [@tobim](https://github.com/tobim) in [#5461](https://github.com/tenzir/tenzir/pull/5461).
+
+### Bug Fixes
+
+#### Improved Syslog Output Schema
+
+We have improved our `read_syslog` operator and `parse_syslog`
+function. They no longer re-order fields if the syslog format
+changes mid-stream and produce correctly typed null values for
+the special `-` value.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5472](https://github.com/tenzir/tenzir/pull/5472).
