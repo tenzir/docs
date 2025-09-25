@@ -4,6 +4,16 @@ title: Next
 
 Unreleased changes.
 
+### Changes
+
+#### Better defaults for `load_kafka`
+
+The `load_kafka` operators previously used `offset="end"` as the default, which
+meant that it always started from the end of the topic. This default was now
+changed to `"stored"`, such that the previously commited offset is used instead.
+
+By [@jachris](https://github.com/jachris) in [#5485](https://github.com/tenzir/tenzir/pull/5485).
+
 ### Bug Fixes
 
 #### `session_name` and `external_id` in `aws_iam` options
