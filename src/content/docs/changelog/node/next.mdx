@@ -23,6 +23,24 @@ By [@jachris](https://github.com/jachris) in [#5485](https://github.com/tenzir/t
 
 ### Bug Fixes
 
+#### Pipeline execution under high loads
+
+Previously, the execution of certain pipelines under high load scenarios could
+lead to general unresponsiveness. In extreme cases, this meant that the platform
+wasn't able to reach the node. This issue has now been resolved, leading to a
+more reliable and responsive experience.
+
+By [@jachris](https://github.com/jachris) in [#5486](https://github.com/tenzir/tenzir/pull/5486).
+
+#### API request isolation
+
+Requests to the `/pipeline` API are now properly isolated and sequentialized.
+Before, it could happen that certain requests that should not be executed
+concurrently were interleaved. This could lead to unpredictable results when
+interacting with pipelines through the platform.
+
+By [@jachris](https://github.com/jachris) in [#5486](https://github.com/tenzir/tenzir/pull/5486).
+
 #### `session_name` and `external_id` in `aws_iam` options
 
 The `load_kafka`, `save_kafka` and `to_kafka` operators now accept configuring
