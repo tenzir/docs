@@ -343,6 +343,10 @@ operators:
     description: 'Receives events via Fluent Bit.'
     example: 'from_fluent_bit "opentelemetry"'
     path: 'reference/operators/from_fluent_bit'
+  - name: 'from_gcs'
+    description: 'Reads one or multiple files from Google Cloud Storage.'
+    example: 'from_gcs "gs://my-bucket/data/**.json"'
+    path: 'reference/operators/from_gcs'
   - name: 'from_http'
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
@@ -2108,6 +2112,14 @@ from_file "s3://data/**.json"
 
 ```tql
 from_fluent_bit "opentelemetry"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_gcs" description="Reads one or multiple files from Google Cloud Storage." href="/reference/operators/from_gcs">
+
+```tql
+from_gcs "gs://my-bucket/data/**.json"
 ```
 
 </ReferenceCard>
