@@ -1,0 +1,264 @@
+---
+title: Test Framework
+---
+
+The [`tenzir-test`](https://github.com/tenzir/test) harness discovers and runs
+integration tests for pipelines, fixtures, and custom runners. Use this page as
+a reference for concepts, configuration, and CLI details. For step-by-step
+walkthroughs, see the guides for [writing tests](/guides/testing/write-tests),
+[creating fixtures](/guides/testing/create-fixtures), and
+[adding custom runners](/guides/testing/add-custom-runners).
+
+## Install
+
+`tenzir-test` ships as a Python package that requires Python 3.12 or later.
+Install it with [`uv`](https://docs.astral.sh/uv/) (or `pip`) and verify the
+console script:
+
+```sh
+uv add tenzir-test
+uvx tenzir-test --help
+```
+
+## Core concepts
+
+- **Project root** – Directory passed to `--root`; typically contains
+  `fixtures/`, `inputs/`, `runners/`, and `tests/`.
+- **Mode** – Auto-detected as _project_ or _package_. A `package.yaml` in the
+  current directory (or its parent when you run from `<package>/tests`) switches
+  to package mode.
+- **Test** – Any supported file under `tests/`; frontmatter controls execution.
+- **Runner** – Named strategy that executes a test (`tenzir`, `python`, custom
+  entries).
+- **Fixture** – Reusable environment provider registered under `fixtures/` and
+  requested via frontmatter.
+- **Input** – Data accessed with `TENZIR_INPUTS` (usually under `inputs/`).
+- **Artifact / Baseline** – Runner output persisted next to the test; regenerate
+  with `--update`.
+- **Configuration sources** – Frontmatter plus inherited `test.yaml` files;
+  `tenzir.yaml` still configures the Tenzir binary.
+
+A typical project layout looks like this:
+
+```text
+project-root/
+├── fixtures/
+│   └── __init__.py
+├── inputs/
+│   └── sample.ndjson
+├── runners/
+│   └── __init__.py
+└── tests/
+    ├── alerts/
+    │   ├── sample.tql
+    │   └── sample.txt
+    └── python/
+        └── quick-check.py
+```
+
+For a package layout (with `package.yaml`), the structure may look like:
+
+```text
+my-package/
+├── package.yaml
+├── operators/
+│   └── custom-op.tql
+├── pipelines/
+│   └── smoke.tql
+└── tests/
+    ├── inputs/
+    │   └── sample.ndjson
+    ├── fixtures/
+    │   └── __init__.py
+    ├── runners/
+    │   └── __init__.py
+    └── pipelines/
+        ├── custom-op.tql
+        └── custom-op.txt
+```
+
+## Execution modes and packages
+
+- The harness treats `--root` as the project root. If that directory (or its
+  parent when named `tests`) contains `package.yaml`, `tenzir-test` switches to
+  **package mode** and exposes:
+  - `TENZIR_PACKAGE_ROOT` – Absolute package directory.
+  - `TENZIR_INPUTS` – `<package>/tests/inputs/`.
+  - `--package-dirs=<package>` – Passed automatically to the `tenzir` binary.
+- Without a manifest the harness stays in **project mode**, recursively discovers
+  tests under `tests/`, and applies global fixtures, runners, and inputs.
+
+## CLI reference
+
+Run the suite from the project root:
+
+```sh
+uvx tenzir-test
+```
+
+Useful options:
+
+- `--tenzir-binary /path/to/tenzir`: Override binary lookup.
+- `--tenzir-node-binary /path/to/tenzir-node`: Override node binary path.
+- `--update`: Rewrite reference artifacts next to each test.
+- `--purge`: Remove generated artifacts (diffs, text outputs) from previous
+  runs.
+- `--jobs N`: Control concurrency (`4 * CPU cores` by default).
+- `--coverage` and `--coverage-source-dir`: Enable LLVM coverage.
+- `--log-comparisons`: Log comparison targets (also via
+  `TENZIR_TEST_LOG_COMPARISONS=1`).
+
+Run a subset of tests:
+
+```sh
+uvx tenzir-test tests/alerts/high-severity.tql
+```
+
+To regenerate baselines while targeting a specific binary and project root:
+
+```sh
+TENZIR_BINARY=/opt/tenzir/bin/tenzir \
+TENZIR_NODE_BINARY=/opt/tenzir/bin/tenzir-node \
+uvx tenzir-test --root tests --update
+```
+
+## Runners
+
+| Runner   | Command/behaviour                      | Input extension | Artifact | Purpose                                     |
+| -------- | -------------------------------------- | --------------- | -------- | ------------------------------------------- |
+| `tenzir` | `tenzir -f <test>`                     | `.tql`          | `.txt`   | Evaluate pipelines and capture stdout.      |
+| `python` | Execute with the active Python runtime | `.py`           | `.txt`   | Run Python-based tests that emit baselines. |
+| `custom` | `sh -eu <test>` via the harness helper | `.sh`           | varies   | Drive shell-based scenarios with fixtures.  |
+
+Selection flow:
+
+1. The harness chooses the first registered runner that claimed the file
+   extension.
+2. Default suffix mapping applies when no runner explicitly claims an extension:
+   `.tql → tenzir`, `.py → python`, other suffixes fall back to `tenzir`.
+3. A `runner: <name>` frontmatter entry overrides the automatic choice.
+
+Register custom runners in `runners/__init__.py` via
+`tenzir_test.runners.register()` or the `@tenzir_test.runners.startup()`
+decorator. Use `replace=True` to override a bundled runner or
+`register_alias()` to publish alternate names. The [runner guide](/guides/testing/add-custom-runners)
+contains a full example (`XxdRunner`).
+
+## Configuration and frontmatter
+
+`tenzir-test` merges configuration sources in this order (later wins):
+
+1. Project defaults (`test.yaml` files, applied per directory).
+2. Per-test frontmatter (YAML for `.tql`/`.xxd`, `# key: value` comments for
+   Python files).
+
+Common frontmatter keys:
+
+| Key        | Type            | Default   | Description                                            |
+| ---------- | --------------- | --------- | ------------------------------------------------------ |
+| `runner`   | string          | by suffix | Runner name (`tenzir`, `python`, custom).              |
+| `fixtures` | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.  |
+| `timeout`  | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.) |
+| `error`    | boolean         | `false`   | Expect a non-zero exit code.                           |
+| `skip`     | string          | unset     | Mark the test as skipped (reason required).            |
+
+`test.yaml` files accept the same keys and apply recursively to child
+directories. Adjacent `tenzir.yaml` files still configure the Tenzir binary; the
+harness appends `--config=<file>` automatically.
+
+## Fixtures
+
+### Declaring fixtures
+
+- List fixture names in frontmatter (`fixtures: [node, http]`).
+- The harness encodes requests in `TENZIR_TEST_FIXTURES` and exposes helper APIs
+  in `tenzir_test.fixtures`:
+  - `requested()` – Read-only view of active fixtures.
+  - `require("name")` – Assert that a fixture was requested.
+  - `Executor()` – Convenience wrapper that runs Tenzir commands with resolved
+    binaries and timeout budget.
+
+Example use from a Python helper:
+
+```python
+from tenzir_test.fixtures import Executor
+
+executor = Executor()
+result = executor.run("from_file 'inputs/events.ndjson' | where severity >= 5\n")
+assert result.returncode == 0
+```
+
+### Registering fixtures
+
+Implement fixtures in `fixtures/` and register them with decorators:
+
+- `@tenzir_test.startup()` (or `@startup(replace=True)`) – Run before the test.
+  Return a mapping of environment variables for the test process.
+- `@tenzir_test.teardown()` – Receive the environment mapping and perform
+  cleanup.
+- Fixtures can also return `FixtureHandle` objects to bundle teardown logic.
+
+The [fixture guide](/guides/testing/create-fixtures) demonstrates an HTTP echo
+server that exposes `HTTP_FIXTURE_URL` and tears down cleanly. When your fixture
+needs the built-in node, call `fixtures.require("node")` to fail fast.
+
+### Built-in `node` fixture
+
+- Available as `fixtures: [node]`.
+- Starts a transient `tenzir-node`, exposes:
+  - `TENZIR_NODE_CLIENT_BINARY`
+  - `TENZIR_NODE_CLIENT_ENDPOINT`
+  - `TENZIR_NODE_CLIENT_TIMEOUT`
+- Pipelines launched by the `tenzir` runner automatically receive
+  `--endpoint=<value>` when the fixture is active.
+
+### Custom shell fixtures
+
+Place scripts in `custom/` (with `.sh`) to run them under `bash -eu`. During
+execution the harness sets:
+
+- `TENZIR_TESTER_CHECK_PORT`
+- `TENZIR_TESTER_CHECK_UPDATE`
+- `TENZIR_TESTER_CHECK_PATH`
+
+Use these values to coordinate multi-step assertions or communicate with helper
+processes.
+
+## Environment variables
+
+`tenzir-test` recognises the following environment variables:
+
+- `TENZIR_TEST_ROOT` – Default test root when `--root` is omitted.
+- `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary discovery.
+- `TENZIR_INPUTS` – Preferred data directory (overridden in package mode).
+- `TENZIR_TEST_LOG_COMPARISONS` – Enable comparison logging.
+
+Fixtures often publish additional variables (for example
+`TENZIR_NODE_CLIENT_*`, `HTTP_FIXTURE_URL`).
+
+## Baselines and artifacts
+
+Regenerate reference output whenever behaviour changes intentionally:
+
+```sh
+uvx tenzir-test --update
+```
+
+`--purge` removes stale artifacts (diffs, temporary files). Keep generated
+`.txt` files under version control so future runs can diff against them.
+
+## Troubleshooting
+
+- **Missing binaries** – Ensure `tenzir` and `tenzir-node` are on `PATH` or set
+  `TENZIR_BINARY` / `TENZIR_NODE_BINARY` explicitly.
+- **Unexpected exits** – Set `error: true` in frontmatter when a non-zero exit is
+  expected.
+- **Skipped tests** – Use `skip: reason` to document temporary skips; baseline
+  files can stay empty.
+- **Noisy output** – Use `--jobs 1` or `--log-comparisons` for easier debugging.
+
+## Further reading
+
+- [Write tests](/guides/testing/write-tests)
+- [Create fixtures](/guides/testing/create-fixtures)
+- [Add custom runners](/guides/testing/add-custom-runners)

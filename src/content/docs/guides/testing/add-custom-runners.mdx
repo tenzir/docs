@@ -1,0 +1,145 @@
+---
+title: Add custom runners
+---
+
+Runners tell `tenzir-test` how to execute a discovered file. This guide shows
+you how to register the XXD runner from the example project so you can compare
+binary artefacts by dumping their hexadecimal representation with `xxd`.
+
+## Prerequisites
+
+- Complete the setup in [write tests](/guides/testing/write-tests) so you have a
+  project root with `runners/` and at least one passing test.
+- Install the [`xxd`](https://man.archlinux.org/man/xxd.1.en) utility. It ships
+  with most platforms.
+
+## Step 1: prepare the runners package
+
+Create `runners/__init__.py` if it does not exist yet. The harness imports this
+module automatically on start-up.
+
+```sh
+touch runners/__init__.py
+```
+
+## Step 2: implement the XXD runner
+
+Copy the runner from the example project and keep it under version control so
+teammates can use the same convention.
+
+```python title="runners/__init__.py"
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+
+from tenzir_test import runners
+from tenzir_test.runners._utils import get_run_module
+
+
+class XxdRunner(runners.ExtRunner):
+    """Dump hex output for *.xxd tests using the xxd utility."""
+
+    def __init__(self) -> None:
+        super().__init__(name="xxd", ext="xxd")
+
+    def run(self, test: Path, update: bool, coverage: bool = False) -> bool:
+        del coverage
+        run_mod = get_run_module()
+        try:
+            completed = subprocess.run(
+                ["xxd", "-g1", str(test)],
+                capture_output=True,
+                check=False,
+            )
+        except FileNotFoundError:
+            run_mod.report_failure(test, "└─▶ \033[31mxxd is not available on PATH\033[0m")
+            return False
+
+        if completed.returncode != 0:
+            with run_mod.stdout_lock:
+                run_mod.fail(test)
+                print(
+                    f"└─▶ \033[31mxxd exited with {completed.returncode}\033[0m",
+                    file=sys.stdout,
+                )
+                if completed.stdout:
+                    sys.stdout.buffer.write(completed.stdout)
+                if completed.stderr:
+                    sys.stdout.buffer.write(completed.stderr)
+            return False
+
+        output = completed.stdout
+        ref_path = test.with_suffix(".txt")
+        if update:
+            ref_path.write_bytes(output)
+            run_mod.success(test)
+            return True
+        if not ref_path.exists():
+            run_mod.report_failure(
+                test,
+                f'└─▶ \033[31mMissing reference file "{ref_path}"\033[0m',
+            )
+            return False
+        run_mod.log_comparison(test, ref_path, mode="comparing")
+        expected = ref_path.read_bytes()
+        if expected != output:
+            run_mod.report_failure(test, "")
+            run_mod.print_diff(expected, output, ref_path)
+            return False
+        run_mod.success(test)
+        return True
+
+
+runners.register(XxdRunner())
+```
+
+- `runners.ExtRunner` discovers files by extension. Naming the extension
+  `xxd` keeps the test files free of frontmatter.
+- The runner writes or compares a `.txt` baseline next to each `.xxd` file.
+- Helper functions from `tenzir_test.runners._utils` integrate cleanly with the
+  harness log output.
+
+## Step 3: add a hexdump test
+
+Create a directory for the new tests and add a sample input string.
+
+```sh
+mkdir -p tests/hex
+cat <<'EOD' > tests/hex/hello.xxd
+Hello Tenzir!
+EOD
+```
+
+## Step 4: capture the reference output
+
+Run the harness in update mode so it generates the expected hexdump next to the
+`.xxd` file.
+
+```sh
+uvx tenzir-test --update
+```
+
+The command produces `tests/hex/hello.txt` similar to the following snippet:
+
+```text
+00000000: 48 65 6c 6c 6f 20 54 65 6e 7a 69 72 21 0a        Hello Tenzir!.
+```
+
+Subsequent runs without `--update` rerun `xxd` and compare the fresh dump with
+the stored baseline.
+
+## Step 5: reuse the runner across projects
+
+Keep the runner in your template repository or internal tooling so other
+projects can copy it verbatim. Use `runners.register_alias("xxd-hexdump", "xxd")`
+when you prefer a more descriptive name in frontmatter.
+
+## Next steps
+
+- Pair the runner with fixtures that download or generate binary artefacts
+  before each test.
+- Extend the runner to emit `*.diff` artefacts when the hexdumps diverge.
+- Review the [test framework reference](/reference/test/) to explore additional
+  runner hooks and helpers.
