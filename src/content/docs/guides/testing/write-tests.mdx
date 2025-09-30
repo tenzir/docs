@@ -26,32 +26,17 @@ mkdir demo
 cd demo
 ```
 
-## Step 2: install `tenzir-test`
+## Step 2: check the harness
 
-Use `uv` (or `pip`) to pin the latest release of the harness inside a virtual
-environment. The example below tracks dependencies with [uv's project
-metadata](https://docs.astral.sh/uv/concepts/projects/), but you can adapt it to
-your preferred Python workflow.
-
-```sh
-uv init --python 3.12 --no-workspace
-uv add tenzir-test
-```
-
-Activate the environment if you prefer to run the console script directly.
-`uvx` also works when you skip activation.
-
-```sh
-source .venv/bin/activate
-```
-
-Verify the installation.
+Run the harness through `uvx` to make sure the tooling works without setting up
+a virtual environment. `uvx` downloads and caches the latest release when
+needed.
 
 ```sh
 uvx tenzir-test --help
 ```
 
-If the command succeeds, the harness is ready to run.
+If the command succeeds, you're ready to add tests.
 
 ## Step 3: add shared data
 
