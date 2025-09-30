@@ -41,6 +41,7 @@ export const guides = [
   },
   {
     label: "Basic Usage",
+    collapsed: true,
     items: [
       "guides/basic-usage/run-pipelines",
       "guides/basic-usage/manage-a-pipeline",
@@ -50,6 +51,7 @@ export const guides = [
   },
   {
     label: "Data Loading",
+    collapsed: true,
     items: [
       "guides/data-loading/read-and-watch-files",
       "guides/data-loading/fetch-data-from-apis",
@@ -57,6 +59,7 @@ export const guides = [
   },
   {
     label: "Data Shaping",
+    collapsed: true,
     items: [
       "guides/data-shaping/shape-data",
       "guides/data-shaping/filter-and-select-data",
@@ -74,6 +77,7 @@ export const guides = [
   },
   {
     label: "Edge Storage",
+    collapsed: true,
     items: [
       "guides/edge-storage/import-into-a-node",
       "guides/edge-storage/export-from-a-node",
@@ -83,6 +87,7 @@ export const guides = [
   },
   {
     label: "Enrichment",
+    collapsed: true,
     items: [
       "guides/enrichment/work-with-lookup-tables",
       "guides/enrichment/enrich-with-network-inventory",
@@ -92,10 +97,20 @@ export const guides = [
   },
   {
     label: "Platform Management",
+    collapsed: true,
     items: [
       "guides/platform-management/configure-workspaces",
       "guides/platform-management/configure-dashboards",
       "guides/platform-management/use-ephemeral-nodes",
+    ],
+  },
+  {
+    label: "Testing",
+    collapsed: true,
+    items: [
+      "guides/testing/write-tests",
+      "guides/testing/create-fixtures",
+      "guides/testing/add-custom-runners",
     ],
   },
   {
@@ -180,6 +195,10 @@ export const reference = [
       "reference/platform/command-line-interface",
       platformAPISidebarGroup,
     ],
+  },
+  {
+    label: "Test Framework",
+    link: "reference/test-framework",
   },
 ];
 

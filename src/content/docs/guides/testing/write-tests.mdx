@@ -1,0 +1,158 @@
+---
+title: Write tests
+---
+
+This guide walks you through creating a standalone repository for integration
+tests, wiring it up to [`tenzir-test`](/reference/test), and running your first
+scenarios end to end. You will create a minimal project structure, add a
+pipeline test, record reference output, and rerun the harness to make sure
+everything passes.
+
+## Prerequisites
+
+- A working installation of Tenzir. Place the `tenzir` and `tenzir-node`
+  binaries on your `PATH`, or be ready to pass explicit paths to the harness.
+- Python 3.12 or later. The `tenzir-test` package distributes as a standard
+  Python project.
+- [`uv`](https://docs.astral.sh/uv/) or `pip` to install Python dependencies.
+
+## Step 1: Scaffold a project
+
+Create a clean directory that holds nothing but integration tests and their
+shared assets. The harness treats this directory as the **project root**.
+
+```sh
+mkdir demo
+cd demo
+```
+
+## Step 2: Check the harness
+
+Run the harness through `uvx` to make sure the tooling works without setting up
+a virtual environment. `uvx` downloads and caches the latest release when
+needed.
+
+```sh
+uvx tenzir-test --help
+```
+
+If the command succeeds, you're ready to add tests.
+
+## Step 3: Add shared data
+
+Populate `inputs/` with artefacts that tests will read. The example below stores
+a short NDJSON dataset that models a few alerts.
+
+```jsonl
+{"id": 1, "severity": 5, "message": "Disk usage above 90%"}
+{"id": 2, "severity": 2, "message": "Routine backup completed"}
+{"id": 3, "severity": 7, "message": "Authentication failure on admin"}
+```
+
+Save the snippet as `inputs/alerts.ndjson`.
+
+## Step 4: Author a pipeline test
+
+Create your first scenario under `tests/`. The harness discovers tests
+recursively, so you can organise them by feature or risk level. Here, you create
+`tests/alerts/high-severity.tql`.
+
+```tql
+from_file f"{env("TENZIR_INPUTS")}/alerts.ndjson"
+where severity >= 5
+project id, message
+sort id
+```
+
+## Step 5: Capture the reference output
+
+Run the harness once in update mode to execute the pipeline and write the
+expected output next to the test.
+
+```sh
+uvx tenzir-test --update
+```
+
+The command produces `tests/alerts/high-severity.txt` with the captured stdout.
+
+```text
+{"id":1,"message":"Disk usage above 90%"}
+{"id":3,"message":"Authentication failure on admin"}
+```
+
+Review the reference file, adjust the pipeline if needed, and rerun `--update`
+until you are satisfied with the results. Commit the `.tql` test and `.txt`
+baseline together so future runs can compare against known-good output.
+
+## Step 6: Rerun the suite
+
+After you check in the reference output, execute the suite _without_ `--update`.
+The harness verifies that the actual output matches the baseline.
+
+```sh
+uvx tenzir-test
+```
+
+When the output diverges, the harness prints a diff and returns a non-zero exit
+code. Use `--log-comparisons` for extra insight when you debug mismatches.
+
+## Step 7: Introduce a fixture
+
+Fixtures let you bootstrap external resources and expose their configuration
+through environment variables. Add a simple `node`-driven test to exercise a
+running Tenzir node.
+
+Create `tests/node/ping.tql` with the following contents:
+
+```tql
+---
+fixtures: [node]
+timeout: 10
+---
+
+// Get the version from the running node.
+remote {
+  version
+}
+```
+
+Because the test needs a node to run, include the built-in `node` fixture and
+give it a reasonable timeout. The fixture starts `tenzir-node`, injects connection
+details into the environment, and tears the process down after the run. Capture
+the baseline via `--update` just like before.
+
+## Step 8: Organise defaults with `test.yaml`
+
+As suites grow, you can extract shared configuration into directory-level
+defaults. Place a `tests/node/test.yaml` file with convenient settings:
+
+```yaml
+fixtures: [node]
+timeout: 120
+```
+
+The harness merges this mapping into every test under `tests/node/`. Individual
+files still override keys in their frontmatter when necessary.
+
+## Step 9: Automate runs
+
+Once the suite passes locally, integrate it into your CI pipeline. Configure the
+job to install Python 3.12, install `tenzir-test`, provision or download the
+required Tenzir binaries, and execute `uvx tenzir-test --root .`. For reproducible
+results, keep your datasets small and deterministic, and prefer fixtures that
+wipe state between runs.
+
+## Next steps
+
+You now have a project that owns its inputs, tests, fixtures, and baselines.
+From here you can:
+
+- Add custom runners under `runners/` when you need specialised logic around
+  `tenzir` invocations.
+- Build Python fixtures that publish or verify data through the helper APIs in
+  `tenzir_test.fixtures`.
+- Explore coverage collection by passing `--coverage` to the harness.
+
+Refer back to the [test framework reference](/reference/test-framework/)
+whenever you need deeper details about runners, fixtures, or configuration
+knobs.

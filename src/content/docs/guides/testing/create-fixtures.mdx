@@ -1,0 +1,133 @@
+---
+title: Create fixtures
+---
+
+Fixtures let `tenzir-test` prepare external services before a scenario runs and
+clean everything up afterwards. In this guide you build an HTTP echo fixture from
+scratch, wire it into the harness, and exercise it with a TQL test that posts a
+JSON payload via [`http`](/reference/operators/http).
+
+## Prerequisites
+
+- Follow [write tests](/guides/testing/write-tests) to scaffold a project and
+  install `tenzir-test`.
+- Make sure your project root already contains `fixtures/`, `inputs/`, and
+  `tests/` directories (they can be empty).
+
+## Step 1: Expose a fixtures package
+
+`tenzir-test` imports `fixtures/__init__.py` automatically. Use that entry point
+as the place where you register fixture modules.
+
+```python
+# fixtures/__init__.py
+"""Project fixtures."""
+
+from . import http  # Import so decorators execute on import.
+
+__all__ = ["http"]
+```
+
+## Step 2: Implement the HTTP echo fixture
+
+Create `fixtures/http.py` with a tiny HTTP server that echoes POST bodies. The
+fixture yields the server URL with `@fixture()` and tears the server down inside
+its `finally` block.
+
+```python
+# fixtures/http.py
+from __future__ import annotations
+
+import threading
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Iterator
+
+from tenzir_test import fixture
+
+
+class EchoHandler(BaseHTTPRequestHandler):
+    def do_POST(self) -> None:  # noqa: N802
+        stated_length = self.headers.get("Content-Length", "0")
+        try:
+            length = int(stated_length)
+        except ValueError:
+            length = 0
+        body = self.rfile.read(length) if length else b"{}"
+        self._reply(body or b"{}")
+
+    def log_message(self, *_: object) -> None:  # noqa: D401
+        return  # Keep the console quiet.
+
+    def _reply(self, payload: bytes) -> None:
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+
+@fixture()
+def http() -> Iterator[dict[str, str]]:
+    server = ThreadingHTTPServer(("127.0.0.1", 0), EchoHandler)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+
+    try:
+        port = server.server_address[1]
+        url = f"http://127.0.0.1:{port}/"
+        yield {"HTTP_FIXTURE_URL": url}
+    finally:
+        server.shutdown()
+        worker.join()
+```
+
+## Step 3: Author a test that uses the fixture
+
+Create `tests/http-fixture-use.tql` and request the `http` fixture in the
+frontmatter. The pipeline create sample data and then crafts a HTTP request body
+using the [`http`](/reference/operators/http) operator. The fixture echoes the
+payload back into the result stream.
+
+```tql
+---
+fixtures: [http]
+---
+
+from {x: 42, y: "foo"}
+http env("HTTP_FIXTURE_URL"), body=this
+```
+
+## Step 4: Capture the reference output
+
+Run the harness in update mode so it records the HTTP response next to the test.
+
+```sh
+uvx tenzir-test --update
+```
+
+You should now have `tests/http-fixture-use.txt` with the echoed payload:
+
+```tql
+{
+  x: 42,
+  y: "foo",
+}
+```
+
+Subsequent runs without `--update` bring the fixture online, hit the server, and
+compare the live response against the baseline.
+
+## Step 5: Iterate on the fixture
+
+With the echo workflow in place you can:
+
+- Serve canned responses from files under `inputs/` for more realistic scenarios.
+- Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on
+  authentication behaviour.
+- Harden the cleanup in your `finally` block (or factor it into a helper) when
+  fixtures manage external processes, containers, or cloud resources.
+
+Check the [test framework reference](/reference/test-framework/) for more
+fixture APIs, including helpers that tell you which fixtures the current test
+requested.

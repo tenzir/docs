@@ -137,18 +137,24 @@ cmake --build build --target all
 ## Test
 
 After you have built the executable, run the unit and integration tests to
-verify that your build works as expected:
+verify that your build works as expected.
 
-Run component-level unit tests:
+### Run unit tests
+
+Run component-level unit tests via CTest:
 
 ```sh
 ctest --test-dir build
 ```
 
-Run end-to-end integration tests:
+### Run integration tests
+
+Run end-to-end integration tests via
+[tenzir-test](https://github.com/tenzir/tenzir-test):
 
 ```sh
-cmake --build build --target bats
+cd test
+uvx tenzir-test
 ```
 
 ## Install
