@@ -100,6 +100,10 @@ runners.register(XxdRunner())
 - The runner writes or compares a `.txt` baseline next to each `.xxd` file.
 - Helper functions from `tenzir_test.runners._utils` integrate cleanly with the
   harness log output.
+- Every run hands the process a dedicated scratch directory through
+  `TENZIR_TMP_DIR`; use it for temporary artefacts your runner needs. Combine it
+  with the CLI `--keep` flag when you want to inspect the intermediate files
+  after the harness exits.
 
 ## Step 3: Add a hexdump test
 

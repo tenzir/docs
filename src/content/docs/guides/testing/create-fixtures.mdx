@@ -98,6 +98,11 @@ from {x: 42, y: "foo"}
 http env("HTTP_FIXTURE_URL"), body=this
 ```
 
+Fixtures receive the same per-test scratch directory as the scenario itself via
+`TENZIR_TMP_DIR`. Use it to stage temporary files or logs that should disappear
+after the run. Launch the harness with `--keep` when you want to retain those
+artefacts for debugging.
+
 ## Step 4: Capture the reference output
 
 Run the harness in update mode so it records the HTTP response next to the test.
