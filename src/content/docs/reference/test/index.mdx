@@ -128,7 +128,7 @@ uvx tenzir-test --root tests --update
 | -------- | -------------------------------------- | --------------- | -------- |
 | `tenzir` | `tenzir -f <test>`                     | `.tql`          | `.txt`   |
 | `python` | Execute with the active Python runtime | `.py`           | `.txt`   |
-| `custom` | `sh -eu <test>` via the harness helper | `.sh`           | varies   |
+| `shell`  | `sh -eu <test>` via the harness helper | `.sh`           | varies   |
 
 Selection flow:
 
@@ -150,7 +150,7 @@ contains a full example (`XxdRunner`).
 
 1. Project defaults (`test.yaml` files, applied per directory).
 2. Per-test frontmatter (YAML for `.tql`/`.xxd`, `# key: value` comments for
-   Python files).
+   Python and shell scripts).
 
 Common frontmatter keys:
 
@@ -226,7 +226,9 @@ needs the built-in node, call `fixtures.require("node")` to fail fast.
 
 ### Custom shell fixtures
 
-Place scripts in `custom/` (with `.sh`) to run them under `bash -eu`. During
+Place scripts (for example under `tests/shell/`) with the `.sh` suffix to run
+them under `bash -eu`. The harness also prepends `<root>/_shell` to `PATH` so
+project-specific helper binaries become discoverable. During
 execution the harness sets:
 
 - `TENZIR_TESTER_CHECK_PORT`
