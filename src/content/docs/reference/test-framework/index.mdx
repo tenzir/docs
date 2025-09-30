@@ -33,6 +33,8 @@ uvx tenzir-test --help
 - **Fixture** – Reusable environment provider registered under `fixtures/` and
   requested via frontmatter.
 - **Input** – Data accessed with `TENZIR_INPUTS` (usually under `inputs/`).
+- **Scratch directory** – Ephemeral workspace exposed as `TENZIR_TMP_DIR` during
+  each test run.
 - **Artifact / Baseline** – Runner output persisted next to the test; regenerate
   with `--update`.
 - **Configuration sources** – Frontmatter plus inherited `test.yaml` files;
@@ -105,6 +107,8 @@ Useful options:
   runs.
 - `--jobs N`: Control concurrency (`4 * CPU cores` by default).
 - `--coverage` and `--coverage-source-dir`: Enable LLVM coverage.
+- `-k`, `--keep`: Preserve per-test scratch directories instead of deleting
+  them (same as setting `TENZIR_KEEP_TMP_DIRS=1`).
 - `--log-comparisons`: Log comparison targets (also via
   `TENZIR_TEST_LOG_COMPARISONS=1`).
 
@@ -241,10 +245,18 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 - `TENZIR_TEST_ROOT` – Default test root when `--root` is omitted.
 - `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary discovery.
 - `TENZIR_INPUTS` – Preferred data directory (overridden in package mode).
+- `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
+  `--keep`).
 - `TENZIR_TEST_LOG_COMPARISONS` – Enable comparison logging.
 
 Fixtures often publish additional variables (for example
 `TENZIR_NODE_CLIENT_*`, `HTTP_FIXTURE_URL`).
+
+During execution the harness also adds transient variables such as
+`TENZIR_TMP_DIR` so tests and fixtures can create temporary artefacts without
+polluting the repository. Combine it with `--keep` (or
+`TENZIR_KEEP_TMP_DIRS=1`) when you need to inspect the generated files after a
+run.
 
 ## Baselines and artifacts
 
