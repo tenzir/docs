@@ -31,8 +31,8 @@ __all__ = ["http"]
 ## Step 2: Implement the HTTP echo fixture
 
 Create `fixtures/http.py` with a tiny HTTP server that echoes POST bodies. The
-fixture returns the server URL through the environment and tears the server down
-when the test finishes.
+fixture yields the server URL with `@fixture()` and tears the server down inside
+its `finally` block.
 
 ```python
 # fixtures/http.py
@@ -41,9 +41,9 @@ from __future__ import annotations
 import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Dict, Tuple
+from typing import Iterator
 
-from tenzir_test import startup, teardown
+from tenzir_test import fixture
 
 
 class EchoHandler(BaseHTTPRequestHandler):
@@ -67,29 +67,19 @@ class EchoHandler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
 
-_ACTIVE_HTTP_SERVERS: Dict[str, Tuple[ThreadingHTTPServer, threading.Thread]] = {}
-
-
-@startup(replace=True)
-def start_http() -> dict[str, str]:
+@fixture()
+def http() -> Iterator[dict[str, str]]:
     server = ThreadingHTTPServer(("127.0.0.1", 0), EchoHandler)
     worker = threading.Thread(target=server.serve_forever, daemon=True)
     worker.start()
 
-    port = server.server_address[1]
-    url = f"http://127.0.0.1:{port}/"
-    _ACTIVE_HTTP_SERVERS[url] = (server, worker)
-    return {"HTTP_FIXTURE_URL": url}
-
-
-@teardown()
-def stop_http(env: dict[str, str]) -> None:
-    url = env.get("HTTP_FIXTURE_URL")
-    server, worker = _ACTIVE_HTTP_SERVERS.pop(url, (None, None))
-    if server is None or worker is None:
-        return
-    server.shutdown()
-    worker.join()
+    try:
+        port = server.server_address[1]
+        url = f"http://127.0.0.1:{port}/"
+        yield {"HTTP_FIXTURE_URL": url}
+    finally:
+        server.shutdown()
+        worker.join()
 ```
 
 ## Step 3: Author a test that uses the fixture
@@ -135,8 +125,8 @@ With the echo workflow in place you can:
 - Serve canned responses from files under `inputs/` for more realistic scenarios.
 - Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on
   authentication behaviour.
-- Extend the teardown hook with extra guards when fixtures manage external
-  processes, containers, or cloud resources.
+- Harden the cleanup in your `finally` block (or factor it into a helper) when
+  fixtures manage external processes, containers, or cloud resources.
 
 Check the [test framework reference](/reference/test/) for more fixture APIs,
 including helpers that tell you which fixtures the current test requested.

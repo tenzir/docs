@@ -156,7 +156,7 @@ Common frontmatter keys:
 
 | Key        | Type            | Default   | Description                                            |
 | ---------- | --------------- | --------- | ------------------------------------------------------ |
-| `runner`   | string          | by suffix | Runner name (`tenzir`, `python`, custom).              |
+| `runner`   | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).     |
 | `fixtures` | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.  |
 | `timeout`  | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.) |
 | `error`    | boolean         | `false`   | Expect a non-zero exit code.                           |
@@ -190,13 +190,25 @@ assert result.returncode == 0
 
 ### Registering fixtures
 
-Implement fixtures in `fixtures/` and register them with decorators:
+Implement fixtures in `fixtures/` and register them with `@tenzir_test.fixture()`.
+Decorate a generator function, yield the environment mapping, and handle cleanup
+in a `finally` block:
 
-- `@tenzir_test.startup()` (or `@startup(replace=True)`) – Run before the test.
-  Return a mapping of environment variables for the test process.
-- `@tenzir_test.teardown()` – Receive the environment mapping and perform
-  cleanup.
-- Fixtures can also return `FixtureHandle` objects to bundle teardown logic.
+```python
+from tenzir_test import fixture
+
+
+@fixture()
+def http():
+    server = _start_server()
+    try:
+        yield {"HTTP_FIXTURE_URL": server.url}
+    finally:
+        server.stop()
+```
+
+`@fixture` also accepts regular callables returning dictionaries, context
+managers, or `FixtureHandle` instances for advanced scenarios.
 
 The [fixture guide](/guides/testing/create-fixtures) demonstrates an HTTP echo
 server that exposes `HTTP_FIXTURE_URL` and tears down cleanly. When your fixture
