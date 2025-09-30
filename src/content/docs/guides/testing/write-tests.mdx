@@ -55,7 +55,7 @@ Save the snippet as `inputs/alerts.ndjson`.
 
 Create your first scenario under `tests/`. The harness discovers tests
 recursively, so you can organise them by feature or risk level. Here, you create
-`tests/pipelines/high-severity.tql`.
+`tests/alerts/high-severity.tql`.
 
 ```tql
 from_file f"{env("TENZIR_INPUTS")}/alerts.ndjson"
@@ -73,8 +73,7 @@ expected output next to the test.
 uvx tenzir-test --update
 ```
 
-The command produces `tests/pipelines/high-severity.txt` with the captured
-stdout.
+The command produces `tests/alerts/high-severity.txt` with the captured stdout.
 
 ```text
 {"id":1,"message":"Disk usage above 90%"}
