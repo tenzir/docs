@@ -13,7 +13,7 @@ binary artefacts by dumping their hexadecimal representation with `xxd`.
 - Install the [`xxd`](https://man.archlinux.org/man/xxd.1.en) utility. It ships
   with most platforms.
 
-## Step 1: prepare the runners package
+## Step 1: Prepare the runners package
 
 Create `runners/__init__.py` if it does not exist yet. The harness imports this
 module automatically on start-up.
@@ -22,7 +22,7 @@ module automatically on start-up.
 touch runners/__init__.py
 ```
 
-## Step 2: implement the XXD runner
+## Step 2: Implement the XXD runner
 
 Copy the runner from the example project and keep it under version control so
 teammates can use the same convention.
@@ -101,7 +101,7 @@ runners.register(XxdRunner())
 - Helper functions from `tenzir_test.runners._utils` integrate cleanly with the
   harness log output.
 
-## Step 3: add a hexdump test
+## Step 3: Add a hexdump test
 
 Create a directory for the new tests and add a sample input string.
 
@@ -112,7 +112,7 @@ Hello Tenzir!
 EOD
 ```
 
-## Step 4: capture the reference output
+## Step 4: Capture the reference output
 
 Run the harness in update mode so it generates the expected hexdump next to the
 `.xxd` file.
@@ -130,7 +130,7 @@ The command produces `tests/hex/hello.txt` similar to the following snippet:
 Subsequent runs without `--update` rerun `xxd` and compare the fresh dump with
 the stored baseline.
 
-## Step 5: reuse the runner across projects
+## Step 5: Reuse the runner across projects
 
 Keep the runner in your template repository or internal tooling so other
 projects can copy it verbatim. Use `runners.register_alias("xxd-hexdump", "xxd")`

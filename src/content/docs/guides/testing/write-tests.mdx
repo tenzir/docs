@@ -16,7 +16,7 @@ everything passes.
   Python project.
 - [`uv`](https://docs.astral.sh/uv/) or `pip` to install Python dependencies.
 
-## Step 1: scaffold a project
+## Step 1: Scaffold a project
 
 Create a clean directory that holds nothing but integration tests and their
 shared assets. The harness treats this directory as the **project root**.
@@ -26,7 +26,7 @@ mkdir demo
 cd demo
 ```
 
-## Step 2: check the harness
+## Step 2: Check the harness
 
 Run the harness through `uvx` to make sure the tooling works without setting up
 a virtual environment. `uvx` downloads and caches the latest release when
@@ -38,7 +38,7 @@ uvx tenzir-test --help
 
 If the command succeeds, you're ready to add tests.
 
-## Step 3: add shared data
+## Step 3: Add shared data
 
 Populate `inputs/` with artefacts that tests will read. The example below stores
 a short NDJSON dataset that models a few alerts.
@@ -51,7 +51,7 @@ a short NDJSON dataset that models a few alerts.
 
 Save the snippet as `inputs/alerts.ndjson`.
 
-## Step 4: author a pipeline test
+## Step 4: Author a pipeline test
 
 Create your first scenario under `tests/`. The harness discovers tests
 recursively, so you can organise them by feature or risk level. Here, you create
@@ -64,7 +64,7 @@ project id, message
 sort id
 ```
 
-## Step 5: capture the reference output
+## Step 5: Capture the reference output
 
 Run the harness once in update mode to execute the pipeline and write the
 expected output next to the test.
@@ -84,7 +84,7 @@ Review the reference file, adjust the pipeline if needed, and rerun `--update`
 until you are satisfied with the results. Commit the `.tql` test and `.txt`
 baseline together so future runs can compare against known-good output.
 
-## Step 6: rerun the suite
+## Step 6: Rerun the suite
 
 After you check in the reference output, execute the suite _without_ `--update`.
 The harness verifies that the actual output matches the baseline.
@@ -96,7 +96,7 @@ uvx tenzir-test
 When the output diverges, the harness prints a diff and returns a non-zero exit
 code. Use `--log-comparisons` for extra insight when you debug mismatches.
 
-## Step 7: introduce a fixture
+## Step 7: Introduce a fixture
 
 Fixtures let you bootstrap external resources and expose their configuration
 through environment variables. Add a simple `node`-driven test to exercise a
@@ -121,7 +121,7 @@ give it a reasonable timeout. The fixture starts `tenzir-node`, injects connecti
 details into the environment, and tears the process down after the run. Capture
 the baseline via `--update` just like before.
 
-## Step 8: organise defaults with `test.yaml`
+## Step 8: Organise defaults with `test.yaml`
 
 As suites grow, you can extract shared configuration into directory-level
 defaults. Place a `tests/node/test.yaml` file with convenient settings:
@@ -134,7 +134,7 @@ timeout: 120
 The harness merges this mapping into every test under `tests/node/`. Individual
 files still override keys in their frontmatter when necessary.
 
-## Step 9: automate runs
+## Step 9: Automate runs
 
 Once the suite passes locally, integrate it into your CI pipeline. Configure the
 job to install Python 3.12, install `tenzir-test`, provision or download the

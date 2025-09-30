@@ -14,7 +14,7 @@ JSON payload via [`http`](/reference/operators/http).
 - Make sure your project root already contains `fixtures/`, `inputs/`, and
   `tests/` directories (they can be empty).
 
-## Step 1: expose a fixtures package
+## Step 1: Expose a fixtures package
 
 `tenzir-test` imports `fixtures/__init__.py` automatically. Use that entry point
 as the place where you register fixture modules.
@@ -28,7 +28,7 @@ from . import http  # Import so decorators execute on import.
 __all__ = ["http"]
 ```
 
-## Step 2: implement the HTTP echo fixture
+## Step 2: Implement the HTTP echo fixture
 
 Create `fixtures/http.py` with a tiny HTTP server that echoes POST bodies. The
 fixture returns the server URL through the environment and tears the server down
@@ -92,7 +92,7 @@ def stop_http(env: dict[str, str]) -> None:
     worker.join()
 ```
 
-## Step 3: author a test that uses the fixture
+## Step 3: Author a test that uses the fixture
 
 Create `tests/http-fixture-use.tql` and request the `http` fixture in the
 frontmatter. The pipeline create sample data and then crafts a HTTP request body
@@ -110,7 +110,7 @@ http env("HTTP_FIXTURE_URL"), method="post", body=this, encode="json" {
 }
 ```
 
-## Step 4: capture the reference output
+## Step 4: Capture the reference output
 
 Run the harness in update mode so it records the HTTP response next to the test.
 
@@ -130,7 +130,7 @@ You should now have `tests/http-fixture-use.txt` with the echoed payload:
 Subsequent runs without `--update` bring the fixture online, hit the server, and
 compare the live response against the baseline.
 
-## Step 5: iterate on the fixture
+## Step 5: Iterate on the fixture
 
 With the echo workflow in place you can:
 
