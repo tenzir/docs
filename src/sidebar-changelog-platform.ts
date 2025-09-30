@@ -2,6 +2,7 @@
 
 export const changelog_platform = [
   "changelog/platform/next",
+  "changelog/platform/v1-19-0",
   "changelog/platform/v1-18-0",
   "changelog/platform/v1-17-4",
   "changelog/platform/v1-17-3",
@@ -11,11 +12,11 @@ export const changelog_platform = [
   "changelog/platform/v1-16-1",
   "changelog/platform/v1-16-0",
   "changelog/platform/v1-15-0",
-  "changelog/platform/v1-14-1",
   {
     label: "Archive",
     collapsed: true,
     items: [
+      "changelog/platform/v1-14-1",
       "changelog/platform/v1-14-0",
       "changelog/platform/v1-13-0",
       "changelog/platform/v1-12-0",
