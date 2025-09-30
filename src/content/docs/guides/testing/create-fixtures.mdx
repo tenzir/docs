@@ -105,9 +105,7 @@ fixtures: [http]
 ---
 
 from {x: 42, y: "foo"}
-http env("HTTP_FIXTURE_URL"), method="post", body=this, encode="json" {
-  read_json
-}
+http env("HTTP_FIXTURE_URL"), body=this
 ```
 
 ## Step 4: Capture the reference output
