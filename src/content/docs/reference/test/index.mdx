@@ -135,16 +135,25 @@ Selection flow:
 1. The harness chooses the first registered runner that claimed the file
    extension.
 2. Default suffix mapping applies when no runner explicitly claims an extension:
-   `.tql → tenzir`, `.py → python`, `.sh → shell`.
+ `.tql → tenzir`, `.py → python`, `.sh → shell`.
 3. A `runner: <name>` frontmatter entry overrides the automatic choice.
 4. If no runner claims the extension and none is specified in frontmatter, the
    harness fails with an error instead of guessing.
 
+### Shell runner
+
+Place scripts (for example under `tests/shell/`) with the `.sh` suffix to run
+them under `bash -eu` via the `shell` runner. The harness also prepends
+`<root>/_shell` to `PATH` so project-specific helper binaries become
+discoverable.
+
 Register custom runners in `runners/__init__.py` via
 `tenzir_test.runners.register()` or the `@tenzir_test.runners.startup()`
 decorator. Use `replace=True` to override a bundled runner or
-`register_alias()` to publish alternate names. The [runner guide](/guides/testing/add-custom-runners)
-contains a full example (`XxdRunner`).
+`register_alias()` to publish alternate names.
+
+The [runner guide](/guides/testing/add-custom-runners) contains a full example
+(`XxdRunner`).
 
 ## Configuration and frontmatter
 
@@ -225,20 +234,6 @@ needs the built-in node, call `fixtures.require("node")` to fail fast.
   - `TENZIR_NODE_CLIENT_TIMEOUT`
 - Pipelines launched by the `tenzir` runner automatically receive
   `--endpoint=<value>` when the fixture is active.
-
-### Custom shell fixtures
-
-Place scripts (for example under `tests/shell/`) with the `.sh` suffix to run
-them under `bash -eu`. The harness also prepends `<root>/_shell` to `PATH` so
-project-specific helper binaries become discoverable. During
-execution the harness sets:
-
-- `TENZIR_TESTER_CHECK_PORT`
-- `TENZIR_TESTER_CHECK_UPDATE`
-- `TENZIR_TESTER_CHECK_PATH`
-
-Use these values to coordinate multi-step assertions or communicate with helper
-processes.
 
 ## Environment variables
 
