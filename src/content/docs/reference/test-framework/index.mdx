@@ -32,7 +32,8 @@ uvx tenzir-test --help
   entries).
 - **Fixture** – Reusable environment provider registered under `fixtures/` and
   requested via frontmatter.
-- **Input** – Data accessed with `TENZIR_INPUTS` (usually under `inputs/`).
+- **Input** – Data accessed with `TENZIR_INPUTS`; defaults to `<root>/inputs` but
+  you can override it per directory or per test with an `inputs:` setting.
 - **Scratch directory** – Ephemeral workspace exposed as `TENZIR_TMP_DIR` during
   each test run.
 - **Artifact / Baseline** – Runner output persisted next to the test; regenerate
@@ -85,7 +86,8 @@ my-package/
   parent when named `tests`) contains `package.yaml`, `tenzir-test` switches to
   **package mode** and exposes:
   - `TENZIR_PACKAGE_ROOT` – Absolute package directory.
-  - `TENZIR_INPUTS` – `<package>/tests/inputs/`.
+  - `TENZIR_INPUTS` – `<package>/tests/inputs/` unless a directory `test.yaml`
+    or the test frontmatter overrides it.
   - `--package-dirs=<package>` – Passed automatically to the `tenzir` binary.
 - Without a manifest the harness stays in **project mode**, recursively discovers
   tests under `tests/`, and applies global fixtures, runners, and inputs.
@@ -185,9 +187,13 @@ Common frontmatter keys:
 | `timeout`  | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.) |
 | `error`    | boolean         | `false`   | Expect a non-zero exit code.                           |
 | `skip`     | string          | unset     | Mark the test as skipped (reason required).            |
+| `inputs`   | string          | project   | Override `TENZIR_INPUTS` for this directory or test.   |
 
 `test.yaml` files accept the same keys and apply recursively to child
-directories. Adjacent `tenzir.yaml` files still configure the Tenzir binary; the
+directories. A relative `inputs:` value resolves against the file that defines
+it, so `inputs: ../data` inside `tests/alerts/test.yaml` points at
+`tests/data/`. Frontmatter values follow the same rule and win over directory
+defaults. Adjacent `tenzir.yaml` files still configure the Tenzir binary; the
 harness appends `--config=<file>` automatically. The lookup keeps working even
 when you point the CLI at extra directories on the command line.
 
@@ -280,7 +286,8 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 
 - `TENZIR_TEST_ROOT` – Default test root when `--root` is omitted.
 - `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary discovery.
-- `TENZIR_INPUTS` – Preferred data directory (overridden in package mode).
+- `TENZIR_INPUTS` – Preferred data directory. Defaults to the project inputs
+  folder but reflects any `inputs:` override from `test.yaml` or frontmatter.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
 - `TENZIR_TEST_LOG_COMPARISONS` – Enable comparison logging.

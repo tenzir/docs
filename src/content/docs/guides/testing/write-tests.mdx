@@ -134,10 +134,14 @@ defaults. Place a `tests/node/test.yaml` file with convenient settings:
 ```yaml
 fixtures: [node]
 timeout: 120
+# Optional: reuse datasets that live in tests/data/ instead of the project root.
+inputs: ../data
 ```
 
-The harness merges this mapping into every test under `tests/node/`. Individual
-files still override keys in their frontmatter when necessary.
+The harness merges this mapping into every test under `tests/node/`. Relative
+paths resolve against the directory that owns the YAML file, so `inputs: ../data`
+points at `tests/data/`. Individual files still override keys in their
+frontmatter when necessary.
 
 ## Step 9: Automate runs
 
