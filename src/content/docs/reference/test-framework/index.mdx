@@ -187,7 +187,22 @@ Common frontmatter keys:
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. Adjacent `tenzir.yaml` files still configure the Tenzir binary; the
-harness appends `--config=<file>` automatically.
+harness appends `--config=<file>` automatically. The lookup keeps working even
+when you point the CLI at extra directories on the command line.
+
+### Tenzir configuration files
+
+- The harness inspects the directory that owns each test. If it finds
+  `tenzir.yaml`, it appends `--config=<path>` to every invocation of the
+  bundled `tenzir`/`tql`/`diff` runners. The path also seeds `TENZIR_CONFIG`
+  unless you set that variable yourself. Custom runners that call the Tenzir
+  binary should either use `run.get_test_env_and_config_args(test)` or honour
+  the exported environment variables explicitly.
+- The built-in `node` fixture uses the same discovery process; see the
+  [built-in node fixture](#built-in-node-fixture) section for precedence rules.
+- This lets you keep one config for CLI-driven scenarios while passing a
+  different config to the embedded node, for example to tweak endpoints or data
+  directories independently.
 
 ## Fixtures
 
@@ -210,6 +225,28 @@ executor = Executor()
 result = executor.run("from_file 'inputs/events.ndjson' | where severity >= 5\n")
 assert result.returncode == 0
 ```
+
+### Built-in node fixture
+
+- Request the fixture with `fixtures: [node]`; the harness will start
+  `tenzir-node` with the binaries discovered for the current test.
+- Configuration precedence:
+  1. `TENZIR_NODE_CONFIG` in the environment.
+  2. A `tenzir-node.yaml` placed next to the test file (exported
+     automatically).
+  3. The Tenzir defaults (no config file).
+- The fixture reuses other inherited arguments (for example
+  `--package-dirs=…`) but replaces any existing `--config=` flag so the node
+  process always honours the chosen configuration file.
+- Tests can read `TENZIR_NODE_CLIENT_ENDPOINT`,
+  `TENZIR_NODE_CLIENT_BINARY`, and `TENZIR_NODE_CLIENT_TIMEOUT` from the
+  environment to connect to the spawned node.
+- Pipelines launched by the bundled Tenzir runners automatically receive
+  `--endpoint=<value>` when this fixture is active, so they talk to the
+  transient node without additional wiring.
+- CLI and node configuration are independent: configure the CLI with
+  `tenzir.yaml` and drop a `tenzir-node.yaml` (or set `TENZIR_NODE_CONFIG`) only
+  when the node needs custom settings.
 
 ### Registering fixtures
 
@@ -235,16 +272,6 @@ managers, or `FixtureHandle` instances for advanced scenarios.
 
 The [fixture guide](/guides/testing/create-fixtures) demonstrates an HTTP echo
 server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
-
-### Built-in `node` fixture
-
-- Available as `fixtures: [node]`.
-- Starts a transient `tenzir-node`, exposes:
-  - `TENZIR_NODE_CLIENT_BINARY`
-  - `TENZIR_NODE_CLIENT_ENDPOINT`
-  - `TENZIR_NODE_CLIENT_TIMEOUT`
-- Pipelines launched by the `tenzir` runner automatically receive
-  `--endpoint=<value>` when the fixture is active.
 
 ## Environment variables
 
