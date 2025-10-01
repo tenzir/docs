@@ -118,6 +118,14 @@ Run a subset of tests:
 uvx tenzir-test tests/alerts/high-severity.tql
 ```
 
+You can list multiple paths in a single invocation. `tenzir-test` wires every
+argument into the same runner and fixture registry, so you can mix scenarios
+from the project and external checkouts:
+
+```sh
+uvx tenzir-test tests/alerts ../contrib/plugins/*/tests
+```
+
 To regenerate baselines while targeting a specific binary and project root:
 
 ```sh
