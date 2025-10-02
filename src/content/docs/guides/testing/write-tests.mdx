@@ -126,6 +126,10 @@ give it a reasonable timeout. The fixture starts `tenzir-node`, injects connecti
 details into the environment, and tears the process down after the run. Capture
 the baseline via `--update` just like before.
 
+The fixture launches `tenzir-node` from the directory that owns the test file, so
+`tenzir-node.yaml` placed next to the scenario can refer to files with relative
+paths (for example `schemas/alerts.yaml` or `../inputs/alerts.ndjson`).
+
 ## Step 8: Organise defaults with `test.yaml`
 
 As suites grow, you can extract shared configuration into directory-level

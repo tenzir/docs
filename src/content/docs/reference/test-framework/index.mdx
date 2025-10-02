@@ -205,7 +205,9 @@ when you point the CLI at extra directories on the command line.
   unless you set that variable yourself. Custom runners that call the Tenzir
   binary should either use `run.get_test_env_and_config_args(test)` or honour
   the exported environment variables explicitly.
-- The built-in `node` fixture uses the same discovery process; see the
+- The built-in `node` fixture uses the same discovery process and starts
+  `tenzir-node` from the directory that owns the test file, so relative paths
+  inside `tenzir-node.yaml` resolve against the test location. See the
   [built-in node fixture](#built-in-node-fixture) section for precedence rules.
 - This lets you keep one config for CLI-driven scenarios while passing a
   different config to the embedded node, for example to tweak endpoints or data
@@ -242,6 +244,9 @@ assert result.returncode == 0
   2. A `tenzir-node.yaml` placed next to the test file (exported
      automatically).
   3. The Tenzir defaults (no config file).
+- The node process inherits the test directory as its current working
+  directory, letting `tenzir-node.yaml` reference files with relative paths
+  (for example `state/` or `schemas/`).
 - The fixture reuses other inherited arguments (for example
   `--package-dirs=…`) but replaces any existing `--config=` flag so the node
   process always honours the chosen configuration file.
