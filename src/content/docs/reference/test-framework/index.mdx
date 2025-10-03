@@ -217,10 +217,18 @@ when you point the CLI at extra directories on the command line.
 
 ### Declaring fixtures
 
-- List fixture names in frontmatter (`fixtures: [node, http]`).
+- List fixture names in frontmatter (`fixtures: [node, http]`). Importing the
+  project `fixtures` package is enough to register custom fixtures thanks to the
+  side effects in `fixtures/__init__.py`.
 - The harness encodes requests in `TENZIR_TEST_FIXTURES` and exposes helper APIs
   in `tenzir_test.fixtures`:
-  - `requested()` – Read-only view of active fixtures.
+  - `fixtures()` – Read-only view of active fixtures. Attribute access is
+    supported, e.g. `fixtures().node` returns `True` if the fixture was
+    requested and raises `AttributeError` otherwise.
+  - `acquire_fixture("name")` – Manual controller for the named fixture. Use it
+    as a context manager for automatic `start()`/`stop()` or call those methods
+    explicitly to interleave lifecycle steps and optional hooks (for example
+    `kill()` or `restart()`).
   - `require("name")` – Assert that a fixture was requested.
   - `Executor()` – Convenience wrapper that runs Tenzir commands with resolved
     binaries and timeout budget.

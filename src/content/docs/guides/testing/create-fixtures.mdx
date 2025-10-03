@@ -16,14 +16,14 @@ JSON payload via [`http`](/reference/operators/http).
 
 ## Step 1: Expose a fixtures package
 
-`tenzir-test` imports `fixtures/__init__.py` automatically. Use that entry point
-as the place where you register fixture modules.
+`tenzir-test` imports `fixtures/__init__.py` automatically. Import the modules
+that host your fixtures so their decorators run as soon as the package loads.
 
 ```python
 # fixtures/__init__.py
 """Project fixtures."""
 
-from . import http  # Import so decorators execute on import.
+from . import http  # noqa: F401  (side effect: register fixture)
 
 __all__ = ["http"]
 ```
@@ -137,4 +137,103 @@ With the echo workflow in place you can:
 
 Check the [test framework reference](/reference/test-framework/) for more
 fixture APIs, including helpers that tell you which fixtures the current test
-requested.
+requested. In Python-mode tests you can call `fixtures()` to inspect the
+selection (for example `fixtures().http` returns `True` when the fixture is
+active).
+
+## Manual controllers
+
+Python-mode tests often need fine-grained control over fixture lifecycle to
+simulate crashes, restarts, or configuration changes. The manual controller API
+builds on the same registration flow shown above and lets you call directly
+into the fixture from a test. The harness preloads common helpers (including
+`fixtures()` for quick introspection and `acquire_fixture()` for manual
+control) so you can use them without imports.
+
+```python
+# runner: python
+# timeout: 30
+
+import fixtures
+
+with acquire_fixture("http") as http:
+    env = http.env              # provided by the fixture's start()
+    client = Executor.from_env(env)
+
+    # Exercise the system under test while the fixture runs
+    client.run("status")
+
+# Restart explicitly when you need another lifecycle
+http = acquire_fixture("http")
+http.start()
+http.stop()
+```
+
+Key ideas:
+
+- `acquire_fixture(name)` returns a controller that wraps the registered
+  fixture factory. Calling `start()` (or using `with acquire_fixture(...) as controller:`)
+  enters the context manager lazily and stores the returned environment mapping
+  on `controller.env` so you can reuse it between calls.
+- `with acquire_fixture(...)` is shorthand for `start()`/`stop()`; call those
+  methods manually when you need to restart or interleave multiple lifecycle
+  steps.
+- The Python runner serialises the active test context into
+  `TENZIR_PYTHON_FIXTURE_CONTEXT`; the helpers in `tenzir_test.fixtures` consume
+  it automatically so manual controllers see the same configuration as the
+  declarative flow.
+- Fixtures advertise optional operations by returning a `FixtureHandle` with
+  extra callables (for example `kill`, `restart`, or `configure`). Treat these
+  hooks as part of the fixture contract—assert their presence (or rely on type
+  hints) when your test depends on them so failures are immediate and obvious.
+- `Executor.from_env(env)` and similar helpers make it straightforward to reuse
+  the active fixture environment in client calls while the fixture is running;
+  in Python-mode tests these helpers are imported for you automatically.
+- For stricter typing you can import lightweight `Protocol` definitions (e.g.
+  `SupportsKill`) and cast controllers once a fixture documents the hooks it
+  exposes.
+
+The declarative workflow (`fixtures: [http]` combined with automatic
+activation) remains the default. Manual controllers complement it when tests
+need imperative control over setup and teardown—skip the frontmatter entry when
+you prefer to start and stop the fixture yourself from Python code.
+
+### Fixture contracts
+
+The controller API works best when fixture authors and consumers agree on the
+available hooks.
+
+**Fixture author**
+
+```python
+import signal
+
+@fixture()
+def node():
+    process = _start_node()
+
+    def _kill(signal_no: int = signal.SIGTERM) -> None:
+        process.send_signal(signal_no)
+
+    return FixtureHandle(
+        env=_make_env(process),
+        teardown=lambda: _stop_node(process),
+        hooks={"kill": _kill},
+    )
+```
+
+**Test author**
+
+```python
+import signal
+
+node = acquire_fixture("node")
+node.start()
+
+assert hasattr(node, "kill"), "node fixture must expose kill() for this test"
+node.kill(signal.SIGKILL)
+node.stop()
+```
+
+If the fixture stops exporting `kill`, the assertion fails immediately so the
+test never produces misleading results.

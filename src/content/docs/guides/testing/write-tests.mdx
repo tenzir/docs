@@ -130,7 +130,36 @@ The fixture launches `tenzir-node` from the directory that owns the test file, s
 `tenzir-node.yaml` placed next to the scenario can refer to files with relative
 paths (for example `schemas/alerts.yaml` or `../inputs/alerts.ndjson`).
 
-## Step 8: Organise defaults with `test.yaml`
+### Drive fixtures manually
+
+When you switch to the Python runner you can drive fixtures manually. The
+controller API makes it easy to start, stop, or even crash the same `node`
+fixture inside a single test:
+
+```python
+# runner: python
+# fixtures: [node]
+
+import signal
+
+# Context-manager style: `with` automatically calls `start()` and `stop()` on
+# the fixture.
+with acquire_fixture("node") as node:
+    tenzir = Executor.from_env(node.env)
+    tenzir.run("remove { version }")  # talk to the running node
+
+# Without the context manager, you need to call `start()` and `stop()` manually.
+node.start()
+Executor.from_env(node.env).run("version")
+node.stop()
+```
+
+This imperative style complements the declarative `fixtures: [node]` flow and
+is especially useful for fault-injection scenarios. The harness preloads
+helpers like `acquire_fixture`, `Executor`, and `fixtures()`, so Python-mode
+tests can call them directly.
+
+## Step 8: Organize defaults with `test.yaml`
 
 As suites grow, you can extract shared configuration into directory-level
 defaults. Place a `tests/node/test.yaml` file with convenient settings:
