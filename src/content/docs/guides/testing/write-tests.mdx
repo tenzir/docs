@@ -69,6 +69,20 @@ each test executes. Use it for transient files you do not want under version
 control; pass `--keep` when you run `tenzir-test` if you need to inspect the
 generated artefacts afterwards.
 
+### Stream raw output while iterating
+
+During early iterations you may want to inspect command output before you
+record reference artefacts. Enable passthrough mode to pipe the `tenzir`
+process output directly to your terminal while the harness still provisions
+fixtures and environment variables:
+
+```sh
+uvx tenzir-test -p tests/alerts/high-severity.tql
+```
+
+The harness enforces the exit code but skips comparisons, letting you decide
+when to capture the baseline with `--update`.
+
 ## Step 5: Capture the reference output
 
 Run the harness once in update mode to execute the pipeline and write the
@@ -158,6 +172,13 @@ This imperative style complements the declarative `fixtures: [node]` flow and
 is especially useful for fault-injection scenarios. The harness preloads
 helpers like `acquire_fixture`, `Executor`, and `fixtures()`, so Python-mode
 tests can call them directly.
+
+When you restart the same controller, the node keeps using the state and cache
+directories it created during the first `start()`. Those paths (exported via
+`TENZIR_NODE_STATE_DIRECTORY` and `TENZIR_NODE_CACHE_DIRECTORY`) live inside the
+test’s scratch directory by default and are cleaned up automatically when the
+controller goes out of scope. Acquire a fresh controller when you need a brand
+new workspace.
 
 ## Step 8: Organize defaults with `test.yaml`
 

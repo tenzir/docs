@@ -114,6 +114,10 @@ Useful options:
 - `--log-comparisons`: Log comparison targets (also via
   `TENZIR_TEST_LOG_COMPARISONS=1`).
 - `--details`: Include runner and fixture metadata next to each test outcome.
+- `-p`, `--passthrough`: Stream raw stdout/stderr to the terminal instead of
+  comparing against reference artefacts. The harness forces single-job
+  execution (overriding `--jobs` when necessary) and ignores `--update` while
+  passthrough is active.
 
 Run a subset of tests:
 
@@ -169,6 +173,25 @@ decorator. Use `replace=True` to override a bundled runner or
 
 The [runner guide](/guides/testing/add-custom-runners) contains a full example
 (`XxdRunner`).
+
+### Passthrough-aware subprocesses
+
+When passthrough mode is active the harness streams stdout/stderr directly to
+the terminal and skips reference comparisons. Runner implementations can
+respect this automatically by spawning processes through
+`tenzir_test.run.run_subprocess(...)`. The helper captures output when the
+harness needs it and inherits the parent descriptors otherwise. Pass
+`force_capture=True` when your runner must collect stdout even in passthrough
+mode. If you need to branch on the current behaviour, call
+`tenzir_test.run.get_harness_mode()` or `tenzir_test.run.is_passthrough_enabled()`.
+
+The harness cycles between three internal modes:
+
+- `HarnessMode.COMPARE` – default behaviour; compare actual output with stored baselines.
+- `HarnessMode.UPDATE` – engaged when you pass `--update`; runners should overwrite reference files.
+- `HarnessMode.PASSTHROUGH` – enabled via `-p/--passthrough`; stream output directly without touching baselines.
+
+`get_harness_mode()` returns the current enum value so custom runners can adapt logic if needed.
 
 ## Configuration and frontmatter
 
@@ -255,12 +278,18 @@ assert result.returncode == 0
 - The node process inherits the test directory as its current working
   directory, letting `tenzir-node.yaml` reference files with relative paths
   (for example `state/` or `schemas/`).
+- Each controller reuses its state and cache directories across
+  `start()`/`stop()` cycles. By default they live under the per-test scratch
+  directory (`TENZIR_TMP_DIR/tenzir-node-*`) and are removed once the fixture
+  context ends. Starting a fresh controller (for example in another test run)
+  yields a brand-new workspace.
 - The fixture reuses other inherited arguments (for example
   `--package-dirs=…`) but replaces any existing `--config=` flag so the node
   process always honours the chosen configuration file.
 - Tests can read `TENZIR_NODE_CLIENT_ENDPOINT`,
-  `TENZIR_NODE_CLIENT_BINARY`, and `TENZIR_NODE_CLIENT_TIMEOUT` from the
-  environment to connect to the spawned node.
+  `TENZIR_NODE_CLIENT_BINARY`, `TENZIR_NODE_CLIENT_TIMEOUT`,
+  `TENZIR_NODE_STATE_DIRECTORY`, and `TENZIR_NODE_CACHE_DIRECTORY` from the
+  environment to connect to the spawned node and inspect its working tree.
 - Pipelines launched by the bundled Tenzir runners automatically receive
   `--endpoint=<value>` when this fixture is active, so they talk to the
   transient node without additional wiring.
@@ -306,7 +335,8 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 - `TENZIR_TEST_LOG_COMPARISONS` – Enable comparison logging.
 
 Fixtures often publish additional variables (for example
-`TENZIR_NODE_CLIENT_*`, `HTTP_FIXTURE_URL`).
+`TENZIR_NODE_CLIENT_*`, `TENZIR_NODE_STATE_DIRECTORY`,
+`TENZIR_NODE_CACHE_DIRECTORY`, `HTTP_FIXTURE_URL`).
 
 During execution the harness also adds transient variables such as
 `TENZIR_TMP_DIR` so tests and fixtures can create temporary artefacts without
