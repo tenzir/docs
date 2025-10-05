@@ -133,6 +133,34 @@ from the project and external checkouts:
 uvx tenzir-test tests/alerts ../contrib/plugins/*/tests
 ```
 
+### Run multiple projects with one command
+
+Pass additional project directories after `--root` to execute several projects
+in one go. The directory given to `--root` acts as the **root project**; all
+other directories are treated as **satellites**:
+
+```sh
+uvx tenzir-test --root example-project example-satellite
+```
+
+Key rules:
+
+- The root project provides the baseline configuration (fixtures, runners,
+  `test.yaml` defaults, inputs). Satellites layer their own fixtures and
+  runners on top; duplicate names raise an error so conflicts surface early.
+- Paths printed in the CLI summary are relative to the working directory. The
+  harness announces each project before running it and lists the runner mix per
+  project for quick insight.
+- You can target subsets inside each project with additional positional
+  arguments (`tenzir-test --root main secondary tests/smoke`). When you skip
+  `--root` entirely and only list satellite directories, the harness runs those
+  satellites in isolation.
+- Satellites keep their own `tests/`, `inputs/`, `fixtures/`, and `runners/`
+  folders. A root project can host shared assets that satellites reuse without
+  duplication—for example, the example repository includes an
+  `example-satellite/` directory that consumes the `xxd` runner exported by the
+  root project while defining a satellite-specific fixture.
+
 To regenerate baselines while targeting a specific binary and project root:
 
 ```sh
@@ -164,7 +192,9 @@ Selection flow:
 Place scripts (for example under `tests/shell/`) with the `.sh` suffix to run
 them under `bash -eu` via the `shell` runner. The harness also prepends
 `<root>/_shell` to `PATH` so project-specific helper binaries become
-discoverable.
+discoverable. The runner captures stdout and stderr (like `2>&1`) and compares
+the combined output with `<test>.txt`; run `tenzir-test --update path/to/test.sh`
+when you need to refresh the baseline.
 
 Register custom runners in `runners/__init__.py` via
 `tenzir_test.runners.register()` or the `@tenzir_test.runners.startup()`

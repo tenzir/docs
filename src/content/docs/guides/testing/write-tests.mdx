@@ -115,6 +115,21 @@ uvx tenzir-test
 When the output diverges, the harness prints a diff and returns a non-zero exit
 code. Use `--log-comparisons` for extra insight when you debug mismatches.
 
+### Run multiple projects together
+
+Large organisations often split suites across several repositories but still
+want an aggregated run. List additional project directories after `--root` to
+execute them sequentially under a single invocation:
+
+```sh
+uvx tenzir-test --root example-project ../example-satellite
+```
+
+The root project (`example-project` above) supplies the shared fixtures and
+runners. Satellites inherit those definitions, can register their own helpers,
+and run their tests in isolation. The CLI prints a compact summary showing how
+many tests each project contributes and which runners are involved.
+
 ## Step 7: Introduce a fixture
 
 Fixtures let you bootstrap external resources and expose their configuration
