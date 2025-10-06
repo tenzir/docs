@@ -154,10 +154,13 @@ Keep the runner in your template repository or internal tooling so other
 projects can copy it verbatim. Use `runners.register_alias("xxd-hexdump", "xxd")`
 when you prefer a more descriptive name in frontmatter.
 
-When you invoke the harness with multiple projects in the same command, the
-root project’s runners load first and satellites reuse them automatically. That
-makes it simple to keep shared runners (like `xxd`) in a central project while
-satellite suites focus on their own tests.
+When you invoke the harness with multiple projects in the same command, pass
+`--all-projects` so the root project executes alongside the satellites. The
+positional paths you list after the flags form the **selection**; in this case
+it usually only names satellite roots. `--all-projects` opts the root back in,
+its runners load first, and satellites reuse them automatically. That makes it
+simple to keep shared runners (like `xxd`) in a central project while satellite
+suites focus on their own tests.
 
 ## Next steps
 

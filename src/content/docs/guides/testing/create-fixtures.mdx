@@ -127,18 +127,19 @@ compare the live response against the baseline.
 
 With the echo workflow in place you can:
 
-- Serve canned responses from files under `inputs/` for more realistic scenarios,
-  or redirect `TENZIR_INPUTS` with an `inputs:` entry in `test.yaml` when the
-  data lives elsewhere.
+- Serve canned responses from files under `inputs/` for more realistic
+  scenarios, or redirect `TENZIR_INPUTS` with an `inputs:` entry in `test.yaml`
+  when the data lives elsewhere.
 - Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on
   authentication behaviour.
 - Harden the cleanup in your `finally` block (or factor it into a helper) when
   fixtures manage external processes, containers, or cloud resources.
-- Reuse the fixture from satellite projects. When you call
-  `tenzir-test --root main-project satellite-a`, the satellite automatically
-  imports the root project’s fixtures before loading its own. If a satellite
-  needs specialised behaviour, it can register an additional fixture with a new
-  name while still leaning on the shared implementations.
+- Reuse the fixture from satellite projects. When you call `tenzir-test --root
+  main-project --all-projects satellite-a`, the selection only names the
+  satellite root, so `--all-projects` keeps the main project in the run. The
+  satellite automatically imports the root project’s fixtures before loading its
+  own. If a satellite needs specialised behaviour, it can register an additional
+  fixture with a new name while still leaning on the shared implementations.
 
 Check the [test framework reference](/reference/test-framework/) for more
 fixture APIs, including helpers that tell you which fixtures the current test

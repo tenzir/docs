@@ -118,8 +118,29 @@ Useful options:
   comparing against reference artefacts. The harness forces single-job
   execution (overriding `--jobs` when necessary) and ignores `--update` while
   passthrough is active.
+- `-a`, `--all-projects`: Run the root project together with any satellites
+  provided on the command line.
 
-Run a subset of tests:
+## Selections
+
+A *selection* is the ordered list of positional paths you pass after the CLI
+flags. Each element can point to a single test file, a directory, or an entire
+project. The harness resolves every element relative to the current working
+directory first and then relative to the root project. How you shape the
+selection determines which projects run:
+
+- No positional arguments → run every test in the root project.
+- Paths inside the root project → run only those targets (plus any explicitly
+  named satellites).
+- Paths that resolve to satellite projects → run those satellites, skipping the
+  root unless you also request it.
+
+Use `--all-projects` when you want the root project to execute alongside a
+selection that only names satellites. This keeps the CLI predictable: the
+selection lists the exact satellites you care about, and the flag opts the root
+back in without duplicating its path on the command line.
+
+## Run a subset of tests
 
 ```sh
 uvx tenzir-test tests/alerts/high-severity.tql
@@ -136,11 +157,12 @@ uvx tenzir-test tests/alerts ../contrib/plugins/*/tests
 ### Run multiple projects with one command
 
 Pass additional project directories after `--root` to execute several projects
-in one go. The directory given to `--root` acts as the **root project**; all
-other directories are treated as **satellites**:
+in one go. Include `--all-projects` so the root executes next to its satellites.
+The directory given to `--root` acts as the **root project**; all other
+directories are treated as **satellites**:
 
 ```sh
-uvx tenzir-test --root example-project example-satellite
+uvx tenzir-test --root example-project --all-projects example-satellite
 ```
 
 Key rules:
@@ -152,9 +174,9 @@ Key rules:
   harness announces each project before running it and lists the runner mix per
   project for quick insight.
 - You can target subsets inside each project with additional positional
-  arguments (`tenzir-test --root main secondary tests/smoke`). When you skip
-  `--root` entirely and only list satellite directories, the harness runs those
-  satellites in isolation.
+  arguments (`tenzir-test --root main --all-projects secondary tests/smoke`).
+  When you skip `--root` entirely and only list satellite directories, the
+  harness runs those satellites in isolation.
 - Satellites keep their own `tests/`, `inputs/`, `fixtures/`, and `runners/`
   folders. A root project can host shared assets that satellites reuse without
   duplication—for example, the example repository includes an
