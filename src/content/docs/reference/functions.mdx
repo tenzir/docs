@@ -23,6 +23,50 @@ functions:
     description: 'Computes the square root of a number.'
     example: 'sqrt(49)'
     path: 'reference/functions/sqrt'
+  - name: 'add'
+    description: 'Adds an element into a list if it doesn''t already exist (set-insertion).'
+    example: 'xs.add(y)'
+    path: 'reference/functions/add'
+  - name: 'append'
+    description: 'Inserts an element at the back of a list.'
+    example: 'xs.append(y)'
+    path: 'reference/functions/append'
+  - name: 'concatenate'
+    description: 'Merges two lists.'
+    example: 'concatenate(xs, ys)'
+    path: 'reference/functions/concatenate'
+  - name: 'get'
+    description: 'Gets a field from a record or an element from a list'
+    example: 'xs.get(index, fallback)'
+    path: 'reference/functions/get'
+  - name: 'length'
+    description: 'Retrieves the length of a list.'
+    example: '[1,2,3].length()'
+    path: 'reference/functions/length'
+  - name: 'map'
+    description: 'Maps each list element to an expression.'
+    example: 'xs.map(x => x + 3)'
+    path: 'reference/functions/map'
+  - name: 'prepend'
+    description: 'Inserts an element at the start of a list.'
+    example: 'xs.prepend(y)'
+    path: 'reference/functions/prepend'
+  - name: 'remove'
+    description: 'Removes all occurrences of an element from a list.'
+    example: 'xs.remove(y)'
+    path: 'reference/functions/remove'
+  - name: 'sort'
+    description: 'Sorts lists and record fields.'
+    example: 'xs.sort()'
+    path: 'reference/functions/sort'
+  - name: 'where'
+    description: 'Filters list elements based on a predicate.'
+    example: 'xs.where(x => x > 5)'
+    path: 'reference/functions/where'
+  - name: 'zip'
+    description: 'Combines two lists into a list of pairs.'
+    example: 'zip(xs, ys)'
+    path: 'reference/functions/zip'
   - name: 'all'
     description: 'Computes the conjunction (AND) of all grouped boolean values.'
     example: 'all([true,true,false])'
@@ -107,42 +151,6 @@ functions:
     description: 'Computes the variance of all grouped values.'
     example: 'variance([1,2,3])'
     path: 'reference/functions/variance'
-  - name: 'append'
-    description: 'Inserts an element at the back of a list.'
-    example: 'xs.append(y)'
-    path: 'reference/functions/append'
-  - name: 'concatenate'
-    description: 'Merges two lists.'
-    example: 'concatenate(xs, ys)'
-    path: 'reference/functions/concatenate'
-  - name: 'get'
-    description: 'Gets a field from a record or an element from a list'
-    example: 'list.get(index, default)'
-    path: 'reference/functions/get'
-  - name: 'length'
-    description: 'Retrieves the length of a list.'
-    example: '[1,2,3].length()'
-    path: 'reference/functions/length'
-  - name: 'map'
-    description: 'Maps each list element to an expression.'
-    example: 'xs.map(x => x + 3)'
-    path: 'reference/functions/map'
-  - name: 'prepend'
-    description: 'Inserts an element at the start of a list.'
-    example: 'xs.prepend(y)'
-    path: 'reference/functions/prepend'
-  - name: 'sort'
-    description: 'Sorts lists and record fields.'
-    example: 'xs.sort()'
-    path: 'reference/functions/sort'
-  - name: 'where'
-    description: 'Filters list elements based on a predicate.'
-    example: 'xs.where(x => x > 5)'
-    path: 'reference/functions/where'
-  - name: 'zip'
-    description: 'Combines two lists into a list of pairs.'
-    example: 'zip(xs, ys)'
-    path: 'reference/functions/zip'
   - name: 'bit_and'
     description: 'Computes the bit-wise AND of its arguments.'
     example: 'bit_and(lhs, rhs)'
@@ -525,7 +533,7 @@ functions:
     path: 'reference/functions/unflatten'
   - name: 'get'
     description: 'Gets a field from a record or an element from a list'
-    example: 'list.get(index, default)'
+    example: 'xs.get(index, fallback)'
     path: 'reference/functions/get'
   - name: 'has'
     description: 'Checks whether a record has a specified field.'
@@ -1197,6 +1205,14 @@ is_v6(::1)
 
 <CardGrid>
 
+<ReferenceCard title="add" description="Adds an element into a list if it doesn't already exist (set-insertion)." href="/reference/functions/add">
+
+```tql
+xs.add(y)
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="append" description="Inserts an element at the back of a list." href="/reference/functions/append">
 
 ```tql
@@ -1216,7 +1232,7 @@ concatenate(xs, ys)
 <ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
 
 ```tql
-list.get(index, default)
+xs.get(index, fallback)
 ```
 
 </ReferenceCard>
@@ -1241,6 +1257,14 @@ xs.map(x => x + 3)
 
 ```tql
 xs.prepend(y)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="remove" description="Removes all occurrences of an element from a list." href="/reference/functions/remove">
+
+```tql
+xs.remove(y)
 ```
 
 </ReferenceCard>
@@ -1588,7 +1612,7 @@ record.print_yaml()
 <ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
 
 ```tql
-list.get(index, default)
+xs.get(index, fallback)
 ```
 
 </ReferenceCard>
