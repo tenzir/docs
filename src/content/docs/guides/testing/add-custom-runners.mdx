@@ -4,7 +4,7 @@ title: Add custom runners
 
 Runners tell `tenzir-test` how to execute a discovered file. This guide shows
 you how to register the XXD runner from the example project so you can compare
-binary artefacts by dumping their hexadecimal representation with `xxd`.
+binary artifacts by dumping their hexadecimal representation with `xxd`.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ in
 If you prefer to start from a scaffold, drop the following template into
 `runners/xxd.py` and fill in the `TODO` notes where your implementation needs
 to differ (for example when you call a different tool or emit additional
-artefacts).
+artifacts).
 
 ```python
 # runners/xxd.py
@@ -45,7 +45,7 @@ from tenzir_test.runners._utils import get_run_module
 
 
 class XxdRunner(runners.ExtRunner):
-    """Hexdump runner that turns *.xxd files into reference artefacts."""
+    """Hexdump runner that turns *.xxd files into reference artifacts."""
 
     def __init__(self) -> None:
         super().__init__(name="xxd", ext="xxd")
@@ -81,7 +81,7 @@ class XxdRunner(runners.ExtRunner):
 
         output = completed.stdout or b""
 
-        # 4. Update reference artefacts when requested.
+        # 4. Update reference artifacts when requested.
         ref_path = test.with_suffix(".txt")
         if update:
             ref_path.write_bytes(output)
@@ -164,12 +164,12 @@ suites focus on their own tests.
 
 ## Next steps
 
-- Pair the runner with fixtures that download or generate binary artefacts
+- Pair the runner with fixtures that download or generate binary artifacts
   before each test.
 - Use directory-level `test.yaml` files or per-test frontmatter to set
   `inputs:` when the runner should read data from a different directory than the
   project default.
-- Extend the runner to emit `*.diff` artefacts when the hexdumps diverge.
+- Extend the runner to emit `*.diff` artifacts when the hexdumps diverge.
 - Branch on `run.get_harness_mode()` or `run.is_passthrough_enabled()` when you
   need bespoke behaviour for passthrough runs, but prefer to rely on
   `run.run_subprocess()` for most cases so output handling stays consistent.

@@ -40,7 +40,7 @@ If the command succeeds, you're ready to add tests.
 
 ## Step 3: Add shared data
 
-Populate `inputs/` with artefacts that tests will read. The example below stores
+Populate `inputs/` with artifacts that tests will read. The example below stores
 a short NDJSON dataset that models a few alerts.
 
 ```jsonl
@@ -54,7 +54,7 @@ Save the snippet as `inputs/alerts.ndjson`.
 ## Step 4: Author a pipeline test
 
 Create your first scenario under `tests/`. The harness discovers tests
-recursively, so you can organise them by feature or risk level. Here, you create
+recursively, so you can organize them by feature or risk level. Here, you create
 `tests/alerts/high-severity.tql`.
 
 ```tql
@@ -67,12 +67,12 @@ sort id
 The harness also injects a unique scratch directory into `TENZIR_TMP_DIR` while
 each test executes. Use it for transient files you do not want under version
 control; pass `--keep` when you run `tenzir-test` if you need to inspect the
-generated artefacts afterwards.
+generated artifacts afterwards.
 
 ### Stream raw output while iterating
 
 During early iterations you may want to inspect command output before you
-record reference artefacts. Enable passthrough mode to pipe the `tenzir`
+record reference artifacts. Enable passthrough mode to pipe the `tenzir`
 process output directly to your terminal while the harness still provisions
 fixtures and environment variables:
 
@@ -229,7 +229,7 @@ wipe state between runs.
 You now have a project that owns its inputs, tests, fixtures, and baselines.
 From here you can:
 
-- Add custom runners under `runners/` when you need specialised logic around
+- Add custom runners under `runners/` when you need specialized logic around
   `tenzir` invocations.
 - Build Python fixtures that publish or verify data through the helper APIs in
   `tenzir_test.fixtures`.

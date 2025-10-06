@@ -101,7 +101,7 @@ http env("HTTP_FIXTURE_URL"), body=this
 Fixtures receive the same per-test scratch directory as the scenario itself via
 `TENZIR_TMP_DIR`. Use it to stage temporary files or logs that should disappear
 after the run. Launch the harness with `--keep` when you want to retain those
-artefacts for debugging.
+artifacts for debugging.
 
 ## Step 4: Capture the reference output
 
@@ -131,15 +131,16 @@ With the echo workflow in place you can:
   scenarios, or redirect `TENZIR_INPUTS` with an `inputs:` entry in `test.yaml`
   when the data lives elsewhere.
 - Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on
-  authentication behaviour.
+  authentication behavior.
 - Harden the cleanup in your `finally` block (or factor it into a helper) when
   fixtures manage external processes, containers, or cloud resources.
-- Reuse the fixture from satellite projects. When you call `tenzir-test --root
-  main-project --all-projects satellite-a`, the selection only names the
-  satellite root, so `--all-projects` keeps the main project in the run. The
-  satellite automatically imports the root project’s fixtures before loading its
-  own. If a satellite needs specialised behaviour, it can register an additional
-  fixture with a new name while still leaning on the shared implementations.
+- Reuse the fixture from satellite projects. When you call
+  `tenzir-test --root main-project --all-projects satellite-a`, the selection
+  only names the satellite root, so `--all-projects` keeps the main project in
+  the run. The satellite automatically imports the root project’s fixtures
+  before loading its own. If a satellite needs specialized behavior, it can
+  register an additional fixture with a new name while still leaning on the
+  shared implementations.
 
 Check the [test framework reference](/reference/test-framework/) for more
 fixture APIs, including helpers that tell you which fixtures the current test

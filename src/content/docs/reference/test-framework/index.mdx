@@ -115,7 +115,7 @@ Useful options:
   `TENZIR_TEST_LOG_COMPARISONS=1`).
 - `--details`: Include runner and fixture metadata next to each test outcome.
 - `-p`, `--passthrough`: Stream raw stdout/stderr to the terminal instead of
-  comparing against reference artefacts. The harness forces single-job
+  comparing against reference artifacts. The harness forces single-job
   execution (overriding `--jobs` when necessary) and ignores `--update` while
   passthrough is active.
 - `-a`, `--all-projects`: Run the root project together with any satellites
@@ -123,7 +123,7 @@ Useful options:
 
 ## Selections
 
-A *selection* is the ordered list of positional paths you pass after the CLI
+A _selection_ is the ordered list of positional paths you pass after the CLI
 flags. Each element can point to a single test file, a directory, or an entire
 project. The harness resolves every element relative to the current working
 directory first and then relative to the root project. How you shape the
@@ -193,7 +193,7 @@ uvx tenzir-test --root tests --update
 
 ## Runners
 
-| Runner   | Command/behaviour                      | Input extension | Artifact |
+| Runner   | Command/behavior                       | Input extension | Artifact |
 | -------- | -------------------------------------- | --------------- | -------- |
 | `tenzir` | `tenzir -f <test>`                     | `.tql`          | `.txt`   |
 | `python` | Execute with the active Python runtime | `.py`           | `.txt`   |
@@ -234,12 +234,12 @@ respect this automatically by spawning processes through
 `tenzir_test.run.run_subprocess(...)`. The helper captures output when the
 harness needs it and inherits the parent descriptors otherwise. Pass
 `force_capture=True` when your runner must collect stdout even in passthrough
-mode. If you need to branch on the current behaviour, call
+mode. If you need to branch on the current behavior, call
 `tenzir_test.run.get_harness_mode()` or `tenzir_test.run.is_passthrough_enabled()`.
 
 The harness cycles between three internal modes:
 
-- `HarnessMode.COMPARE` – default behaviour; compare actual output with stored baselines.
+- `HarnessMode.COMPARE` – default behavior; compare actual output with stored baselines.
 - `HarnessMode.UPDATE` – engaged when you pass `--update`; runners should overwrite reference files.
 - `HarnessMode.PASSTHROUGH` – enabled via `-p/--passthrough`; stream output directly without touching baselines.
 
@@ -391,14 +391,14 @@ Fixtures often publish additional variables (for example
 `TENZIR_NODE_CACHE_DIRECTORY`, `HTTP_FIXTURE_URL`).
 
 During execution the harness also adds transient variables such as
-`TENZIR_TMP_DIR` so tests and fixtures can create temporary artefacts without
+`TENZIR_TMP_DIR` so tests and fixtures can create temporary artifacts without
 polluting the repository. Combine it with `--keep` (or
 `TENZIR_KEEP_TMP_DIRS=1`) when you need to inspect the generated files after a
 run.
 
 ## Baselines and artifacts
 
-Regenerate reference output whenever behaviour changes intentionally:
+Regenerate reference output whenever behavior changes intentionally:
 
 ```sh
 uvx tenzir-test --update
