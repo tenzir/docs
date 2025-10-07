@@ -127,6 +127,24 @@ Need to inspect the fixture while it runs? Append `--debug` to emit lifecycle
 logs; it also turns on the verbose comparison stream. Use plain `--verbose`
 when you only need the comparison summaries.
 
+### Stabilise flaky fixture scenarios
+
+Occasionally a fixture-backed test may need a couple of tries—for example when a
+service takes slightly longer to initialise. Add `retry` to the frontmatter to
+let the harness rerun the test before giving up:
+
+```yaml
+---
+fixtures: [http]
+retry: 4
+---
+```
+
+The number is the total attempt budget (four in the example above). Intermediate
+attempts stay quiet and the final log line reports how many tries were required.
+Treat this as a temporary safety net and investigate persistent flakes; long
+retry chains mask underlying race conditions.
+
 ## Step 5: Iterate on the fixture
 
 With the echo workflow in place you can:

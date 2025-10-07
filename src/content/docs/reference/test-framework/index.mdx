@@ -267,6 +267,7 @@ Common frontmatter keys:
 | `error`    | boolean         | `false`   | Expect a non-zero exit code.                           |
 | `skip`     | string          | unset     | Mark the test as skipped (reason required).            |
 | `inputs`   | string          | project   | Override `TENZIR_INPUTS` for this directory or test.   |
+| `retry`    | integer         | `1`       | Total attempt budget for flaky tests (see below).      |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -275,6 +276,12 @@ it, so `inputs: ../data` inside `tests/alerts/test.yaml` points at
 defaults. Adjacent `tenzir.yaml` files still configure the Tenzir binary; the
 harness appends `--config=<file>` automatically. The lookup keeps working even
 when you point the CLI at extra directories on the command line.
+
+`retry` represents the **total number of attempts** the harness should make before
+declaring the test failed. Intermediate attempts stay quiet; the final outcome
+line includes `attempts=N/M` whenever the budget exceeds one. Keep the value
+small and treat it as a temporary guardrail while you fix the underlying
+flakiness.
 
 ### Tenzir configuration files
 
