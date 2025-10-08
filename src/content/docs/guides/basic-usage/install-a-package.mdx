@@ -71,9 +71,14 @@ next to your `tenzir.yaml` configuration file:
 import { FileTree } from '@astrojs/starlight/components';
 
 <FileTree>
+
 - /opt/tenzir/etc/tenzir/
   - packages/
     - your-package/
+      - operators/
+      - pipelines/
+      - config.yaml The configuration for the package
+      - package.yaml The package manifest with metadata
   - tenzir.yaml
 
 </FileTree>
@@ -87,10 +92,8 @@ The node searches for packages in the following locations:
    directories](/explanations/configuration).
 2. All directories specified in the `tenzir.package-dirs` configuration option.
 
-As an alternative to specifying inputs visually in the app or setting them
-explicitly when calling
-[`package::add`](/reference/operators/package/add), you can add a `config.yaml`
-file next to the `package.yaml` file. This example sets the inputs `endpoint`
+To provide inputs in IaC-mode, place a `config.yaml` file next to the
+`package.yaml` file. For example, this configuration sets the inputs `endpoint`
 and `policy`:
 
 ```yaml title="config.yaml"

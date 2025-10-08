@@ -217,67 +217,26 @@ object. This can happen in three ways:
    that Tenzir converts into a `config` object.
 2. Using the [`package::add`](/reference/operators/package/add) operator,
    you construct a `config` record explicitly.
-3. Using IaC-style installation, you provide a `config.yaml` with a `config`
-   key.
+3. Using IaC-style installation, you provide a `config.yaml` next to the
+   `package.yaml` manifest.
 
-Refer to the [package installation
-guide](/guides/basic-usage/install-a-package) for details on how each
-method works.
+Refer to the [package installation guide](/guides/basic-usage/install-a-package)
+for details on how each method works.
 
-The `config` record has the following structure:
-
-```yaml
-config:
-  # An optional string to identify the package version being installed.
-  version: "4.0"
-  # An unambigous description of the upstream source of this package.
-  source:
-    repository: https://github.com/tenzir/library
-    directory: example/
-    revision: 1274bd6042e4b74d07363643b5b01811e191b74c
-  # A dictionary mapping input fields to their desired values.
-  inputs:
-    filename: /opt/example/data.tsv
-  # A set of keys that override the corresponding fields in the package
-  # definition.
-  overrides:
-    pipelines:
-      example-pipeline:
-        name: Overriden name
-        disabled: true
-  # Disable all pipelines and contexts in the package.
-  disabled: true
-  # Opaque extra data that is ignored by the node.
-  metadata:
-    ansible:
-      deployment_id: 483dej2
+```yaml title="config.yaml"
+# The equivalent of `package::add inputs={...}`.
+inputs:
+  filename: /opt/example/data.tsv
+# Flag to disable all pipelines and contexts in the package.
+disabled: true
 ```
 
-### Inputs
+Tenzir replaces [inputs](/explanations/packages/#inputs), such as `from_file "{{
+inputs.filename }}"`, with their configured values when installing a package.
+You must explicitly provide values for inputs that do not have a default value
+by specifying them in your `config.yaml`:
 
-Pipeline and context definitions may contain references to template variables,
-e.g., `from_file "{{ inputs.filename }}"`. Tenzir replaces the templates with
-their configured values when installing the package.
-
-To provide non-default values for the defined inputs, use the `config.inputs`
-key:
-
-```yaml
-config:
-  inputs:
-    filename: /opt/example/data.tsv
-```
-
-### Overrides
-
-You can use the `config.overrides` object to change the value of any field in
-the package definition. This allows you to customize fields like `disabled` or
-`restart-on-error` in pipeline definitions:
-
-```yaml
-config:
-  overrides:
-    pipelines:
-      example-pipeline:
-        disabled: true
+```yaml title="config.yaml"
+inputs:
+  filename: /opt/example/data.tsv
 ```
