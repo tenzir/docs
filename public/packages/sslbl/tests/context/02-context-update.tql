@@ -1,0 +1,4 @@
+from_file f"{env("TENZIR_INPUTS")}/sslblacklist.csv" {
+  read_csv comments=true, header="timestamp,SHA1,reason"
+}
+context::update "sslbl", key=value

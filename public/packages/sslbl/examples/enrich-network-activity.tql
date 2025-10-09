@@ -1,0 +1,19 @@
+subscribe "ocsf"
+where category_uid == 4
+// Filter out network events that have SHA1 certificate hashes.
+where not tls?.certificate?.fingerprints?.where(x => x.algorithm_id == 2).is_empty()
+// Convert the list of SHA1 hashes into a record for enrichment. Since this is
+// an observable, we could have also attempted to extract observables from the
+// event first.
+unroll tls.certificate.fingerprints
+enrich "sslbl",
+  key=tls.certificate.fingerprints.value,
+  into=_tmp
+// Slap OSINT profile onto the event on match.
+if _tmp != null {
+  osint.add(move _tmp)
+  metadata.profiles?.add("osint")
+} else {
+  drop _tmp
+}
+publish "ocsf-osint"

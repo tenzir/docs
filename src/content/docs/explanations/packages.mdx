@@ -25,13 +25,12 @@ import { FileTree } from '@astrojs/starlight/components';
   - pipelines/ fully deployable pipelines
     - use-case-1.tql
     - use-case-2.tql
-  - test/ integration tests
+  - tests/ integration tests
     - inputs/
       - log.json
       - download.csv
-    - tests/
-      - test-ocsf.tql
-      - test-map.tql
+    - test-ocsf.tql
+    - test-map.tql
   - package.yaml package metadata, contexts, and inputs
 
 </FileTree>
@@ -103,9 +102,9 @@ unstoppable: true
 // TQL here
 ```
 
-### `test`: Integration tests
+### `tests`: Integration tests
 
-The `test` directory contains deterministic integration tests, primarily for
+The `tests` directory contains deterministic integration tests, primarily for
 UDOs. These tests leverage the [Test Framework](/reference/test-framework) to
 verify that operators behave correctly.
 
@@ -227,8 +226,6 @@ for details on how each method works.
 # The equivalent of `package::add inputs={...}`.
 inputs:
   filename: /opt/example/data.tsv
-# Flag to disable all pipelines and contexts in the package.
-disabled: true
 ```
 
 Tenzir replaces [inputs](/explanations/packages/#inputs), such as `from_file "{{
