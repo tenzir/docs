@@ -170,6 +170,35 @@ requested. In Python-mode tests you can call `fixtures()` to inspect the
 selection (for example `fixtures().http` returns `True` when the fixture is
 active).
 
+## Step 6: Share the fixture across multiple tests
+
+Suites let you reuse the same fixture instance for a group of tests. Define a
+suite in a directory-level `test.yaml`; every test beneath that directory joins
+the suite automatically.
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures: [http]
+timeout: 45
+```
+
+The harness activates the `http` fixture once, runs each test in
+`tests/http/`—including nested directories—in lexicographic order, and tears the
+fixture down afterwards. Suites are directory-owned, so move tests into a
+sibling directory if they should stay independent or give the subdirectory a
+different suite. Per-test frontmatter cannot declare `suite`; the harness raises
+an error to avoid mixing suite and non-suite executions in the same tree.
+
+Use selectors when you only want to run the suite while iterating:
+
+```sh
+uvx tenzir-test --select suite=smoke-http
+```
+
+Running a single file from the suite still activates the shared fixture, making
+ad-hoc debugging straightforward without hand-written setup code.
+
 ## Manual controllers
 
 Python-mode tests often need fine-grained control over fixture lifecycle to

@@ -32,6 +32,9 @@ uvx tenzir-test --help
   entries).
 - **Fixture** – Reusable environment provider registered under `fixtures/` and
   requested via frontmatter.
+- **Suite** – Directory-owned group of tests that share fixtures and run
+  sequentially. Declare it with `suite:` in a `test.yaml`; all descendants join
+  automatically.
 - **Input** – Data accessed with `TENZIR_INPUTS`; defaults to `<root>/inputs` but
   you can override it per directory or per test with an `inputs:` setting.
 - **Scratch directory** – Ephemeral workspace exposed as `TENZIR_TMP_DIR` during
@@ -143,6 +146,40 @@ Use `--all-projects` when you want the root project to execute alongside a
 selection that only names satellites. This keeps the CLI predictable: the
 selection lists the exact satellites you care about, and the flag opts the root
 back in without duplicating its path on the command line.
+
+## Suites
+
+Suites let you run several tests under one shared fixture lifecycle. Declare a
+suite in a directory-level `test.yaml`; the definition applies to every test
+under that directory, including nested subdirectories.
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures: [http]
+timeout: 45
+```
+
+Key rules:
+
+- Suites are directory-owned. Once a `test.yaml` sets `suite`, all descendants
+  belong to that suite. Put tests that should remain independent outside the
+  suite directory or in a sibling directory with a different suite.
+- Per-test frontmatter may not declare `suite`. Mixing suite and non-suite tests
+  in the same directory tree raises a configuration error.
+- Tests inside a suite inherit the suite’s defaults (`fixtures`, `timeout`, and
+  other keys) and can still override or extend them in their own frontmatter.
+- The harness runs suite members sequentially in lexicographic order of their
+  relative paths. Each suite occupies a single worker, but different suites can
+  run in parallel when `--jobs` allows it.
+- The CLI executes all suites before any remaining standalone tests so shared
+  fixtures start and stop predictably.
+- Target a specific suite with `uvx tenzir-test --select suite=smoke-http`. The
+  selection still accepts paths, so you can combine suite filters and explicit
+  directories.
+- Running an individual test file that belongs to a suite (`tenzir-test
+tests/http/echo-read.tql`) spins up the suite fixtures, runs that single test,
+  and tears the suite down immediately.
 
 ## Run a subset of tests
 

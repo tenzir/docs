@@ -182,6 +182,40 @@ The fixture launches `tenzir-node` from the directory that owns the test file, s
 `tenzir-node.yaml` placed next to the scenario can refer to files with relative
 paths (for example `schemas/alerts.yaml` or `../inputs/alerts.ndjson`).
 
+### Group fixture-backed tests into a suite
+
+When several tests should reuse the same fixture instance, promote the directory
+to a **suite** by setting `suite:` in its `test.yaml`. The suite runs each test
+sequentially under the shared fixtures before tearing them down.
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures: [http]
+timeout: 45
+```
+
+Everything under `tests/http/` (including nested directories) now belongs to the
+`smoke-http` suite. Suites are directory-owned: once you opt in, every
+descendant test participates. Move tests into a sibling directory if they should
+stay independent, or set a different suite at a deeper level. Per-test
+frontmatter cannot declare `suite`; the harness raises an error to avoid mixing
+suite and non-suite tests in the same tree.
+
+Suite members run in lexicographic order of their relative paths. The harness
+executes all suites before standalone tests and pins each suite to a single
+worker so shared fixtures activate only once. Use selectors to focus on a
+specific suite while iterating:
+
+```sh
+uvx tenzir-test --select suite=smoke-http
+```
+
+Invoking a single file from the suite (`uvx tenzir-test
+tests/http/echo-read.tql`) still activates the suite fixtures, runs that test,
+and stops the fixture immediately afterwards—handy for debugging without
+manually juggling setup and teardown.
+
 ### Drive fixtures manually
 
 When you switch to the Python runner you can drive fixtures manually. The
