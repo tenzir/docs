@@ -3,10 +3,27 @@ title: Deploy on AWS
 ---
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Image } from 'astro:assets';
+import architectureDiagram from '../../../../assets/tenzir-platform-aws-architecture.png';
 
 This guide shows you how to deploy the Tenzir Platform Sovereign Edition on AWS
 using a CloudFormation template. The deployment automates the setup of all
 required infrastructure components.
+
+## Architecture overview
+
+The deployment creates a complete platform infrastructure with the following components:
+
+<Image src={architectureDiagram} alt="Tenzir Platform AWS Architecture" />
+
+The architecture consists of:
+
+- **Frontend services**: Web UI (App Runner), Platform API (Lambda), and API Gateway for custom domains
+- **Gateway service**: ECS Fargate tasks behind an Application Load Balancer for node connections
+- **Data layer**: RDS PostgreSQL for platform state, S3 buckets for blob and sidepath data
+- **Security**: Cognito for authentication, Secrets Manager for credentials, ACM for TLS certificates
+- **Networking**: VPC with public/private subnets, NAT Gateway for outbound connectivity
+- **DNS**: Route53 for domain management with automatic subdomain creation
 
 :::note[Deployment architecture]
 This deployment will give you a deployment that mirrors our own setup at
