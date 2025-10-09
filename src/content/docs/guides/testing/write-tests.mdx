@@ -200,7 +200,9 @@ Everything under `tests/http/` (including nested directories) now belongs to the
 descendant test participates. Move tests into a sibling directory if they should
 stay independent, or set a different suite at a deeper level. Per-test
 frontmatter cannot declare `suite`; the harness raises an error to avoid mixing
-suite and non-suite tests in the same tree.
+suite and non-suite tests in the same tree. Likewise, tests inside the suite may
+not set `retry`—define it once in `test.yaml` so all members follow the same
+policy.
 
 Suite members run in lexicographic order of their relative paths. The harness
 executes all suites before standalone tests and pins each suite to a single

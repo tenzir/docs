@@ -84,8 +84,9 @@ def http() -> Iterator[dict[str, str]]:
 
 ## Step 3: Author a test that uses the fixture
 
-Create `tests/http-fixture-use.tql` and request the `http` fixture in the
-frontmatter. The pipeline create sample data and then crafts a HTTP request body
+Create `tests/http/echo-read.tql` and request the `http` fixture in the
+frontmatter (or rely on the suite-level `tests/http/test.yaml`). The pipeline
+creates sample data and then crafts a HTTP request body
 using the [`http`](/reference/operators/http) operator. The fixture echoes the
 payload back into the result stream.
 
@@ -111,7 +112,7 @@ Run the harness in update mode so it records the HTTP response next to the test.
 uvx tenzir-test --update
 ```
 
-You should now have `tests/http-fixture-use.txt` with the echoed payload:
+You should now have `tests/http/echo-read.txt` with the echoed payload:
 
 ```tql
 {
@@ -188,7 +189,9 @@ The harness activates the `http` fixture once, runs each test in
 fixture down afterwards. Suites are directory-owned, so move tests into a
 sibling directory if they should stay independent or give the subdirectory a
 different suite. Per-test frontmatter cannot declare `suite`; the harness raises
-an error to avoid mixing suite and non-suite executions in the same tree.
+an error to avoid mixing suite and non-suite executions in the same tree. Suite
+members also may not set their own `retry`; configure retries at the directory
+level in `test.yaml` when the entire suite should share the same policy.
 
 Use selectors when you only want to run the suite while iterating:
 

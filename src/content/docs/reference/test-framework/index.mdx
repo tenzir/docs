@@ -169,6 +169,9 @@ Key rules:
   in the same directory tree raises a configuration error.
 - Tests inside a suite inherit the suite’s defaults (`fixtures`, `timeout`, and
   other keys) and can still override or extend them in their own frontmatter.
+- Per-test frontmatter cannot set `retry` inside a suite; configure retries in
+  the suite’s `test.yaml` if you need them so every member follows the same
+  policy.
 - The harness runs suite members sequentially in lexicographic order of their
   relative paths. Each suite occupies a single worker, but different suites can
   run in parallel when `--jobs` allows it.
