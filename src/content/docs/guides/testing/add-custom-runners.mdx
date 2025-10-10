@@ -164,16 +164,12 @@ positional paths you list after the flags form the **selection**; in this case
 it usually only names satellite roots. `--all-projects` opts the root back in,
 its runners load first, and satellites reuse them automatically. That makes it
 simple to keep shared runners (like `xxd`) in a central project while satellite
-suites focus on their own tests.
+projects focus on their own tests.
 
 ## Next steps
 
 - Pair the runner with fixtures that download or generate binary artifacts
   before each test.
-- Combine custom runners with suites by adding `suite:` to a directory-level
-  `test.yaml` when several runner-backed tests should share the same fixture
-  lifecycle. Remember that once a suite is declared, its members inherit the
-  directory’s `fixtures`, `retry`, and other defaults.
 - Use directory-level `test.yaml` files or per-test frontmatter to set
   `inputs:` when the runner should read data from a different directory than the
   project default.
