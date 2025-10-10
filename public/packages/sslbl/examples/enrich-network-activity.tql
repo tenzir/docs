@@ -1,10 +1,17 @@
+---
+description: |
+  Subscribe to all OCSF events and extract those network events containing SHA-1
+  certificate hashes. Correlate those events with the SSLBL database and attach
+  the OSINT profile to matching events.
+---
+
 subscribe "ocsf"
 where category_uid == 4
 // Filter out network events that have SHA1 certificate hashes.
 where not tls?.certificate?.fingerprints?.where(x => x.algorithm_id == 2).is_empty()
-// Convert the list of SHA1 hashes into a record for enrichment. Since this is
-// an observable, we could have also attempted to extract observables from the
-// event first.
+// Convert the list of SHA1 hashes into a record for enrichment. In the future,
+// we'd want to enrich also within arrays. When we unroll we unfortunately lose
+// all other certificate hash values, so this is sub-optimal.
 unroll tls.certificate.fingerprints
 enrich "sslbl",
   key=tls.certificate.fingerprints.value,
