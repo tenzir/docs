@@ -114,12 +114,9 @@ Useful options:
 - `--coverage` and `--coverage-source-dir`: Enable LLVM coverage.
 - `-k`, `--keep`: Preserve per-test scratch directories instead of deleting
   them (same as setting `TENZIR_KEEP_TMP_DIRS=1`).
-- `--verbose`: Surface comparison activity together with inline runner and
-  fixture details (also via `TENZIR_TEST_VERBOSE=1`).
 - `--debug`: Emit framework-level diagnostics (fixture lifecycle, discovery
-  notes, etc.). This flag also enables the verbose comparison stream, so you get
-  the same inline details without passing `--verbose` separately
-  (`TENZIR_TEST_DEBUG=1` provides the same effect).
+  notes, comparison targets, etc.). The same mode is available via
+  `TENZIR_TEST_DEBUG=1`.
 - `--summary`: Print the tabular breakdown and failure tree after each project.
 - `-p`, `--passthrough`: Stream raw stdout/stderr to the terminal instead of
   comparing against reference artifacts. The harness forces single-job
@@ -127,6 +124,9 @@ Useful options:
   passthrough is active.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
+
+Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
+passing `--debug` on the command line.
 
 ## Selections
 
@@ -431,7 +431,7 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
   folder but reflects any `inputs:` override from `test.yaml` or frontmatter.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
-- `TENZIR_TEST_LOG_COMPARISONS` – Enable comparison logging.
+- `TENZIR_TEST_DEBUG` – Enable debug logging (equivalent to `--debug`).
 
 Fixtures often publish additional variables (for example
 `TENZIR_NODE_CLIENT_*`, `TENZIR_NODE_STATE_DIRECTORY`,
@@ -463,8 +463,8 @@ uvx tenzir-test --update
 - **Skipped tests** – Use `skip: reason` to document temporary skips; baseline
   files can stay empty.
 - **Noisy output** – Use `--jobs 1` to serialize worker logs, and enable
-  `--verbose` (or `--debug`) when you need to trace comparisons and fixture
-  activity.
+  `--debug` (or set `TENZIR_TEST_DEBUG=1`) when you need to trace comparisons
+  and fixture activity.
 
 ## Further reading
 

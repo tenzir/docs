@@ -125,9 +125,10 @@ Subsequent runs without `--update` bring the fixture online, hit the server, and
 compare the live response against the baseline.
 
 Need to inspect the fixture while it runs? Append `--debug` to emit lifecycle
-logs; it also turns on the verbose comparison stream. Use plain `--verbose`
-when you only need the comparison summaries and inline context, and add
-`--summary` if you want the tabular breakdown and failure tree afterwards.
+logs together with comparison targets. In CI-only scenarios set
+`TENZIR_TEST_DEBUG=1` to enable the same diagnostics without passing the flag
+at runtime, and add `--summary` if you also need the tabular breakdown and
+failure tree afterwards.
 
 ### Stabilise flaky fixture scenarios
 
