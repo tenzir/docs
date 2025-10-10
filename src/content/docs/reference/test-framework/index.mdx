@@ -97,7 +97,7 @@ my-package/
 
 ## CLI reference
 
-Run the suite from the project root:
+Run the tests from the project root:
 
 ```sh
 uvx tenzir-test
@@ -165,24 +165,20 @@ Key rules:
 - Suites are directory-owned. Once a `test.yaml` sets `suite`, all descendants
   belong to that suite. Put tests that should remain independent outside the
   suite directory or in a sibling directory with a different suite.
-- Per-test frontmatter may not declare `suite`. Mixing suite and non-suite tests
-  in the same directory tree raises a configuration error.
-- Tests inside a suite inherit the suite’s defaults (`fixtures`, `timeout`, and
-  other keys) and can still override or extend them in their own frontmatter.
-- Per-test frontmatter cannot set `retry` inside a suite; configure retries in
-  the suite’s `test.yaml` if you need them so every member follows the same
-  policy.
+- Per-test frontmatter may not declare `suite`.
+- Suite members inherit the directory defaults and can still override most keys
+  on a per-file basis. The exceptions are `fixtures` and `retry`, which must be
+  defined at the directory level once a suite is active so every member agrees
+  on the shared lifecycle. Outside suites you can still set those keys directly
+  in frontmatter.
 - The harness runs suite members sequentially in lexicographic order of their
   relative paths. Each suite occupies a single worker, but different suites can
   run in parallel when `--jobs` allows it.
 - The CLI executes all suites before any remaining standalone tests so shared
   fixtures start and stop predictably.
-- Target a specific suite with `uvx tenzir-test --select suite=smoke-http`. The
-  selection still accepts paths, so you can combine suite filters and explicit
-  directories.
-- Running an individual test file that belongs to a suite (`tenzir-test
-tests/http/echo-read.tql`) spins up the suite fixtures, runs that single test,
-  and tears the suite down immediately.
+- Run the directory that defines the suite (for example `tenzir-test tests/http`)
+  when you want to focus on it. Selecting an individual member now raises an
+  error so every run exercises the full lifecycle and shared fixtures stay in sync.
 
 ## Run a subset of tests
 

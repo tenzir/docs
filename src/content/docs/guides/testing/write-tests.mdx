@@ -43,7 +43,7 @@ If the command succeeds, you're ready to add tests.
 Populate `inputs/` with artifacts that tests will read. The example below stores
 a short NDJSON dataset that models a few alerts.
 
-```jsonl
+```json
 {"id": 1, "severity": 5, "message": "Disk usage above 90%"}
 {"id": 2, "severity": 2, "message": "Routine backup completed"}
 {"id": 3, "severity": 7, "message": "Authentication failure on admin"}
@@ -55,9 +55,9 @@ Save the snippet as `inputs/alerts.ndjson`.
 
 Create your first scenario under `tests/`. The harness discovers tests
 recursively, so you can organize them by feature or risk level. Here, you create
-`tests/alerts/high-severity.tql`.
+`tests/high-severity.tql`.
 
-```tql
+```tql title="tests/high-severity.tql"
 from_file f"{env("TENZIR_INPUTS")}/alerts.ndjson"
 where severity >= 5
 project id, message
@@ -71,13 +71,13 @@ generated artifacts afterwards.
 
 ### Stream raw output while iterating
 
-During early iterations you may want to inspect command output before you
-record reference artifacts. Enable passthrough mode to pipe the `tenzir`
-process output directly to your terminal while the harness still provisions
-fixtures and environment variables:
+During early iterations you may want to inspect command output before you record
+reference artifacts. Enable _passthrough mode_ via `--passthrough` (`-p`) to
+pipe the `tenzir` process output directly to your terminal while the harness
+still provisions fixtures and environment variables:
 
 ```sh
-uvx tenzir-test -p tests/alerts/high-severity.tql
+uvx tenzir-test --passthrough tests/high-severity.tql
 ```
 
 The harness enforces the exit code but skips comparisons, letting you decide
@@ -92,9 +92,9 @@ expected output next to the test.
 uvx tenzir-test --update
 ```
 
-The command produces `tests/alerts/high-severity.txt` with the captured stdout.
+The command produces `tests/high-severity.txt` with the captured stdout.
 
-```text
+```json
 {"id":1,"message":"Disk usage above 90%"}
 {"id":3,"message":"Authentication failure on admin"}
 ```
@@ -103,9 +103,9 @@ Review the reference file, adjust the pipeline if needed, and rerun `--update`
 until you are satisfied with the results. Commit the `.tql` test and `.txt`
 baseline together so future runs can compare against known-good output.
 
-## Step 6: Rerun the suite
+## Step 6: Rerun the tests
 
-After you check in the reference output, execute the suite _without_ `--update`.
+After you check in the reference output, execute the tests _without_ `--update`.
 The harness verifies that the actual output matches the baseline.
 
 ```sh
@@ -136,7 +136,7 @@ keep the budget small to avoid masking issues.
 
 ### Run multiple projects together
 
-Large organisations often split suites across several repositories but still
+Large organisations often split tests across several repositories but still
 want an aggregated run. List additional project directories after `--root` and
 add `--all-projects` to execute the root alongside its satellites under a single
 invocation. Those positional paths form the selection; here it only names the
@@ -150,8 +150,8 @@ The root project (`example-project` above) supplies the shared fixtures and
 runners. Satellites inherit those definitions, can register their own helpers,
 and run their tests in isolation. Because the selection only listed the
 satellite, `--all-projects` keeps the root in scope. The CLI prints a compact
-summary showing how
-many tests each project contributes and which runners are involved.
+summary showing how many tests each project contributes and which runners are
+involved.
 
 ## Step 7: Introduce a fixture
 
@@ -180,43 +180,47 @@ the baseline via `--update` just like before.
 
 The fixture launches `tenzir-node` from the directory that owns the test file, so
 `tenzir-node.yaml` placed next to the scenario can refer to files with relative
-paths (for example `schemas/alerts.yaml` or `../inputs/alerts.ndjson`).
+paths (for example `../inputs/alerts.ndjson`).
 
-### Group fixture-backed tests into a suite
+### Reuse fixtures with suites
 
-When several tests should reuse the same fixture instance, promote the directory
-to a **suite** by setting `suite:` in its `test.yaml`. The suite runs each test
-sequentially under the shared fixtures before tearing them down.
+When several tests should share the same fixture lifecycle, promote their
+directory to a **suite**. Add `suite:` to the directory’s `test.yaml` and keep
+the fixture selection alongside the other defaults:
 
 ```yaml
 # tests/http/test.yaml
 suite: smoke-http
 fixtures: [http]
 timeout: 45
+retry: 2
 ```
 
-Everything under `tests/http/` (including nested directories) now belongs to the
-`smoke-http` suite. Suites are directory-owned: once you opt in, every
-descendant test participates. Move tests into a sibling directory if they should
-stay independent, or set a different suite at a deeper level. Per-test
-frontmatter cannot declare `suite`; the harness raises an error to avoid mixing
-suite and non-suite tests in the same tree. Likewise, tests inside the suite may
-not set `retry`—define it once in `test.yaml` so all members follow the same
-policy.
+Key behaviour:
 
-Suite members run in lexicographic order of their relative paths. The harness
-executes all suites before standalone tests and pins each suite to a single
-worker so shared fixtures activate only once. Use selectors to focus on a
-specific suite while iterating:
+- Suites are directory-scoped. Once a `test.yaml` declares `suite`, every test
+  in that directory _and its subdirectories_ joins automatically. Move the
+  scenarios that should remain independent into a sibling directory.
+- Suites run sequentially on a single worker. The harness activates the shared
+  fixtures once, executes members in lexicographic order of their relative
+  paths, and tears the fixtures down afterwards. Other suites (and standalone
+  tests) still run in parallel when `--jobs` allows it.
+- Per-test frontmatter cannot introduce `suite`, and suite members may not
+  define their own `fixtures` or `retry`. Keep those policies in the directory
+  defaults so every member agrees on the shared lifecycle. Outside a suite,
+  frontmatter can still set `fixtures`, `retry`, or `timeout` as before.
+- Tests can override other keys (for example `inputs:` or additional metadata)
+  on a per-file basis when necessary.
+
+Run the `http` directory that defines the suite when you iterate on it:
 
 ```sh
-uvx tenzir-test --select suite=smoke-http
+uvx tenzir-test tests/http
 ```
 
-Invoking a single file from the suite (`uvx tenzir-test
-tests/http/echo-read.tql`) still activates the suite fixtures, runs that test,
-and stops the fixture immediately afterwards—handy for debugging without
-manually juggling setup and teardown.
+Selecting a single file inside that suite fails fast with a descriptive error,
+which keeps the fixture lifecycle predictable and prevents partial runs from
+leaving shared state behind.
 
 ### Drive fixtures manually
 

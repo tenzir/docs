@@ -85,10 +85,10 @@ def http() -> Iterator[dict[str, str]]:
 ## Step 3: Author a test that uses the fixture
 
 Create `tests/http/echo-read.tql` and request the `http` fixture in the
-frontmatter (or rely on the suite-level `tests/http/test.yaml`). The pipeline
-creates sample data and then crafts a HTTP request body
-using the [`http`](/reference/operators/http) operator. The fixture echoes the
-payload back into the result stream.
+frontmatter (or rely on `tests/http/test.yaml`). The pipeline creates sample
+data and then crafts a HTTP request body using the
+[`http`](/reference/operators/http) operator. The fixture echoes the payload
+back into the result stream.
 
 ```tql
 ---
@@ -173,9 +173,8 @@ active).
 
 ## Step 6: Share the fixture across multiple tests
 
-Suites let you reuse the same fixture instance for a group of tests. Define a
-suite in a directory-level `test.yaml`; every test beneath that directory joins
-the suite automatically.
+Suites keep a fixture alive for several tests. Declare one in a directory-level
+`test.yaml`; every descendant test joins automatically.
 
 ```yaml
 # tests/http/test.yaml
@@ -184,23 +183,26 @@ fixtures: [http]
 timeout: 45
 ```
 
-The harness activates the `http` fixture once, runs each test in
-`tests/http/`—including nested directories—in lexicographic order, and tears the
-fixture down afterwards. Suites are directory-owned, so move tests into a
-sibling directory if they should stay independent or give the subdirectory a
-different suite. Per-test frontmatter cannot declare `suite`; the harness raises
-an error to avoid mixing suite and non-suite executions in the same tree. Suite
-members also may not set their own `retry`; configure retries at the directory
-level in `test.yaml` when the entire suite should share the same policy.
+With that configuration the harness:
 
-Use selectors when you only want to run the suite while iterating:
+- Starts the `http` fixture once, runs all members in lexicographic order, and
+  tears the fixture down afterwards.
+- Pins the suite to a single worker while still running different suites (and
+  standalone tests) in parallel when `--jobs` permits it.
+- Keeps policies such as `fixtures`, `timeout`, and `retry` in the directory
+  defaults. Tests inside the suite cannot set `suite`, `fixtures`, or `retry` in
+  their own frontmatter; everything else (for example `inputs:` or additional
+  metadata) remains overridable per file. Outside of suites you can still use
+  frontmatter for any of those keys.
+
+Run the directory that owns the suite when you want to focus on it:
 
 ```sh
-uvx tenzir-test --select suite=smoke-http
+uvx tenzir-test tests/http
 ```
 
-Running a single file from the suite still activates the shared fixture, making
-ad-hoc debugging straightforward without hand-written setup code.
+Selecting a single file inside that suite now fails fast with a descriptive error.
+This keeps the lifecycle predictable and avoids partially exercised fixtures.
 
 ## Manual controllers
 

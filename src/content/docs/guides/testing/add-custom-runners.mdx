@@ -170,9 +170,10 @@ suites focus on their own tests.
 
 - Pair the runner with fixtures that download or generate binary artifacts
   before each test.
-- Combine custom runners with suites by setting `suite:` in a directory-level
+- Combine custom runners with suites by adding `suite:` to a directory-level
   `test.yaml` when several runner-backed tests should share the same fixture
-  lifecycle.
+  lifecycle. Remember that once a suite is declared, its members inherit the
+  directory’s `fixtures`, `retry`, and other defaults.
 - Use directory-level `test.yaml` files or per-test frontmatter to set
   `inputs:` when the runner should read data from a different directory than the
   project default.
