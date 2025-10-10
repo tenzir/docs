@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "generate:reference": "node scripts/generate-reference.js",
+    "lint": "pnpm run lint:markdown && pnpm run lint:eslint && pnpm run lint:prettier && pnpm run lint:linkcheck",
     "lint:markdown": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro",
     "lint:markdown:fix": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro --fix",
     "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
@@ -16,6 +17,7 @@
     "lint:prettier": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
     "lint:linkcheck": "RUN_LINK_CHECK=true pnpm build",
+    "lint:fix": "pnpm run lint:markdown:fix && pnpm run lint:eslint:fix && pnpm run lint:prettier:fix",
     "postinstall": "node scripts/fix-starlight-llms-txt.js"
   },
   "dependencies": {

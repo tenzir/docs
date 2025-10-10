@@ -40,6 +40,13 @@ Most notably:
 - Instead, use `pnpm build` to build the site and inspect the generated (HTML)
   files in the `/build` directory.
 
+### Linting
+
+- Run `pnpm lint` to execute every linter, including markdownlint, ESLint,
+  Prettier, and the link checker.
+- Run `pnpm lint:fix` to apply automatic fixes across all linters before you
+  commit.
+
 ### Git Branching and Commit Messages
 
 - For new features or fixes, use _topic branches_ that branch off `main` with
