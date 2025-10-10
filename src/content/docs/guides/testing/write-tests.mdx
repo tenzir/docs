@@ -113,9 +113,10 @@ uvx tenzir-test
 ```
 
 When the output diverges, the harness prints a diff and returns a non-zero
-exit code. Use `--verbose` for extra insight into comparison targets. Reach for
-`--debug` when you want the full framework diagnostics alongside the verbose
-stream.
+exit code. Use `--verbose` for inline runner/fixture details and extra insight
+into comparison targets. Add `--summary` if you want the tabular breakdown and
+failure tree at the end, and reach for `--debug` when you need the full
+framework diagnostics (it implies verbose automatically).
 
 ### Retry flaky tests (sparingly)
 
@@ -151,7 +152,8 @@ runners. Satellites inherit those definitions, can register their own helpers,
 and run their tests in isolation. Because the selection only listed the
 satellite, `--all-projects` keeps the root in scope. The CLI prints a compact
 summary showing how many tests each project contributes and which runners are
-involved.
+involved. Add `--summary` when you prefer the tabular breakdown and detailed
+failure listing after each project.
 
 ## Step 7: Introduce a fixture
 

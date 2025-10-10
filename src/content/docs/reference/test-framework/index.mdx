@@ -114,13 +114,13 @@ Useful options:
 - `--coverage` and `--coverage-source-dir`: Enable LLVM coverage.
 - `-k`, `--keep`: Preserve per-test scratch directories instead of deleting
   them (same as setting `TENZIR_KEEP_TMP_DIRS=1`).
-- `--verbose`: Surface comparison activity and other user-facing details (also
-  via `TENZIR_TEST_VERBOSE=1`).
+- `--verbose`: Surface comparison activity together with inline runner and
+  fixture details (also via `TENZIR_TEST_VERBOSE=1`).
 - `--debug`: Emit framework-level diagnostics (fixture lifecycle, discovery
-  notes, etc.). This flag also enables the verbose comparison stream. Use it on
-  its own when you need the full picture, or stick with `--verbose` for user-
-  facing summaries only. The same mode is available via `TENZIR_TEST_DEBUG=1`.
-- `--details`: Include runner and fixture metadata next to each test outcome.
+  notes, etc.). This flag also enables the verbose comparison stream, so you get
+  the same inline details without passing `--verbose` separately
+  (`TENZIR_TEST_DEBUG=1` provides the same effect).
+- `--summary`: Print the tabular breakdown and failure tree after each project.
 - `-p`, `--passthrough`: Stream raw stdout/stderr to the terminal instead of
   comparing against reference artifacts. The harness forces single-job
   execution (overriding `--jobs` when necessary) and ignores `--update` while
