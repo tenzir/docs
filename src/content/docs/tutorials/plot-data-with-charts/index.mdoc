@@ -1,5 +1,5 @@
 ---
-title: Plot Data with Charts
+title: Plot data with charts
 ---
 
 In this tutorial, you will learn how to **use pipelines to plot data as charts**.
@@ -8,7 +8,7 @@ The Tenzir Query Language (TQL) excels at slicing and dicing even the most
 complex shapes of data. But turning tabular results into actionable insights
 often calls for visualization. This is where charts come into play.
 
-![Charts](./plot-data-with-charts/charts.svg)
+![Charts](./charts.svg)
 
 ## Available chart types
 
@@ -32,7 +32,7 @@ Plotting data in the Explorer involves three steps:
 
 {% /steps %}
 
-![Pipeline to Chart](./plot-data-with-charts/pipeline-to-chart.svg)
+![Pipeline to Chart](./pipeline-to-chart.svg)
 
 After generating a chart, you can **download it** or **add it to a dashboard**
 to make it permanent refresh it periodically.
@@ -57,15 +57,15 @@ To make a chart permanent:
 
 1. Click the **Dashboard** button.
 
-   ![Add Chart to Dashboard](./plot-data-with-charts/add-chart-to-dashboard-1.png)
+   ![Add Chart to Dashboard](./add-chart-to-dashboard-1.png)
 
 2. Enter a title for the chart, then click **Add to Dashboard**.
 
-   ![Add Chart Title](./plot-data-with-charts/add-chart-to-dashboard-2.png)
+   ![Add Chart Title](./add-chart-to-dashboard-2.png)
 
 3. View the chart in your dashboard.
 
-   ![Chart in Dashboard](./plot-data-with-charts/add-chart-to-dashboard-3.png)
+   ![Chart in Dashboard](./add-chart-to-dashboard-3.png)
 
 {% /steps %}
 
@@ -80,7 +80,7 @@ Download a chart in the Explorer as follows:
 
 1. Click the download button in the top-right corner.
 
-   ![Download Chart](./plot-data-with-charts/download-chart-explorer.png)
+   ![Download Chart](./download-chart-explorer.png)
 
 2. Choose **PNG** or **SVG** to save the chart as an image.
 
@@ -94,7 +94,7 @@ You can also download a chart on a dashboard:
 
 2. Click **Download**
 
-   ![Download Chart](./plot-data-with-charts/download-chart-dashboard.png)
+   ![Download Chart](./download-chart-dashboard.png)
 
 3. Choose **PNG** or **SVG** to save the chart as an image.
 
@@ -143,7 +143,7 @@ understanding of the data at hand.
    chart_bar x=outcome, y=n
    ```
 
-   ![Bar chart](./plot-data-with-charts/chart-bar.png)
+   ![Bar chart](./chart-bar.png)
 
 {% /steps %}
 
@@ -166,7 +166,7 @@ from (
 chart_bar x=outcome, y=n, group=time
 ```
 
-![Grouped bar chart](./plot-data-with-charts/chart-bar-grouped.png)
+![Grouped bar chart](./chart-bar-grouped.png)
 
 To **stack** the grouped bars, add `position="stacked"`:
 
@@ -182,7 +182,7 @@ from (
 chart_bar x=outcome, y=n, group=time, position="stacked"
 ```
 
-![Stacked bar chart](./plot-data-with-charts/chart-bar-stacked.png)
+![Stacked bar chart](./chart-bar-stacked.png)
 
 #### Scale the y-axis logarithmically
 
@@ -202,7 +202,7 @@ from (
 chart_bar x=outcome, y=n
 ```
 
-![Unscaled bar chart](./plot-data-with-charts/chart-bar-nolog.png)
+![Unscaled bar chart](./chart-bar-nolog.png)
 
 The large value (`E`) dominates the chart, hiding the smaller categories.
 
@@ -219,7 +219,7 @@ from (
 chart_bar x=outcome, y=n, y_log=true
 ```
 
-![Log-scaled bar chart](./plot-data-with-charts/chart-bar-log.png)
+![Log-scaled bar chart](./chart-bar-log.png)
 
 Now, you can clearly see all the values! 👀
 
@@ -245,7 +245,7 @@ from (
 chart_pie label=category, value=percentage
 ```
 
-![Pie chart](./plot-data-with-charts/chart-pie.png)
+![Pie chart](./chart-pie.png)
 
 To provide a consistent user experience across all chart types, `chart_pie`
 treats `label` and `x` as interchangeable, as well as `value` and `y`. This
@@ -297,7 +297,7 @@ such as time series data.
    chart_line x=timestamp, y=current_memory_usage
    ```
 
-   ![Line chart](./plot-data-with-charts/chart-line.png)
+   ![Line chart](./chart-line.png)
 
 2. **Aggregate to reduce the resolution**: Plotting metrics with a 1-second
    granularity over the course of a full day can make a line chart very noisy.
@@ -313,7 +313,7 @@ such as time series data.
    chart_line x=timestamp, y=mem
    ```
 
-   ![Line chart with summarize](./plot-data-with-charts/chart-line-summarize.png)
+   ![Line chart with summarize](./chart-line-summarize.png)
 
    This looks a lot smoother! **Pro tip**: you can even further [optimize the
    above pipeline](#optimize-plotting-with-inline-expressions) by using
@@ -338,7 +338,7 @@ chart_line (
 )
 ```
 
-![Line chart with multiple series](./plot-data-with-charts/chart-line-multiple.png)
+![Line chart with multiple series](./chart-line-multiple.png)
 
 Because `current_memory_usage` comes in gigabytes and `peak_memory_usage` in
 megabytes, we cannot compare them directly. Hence we normalized the peak
@@ -381,7 +381,7 @@ from (
 chart_area x=time, y={a: a, b: b}
 ```
 
-![Area chart](./plot-data-with-charts/chart-area.png)
+![Area chart](./chart-area.png)
 
 The area under the curve gives you a strong visual impression of the total
 event volume over time.
@@ -405,7 +405,7 @@ from (
 chart_area x=time, y={a: a, b: b}, position="stacked"
 ```
 
-![Stacked area chart](./plot-data-with-charts/chart-area-stacked.png)
+![Stacked area chart](./chart-area-stacked.png)
 
 Notice the difference in the y-axis interpretation:
 
@@ -433,7 +433,7 @@ summarize timestamp, mem=mean(current_memory_usage)  // aggregation
 chart_line x=timestamp, y=mem
 ```
 
-![Line chart with summarize](./plot-data-with-charts/chart-line-summarize.png)
+![Line chart with summarize](./chart-line-summarize.png)
 
 You can push the filtering, rounding, and aggregation into the chart operator:
 
@@ -447,7 +447,7 @@ chart_line (
 )
 ```
 
-![Line chart with resolution](./plot-data-with-charts/chart-line-resolution.png)
+![Line chart with resolution](./chart-line-resolution.png)
 
 Note how this make the pipeline more succinct by removing the extra `where`,
 `set`, and `summarize` operators.
