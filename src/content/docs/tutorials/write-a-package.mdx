@@ -279,29 +279,7 @@ package::add "/path/to/sslbl", inputs={refresh_interval: 24h}
 Testing ensures that you always have a working package during development. The
 earlier you start, the better!
 
-### Step 1: verify manual installation works
-
-Since our package uses a context, we need a running node. [Spin one
-up](/guides/node-setup/deploy-a-node/) and then test the installation:
-
-```tql
-package::add "/path/to/sslbl"
-```
-
-Confirm that package, pipeline, and context setup correctly:
-
-```tql
-package::list
-context::list
-```
-
-Remove the package again after everything looks good:
-
-```tql
-package::remove "sslbl"
-```
-
-### Step 2: add tests for your operators
+### Add tests for your operators
 
 Since our package ships with user-defined operators, we highly recommend to
 write tests for them, for the following reasons:
@@ -312,16 +290,16 @@ write tests for them, for the following reasons:
 
 Yes, writing tests is often boring and cumbersome. But it doesn't have to be
 that way! With our purpose-built [test framework](/reference/test-framework) for
-the Tenzir ecosystem, it is actually quite fun. 🕺
+the Tenzir ecosystem, it is actually fun. 🕺
 
-Let's bootstrap the tests directory:
+Let's bootstrap the `tests` directory:
 
 ```sh
 mkdir tests
-mkdir tests/inputs
+mkdir tests/inputs # files we reference from tests
 ```
 
-We'll put a cropped version of https://sslbl.abuse.ch/blacklist/sslblacklist.csv
+We'll put a trimmed version of https://sslbl.abuse.ch/blacklist/sslblacklist.csv
 into `tests/inputs/`:
 
 import sslblacklistCsv from '/public/packages/sslbl/tests/inputs/sslblacklist.csv?raw';
@@ -335,7 +313,7 @@ import testFetchTql from '/public/packages/sslbl/tests/fetch.tql?raw';
 
 <Code code={testFetchTql} lang="tql" title="tests/fetch.tql" />
 
-Let's watch what it produces by running the test harness in passthrough mode
+We can watch the output by running the test harness in passthrough mode
 (`--passthrough` or `-p`):
 
 ```sh
@@ -343,7 +321,6 @@ uvx tenzir-test --passthrough
 ```
 
 ```
-❯ uvx tenzir-test -p
 i executing project: sslbl (.)
 i running 1 tests (1 jobs) in project .; passthrough
 i   1× tenzir (v5.16.0+g741888f304)
@@ -361,23 +338,21 @@ i running tests/fetch.tql (runner=tenzir) [passthrough]
 ...
 ```
 
-This looks good! Let's update the baseline/reference with this output:
+This looks good! Let's confirm the baseline/reference via `--update`::
 
 ```sh
 uvx tenzir-test --update
 ```
 
 ```txt
-❯ uvx tenzir-test -u
 i executing project: sslbl (.)
 i running 1 tests (44 jobs) in project .; update
 i   1× tenzir (v5.16.0+g741888f304)
 ✔ tests/fetch.tql
 ```
 
-Now observe that there exists a [`fetch.txt`](/packages/sslbl/tests/fetch.txt)
-file next to the [`fetch.tql`](/packages/sslbl/tests/fetch.tql) file. The
-baseline update create this file and `tenzir-test` will use it for future
+This created a [`fetch.txt`](/packages/sslbl/tests/fetch.txt) file next to the
+[`fetch.tql`](/packages/sslbl/tests/fetch.tql) file. Future runs will use it for
 comparisons.
 
 Let's test the next operator with a new file:
@@ -386,7 +361,7 @@ import testOcsfToOsintTql from '/public/packages/sslbl/tests/ocsf/to_osint.tql?r
 
 <Code code={testOcsfToOsintTql} lang="tql" title="tests/ocsf/to_osint.tql" />
 
-Again, watch it first in passthrough mode:
+Again, we first watch it first in passthrough mode:
 
 ```sh
 uvx tenzir-test --passthrough
@@ -403,22 +378,17 @@ baseline:
 uvx tenzir-test --update
 ```
 
-You can continue to test the remaining operator, or add additional tests for
-some examples.
+Continue to test the remaining operators, or add additional tests for some
+examples.
 
-:::note[Test framework package support]
-If you paid close attention, you'll notice that we are testing a user-defined
-operator here without having to worry about package installation. The test
-framework automatically detects the package layout and injects a
-`--package-dirs` option to the invocation of the `tenzir` binary.
-:::
+### Test contexts and node interaction
 
-### Step 3: add a test suite for node interaction
+Our package defines a context that lives in a node. Writing tests with nodes is
+a bit more involved than writing tests for stateless operators that we can
+simply run through the `tenzir` binary.
 
-Our package defines a context that lives in a node. Writing tests for such
-scenarios is a bit more involved than writing tests for stateless operators. To
-test node interactions, we need to use the _suite_ concept from the test
-framework, which spins up a node fixture and then executes a series of tests
+To test node interactions, we need to use the **suite** concept from the test
+framework, which spins up a single fixture and then executes a series of tests
 sequentially against that fixture. With that capability, we can finally test the
 multi-stage process of updating the context, inspecting it, and using it for an
 enrichment.
@@ -443,35 +413,35 @@ import testYaml from '/public/packages/sslbl/tests/context/test.yaml?raw';
 
 <Code code={testYaml} lang="yaml" title="tests/context/test.yaml" />
 
-Let's take a look at our tests. First, we make sure the context is installed
-properly:
+Let's take a look at our tests:
 
 import contextList from '/public/packages/sslbl/tests/context/01-context-list.tql?raw';
 
 <Code code={contextList} lang="tql" title="tests/context/01-context-list.tql" />
 
-Then we perform an update:
+Then load our input into the node's lookup table:
 
 import contextUpdate from '/public/packages/sslbl/tests/context/02-context-update.tql?raw';
 
 <Code code={contextUpdate} lang="tql" title="tests/context/02-context-update.tql" />
 
-Afterwards we make sure the that the lookup table has the expected values:
+Finally ensure that the lookup table has the expected values:
 
 import contextInspect from '/public/packages/sslbl/tests/context/03-context-inspect.tql?raw';
 
 <Code code={contextInspect} lang="tql" title="tests/context/03-context-inspect.tql" />
 
+:::note[Automatic package installation]
+When the test harness invokes the `tenzir`
+(as runner) and `tenzir-node` binary (as fixture), it passes the
+`--package-dirs` option in both cases. This ensures that user-defined operators
+are available for testing with the runner and contexts in the fixture. When
+writing tests, you can simply assume that the package is installed at the node.
+:::
+
 ## Share and contribute
 
 Phew, you made it! You now have a reusable package. 🎉
-
-:::tip[AI-based package creation]
-It's quite a bit of work to manually create a package. In the age of AI and
-modern agentic tooling, you have powertools available to fully automate this
-task. Stay tuned for updates on our [MCP Server](/reference/mcp-server), as we
-have plans to make package creation a 100% hands-off-keyboard activity.
-:::
 
 Now that you have a package, what's next?
 
@@ -482,3 +452,10 @@ Now that you have a package, what's next?
    library appear automatically in the [Tenzir
    Library](https://app.tenzir.com/library).
 3. Spread the word on social media and tag us so we can amplify it.
+
+:::tip[AI-based package creation]
+It's quite a bit of work to manually create a package. In the age of AI and
+modern agentic tooling, you have powertools available to fully automate this
+task. Stay tuned for updates on our [MCP Server](/reference/mcp-server), as we
+have plans to make package creation a 100% hands-off-keyboard activity.
+:::
