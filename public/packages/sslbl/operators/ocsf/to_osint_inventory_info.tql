@@ -1,0 +1,27 @@
+// Collect a single fetch into an array of OSINT objects.
+summarize osint=collect(this)
+// Categorization
+activity_id = 2
+activity_name = "Collect"
+category_uid = 5
+category_name = "Discovery"
+class_uid = 5021
+class_name = "OSINT Inventory Info"
+severity_id = 1
+severity = "Informational"
+type_uid = class_uid * 100 + activity_id
+// Additional context attributes
+actor = {
+  app_name: "Tenzir"
+}
+metadata = {
+  product: {
+    name: "SSLBL SSL Certificate Blacklist",
+    vendor_name: "abuse.ch",
+  },
+  version: "1.6.0",
+}
+// Occurence attributes
+time = now()
+// Apply Tenzir event metadata
+@name = "ocsf.osint_inventory_info"

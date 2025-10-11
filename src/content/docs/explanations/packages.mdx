@@ -2,22 +2,121 @@
 title: Packages
 ---
 
-A **package** is a set of pipelines and contexts that are thematically related
-and deployed together as a single unit.
+A **package** is a 1-click deployable unit that implements a specific use case. It
+contains pipelines, operators, contexts, examples, and tests. A templating
+mechanism makes packages customizable for a variety of deployment scenarios.
 
-## Anatomy of a Package
+## Anatomy of a package
 
-A package definition consists of four major parts:
+A package comes in the form of a directory with the following structure:
 
-1. **Metadata**, for example the name, author and description of the
-   package.
-2. **Inputs** that parameterize the package installation to their environment.
-3. **Pipelines and contexts** that make up the contents of the package.
-4. **Examples** that demonstrate how to use the package.
+import { FileTree } from '@astrojs/starlight/components';
 
-### Metadata
+<FileTree>
 
-Packages start with a set of metadata describing the package.
+- pkg/
+  - examples/ self-contained examples the user can run
+    - snippet.tql
+  - operators/ user-defined operators (UDO)
+    - ocsf/
+      - foo.tql
+      - bar.tql
+    - map.tql
+  - pipelines/ fully deployable pipelines
+    - use-case-1.tql
+    - use-case-2.tql
+  - tests/ integration tests
+    - inputs/
+      - log.json
+      - download.csv
+    - test-ocsf.tql
+    - test-map.tql
+  - package.yaml package metadata, contexts, and inputs
+
+</FileTree>
+
+Let's discuss each component in detail.
+
+### `examples`: Snippets to run
+
+The `examples` directory contains self-contained code snippets that demonstrate
+how to use the package. These snippets exemplify the package's features and
+provide runnable TQL code that users can execute after installing the package.
+
+You can run these examples with a single click from
+[app.tenzir.com](https://app.tenzir.com).
+
+### `operators`: User-defined operators (UDOs)
+
+The `operators` directory contains **user-defined operators (UDOs)**: reusable
+building blocks that you can use in your pipelines.
+
+Tenzir names operators using the convention `<package>::[dirs...]::<basename>`.
+In the example above, the package defines `pkg::ocsf::foo`, `pkg::ocsf::bar`,
+and `pkg::map`.
+
+You can use these operators in any pipeline:
+
+```tql
+from_file "sample.json"
+pkg::ocsf::map // 👈 user-defined operator (UDO) defined in /pkg/ocsf/map.tql
+to_file "ocsf.json"
+```
+
+The `tests/` directory can include tests for these operators.
+
+### `pipelines`: End-to-end deployable TQL
+
+The `pipelines` directory contains fully deployable TQL pipelines. Unlike UDOs,
+pipelines are complete units that must begin with an [input
+operator](/explanations/architecture/pipeline) and end with an [output
+operator](/explanations/architecture/pipeline). These pipelines often use UDOs
+defined in the same package.
+
+You can configure pipelines using frontmatter at the beginning of the TQL file.
+The following options are available:
+
+- `restart-on-error`: Configures automatic restart behavior when the pipeline
+  encounters an error. By default, pipelines stop running and show an error
+  state. This option causes pipelines to restart automatically instead.
+  - Omit the option, or set it to `null` or `false` to disable automatic
+    restarts.
+  - Set it to `true` to enable restarts with a default delay of 1 minute.
+  - Set it to a valid duration to enable restarts with a custom delay.
+- `disabled`: Set to `true` to disable the pipeline. Defaults to `false`.
+- `unstoppable`: Set to `true` to make the pipeline run automatically and
+  indefinitely. You cannot pause or stop unstoppable pipelines manually. If
+  they complete, they end up in a failed state. If you enable
+  `restart-on-error`, they restart after the specified duration. Defaults to
+  `false`.
+
+Example:
+
+```tql
+---
+restart-on-error: 1m
+disabled: false
+unstoppable: true
+---
+
+// TQL here
+```
+
+### `tests`: Integration tests
+
+The `tests` directory contains deterministic integration tests, primarily for
+UDOs. These tests leverage the [Test Framework](/reference/test-framework) to
+verify that operators behave correctly.
+
+### `package.yaml`: Metadata
+
+The `package.yaml` file serves as the **package manifest**. It contains
+metadata about a package and acts as a marker to identify a directory as a
+package. The file is required for every package.
+
+#### Package description
+
+The beginning of `package.yaml` provides descriptive metadata:
 
 ```yaml
 # The unique ID of the package. (required)
@@ -42,10 +141,11 @@ description: |
   tincidunt venenatis semper.
 ```
 
-### Inputs
+#### Inputs
 
-Inputs are template variables that get replaced upon package installation. This
-allows the package definition to be independent of the deployed environment.
+The `inputs` section contains template variables that Tenzir replaces when you
+install the package. This allows the package definition to remain independent
+of the deployed environment.
 
 ```yaml
 # Define user inputs to customize the package installation.
@@ -63,55 +163,24 @@ inputs:
     default: 1s
 ```
 
-Inputs can be referenced in pipeline and example definitions and in context
-arguments with the syntax `{{ inputs.input-name }}`. They are replaced by their
-configured values when installing a package. For example, with the input
-configured as above the pipeline `every {{ inputs.refresh-rate }} { version }`
-would print the version once per second by default.
+You can reference inputs in pipeline and example definitions, and in context
+arguments using the syntax `{{ inputs.input-name }}`. Tenzir replaces these
+references with their configured values when installing the package. For
+example, with the input configured as above, the pipeline `every {{
+inputs.refresh-rate }} { version }` would print the version once per second by
+default.
 
-To write double curly braces, use the syntax `{{ '{{' }}` to produce the
-literal string enclosed inside the single quotes.
+To write double curly braces literally, use the syntax `{{ '{{' }}` to produce
+the literal string enclosed inside the single quotes.
 
-### Pipelines and Contexts
+### Contexts
 
-A package is a unit of pipelines and contexts that is deployed together. The
-`pipelines` and `contexts` fields define them:
+The `contexts` section defines contexts for
+[enrichment](/explanations/enrichment).
+
+Here is an example context definition:
 
 ```yaml
-# Define any number of pipelines.
-pipelines:
-  update-context:
-    # An optional user-facing name for the pipeline. Defaults to the id.
-    name: Update Example Context
-    # An optional user-facing description of the pipeline.
-    description: |
-      Periodically refresh the Example lookup table.
-    # The definition of the pipeline. Configured pipelines that fail to start
-    # cause the node to fail to start.
-    definition: |
-      every ${{ inputs.refresh-rate }} {
-        load https://example.org/
-        read_csv allow-comments=true
-        context::update "example", key="foo"
-      }
-    # Pipelines that encounter an error stop running and show an error state.
-    # This option causes pipelines to automatically restart when they
-    # encounter an error instead. The first restart happens immediately, and
-    # subsequent restarts after the configured delay, defaulting to 1 minute.
-    # The following values are valid for this option:
-    # - Omit the option, or set it to null or false to disable.
-    # - Set the option to true to enable with the default delay of 1 minute.
-    # - Set the option to a valid duration to enable with a custom delay.
-    restart-on-error: 1 minute
-    # Disables the pipeline.
-    disabled: false
-    # Unstoppable pipelines will run automatically and indefinitely.
-    # They cannot be paused or stopped manually.
-    # If they do complete, they will end up in a failed state.
-    # If `restart-on-error` is enabled, they will restart after the specified
-    # duration.
-    unstoppable: true
-
 # Define any number of contexts.
 contexts:
   # A unique name for the context that's used in the context::* operators to
@@ -138,107 +207,33 @@ contexts:
     disabled: false
 ```
 
-### Examples
+## Configuration during installation
 
-Packages may include examples that showcase how to use the package, e.g., by
-showing how to display a chart that visualizes data imported by a package, or by
-providing a set of usage examples for data provided by a package.
-
-```yaml
-# Examples contain a name, a description, and a pipeline definition for use with
-# the explorer on app.tenzir.com.
-examples:
-  - name: Show example context details
-    description: |
-      This pipelines shows the contents of the example lookup table.
-    definition: |
-      context::inspect "example"
-  - name: |
-      Visualize successful lookups with the `example` context in the last week
-    description: |
-      Creates a stacked area chart that shows the number of hourly hits of
-      pipelines using the `lookup` operator with the `example` context.
-    definition: |
-      metrics lookup
-      | where context == "example"
-      | where timestamp > 7d ago
-      | summarize retro_hits=sum(retro.hits), live_hits=sum(live.hits)
-          by timestamp
-          resolution 1h
-      | sort timestamp
-      | chart area --position stacked
-```
-
-## Configuration During Installation
-
-During installation, the package definition gets merged with a
-configuration object. This can happen in three ways:
+During installation, Tenzir merges the package definition with a configuration
+object. This can happen in three ways:
 
 1. In the [Tenzir Library](https://app.tenzir.com/library), you provide inputs
-   that get converted into a `config` object.
+   that Tenzir converts into a `config` object.
 2. Using the [`package::add`](/reference/operators/package/add) operator,
    you construct a `config` record explicitly.
-3. Using IaC-style installation, you provide a `config.yaml` with a `config`
-   key.
+3. Using IaC-style installation, you provide a `config.yaml` next to the
+   `package.yaml` manifest.
 
-Refer to the [package installation
-guide](/guides/basic-usage/install-a-package) for details on how each
-method works.
+Refer to the [package installation guide](/guides/basic-usage/install-a-package)
+for details on how each method works.
 
-The `config` record has the following structure:
-
-```yaml
-config:
-  # An optional string to identify the package version being installed.
-  version: "4.0"
-  # An unambigous description of the upstream source of this package.
-  source:
-    repository: https://github.com/tenzir/library
-    directory: example/
-    revision: 1274bd6042e4b74d07363643b5b01811e191b74c
-  # A dictionary mapping input fields to their desired values.
-  inputs:
-    filename: /opt/example/data.tsv
-  # A set of keys that override the corresponding fields in the package
-  # definition.
-  overrides:
-    pipelines:
-      example-pipeline:
-        name: Overriden name
-        disabled: true
-  # Disable all pipelines and contexts in the package.
-  disabled: true
-  # Opaque extra data that is ignored by the node.
-  metadata:
-    ansible:
-      deployment_id: 483dej2
+```yaml title="config.yaml"
+# The equivalent of `package::add inputs={...}`.
+inputs:
+  filename: /opt/example/data.tsv
 ```
 
-### Inputs
+Tenzir replaces [inputs](/explanations/packages/#inputs), such as `from_file "{{
+inputs.filename }}"`, with their configured values when installing a package.
+You must explicitly provide values for inputs that do not have a default value
+by specifying them in your `config.yaml`:
 
-Pipeline and context definitions may contain references to template variables,
-as in `from {{ inputs.filename }} version`, that are replaced by their
-configured value when installing the package.
-
-In order to provide non-default values for the defined inputs, use the
-`config.inputs` key:
-
-```yaml
-config:
-  inputs:
-    filename: /opt/example/data.tsv
-```
-
-### Overrides
-
-The `config.overrides` object is used to change the value of any field in the
-package definition. This is intended to customize fields like `disabled` or
-`restart-on-error` in pipeline definitions:
-
-```yaml
-config:
-  overrides:
-    pipelines:
-      example-pipeline:
-        disabled: true
+```yaml title="config.yaml"
+inputs:
+  filename: /opt/example/data.tsv
 ```
