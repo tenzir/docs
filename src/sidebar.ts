@@ -138,9 +138,9 @@ export const guides = [
 
 export const tutorials = [
   "tutorials/learn-idiomatic-tql",
+  "tutorials/write-a-package",
   "tutorials/map-data-to-ocsf",
   "tutorials/plot-data-with-charts",
-  "tutorials/write-a-package",
 ];
 
 export const explanations = [
