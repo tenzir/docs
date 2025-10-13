@@ -474,16 +474,18 @@ log files, Kafka messages, or via Syslog over the wire. Even the encoding may
 vary. Zeek TSV is one way you can configure Zeek, but JSON output is another
 format. Similarly, users may want to consume the data in various ways.
 
-For maximum flexibility, we should split the pipeline into multiple,
-independently usable pieces. The next section describes how to achieve this.
+In theory, we're done now. We have a working mapping. It's just not yet very
+(re)usable. For maximum flexibility, we want to split the pipeline into
+independently usable snippets. The next section describes how to achieve this.
 
 ### Step 3: Package the mapping
 
-To make our OCSF mapping reusable, we put it into a
-[package](/explanations/packages) as a **user-defined operator**. There is an
+To make our OCSF mapping more reusable, we extract it as **user-defined
+operator** and put it into a [package](/explanations/packages). There is an
 entire [tutorial on writing packages](/tutorials/write-a-package), but all you
 need to know right now that packages are one-click installable bundles that you
-can flexibly deploy.
+can flexibly deploy. After installation, you can call the newly introduced
+mapping operators from any pipeline.
 
 #### Break down complexity with user-defined operators
 
