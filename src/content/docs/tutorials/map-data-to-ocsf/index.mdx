@@ -485,7 +485,9 @@ entire [tutorial on writing packages](/tutorials/write-a-package), but all you
 need to know right now that packages are one-click installable bundles that you
 can flexibly deploy.
 
-Let's assume your package comes with a user-defined operator called
+#### Break down complexity with user-defined operators
+
+Let's work towards a package that comes with a user-defined operator called
 `zeek::ocsf::map` that maps Zeek connection logs to OCSF:
 
 ```tql
@@ -512,8 +514,8 @@ import { FileTree } from '@astrojs/starlight/components';
 
 </FileTree>
 
-Notice how `zeek::ocsf::map` has two modules that are double-colon-separated:
-`zeek` and `ocsf`. The directory structure in the package determines the module
+Notice how `zeek::ocsf::map` has two modules that are colon-separated: `zeek`
+and `ocsf`. The directory structure in the package determines the module
 hierarchy:
 
 <FileTree>
@@ -532,7 +534,7 @@ import mapTql from '/public/packages/zeek/operators/ocsf/map.tql?raw';
 
 <Code code={mapTql} lang="tql" title="zeek/operators/ocsf/map.tql" />
 
-In this layout, you'd put the mapping pipelines in the following directories:
+In this layout, you'd put the mapping operators in the following directories:
 
 <FileTree>
 
@@ -547,17 +549,91 @@ In this layout, you'd put the mapping pipelines in the following directories:
 
 </FileTree>
 
-As you add more meat on the bones of the `zeek` package, you could provide a
-variety of different onboarding pipelines to facilitate getting data in. Refer
-to our [package writing tutorial](/tutorials/write-a-package) for more details.
+#### Write tests for prod-grade reliability
+
+To achieve production-grade quality of your mappings, you must ensure that they
+do what they promise. In practice, this means shipping tests along the mappings:
+given a mapping, test whether a provided input produces a valid output.
+
+:::tip[Package writing tutorial]
+We have an [in-depth tutorial on how to write
+packages](/tutorials/write-a-package). This is just a small excerpt to showcase
+you you can test your OCSF mappings.
+:::
+
+This is where our [test framework](/reference/test-framework) comes into play.
+Put your test scenarios in `tests/` and sample data into `tests/inputs`:
+
+<FileTree>
+
+- zeek/
+  - tests/
+    - inputs/ 👈 raw log samples
+      - conn.log
+      - ...
+    - map_one.tql 👈 test scenario go anywhere else
+    - map_one.txt 👈 expected output for test scneario
+    - ...
+
+</FileTree>
+
+Here's an example of the test:
+
+import mapOneTql from '/public/packages/zeek/tests/map_one.tql?raw';
+
+<Code code={mapOneTql} lang="tql" title="zeek/tests/map_one.tql" />
+
+Now run the test framework in the package directory:
+
+```sh
+uvx tenzir-test
+```
+
+```txt
+i executing project: zeek (.)
+i running 1 tests (44 jobs) in project .
+i   1× tenzir (v5.16.0+gc0a0c3ba49)
+✘ tests/map_one.tql
+└─▶ Failed to find ref file: "../docs/public/packages/zeek/tests/map_one.txt"
+i ran 1 test: 0 passed (0%) / 1 failed (100%)
+ passed (100%) / 0 failed (0%)
+```
+
+There is no baseline for the test yet, let's generate it via `--update`
+
+```sh
+uvx tenzir-test --update
+```
+
+Now there's a \*.txt file next to the test scenario. Verify it that it has the
+expected output. Alternatively, use `uvx tenzir-test --passthrough` to print the
+output to the terminal for inline inspection.
+
+<details>
+<summary>Generated *.txt test scenario baseline</summary>
+
+<Code code={mapOneTxt} lang="tql" title="zeek/tests/map_one.txt" />
+
+</details>
+
+After running `uvx tenzir-test` again without any flags, you get the following output:
+
+```txt
+i executing project: zeek (.)
+i running 1 tests (44 jobs) in project .; update
+i   1× tenzir (v5.16.0+gc0a0c3ba49)
+✔ tests/map_one.tql
+i ran 1 test: 1 passed (100%) / 0 failed (0%)
+```
+
+Perfect. Now proceed with all log types and you have production-grade package.
 
 ### Step 4: Install and use the package
 
 After you have fleshed out the complete package, [install
-it](/guides/basic-usage/install-a-package) via
-[`package::add`](/reference/operators/package/add) or IaC-style by putting it
-into a git repo and point your Tenzir instance to it via the `--package-dirs`
-command line flag or `tenzir.package-dirs` configuration option.
+it](/guides/basic-usage/install-a-package), either interactively via
+[`package::add`](/reference/operators/package/add), or IaC-style by putting it
+into a git repo and pointing the config option `tenzir.package-dirs` to it.
 
 :::tip[Tenzir Community Library]
 Wrote a package that anyone could benefit from? Contribute it to the [Tenzir
