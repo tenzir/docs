@@ -1,0 +1,104 @@
+---
+title: Package UDOs
+sidebar:
+  badge:
+    text: v5.17.0
+    variant: success
+---
+
+This release introduces user-defined operators in packages, allowing you to extend Tenzir with custom operators defined in TQL files. It also adds list manipulation functions, a recursive search function, and improved memory management.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.17.0).
+
+### Features
+
+#### Checking if a value exists in another value
+
+The new `contains()` function recursively searches for a value
+within data structures and returns `true` if found, `false` otherwise.
+
+By [@raxyte](https://github.com/raxyte) in [#5493](https://github.com/tenzir/tenzir/pull/5493).
+
+#### Improved list manipulation
+
+We have added two new functions that make managing set-like lists easier.
+
+The `add` function ensures uniqueness when building lists. Perfect for
+maintaining deduplicated threat intel feeds or collecting unique user sessions:
+
+```tql
+from {xs: [1]},
+     {xs: [2]},
+     {xs: []}
+select result = xs.add(2)
+```
+
+```tql
+{result: [1,2]}
+{result: [2]}
+{result: [2]}
+```
+
+The `remove` function cleans up your lists by eliminating all occurrences of
+unwanted elements. Ideal for filtering out known-good domains from suspicious
+activity logs or removing false positives from alert lists:
+
+```tql
+from {xs: [1, 2, 1, 3], y: 1},
+     {xs: [4, 5], y: 1},
+select result = xs.remove(y)
+```
+
+```tql
+{result: [2, 3]}
+{result: [4, 5]}
+```
+
+By [@mavam](https://github.com/mavam), [@IyeOnline](https://github.com/IyeOnline) in [#5471](https://github.com/tenzir/tenzir/pull/5471).
+
+#### User-defined operators in packages
+
+This extends the package format with user-defined operators.
+A packaged operator can be used from a pipeline after the package is installed on a node.
+Package operators are defined in `.tql` files the `operators` subdirectory of a package.
+Once installed, the operators can be called by its ID, which is constructed from the filesystem path.
+
+Here is an example from a hypothetical MISP package. This is the directory structure with an operator:
+```
+└── misp
+    └── operators
+        └── event
+            └── to_ocsf.tql
+```
+And you can use the operator in TQL:
+```dart
+misp::event::to_ocsf
+```
+
+By [@tobim](https://github.com/tobim) in [#5496](https://github.com/tenzir/tenzir/pull/5496).
+
+### Changes
+
+#### Memory usage when importing many different schemas at once
+
+Previously, importing a high volume of highly heterogeneous events could lead to
+memory usage issues because of internal buffering that was only limited on a
+per-schema basis. With the introduction of a global limit across all schemas,
+this issue has now been fixed. The configuration option
+`tenzir.max-buffered-events` can be used to tune the new buffering limits.
+
+By [@tobim](https://github.com/tobim), [@jachris](https://github.com/jachris) in [#5508](https://github.com/tenzir/tenzir/pull/5508).
+
+### Bug Fixes
+
+#### Fixed spawning of demo nodes
+
+Fixed an issue that would cause demo nodes on https://app.tenzir.com to fail when spawning.
+
+By [@lava](https://github.com/lava) in [#5504](https://github.com/tenzir/tenzir/pull/5504).
+
+#### Handle spaces in filesystem paths
+
+File paths containing spaces are now properly handled by operators.
+
+By [@raxyte](https://github.com/raxyte) in [#5499](https://github.com/tenzir/tenzir/pull/5499).
