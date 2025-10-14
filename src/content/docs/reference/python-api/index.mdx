@@ -1,0 +1,144 @@
+---
+title: Python API
+description: Reference for the classes and helpers exported by the tenzir Python package.
+---
+
+The `tenzir` Python package exposes helpers to run local pipelines with the
+bundled `tenzir` binary and to post-process Arrow results. Import these
+interfaces directly from `tenzir`; the package re-exports everything from the
+internal `tenzir.tenzir.tenzir` and `tenzir.tenzir.convert` modules.
+
+## Table slices
+
+### TableSlice
+
+Marker base class for table slice objects produced by pipeline output adapters.
+
+### PyArrowTableSlice
+
+Wraps a `pyarrow.RecordBatch`. Access the underlying batch through the
+`_batch` attribute when you need to interact with the raw Arrow object.
+
+### AsyncRecordBatchStreamReader(source)
+
+Async iterator that lazily calls `pyarrow.ipc.open_stream(source)` and yields
+`PyArrowTableSlice` instances until the stream ends. Use it to consume stdout
+from pipelines that emit Arrow IPC streams.
+
+## Pipeline descriptors
+
+### PipelineSpec(text, description=None)
+
+Represents a pipeline definition. You can create instances from inline strings
+or by calling the factory methods:
+
+- `PipelineSpec.from_file(path)` reads a `.tql` file.
+- `PipelineSpec.from_stages(stages)` joins the provided stage strings with `|`.
+
+The optional `description` field is informational and defaults to `None`.
+
+### PipelineOptions(extra_args=(), env=None, cwd=None, timeout=None)
+
+Execution settings that influence how the binary starts:
+
+- `extra_args` appends CLI flags before the pipeline definition.
+- `env` merges with the current environment variables.
+- `cwd` sets the working directory for the subprocess.
+- `timeout` is reserved for future use and currently informational.
+
+## I/O configuration
+
+### PipelineIO(input=None, output=None, stderr=None)
+
+Configures stdin, stdout, and stderr handling for a pipeline run. By default it
+uses Arrow output (`arrow_output()`) and captures stderr text
+(`capture_stderr()`).
+
+Factory helpers:
+
+- `PipelineIO.arrow_input(source)` accepts a `pyarrow.RecordBatch`, `Table`, or
+  an iterable/async iterable of batches and writes an IPC stream to stdin.
+- `PipelineIO.bytes_input(data)` writes raw bytes (or text) to stdin.
+- `PipelineIO.arrow_output()` reads stdout as an IPC stream and yields
+  `PyArrowTableSlice` objects.
+- `PipelineIO.json_output()` converts the Arrow stream into `TenzirRow`
+  instances via `to_json_rows()`.
+- `PipelineIO.bytes_output()` exposes stdout as raw bytes.
+- `PipelineIO.capture_stderr()` captures stderr text for diagnostics.
+- `PipelineIO.arrow(input=..., stderr=...)` combines Arrow input with the
+  default output configuration.
+
+## Execution results
+
+### PipelineRun
+
+Async context manager returned by `stream_pipeline()`. Important attributes:
+
+- `output`: stream adapter produced by the selected output mode.
+- `stderr`: captured stderr handle or `None`.
+- `command`: tuple containing the executed command line.
+
+Methods:
+
+- `wait()` waits for the process to finish and returns the exit code.
+- `collect_output()` consumes stdout through the configured adapter.
+- `collect_stderr()` returns captured stderr text when available.
+- `terminate()` and `kill()` send signals before waiting for completion.
+
+### CompletedPipeline(output, stderr, returncode)
+
+Dataclass returned by `run_pipeline()` and `run_pipeline_sync()` with the
+collected stdout, stderr text, and exit code.
+
+## Execution helpers
+
+### stream_pipeline(spec, io=None, options=None)
+
+Runs a pipeline asynchronously. Accepts a string or `PipelineSpec` and returns a
+`PipelineRun`. The helper resolves the bundled `tenzir` binary (falls back to
+`PATH`) and raises `PipelineError` when the process exits with a non-zero code
+while stderr is captured.
+
+### run_pipeline(spec, io=None, options=None)
+
+Awaitable wrapper around `stream_pipeline()` that collects stdout and stderr,
+returning a `CompletedPipeline` instance.
+
+### run_pipeline_sync(spec, io=None, options=None)
+
+Synchronous convenience wrapper that executes `run_pipeline()` with
+`asyncio.run()` and returns the same `CompletedPipeline` dataclass.
+
+## Error handling
+
+### PipelineError(message, *, returncode, stderr, command)
+
+Exception raised for non-zero exits when stderr is captured. The exception
+exposes the exit code, captured stderr (or `None`), and the executed command.
+
+## Conversion utilities
+
+### to_pyarrow(batch)
+
+Convert a `TableSlice` into a `pyarrow.RecordBatch`. Raises `TypeError` when the
+slice is not backed by Arrow data.
+
+### collect_pyarrow(stream)
+
+Iterate over a stream of `TableSlice` objects, group batches by schema, and
+return a mapping from schema name to lists of `pyarrow.Table` instances.
+
+### arrow_dict_to_json_dict(dictionary)
+
+Normalize Arrow-generated dictionaries into JSON-compatible structures by
+encoding bytes, timestamps, and decimals.
+
+### to_json_rows(stream)
+
+Convert a `TableSlice` stream into an async iterator of `TenzirRow` instances
+with JSON-compatible payloads.
+
+### TenzirRow(name, data)
+
+Dataclass used by `to_json_rows()` to expose the schema name (`name`) and the
+JSON-compatible event data (`data`).

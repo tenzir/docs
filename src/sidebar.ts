@@ -200,6 +200,10 @@ export const reference = [
     label: "Test Framework",
     link: "reference/test-framework",
   },
+  {
+    label: "Python API",
+    link: "reference/python-api",
+  },
 ];
 
 export const integrations = [
