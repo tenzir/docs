@@ -159,12 +159,20 @@ export default defineConfig({
           {
             base: "reference/platform/api",
             schema: "./src/content/apis/openapi.platform.json",
-            sidebar: { label: "API", group: platformAPISidebarGroup },
+            sidebar: {
+              label: "API",
+              group: platformAPISidebarGroup,
+              operations: { badges: true, labels: "path" },
+            },
           },
           {
             base: "reference/node/api",
             schema: "./src/content/apis/openapi.node.yaml",
-            sidebar: { label: "API", group: nodeAPISidebarGroup },
+            sidebar: {
+              label: "API",
+              group: nodeAPISidebarGroup,
+              operations: { badges: true, labels: "path" },
+            },
           },
         ]),
         starlightSidebarTopics(topics, {
