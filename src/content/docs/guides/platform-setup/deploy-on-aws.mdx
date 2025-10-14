@@ -103,15 +103,14 @@ nameservers returned by the command.
 The CloudFormation template automatically discovers the hosted zone based on the
 domain name you provide.
 
-## Step 2: Create ECR repositories and copy images
+## Step 2: Prepare container images
 
-Before deploying the CloudFormation stack, you need to create ECR repositories and
-copy the container images from the AWS Marketplace.
+Before deploying the CloudFormation stack, you need to have the container images for the three core services (UI, API, and Gateway) available in your AWS account. If you purchased the Tenzir Platform from the AWS Marketplace, follow the steps below to copy the images.
 
 <Tabs>
 <TabItem value="script" label="Automated script">
 
-Use this script to create the ECR repositories and copy the container images from the AWS Marketplace to your local ECR repositories:
+Use this script to create the ECR repositories and copy the container images from the AWS Marketplace to your ECR repositories:
 
 ```bash
 #!/bin/bash
@@ -128,7 +127,6 @@ IMAGES=(
   "tenzir/tenzir-platform-ui"
   "tenzir/tenzir-platform-api"
   "tenzir/tenzir-platform-gateway"
-  "tenzir/tenzir-platform-node"
 )
 
 echo "Creating ECR repositories..."
@@ -165,7 +163,7 @@ chmod +x copy-images.sh
 ./copy-images.sh
 ```
 
-The script copies all four container images to your ECR repositories. This process
+The script copies the three core service container images to your ECR repositories. This process
 typically takes 10-15 minutes depending on your network speed.
 
 </TabItem>
@@ -175,7 +173,7 @@ Follow these steps to manually create the ECR repositories and copy the images.
 
 ### Create ECR repositories
 
-Create four ECR repositories using the AWS Console:
+Create three ECR repositories using the AWS Console:
 
 1. Open the [Amazon ECR console](https://console.aws.amazon.com/ecr/)
 2. Click **Create repository**
@@ -185,7 +183,6 @@ Create four ECR repositories using the AWS Console:
 6. Repeat for the remaining repositories:
    - `tenzir/tenzir-platform-api`
    - `tenzir/tenzir-platform-gateway`
-   - `tenzir/tenzir-platform-node`
 
 ### Copy images from marketplace
 
@@ -208,7 +205,7 @@ aws ecr get-login-password --region $AWS_REGION | \
   $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com
 
 # Copy each image
-for IMAGE in ui api gateway node; do
+for IMAGE in ui api gateway; do
   docker pull 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION
   docker tag 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION \
     $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION
@@ -232,6 +229,10 @@ template.
 Create the stack with your configuration:
 
 ```bash
+VERSION=v0.1.0
+AWS_REGION=$(aws configure get region)
+AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+
 aws cloudformation create-stack \
   --stack-name tenzir-platform \
   --template-url https://tenzir-marketplace-resources.s3.eu-west-1.amazonaws.com/tenzir-platform.yml \
@@ -239,7 +240,9 @@ aws cloudformation create-stack \
     ParameterKey=DomainName,ParameterValue=example.org \
     ParameterKey=RandomSubdomain,ParameterValue=false \
     ParameterKey=UseExternalOIDC,ParameterValue=false \
-    ParameterKey=Version,ParameterValue=v0.1.0 \
+    ParameterKey=ContainerImageUI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-ui:$VERSION \
+    ParameterKey=ContainerImageAPI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-api:$VERSION \
+    ParameterKey=ContainerImageGateway,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-gateway:$VERSION \
   --capabilities CAPABILITY_NAMED_IAM
 ```
 
@@ -263,8 +266,10 @@ The stack creation takes approximately 15-20 minutes.
    - **Domain Name**: Your domain (e.g., `example.org`)
    - **Use Random Subdomain**: Whether to add a random subdomain prefix
      (`false` for production)
-   - **Platform Version**: The version tag for container images (must match the
-     version you copied in Step 2, e.g., `v0.1.0`)
+   - **UI Container Image**: Full image URI (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-ui:v0.1.0`)
+   - **API Container Image**: Full image URI (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-api:v0.1.0`)
+   - **Gateway Container Image**: Full image URI (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-gateway:v0.1.0`)
+   - **Demo Node Container Image**: (Optional) Full image URI. Leave as default to use the public demo node image.
    - **Use External OIDC Provider**: Whether to use an external identity
      provider instead of AWS Cognito (`false` to use Cognito)
 7. Click **Next** through the remaining screens
@@ -286,7 +291,12 @@ The template supports the following key parameters:
   - `RandomSubdomain`: Add a random subdomain prefix. For example, with
     `example.org`, this creates `ui.abc123.example.org` instead of
     `ui.example.org` (default: `false`)
-  - `Version`: Container image version tag (default: `v0.1.0`)
+
+- **Container Images**:
+  - `ContainerImageUI`: Full URI for the UI container image (required)
+  - `ContainerImageAPI`: Full URI for the API container image (required)
+  - `ContainerImageGateway`: Full URI for the Gateway container image (required)
+  - `ContainerImageNode`: Full URI for the Demo Node container image (optional, defaults to public ghcr.io image)
 
 - **Authentication Configuration**:
   - `UseExternalOIDC`: Use external OIDC instead of Cognito (default: `false`)
@@ -314,8 +324,6 @@ The CloudFormation template creates a complete platform infrastructure:
 ### Storage
 - **RDS PostgreSQL Database**: Stores platform state and metadata
 - **S3 Buckets**: Store blob data and sidepath data
-- **ECR Repositories**: Store container images for UI, API, Gateway, and Node
-  services
 
 ### Security & Authentication
 - **AWS Cognito User Pool** (optional): Provides authentication with a default
