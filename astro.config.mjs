@@ -160,6 +160,7 @@ export default defineConfig({
             base: "reference/platform/api",
             schema: "./src/content/apis/openapi.platform.json",
             sidebar: {
+              collapsed: false,
               label: "API",
               group: platformAPISidebarGroup,
               operations: { badges: true, labels: "path" },
@@ -169,6 +170,7 @@ export default defineConfig({
             base: "reference/node/api",
             schema: "./src/content/apis/openapi.node.yaml",
             sidebar: {
+              collapsed: false,
               label: "API",
               group: nodeAPISidebarGroup,
               operations: { badges: true, labels: "path" },

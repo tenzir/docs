@@ -186,10 +186,12 @@ export const reference = [
   },
   {
     label: "Node",
+    collapsed: true,
     items: ["reference/node/configuration", nodeAPISidebarGroup],
   },
   {
     label: "Platform",
+    collapsed: true,
     items: [
       "reference/platform/configuration",
       "reference/platform/command-line-interface",
