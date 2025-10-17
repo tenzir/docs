@@ -6,6 +6,12 @@ Unreleased changes.
 
 ### Changes
 
+#### Periodically release unused memory in server mode
+
+Tenzir Node now calls malloc_trim every 10 minutes to release unused memory back to the operating system, reducing memory fragmentation in long-running instances.
+
+By [@lava](https://github.com/lava) in [#5524](https://github.com/tenzir/tenzir/pull/5524).
+
 #### Improved `export` memory management
 
 The database partitions opened by the `export` operator previously read and
