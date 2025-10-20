@@ -83,6 +83,14 @@ jobs:
       - name: Ensure static site deployment metadata
         run: |
           touch ./dist/.nojekyll
+          cat <<'EOF' > ./dist/_config.yml
+          defaults:
+            - scope:
+                path: ""
+              values:
+                layout: null
+                render_with_liquid: false
+          EOF
 
       - name: Deploy PR preview
         if: github.event_name == 'pull_request'
