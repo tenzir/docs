@@ -4,27 +4,32 @@ on:
   push:
     branches: ["main"]
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
   workflow_dispatch:
 
 permissions:
-  contents: write # needed for committing changes
+  contents: write
   pages: write
   id-token: write
-  pull-requests: write # needed for commenting on PRs
+  pull-requests: write
 
 concurrency:
-  group: "pages-${{ github.ref }}"
+  group: docs-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
-    name: Build
+    if: github.event_name != 'pull_request' || github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # needed for checking changes and pushing
+          fetch-depth: 0
           submodules: recursive
 
       - name: Install pnpm
@@ -75,28 +80,62 @@ jobs:
         if: github.event_name == 'pull_request'
         run: rm -f ./dist/CNAME
 
-      - name: Upload artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
       - name: Deploy PR preview
         if: github.event_name == 'pull_request'
-        uses: rossjrw/pr-preview-action@v1
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          source-dir: ./dist
-          pages-base-url: https://tenzir.github.io/docs
+          branch: gh-pages
+          folder: dist
+          target-folder: pr-preview/pr-${{ github.event.pull_request.number }}
+          clean: true
+          force: false
 
-  deploy:
-    name: Deploy
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      - name: Comment PR with preview link
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            🚀 Preview deployed!
+
+            Visit https://tenzir.github.io/docs/pr-preview/pr-${{ github.event.pull_request.number }}/
+
+            This preview updates automatically when you push new commits.
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: dist
+          clean: true
+          clean-exclude: |
+            pr-preview/
+          force: false
+
+  cleanup:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Prepare empty preview directory
+        run: |
+          mkdir -p empty-preview
+          touch empty-preview/.gitkeep
+
+      - name: Remove PR preview
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: empty-preview
+          target-folder: pr-preview/pr-${{ github.event.pull_request.number }}
+          clean: true
+          force: false
+
+      - name: Comment PR cleanup
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            🧹 Preview removed.
+
+            The pull request closed, so the preview deployment is gone.
