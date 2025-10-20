@@ -108,18 +108,30 @@ jobs:
         with:
           header: pr-preview
           message: |
-            ✨ **Docs preview ready**
+            ## 🚀 Documentation Preview
 
-            <a href="https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/"
-               style="display:inline-block;padding:12px 20px;margin:8px 0;background:#0b5cff;color:#ffffff;
-                      font-weight:600;text-decoration:none;border-radius:8px;">
-              🚀 Open docs preview ↗
-            </a>
+            Your changes are live! View the preview deployment:
 
-            - 📦 Commit `${{ github.sha }}` from `${{ github.event.pull_request.head.ref }}`
-            - 🧰 Workflow run [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            ### 🔗 [**Open Preview →**](https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/)
 
-            _Tip: the link above always reflects the latest push to this PR._
+            ---
+
+            <table>
+            <tr>
+            <td>📦 Commit</td>
+            <td><code>${{ github.sha }}</code></td>
+            </tr>
+            <tr>
+            <td>🌿 Branch</td>
+            <td><code>${{ github.event.pull_request.head.ref }}</code></td>
+            </tr>
+            <tr>
+            <td>🔄 Workflow</td>
+            <td><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">#${{ github.run_number }}</a></td>
+            </tr>
+            </table>
+
+            > **Note:** This preview updates automatically with each push to the PR.
 
       - name: Deploy to GitHub Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -155,7 +167,11 @@ jobs:
         with:
           header: pr-preview
           message: |
-            🧹 **Docs preview retired**
+            ## 🧹 Preview Removed
 
-            The preview for PR #${{ github.event.pull_request.number }} is no longer live.
-            Reopen or push new commits if you need it back at https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/.
+            The documentation preview has been cleaned up because this PR was closed.
+
+            The preview URL is no longer accessible:
+            ~~`https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/`~~
+
+            > Reopen this PR or push new commits to restore the preview deployment.
