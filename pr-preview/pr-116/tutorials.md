@@ -12,12 +12,12 @@
 
 <!-- Guides (top-right) -->
 
-[](/guides/)
+[](/pr-preview/pr-116/guides/)
 
 <!-- Explanations (bottom-left) -->
 
-[](/explanations/)
+[](/pr-preview/pr-116/explanations/)
 
 <!-- Reference (bottom-right) -->
 
-[](/reference/)
+[](/pr-preview/pr-116/reference/)

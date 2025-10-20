@@ -10,14 +10,14 @@
 
 <!-- Tutorials (top-left) -->
 
-[](/tutorials/)
+[](/pr-preview/pr-116/tutorials/)
 
 <!-- Guides (top-right) -->
 
 <!-- Explanations (bottom-left) -->
 
-[](/explanations/)
+[](/pr-preview/pr-116/explanations/)
 
 <!-- Reference (bottom-right) -->
 
-[](/reference/)
+[](/pr-preview/pr-116/reference/)

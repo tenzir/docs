@@ -10,14 +10,14 @@ The **reference** has nitty-gritty technical descriptions of how Tenzir works. I
 
 <!-- Tutorials (top-left) -->
 
-[](/tutorials/)
+[](/pr-preview/pr-116/tutorials/)
 
 <!-- Guides (top-right) -->
 
-[](/guides/)
+[](/pr-preview/pr-116/guides/)
 
 <!-- Explanations (bottom-left) -->
 
-[](/explanations/)
+[](/pr-preview/pr-116/explanations/)
 
 <!-- Reference (bottom-right) -->
