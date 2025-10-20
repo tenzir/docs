@@ -6,6 +6,9 @@ export interface Props {
 
 const { imageSrc = "/docs-structure.svg", activeSection = null } = Astro.props;
 
+// Get base URL for proper path resolution in PR previews
+const base = import.meta.env.BASE_URL;
+
 // Define which sections should be clickable based on the active section
 const getClickableStatus = (section: string) => {
   return activeSection !== section;
@@ -14,7 +17,7 @@ const getClickableStatus = (section: string) => {
 // Get the appropriate href for each section
 const getHref = (section: string) => {
   if (activeSection === section) return undefined;
-  return `/${section}/`;
+  return `${base}${section}/`;
 };
 ---
 
