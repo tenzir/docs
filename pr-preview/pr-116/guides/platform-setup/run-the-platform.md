@@ -1,0 +1,64 @@
+# Run the platform
+
+## Set up Docker registry access
+
+[Section titled “Set up Docker registry access”](#set-up-docker-registry-access)
+
+As part of your Sovereign Edition distribution, we provided you with an authentication token (`YOUR_DOCKER_TOKEN` below) to fetch the Docker images.
+
+Log in with the token as follows:
+
+```bash
+echo YOUR_DOCKER_TOKEN | docker login ghcr.io -u tenzir-distribution --password-stdin
+```
+
+You are now ready to pull the images.
+
+## Start the platform
+
+[Section titled “Start the platform”](#start-the-platform)
+
+Once you have configured all platform services and created a `docker-compose.yaml`, start the platform in the foreground with
+
+```sh
+docker compose up
+```
+
+or in the background with `docker compose up --detach`.
+
+❯ docker compose up
+
+```text
+[+] Running 5/5
+ ✔ Container compose-app-1                Running
+ ✔ Container compose-websocket-gateway-1  Running
+ ✔ Container compose-seaweed-1            Running
+ ✔ Container compose-platform-1           Running
+Attaching to app-1, platform-1, postgres-1, seaweed-1, websocket-gateway-1
+platform-1           | {"event": "connecting to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.205616Z"}
+platform-1           | {"event": "connected to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.210667Z"}
+platform-1           | {"event": "created table", "level": "info", "ts": "2024-04-10T10:13:20.210883Z"}
+platform-1           | {"event": "connecting to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.217700Z"}
+platform-1           | {"event": "connected to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.221194Z"}
+platform-1           | {"event": "creating a table", "level": "info", "ts": "2024-04-10T10:13:20.221248Z"}
+platform-1           | {"event": "connecting to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.221464Z"}
+platform-1           | {"event": "connected to postgres", "level": "debug", "ts": "2024-04-10T10:13:20.224226Z"}
+app-1                | Listening on 0.0.0.0:3000
+websocket-gateway-1  | {"event": "connecting to postgres", "level": "debug", "ts": "2024-04-10T10:15:37.033632Z"}
+websocket-gateway-1  | {"event": "connected to postgres", "gtlevel": "debug", "ts": "2024-04-10T10:15:37.038510Z"}
+websocket-gateway-1  | {"event": "created table", "level": "info", "ts": "2024-04-10T10:15:37.042555Z"}
+websocket-gateway-1  | {"host": "0.0.0.0", "port": 5000, "common_env": {"base_path": "", "tenzir_proxy_timeout": 60.0}, "local_env": {"store": {"postgres_uri": "postgresql://postgres:postgres@postgres:5432/platform"}, "tenant_manager_app_api_key": "d3d185cc4d9a1bde0e07e24c2eb0bfe9d2726acb3a386f8882113727ac6e90cf", "tenant_manager_tenant_token_encryption_key": "CBOXE4x37RKRLHyUNKeAsfg8Tbejm2N251aKnBXakpU="}, "event": "HTTP server running", "level": "info", "ts": "2024-04-10T10:15:37.045244Z"}
+...
+```
+
+It may take up to a minute for all services to be fully available.
+
+## Update the platform
+
+[Section titled “Update the platform”](#update-the-platform)
+
+To update to the latest platform version, pull the latest images:
+
+```sh
+docker compose pull
+```

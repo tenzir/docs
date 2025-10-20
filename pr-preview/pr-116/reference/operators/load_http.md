@@ -1,0 +1,120 @@
+# load_http
+
+Loads a byte stream via HTTP.
+
+```tql
+load_http url:string, [data=record, params=record, headers=record,
+          method=string, form=bool, chunked=bool, multipart=bool,
+          parallel=int, tls=bool, cacert=string, certifle=string,
+          keyfile=string, skip_peer_verification=bool]
+```
+
+## Description
+
+[Section titled “Description”](#description)
+
+The `load_http` operator performs a HTTP request and returns the response.
+
+### `url: string`
+
+[Section titled “url: string”](#url-string)
+
+The URL to request from. The `http://` scheme can be omitted.
+
+### `method = string (optional)`
+
+[Section titled “method = string (optional)”](#method--string-optional)
+
+The HTTP method, such as `POST` or `GET`.
+
+The default is `"GET"`.
+
+### `params = record (optional)`
+
+[Section titled “params = record (optional)”](#params--record-optional)
+
+The query parameters for the request.
+
+### `headers = record (optional)`
+
+[Section titled “headers = record (optional)”](#headers--record-optional)
+
+The headers for the request.
+
+### `data = record (optional)`
+
+[Section titled “data = record (optional)”](#data--record-optional)
+
+The request body as a record of key-value pairs. The body is encoded as JSON unless `form=true` has been set.
+
+### `form = bool (optional)`
+
+[Section titled “form = bool (optional)”](#form--bool-optional)
+
+Submits the HTTP request body as form-encoded data.
+
+This automatically sets the `Content-Type` header to `application/x-www-form-urlencoded`.
+
+Defaults to `false`.
+
+### `chunked = bool (optional)`
+
+[Section titled “chunked = bool (optional)”](#chunked--bool-optional)
+
+Whether to enable [chunked transfer encoding](https://en.wikipedia.org/wiki/Chunked_transfer_encoding). This is equivalent to manually setting the header `Transfer-Encoding: chunked`.
+
+Defaults to `false`.
+
+### `multipart = bool (optional)`
+
+[Section titled “multipart = bool (optional)”](#multipart--bool-optional)
+
+Whether to encode the HTTP request body as [multipart message](https://en.wikipedia.org/wiki/MIME#Multipart_messages).
+
+This automatically sets the `Content-Type` header to `application/form-multipart; X` where `X` contains the MIME part boundary.
+
+Defaults to `false`.
+
+### `tls = bool (optional)`
+
+Enables TLS.
+
+Defaults to `true`.
+
+### `cacert = string (optional)`
+
+Path to the CA certificate used to verify the server’s certificate.
+
+Defaults to the Tenzir configuration value `tenzir.cacert`, which in turn defaults to a common cacert location for the system.
+
+### `certfile = string (optional)`
+
+Path to the client certificate.
+
+### `keyfile = string (optional)`
+
+Path to the key for the client certificate.
+
+### `skip_peer_verification = bool (optional)`
+
+Toggles TLS certificate verification.
+
+Defaults to `false`.
+
+## Examples
+
+[Section titled “Examples”](#examples)
+
+### Perform an API call and get the response
+
+[Section titled “Perform an API call and get the response”](#perform-an-api-call-and-get-the-response)
+
+```tql
+load_http "example.org/api", headers={"X-API-Token": "0000-0000-0000"}
+```
+
+## See Also
+
+[Section titled “See Also”](#see-also)
+
+[`save_http`](/reference/operators/save_http)

@@ -1,0 +1,208 @@
+# Read and watch files
+
+This guide covers how to read files and monitor directories for new files using the [`from_file`](/reference/operators/from_file) operator. Whether you process individual files, batch process directories, or set up real-time file monitoring, [`from_file`](/reference/operators/from_file) provides a unified approach to file-based data ingestion.
+
+## Basic File Reading
+
+[Section titled “Basic File Reading”](#basic-file-reading)
+
+The [`from_file`](/reference/operators/from_file) operator handles various file types and formats. Start with these fundamental patterns for reading individual files.
+
+### Single Files
+
+[Section titled “Single Files”](#single-files)
+
+To read a single file, specify the path to the [`from_file`](/reference/operators/from_file) operator:
+
+```tql
+from_file "/path/to/file.json"
+```
+
+The operator automatically detects the file format from the file extension. This works for all supported formats including JSON, CSV, Parquet, and others.
+
+### Compressed Files
+
+[Section titled “Compressed Files”](#compressed-files)
+
+The operator handles compressed files automatically. You need no additional configuration:
+
+```tql
+from_file "/path/to/file.csv.gz"
+```
+
+Supported compression formats include gzip, bzip2, and Zstd.
+
+### Custom Parsing
+
+[Section titled “Custom Parsing”](#custom-parsing)
+
+When automatic format detection doesn’t suffice, specify a custom [parsing](/reference/operators/#parsing) pipeline:
+
+```tql
+from_file "/path/to/file.log" {
+  read_syslog
+}
+```
+
+The parsing pipeline runs on the file content and must return events.
+
+## Directory Processing
+
+[Section titled “Directory Processing”](#directory-processing)
+
+You can process multiple files efficiently using glob patterns. This section covers batch processing and recursive directory operations.
+
+### Processing Multiple Files
+
+[Section titled “Processing Multiple Files”](#processing-multiple-files)
+
+Use glob patterns to process multiple files at once:
+
+```tql
+from_file "/path/to/directory/*.csv.zst"
+```
+
+This example processes all Zstd-compressed CSV files in the specified directory.
+
+You can also use glob patterns to consume files regardless of their format:
+
+```tql
+from_file "~/data/**"
+```
+
+This processes all files in the `~/data` directory and its subdirectories, automatically detecting and parsing each file format.
+
+### Recursive Directory Processing
+
+[Section titled “Recursive Directory Processing”](#recursive-directory-processing)
+
+Use `**` to match files recursively through subdirectories:
+
+```tql
+from_file "/path/to/directory/**.csv"
+```
+
+### Custom Parsing for Multiple Files
+
+[Section titled “Custom Parsing for Multiple Files”](#custom-parsing-for-multiple-files)
+
+When you process multiple files with custom parsing, the pipeline runs separately for each file:
+
+```tql
+from_file "/path/to/directory/*.log" {
+  read_lines
+}
+```
+
+## File Monitoring
+
+[Section titled “File Monitoring”](#file-monitoring)
+
+Set up real-time file processing by monitoring directories for changes. These features enable continuous data ingestion workflows.
+
+### Watch for New Files
+
+[Section titled “Watch for New Files”](#watch-for-new-files)
+
+Use the `watch` parameter to monitor a directory for new files:
+
+```tql
+from_file "/path/to/directory/*.csv", watch=true
+```
+
+This sets up continuous monitoring, processing new files as they appear in the directory.
+
+### Remove Files After Processing
+
+[Section titled “Remove Files After Processing”](#remove-files-after-processing)
+
+Combine watching with automatic file removal using the `remove` parameter:
+
+```tql
+from_file "/path/to/directory/*.csv", watch=true, remove=true
+```
+
+This approach helps you implement file-based queues where the system should automatically clean up processed files.
+
+## Cloud Storage Integration
+
+[Section titled “Cloud Storage Integration”](#cloud-storage-integration)
+
+Access files directly from cloud storage providers using their native URLs. The operator supports major cloud platforms transparently.
+
+### Amazon S3
+
+[Section titled “Amazon S3”](#amazon-s3)
+
+Access S3 buckets directly using `s3://` URLs:
+
+```tql
+from_file "s3://bucket/path/to/file.csv"
+```
+
+Glob patterns work with S3 as well:
+
+```tql
+from_file "s3://bucket/data/**/*.parquet"
+```
+
+### Google Cloud Storage
+
+[Section titled “Google Cloud Storage”](#google-cloud-storage)
+
+Access GCS buckets using `gs://` URLs:
+
+```tql
+from_file "gs://bucket/path/to/file.csv"
+```
+
+Cloud storage integration uses Apache Arrow’s filesystem APIs and supports the same glob patterns and options as local files, including recursive globbing across cloud storage hierarchies.
+
+## Common Patterns
+
+[Section titled “Common Patterns”](#common-patterns)
+
+These examples demonstrate typical use cases that combine multiple features of the [`from_file`](/reference/operators/from_file) operator for real-world scenarios.
+
+### Real-time Log Processing
+
+[Section titled “Real-time Log Processing”](#real-time-log-processing)
+
+Monitor a log directory and process files as they arrive:
+
+```tql
+from_file "/var/log/application/*.log", watch=true {
+  read_lines
+  parse_json
+}
+```
+
+### Batch Data Processing
+
+[Section titled “Batch Data Processing”](#batch-data-processing)
+
+Process all files in a data directory:
+
+```tql
+from_file "/data/exports/**.parquet"
+```
+
+### Archive Processing with Cleanup
+
+[Section titled “Archive Processing with Cleanup”](#archive-processing-with-cleanup)
+
+Process archived data and remove files after successful ingestion:
+
+```tql
+from_file "/archive/*.csv.gz", remove=true
+```
+
+## Migration Notes
+
+[Section titled “Migration Notes”](#migration-notes)
+
+Transitioning from Legacy Operators
+
+We designed the [`from_file`](/reference/operators/from_file) operator to replace the existing [`load_file`](/reference/operators/load_file), [`load_s3`](/reference/operators/load_s3), and [`load_gcs`](/reference/operators/load_gcs) operators. While we still support these legacy operators, [`from_file`](/reference/operators/from_file) provides a more unified and feature-rich approach to file ingestion.
+
+We plan to add some advanced features from the legacy operators (such as file tailing, anonymous S3 access, and Unix domain socket support) in future releases of [`from_file`](/reference/operators/from_file).

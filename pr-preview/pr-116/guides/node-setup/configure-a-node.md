@@ -1,0 +1,27 @@
+# Configure a node
+
+The default node configuration is optimized for most common scenarios. But you can fine-tune the settings to match your specific requirements.
+
+We recommend beginning with learning [how the node configuration process](/explanations/configuration) works, and then browse the [example configuration](/reference/node/configuration) for tuning knobs.
+
+Here are few common configuration scenarios.
+
+## Accept incoming connections
+
+[Section titled “Accept incoming connections”](#accept-incoming-connections)
+
+When your node starts it will listen for node-to-node connections on the TCP endpoint `127.0.0.1:5158`. Select a different endpoint via the `tenzir.endpoint` option. For example, to bind to an IPv6 address use `[::1]:42000`.
+
+## Refuse incoming connections
+
+[Section titled “Refuse incoming connections”](#refuse-incoming-connections)
+
+Set `tenzir.endpoint` to `false` to disable the endpoint, making the node exclusively accessible through the Tenzir Platform. This effectively prevents connections from other `tenzir` or `tenzir-node` processes.
+
+## Configure pipeline subprocesses
+
+[Section titled “Configure pipeline subprocesses”](#configure-pipeline-subprocesses)
+
+Pipelines that run in a node are now partially moved to a subprocess for improved error resilience and resource utilization. Operators that need to communicate with a component still run inside the main node process for architectural reasons. You can set `tenzir.disable-forked-pipelines: true` in `tenzir.yaml` or `TENZIR_DISABLE_FORKED_PIPELINES=true` on the command line to opt out. This feature is enabled by default on Linux.
+
+Learn more about [pipeline subprocesses](/explanations/architecture/node#pipeline-subprocesses) and their trade-offs.

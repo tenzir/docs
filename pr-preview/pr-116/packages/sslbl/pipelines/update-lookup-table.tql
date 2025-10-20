@@ -1,0 +1,15 @@
+---
+name: SSLBL → Lookup Table
+description: |
+  Fetch SSLBL data every hour, convert to OCSF OSINT objects, and populate a
+  lookup table.
+# Disabling this one here because it creates a side-effect with when the package
+# tests run.
+disabled: true
+---
+
+every 1h {
+  sslbl::fetch
+}
+sslbl::ocsf::to_osint
+context::update "sslbl", key=value

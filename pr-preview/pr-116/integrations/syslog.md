@@ -1,0 +1,188 @@
+# Syslog
+
+Tenzir supports parsing and emitting Syslog messages across multiple transport protocols, including both UDP and TCP. This enables seamless integration with Syslog-based systems for ingesting or exporting logs.
+
+![Syslog](/pr-preview/pr-116/_astro/syslog.B1nQyzBj_19DKCs.svg)
+
+Syslog support in Tenzir is powered by two components:
+
+* [`read_syslog`](/reference/operators/read_syslog): a parser that turns unstructured Syslog messages into structured events.
+* [`write_syslog`](/reference/operators/write_syslog): a printer that transforms structured events into compliant Syslog messages.
+
+Together, these building blocks enable round-trip Syslog processing.
+
+## Examples
+
+[Section titled “Examples”](#examples)
+
+### Create a Syslog Server
+
+[Section titled “Create a Syslog Server”](#create-a-syslog-server)
+
+To receive Syslog messages on a UDP socket, use `from` with [`read_syslog`](/reference/operators/read_syslog):
+
+```tql
+from "udp://0.0.0.0:514", insert_newlines=true {
+  read_syslog
+}
+publish "syslog"
+```
+
+To use TCP instead of UDP, change the scheme and omit the `insert_newlines` option:
+
+```tql
+from "tcp://0.0.0.0:514" {
+  read_syslog
+}
+publish "syslog"
+```
+
+One pipeline per accepted connection
+
+For TCP, the pipeline inside `from` executes *for each accepted connection*.
+
+### Parsing CEF, LEEF, or JSON Payloads
+
+[Section titled “Parsing CEF, LEEF, or JSON Payloads”](#parsing-cef-leef-or-json-payloads)
+
+If your Syslog messages embed structured formats like CEF, LEEF, or JSON, you can follow up with an additional parser. For example, assume you have a Syslog message that includes CEF:
+
+```txt
+Nov 13 16:00:02 host123 FOO: CEF:0|FORCEPOINT|Firewall|6.6.1|78002|TLS connection state|0|deviceExternalId=Master FW node 1 dvc=10.1.1.40 dvchost=10.1.1.40 msg=TLS: Couldn't establish TLS connection (11, N/A) deviceFacility=Management rt=Jan 17 2020 08:52:09
+```
+
+Why you throw [`read_syslog`](/reference/operators/read_syslog) at this line, you’ll get this output:
+
+sample.syslog
+
+```tql
+{
+  facility: null,
+  severity: null,
+  timestamp: "Nov 13 16:00:02",
+  hostname: "host123",
+  app_name: "FOO",
+  process_id: null,
+  content: "CEF:0|FORCEPOINT|Firewall|6.6.1|78002|TLS connection state|0|deviceExternalId=Master FW node 1 dvc=10.1.1.40 dvchost=10.1.1.40 msg=TLS: Couldn't establish TLS connection (11, N/A) deviceFacility=Management rt=Jan 17 2020 08:52:09",
+}
+```
+
+Note that the `content` field is just a big string. Parse it with [`parse_cef`](/reference/functions/parse_cef):
+
+```tql
+load_file "/tmp/sample.syslog"
+read_syslog
+content = content.parse_cef()
+```
+
+This yields the following structured output:
+
+```tql
+{
+  facility: null,
+  severity: null,
+  timestamp: "Nov 13 16:00:02",
+  hostname: "host123",
+  app_name: "FOO",
+  process_id: null,
+  content: {
+    cef_version: 0,
+    device_vendor: "FORCEPOINT",
+    device_product: "Firewall",
+    device_version: "6.6.1",
+    signature_id: "78002",
+    name: "TLS connection state",
+    severity: "0",
+    extension: {
+      deviceExternalId: "Master FW node 1",
+      dvc: 10.1.1.40,
+      dvchost: 10.1.1.40,
+      msg: "TLS: Couldn't establish TLS connection (11, N/A)",
+      deviceFacility: "Management",
+      rt: "Jan 17 2020 08:52:09",
+    },
+  },
+}
+```
+
+### Handling Multi-line Syslog Messages
+
+[Section titled “Handling Multi-line Syslog Messages”](#handling-multi-line-syslog-messages)
+
+Tenzir’s Syslog parser supports multi-line messages using a heuristic:
+
+1. Split the input at newlines.
+2. Try parsing the next line as a new Syslog message.
+3. If successful, treat it as a new message.
+4. If parsing fails, append the line to the current message and repeat.
+
+This allows ingesting logs with stack traces or other verbose content correctly.
+
+## Emit Events as Syslog
+
+[Section titled “Emit Events as Syslog”](#emit-events-as-syslog)
+
+Tenzir also supports **creating** Syslog messages from structured events via [`write_syslog`](/reference/operators/write_syslog).
+
+Here’s a basic example that emits a single Syslog line over UDP:
+
+```tql
+from {
+  facility: 3,
+  severity: 6,
+  timestamp: 2020-03-02T18:44:46,
+  hostname: "parallels-Parallels-Virtual-Platform",
+  app_name: "packagekitd",
+  process_id: "1370",
+  message_id: "",
+  structured_data: {},
+  message: " PARENT process running...",
+}
+write_syslog
+save_udp "1.2.3.4:514"
+```
+
+This pipeline sends the following RFC 5424-formatted message to `1.2.3.4:514/udp`:
+
+```txt
+<30>1 2020-03-02T18:44:46.000000Z parallels-Parallels-Virtual-Platform packagekitd 1370 - -  PARENT process running...
+```
+
+### Example with Structured Data
+
+[Section titled “Example with Structured Data”](#example-with-structured-data)
+
+Here is a richer event with structured Syslog fields. Let’s create a Syslog event from it:
+
+```tql
+from {
+  facility: 20,
+  severity: 5,
+  version: 8,
+  timestamp: 2003-10-11T22:14:15,
+  hostname: "mymachineexamplecom",
+  app_name: "evntslog",
+  process_id: "",
+  message_id: "ID47",
+  structured_data: {
+    "exampleSDID@32473": {
+      iut: 5,
+      eventSource: "Applic\\ation",
+      eventID: 1011,
+    },
+    "examplePriority@32473": {
+      class: "high",
+    },
+  },
+  message: null,
+}
+write_syslog
+```
+
+Output:
+
+```txt
+<165>1 2003-10-11T22:14:15.000000Z mymachineexamplecom evntslog - ID47 [exampleSDID@32473 iut="5" eventSource="Applic\\ation" eventID="1011"][examplePriority@32473 class="high"]
+```
+
+The [`write_syslog`](/reference/operators/write_syslog) operator converts the `structured_data` field into a valid [RFC 5424](https://datatracker.ietf.org/doc/html/rfc5424) structured block.

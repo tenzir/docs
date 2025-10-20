@@ -1,0 +1,35 @@
+# Node
+
+A **node** is a running process that manages and executes pipelines.
+
+When a node starts, it will automatically attempt to connect to the [platform](/explanations/architecture/platform), giving you a seamless way to manage and deploy pipelines through a web interface. However, using the platform is optional—you can also be manually manage pipelines via the node’s [REST API](/reference/node/api).
+
+## Standalone vs. Managed Pipeline Execution
+
+[Section titled “Standalone vs. Managed Pipeline Execution”](#standalone-vs-managed-pipeline-execution)
+
+To understand the benefits of a node, let’s first consider how you can run pipelines without one. You run a single pipeline directly from the command line using the `tenzir` binary:
+
+![Standalone Execution](/pr-preview/pr-116/_astro/standalone-execution.D-GySmuS_19DKCs.svg)
+
+This *standalone execution* mode of a pipeline is ideal for ad-hoc data transformations akin to how one would use `jq`, but with much broader data handling capabilities.
+
+For continuous and more dependable data processing, you will quickly realize that you also need scheduled execution, automatic restarting, monitoring of warnings/errors, and more advanced execution capabilities, like real-time enrichment with contextual data or correlation with historical data.
+
+This is where a node comes into play, offering a vehicle to execute one or more pipelines in a managed fashion. You can spawn a node with the `tenzir-node` binary or by running the Docker container that contains this binary:
+
+![Managed Execution](/pr-preview/pr-116/_astro/managed-execution.C42wjIQe_19DKCs.svg)
+
+## Pipeline Subprocesses
+
+[Section titled “Pipeline Subprocesses”](#pipeline-subprocesses)
+
+A node can execute pipelines in two different modes: as separate subprocesses or within the same `tenzir-node` process. By default, pipelines run as separate subprocesses. Each approach offers distinct advantages and trade-offs.
+
+![Pipeline Subprocesses](/pr-preview/pr-116/_astro/pipeline-subprocesses.BBG1UNAC_19DKCs.svg)
+
+When pipelines run as separate subprocesses, they don’t share fate with each other. If one pipeline crashes, it won’t affect other running pipelines, which improves overall reliability. This isolation also enables better scaling across available CPU cores since each pipeline can utilize cores independently. Vertically scaling a node becomes more efficient as this approach reduces pressure on the node’s internal scheduler and improves overall system responsiveness. However, subprocess execution comes with costs: each process requires its own memory space and system resources, and the system must serialize data when crossing process boundaries.
+
+In contrast, when pipelines run within the same `tenzir-node` process, they operate with less OS pressure due to running as a single process with a fixed number of threads and efficient user-level task scheduling. Pipelines can pass data directly without serialization at their boundaries, which can noticeably lower overall resource consumption. The trade-off here involves shared fate—a critical error in one pipeline could potentially affect the entire node process. Additionally, all pipelines must share the same process resources, which can create bottlenecks under heavy load and limit parallelism.
+
+Choose between subprocess and in-process execution based on your specific requirements for reliability, performance, and resource efficiency. You can [configure this behavior](/guides/node-setup/configure-a-node#configure-pipeline-subprocesses) in your node settings.

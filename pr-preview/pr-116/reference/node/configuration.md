@@ -1,0 +1,621 @@
+# Node Configuration
+
+The below example configuration ships with every Tenzir package. Head over to the [explanation of the configuration](/explanations/configuration) for details on how the various settings work.
+
+tenzir.yaml
+
+```yaml
+# This is an example configuration file for Tenzir that shows all available
+# options. Options in angle brackets have their default value determined at
+# runtime.
+
+
+# Options that concern Tenzir.
+tenzir:
+  # The token that is offered when connecting to the Tenzir Platform.
+  # It is used to identify the node and assign it to the correct workspace.
+  # This setting is ignored in the open-source edition of Tenzir, which does
+  # not contain the platform plugin.
+  token: tnz_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+  # The host and port to listen at for node-to-node connections in the form
+  # `<host>:<port>`. Host or port may be emitted to use their defaults, which
+  # are localhost and 5158, respectively. Set the port to zero to automatically
+  # choose a port. Set to false to disable exposing an endpoint.
+  endpoint: localhost:5158
+
+
+  # The timeout for connecting to a Tenzir server. Set to 0 seconds to wait
+  # indefinitely.
+  connection-timeout: 5m
+
+
+  # The delay between two connection attempts. Set to 0s to try connecting
+  # without retries.
+  connection-retry-delay: 3s
+
+
+  # Configure retention policies.
+  retention:
+    # How long to keep metrics for. Set to 0s to disable metrics retention
+    # entirely.
+    # WARNING: A low retention period may negatively impact the usability of
+    # pipeline activity in the Tenzir Platform.
+    #metrics: 7d
+
+
+    # How long to keep diagnostics for. Set to 0s to disable diagnostics
+    # retention entirely.
+    # WARNING: A low retention period may negatively impact the usability of
+    # diagnostics in the Tenzir Platform.
+    #diagnostics: 30d
+
+
+  # Configure the behavior of the `cache` operator. The Tenzir Platform uses the
+  # cache operator to store and retrieve data efficiently.
+  cache:
+    # Specifies the default lifetime for the `cache` operator.
+    #lifetime: 10min
+
+
+    # Specifies an upper bound for the total memory usage in bytes across all
+    # caches in a node. If the memory usage exceeds this limit, the node will
+    # start evicting caches to make room for new data. The node requires a
+    # minimum total cache capacity of 64MiB.
+    #capacity: 1Gi
+
+
+  # A certificate file used as the default for operators accepting a `cacert`
+  # option. This will default to an appropriate directory for the system. For
+  # example:
+  #   - /etc/ssl/certs/ca-bundle.crt on RedHat
+  #   - /etc/ssl/certs/ca-certificates.crt on Ubuntu
+  #cacert:
+
+
+  # The file system path used for persistent state.
+  # Defaults to one of the following paths, selecting the first that is
+  # available:
+  #   - $STATE_DIRECTORY
+  #   - $PWD/tenzir.db
+  #state-directory:
+
+
+  # The file system path used for recoverable state.
+  # In a node process, defaults to the first of the following paths that is
+  # available:
+  #   - $CACHE_DIRECTORY
+  #   - $XDG_CACHE_HOME
+  #   - $XDG_HOME_DIR/.cache/tenzir (linux) or $XDG_HOME_DIR/Libraries/caches/tenzir (mac)
+  #   - $HOME/.cache/tenzir (linux) or $HOME/Libraries/caches/tenzir (mac)
+  #   - $TEMPORARY_DIRECTORY/tenzir-cache-<uid>
+  # To determine $TEMPORARY_DIRECTORY, the values of TMPDIR, TMP, TEMP, TEMPDIR are
+  # checked in that order, and as a last resort "/tmp" is used.
+  # In a client process, this setting is ignored and
+  # `$TEMPORARY_DIRECTORY/tenzir-client-cache-<uid>` is used as cache directory.
+  #cache-directory:
+
+
+  # The file system path used for log files.
+  # Defaults to one of the following paths, selecting the first that is
+  # available:
+  #   - $LOGS_DIRECTORY/server.log
+  #   - <state-directory>/server.log
+  #log-file:
+
+
+  # The file system path used for client log files relative to the current
+  # working directory of the client. Note that this is disabled by default.
+  # If not specified no log files are written for clients at all.
+  client-log-file: "client.log"
+
+
+  # Format for printing individual log entries to the log-file.
+  # For a list of valid format specifiers, see spdlog format specification
+  # at https://github.com/gabime/spdlog/wiki/3.-Custom-formatting.
+  file-format: "[%Y-%m-%dT%T.%e%z] [%n] [%l] [%s:%#] %v"
+
+
+  # Configures the minimum severity of messages written to the log file.
+  # Possible values: quiet, error, warning, info, verbose, debug, trace.
+  # File logging is only available for commands that start a node (e.g.,
+  # tenzir-node). The levels above 'verbose' are usually not available in
+  # release builds.
+  file-verbosity: debug
+
+
+  # Whether to enable automatic log rotation. If set to false, a new log file
+  # will be created when the size of the current log file exceeds 10 MiB.
+  disable-log-rotation: false
+
+
+  # The size limit when a log file should be rotated.
+  log-rotation-threshold: 10MiB
+
+
+  # Maximum number of log messages in the logger queue.
+  log-queue-size: 1000000
+
+
+  # The sink type to use for console logging. Possible values: stderr,
+  # syslog, journald. Note that 'journald' can only be selected on linux
+  # systems, and only if Tenzir was built with journald support.
+  # The journald sink is used as default if Tenzir is started as a systemd
+  # service and the service is configured to use the journal for stderr,
+  # otherwise the default is the unstructured stderr sink.
+  #console-sink: stderr/journald
+
+
+  # Mode for console log output generation. Automatic renders color only when
+  # writing to a tty.
+  # Possible values: always, automatic, never. (default automatic)
+  console: automatic
+
+
+  # Format for printing individual log entries to the console. For a list
+  # of valid format specifiers, see spdlog format specification at
+  # https://github.com/gabime/spdlog/wiki/3.-Custom-formatting.
+  console-format: "%^[%T.%e] %v%$"
+
+
+  # Configures the minimum severity of messages written to the console.
+  # For a list of valid log levels, see file-verbosity.
+  console-verbosity: info
+
+
+  # List of directories to look for schema files in ascending order of
+  # priority.
+  schema-dirs: []
+
+
+  # Additional directories to load plugins specified using `tenzir.plugins`
+  # from.
+  plugin-dirs: []
+
+
+  # List of paths that contain statically configured packages.
+  # This setting is ignored unless the package manager plugin is enabled.
+  package-dirs: []
+
+
+  # The plugins to load at startup. For relative paths, Tenzir tries to find
+  # the files in the specified `tenzir.plugin-dirs`. The special values
+  # 'bundled' and 'all' enable autoloading of bundled and all plugins
+  # respectively. Note: Add `example` or `/path/to/libtenzir-plugin-example.so`
+  # to load the example plugin.
+  plugins: []
+
+
+  # Names of plugins and builtins to explicitly forbid from being used in
+  # Tenzir. For example, adding `shell` will prohibit use of the `shell`
+  # operator builtin, and adding `kafka` will prohibit use of the `kafka`
+  # connector plugin.
+  disable-plugins: []
+
+
+  # Forbid unsafe location overrides for pipelines with the 'local' and 'remote'
+  # keywords, e.g., remotely reading from a file.
+  no-location-overrides: false
+
+
+  # Prevent all pipelines from automatically starting when the node starts.
+  no-autostart: false
+
+
+  # Do not move pipeline operators to subprocesses.
+  disable-pipeline-subprocesses: false
+
+
+  # The size of an index shard, expressed in number of events. This should
+  # be a power of 2.
+  max-partition-size: 4Mi
+
+
+  # Timeout after which the importer forwards events to subscribers like `export
+  # live=true` or `metrics live=true`. Set to 0s for an unbuffered mode. A
+  # higher value increases performance, and a lower value reduces latency.
+  import-buffer-timeout: 1s
+
+
+  # Timeout after which an active partition is forcibly flushed, regardless of
+  # its size.
+  active-partition-timeout: 30s
+
+
+  # Maximum number of events across all active partitions. This indirectly
+  # controls the maximum memory usage when importing events.
+  max-buffered-events: 12Mi
+
+
+  # Automatically rebuild undersized and outdated partitions in the background.
+  # The given number controls how much resources to spend on it. Set to 0 to
+  # disable.
+  automatic-rebuild: 1
+
+
+  # Timeout after which an automatic rebuild is triggered.
+  rebuild-interval: 30min
+
+
+  # Zstd compression level applied to the Feather store backend.
+  # zstd-compression-level: <default>
+
+
+  # The URL of the control endpoint when connecting to a self-hosted
+  # instance of the Tenzir Platform.
+  platform-control-endpoint: wss://ws.tenzir.app/production
+
+
+  # Whether to undermine the security of the TLS connection to the
+  # Tenzir Platform by disabling certificate validation.
+  # Setting this to `true` is strongly discouraged.
+  platform-skip-peer-verification: false
+
+
+  # The name to use when connecting to the platform as an ephemeral node.
+  # This setting is ignored unless a workspace token is used to connect to
+  # the platform. Workspace tokens are currently only available for the
+  # Sovereign Edition of the Tenzir Platform.
+  platform-ephemeral-node-name: Ephemeral Node
+
+
+  # Control how operator's calculate demand from their upstream operator. Note
+  # that this is an expert feature and should only be changed if you know what
+  # you are doing. The configured values can also be changed per operator by
+  # using the `_tune` operator.
+  demand:
+    # Issue demand only if room for at least this many elements is available.
+    # Must be greater than zero. Values may either be set to a number, or to a
+    # record containing `bytes` and `events` fields with numbers depending on
+    # the operator's input type.
+    min-elements:
+      bytes: 128Ki
+      events: 8Ki
+    # Controls how many elements may be buffered until the operator stops
+    # issuing demand. Must be greater or equal to min-elements. Values may
+    # either be set to a number, or to a record containing `bytes` and `events`
+    # fields with numbers depending on the operator's input type.
+    max-elements:
+      bytes: 4Mi
+      events: 254Ki
+    # Controls how many batches of elements may be buffered until the operator
+    # stops issuing demand. Must be greater than zero.
+    max-batches: 20
+    # Controls the minimum backoff duration after an operator is detected to be
+    # idle. Must be at least 10ms.
+    min-backoff: 10ms
+    # Controls the maximum backoff duration after an operator is detected to be
+    # idle. Must be at least 10ms.
+    max-backoff: 1s
+    # Controls the growth rate of the backoff duration for operators that
+    # continue to be idle. Must be at least 1.0. Note that setting a growth rate
+    # of 1.0 causes the `max-backoff` duration to be ignored, replacing the
+    # exponential growth with a constant value.
+    backoff-rate: 2.0
+
+
+  # Context configured as part of the configuration that are always available.
+  contexts:
+    # A unique name for the context that's used in the context, enrich, and
+    # lookup operators to refer to the context.
+    indicators:
+      # The type of the context.
+      type: bloom-filter
+      # Arguments for creating the context, depending on the type. Refer to the
+      # documentation of the individual context types to see the arguments they
+      # require. Note that changes to these arguments to not apply to any
+      # contexts that were previously created.
+      arguments:
+        capacity: 1B
+        fp-probability: 0.001
+
+
+  # The `index` key is used to adjust the false-positive rate of
+  # the first-level lookup data structures (called synopses) in the
+  # catalog. The lower the false-positive rate the more space will be
+  # required, so this setting can be used to manually tune the trade-off
+  # of performance vs. space.
+  index:
+    # The default false-positive rate for type synopses.
+    default-fp-rate: 0.01
+    # rules:
+    #   Every rule adjusts the behaviour of Tenzir for a set of targets.
+    #   Tenzir creates one synopsis per target. Targets can be either types
+    #   or field names.
+    #
+    #   fp-rate - false positive rate. Has effect on string and address type
+    #             targets
+    #
+    #   partition-index - Tenzir will not create dense index when set to false
+    #   - targets: [:ip]
+    #     fp-rate: 0.01
+
+
+  # The `tenzir-ctl start` command starts a new Tenzir server process.
+  start:
+
+
+    # Prints the endpoint for clients when the server is ready to accept
+    # connections. This comes in handy when letting the OS choose an
+    # available random port, i.e., when specifying 0 as port value.
+    print-endpoint: false
+
+
+    # Writes the endpoint for clients when the server is ready to accept
+    # connections to the specified destination. This comes in handy when letting
+    # the OS choose an available random port, i.e., when specifying 0 as port
+    # value, and `print-endpoint` is not sufficient.
+    #write-endpoint: /tmp/tenzir-node-endpoint
+
+
+    # An ordered list of commands to run inside the node after starting.
+    # As an example, to configure an auto-starting PCAP source that listens
+    # on the interface 'en0' and lives inside the Tenzir node, add `spawn
+    # source pcap -i en0`.
+    # Note that commands are not executed sequentially but in parallel.
+    commands: []
+
+
+    # Triggers removal of old data when the disk budget is exceeded.
+    disk-budget-high: 0GiB
+
+
+    # When the budget was exceeded, data is erased until the disk space is
+    # below this value.
+    disk-budget-low: 0GiB
+
+
+    # Seconds between successive disk space checks.
+    disk-budget-check-interval: 90
+
+
+    # When erasing, how many partitions to erase in one go before rechecking
+    # the size of the database directory.
+    disk-budget-step-size: 1
+
+
+    # Binary to use for checking the size of the database directory. If left
+    # unset, Tenzir will recursively add up the size of all files in the
+    # database directory to compute the size. Mainly useful for e.g.
+    # compressed filesystem where raw file size is not the correct metric.
+    # Must be the absolute path to an executable file, which will get passed
+    # the database directory as its first and only argument.
+    #disk-budget-check-binary: /opt/tenzir/libexec/tenzir-df-percent.sh
+
+
+  # User-defined operators.
+  operators:
+    # The Zeek operator is an example that takes raw bytes in the form of a
+    # PCAP and then parses Zeek's output via the `zeek-json` format to generate
+    # a stream of events.
+    zeek: |
+      shell "zeek -r - LogAscii::output_to_stdout=T
+             JSONStreaming::disable_default_logs=T
+             JSONStreaming::enable_log_rotation=F
+             json-streaming-logs"
+      read_zeek_json
+    # The Suricata operator is analogous to the above Zeek example, with the
+    # difference that we are using Suricata. The commmand line configures
+    # Suricata such that it reads PCAP on stdin and produces EVE JSON logs on
+    # stdout, which we then parse with the `suricata` format.
+    suricata: |
+     shell "suricata -r /dev/stdin
+            --set outputs.1.eve-log.filename=/dev/stdout
+            --set logging.outputs.0.console.enabled=no"
+     read_suricata
+
+
+  # In addition to running pipelines interactively, you can also deploy
+  # *Pipelines as Code*. This infrastrucutre-as-code-like method differs from
+  # pipelines run on the command-line or through app.tenzir.com in two ways:
+  # 1. Pipelines deployed as code always start alongside the Tenzir node.
+  # 2. Deletion via the user interface is not allowed for pipelines configured
+  #    as code.
+  pipelines:
+    # A unique identifier for the pipeline that's used for metrics, diagnostics,
+    # and API calls interacting with the pipeline.
+    publish-suricata:
+      # An optional user-facing name for the pipeline. Defaults to the id.
+      name: Import Suricata from TCP
+      # The definition of the pipeline. Configured pipelines that fail to start
+      # cause the node to fail to start.
+      definition: |
+        load_tcp "0.0.0.0:34343" { read_suricata schema_only=true }
+        | where event_type != "stats"
+        | publish "suricata"
+      # Pipelines that encounter an error stop running and show an error state.
+      # This option causes pipelines to automatically restart when they
+      # encounter an error instead. The first restart happens immediately, and
+      # subsequent restarts after the configured delay, defaulting to 1 minute.
+      # The following values are valid for this option:
+      # - Omit the option, or set it to null or false to disable.
+      # - Set the option to true to enable with the default delay of 1 minute.
+      # - Set the option to a valid duration to enable with a custom delay.
+      restart-on-error: 1 minute
+      # Pipelines that are unstoppable will run automatically and indefinitely.
+      # They are not able to pause or stop.
+      # If they do complete, they will end up in a failed state.
+      # If `restart-on-error` is enabled, they will restart after the specified
+      # duration.
+      unstoppable: false
+
+
+  # Use the legacy secret model. Under this model, the `secret` function yields
+  # plain `string`s and can only look up secrets from the `tenzir.secrets`
+  # section in this config, but not from the Tenzir Platform's secret store.
+  legacy-secret-model: false
+
+
+  # Enables the `secret_assert` operator. This operator can be used for our
+  # integration tests and may be useful to test local setups.
+  # Since it theoretically allows for brute-forcing a secret's value, it is
+  # disabled by default.
+  enable-assert-secret-operator: false
+
+
+  # Local secrets, defined as key - value pairs. The values must be strings
+  secrets:
+    # my-secret-name: my-secret-value
+
+
+# The below settings are internal to CAF, and aren't checked by Tenzir directly.
+# Please be careful when changing these options. Note that some CAF options may
+# be in conflict with Tenzir options, and are only listed here for completeness.
+caf:
+
+
+  # Options affecting the internal scheduler.
+  scheduler:
+
+
+    # Accepted alternative: "sharing".
+    policy: stealing
+
+
+    # Configures whether the scheduler generates profiling output.
+    enable-profiling: false
+
+
+    # Output file for profiler data (only if profiling is enabled).
+    #profiling-output-file: </dev/null>
+
+
+    # Measurement resolution in milliseconds (only if profiling is enabled).
+    profiling-resolution: 100ms
+
+
+    # Forces a fixed number of threads if set. Defaults to the number of
+    # available CPU cores if starting a Tenzir node, or *2* for client commands.
+    #max-threads: <number of cores>
+
+
+    # Maximum number of messages actors can consume in one run.
+    max-throughput: 500
+
+
+  # When using "stealing" as scheduler policy.
+  work-stealing:
+
+
+    # Number of zero-sleep-interval polling attempts.
+    aggressive-poll-attempts: 100
+
+
+    # Frequency of steal attempts during aggressive polling.
+    aggressive-steal-interval: 10
+
+
+    # Number of moderately aggressive polling attempts.
+    moderate-poll-attempts: 500
+
+
+    # Frequency of steal attempts during moderate polling.
+    moderate-steal-interval: 5
+
+
+    # Sleep interval between poll attempts.
+    moderate-sleep-duration: 50us
+
+
+    # Frequency of steal attempts during relaxed polling.
+    relaxed-steal-interval: 1
+
+
+    # Sleep interval between poll attempts.
+    relaxed-sleep-duration: 10ms
+
+
+  stream:
+
+
+    # Maximum delay for partial batches.
+    max-batch-delay: 15ms
+
+
+    # Selects an implementation for credit computation.
+    # Accepted alternative: "token-based".
+    credit-policy: token-based
+
+
+    # When using "size-based" as credit-policy.
+    size-based-policy:
+
+
+      # Desired batch size in bytes.
+      bytes-per-batch: 32
+
+
+      # Maximum input buffer size in bytes.
+      buffer-capacity: 256
+
+
+      # Frequency of collecting batch sizes.
+      sampling-rate: 100
+
+
+      # Frequency of re-calibrations.
+      calibration-interval: 1
+
+
+      # Factor for discounting older samples.
+      smoothing-factor: 2.5
+
+
+    # When using "token-based" as credit-policy.
+    token-based-policy:
+
+
+      # Number of elements per batch.
+      batch-size: 1
+
+
+      # Max. number of elements in the input buffer.
+      buffer-size: 64
+
+
+  # Collecting metrics can be resource consuming. This section is used for
+  # filtering what should and what should not be collected
+  metrics-filters:
+
+
+    # Rules for actor based metrics filtering.
+    actors:
+
+
+      # List of selected actors for run-time metrics.
+      includes: []
+
+
+      # List of excluded actors from run-time metrics.
+      excludes: []
+
+
+  # Configure using OpenSSL for node-to-node connections.
+  # NOTE: Use the tenzir.endpoint variable to configure the endpoint.
+  openssl:
+
+
+    # Path to the PEM-formatted certificate file.
+    certificate:
+
+
+    # Path to the private key file for this node.
+    key:
+
+
+    # Passphrase to decrypt the private key.
+    passphrase:
+
+
+    # Path to an OpenSSL-style directory of trusted certificates.
+    capath:
+
+
+    # Path to a file of concatenated PEM-formatted certificates.
+    cafile:
+
+
+    # Colon-separated list of OpenSSL cipher strings to use.
+    cipher-list:
+```

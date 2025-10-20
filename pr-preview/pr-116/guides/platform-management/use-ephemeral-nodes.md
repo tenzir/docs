@@ -1,0 +1,78 @@
+# Use ephemeral nodes
+
+An **ephemeral node** is ideal for temporary or auto-scaling deployments. It is a temporary node that you do not have to provision manually first, and it disappears from the workspace when the connection to the platform ends.
+
+Using ephemeral nodes requires that you define a *workspace token*, a shared secret that you pass to the node so that it can self-register. You can define a workspace token in your workspace configuration:
+
+workspaces.yaml
+
+```yaml
+workspaces:
+  static0:
+    name: Tenzir
+    # Other configuration...
+    token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+```
+
+Caution
+
+Workspace tokens have a specific format. Do not create them manually! Use the `tenzir-platform tools generate-workspace-token` command to create valid tokens, or read the *Workspace Token Format* section below for more details.
+
+For improved security, store the token in a separate file:
+
+workspaces.yaml
+
+```yaml
+workspaces:
+  static0:
+    name: Tenzir
+    # Other configuration...
+    token-file: /run/secrets/workspace_token
+```
+
+This approach works well when you use Docker or Kubernetes secrets.
+
+### Deploy an ephemeral node
+
+[Section titled “Deploy an ephemeral node”](#deploy-an-ephemeral-node)
+
+Note
+
+Workspace tokens require a Tenzir Node v5.1.6 or later.
+
+To spawn an ephemeral node, create a configuration file with the workspace token:
+
+config.yaml
+
+```yaml
+tenzir:
+  token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+  platform-control-endpoint: http://tenzir-platform.example.org:3001
+```
+
+Then run the node with this configuration:
+
+```bash
+tenzir-node --config=config.yaml
+```
+
+### Workspace Token Format
+
+[Section titled “Workspace Token Format”](#workspace-token-format)
+
+A valid workspace token starts with the string `wsk_`, continues with 24 bytes of hex-encoded randomness, and ends with the base58-encoded workspace id.
+
+More precisely, the Tenzir Platform CLI generates a workspace token according to the following logic:
+
+```python
+import os
+import base58
+
+
+def print_workspace_token(workspace_id: str) -> None:
+    base58_workspace_id = base58.b58encode(workspace_id.encode()).decode()
+    random_bytes = os.urandom(24).hex()
+    print(f"wsk_{random_bytes}{base58_workspace_id}")
+```
+
+The `tenzir-platform tools generate-workspace-token` command generates a valid workspace key using exactly this logic. However, if you want to avoid external dependencies, you can use any other tool that prints a string in the format described above.

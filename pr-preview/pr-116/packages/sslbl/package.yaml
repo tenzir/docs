@@ -1,0 +1,21 @@
+id: sslbl
+name: SSLBL
+author: Tenzir
+author_icon: https://github.com/tenzir.png
+package_icon: package.svg
+description: |
+  The [SSLBL](https://sslbl.abuse.ch/) package provides a lookup table with
+  SHA1 hashes of blacklisted certificates for TLS monitoring use cases.
+
+inputs:
+  refresh_interval:
+    name: Time between context updates
+    description: |
+      How often the pipeline refreshes the SSLBL lookup table.
+    default: 1h
+
+contexts:
+  sslbl:
+    type: lookup-table
+    description: |
+      A table keyed by SHA1 hashes of SSL certificates on the SSL blocklist.

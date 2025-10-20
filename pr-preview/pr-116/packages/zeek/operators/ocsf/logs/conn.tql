@@ -1,0 +1,101 @@
+// --- Preamble ---------------------------------
+
+// Put the source into a dedicated record to move from.
+this = { zeek: this }
+
+// --- OCSF: classification attributes ----------
+
+ocsf.activity_id = 6
+ocsf.activity_name = "Traffic"
+ocsf.category_uid = 4
+ocsf.category_name = "Network Activity"
+ocsf.class_uid = 4001
+ocsf.class_name = "Network Activity"
+ocsf.severity_id = 1
+ocsf.severity = "Informational"
+ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
+
+// --- OCSF: occurence attributes ---------------
+
+ocsf.time = move zeek.ts
+ocsf.duration = move zeek.duration
+ocsf.end_time = ocsf.time + ocsf.duration
+ocsf.start_time = ocsf.time
+
+// --- OCSF: context attributes -----------------
+
+ocsf.metadata = {
+  log_name: "conn.log",
+  logged_time: move zeek._write_ts?,
+  product: {
+    name: "Zeek",
+    vendor_name: "Zeek",
+    cpe_name: "cpe:2.3:a:zeek:zeek",
+  },
+  uid: move zeek.uid,
+  version: "1.6.0",
+}
+move ocsf.app_name = zeek.service
+
+// --- OCSF: primary attributes -----------------
+
+let $proto_nums = {
+  tcp: 6,
+  udp: 17,
+  icmp: 1,
+  icmpv6: 58,
+  ipv6: 41,
+}
+ocsf.src_endpoint = {
+  ip: zeek.id.orig_h,
+  port: zeek.id.orig_p,
+}
+ocsf.dst_endpoint = {
+  ip: zeek.id.resp_h,
+  port: zeek.id.resp_p,
+}
+ocsf.connection_info = {
+  community_uid: move zeek.community_id?,
+  flag_history: move zeek.history,
+  protocol_name: move zeek.proto,
+  protocol_num: $proto_nums[zeek.proto]? else -1
+}
+if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
+  ocsf.connection_info.protocol_ver_id = 6
+} else {
+  ocsf.connection_info.protocol_ver_id = 4
+}
+drop zeek.id
+if zeek.local_orig != null and zeek.local_resp != null {
+  if zeek.local_orig and zeek.local_resp {
+    ocsf.connection_info.direction = "Lateral"
+    ocsf.connection_info.direction_id = 3
+  } else if zeek.local_orig {
+    ocsf.connection_info.direction = "Outbound"
+    ocsf.connection_info.direction_id = 2
+  } else if zeek.local_resp {
+    ocsf.connection_info.direction = "Inbound"
+    ocsf.connection_info.direction_id = 1
+  } else {
+    ocsf.connection_info.direction = "Unknown"
+    ocsf.connection_info.direction_id = 0
+  }
+}
+drop zeek.local_orig, zeek.local_resp
+ocsf.status = "Other"
+ocsf.status_code = move zeek.conn_state
+ocsf.status_id = 99
+ocsf.traffic = {
+  bytes_in: zeek.resp_bytes,
+  bytes_out: zeek.orig_bytes,
+  packets_in: zeek.resp_pkts,
+  packets_out: zeek.orig_pkts,
+  total_bytes: zeek.orig_bytes + zeek.resp_bytes,
+  total_packets: zeek.orig_pkts + zeek.resp_pkts,
+}
+drop zeek.resp_bytes, zeek.orig_bytes, zeek.resp_pkts, zeek.orig_pkts
+
+// --- Finalize ---------------------------------
+
+this = {...ocsf, unmapped: zeek}
+@name = "ocsf.network_activity"

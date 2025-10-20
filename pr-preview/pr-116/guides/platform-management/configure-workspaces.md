@@ -1,0 +1,125 @@
+# Configure workspaces
+
+Workspaces in the [platform](/explanations/architecture/platform) logically group nodes, secrets, and dashboards.
+
+You can configure workspaces in two ways:
+
+1. **Dynamically**: Create, update, or delete workspaces using the command line interface. 👉 Suited for ad-hoc workspace management.
+2. **Statically**: Pre-define workspaces declaratively in configuration files. 👉 Suited for GitOps-based infrastructure management.
+
+## Manage workspaces dynamically
+
+[Section titled “Manage workspaces dynamically”](#manage-workspaces-dynamically)
+
+The Tenzir Platform CLI allows administrators to create, modify, and delete workspaces on demand.
+
+On-premise setup required
+
+This CLI functionality requires an on-premise platform deployment, available with the [Sovereign Edition](https://tenzir.com/pricing).
+
+Only local platform administrators can manage workspaces dynamically. The [`TENZIR_PLATFORM_OIDC_ADMIN_RULES` variable](/guides/platform-setup/configure-identity-provider) defines who’s an administrator in your platform deployment.
+
+### Creating and managing workspaces
+
+[Section titled “Creating and managing workspaces”](#creating-and-managing-workspaces)
+
+You can create workspaces for either individual users or organizations. When you create a user workspace, it’s automatically configured with access for that specific user. Organization workspaces start with no access rules, giving you full control over who can access them.
+
+For a detailed overview, of the available commands, take a look at our [CLI reference documentation](/reference/platform/command-line-interface).
+
+### Example: Setting up an organization workspace
+
+[Section titled “Example: Setting up an organization workspace”](#example-setting-up-an-organization-workspace)
+
+Let’s walk through creating a workspace for the fictional “Scrooge & Marley Counting House” organization:
+
+1. **Create the organization workspace:**
+
+   ```bash
+   tenzir-platform admin create-workspace organization scrooge-marley --name "Scrooge & Marley Counting House"
+   ```
+
+   This creates a workspace with the organization ID `scrooge-marley` and the display name “Scrooge & Marley Counting House”.
+
+2. **Configure access for employees with company email addresses:**
+
+   ```bash
+   tenzir-platform admin add-auth-rule email-domain <workspace_id> <connection> '@scroogemarley.com'
+   ```
+
+3. **Add a specific user:**
+
+   The specific format of the user id depends on the OIDC provider you configured. The provided id must match the `sub` of the generated OIDC token in order to allow access to the workspace.
+
+   ```bash
+   tenzir-platform admin add-auth-rule user <workspace_id> 'sub|12345678901'
+   ```
+
+4. **Grant access to users with the “accountant” role:**
+
+   ```bash
+   tenzir-platform admin add-auth-rule organization-role <workspace_id> <connection> roles accountant organization scrooge-marley
+   ```
+
+If you later need to remove the workspace:
+
+```bash
+tenzir-platform admin delete-workspace <workspace_id>
+```
+
+### Understanding access control
+
+[Section titled “Understanding access control”](#understanding-access-control)
+
+Access rules determine who can enter a workspace. Users gain access to the workspace if they match any configured rule. Think of rules as multiple keys to the same door.
+
+The platform supports various rule types, from allowing everyone to restricting access to specific users or organization members.
+
+For a complete reference of all available authentication rules and their parameters, see the [CLI reference documentation](/reference/platform/command-line-interface#configure-access-rules).
+
+## Define static workspaces
+
+[Section titled “Define static workspaces”](#define-static-workspaces)
+
+You pre-define **static workspaces** declaratively in configuration files. This “as-code” approach differs from the dynamic management approach, which you manage with the [command line interface](/reference/platform/command-line-interface).
+
+Here’s a minimal example of a static workspace configuration:
+
+workspaces.yaml
+
+```yaml
+workspaces:
+  static0: # Unique workspace identifier
+    name: Tenzir # Display name in the UI
+    category: Statically Configured Workspaces # Grouping category in the UI
+    icon-url: https://storage.googleapis.com/tenzir-public-data/icons/tenzir-logo-square.svg
+    auth-rules:
+      - { "auth_fn": "auth_allow_all" } # Authentication rule (this allows everyone)
+```
+
+The `auth-rules` section defines who can access the workspace. The example above uses `auth_allow_all`. This rule grants access to everyone.
+
+Generating Auth Rules
+
+Use the `print-auth-rule` [CLI](/reference/platform/command-line-interface) command to easily generate auth rules in the correct format:
+
+```bash
+tenzir-platform tools print-auth-rule allow-all
+```
+
+The `platform` service in a Tenzir Platform deployment uses the `WORKSPACE_CONFIG_FILE` environment variable to locate its static workspace configuration file:
+
+docker-compose.yaml
+
+```yaml
+services:
+  platform:
+    environment:
+      # Other environment variables...
+      - WORKSPACE_CONFIG_FILE=/etc/tenzir/workspaces.yaml
+    volumes:
+      # Mount your config file.
+      - ./workspaces.yaml:/etc/tenzir/workspaces.yaml
+```
+
+This example mounts a local `workspaces.yaml` file into the container. The platform service then accesses it at the location that `WORKSPACE_CONFIG_FILE` specifies.

@@ -1,0 +1,665 @@
+# Transform basic values
+
+Transforming values is a fundamental part of data processing. This guide shows you how to convert between different data types, perform basic calculations, and manipulate simple values within your events.
+
+## Type conversions
+
+[Section titled “Type conversions”](#type-conversions)
+
+TQL provides functions to convert values between different types. This is essential when data arrives in the wrong format or when you need specific types for further processing.
+
+### Convert to numbers
+
+[Section titled “Convert to numbers”](#convert-to-numbers)
+
+Use [`int()`](/reference/functions/int) and [`float()`](/reference/functions/float) to convert values to numeric types:
+
+```tql
+from {price: "42", quantity: "3.5"},
+     {price: "99", quantity: "1.0"}
+price = price.int()
+quantity = quantity.float()
+```
+
+```tql
+{price: 42, quantity: 3.5}
+{price: 99, quantity: 1.0}
+```
+
+### Convert to strings
+
+[Section titled “Convert to strings”](#convert-to-strings)
+
+Use [`string()`](/reference/functions/string) to convert any value to its string representation:
+
+```tql
+from {status: 200, ratio: 0.95},
+     {status: 404, ratio: 0.05}
+message = status.string() + " - " + (ratio * 100).string() + "%"
+```
+
+```tql
+{status: 200, ratio: 0.95, message: "200 - 95.0%"}
+{status: 404, ratio: 0.05, message: "404 - 5.0%"}
+```
+
+### Parse times and durations
+
+[Section titled “Parse times and durations”](#parse-times-and-durations)
+
+Convert strings to time values with [`time()`](/reference/functions/time):
+
+```tql
+from {timestamp: "2024-01-15"},
+     {timestamp: "2024-02-20"}
+parsed_time = timestamp.time()
+```
+
+```tql
+{timestamp: "2024-01-15", parsed_time: 2024-01-15T00:00:00Z}
+{timestamp: "2024-02-20", parsed_time: 2024-02-20T00:00:00Z}
+```
+
+Convert strings to durations with [`duration()`](/reference/functions/duration):
+
+```tql
+from {interval: "5s"},
+     {interval: "2.5min"}
+parsed_duration = interval.duration()
+```
+
+```tql
+{interval: "5s", parsed_duration: 5s}
+{interval: "2.5min", parsed_duration: 2.5min}
+```
+
+### Convert to unsigned integers
+
+[Section titled “Convert to unsigned integers”](#convert-to-unsigned-integers)
+
+Use [`uint()`](/reference/functions/uint) for non-negative integers:
+
+```tql
+from {count: "42", ratio: 3.7},
+     {count: "-5", ratio: 2.3}
+count_uint = count.uint()
+ratio_uint = ratio.uint()
+```
+
+```tql
+{count: "42", ratio: 3.7, count_uint: 42, ratio_uint: 3}
+{count: "-5", ratio: 2.3, count_uint: null, ratio_uint: 2}
+```
+
+This pipeline elicits the following warning:
+
+```txt
+warning: `uint` failed to convert some string
+ --> /tmp/pipeline.tql:3:14
+  |
+3 | count_uint = count.uint()
+  |              ~~~~~
+  |
+```
+
+### Work with IP addresses and subnets
+
+[Section titled “Work with IP addresses and subnets”](#work-with-ip-addresses-and-subnets)
+
+TQL supports IP address and subnet literals directly. You can also parse them from strings using [`ip()`](/reference/functions/ip) and [`subnet()`](/reference/functions/subnet):
+
+```tql
+from {direct_ip: 192.168.1.1, direct_subnet: 10.0.0.0/24},
+     {direct_ip: ::1, direct_subnet: 2001:db8::/32}
+ipv6_check = direct_ip.is_v6()
+```
+
+```tql
+{
+  direct_ip: 192.168.1.1,
+  direct_subnet: 10.0.0.0/24,
+  ipv6_check: false,
+}
+{
+  direct_ip: ::1,
+  direct_subnet: 2001:db8::/32,
+  ipv6_check: true,
+}
+```
+
+Parse from strings when needed:
+
+```tql
+from {client: "192.168.1.1", network: "10.0.0.0/24"},
+     {client: "10.0.0.5", network: "192.168.0.0/16"}
+client_ip = client.ip()
+network_subnet = network.subnet()
+```
+
+```tql
+{
+  client: "192.168.1.1",
+  network: "10.0.0.0/24",
+  client_ip: 192.168.1.1,
+  network_subnet: 10.0.0.0/24,
+}
+{
+  client: "10.0.0.5",
+  network: "192.168.0.0/16",
+  client_ip: 10.0.0.5,
+  network_subnet: 192.168.0.0/16,
+}
+```
+
+## IP address inspection
+
+[Section titled “IP address inspection”](#ip-address-inspection)
+
+Analyze and categorize IP addresses with inspection functions:
+
+### Check IP address types
+
+[Section titled “Check IP address types”](#check-ip-address-types)
+
+Use IP inspection functions like [`is_v4()`](/reference/functions/is_v4), [`is_v6()`](/reference/functions/is_v6), [`is_private()`](/reference/functions/is_private), [`is_global()`](/reference/functions/is_global), [`is_loopback()`](/reference/functions/is_loopback), and [`is_multicast()`](/reference/functions/is_multicast) to analyze addresses:
+
+```tql
+from {ip1: 192.168.1.1, ip2: 8.8.8.8, ip3: ::1},
+     {ip1: 10.0.0.1, ip2: 224.0.0.1, ip3: 2001:db8::1}
+is_v4 = ip1.is_v4()
+is_v6 = ip3.is_v6()
+is_private = ip1.is_private()
+is_global = ip2.is_global()
+is_loopback = ip3.is_loopback()
+is_multicast = ip2.is_multicast()
+```
+
+```tql
+{
+  ip1: 192.168.1.1,
+  ip2: 8.8.8.8,
+  ip3: ::1,
+  is_v4: true,
+  is_v6: true,
+  is_private: true,
+  is_global: true,
+  is_loopback: true,
+  is_multicast: false,
+}
+{
+  ip1: 10.0.0.1,
+  ip2: 224.0.0.1,
+  ip3: 2001:db8::1,
+  is_v4: true,
+  is_v6: true,
+  is_private: true,
+  is_global: false,
+  is_loopback: false,
+  is_multicast: true,
+}
+```
+
+### Categorize IP addresses
+
+[Section titled “Categorize IP addresses”](#categorize-ip-addresses)
+
+Get detailed IP address classification with [`ip_category()`](/reference/functions/ip_category):
+
+```tql
+from {client: "192.168.1.100", server: "8.8.8.8", local: "127.0.0.1"},
+     {client: "10.0.0.5", server: "224.0.0.251", local: "::1"}
+client_category = client.ip().ip_category()
+server_category = server.ip().ip_category()
+local_category = local.ip().ip_category()
+```
+
+```tql
+{
+  client: "192.168.1.100",
+  server: "8.8.8.8",
+  local: "127.0.0.1",
+  client_category: "private",
+  server_category: "global",
+  local_category: "loopback",
+}
+{
+  client: "10.0.0.5",
+  server: "224.0.0.251",
+  local: "::1",
+  client_category: "private",
+  server_category: "multicast",
+  local_category: "loopback",
+}
+```
+
+### Check link-local addresses
+
+[Section titled “Check link-local addresses”](#check-link-local-addresses)
+
+Identify link-local addresses with [`is_link_local()`](/reference/functions/is_link_local):
+
+```tql
+from {addr1: 169.254.1.1, addr2: fe80::1, addr3: 192.168.1.1},
+     {addr1: 169.254.0.1, addr2: 2001:db8::1, addr3: 10.0.0.1}
+link_local1 = addr1.is_link_local()
+link_local2 = addr2.is_link_local()
+link_local3 = addr3.is_link_local()
+```
+
+```tql
+{
+  addr1: 169.254.1.1,
+  addr2: fe80::1,
+  addr3: 192.168.1.1,
+  link_local1: true,
+  link_local2: true,
+  link_local3: false,
+}
+{
+  addr1: 169.254.0.1,
+  addr2: 2001:db8::1,
+  addr3: 10.0.0.1,
+  link_local1: true,
+  link_local2: false,
+  link_local3: false,
+}
+```
+
+## Basic string operations
+
+[Section titled “Basic string operations”](#basic-string-operations)
+
+Transform strings with simple operations to clean and standardize your data.
+
+### Change case
+
+[Section titled “Change case”](#change-case)
+
+Convert strings to different cases:
+
+```tql
+from {name: "alice smith", code: "xyz"},
+     {name: "BOB JONES", code: "ABC"}
+name = name.to_title()
+code = code.to_upper()
+```
+
+```tql
+{name: "Alice Smith", code: "XYZ"}
+{name: "Bob Jones", code: "ABC"}
+```
+
+### Trim whitespace
+
+[Section titled “Trim whitespace”](#trim-whitespace)
+
+Remove unwanted whitespace from strings:
+
+```tql
+from {input: "  hello  ", data: "world   "},
+     {input: "   test", data: "  value  "}
+input = input.trim()
+data = data.trim()
+```
+
+```tql
+{input: "hello", data: "world"}
+{input: "test", data: "value"}
+```
+
+### Capitalize strings
+
+[Section titled “Capitalize strings”](#capitalize-strings)
+
+Capitalize the first letter of a string:
+
+```tql
+from {word: "hello", phrase: "good morning"},
+     {word: "world", phrase: "how are you"}
+word = word.capitalize()
+```
+
+```tql
+{word: "Hello", phrase: "good morning"}
+{word: "World", phrase: "how are you"}
+```
+
+## Mathematical operations
+
+[Section titled “Mathematical operations”](#mathematical-operations)
+
+Perform calculations on numeric values within your events.
+
+### Basic arithmetic
+
+[Section titled “Basic arithmetic”](#basic-arithmetic)
+
+Use standard arithmetic operators:
+
+```tql
+from {a: 10, b: 3},
+     {a: 20, b: 4}
+sum = a + b
+diff = a - b
+product = a * b
+quotient = (a / b).int()
+```
+
+```tql
+{a: 10, b: 3, sum: 13, diff: 7, product: 30, quotient: 3}
+{a: 20, b: 4, sum: 24, diff: 16, product: 80, quotient: 5}
+```
+
+### Rounding numbers
+
+[Section titled “Rounding numbers”](#rounding-numbers)
+
+Round numbers to specific precision:
+
+```tql
+from {value: 3.14159},
+     {value: 2.71828}
+rounded = value.round()
+ceil_val = value.ceil()
+floor_val = value.floor()
+```
+
+```tql
+{value: 3.14159, rounded: 3, ceil_val: 4, floor_val: 3}
+{value: 2.71828, rounded: 3, ceil_val: 3, floor_val: 2}
+```
+
+### Mathematical functions
+
+[Section titled “Mathematical functions”](#mathematical-functions)
+
+Use [`abs()`](/reference/functions/abs) for absolute values and [`sqrt()`](/reference/functions/sqrt) for square roots:
+
+```tql
+from {x: -5, y: 16},
+     {x: -10, y: 25}
+abs_x = x.abs()
+sqrt_y = y.sqrt()
+```
+
+```tql
+{
+  x: -5,
+  y: 16,
+  abs_x: 5,
+  sqrt_y: 4.0,
+}
+{
+  x: -10,
+  y: 25,
+  abs_x: 10,
+  sqrt_y: 5.0,
+}
+```
+
+## Working with null values
+
+[Section titled “Working with null values”](#working-with-null-values)
+
+Handle missing or null values gracefully in your data.
+
+### Provide default values
+
+[Section titled “Provide default values”](#provide-default-values)
+
+Use the `else` keyword to replace null values:
+
+```tql
+from {name: "alice", age: 30},
+     {name: "bob"},
+     {name: "charlie", age: 25}
+age = age? else 0
+status = status? else "unknown"
+```
+
+```tql
+{name: "alice", age: 30, status: "unknown"}
+{name: "bob", age: 0, status: "unknown"}
+{name: "charlie", age: 25, status: "unknown"}
+```
+
+## Create new values
+
+[Section titled “Create new values”](#create-new-values)
+
+Generate new values using built-in functions:
+
+### Generate unique identifiers
+
+[Section titled “Generate unique identifiers”](#generate-unique-identifiers)
+
+Use [`uuid()`](/reference/functions/uuid) to create unique identifiers:
+
+```tql
+from {user: "alice", action: "login"},
+     {user: "bob", action: "create"}
+event_id = uuid(version="v7")
+session_id = uuid()
+```
+
+```tql
+{
+  user: "alice",
+  action: "login",
+  event_id: "0198147a-d167-7292-80fa-2665c1263279",
+  session_id: "a09a7f44-b665-4f95-bc44-c52fbdb8f428",
+}
+{
+  user: "bob",
+  action: "create",
+  event_id: "0198147a-d167-72ad-80b4-e052c2287add",
+  session_id: "030349dc-2585-49ad-af58-d448ff718c05",
+}
+```
+
+### Generate random numbers
+
+[Section titled “Generate random numbers”](#generate-random-numbers)
+
+Use [`random()`](/reference/functions/random) to generate random values:
+
+```tql
+from {
+  random_float: random(),
+  random_int: (random() * 100).int(),
+  random_choice: "heads" if random() < 0.5 else "tails",
+}
+```
+
+```tql
+{
+  random_float: 0.3215780368890365,
+  random_int: 88,
+  random_choice: "tails",
+}
+```
+
+## Access external values
+
+[Section titled “Access external values”](#access-external-values)
+
+Retrieve values from external sources like the environment, configuration, or files:
+
+### Read environment variables
+
+[Section titled “Read environment variables”](#read-environment-variables)
+
+Use [`env()`](/reference/functions/env) to access environment variables:
+
+```tql
+from {
+  home_dir: env("HOME"),
+  shell: env("SHELL"),
+  custom_var: env("MY_APP_CONFIG") else "/default/config",
+}
+```
+
+```tql
+{
+  home_dir: "/Users/alice",
+  shell: "/opt/homebrew/bin/fish",
+  custom_var: "/default/config",
+}
+```
+
+### Access configuration
+
+[Section titled “Access configuration”](#access-configuration)
+
+Use [`config()`](/reference/functions/config) to read Tenzir’s configuration:
+
+```tql
+from {
+  tenzir_config: config(),
+}
+```
+
+### Read file contents
+
+[Section titled “Read file contents”](#read-file-contents)
+
+Use [`file_contents()`](/reference/functions/file_contents) to read files:
+
+```tql
+from {
+  api_key: file_contents("/etc/secrets/api_key"),
+}
+```
+
+### Access secrets
+
+[Section titled “Access secrets”](#access-secrets)
+
+Use [`secret()`](/reference/functions/secret) to retrieve [secrets](/explanations/secrets):
+
+```tql
+from {
+  auth_token: secret("AUTH_TOKEN"),
+}
+```
+
+## Type inspection
+
+[Section titled “Type inspection”](#type-inspection)
+
+Examine data types at runtime:
+
+### Get type information
+
+[Section titled “Get type information”](#get-type-information)
+
+Use [`type_of()`](/reference/functions/type_of) to inspect value types. Note that this function returns detailed type information as objects:
+
+```tql
+from {
+  str: "hello",
+  num: 42,
+  float: 3.14,
+  bool: true,
+  arr: [1, 2, 3],
+  obj: {key: "value"}
+}
+str_type = str.type_of()
+num_type = num.type_of()
+float_type = float.type_of()
+bool_type = bool.type_of()
+arr_type = arr.type_of()
+obj_type = obj.type_of()
+```
+
+```tql
+{
+  str: "hello",
+  num: 42,
+  float: 3.14,
+  bool: true,
+  arr: [1, 2, 3],
+  obj: {key: "value"},
+  str_type: {name: null, kind: "string", attributes: [], state: null},
+  num_type: {name: null, kind: "int64", attributes: [], state: null},
+  float_type: {name: null, kind: "double", attributes: [], state: null},
+  bool_type: {name: null, kind: "bool", attributes: [], state: null},
+  arr_type: {name: null, kind: "list", attributes: [], state: {type: {name: null, kind: "int64", attributes: [], state: null}}},
+  obj_type: {name: null, kind: "record", attributes: [], state: {fields: [{name: "key", type: {name: null, kind: "string", attributes: [], state: null}}]}}
+}
+```
+
+### Get type identifiers
+
+[Section titled “Get type identifiers”](#get-type-identifiers)
+
+Use [`type_id()`](/reference/functions/type_id) for type comparison:
+
+```tql
+from {value1: "text", value2: 123, value3: "456"}
+type1 = value1.type_id()
+type2 = value2.type_id()
+type3 = value3.type_id()
+same_type = value1.type_id() == value3.type_id()
+```
+
+```tql
+{
+  value1: "text",
+  value2: 123,
+  value3: "456",
+  type1: "2476398993549b5",
+  type2: "5b0d4f0b0b167404",
+  type3: "2476398993549b5",
+  same_type: true,
+}
+```
+
+## Combining transformations
+
+[Section titled “Combining transformations”](#combining-transformations)
+
+Real-world data often requires multiple transformations:
+
+```tql
+from {temp_f: "72.5", location: "  new york  "},
+     {temp_f: "89.1", location: "los angeles"}
+temp_c = ((temp_f.float() - 32) * 5 / 9).round()
+location = location.trim().to_title()
+reading = f"{temp_c}°C in {location}"
+```
+
+```tql
+{
+  temp_f: "72.5",
+  location: "New York",
+  temp_c: 23,
+  reading: "23°C in New York",
+}
+{
+  temp_f: "89.1",
+  location: "Los Angeles",
+  temp_c: 32,
+  reading: "32°C in Los Angeles",
+}
+```
+
+## Best practices
+
+[Section titled “Best practices”](#best-practices)
+
+1. **Validate before converting**: Check that values can be converted to avoid errors.
+
+2. **Use appropriate types**: Convert to the most specific type needed (e.g., `int` instead of `float` for whole numbers).
+
+3. **Handle edge cases**: Always consider what happens with null values or invalid input.
+
+4. **Chain operations efficiently**: Combine multiple transformations in a single `set` statement when possible.
+
+## Related guides
+
+[Section titled “Related guides”](#related-guides)
+
+* [Filter and select data](/guides/data-shaping/filter-and-select-data) - Learn about filtering and field selection
+* [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations
+* [Manipulate strings](/guides/data-shaping/manipulate-strings) - Advanced string manipulation techniques
