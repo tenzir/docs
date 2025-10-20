@@ -76,10 +76,6 @@ jobs:
               --base "$FINAL_BASE"
           fi
 
-      - name: Remove CNAME for preview
-        if: github.event_name == 'pull_request'
-        run: rm -f ./dist/CNAME
-
       - name: Ensure static site deployment metadata
         run: |
           touch ./dist/.nojekyll
@@ -92,6 +88,10 @@ jobs:
                 render_with_liquid: false
           EOF
 
+      - name: Remove CNAME from preview builds
+        if: github.event_name == 'pull_request'
+        run: rm -f ./dist/CNAME
+
       - name: Deploy PR preview
         if: github.event_name == 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
@@ -101,69 +101,6 @@ jobs:
           target-folder: pr-preview/pr-${{ github.event.pull_request.number }}
           clean: true
           force: false
-
-      - name: Ensure Pages metadata files
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const configPath = '_config.yml';
-            const configContent = `defaults:
-  - scope:
-      path: ""
-    values:
-      layout: null
-      render_with_liquid: false
-`;
-
-            const getFile = async (path) => {
-              try {
-                const { data } = await github.rest.repos.getContent({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  path,
-                  ref: 'gh-pages',
-                });
-                return data;
-              } catch (error) {
-                if (error.status === 404) return null;
-                throw error;
-              }
-            };
-
-            const updateFile = async (path, content, sha) => {
-              await github.rest.repos.createOrUpdateFileContents({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path,
-                message: `Ensure Pages metadata file ${path}`,
-                content: Buffer.from(content).toString('base64'),
-                branch: 'gh-pages',
-                sha,
-              });
-            };
-
-            const existingConfig = await getFile(configPath);
-            const existingConfigContent = existingConfig
-              ? Buffer.from(existingConfig.content, existingConfig.encoding).toString()
-              : null;
-
-            if (existingConfigContent?.trim() !== configContent.trim()) {
-              await updateFile(configPath, configContent, existingConfig?.sha);
-            }
-
-            const path = `pr-preview/pr-${context.payload.pull_request.number}/CNAME`;
-            const existingCname = await getFile(path);
-            if (existingCname) {
-              await github.rest.repos.deleteFile({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                path,
-                message: `Remove preview CNAME for PR #${context.payload.pull_request.number}`,
-                sha: existingCname.sha,
-                branch: 'gh-pages',
-              });
-            }
 
       - name: Comment PR with preview link
         if: github.event_name == 'pull_request'
