@@ -80,6 +80,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: rm -f ./dist/CNAME
 
+      - name: Ensure static site deployment metadata
+        run: |
+          touch ./dist/.nojekyll
+
       - name: Deploy PR preview
         if: github.event_name == 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
@@ -90,6 +94,34 @@ jobs:
           clean: true
           force: false
 
+      - name: Remove preview CNAME
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const path = `pr-preview/pr-${context.payload.pull_request.number}/CNAME`;
+            try {
+              const { data } = await github.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path,
+                ref: 'gh-pages',
+              });
+
+              await github.repos.deleteFile({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path,
+                message: `Remove preview CNAME for PR #${context.payload.pull_request.number}`,
+                sha: data.sha,
+                branch: 'gh-pages',
+              });
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+            }
+
       - name: Comment PR with preview link
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
@@ -98,7 +130,7 @@ jobs:
           message: |
             🚀 Preview deployed!
 
-            Visit https://tenzir.github.io/docs/pr-preview/pr-${{ github.event.pull_request.number }}/
+            Visit https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/
 
             This preview updates automatically when you push new commits.
 
@@ -138,4 +170,4 @@ jobs:
           message: |
             🧹 Preview removed.
 
-            The pull request closed, so the preview deployment is gone.
+            The pull request closed, so the preview deployment at https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/ is gone.
