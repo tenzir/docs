@@ -101,14 +101,14 @@ jobs:
           script: |
             const path = `pr-preview/pr-${context.payload.pull_request.number}/CNAME`;
             try {
-              const { data } = await github.repos.getContent({
+              const { data } = await github.rest.repos.getContent({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 path,
                 ref: 'gh-pages',
               });
 
-              await github.repos.deleteFile({
+              await github.rest.repos.deleteFile({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 path,
