@@ -24,6 +24,7 @@ export const guides = [
     collapsed: true,
     items: [
       "guides/platform-setup",
+      "guides/platform-setup/deploy-on-aws",
       "guides/platform-setup/choose-a-scenario",
       "guides/platform-setup/configure-reverse-proxy",
       "guides/platform-setup/configure-internal-services",
