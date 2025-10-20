@@ -1,0 +1,164 @@
+# Deduplicate events
+
+The [`deduplicate`](/reference/operators/deduplicate) operator provides a powerful mechanism to remove duplicate events in a pipeline.
+
+There are numerous use cases for deduplication, such as reducing noise, optimizing costs and making threat detection and response more efficient.
+
+## Basic deduplication
+
+[Section titled “Basic deduplication”](#basic-deduplication)
+
+Let’s start with a simple example to understand how deduplication works. Imagine you’re monitoring user logins and want to see only unique users, regardless of how many times they log in:
+
+```tql
+from {user: "alice", action: "login", time: 1},
+     {user: "bob", action: "login", time: 2},
+     {user: "alice", action: "login", time: 3},
+     {user: "alice", action: "logout", time: 4}
+deduplicate user
+```
+
+```tql
+{user: "alice", action: "login", time: 1}
+{user: "bob", action: "login", time: 2}
+```
+
+The operator keeps only the first occurrence of each unique value for the specified field(s). In this example:
+
+* Alice’s first login (time: 1) is kept
+* Bob’s login (time: 2) is kept
+* Alice’s second login (time: 3) is dropped because we already saw `user: "alice"`
+* Note that Alice’s logout (time: 4) would also be dropped with this simple deduplication
+
+## Deduplicate by multiple fields
+
+[Section titled “Deduplicate by multiple fields”](#deduplicate-by-multiple-fields)
+
+Often you need more nuanced deduplication. For example, you might want to track unique user-action pairs to see each distinct activity per user:
+
+```tql
+from {user: "alice", action: "login", time: 1},
+     {user: "bob", action: "login", time: 2},
+     {user: "alice", action: "login", time: 3},
+     {user: "alice", action: "logout", time: 4}
+deduplicate {user: user, action: action}
+```
+
+```tql
+{user: "alice", action: "login", time: 1}
+{user: "bob", action: "login", time: 2}
+{user: "alice", action: "logout", time: 4}
+```
+
+Now we keep unique combinations of user and action:
+
+* Alice’s first login is kept (unique: alice+login)
+* Bob’s login is kept (unique: bob+login)
+* Alice’s second login is dropped (duplicate: alice+login already seen)
+* Alice’s logout is kept (unique: alice+logout is a new combination)
+
+This approach is useful for tracking distinct user activities rather than just unique users.
+
+## Analyze unique host pairs
+
+[Section titled “Analyze unique host pairs”](#analyze-unique-host-pairs)
+
+When investigating network incidents, you often want to identify all unique communication patterns between hosts. This example shows network connections with nested ID fields containing origin and response hosts:
+
+```tql
+from {id: {orig_h: "10.0.0.1", resp_h: "192.168.1.1"}, bytes: 1024},
+     {id: {orig_h: "10.0.0.2", resp_h: "192.168.1.1"}, bytes: 2048},
+     {id: {orig_h: "10.0.0.1", resp_h: "192.168.1.1"}, bytes: 512},
+     {id: {orig_h: "10.0.0.1", resp_h: "192.168.1.2"}, bytes: 256}
+deduplicate {orig_h: id.orig_h, resp_h: id.resp_h}
+```
+
+```tql
+{id: {orig_h: "10.0.0.1", resp_h: "192.168.1.1"}, bytes: 1024}
+{id: {orig_h: "10.0.0.2", resp_h: "192.168.1.1"}, bytes: 2048}
+{id: {orig_h: "10.0.0.1", resp_h: "192.168.1.2"}, bytes: 256}
+```
+
+The deduplication works on the extracted host pairs:
+
+* First connection (10.0.0.1 → 192.168.1.1) is kept
+* Second connection (10.0.0.2 → 192.168.1.1) is kept (different origin)
+* Third connection (10.0.0.1 → 192.168.1.1) is dropped (duplicate of first)
+* Fourth connection (10.0.0.1 → 192.168.1.2) is kept (different destination)
+
+Note that flipped connections (A→B vs B→A) are considered different pairs. This helps identify bidirectional communication patterns.
+
+## Remove duplicate alerts
+
+[Section titled “Remove duplicate alerts”](#remove-duplicate-alerts)
+
+Security monitoring often generates duplicate alerts that create noise and fatigue. Here’s how to suppress repeated alerts for the same threat pattern:
+
+```tql
+from {src_ip: "10.0.0.1", dest_ip: "8.8.8.8", signature: "Suspicious DNS", time: 1},
+     {src_ip: "10.0.0.1", dest_ip: "8.8.8.8", signature: "Suspicious DNS", time: 2},
+     {src_ip: "10.0.0.2", dest_ip: "8.8.8.8", signature: "Suspicious DNS", time: 3},
+     {src_ip: "10.0.0.1", dest_ip: "8.8.8.8", signature: "Port Scan", time: 4}
+deduplicate {src: src_ip, dst: dest_ip, sig: signature}
+```
+
+```tql
+{src_ip: "10.0.0.1", dest_ip: "8.8.8.8", signature: "Suspicious DNS", time: 1}
+{src_ip: "10.0.0.2", dest_ip: "8.8.8.8", signature: "Suspicious DNS", time: 3}
+{src_ip: "10.0.0.1", dest_ip: "8.8.8.8", signature: "Port Scan", time: 4}
+```
+
+The deduplication creates a composite key from source, destination, and signature:
+
+* First “Suspicious DNS” from 10.0.0.1 is kept
+* Second identical alert (time: 2) is suppressed as a duplicate
+* “Suspicious DNS” from different source 10.0.0.2 is kept (different pattern)
+* “Port Scan” from 10.0.0.1 is kept (different signature)
+
+This approach reduces alert volume while preserving visibility into distinct threat patterns.
+
+### Using timeout for time-based deduplication
+
+[Section titled “Using timeout for time-based deduplication”](#using-timeout-for-time-based-deduplication)
+
+In production environments, you often want to suppress duplicates only within a certain time window. This ensures you don’t miss recurring issues that happen over longer periods.
+
+The `create_timeout` parameter resets the deduplication state after the specified duration:
+
+```tql
+deduplicate {src: src_ip, dst: dest_ip, sig: signature}, create_timeout=1h
+```
+
+This configuration:
+
+* Suppresses duplicate alerts for the same source/destination/signature combination
+* Resets after 1 hour, allowing the same alert pattern through again
+* Helps balance noise reduction with visibility into persistent threats
+
+For example, if a host is repeatedly targeted:
+
+* 9:00 AM: First “Port Scan” alert is shown
+* 9:15 AM: Duplicate suppressed
+* 9:30 AM: Duplicate suppressed
+* 10:05 AM: Same alert shown again (timeout expired)
+
+## Best practices
+
+[Section titled “Best practices”](#best-practices)
+
+1. **Choose fields carefully**: Deduplicate on fields that truly identify unique events for your use case. Too few fields may drop important events; too many may not deduplicate effectively.
+
+2. **Consider order**: The [`deduplicate`](/reference/operators/deduplicate) operator keeps the *first* occurrence. If you need the latest, consider using [`reverse`](/reference/operators/reverse) first:
+
+   ```tql
+   reverse | deduplicate user | reverse
+   ```
+
+3. **Use timeout wisely**: For streaming data, `create_timeout` prevents memory from growing indefinitely while still reducing noise. Choose durations based on your threat detection windows.
+
+4. **Combine with other operators**: Often you’ll want to filter ([`where`](/reference/operators/where)) or transform ([`set`](/reference/operators/set)) data before deduplication to normalize keys:
+
+   ```tql
+   normalized_ip = src_ip.string()
+   deduplicate normalized_ip
+   ```

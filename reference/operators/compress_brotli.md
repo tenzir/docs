@@ -1,0 +1,57 @@
+# compress_brotli
+
+Compresses a stream of bytes using Brotli compression.
+
+```tql
+compress_brotli [level=int, window_bits=int]
+```
+
+## Description
+
+[Section titled “Description”](#description)
+
+The `compress_brotli` operator compresses bytes in a pipeline incrementally.
+
+### `level = int (optional)`
+
+[Section titled “level = int (optional)”](#level--int-optional)
+
+The compression level to use. The supported values depend on the codec used. If omitted, the default level for the codec is used.
+
+### `window_bits = int (optional)`
+
+[Section titled “window\_bits = int (optional)”](#window_bits--int-optional)
+
+A number representing the encoder window bits.
+
+## Examples
+
+[Section titled “Examples”](#examples)
+
+### Export all events in a Brotli-compressed NDJSON file
+
+[Section titled “Export all events in a Brotli-compressed NDJSON file”](#export-all-events-in-a-brotli-compressed-ndjson-file)
+
+```tql
+export
+write_ndjson
+compress_brotli
+save_file "/tmp/backup.json.bt"
+```
+
+### Recompress a Brotli-compressed file at a different compression level
+
+[Section titled “Recompress a Brotli-compressed file at a different compression level”](#recompress-a-brotli-compressed-file-at-a-different-compression-level)
+
+```tql
+load_file "in.brotli"
+decompress_brotli
+compress_brotli level=18
+save_file "out.brotli"
+```
+
+## See Also
+
+[Section titled “See Also”](#see-also)
+
+[`compress_bz2`](/reference/operators/compress_bz2), [`compress_gzip`](/reference/operators/compress_gzip), [`compress_lz4`](/reference/operators/compress_lz4), [`compress_zstd`](/reference/operators/compress_zstd), [`decompress_brotli`](/reference/operators/decompress_brotli)

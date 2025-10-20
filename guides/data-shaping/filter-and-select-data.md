@@ -1,0 +1,317 @@
+# Filter and select data
+
+Filtering and selecting are fundamental operations when working with data streams. This guide shows you how to filter events based on conditions and select specific fields from your data.
+
+## Understanding operators vs functions
+
+[Section titled “Understanding operators vs functions”](#understanding-operators-vs-functions)
+
+Before we dive in, it’s important to understand a key distinction in TQL:
+
+* **Operators** like [`where`](/reference/operators/where), [`select`](/reference/operators/select), and [`drop`](/reference/operators/drop) work on entire event streams
+* **Functions** like [`starts_with()`](/reference/functions/starts_with) or mathematical comparisons work on individual values within events
+
+You’ll see both in action throughout this guide.
+
+## Filter events with conditions
+
+[Section titled “Filter events with conditions”](#filter-events-with-conditions)
+
+Use the [`where`](/reference/operators/where) operator to keep only events that match specific conditions.
+
+### Basic filtering
+
+[Section titled “Basic filtering”](#basic-filtering)
+
+Filter events based on a simple condition. This example keeps only successful HTTP requests (status code 200):
+
+```tql
+from {status: 200, path: "/api/users"},
+     {status: 404, path: "/api/missing"},
+     {status: 200, path: "/home"}
+where status == 200
+```
+
+```tql
+{status: 200, path: "/api/users"}
+{status: 200, path: "/home"}
+```
+
+The event with `status: 404` is filtered out because it doesn’t match our condition.
+
+### Combining conditions
+
+[Section titled “Combining conditions”](#combining-conditions)
+
+Use logical operators (`and`, `or`, `not`) to combine multiple conditions:
+
+```tql
+from {status: 200, path: "/api/users", size: 1024},
+     {status: 404, path: "/api/missing", size: 512},
+     {status: 200, path: "/home", size: 2048}
+where status == 200 and size > 1000
+```
+
+```tql
+{status: 200, path: "/api/users", size: 1024}
+{status: 200, path: "/home", size: 2048}
+```
+
+You can also use `or` and `not` with functions like [`starts_with()`](/reference/functions/starts_with):
+
+```tql
+from {status: 200, path: "/api/users"},
+     {status: 404, path: "/api/missing"},
+     {status: 500, path: "/api/error"}
+where status == 200 or not path.starts_with("/api/m")
+```
+
+```tql
+{status: 200, path: "/api/users"}
+{status: 500, path: "/api/error"}
+```
+
+### Using functions in filters
+
+[Section titled “Using functions in filters”](#using-functions-in-filters)
+
+Functions work on values to create more sophisticated filters. For example, [`ends_with()`](/reference/functions/ends_with) checks string suffixes:
+
+```tql
+from {user: "alice", email: "alice@example.com"},
+     {user: "bob", email: "bob@gmail.com"},
+     {user: "charlie", email: "charlie@example.com"}
+where email.ends_with("example.com")
+```
+
+```tql
+{user: "alice", email: "alice@example.com"}
+{user: "charlie", email: "charlie@example.com"}
+```
+
+### Filtering with patterns
+
+[Section titled “Filtering with patterns”](#filtering-with-patterns)
+
+Match patterns using regular expressions with [`match_regex()`](/reference/functions/match_regex):
+
+```tql
+from {log: "Error: Connection timeout"},
+     {log: "Info: Request processed"},
+     {log: "Error: Invalid input"}
+where log.match_regex("Error:")
+```
+
+```tql
+{log: "Error: Connection timeout"}
+{log: "Error: Invalid input"}
+```
+
+## Select specific fields
+
+[Section titled “Select specific fields”](#select-specific-fields)
+
+The [`select`](/reference/operators/select) operator lets you pick which fields to keep in your output.
+
+### Basic field selection
+
+[Section titled “Basic field selection”](#basic-field-selection)
+
+Select only the fields you need:
+
+```tql
+from {name: "alice", age: 30, city: "NYC"},
+     {name: "bob", age: 25, city: "SF"}
+select name, age
+```
+
+```tql
+{name: "alice", age: 30}
+{name: "bob", age: 25}
+```
+
+### Renaming fields
+
+[Section titled “Renaming fields”](#renaming-fields)
+
+You can rename fields while selecting them. This is useful when standardizing field names from different data sources:
+
+```tql
+from {first_name: "alice", years: 30},
+     {first_name: "bob", years: 25}
+select name=first_name, age=years
+```
+
+```tql
+{name: "alice", age: 30}
+{name: "bob", age: 25}
+```
+
+Here `first_name` becomes `name` and `years` becomes `age` in the output.
+
+### Computing new fields
+
+[Section titled “Computing new fields”](#computing-new-fields)
+
+Create new fields with expressions during selection:
+
+```tql
+from {price: 100, tax_rate: 0.08},
+     {price: 50, tax_rate: 0.08}
+select price, tax=price * tax_rate, total=price * (1 + tax_rate)
+```
+
+```tql
+{price: 100, tax: 8.0, total: 108.0}
+{price: 50, tax: 4.0, total: 54.0}
+```
+
+## Remove unwanted fields
+
+[Section titled “Remove unwanted fields”](#remove-unwanted-fields)
+
+The [`drop`](/reference/operators/drop) operator removes specified fields, keeping everything else.
+
+### Basic field removal
+
+[Section titled “Basic field removal”](#basic-field-removal)
+
+Remove fields you don’t need:
+
+```tql
+from {user: "alice", password: "secret", email: "alice@example.com"},
+     {user: "bob", password: "hidden", email: "bob@example.com"}
+drop password
+```
+
+```tql
+{user: "alice", email: "alice@example.com"}
+{user: "bob", email: "bob@example.com"}
+```
+
+### Dropping multiple fields
+
+[Section titled “Dropping multiple fields”](#dropping-multiple-fields)
+
+Remove several fields at once:
+
+```tql
+from {id: 1, internal_id: "xyz", debug: true, name: "alice"},
+     {id: 2, internal_id: "abc", debug: false, name: "bob"}
+drop internal_id, debug
+```
+
+```tql
+{id: 1, name: "alice"}
+{id: 2, name: "bob"}
+```
+
+## Add computed fields
+
+[Section titled “Add computed fields”](#add-computed-fields)
+
+Use the [`set`](/reference/operators/set) operator to override existing fields and add new fields without removing existing ones.
+
+Implied operator
+
+The [`set`](/reference/operators/set) operator is *implied*, i.e., you can omit it to keep your pipeline definitions terse. In other words, it suffices to write an assignment in the form `x = y` instead of `set x = y`.
+
+### Adding simple fields
+
+[Section titled “Adding simple fields”](#adding-simple-fields)
+
+Add a constant field to all events:
+
+```tql
+from {user: "alice"},
+     {user: "bob"}
+set source = "api"
+```
+
+```tql
+{user: "alice", source: "api"}
+{user: "bob", source: "api"}
+```
+
+### Computing field values
+
+[Section titled “Computing field values”](#computing-field-values)
+
+Add fields based on calculations:
+
+```tql
+from {bytes_sent: 1024, bytes_received: 2048},
+     {bytes_sent: 512, bytes_received: 1024}
+set total_bytes = bytes_sent + bytes_received
+```
+
+```tql
+{bytes_sent: 1024, bytes_received: 2048, total_bytes: 3072}
+{bytes_sent: 512, bytes_received: 1024, total_bytes: 1536}
+```
+
+### Using the `else` keyword
+
+[Section titled “Using the else keyword”](#using-the-else-keyword)
+
+Use the `else` word to provide default values for null fields:
+
+```tql
+from {name: "alice", score: 85},
+     {name: "bob"},
+     {name: "charlie", score: 95}
+score = score? else 0
+```
+
+```tql
+{name: "alice", score: 85}
+{name: "bob", score: 0}
+{name: "charlie", score: 95}
+```
+
+Accessing non-existent fields
+
+Because the second event had no `score` field, the `else` keyword filled in a default value of `0`. However, accessing non-existent fields generates a warning. We use the trailing question mark (`?`) to suppress warnings when accessing fields that may not exist, i.e., `score? else 0` in the above example. This is distinctively different from an existing field with a null value, which does not elicit a warning.
+
+## Combining operations
+
+[Section titled “Combining operations”](#combining-operations)
+
+Real-world pipelines often combine multiple operations:
+
+```tql
+from {method: "GET", path: "/api/users", status: 200, duration_ms: 45},
+     {method: "POST", path: "/api/users", status: 201, duration_ms: 120},
+     {method: "GET", path: "/api/users/123", status: 404, duration_ms: 15}
+where status >= 200 and status < 300
+select method, path, duration = duration_ms.milliseconds()
+```
+
+```tql
+{method: "GET", path: "/api/users", duration: 45ms}
+{method: "POST", path: "/api/users", duration: 120ms}
+```
+
+## Best practices
+
+[Section titled “Best practices”](#best-practices)
+
+1. **Filter early**: Apply [`where`](/reference/operators/where) conditions as early as possible to reduce the amount of data flowing through your pipeline.
+
+2. **Select only what you need**: Use [`select`](/reference/operators/select) to keep only necessary fields, especially when dealing with large events.
+
+3. **Choose the right operator**:
+
+   * Use [`select`](/reference/operators/select) when you want to restrict the output to specific fields.
+   * Use [`drop`](/reference/operators/drop) when you want to remove a few fields from many.
+   * Use [`set`](/reference/operators/set) when you want to add/override fields without changing existing ones.
+
+4. **Understand null handling**: The [`where`](/reference/operators/where) operator skips events where the condition evaluates to null or false. Use the question mark operator (`?`) to suppress warnings when accessing fields that may not exist.
+
+## Related guides
+
+[Section titled “Related guides”](#related-guides)
+
+* [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations
+* [Transform basic values](/guides/data-shaping/transform-basic-values) - Learn about value transformations
+* [Slice and sample data](/guides/data-shaping/slice-and-sample-data) - Control the flow of events

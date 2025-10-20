@@ -1,0 +1,185 @@
+# Add custom runners
+
+Runners tell `tenzir-test` how to execute a discovered file. This guide shows you how to register the XXD runner from the example project so you can compare binary artifacts by dumping their hexadecimal representation with `xxd`.
+
+## Prerequisites
+
+[Section titled “Prerequisites”](#prerequisites)
+
+* Complete the setup in [write tests](/guides/testing/write-tests) so you have a project root with `runners/` and at least one passing test.
+* Install the [`xxd`](https://man.archlinux.org/man/xxd.1.en) utility. It ships with most platforms.
+
+## Step 1: Prepare the runners package
+
+[Section titled “Step 1: Prepare the runners package”](#step-1-prepare-the-runners-package)
+
+Create `runners/__init__.py` if it does not exist yet. The harness imports this module automatically on start-up.
+
+```sh
+touch runners/__init__.py
+```
+
+## Step 2: Implement the XXD runner
+
+[Section titled “Step 2: Implement the XXD runner”](#step-2-implement-the-xxd-runner)
+
+Copy the runner from the example project and keep it under version control so teammates can use the same convention. The latest reference implementation lives in [example-project/runners/xxd.py](https://github.com/tenzir/test/blob/main/example-project/runners/xxd.py).
+
+If you prefer to start from a scaffold, drop the following template into `runners/xxd.py` and fill in the `TODO` notes where your implementation needs to differ (for example when you call a different tool or emit additional artifacts).
+
+runners/xxd.py
+
+```python
+from __future__ import annotations
+
+
+from pathlib import Path
+
+
+from tenzir_test import runners
+from tenzir_test.runners._utils import get_run_module
+
+
+
+
+class XxdRunner(runners.ExtRunner):
+    """Hexdump runner that turns *.xxd files into reference artifacts."""
+
+
+    def __init__(self) -> None:
+        super().__init__(name="xxd", ext="xxd")
+
+
+    def run(self, test: Path, update: bool, coverage: bool = False) -> bool:
+        del coverage  # this runner does not integrate with LLVM coverage
+
+
+        run_mod = get_run_module()
+        passthrough = run_mod.is_passthrough_enabled()
+
+
+        # 1. Prepare the command. Adjust flags or the executable for your tool.
+        cmd = ["xxd", "-g1", str(test)]
+        # TODO: Replace "xxd" or tweak arguments when you wrap a different command.
+
+
+        try:
+            completed = run_mod.run_subprocess(
+                cmd,
+                capture_output=not passthrough,
+            )
+        except FileNotFoundError:
+            run_mod.report_failure(test, "└─▶ xxd is not available on PATH")
+            return False
+
+
+        if completed.returncode != 0:
+            # 2. Surface a readable error message and bail out early.
+            run_mod.report_failure(test, f"└─▶ xxd exited with {completed.returncode}")
+            return False
+
+
+        if passthrough:
+            # 3. Passthrough runs stop after executing the command.
+            run_mod.success(test)
+            return True
+
+
+        output = completed.stdout or b""
+
+
+        # 4. Update reference artifacts when requested.
+        ref_path = test.with_suffix(".txt")
+        if update:
+            ref_path.write_bytes(output)
+            run_mod.success(test)
+            return True
+
+
+        if not ref_path.exists():
+            run_mod.report_failure(test, f"└─▶ Missing reference file {ref_path}")
+            return False
+
+
+        # 5. Compare against the baseline and print a diff on mismatch.
+        expected = ref_path.read_bytes()
+        if expected != output:
+            run_mod.report_failure(test, "")
+            run_mod.print_diff(expected, output, ref_path)
+            return False
+
+
+        run_mod.success(test)
+        return True
+
+
+
+
+runners.register(XxdRunner())
+```
+
+Finally, expose the runner from `runners/__init__.py` so the harness picks it up on start-up:
+
+runners/\_\_init\_\_.py
+
+```python
+"""Project runners."""
+
+
+# Import bundled runners so they register on package import.
+from . import xxd  # noqa: F401
+
+
+__all__ = ["xxd"]
+```
+
+## Step 3: Add a hexdump test
+
+[Section titled “Step 3: Add a hexdump test”](#step-3-add-a-hexdump-test)
+
+Create a directory for the new tests and add a sample input string.
+
+```sh
+mkdir -p tests/hex
+cat <<EOD > tests/hex/hello.xxd
+Hello Tenzir!
+EOD
+```
+
+## Step 4: Capture the reference output
+
+[Section titled “Step 4: Capture the reference output”](#step-4-capture-the-reference-output)
+
+Run the harness in update mode so it generates the expected hexdump next to the `.xxd` file.
+
+```sh
+uvx tenzir-test --update
+```
+
+The command produces `tests/hex/hello.txt` similar to the following snippet:
+
+```text
+00000000: 48 65 6c 6c 6f 20 54 65 6e 7a 69 72 21 0a        Hello Tenzir!.
+```
+
+Subsequent runs without `--update` rerun `xxd` and compare the fresh dump with the stored baseline.
+
+Pass `--debug` when you want inline runner and fixture details together with the comparison activity. Use `--summary` if you prefer the tabular breakdown and failure tree at the end, or set `TENZIR_TEST_DEBUG=1` in CI to enable the same diagnostics without passing the flag explicitly.
+
+## Step 5: Reuse the runner across projects
+
+[Section titled “Step 5: Reuse the runner across projects”](#step-5-reuse-the-runner-across-projects)
+
+Keep the runner in your template repository or internal tooling so other projects can copy it verbatim. Use `runners.register_alias("xxd-hexdump", "xxd")` when you prefer a more descriptive name in frontmatter.
+
+When you invoke the harness with multiple projects in the same command, pass `--all-projects` so the root project executes alongside the satellites. The positional paths you list after the flags form the **selection**; in this case it usually only names satellite roots. `--all-projects` opts the root back in, its runners load first, and satellites reuse them automatically. That makes it simple to keep shared runners (like `xxd`) in a central project while satellite projects focus on their own tests.
+
+## Next steps
+
+[Section titled “Next steps”](#next-steps)
+
+* Pair the runner with fixtures that download or generate binary artifacts before each test.
+* Use directory-level `test.yaml` files or per-test frontmatter to set `inputs:` when the runner should read data from a different directory than the project default.
+* Extend the runner to emit `*.diff` artifacts when the hexdumps diverge.
+* Branch on `run.get_harness_mode()` or `run.is_passthrough_enabled()` when you need bespoke behaviour for passthrough runs, but prefer to rely on `run.run_subprocess()` for most cases so output handling stays consistent.
+* Review the [test framework reference](/reference/test-framework/) to explore additional runner hooks and helpers.

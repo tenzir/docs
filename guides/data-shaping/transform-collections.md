@@ -1,0 +1,640 @@
+# Transform collections
+
+Lists and records are fundamental data structures in TQL. This guide shows you how to work with these collections - accessing elements, transforming values, and combining data structures.
+
+## Work with lists
+
+[Section titled “Work with lists”](#work-with-lists)
+
+Lists (arrays) contain ordered sequences of values. Let’s explore how to manipulate them.
+
+### Access list elements
+
+[Section titled “Access list elements”](#access-list-elements)
+
+Get values from specific positions:
+
+```tql
+from {items: ["first", "second", "third", "fourth"]}
+set first_item = items[0]
+set last_item = items[-1]
+set length = items.length()
+```
+
+```tql
+{
+  items: ["first", "second", "third", "fourth"],
+  first_item: "first",
+  last_item: "fourth",
+  length: 4
+}
+```
+
+Index notation:
+
+* `[0]` - First element (0-based indexing)
+* `[-1]` - Last element (negative indices count from end)
+* `.length()` - Get the number of elements
+
+### Add elements to lists
+
+[Section titled “Add elements to lists”](#add-elements-to-lists)
+
+Use [`append()`](/reference/functions/append) and [`prepend()`](/reference/functions/prepend):
+
+```tql
+from {colors: ["red", "green"]}
+set with_blue = colors.append("blue")
+set with_yellow = with_blue.prepend("yellow")
+set multi_append = colors.append("blue").append("purple")
+```
+
+```tql
+{
+  colors: ["red", "green"],
+  with_blue: ["red", "green", "blue"],
+  with_yellow: ["yellow", "red", "green", "blue"],
+  multi_append: ["red", "green", "blue", "purple"]
+}
+```
+
+### Combine lists
+
+[Section titled “Combine lists”](#combine-lists)
+
+Join multiple lists with [`concatenate()`](/reference/functions/concatenate) or spread syntax:
+
+```tql
+from {
+  list1: [1, 2, 3],
+  list2: [4, 5, 6],
+  list3: [7, 8, 9]
+}
+set combined = concatenate(concatenate(list1, list2), list3)
+set spread = [...list1, ...list2, ...list3]
+set with_value = [...list1, 10, ...list2]
+```
+
+```tql
+{
+  list1: [1, 2, 3],
+  list2: [4, 5, 6],
+  list3: [7, 8, 9],
+  combined: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  spread: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  with_value: [1, 2, 3, 10, 4, 5, 6]
+}
+```
+
+### Transform list elements
+
+[Section titled “Transform list elements”](#transform-list-elements)
+
+Apply functions to each element with [`map()`](/reference/functions/map):
+
+```tql
+from {
+  prices: [10, 20, 30],
+  names: ["alice", "bob", "charlie"]
+}
+set with_tax = prices.map(p => p * 1.1)
+set uppercase = names.map(n => n.to_upper())
+set squared = prices.map(x => x * x)
+```
+
+```tql
+{
+  prices: [10, 20, 30],
+  names: ["alice", "bob", "charlie"],
+  with_tax: [11.0, 22.0, 33.0],
+  uppercase: ["ALICE", "BOB", "CHARLIE"],
+  squared: [100, 400, 900]
+}
+```
+
+### Filter list elements
+
+[Section titled “Filter list elements”](#filter-list-elements)
+
+Keep only elements that match a condition with [`where()`](/reference/functions/where):
+
+```tql
+from {
+  numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  users: ["alice", "bob", "anna", "alex"]
+}
+// Note: The modulo operator (%) is not currently supported in TQL
+// Here's an alternative approach for filtering:
+set big_nums = numbers.where(n => n > 5)
+set small_nums = numbers.where(n => n <= 5)
+set a_names = users.where(u => u.starts_with("a"))
+```
+
+```tql
+{
+  numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  users: ["alice", "bob", "anna", "alex"],
+  big_nums: [6, 7, 8, 9, 10],
+  small_nums: [1, 2, 3, 4, 5],
+  a_names: ["alice", "anna", "alex"]
+}
+```
+
+### Sort lists
+
+[Section titled “Sort lists”](#sort-lists)
+
+Order elements with [`sort()`](/reference/functions/sort):
+
+```tql
+from {
+  numbers: [3, 1, 4, 1, 5, 9],
+  words: ["zebra", "apple", "banana"]
+}
+set sorted_nums = numbers.sort()
+set sorted_words = words.sort()
+// Note: reverse() is only for strings, not lists
+// To reverse a list, you would need to use the reverse operator in a pipeline
+```
+
+```tql
+{
+  numbers: [3, 1, 4, 1, 5, 9],
+  words: ["zebra", "apple", "banana"],
+  sorted_nums: [1, 1, 3, 4, 5, 9],
+  sorted_words: ["apple", "banana", "zebra"]
+}
+```
+
+### Get unique values
+
+[Section titled “Get unique values”](#get-unique-values)
+
+Remove duplicates with [`distinct()`](/reference/functions/distinct):
+
+```tql
+from {
+  items: ["a", "b", "a", "c", "b", "d"],
+  numbers: [1, 2, 2, 3, 3, 3, 4]
+}
+set unique_items = distinct(items)
+set unique_nums = distinct(numbers)
+```
+
+```tql
+{
+  items: ["a", "b", "a", "c", "b", "d"],
+  numbers: [1, 2, 2, 3, 3, 3, 4],
+  unique_items: ["a", "b", "c", "d"],
+  unique_nums: [1, 2, 3, 4]
+}
+```
+
+### Flatten nested lists
+
+[Section titled “Flatten nested lists”](#flatten-nested-lists)
+
+Note: Direct list flattening is not currently supported in TQL. The [`flatten()`](/reference/functions/flatten) function is designed for flattening records, not lists. To work with nested lists, you would need to process them element by element.
+
+## Work with records
+
+[Section titled “Work with records”](#work-with-records)
+
+Records (objects) contain key-value pairs. Here’s how to manipulate them.
+
+### Access record fields
+
+[Section titled “Access record fields”](#access-record-fields)
+
+Get values using dot notation or brackets:
+
+```tql
+from {
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {
+      city: "NYC",
+      zip: "10001"
+    }
+  }
+}
+set name = user.name
+set city = user.address.city
+set zip = user["address"]["zip"]
+set has_email = user.has("email")
+```
+
+```tql
+{
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {city: "NYC", zip: "10001"}
+  },
+  name: "Alice",
+  city: "NYC",
+  zip: "10001",
+  has_email: false
+}
+```
+
+### Get keys and values
+
+[Section titled “Get keys and values”](#get-keys-and-values)
+
+Extract field names and values:
+
+```tql
+from {
+  config: {
+    host: "localhost",
+    port: 8080,
+    ssl: true
+  }
+}
+set field_names = config.keys()
+// Note: values() function is not available
+set num_fields = config.keys().length()
+```
+
+```tql
+{
+  config: {host: "localhost", port: 8080, ssl: true},
+  field_names: ["host", "port", "ssl"],
+  num_fields: 3
+}
+```
+
+### Merge records
+
+[Section titled “Merge records”](#merge-records)
+
+Combine multiple records with [`merge()`](/reference/functions/merge) or spread syntax:
+
+```tql
+from {
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true}
+}
+set merged = merge(defaults, custom)
+set spread = {...defaults, ...custom}
+set with_extra = {...defaults, ...custom, debug: true}
+```
+
+```tql
+{
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true},
+  merged: {host: "localhost", port: 8080, ssl: true},
+  spread: {host: "localhost", port: 8080, ssl: true},
+  with_extra: {host: "localhost", port: 8080, ssl: true, debug: true}
+}
+```
+
+### Transform record values
+
+[Section titled “Transform record values”](#transform-record-values)
+
+Note: The `map_values` function is not available in TQL. To transform record values, you would need to reconstruct the record with transformed values manually:
+
+```tql
+from {
+  prices: {
+    apple: 1.50,
+    banana: 0.75,
+    orange: 2.00
+  }
+}
+// Manual transformation example:
+set with_tax = {
+  apple: prices.apple * 1.1,
+  banana: prices.banana * 1.1,
+  orange: prices.orange * 1.1
+}
+```
+
+### Filter record fields
+
+[Section titled “Filter record fields”](#filter-record-fields)
+
+Keep only specific fields:
+
+```tql
+from {
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  }
+}
+// Note: filter_keys and select functions are not available
+// Manual field selection:
+set public_info = {
+  id: user.id,
+  name: user.name,
+  email: user.email
+}
+set contact = {
+  name: user.name,
+  email: user.email
+}
+```
+
+```tql
+{
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  },
+  public_info: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com"
+  },
+  contact: {
+    name: "Alice",
+    email: "alice@example.com"
+  }
+}
+```
+
+## Combine lists and records
+
+[Section titled “Combine lists and records”](#combine-lists-and-records)
+
+Work with collections of records:
+
+```tql
+from {
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ]
+}
+set names = users.map(u => u.name)
+set nyc_users = users.where(u => u.city == "NYC")
+set avg_age = users.map(u => u.age).sum() / users.length()
+```
+
+```tql
+{
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ],
+  names: ["Alice", "Bob", "Charlie"],
+  nyc_users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Charlie", age: 35, city: "NYC"}
+  ],
+  avg_age: 30.0
+}
+```
+
+## Advanced transformations
+
+[Section titled “Advanced transformations”](#advanced-transformations)
+
+### Zip lists together
+
+[Section titled “Zip lists together”](#zip-lists-together)
+
+Combine parallel lists with [`zip()`](/reference/functions/zip):
+
+```tql
+from {
+  names: ["Alice", "Bob", "Charlie"],
+  ages: [30, 25, 35],
+  cities: ["NYC", "SF", "LA"]
+}
+// Note: zip only takes 2 arguments, returns records with left/right fields
+set name_age = zip(names, ages)
+set zipped = zip(name_age, cities)
+set users = zipped.map(z => {
+  name: z.left.left,
+  age: z.left.right,
+  city: z.right
+})
+```
+
+```tql
+{
+  names: ["Alice", "Bob", "Charlie"],
+  ages: [30, 25, 35],
+  cities: ["NYC", "SF", "LA"],
+  name_age: [
+    {left: "Alice", right: 30},
+    {left: "Bob", right: 25},
+    {left: "Charlie", right: 35}
+  ],
+  zipped: [
+    {left: {left: "Alice", right: 30}, right: "NYC"},
+    {left: {left: "Bob", right: 25}, right: "SF"},
+    {left: {left: "Charlie", right: 35}, right: "LA"}
+  ],
+  users: [
+    {name: "Alice", age: 30, city: "NYC"},
+    {name: "Bob", age: 25, city: "SF"},
+    {name: "Charlie", age: 35, city: "LA"}
+  ]
+}
+```
+
+### Practical example: Pairing related data
+
+[Section titled “Practical example: Pairing related data”](#practical-example-pairing-related-data)
+
+Combine parallel arrays with transformations for data normalization:
+
+```tql
+from {
+  // DNS query data with parallel arrays
+  answers: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+  ttls: [300s, 600s, 900s],
+  // Certificate SAN names
+  domains: ["example.com", "www.example.com", "api.example.com"]
+}
+
+
+// Pair DNS answers with their TTLs and transform
+dns_records = zip(answers, ttls).map(x => {
+  rdata: x.left,
+  ttl_seconds: x.right.count_seconds(),
+  cached_until: now() + x.right
+})
+
+
+// Transform simple arrays to structured data
+san_entries = domains.map(name => {
+  name: name,
+  type: "DNSName",
+  verified: name.ends_with(".example.com")
+})
+```
+
+```tql
+{
+  answers: ["192.168.1.1", "10.0.0.1", "172.16.0.1"],
+  ttls: [300s, 600s, 900s],
+  domains: ["example.com", "www.example.com", "api.example.com"],
+  dns_records: [
+    {
+      rdata: "192.168.1.1",
+      ttl_seconds: 300,
+      cached_until: 2025-08-14T12:36:45.123456Z
+    },
+    {
+      rdata: "10.0.0.1",
+      ttl_seconds: 600,
+      cached_until: 2025-08-14T12:41:45.123456Z
+    },
+    {
+      rdata: "172.16.0.1",
+      ttl_seconds: 900,
+      cached_until: 2025-08-14T12:46:45.123456Z
+    }
+  ],
+  san_entries: [
+    {
+      name: "example.com",
+      type: "DNSName",
+      verified: true
+    },
+    {
+      name: "www.example.com",
+      type: "DNSName",
+      verified: true
+    },
+    {
+      name: "api.example.com",
+      type: "DNSName",
+      verified: true
+    }
+  ]
+}
+```
+
+This pattern is particularly useful when:
+
+* Converting parallel arrays from APIs or logs into structured records
+* Normalizing data for standard formats (like OCSF)
+* Adding computed fields during the transformation
+
+### Enumerate with indices
+
+[Section titled “Enumerate with indices”](#enumerate-with-indices)
+
+Add row numbers to your data using the [`enumerate`](/reference/operators/enumerate) operator:
+
+```tql
+from {item: "apple"}, {item: "banana"}, {item: "cherry"}
+enumerate row
+```
+
+```tql
+{row: 0, item: "apple"}
+{row: 1, item: "banana"}
+{row: 2, item: "cherry"}
+```
+
+This is useful for tracking position in sequences or creating unique identifiers for each event.
+
+## Practical examples
+
+[Section titled “Practical examples”](#practical-examples)
+
+### Extract and transform nested data
+
+[Section titled “Extract and transform nested data”](#extract-and-transform-nested-data)
+
+```tql
+from {
+  response: {
+    status: 200,
+    data: {
+      users: [
+        {id: 1, name: "Alice", scores: [85, 92, 88]},
+        {id: 2, name: "Bob", scores: [78, 81, 85]}
+      ]
+    }
+  }
+}
+set users = response.data.users
+set summaries = users.map(u, {
+  name: u.name,
+  avg_score: u.scores.sum() / u.scores.length(),
+  max_score: u.scores.max()
+})
+```
+
+```tql
+{
+  response: {...},
+  users: [
+    {id: 1, name: "Alice", scores: [85, 92, 88]},
+    {id: 2, name: "Bob", scores: [78, 81, 85]}
+  ],
+  summaries: [
+    {name: "Alice", avg_score: 88.33333333333333, max_score: 92},
+    {name: "Bob", avg_score: 81.33333333333333, max_score: 85}
+  ]
+}
+```
+
+### Work with indexed data
+
+[Section titled “Work with indexed data”](#work-with-indexed-data)
+
+Create lookups by extracting specific fields:
+
+```tql
+from {
+  items: [
+    {id: "A001", name: "Widget", price: 10},
+    {id: "B002", name: "Gadget", price: 20},
+    {id: "C003", name: "Tool", price: 15}
+  ]
+}
+set first_item = items.first()
+set ids = items.map(item => item.id)
+set names = items.map(item => item.name)
+set expensive = items.where(item => item.price > 15)
+```
+
+```tql
+{
+  items: [...],
+  first_item: {id: "A001", name: "Widget", price: 10},
+  ids: ["A001", "B002", "C003"],
+  names: ["Widget", "Gadget", "Tool"],
+  expensive: [
+    {id: "B002", name: "Gadget", price: 20}
+  ]
+}
+```
+
+## Best practices
+
+[Section titled “Best practices”](#best-practices)
+
+1. **Choose the right structure**: Use lists for ordered data, records for named fields
+2. **Avoid deep nesting**: Flatten structures when possible for easier access
+3. **Use functional methods**: Prefer `map()`, `filter()`, etc. over manual loops
+4. **Handle empty collections**: Check length before accessing elements
+5. **Preserve immutability**: Collection functions return new values, not modify existing
+
+## Related guides
+
+[Section titled “Related guides”](#related-guides)
+
+* [Filter and select data](/guides/data-shaping/filter-and-select-data) - Filter entire event streams
+* [Transform basic values](/guides/data-shaping/transform-basic-values) - Work with simple types
+* [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations

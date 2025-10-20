@@ -1,0 +1,28 @@
+# discard
+
+Discards all incoming events.
+
+```tql
+discard
+```
+
+## Description
+
+[Section titled “Description”](#description)
+
+The `discard` operator discards all the incoming events immediately, without rendering them or doing any additional processing.
+
+This operator is mainly used to test or benchmark pipelines.
+
+## Examples
+
+[Section titled “Examples”](#examples)
+
+### Benchmark to see how long it takes to export everything
+
+[Section titled “Benchmark to see how long it takes to export everything”](#benchmark-to-see-how-long-it-takes-to-export-everything)
+
+```tql
+export
+discard
+```

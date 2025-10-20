@@ -1,0 +1,14 @@
+// Dispatch mappings based on schema name. This assumes that you've taken apart
+// the input logs and added the appropriate @name based on the log type. The
+// read_zeek_tsv operator does this automatically. You could also dispatch based
+// on any other field, such as _path, event_type, etc.
+if @name == "zeek.conn" {
+  // Map "conn.log" events
+  zeek::ocsf::logs::conn
+} else if @name == "zeek.dns" {
+    // Map "dns.log" events
+  zeek::ocsf::logs::dns
+} else {
+  // In the future, raise a warning here or put the event into a DLQ.
+  pass
+}

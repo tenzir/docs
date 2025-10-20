@@ -1,0 +1,12 @@
+confidence = "High"
+confidence_id = 3
+created_time = move timestamp
+malware = [{
+  classification_ids: [3],
+  classifications: ["Bot"],
+  // The source lists the name as "$NAME C&C" and we drop the C&C suffix.
+  name: (move reason).split(" ")[0],
+}]
+value = move SHA1
+type = "Hash"
+type_id = 4

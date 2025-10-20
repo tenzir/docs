@@ -1,0 +1,321 @@
+# Fetch data from APIs
+
+This guide covers how to fetch data from HTTP APIs using the [`from_http`](/reference/operators/from_http) and [`http`](/reference/operators/http) operators. Whether you make simple GET requests, handle authentication, or implement pagination, the operators provide flexible HTTP client capabilities for API integration.
+
+## Basic API Requests
+
+[Section titled “Basic API Requests”](#basic-api-requests)
+
+Start with these fundamental patterns for making HTTP requests to APIs.
+
+### Simple GET Requests
+
+[Section titled “Simple GET Requests”](#simple-get-requests)
+
+To fetch data from an API endpoint, pass the URL as the first parameter to the `from_http` operator:
+
+```tql
+from_http "https://api.example.com/data"
+```
+
+The operator makes a GET request by default and forwards the response as an event. The `from_http` operator is an input operator, i.e., it starts a pipeline. The companion operator `http` is a transformation, allowing you to specify the URL as a field by referencing an event field that contains the URL:
+
+```tql
+from {url: "https://api.example.com/data"}
+http url
+```
+
+This pattern is useful when processing multiple URLs or when URLs are generated dynamically. Most of our subsequent examples use `from_http`, as the operator options are very similar.
+
+### Parsing the HTTP Response Body
+
+[Section titled “Parsing the HTTP Response Body”](#parsing-the-http-response-body)
+
+The `from_http` and `http` operators automatically determine how to parse the HTTP response body using multiple methods:
+
+1. **URL-based inference**: The operators first check the URL’s file extension to infer both the format (JSON, CSV, Parquet, etc.) and compression type (gzip, zstd, etc.). This works just like the generic `from` operator.
+
+2. **Header-based inference**: If the format cannot be determined from the URL, the operators fall back to using the HTTP `Content-Type` and `Content-Encoding` response headers.
+
+3. **Manual specification**: You can always override automatic inference by providing a parsing pipeline.
+
+#### Automatic Format and Compression Inference
+
+[Section titled “Automatic Format and Compression Inference”](#automatic-format-and-compression-inference)
+
+When the URL contains a recognizable file extension, the operators automatically handle decompression and parsing:
+
+```tql
+from_http "https://example.org/data/events.csv.zst"
+```
+
+This automatically infers `zstd` compression and `CSV` format from the file extension, decompresses, and parses accordingly.
+
+For URLs without clear extensions, the operators use HTTP headers:
+
+```tql
+from_http "https://example.org/download"
+```
+
+If the server responds with `Content-Type: application/json` and `Content-Encoding: gzip`, the operator will decompress and parse as JSON.
+
+#### Manual Format Specification
+
+[Section titled “Manual Format Specification”](#manual-format-specification)
+
+You can manually override the parser for the response body by specifying a parsing pipeline, i.e., a pipeline that transforms bytes to events. For example, if an API returns CSV data without a proper `Content-Type`, you can specify the parsing pipeline as follows:
+
+```tql
+from_http "https://api.example.com/users" {
+  read_csv
+}
+```
+
+This parses the response from CSV into structured events that you can process further.
+
+Similarly, if you need to handle specific compression and format combinations that aren’t automatically detected:
+
+```tql
+from_http "https://example.org/archive" {
+  decompress_gzip
+  read_json
+}
+```
+
+This explicitly specifies to decompress gzip and then parse as JSON, regardless of the URL or HTTP headers.
+
+### POST Requests with Data
+
+[Section titled “POST Requests with Data”](#post-requests-with-data)
+
+Send data to APIs by specifying the `method` parameter as “post” and providing the request body in the `body` parameter:
+
+```tql
+from_http "https://api.example.com/users",
+  method="post",
+  body={"name": "John", "email": "john@example.com"}
+```
+
+Similarly, with the `http` operator you can also parameterize the entire HTTP request using event fields by referencing field values for each parameter:
+
+```tql
+from {
+  url: "https://api.example.com/users",
+  method: "post",
+  data: {
+    name: "John",
+    email: "john@example.com"
+  }
+}
+http url, method=method, body=data
+```
+
+The operators automatically use POST method when you specify a body.
+
+## Request Configuration
+
+[Section titled “Request Configuration”](#request-configuration)
+
+Configure requests with headers, authentication, and other options for different API requirements.
+
+### Adding Headers
+
+[Section titled “Adding Headers”](#adding-headers)
+
+Include custom headers by providing the `headers` parameter as a record containing key-value pairs:
+
+```tql
+from_http "https://api.example.com/data", headers={
+    "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
+  }
+```
+
+Headers help you authenticate with APIs and specify request formats. Use the [`secret`](/reference/functions/secret) function to retrieve sensitive API tokens, as in the above example.
+
+### TLS and Security
+
+[Section titled “TLS and Security”](#tls-and-security)
+
+Enable TLS by setting the `tls` parameter to `true` and configure client certificates using the `certfile` and `keyfile` parameters:
+
+```tql
+from_http "https://secure-api.example.com/data",
+  tls=true,
+  certfile="/path/to/client.crt",
+  keyfile="/path/to/client.key"
+```
+
+Use these options when APIs require client certificate authentication.
+
+### Timeout and Retry Configuration
+
+[Section titled “Timeout and Retry Configuration”](#timeout-and-retry-configuration)
+
+Configure timeouts and retry behavior by setting the `connection_timeout`, `max_retry_count`, and `retry_delay` parameters:
+
+```tql
+from_http "https://api.example.com/data",
+  timeout=10s,
+  max_retries=3,
+  retry_delay=2s
+```
+
+These settings help handle network issues and API rate limiting gracefully.
+
+## Data Enrichment
+
+[Section titled “Data Enrichment”](#data-enrichment)
+
+Use HTTP requests to enrich existing data with information from external APIs.
+
+### Preserving Input Context
+
+[Section titled “Preserving Input Context”](#preserving-input-context)
+
+Keep original event data while adding API responses by specifying the `response_field` parameter to control where the response is stored:
+
+```tql
+from {
+  domain: "example.com",
+  severity: "HIGH",
+  api_url: "https://threat-intel.example.com/lookup",
+  response_field: "threat_data",
+}
+http f"{api_url}?domain={domain}", response_field=response_field
+```
+
+This approach preserves your original data and adds API responses in a specific field.
+
+### Adding Metadata
+
+[Section titled “Adding Metadata”](#adding-metadata)
+
+Capture HTTP response metadata by specifying the `metadata_field` parameter to store status codes and headers separately from the response body:
+
+```tql
+from_http "https://api.example.com/status", metadata_field=http_meta
+```
+
+The metadata includes status codes and response headers for debugging and monitoring.
+
+## Pagination and Bulk Processing
+
+[Section titled “Pagination and Bulk Processing”](#pagination-and-bulk-processing)
+
+Handle APIs that return large datasets across multiple pages.
+
+### Simple Pagination
+
+[Section titled “Simple Pagination”](#simple-pagination)
+
+Implement automatic pagination by providing a lambda function to the `paginate` parameter that extracts the next page URL from the response:
+
+```tql
+from_http "https://api.example.com/search?q=query",
+  paginate=(response => "next_page_url" if response.has_more)
+```
+
+The operator continues making requests as long as the pagination lambda function returns a valid URL.
+
+### Complex Pagination Logic
+
+[Section titled “Complex Pagination Logic”](#complex-pagination-logic)
+
+Handle APIs with custom pagination schemes by building pagination URLs dynamically using expressions that reference response data:
+
+```tql
+let $base_url = "https://api.example.com/items"
+from_http f"{$base_url}?page=1",
+  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages),
+```
+
+This example builds pagination URLs dynamically based on response data.
+
+### Rate Limiting
+
+[Section titled “Rate Limiting”](#rate-limiting)
+
+Control request frequency by configuring the `paginate_delay` parameter to add delays between requests and the `parallel` parameter to limit concurrent requests:
+
+```tql
+from {
+  url: "https://api.example.com/data",
+  paginate_delay: 500ms,
+  parallel: 2
+}
+http url,
+  paginate="next_url" if has_next,
+  paginate_delay=paginate_delay,
+  parallel=parallel
+```
+
+Use `paginate_delay` and `parallel` to manage request rates appropriately.
+
+HTTP Pipelining
+
+The `parallel` option effectively controls HTTP request pipelining. It exists only for the `http` operator, because unlike `from_http`, it can receive several events from its upstream operator, each of which fire off a new HTTP request. The corresponding responses may still be in transit before the next request arrives. With the `parallel` option, you specify the exact number of in-flight responses.
+
+## Practical Examples
+
+[Section titled “Practical Examples”](#practical-examples)
+
+These examples demonstrate typical use cases for API integration in real-world scenarios.
+
+### API Monitoring
+
+[Section titled “API Monitoring”](#api-monitoring)
+
+Monitor API health and response times:
+
+```tql
+from_http "https://api.example.com/health", metadata_field=metadata
+select date=metadata.headers.Date.parse_time("%a, %d %b %Y %H:%M:%S %Z")
+latency = now() - date
+```
+
+The above example parses the `Date` header from the HTTP response via [`parse_time`](/reference/functions/parse_time) into a timestamp and then compares it to the current wallclock time using the [`now`](/reference/functions/now) function.
+
+Nit: `%T` is a shortcut for `%H:%M:%S`.
+
+## Error Handling
+
+[Section titled “Error Handling”](#error-handling)
+
+Handle API errors and failures gracefully in your data pipelines.
+
+### Retry Configuration
+
+[Section titled “Retry Configuration”](#retry-configuration)
+
+Configure automatic retries by setting the `max_retry_count` parameter to specify the number of retry attempts and `retry_delay` to control the time between retries:
+
+```tql
+from_http "https://unreliable-api.example.com/data",
+  max_retries=5,
+  retry_delay=2s
+```
+
+### Status Code Handling
+
+[Section titled “Status Code Handling”](#status-code-handling)
+
+Check HTTP status codes by capturing metadata and filtering based on the `code` field to handle different response types:
+
+```tql
+from_http "https://api.example.com/data", metadata_field=metadata
+where metadata.code >= 200 and metadata.code < 300
+```
+
+## Best Practices
+
+[Section titled “Best Practices”](#best-practices)
+
+Follow these practices for reliable and efficient API integration:
+
+1. **Use appropriate timeouts**. Set a reasonable `connection_timeout` for your use case.
+2. **Implement retry logic**. Configure `max_retry_count` and `retry_delay` for handling transient failures.
+3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control request rates.
+4. **Handle errors gracefully**. Check status codes in metadata (`metadata_field`) and implement fallback logic.
+5. **Secure credentials**. Access API keys and tokens via [secrets](/explanations/secrets), not in code.
+6. **Monitor API usage**. Track response times and error rates for performance.
+7. **Leverage automatic format inference**. Use descriptive file extensions in URLs when possible to enable automatic format and compression detection.

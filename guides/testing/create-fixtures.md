@@ -1,0 +1,274 @@
+# Create fixtures
+
+Fixtures let `tenzir-test` prepare external services before a scenario runs and clean everything up afterwards. In this guide you build an HTTP echo fixture from scratch, wire it into the harness, and exercise it with a TQL test that posts a JSON payload via [`http`](/reference/operators/http).
+
+## Prerequisites
+
+[Section titled “Prerequisites”](#prerequisites)
+
+* Follow [write tests](/guides/testing/write-tests) to scaffold a project and install `tenzir-test`.
+* Make sure your project root already contains `fixtures/`, `inputs/`, and `tests/` directories (they can be empty).
+
+## Step 1: Expose a fixtures package
+
+[Section titled “Step 1: Expose a fixtures package”](#step-1-expose-a-fixtures-package)
+
+`tenzir-test` imports `fixtures/__init__.py` automatically. Import the modules that host your fixtures so their decorators run as soon as the package loads.
+
+fixtures/\_\_init\_\_.py
+
+```python
+"""Project fixtures."""
+
+
+from . import http  # noqa: F401  (side effect: register fixture)
+
+
+__all__ = ["http"]
+```
+
+## Step 2: Implement the HTTP echo fixture
+
+[Section titled “Step 2: Implement the HTTP echo fixture”](#step-2-implement-the-http-echo-fixture)
+
+Create `fixtures/http.py` with a tiny HTTP server that echoes POST bodies. The fixture yields the server URL with `@fixture()` and tears the server down inside its `finally` block.
+
+fixtures/http.py
+
+```python
+from __future__ import annotations
+
+
+import threading
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from typing import Iterator
+
+
+from tenzir_test import fixture
+
+
+
+
+class EchoHandler(BaseHTTPRequestHandler):
+    def do_POST(self) -> None:  # noqa: N802
+        stated_length = self.headers.get("Content-Length", "0")
+        try:
+            length = int(stated_length)
+        except ValueError:
+            length = 0
+        body = self.rfile.read(length) if length else b"{}"
+        self._reply(body or b"{}")
+
+
+    def log_message(self, *_: object) -> None:  # noqa: D401
+        return  # Keep the console quiet.
+
+
+    def _reply(self, payload: bytes) -> None:
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+
+
+
+@fixture()
+def http() -> Iterator[dict[str, str]]:
+    server = ThreadingHTTPServer(("127.0.0.1", 0), EchoHandler)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+
+
+    try:
+        port = server.server_address[1]
+        url = f"http://127.0.0.1:{port}/"
+        yield {"HTTP_FIXTURE_URL": url}
+    finally:
+        server.shutdown()
+        worker.join()
+```
+
+## Step 3: Author a test that uses the fixture
+
+[Section titled “Step 3: Author a test that uses the fixture”](#step-3-author-a-test-that-uses-the-fixture)
+
+Create `tests/http/echo-read.tql` and request the `http` fixture in the frontmatter (or rely on `tests/http/test.yaml`). The pipeline creates sample data and then crafts a HTTP request body using the [`http`](/reference/operators/http) operator. The fixture echoes the payload back into the result stream.
+
+```tql
+---
+fixtures: [http]
+---
+
+
+from {x: 42, y: "foo"}
+http env("HTTP_FIXTURE_URL"), body=this
+```
+
+Fixtures receive the same per-test scratch directory as the scenario itself via `TENZIR_TMP_DIR`. Use it to stage temporary files or logs that should disappear after the run. Launch the harness with `--keep` when you want to retain those artifacts for debugging.
+
+## Step 4: Capture the reference output
+
+[Section titled “Step 4: Capture the reference output”](#step-4-capture-the-reference-output)
+
+Run the harness in update mode so it records the HTTP response next to the test.
+
+```sh
+uvx tenzir-test --update
+```
+
+You should now have `tests/http/echo-read.txt` with the echoed payload:
+
+```tql
+{
+  x: 42,
+  y: "foo",
+}
+```
+
+Subsequent runs without `--update` bring the fixture online, hit the server, and compare the live response against the baseline.
+
+Need to inspect the fixture while it runs? Append `--debug` to emit lifecycle logs together with comparison targets. In CI-only scenarios set `TENZIR_TEST_DEBUG=1` to enable the same diagnostics without passing the flag at runtime, and add `--summary` if you also need the tabular breakdown and failure tree afterwards.
+
+### Stabilise flaky fixture scenarios
+
+[Section titled “Stabilise flaky fixture scenarios”](#stabilise-flaky-fixture-scenarios)
+
+Occasionally a fixture-backed test may need a couple of tries—for example when a service takes slightly longer to initialise. Add `retry` to the frontmatter to let the harness rerun the test before giving up:
+
+```yaml
+---
+fixtures: [http]
+retry: 4
+---
+```
+
+The number is the total attempt budget (four in the example above). Intermediate attempts stay quiet and the final log line reports how many tries were required. Treat this as a temporary safety net and investigate persistent flakes; long retry chains mask underlying race conditions.
+
+## Step 5: Iterate on the fixture
+
+[Section titled “Step 5: Iterate on the fixture”](#step-5-iterate-on-the-fixture)
+
+With the echo workflow in place you can:
+
+* Serve canned responses from files under `inputs/` for more realistic scenarios, or redirect `TENZIR_INPUTS` with an `inputs:` entry in `test.yaml` when the data lives elsewhere.
+* Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on authentication behavior.
+* Harden the cleanup in your `finally` block (or factor it into a helper) when fixtures manage external processes, containers, or cloud resources.
+* Reuse the fixture from satellite projects. When you call `tenzir-test --root main-project --all-projects satellite-a`, the selection only names the satellite root, so `--all-projects` keeps the main project in the run. The satellite automatically imports the root project’s fixtures before loading its own. If a satellite needs specialized behavior, it can register an additional fixture with a new name while still leaning on the shared implementations.
+
+Check the [test framework reference](/reference/test-framework/) for more fixture APIs, including helpers that tell you which fixtures the current test requested. In Python-mode tests you can call `fixtures()` to inspect the selection (for example `fixtures().http` returns `True` when the fixture is active).
+
+## Step 6: Share the fixture across multiple tests
+
+[Section titled “Step 6: Share the fixture across multiple tests”](#step-6-share-the-fixture-across-multiple-tests)
+
+Suites keep a fixture alive for several tests. Declare one in a directory-level `test.yaml`; every descendant test joins automatically.
+
+tests/http/test.yaml
+
+```yaml
+suite: smoke-http
+fixtures: [http]
+timeout: 45
+```
+
+With that configuration the harness:
+
+* Starts the `http` fixture once, runs all members in lexicographic order, and tears the fixture down afterwards.
+* Pins the suite to a single worker while still running different suites (and standalone tests) in parallel when `--jobs` permits it.
+* Keeps policies such as `fixtures`, `timeout`, and `retry` in the directory defaults. Tests inside the suite cannot set `suite`, `fixtures`, or `retry` in their own frontmatter; everything else (for example `inputs:` or additional metadata) remains overridable per file. Outside of suites you can still use frontmatter for any of those keys.
+
+Run the directory that owns the suite when you want to focus on it:
+
+```sh
+uvx tenzir-test tests/http
+```
+
+Selecting a single file inside that suite now fails fast with a descriptive error. This keeps the lifecycle predictable and avoids partially exercised fixtures.
+
+## Manual controllers
+
+[Section titled “Manual controllers”](#manual-controllers)
+
+Python-mode tests often need fine-grained control over fixture lifecycle to simulate crashes, restarts, or configuration changes. The manual controller API builds on the same registration flow shown above and lets you call directly into the fixture from a test. The harness preloads common helpers (including `fixtures()` for quick introspection and `acquire_fixture()` for manual control) so you can use them without imports.
+
+```python
+# runner: python
+# timeout: 30
+
+
+import fixtures
+
+
+with acquire_fixture("http") as http:
+    env = http.env              # provided by the fixture's start()
+    client = Executor.from_env(env)
+
+
+    # Exercise the system under test while the fixture runs
+    client.run("status")
+
+
+# Restart explicitly when you need another lifecycle
+http = acquire_fixture("http")
+http.start()
+http.stop()
+```
+
+Key ideas:
+
+* `acquire_fixture(name)` returns a controller that wraps the registered fixture factory. Calling `start()` (or using `with acquire_fixture(...) as controller:`) enters the context manager lazily and stores the returned environment mapping on `controller.env` so you can reuse it between calls.
+* `with acquire_fixture(...)` is shorthand for `start()`/`stop()`; call those methods manually when you need to restart or interleave multiple lifecycle steps.
+* The Python runner serialises the active test context into `TENZIR_PYTHON_FIXTURE_CONTEXT`; the helpers in `tenzir_test.fixtures` consume it automatically so manual controllers see the same configuration as the declarative flow.
+* Fixtures advertise optional operations by returning a `FixtureHandle` with extra callables (for example `kill`, `restart`, or `configure`). Treat these hooks as part of the fixture contract—assert their presence (or rely on type hints) when your test depends on them so failures are immediate and obvious.
+* `Executor.from_env(env)` and similar helpers make it straightforward to reuse the active fixture environment in client calls while the fixture is running; in Python-mode tests these helpers are imported for you automatically.
+* For stricter typing you can import lightweight `Protocol` definitions (e.g. `SupportsKill`) and cast controllers once a fixture documents the hooks it exposes.
+
+The declarative workflow (`fixtures: [http]` combined with automatic activation) remains the default. Manual controllers complement it when tests need imperative control over setup and teardown—skip the frontmatter entry when you prefer to start and stop the fixture yourself from Python code.
+
+### Fixture contracts
+
+[Section titled “Fixture contracts”](#fixture-contracts)
+
+The controller API works best when fixture authors and consumers agree on the available hooks.
+
+**Fixture author**
+
+```python
+import signal
+
+
+@fixture()
+def node():
+    process = _start_node()
+
+
+    def _kill(signal_no: int = signal.SIGTERM) -> None:
+        process.send_signal(signal_no)
+
+
+    return FixtureHandle(
+        env=_make_env(process),
+        teardown=lambda: _stop_node(process),
+        hooks={"kill": _kill},
+    )
+```
+
+**Test author**
+
+```python
+import signal
+
+
+node = acquire_fixture("node")
+node.start()
+
+
+assert hasattr(node, "kill"), "node fixture must expose kill() for this test"
+node.kill(signal.SIGKILL)
+node.stop()
+```
+
+If the fixture stops exporting `kill`, the assertion fails immediately so the test never produces misleading results.

@@ -1,0 +1,199 @@
+# Platform Configuration
+
+This page lists configuration settings for the Tenzir Platform.
+
+## Environment variables
+
+[Section titled “Environment variables”](#environment-variables)
+
+The Tenzir Platform runs as a set of containers in a Docker Compose stack. Our [example files](https://github.com/tenzir/platform/tree/main/examples) pick up configuration parameters from environment variables.
+
+To configure the platform, create a `.env` file in the same directory as your `docker-compose.yaml` file and set the environment variables described below.
+
+### General Settings
+
+[Section titled “General Settings”](#general-settings)
+
+You must configure these settings for every platform instance.
+
+```sh
+# The docker image tag that you use for platform deployment.
+TENZIR_PLATFORM_VERSION=latest
+
+
+# By default, the Tenzir UI Frontend communicates directly with the Tenzir
+# Gateway to get the current status of all connected nodes. When you set this
+# to true, the UI backend proxies this communication instead.
+TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=false
+
+
+# When enabled, this setting allows users to spawn demo nodes that run inside
+# the same Docker Compose stack as the platform.
+TENZIR_PLATFORM_DISABLE_LOCAL_DEMO_NODES=true
+
+
+# The Docker image for running demo nodes.
+TENZIR_PLATFORM_DEMO_NODE_IMAGE=tenzir/tenzir-node:latest
+
+
+# Optional file defining the static workspace configuration for this platform.
+TENZIR_PLATFORM_CONFIG_FILE=
+
+
+# To configure administrators, provide a list of authentication rules. Every
+# user matching any of the provided rules becomes an administrator of this
+# platform instance and can use the `tenzir-platform admin` CLI commands. Use
+# the `tenzir-platform tools print-auth-rule` CLI command to get valid rules.
+TENZIR_PLATFORM_ADMIN_RULES=[]
+
+
+# A random string used to encrypt frontend cookies.
+# Generate with `openssl rand -hex 32`.
+TENZIR_PLATFORM_INTERNAL_AUTH_SECRET=
+
+
+# A random string used to generate user keys.
+# Generate with `openssl rand 32 | base64`.
+TENZIR_PLATFORM_INTERNAL_TENANT_TOKEN_ENCRYPTION_KEY=
+
+
+# A random string the app uses to access restricted API endpoints.
+# Generate with `openssl rand -hex 32`.
+TENZIR_PLATFORM_INTERNAL_APP_API_KEY=
+```
+
+### External Connectivity
+
+[Section titled “External Connectivity”](#external-connectivity)
+
+These settings define the outward-facing interface of the Tenzir Platform.
+
+```sh
+# The domain where users can reach the Tenzir UI, e.g.,
+# `https://app.tenzir.example`. Route this to the `app` service through your
+# external HTTPS proxy.
+TENZIR_PLATFORM_UI_ENDPOINT=
+
+
+# The domain where the API is reachable, e.g., `https://api.tenzir.example`.
+# Route this to the `platform` service through your external HTTPS proxy.
+TENZIR_PLATFORM_API_ENDPOINT=
+
+
+# The endpoint where Tenzir nodes connect. Use a URL with `ws://` or `wss://`
+# scheme, e.g., `wss://nodes.tenzir.example`. Route this to the
+# `websocket-gateway` service through your external HTTPS proxy.
+TENZIR_PLATFORM_NODES_ENDPOINT=
+
+
+# The URL where the platform exposes blob storage, e.g.,
+# `https://downloads.tenzir.example`. If you use the bundled blob storage,
+# route this to the `seaweed` service through your external HTTPS proxy.
+TENZIR_PLATFORM_DOWNLOADS_ENDPOINT=
+```
+
+### Identity Provider
+
+[Section titled “Identity Provider”](#identity-provider)
+
+Create OAuth clients for the Tenzir Platform in your identity provider and fill in the values below to enable platform connectivity.
+
+```sh
+# A short identifier for the OIDC provider (e.g., 'auth0', 'keycloak')
+TENZIR_PLATFORM_OIDC_PROVIDER_NAME=
+
+
+# The OIDC provider for platform authentication.
+TENZIR_PLATFORM_OIDC_PROVIDER_ISSUER_URL=
+
+
+# A JSON object (or array of objects) containing the OIDC issuer and audiences that the platform
+# accepts. Example: '{"issuer": "keycloak.example.org", "audiences": ["tenzir_platform"]}'
+TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES=
+
+
+# The client ID for the Tenzir Platform CLI.
+TENZIR_PLATFORM_OIDC_CLI_CLIENT_ID=
+
+
+# The client ID and client secret for the Tenzir UI.
+TENZIR_PLATFORM_OIDC_UI_CLIENT_ID=
+TENZIR_PLATFORM_OIDC_UI_CLIENT_SECRET=
+```
+
+### Database
+
+[Section titled “Database”](#database)
+
+You need to specify the following environment variables so the Tenzir Platform can connect to a postgres instance.
+
+```sh
+TENZIR_PLATFORM_POSTGRES_USER=
+TENZIR_PLATFORM_POSTGRES_PASSWORD=
+TENZIR_PLATFORM_POSTGRES_DB=
+TENZIR_PLATFORM_POSTGRES_HOSTNAME=
+```
+
+### Blob Storage
+
+[Section titled “Blob Storage”](#blob-storage)
+
+```sh
+# When using S3 or another external blob storage, create the bucket and provide
+# a valid access key with read and write permissions. When using the bundled
+# Seaweed instance, set these values to arbitrary strings.
+TENZIR_PLATFORM_INTERNAL_BUCKET_NAME=
+TENZIR_PLATFORM_INTERNAL_ACCESS_KEY_ID=
+TENZIR_PLATFORM_INTERNAL_SECRET_ACCESS_KEY=
+```
+
+## Configuration File
+
+[Section titled “Configuration File”](#configuration-file)
+
+Currently, the configuration file supports only static workspace configuration.
+
+```yaml
+---
+workspaces:
+  static0:
+    # The name of this workspace
+    name: Tenzir
+
+
+    # The category for this workspace in the workspace switcher.
+    category: Statically Configured Workspaces
+
+
+    # The icon to use for this workspace.
+    icon-url: https://storage.googleapis.com/tenzir-public-data/icons/tenzir-logo-square.svg
+
+
+    # Nodes use this token to connect to the workspace as ephemeral nodes.
+    token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+    #  - or -
+    # token-file: /path/to/token
+
+
+    # All users can access this workspace.
+    auth-rules:
+      - { "auth_fn": "auth_allow_all" }
+
+
+    # Example dashboard definition.
+    dashboards:
+      dashboard1:
+        name: Example Dashboard
+        cells:
+          - name: Dashboard 1
+            definition: |
+              partitions
+              where not internal
+              summarize events=sum(events), schema
+              sort -events
+            type: table
+            x: 0
+            y: 0
+            w: 12
+            h: 12
+```

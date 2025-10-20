@@ -1,0 +1,17 @@
+# Overview
+
+Tenzir’s architecture consists three primary abstractions:
+
+1. [**Pipeline**](/explanations/architecture/pipeline): A sequence of operators responsible for loading, parsing, transforming, and routing data. Pipelines are the core mechanism for data processing.
+2. [**Node**](/explanations/architecture/node): A running process that manages and executes pipelines.
+3. [**Platform**](/explanations/architecture/platform): A higher-level management layer that provides oversight and control over multiple nodes.
+
+Here’s how they relate schematically:
+
+![Pipelines, Nodes, Platform](/_astro/pipelines-nodes-platform.tEUv8QT0_19DKCs.svg)
+
+When a node starts, it will automatically attempt to connect to the platform, giving you a seamless way to manage and deploy pipelines through a web interface. However, using the platform is optional—pipelines can also be controlled directly via the node’s API with a CRUD-style approach.
+
+The platform, beyond pipeline management, offers user and workspace administration, authentication support via external identity providers (IdP), and dashboards that consists of charts.
+
+Tenzir hosts one instance of the platform at [app.tenzir.com](https://app.tenzir.com), but you can also [deploy the platform on premises](/guides/platform-setup) in fully air-gapped environments.

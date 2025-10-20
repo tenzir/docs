@@ -1,0 +1,299 @@
+# Slice and sample data
+
+When working with data streams, you often need to control which events flow through your pipeline. This guide shows you how to slice event streams, sample data, and control event ordering using TQL operators.
+
+## Understanding stream operators
+
+[Section titled “Understanding stream operators”](#understanding-stream-operators)
+
+The operators in this guide work on entire event streams:
+
+* **[head](/reference/operators/head)** and **[tail](/reference/operators/tail)** - Get events from the beginning or end
+* **[slice](/reference/operators/slice)** - Extract a specific range of events
+* **[taste](/reference/operators/taste)** - Sample events by schema
+* **[reverse](/reference/operators/reverse)** - Invert the order of events
+* **[sample](/reference/operators/sample)** - Randomly sample events
+
+These operators maintain state between events, unlike functions that work on individual values.
+
+## Get events from the beginning
+
+[Section titled “Get events from the beginning”](#get-events-from-the-beginning)
+
+Use the [`head`](/reference/operators/head) operator to get the first N events from a stream.
+
+### Basic usage
+
+[Section titled “Basic usage”](#basic-usage)
+
+Get the first 3 events:
+
+```tql
+from {id: 1, value: "a"},
+     {id: 2, value: "b"},
+     {id: 3, value: "c"},
+     {id: 4, value: "d"},
+     {id: 5, value: "e"}
+head 3
+```
+
+```tql
+{id: 1, value: "a"}
+{id: 2, value: "b"}
+{id: 3, value: "c"}
+```
+
+### Default behavior
+
+[Section titled “Default behavior”](#default-behavior)
+
+Without an argument, [`head`](/reference/operators/head) returns all events:
+
+```tql
+from {id: 1, value: "first"},
+     {id: 2, value: "second"},
+     {id: 3, value: "third"}
+head
+```
+
+```tql
+{id: 1, value: "first"}
+{id: 2, value: "second"}
+{id: 3, value: "third"}
+```
+
+## Get events from the end
+
+[Section titled “Get events from the end”](#get-events-from-the-end)
+
+Use the [`tail`](/reference/operators/tail) operator to get the last N events.
+
+### Basic usage
+
+[Section titled “Basic usage”](#basic-usage-1)
+
+Get the last 2 events:
+
+```tql
+from {id: 1, value: "a"},
+     {id: 2, value: "b"},
+     {id: 3, value: "c"},
+     {id: 4, value: "d"}
+tail 2
+```
+
+```tql
+{id: 3, value: "c"}
+{id: 4, value: "d"}
+```
+
+Performance consideration
+
+The [`tail`](/reference/operators/tail) operator must consume all input before producing output, making it memory-intensive for large streams. Use [`head`](/reference/operators/head) when possible for better performance.
+
+## Slice event streams
+
+[Section titled “Slice event streams”](#slice-event-streams)
+
+The [`slice`](/reference/operators/slice) operator provides fine-grained control over which events to extract.
+
+### Extract a range
+
+[Section titled “Extract a range”](#extract-a-range)
+
+Get events 2 through 4 (0-indexed):
+
+```tql
+from {n: 1}, {n: 2}, {n: 3}, {n: 4}, {n: 5}
+slice begin=1, end=4
+```
+
+```tql
+{n: 2}
+{n: 3}
+{n: 4}
+```
+
+### Skip events with stride
+
+[Section titled “Skip events with stride”](#skip-events-with-stride)
+
+Get every other event starting from the second:
+
+```tql
+from {n: 1}, {n: 2}, {n: 3}, {n: 4}, {n: 5}, {n: 6}
+slice begin=1, stride=2
+```
+
+```tql
+{n: 2}
+{n: 4}
+{n: 6}
+```
+
+### Combine parameters
+
+[Section titled “Combine parameters”](#combine-parameters)
+
+Skip 2, take every 3rd event, stop after 10 total:
+
+```tql
+from {n: 1}, {n: 2}, {n: 3}, {n: 4}, {n: 5},
+     {n: 6}, {n: 7}, {n: 8}, {n: 9}, {n: 10}
+slice begin=2, end=10, stride=3
+```
+
+```tql
+{n: 3}
+{n: 6}
+{n: 9}
+```
+
+## Sample events by schema
+
+[Section titled “Sample events by schema”](#sample-events-by-schema)
+
+The [`taste`](/reference/operators/taste) operator samples events based on their structure, giving you examples of different data shapes in your stream.
+
+### Get schema examples
+
+[Section titled “Get schema examples”](#get-schema-examples)
+
+See one example of each unique schema:
+
+```tql
+from {type: "user", name: "alice"},
+     {type: "user", name: "bob"},
+     {type: "event", id: 1},
+     {type: "event", id: 2},
+     {value: 42}
+taste 1
+```
+
+```tql
+{type: "user", name: "alice"}
+{type: "event", id: 1}
+{value: 42}
+```
+
+### Get multiple examples per schema
+
+[Section titled “Get multiple examples per schema”](#get-multiple-examples-per-schema)
+
+Get up to 2 examples of each schema:
+
+```tql
+from {x: 1, y: 1},
+     {x: 2, y: 2},
+     {x: 3},
+     {x: 4},
+     {z: "a"},
+     {z: "b"}
+taste 2
+```
+
+```tql
+{x: 1, y: 1}
+{x: 2, y: 2}
+{x: 3}
+{x: 4}
+{z: "a"}
+{z: "b"}
+```
+
+## Reverse event order
+
+[Section titled “Reverse event order”](#reverse-event-order)
+
+Use the [`reverse`](/reference/operators/reverse) operator to invert the order of events in a stream:
+
+```tql
+from {seq: 1, msg: "first"},
+     {seq: 2, msg: "second"},
+     {seq: 3, msg: "third"}
+reverse
+```
+
+```tql
+{seq: 3, msg: "third"}
+{seq: 2, msg: "second"}
+{seq: 1, msg: "first"}
+```
+
+Memory usage
+
+Like [`tail`](/reference/operators/tail), the [`reverse`](/reference/operators/reverse) operator must buffer all input before producing output. Use with caution on large streams.
+
+## Time-based sampling
+
+[Section titled “Time-based sampling”](#time-based-sampling)
+
+Use the [`sample`](/reference/operators/sample) operator to sample events based on time intervals:
+
+### Sample by duration
+
+[Section titled “Sample by duration”](#sample-by-duration)
+
+Sample events at regular time intervals:
+
+```tql
+from {id: 1}, {id: 2}, {id: 3}, {id: 4}, {id: 5},
+     {id: 6}, {id: 7}, {id: 8}, {id: 9}, {id: 10}
+sample 1s
+```
+
+```tql
+{id: 1}
+{id: 2}
+{id: 3}
+{id: 4}
+{id: 5}
+{id: 6}
+{id: 7}
+{id: 8}
+{id: 9}
+{id: 10}
+```
+
+Note: The sample operator uses duration-based sampling, not random probability sampling.
+
+## Combining operators
+
+[Section titled “Combining operators”](#combining-operators)
+
+Chain operators to create more complex sampling strategies:
+
+```tql
+from {user: "alice", action: "login", time: 1},
+     {user: "bob", action: "view", time: 2},
+     {user: "alice", action: "edit", time: 3},
+     {user: "charlie", action: "login", time: 4},
+     {user: "bob", action: "logout", time: 5}
+where action == "login"
+head 2
+```
+
+```tql
+{user: "alice", action: "login", time: 1}
+{user: "charlie", action: "login", time: 4}
+```
+
+## Best practices
+
+[Section titled “Best practices”](#best-practices)
+
+1. **Prefer [`head`](/reference/operators/head) over [`tail`](/reference/operators/tail)**: [`head`](/reference/operators/head) stops processing once it has enough events, while [`tail`](/reference/operators/tail) must process everything.
+
+2. **Use [`taste`](/reference/operators/taste) for exploration**: When working with unfamiliar data, [`taste`](/reference/operators/taste) quickly shows you the different schemas present.
+
+3. **Be mindful of memory**: Operators like [`tail`](/reference/operators/tail) and [`reverse`](/reference/operators/reverse) buffer all input, which can consume significant memory for large streams.
+
+4. **Combine with filters**: Use [`where`](/reference/operators/where) before slicing operators to reduce the amount of data processed.
+
+## Related guides
+
+[Section titled “Related guides”](#related-guides)
+
+* [Filter and select data](/guides/data-shaping/filter-and-select-data) - Learn about filtering events
+* [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations
+* [Deduplicate events](/guides/data-shaping/deduplicate-events) - Remove duplicate events from streams

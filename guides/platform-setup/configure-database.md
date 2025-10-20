@@ -1,0 +1,12 @@
+# Configure database
+
+A PostgreSQL database stores the internal state of the platform.
+
+Provide the following environment variables so the platform can connect to the Postgres instance:
+
+```sh
+TENZIR_PLATFORM_POSTGRES_USER=
+TENZIR_PLATFORM_POSTGRES_PASSWORD=
+TENZIR_PLATFORM_POSTGRES_DB=
+TENZIR_PLATFORM_POSTGRES_HOSTNAME=
+```
