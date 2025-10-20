@@ -45,13 +45,26 @@ jobs:
 
       - name: Build with Astro
         run: |
+          ORIGIN="${{ steps.pages.outputs.origin }}"
+          BASE_PATH="${{ steps.pages.outputs.base_path }}"
+
+          if [[ "$BASE_PATH" == "/" ]]; then
+            BASE_PATH=""
+          fi
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            PREVIEW_ORIGIN="https://tenzir.github.io/docs"
+            PREVIEW_BASE="pr-preview/pr-${{ github.event.pull_request.number }}/"
+            PREVIEW_BASE="/${PREVIEW_BASE#/}"
             pnpm astro build \
-              --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
+              --site "$PREVIEW_ORIGIN" \
+              --base "$PREVIEW_BASE"
           else
+            FINAL_BASE="$BASE_PATH"
+            [[ -z "$FINAL_BASE" ]] && FINAL_BASE="/"
             pnpm astro build \
-              --site "${{ steps.pages.outputs.origin }}" \
-              --base "${{ steps.pages.outputs.base_path }}"
+              --site "$ORIGIN" \
+              --base "$FINAL_BASE"
           fi
 
       - name: Upload artifact
@@ -60,51 +73,12 @@ jobs:
         with:
           path: ./dist
 
-      - name: Deploy PR Preview
+      - name: Deploy PR preview
         if: github.event_name == 'pull_request'
-        run: |
-          # To create a surge.sh token, run `npx durge login` and `npx surge token`.
-          npm install -g surge
-          surge ./dist https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
-
-      - name: Comment PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: rossjrw/pr-preview-action@v1
         with:
-          script: |
-            const comment = `🚀 **Preview deployed!**
-
-            Visit the preview at: https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh
-
-            This preview will be updated automatically on new commits.`;
-
-            // Find existing comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('Preview deployed!')
-            );
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: comment
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: comment
-              });
-            }
+          source-dir: ./dist
+          pages-base-url: https://tenzir.github.io/docs
 
   deploy:
     name: Deploy
