@@ -22,21 +22,35 @@ The platform integrates three types of services, as the diagram below illustrate
 2. **External**: You provide the (blue) external services. We do not ship these, so you must bring your own.
 3. **Configurable**: You can use our bundled (yellow) configurable services or provide your own.
 
-## Get Started
+## Deployment options
 
-Follow these steps to set up the platform:
+There exist two ways to deploy the platform:
+
+1. **Cloud**: Deploy the platform on a cloud provider.
+2. **On-premises**: Deploy the platform on your own infrastructure.
+
+### Get started in the cloud
+
+For Amazon, read our [AWS deployment
+guide](/guides/platform-setup/deploy-on-aws) for an integrated approach to
+deploying the platform services in your own account using a **CloudFormation**
+template.
+
+For Azure and GCP, we are still working on providing turnkey deployment setups.
+
+### Get started on your own premises
+
+Follow these steps to set up the platform on your own premises:
 
 import { Steps } from "@astrojs/starlight/components";
 
 <Steps>
 
-1. [Choose a scenario](/guides/platform-setup/choose-a-scenario): First, choose
-   a deployment scenario that best fits your use case. We provide several
-   options that match common deployments.
+1. [Choose a scenario](/guides/platform-setup/choose-a-scenario): we package
+   several deployment options that match common deployments.
 
-2. Configure the services: Next, configure the platform's services. You must set
-   up the external endpoints so nodes and browsers can interact with the
-   platform.
+2. Configure the services: you must set up the external API endpoints so nodes
+   and browsers can interact with the platform.
 
    - [Configure reverse proxy](/guides/platform-setup/configure-reverse-proxy)
    - [Configure internal services](/guides/platform-setup/configure-internal-services)
@@ -47,13 +61,12 @@ import { Steps } from "@astrojs/starlight/components";
    You may skip some steps depending on your chosen scenario.
 
 3. [Run the platform](/guides/platform-setup/run-the-platform): After you create
-   a configuration, start the platform. This can be as simple as running `docker
-   compose up`.
+   a configuration, start the platform.
 
 </Steps>
 
 :::note[Usage guides]
-The guides above cover platform deployment. For platform management, see our
+The above guides cover platform deployment. For platform management, see our
 user-centric guides:
 
 1. [Configure workspaces](/guides/platform-management/configure-workspaces)
