@@ -108,11 +108,18 @@ jobs:
         with:
           header: pr-preview
           message: |
-            🚀 Preview deployed!
+            ✨ **Docs preview ready**
 
-            Visit https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/
+            <a href="https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/"
+               style="display:inline-block;padding:12px 20px;margin:8px 0;background:#0b5cff;color:#ffffff;
+                      font-weight:600;text-decoration:none;border-radius:8px;">
+              🚀 Open docs preview ↗
+            </a>
 
-            This preview updates automatically when you push new commits.
+            - 📦 Commit `${{ github.sha }}` from `${{ github.event.pull_request.head.ref }}`
+            - 🧰 Workflow run [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            _Tip: the link above always reflects the latest push to this PR._
 
       - name: Deploy to GitHub Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
@@ -148,6 +155,7 @@ jobs:
         with:
           header: pr-preview
           message: |
-            🧹 Preview removed.
+            🧹 **Docs preview retired**
 
-            The pull request closed, so the preview deployment at https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/ is gone.
+            The preview for PR #${{ github.event.pull_request.number }} is no longer live.
+            Reopen or push new commits if you need it back at https://docs.tenzir.com/pr-preview/pr-${{ github.event.pull_request.number }}/.
