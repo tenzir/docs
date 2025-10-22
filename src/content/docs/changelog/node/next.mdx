@@ -22,6 +22,14 @@ addresses, roughly halving the memory consumption of the underlying component.
 
 By [@jachris](https://github.com/jachris) in [#5532](https://github.com/tenzir/tenzir/pull/5532), [#5533](https://github.com/tenzir/tenzir/pull/5533), [#5535](https://github.com/tenzir/tenzir/pull/5535).
 
+#### Dynamic clean up of expired keys in `deduplicate`
+
+The `deduplicate` operator now also considers the timeouts set when calculating
+frequency of cleaning up expired state. This resuts in lower memory usage if
+a timeout is under `15min`.
+
+By [@raxyte](https://github.com/raxyte) in [#5534](https://github.com/tenzir/tenzir/pull/5534).
+
 #### Expose one-level recursion for OCSF objects
 
 We now support recursive OCSF objects at depth one, as opposed to dropping
