@@ -6,6 +6,7 @@ import {
   PluginStyleSettings,
   definePlugin,
 } from "@expressive-code/core";
+import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 
 const parser = new Parser();
 parser.setLanguage(TreeSitterTql);
@@ -24,32 +25,21 @@ const highlightQuery = new Parser.Query(
 const tqlStyleSettings = new PluginStyleSettings({
   defaultValues: {
     tql: {
-      keyword: ({ theme }) =>
-        theme.type === "dark" ? "#f472b6" : "#b91c1c",
-      boolean: ({ theme }) =>
-        theme.type === "dark" ? "#38bdf8" : "#0284c7",
-      constant: ({ theme }) =>
-        theme.type === "dark" ? "#22c55e" : "#15803d",
-      number: ({ theme }) =>
-        theme.type === "dark" ? "#fbbf24" : "#b45309",
-      string: ({ theme }) =>
-        theme.type === "dark" ? "#34d399" : "#047857",
+      keyword: ({ theme }) => (theme.type === "dark" ? "#f472b6" : "#b91c1c"),
+      boolean: ({ theme }) => (theme.type === "dark" ? "#38bdf8" : "#0284c7"),
+      constant: ({ theme }) => (theme.type === "dark" ? "#22c55e" : "#15803d"),
+      number: ({ theme }) => (theme.type === "dark" ? "#fbbf24" : "#b45309"),
+      string: ({ theme }) => (theme.type === "dark" ? "#34d399" : "#047857"),
       functionCall: ({ theme }) =>
         theme.type === "dark" ? "#c084fc" : "#7c3aed",
-      operator: ({ theme }) =>
-        theme.type === "dark" ? "#f97316" : "#c2410c",
+      operator: ({ theme }) => (theme.type === "dark" ? "#f97316" : "#c2410c"),
       punctuation: ({ theme }) =>
         theme.type === "dark" ? "#cbd5f5" : "#475569",
-      comment: ({ theme }) =>
-        theme.type === "dark" ? "#94a3b8" : "#64748b",
-      variable: ({ theme }) =>
-        theme.type === "dark" ? "#facc15" : "#b45309",
-      attribute: ({ theme }) =>
-        theme.type === "dark" ? "#38bdf8" : "#0369a1",
-      sigil: ({ theme }) =>
-        theme.type === "dark" ? "#fb7185" : "#be123c",
-      literal: ({ theme }) =>
-        theme.type === "dark" ? "#60a5fa" : "#2563eb",
+      comment: ({ theme }) => (theme.type === "dark" ? "#94a3b8" : "#64748b"),
+      variable: ({ theme }) => (theme.type === "dark" ? "#facc15" : "#b45309"),
+      attribute: ({ theme }) => (theme.type === "dark" ? "#38bdf8" : "#0369a1"),
+      sigil: ({ theme }) => (theme.type === "dark" ? "#fb7185" : "#be123c"),
+      literal: ({ theme }) => (theme.type === "dark" ? "#60a5fa" : "#2563eb"),
     },
   },
   cssVarReplacements: [
@@ -107,7 +97,46 @@ const plugin = definePlugin({
         return;
       }
 
+      const code = codeBlock.code;
       const codeLines = codeBlock.getLines();
+      const addAnnotation = (
+        row,
+        columnStart,
+        columnEnd,
+        settingKey,
+        label,
+      ) => {
+        if (columnEnd <= columnStart) {
+          return;
+        }
+        const line = codeLines[row];
+        if (!line) {
+          return;
+        }
+        for (
+          let variantIndex = 0;
+          variantIndex < styleVariants.length;
+          variantIndex += 1
+        ) {
+          const styleVariant = styleVariants[variantIndex];
+          const color = styleVariant.resolvedStyleSettings.get(settingKey);
+          if (!color) {
+            continue;
+          }
+          line.addAnnotation(
+            new InlineStyleAnnotation({
+              name: `${label}-${row}-${columnStart}-${columnEnd}-${variantIndex}`,
+              renderPhase: "earliest",
+              styleVariantIndex: variantIndex,
+              color,
+              inlineRange: {
+                columnStart,
+                columnEnd,
+              },
+            }),
+          );
+        }
+      };
       if (!codeLines.length) {
         return;
       }
@@ -127,38 +156,27 @@ const plugin = definePlugin({
         }
         const { startPosition, endPosition } = node;
         for (let row = startPosition.row; row <= endPosition.row; row += 1) {
-          const line = codeLines[row];
-          if (!line) {
-            continue;
-          }
-          const columnStart = row === startPosition.row ? startPosition.column : 0;
+          const columnStart =
+            row === startPosition.row ? startPosition.column : 0;
           const columnEnd =
             row === endPosition.row
               ? endPosition.column
-              : line.text.length;
-          if (columnEnd <= columnStart) {
-            continue;
-          }
-          for (let variantIndex = 0; variantIndex < styleVariants.length; variantIndex += 1) {
-            const styleVariant = styleVariants[variantIndex];
-            const color = styleVariant.resolvedStyleSettings.get(settingKey);
-            if (!color) {
-              continue;
-            }
-            line.addAnnotation(
-              new InlineStyleAnnotation({
-                name: `tql:${name}`,
-                renderPhase: "earliest",
-                styleVariantIndex: variantIndex,
-                color,
-                inlineRange: {
-                  columnStart,
-                  columnEnd,
-                },
-              }),
-            );
-          }
+              : (codeLines[row]?.text.length ?? columnStart);
+          addAnnotation(row, columnStart, columnEnd, settingKey, `tql:${name}`);
         }
+      }
+
+      const frontmatterBodies = collectNodesOfType(
+        tree.rootNode,
+        "frontmatter_body",
+      );
+      for (const bodyNode of frontmatterBodies) {
+        highlightYamlFrontmatter(bodyNode, {
+          code,
+          addAnnotation,
+          baseRow: bodyNode.startPosition.row,
+          baseColumn: bodyNode.startPosition.column,
+        });
       }
     },
     postprocessRenderedBlock: ({ codeBlock, renderData }) => {
