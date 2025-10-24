@@ -45,6 +45,7 @@ const tqlStyleSettings = new PluginStyleSettings({
         token,
         ({ theme }) =>
           resolveThemeTokenColor({ theme, scopes }) ??
+          theme.colors?.["editor.foreground"] ??
           theme.fg ??
           "currentColor",
       ]),
@@ -56,46 +57,72 @@ const tqlStyleSettings = new PluginStyleSettings({
   ],
 });
 
-function resolveThemeTokenColor({ theme, scopes, fallbackColorKey }) {
+function resolveThemeTokenColor({ theme, scopes }) {
   if (theme?.settings) {
+    let bestMatchScore = -1;
+    let bestColor;
     for (const setting of theme.settings) {
-      const scopeValues = Array.isArray(setting.scope)
+      const scopeValuesRaw = Array.isArray(setting.scope)
         ? setting.scope
         : setting.scope
           ? [setting.scope]
           : [];
-      if (!scopeValues.length) {
+      if (!scopeValuesRaw.length) {
         continue;
       }
+      const scopeValues = scopeValuesRaw.flatMap((value) =>
+        value.split(/\s+/).filter(Boolean),
+      );
+      let highestScopeScore = -1;
+      for (const scopeValue of scopeValues) {
+        for (const target of scopes) {
+          const score = scopeMatchScore(scopeValue, target);
+          if (score > highestScopeScore) {
+            highestScopeScore = score;
+          }
+          if (highestScopeScore === 3) {
+            break;
+          }
+        }
+        if (highestScopeScore === 3) {
+          break;
+        }
+      }
       if (
-        scopeValues.some((scopeValue) =>
-          scopes.some((target) => scopeMatchesScope(scopeValue, target)),
-        )
+        highestScopeScore > bestMatchScore &&
+        typeof setting.settings?.foreground === "string"
       ) {
-        const foreground = setting.settings?.foreground;
-        if (foreground) {
-          return foreground;
+        bestMatchScore = highestScopeScore;
+        bestColor = setting.settings.foreground;
+        if (bestMatchScore === 3) {
+          break;
         }
       }
     }
-  }
-  if (fallbackColorKey && theme?.colors?.[fallbackColorKey]) {
-    return theme.colors[fallbackColorKey];
+    if (bestColor) {
+      return bestColor;
+    }
   }
   return theme?.fg;
 }
 
-function scopeMatchesScope(scopeValue, target) {
+function scopeMatchScore(scopeValue, target) {
+  if (!scopeValue || !target) {
+    return -1;
+  }
   if (scopeValue === target) {
-    return true;
+    return 3;
   }
   if (scopeValue.startsWith(`${target}.`)) {
-    return true;
+    return 2;
   }
   if (target.startsWith(`${scopeValue}.`)) {
-    return true;
+    return 1;
   }
-  return scopeValue.includes(target);
+  if (scopeValue.includes(target) || target.includes(scopeValue)) {
+    return 0;
+  }
+  return -1;
 }
 
 const captureToSetting = new Map(
