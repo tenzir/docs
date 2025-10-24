@@ -22,25 +22,37 @@ const highlightQuery = new Parser.Query(
   ),
 );
 
+const tqlPalette = {
+  keyword: { dark: "#f472b6", light: "#b91c1c" },
+  boolean: { dark: "#38bdf8", light: "#0284c7" },
+  constant: { dark: "#22c55e", light: "#15803d" },
+  number: { dark: "#fbbf24", light: "#b45309" },
+  string: { dark: "#34d399", light: "#047857" },
+  functionCall: { dark: "#c084fc", light: "#7c3aed" },
+  operator: { dark: "#f97316", light: "#c2410c" },
+  punctuation: { dark: "#cbd5f5", light: "#475569" },
+  comment: { dark: "#94a3b8", light: "#64748b" },
+  variable: { dark: "#facc15", light: "#b45309" },
+  attribute: { dark: "#38bdf8", light: "#0369a1" },
+  sigil: { dark: "#fb7185", light: "#be123c" },
+  literal: { dark: "#60a5fa", light: "#2563eb" },
+};
+
+const colorFromTheme =
+  ({ dark, light }) =>
+  ({ theme }) =>
+    theme.type === "dark" ? dark : light;
+
+const tqlDefaultValues = Object.fromEntries(
+  Object.entries(tqlPalette).map(([token, palette]) => [
+    token,
+    colorFromTheme(palette),
+  ]),
+);
+
 const tqlStyleSettings = new PluginStyleSettings({
   defaultValues: {
-    tql: {
-      keyword: ({ theme }) => (theme.type === "dark" ? "#f472b6" : "#b91c1c"),
-      boolean: ({ theme }) => (theme.type === "dark" ? "#38bdf8" : "#0284c7"),
-      constant: ({ theme }) => (theme.type === "dark" ? "#22c55e" : "#15803d"),
-      number: ({ theme }) => (theme.type === "dark" ? "#fbbf24" : "#b45309"),
-      string: ({ theme }) => (theme.type === "dark" ? "#34d399" : "#047857"),
-      functionCall: ({ theme }) =>
-        theme.type === "dark" ? "#c084fc" : "#7c3aed",
-      operator: ({ theme }) => (theme.type === "dark" ? "#f97316" : "#c2410c"),
-      punctuation: ({ theme }) =>
-        theme.type === "dark" ? "#cbd5f5" : "#475569",
-      comment: ({ theme }) => (theme.type === "dark" ? "#94a3b8" : "#64748b"),
-      variable: ({ theme }) => (theme.type === "dark" ? "#facc15" : "#b45309"),
-      attribute: ({ theme }) => (theme.type === "dark" ? "#38bdf8" : "#0369a1"),
-      sigil: ({ theme }) => (theme.type === "dark" ? "#fb7185" : "#be123c"),
-      literal: ({ theme }) => (theme.type === "dark" ? "#60a5fa" : "#2563eb"),
-    },
+    tql: tqlDefaultValues,
   },
   cssVarReplacements: [
     ["tql", "tql"],
