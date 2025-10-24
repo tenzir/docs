@@ -42,6 +42,19 @@ a timeout is under `15min`.
 
 By [@raxyte](https://github.com/raxyte) in [#5534](https://github.com/tenzir/tenzir/pull/5534).
 
+#### Flip pipeline subprocesses option semantics
+
+We renamed the configuration option to `tenzir.pipeline-subprocesses` and
+kept the feature opt-in to avoid surprising users upgrading from earlier
+releases. Set the option to `true` to enable subprocess execution:
+
+```yaml
+tenzir:
+  pipeline-subprocesses: true
+```
+
+By [@mavam](https://github.com/mavam) in [#5537](https://github.com/tenzir/tenzir/pull/5537).
+
 #### Expose one-level recursion for OCSF objects
 
 We now support recursive OCSF objects at depth one, as opposed to dropping
