@@ -22,43 +22,81 @@ const highlightQuery = new Parser.Query(
   ),
 );
 
-const tqlPalette = {
-  keyword: { dark: "#f472b6", light: "#b91c1c" },
-  boolean: { dark: "#38bdf8", light: "#0284c7" },
-  constant: { dark: "#22c55e", light: "#15803d" },
-  number: { dark: "#fbbf24", light: "#b45309" },
-  string: { dark: "#34d399", light: "#047857" },
-  functionCall: { dark: "#c084fc", light: "#7c3aed" },
-  operator: { dark: "#f97316", light: "#c2410c" },
-  punctuation: { dark: "#cbd5f5", light: "#475569" },
-  comment: { dark: "#94a3b8", light: "#64748b" },
-  variable: { dark: "#facc15", light: "#b45309" },
-  attribute: { dark: "#38bdf8", light: "#0369a1" },
-  sigil: { dark: "#fb7185", light: "#be123c" },
-  literal: { dark: "#60a5fa", light: "#2563eb" },
+const TQL_TOKEN_SCOPES = {
+  keyword: ["keyword"],
+  boolean: ["constant.language.boolean", "constant.language"],
+  constant: ["constant", "support.constant"],
+  number: ["constant.numeric", "number"],
+  string: ["string"],
+  functionCall: ["entity.name.function", "support.function"],
+  operator: ["keyword.operator"],
+  punctuation: ["punctuation"],
+  comment: ["comment"],
+  variable: ["variable", "variable.other"],
+  attribute: ["entity.other.attribute-name", "support.type.property-name"],
+  sigil: ["variable.language", "variable.other"],
+  literal: ["constant.language", "constant.other"],
 };
-
-const colorFromTheme =
-  ({ dark, light }) =>
-  ({ theme }) =>
-    theme.type === "dark" ? dark : light;
-
-const tqlDefaultValues = Object.fromEntries(
-  Object.entries(tqlPalette).map(([token, palette]) => [
-    token,
-    colorFromTheme(palette),
-  ]),
-);
 
 const tqlStyleSettings = new PluginStyleSettings({
   defaultValues: {
-    tql: tqlDefaultValues,
+    tql: Object.fromEntries(
+      Object.entries(TQL_TOKEN_SCOPES).map(([token, scopes]) => [
+        token,
+        ({ theme }) =>
+          resolveThemeTokenColor({ theme, scopes }) ??
+          theme.fg ??
+          "currentColor",
+      ]),
+    ),
   },
   cssVarReplacements: [
     ["tql", "tql"],
     ["functionCall", "fn-call"],
   ],
 });
+
+function resolveThemeTokenColor({ theme, scopes, fallbackColorKey }) {
+  if (theme?.settings) {
+    for (const setting of theme.settings) {
+      const scopeValues = Array.isArray(setting.scope)
+        ? setting.scope
+        : setting.scope
+          ? [setting.scope]
+          : [];
+      if (!scopeValues.length) {
+        continue;
+      }
+      if (
+        scopeValues.some((scopeValue) =>
+          scopes.some((target) => scopeMatchesScope(scopeValue, target)),
+        )
+      ) {
+        const foreground = setting.settings?.foreground;
+        if (foreground) {
+          return foreground;
+        }
+      }
+    }
+  }
+  if (fallbackColorKey && theme?.colors?.[fallbackColorKey]) {
+    return theme.colors[fallbackColorKey];
+  }
+  return theme?.fg;
+}
+
+function scopeMatchesScope(scopeValue, target) {
+  if (scopeValue === target) {
+    return true;
+  }
+  if (scopeValue.startsWith(`${target}.`)) {
+    return true;
+  }
+  if (target.startsWith(`${scopeValue}.`)) {
+    return true;
+  }
+  return scopeValue.includes(target);
+}
 
 const captureToSetting = new Map(
   Object.entries({
