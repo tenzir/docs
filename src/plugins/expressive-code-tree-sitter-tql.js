@@ -8,6 +8,12 @@ import {
 } from "@expressive-code/core";
 import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 
+// This plugin only wires Tree-sitter capture names to Expressive Code style keys.
+// We deliberately avoid defining colors here; the active Expressive Code theme
+// remains in full control via its TextMate scopes. If the grammar emits different
+// captures (for example, a sigil versus the variable name), the theme decides
+// whether they share a color.
+
 const parser = new Parser();
 parser.setLanguage(TreeSitterTql);
 
