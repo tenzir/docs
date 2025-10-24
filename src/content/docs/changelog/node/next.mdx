@@ -83,3 +83,14 @@ The first assertion now succeeds while deeper ancestry is trimmed
 automatically, preserving schema compatibility for downstream consumers.
 
 By [@mavam](https://github.com/mavam) in [#5529](https://github.com/tenzir/tenzir/pull/5529).
+
+### Bug Fixes
+
+#### Lambda capture extraction
+
+Lambda captures now work correctly for field accesses where the left side is not
+a constant field path. For example, `.map(x => a[x].b)` previously did not
+capture `a`, even though that is required to correctly evaluate the body of the
+lambda. This now works as expected.
+
+By [@jachris](https://github.com/jachris) in [#5538](https://github.com/tenzir/tenzir/pull/5538).
