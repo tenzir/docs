@@ -198,6 +198,62 @@ When normalizing data (e.g., to OCSF format):
 - Treat all input-derived values as dynamic, not constants
 - Don't hardcode field values based on example data
 
+### Use `replace` to normalize placeholder values
+
+When dealing with data that uses placeholder values like `"-"`, `"N/A"`, or
+empty strings to represent null, use the
+[`replace`](/reference/operators/replace) operator to normalize them instead of
+writing conditional logic.
+
+✅ Clear and composable approach:
+
+```tql
+from {content: {field: null}},
+     {content: {field: "-"}},
+     {content: {field: "value"}}
+replace content.field, what="-", with=null
+drop_null_fields content
+```
+
+❌ Complex conditional logic:
+
+```tql
+from {content: {field: null}},
+     {content: {field: "-"}},
+     {content: {field: "value"}}
+if content.has("field") {
+  if content.field == "-" or content.field == null {
+    drop content.field
+  }
+}
+```
+
+Benefits of using `replace`:
+
+- **Clear intent**: The operator name explicitly states what you're doing
+- **No branching**: Avoid nested conditionals that are hard to follow
+- **Composable**: Chain with `drop_null_fields` for complete cleanup
+- **Maintainable**: Easy to add more placeholder values if needed
+
+✅ Handling multiple placeholder values:
+
+```tql
+replace what="-", with=null
+replace what="N/A", with=null
+replace what="", with=null
+drop_null_fields
+```
+
+:::note[Operator vs. function]
+Don't confuse the [`replace`](/reference/operators/replace) operator with the
+[`replace`](/reference/functions/replace) function:
+
+- **Operator**: Replaces entire values across all fields in events (e.g.,
+  replace all `"-"` with `null`)
+- **Function**: Replaces substrings within a string (e.g., `"hello".replace("l",
+"r")` → `"herro"`)
+  :::
+
 ### Use meaningful names for computed fields
 
 ✅ Clear intent:
