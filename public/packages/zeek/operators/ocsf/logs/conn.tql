@@ -6,13 +6,9 @@ this = { zeek: this }
 // --- OCSF: classification attributes ----------
 
 ocsf.activity_id = 6
-ocsf.activity_name = "Traffic"
 ocsf.category_uid = 4
-ocsf.category_name = "Network Activity"
 ocsf.class_uid = 4001
-ocsf.class_name = "Network Activity"
 ocsf.severity_id = 1
-ocsf.severity = "Informational"
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurence attributes ---------------
@@ -66,23 +62,17 @@ if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
   ocsf.connection_info.protocol_ver_id = 4
 }
 drop zeek.id
+ocsf.connection_info.direction_id = 0
 if zeek.local_orig != null and zeek.local_resp != null {
   if zeek.local_orig and zeek.local_resp {
-    ocsf.connection_info.direction = "Lateral"
     ocsf.connection_info.direction_id = 3
   } else if zeek.local_orig {
-    ocsf.connection_info.direction = "Outbound"
     ocsf.connection_info.direction_id = 2
   } else if zeek.local_resp {
-    ocsf.connection_info.direction = "Inbound"
     ocsf.connection_info.direction_id = 1
-  } else {
-    ocsf.connection_info.direction = "Unknown"
-    ocsf.connection_info.direction_id = 0
   }
 }
 drop zeek.local_orig, zeek.local_resp
-ocsf.status = "Other"
 ocsf.status_code = move zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
@@ -99,3 +89,6 @@ drop zeek.resp_bytes, zeek.orig_bytes, zeek.resp_pkts, zeek.orig_pkts
 
 this = {...ocsf, unmapped: zeek}
 @name = "ocsf.network_activity"
+
+// Populate sibling fields.
+ocsf::derive
