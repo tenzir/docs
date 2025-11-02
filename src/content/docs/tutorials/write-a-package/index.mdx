@@ -6,7 +6,7 @@ import { Code, FileTree } from '@astrojs/starlight/components';
 
 This tutorial walks you through building a package for an SSL blacklist.
 Packages bundle pipelines, operators, contexts, and examples. You can [install
-packages](/guides/basic-usage/install-a-package) from the [Tenzir
+packages](/guides/package-management/install-a-package) from the [Tenzir
 Library](https://app.tenzir.com/library) or deploy them as code.
 
 ## Map the use case
@@ -32,6 +32,7 @@ Create a directory named `sslbl` and add the standard package layout:
 <FileTree>
 
 - sslbl/
+  - changelog/ User-facing documentation of changes
   - examples/ Runnable snippets for users
   - operators/ Reusable building blocks for pipelines
   - pipelines/ Deployable pipelines
@@ -279,7 +280,7 @@ inputs:
 ```
 
 Users can accept the default or override the value [during
-installation](/guides/basic-usage/install-a-package), e.g., when using
+installation](/guides/package-management/install-a-package), e.g., when using
 [`package::add`](/reference/operators/package/add):
 
 ```tql
@@ -404,6 +405,40 @@ When the test harness invokes the `tenzir`
 are available for testing with the runner and contexts in the fixture. When
 writing tests, you can simply assume that the package is installed at the node.
 :::
+
+## Add a changelog
+
+Creating a package is rarely a one-time act. In fact, the initial version often
+just marks the starting point of your journey: vendors frequently make upstream
+changes and you need to adapt your operators, you find a new log sample with a
+corner case that causes the current version to fail, and your users request new
+changes or new arguments for better parameterization. After shipping a minimum
+viable package (MVP), do your users a favor maintain a changelog!
+
+The good news is we made changelog maintenance super easy with our bespoke
+[`tenzir-changelog`](/reference/changelog-framework) tool. From the package
+directory, create a new changelog entry as follows:
+
+```sh
+uvx tenzir-changelog add
+```
+
+The interactive wizard will guide you through the process. Thereafter, you'll
+see a new file in the `changelog/` directory.
+
+You have many options to view your changelog entries:
+
+```sh
+uvx tenzir-changelog # show the entire changelog, shorthand for `show --table`
+uvx tenzir-changelog show - # show just unreleased entries
+uvx tenzir-changelog show - --markdown # render changelog entries as Markodwn
+uvx tenzir-changelog show - --json # render changelog entries as JSON
+uvx tenzir-changelog show - --card # render changelog entries in termal
+```
+
+For more details on how to maintain a changelog and create releases, see our
+[guide on maintaining a
+changelog](/guides/package-management/maintain-a-changelog).
 
 ## Share and contribute
 
