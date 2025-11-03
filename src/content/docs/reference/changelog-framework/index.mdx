@@ -1,0 +1,379 @@
+---
+title: Changelog Framework
+---
+
+The [`tenzir-changelog`](https://github.com/tenzir/changelog) harness curates
+changelog entries, ships release notes, and assembles the public changelog
+across Tenzir repositories. Use this page as a reference for concepts,
+configuration, and CLI details. For step-by-step walkthroughs, see the guide for
+[maintaining a changelog](/guides/package-management/maintain-a-changelog).
+
+## Install
+
+`tenzir-changelog` ships as a Python package that requires Python 3.12 or later.
+Install it with [`uv`](https://docs.astral.sh/uv/) (or `pip`) and verify the
+console script:
+
+```sh
+uv add tenzir-changelog
+uvx tenzir-changelog --help
+```
+
+## Core concepts
+
+- **Project** – Identifies which documentation stream the changelog belongs to.
+  Every entry and release references the same project string.
+- **Entry** – A changelog consists of entries. Each entry uses one of four
+  hard-coded types: `breaking`, `feature`, `bugfix`, or `change`.
+- **Unreleased bucket** – Pending entries live in `unreleased/` until you move
+  them to a release.
+- **Release** – Versioned milestone under `releases/<version>/` containing
+  `manifest.yaml`, `notes.md`, and archived entry files in `entries/`.
+- **Configuration file** – Settings live in `config.yaml` by default, or you can
+  store them in `package.yaml` alongside the `changelog/` directory.
+  `config.yaml` takes precedence when both exist.
+- **Export style** – Controls whether release notes use a detailed card layout
+  or a compact bullet-list layout. Set `export_style: compact` in configuration
+  to prefer the bullet-list format without passing `--compact` each time.
+- **Components** – You may constrain the optional `component` field on entries
+  by listing allowed labels in configuration. Component filters apply to the
+  CLI table, exports, and validation.
+
+A typical project layout looks like this:
+
+import { FileTree } from '@astrojs/starlight/components';
+
+<FileTree>
+
+- project-root/
+  - changelog/
+    - config.yaml
+    - unreleased/
+      - 01-add-feature.md
+      - 02-fix-bug.md
+    - releases/
+      - v1.0.0/
+        - manifest.yaml
+        - notes.md
+        - entries/
+          - 01-add-feature.md
+          - 02-fix-bug.md
+
+</FileTree>
+
+For a [package](/explanations/packages) layout (with `package.yaml`), the
+structure may look like:
+
+<FileTree>
+
+- my-package/
+  - package.yaml
+  - changelog/
+    - unreleased/
+    - releases/
+
+</FileTree>
+
+## Commands
+
+Run changelog commands from the project root or the `changelog/` directory:
+
+```sh
+uvx tenzir-changelog [command] [options]
+```
+
+All commands accept `--config` to point at an explicit configuration file (YAML
+format, defaulting to `config.yaml`) and `--root` to operate on another
+repository. When you omit both options, the CLI looks for `config.yaml` inside
+the changelog root or, failing that, for a `package.yaml` one directory above
+the changelog folder. This _package mode_ lets you run commands from either the
+package root or the `changelog/` directory without repeating `--root`.
+
+### show
+
+Display changelog entries in multiple views.
+
+```text
+tenzir-changelog show [identifiers...] [options]
+```
+
+| Option                | Description                                                 |
+| --------------------- | ----------------------------------------------------------- |
+| `identifiers`         | Row numbers, entry IDs, release versions, or `-` (optional) |
+| `-c/--card`           | Show detailed cards for matching entries                    |
+| `-m/--markdown`       | Export as Markdown                                          |
+| `-j/--json`           | Export as JSON                                              |
+| `--compact`           | Use compact bullet-list layout                              |
+| `--no-compact`        | Use detailed card layout                                    |
+| `--no-emoji`          | Remove type emoji from output                               |
+| `--project <id>`      | Filter to specific project                                  |
+| `--component <label>` | Filter to specific component                                |
+| `--banner <text>`     | Add banner text to table output                             |
+
+The table view (default) lists entries with ID, title, type, project, PRs, and
+authors. Row numbers count backward from the newest entry, so `#1` always
+targets the latest change.
+
+### add
+
+Create a new changelog entry in `unreleased/`.
+
+```text
+tenzir-changelog add [options]
+```
+
+| Option                 | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `--title <text>`       | Entry title                                  |
+| `--type <type>`        | `breaking`, `feature`, `bugfix`, or `change` |
+| `--description <text>` | Entry body                                   |
+| `--author <name>`      | Contributor name (repeatable)                |
+| `--pr <number>`        | Pull request number (repeatable)             |
+| `--component <label>`  | Component label (must match configuration)   |
+| `--web`                | Open prefilled GitHub file creation URL      |
+
+The command prompts for any information you do not pass explicitly. The first
+invocation scaffolds `config.yaml`, `unreleased/`, and `releases/`
+automatically. The CLI assigns globally sequential filenames with numeric
+prefixes (e.g., `01-feature-name.md`).
+
+### release create
+
+Stage a release under `releases/<version>/`.
+
+```text
+tenzir-changelog release create [version] [options]
+```
+
+| Option                | Description                                                |
+| --------------------- | ---------------------------------------------------------- |
+| `version`             | Release version (e.g., `v1.0.0`)                           |
+| `--patch`             | Bump patch version from latest release                     |
+| `--minor`             | Bump minor version from latest release                     |
+| `--major`             | Bump major version from latest release                     |
+| `--yes`               | Commit changes (default is dry run)                        |
+| `--intro <text>`      | Inline intro text (mutually exclusive with `--intro-file`) |
+| `--intro-file <path>` | Path to intro file (mutually exclusive with `--intro`)     |
+| `--compact`           | Use bullet-list layout for `notes.md`                      |
+| `--date <YYYY-MM-DD>` | Override release date                                      |
+
+The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
+into `entries/`. It performs a dry run by default. When the release already
+exists, the CLI appends additional unreleased entries.
+
+### release notes
+
+Re-export release notes without modifying files.
+
+```text
+tenzir-changelog release notes <identifier> [options]
+```
+
+| Option       | Description                           |
+| ------------ | ------------------------------------- |
+| `identifier` | Release version or `-` for unreleased |
+| `-m`         | Export as Markdown (default)          |
+| `-j`         | Export as JSON                        |
+| `--compact`  | Use bullet-list layout                |
+| `--no-emoji` | Drop type icons                       |
+
+### release publish
+
+Publish a release to GitHub via `gh`.
+
+```text
+tenzir-changelog release publish <version> [options]
+```
+
+| Option         | Description                       |
+| -------------- | --------------------------------- |
+| `version`      | Release version                   |
+| `--yes`        | Skip confirmation prompts         |
+| `--draft`      | Mark as draft                     |
+| `--prerelease` | Mark as prerelease                |
+| `--tag`        | Create and push annotated Git tag |
+
+The command reads project metadata from `config.yaml` or `package.yaml` for the
+repository slug and uses `notes.md` as the release body.
+
+### validate
+
+Run structural checks across entry files, release manifests, and exported
+documentation.
+
+```text
+tenzir-changelog validate
+```
+
+The validator reports missing metadata, unused entries, duplicate entry IDs, and
+configuration drift across repositories.
+
+## Configuration
+
+Configuration settings live in `config.yaml` by default, or you can store them
+in `package.yaml` alongside the `changelog/` directory. `config.yaml` takes
+precedence when both exist.
+
+Configuration fields:
+
+| Field          | Description                                                         |
+| -------------- | ------------------------------------------------------------------- |
+| `id`           | Canonical project slug written into entry frontmatter (required)    |
+| `name`         | Human-friendly label surfaced in release titles and CLI output      |
+| `description`  | Optional project description included in release manifests          |
+| `repository`   | Optional GitHub slug (e.g., `owner/repo`) used by `release publish` |
+| `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards  |
+| `components`   | Optional list of component labels that entries must satisfy         |
+
+Example:
+
+```yaml
+id: tenzir-core
+name: Tenzir Core
+description: Core pipeline engine
+repository: tenzir/tenzir
+export_style: compact
+components:
+  - cli
+  - engine
+  - operators
+```
+
+The first invocation of `tenzir-changelog add` scaffolds `config.yaml`
+automatically, inferring defaults from the directory name. Projects with
+`package.yaml` next to `changelog/` reuse the package `id` and `name`
+automatically.
+
+## Entry file format
+
+Entry files live in `unreleased/` or `releases/<version>/entries/` as Markdown
+files with YAML frontmatter. The CLI assigns sequential numeric prefixes (e.g.,
+`01-feature-name.md`, `02-bugfix.md`).
+
+Example entry:
+
+```markdown
+---
+title: Add pipeline builder
+type: feature
+authors:
+  - alice
+created: 2025-10-16
+prs:
+  - 101
+component: cli
+---
+
+Introduces the new pipeline builder UI with drag-and-drop support.
+```
+
+Frontmatter fields:
+
+| Field       | Type         | Required | Description                                  |
+| ----------- | ------------ | -------- | -------------------------------------------- |
+| `title`     | string       | yes      | Entry title                                  |
+| `type`      | string       | yes      | `breaking`, `feature`, `bugfix`, or `change` |
+| `authors`   | list[string] | no       | Contributor names                            |
+| `created`   | string       | yes      | Creation date in `YYYY-MM-DD` format         |
+| `prs`       | list[int]    | no       | Pull request numbers                         |
+| `component` | string       | no       | Label matching configured components         |
+
+## Release manifest format
+
+Release manifests live at `releases/<version>/manifest.yaml` and record metadata
+about a release.
+
+Example manifest:
+
+```yaml
+created: 2025-10-18
+intro: |
+  Welcome to version 1.0.0!
+
+  This release includes significant performance improvements.
+```
+
+Manifest fields:
+
+| Field     | Type   | Required | Description                              |
+| --------- | ------ | -------- | ---------------------------------------- |
+| `created` | string | yes      | Release date in `YYYY-MM-DD` format      |
+| `intro`   | string | no       | Introductory content (supports Markdown) |
+
+The CLI generates `notes.md` by stitching together the intro and grouped entry
+sections. Intro content comes from either `--intro` (inline text) or
+`--intro-file` (file path) when creating a release.
+
+## Environment variables
+
+The CLI recognizes these environment variables:
+
+| Variable       | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `GITHUB_TOKEN` | GitHub token with `repo` scope for private repos |
+
+## Multi-project mode
+
+For managing multiple related projects, `tenzir-changelog` supports coordinated
+changelog operations across multiple project roots using the `--root` flag
+repeatedly.
+
+When you specify multiple `--root` flags, the CLI enters multi-project mode:
+
+- The `show` command displays entries from all projects in a unified table with
+  a Project column, sorting entries by project order (as specified by `--root`
+  flags) and then by date within each project.
+- Markdown and JSON exports group entries by project using a hierarchical
+  format: version → project → entry type → entries.
+- The `release create` command performs atomic coordinated releases across all
+  projects. If any project fails validation (e.g., the version already exists),
+  the CLI makes no changes to any project.
+
+Use `--project <id>` to filter output to specific projects. Entry identifiers
+may repeat across projects, and the CLI keeps them correctly scoped to their
+origin project when rendering tables or exports.
+
+Multi-project markdown exports follow this hierarchical structure:
+
+```markdown
+# v5.0.0
+
+## Tenzir Core
+
+### Features
+
+- **Add pipeline builder**: Introduces the new pipeline builder UI.
+
+## Tenzir Cloud
+
+### Features
+
+- **Add SSO support**: Integrates enterprise SSO for authentication.
+```
+
+:::caution[Multi-project mode limitations]
+
+- Version bumping (`--patch`, `--minor`, `--major`) is not supported—you must
+  provide an explicit version string.
+- The `--config` flag applies only to single-project mode; each project uses its
+  own configuration metadata when you specify multiple `--root` flags.
+- The `add` and `validate` commands do not support multi-project mode—operate on
+  each project individually.
+  :::
+
+## Troubleshooting
+
+- **Validation errors** – Run `tenzir-changelog validate` to identify missing
+  metadata, unused entries, or duplicate IDs.
+- **Component mismatch** – When `components` is configured, ensure every entry
+  either omits `component` or uses an allowed label.
+- **Configuration not found** – Ensure `config.yaml` exists in the changelog
+  root or `package.yaml` sits next to the `changelog/` directory. Run
+  `tenzir-changelog add` once to scaffold the configuration.
+- **Version bump fails** – Bump flags read the latest release manifest on disk.
+  Create an initial release with an explicit version before using
+  `--patch/--minor/--major`.
+
+## Further reading
+
+- [Maintain a changelog](/guides/package-management/maintain-a-changelog)

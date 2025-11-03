@@ -298,7 +298,22 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 Note that computing the field `type_uid` requires simple arithmetic. You can
 also rely on [`ocsf::derive`](/reference/operators/ocsf/derive) to populate
-sibling fields—an optimization to write more concise mappings.
+sibling fields—an optimization to write more concise mappings. This would
+simplify the above snippet to:
+
+```tql
+ocsf.activity_id = 6
+ocsf.category_uid = 4
+ocsf.class_uid = 4001
+ocsf.severity_id = 1
+ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
+ocsf::derive
+```
+
+The computed sibbling fields for `<field>_id` often have the pattern
+`<field>_name` or simply `<field>`. We highly recommend to use
+[`ocsf::derive`](/reference/operators/ocsf/derive) at the very end of the
+mapping to keep the mapping compact and avoid unnecessary errors.
 
 #### Occurrence Attributes
 
@@ -633,7 +648,7 @@ Perfect. Now proceed with all log types and you have production-grade package.
 ### Step 4: Install and use the package
 
 After you have fleshed out the complete package, [install
-it](/guides/basic-usage/install-a-package), either interactively via
+it](/guides/package-management/install-a-package), either interactively via
 [`package::add`](/reference/operators/package/add), or IaC-style by putting it
 into a git repo and pointing the config option `tenzir.package-dirs` to it.
 

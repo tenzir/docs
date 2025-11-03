@@ -46,7 +46,6 @@ export const guides = [
     items: [
       "guides/basic-usage/run-pipelines",
       "guides/basic-usage/manage-a-pipeline",
-      "guides/basic-usage/install-a-package",
       "guides/basic-usage/collect-metrics",
     ],
   },
@@ -112,6 +111,14 @@ export const guides = [
       "guides/testing/write-tests",
       "guides/testing/create-fixtures",
       "guides/testing/add-custom-runners",
+    ],
+  },
+  {
+    label: "Package Management",
+    collapsed: true,
+    items: [
+      "guides/package-management/install-a-package",
+      "guides/package-management/maintain-a-changelog",
     ],
   },
   {
@@ -202,6 +209,10 @@ export const reference = [
   {
     label: "Test Framework",
     link: "reference/test-framework",
+  },
+  {
+    label: "Changelog Framework",
+    link: "reference/changelog-framework",
   },
 ];
 
