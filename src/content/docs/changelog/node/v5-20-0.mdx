@@ -1,0 +1,62 @@
+---
+title: Better Memory Allocation
+sidebar:
+  badge:
+    text: v5.20.0
+    variant: success
+---
+
+We continue our quest for better memory usage by switching out the memory allocator to the battle-tested `mimalloc`, as well as adding metrics collecting for memory usage.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.20.0).
+
+### Features
+
+#### Improved memory allocation & metrics
+
+We have expanded the `metrics "memory"` the application provides. When enabled,
+you can now see metrics for memory allocated via different means. Since this
+metrics collection affects every single allocation, it is currently disabled
+by default. To enable collection of these statistics, you can set an
+environment variable `TENZIR_ALLOC_STATS=true`.
+
+:::info[Changed metric layout]
+This change also changes the structure of `tenzir.metrics.memory`. The
+system-wide stats `total_bytes`, `free_bytes` and `used_bytes` are now grouped
+under a `system` key to differentiate them from the `process` memory usage and
+per-component memory usage added in this release. These process metrics were
+previously only found in `metrics.process`.
+:::
+
+We also switched the default memory allocator used on all
+platforms to [mimalloc](https://github.com/microsoft/mimalloc), which may
+reduce the effective memory usage of Tenzir.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5512](https://github.com/tenzir/tenzir/pull/5512), [#5544](https://github.com/tenzir/tenzir/pull/5544).
+
+### Changes
+
+#### More permissive syslog parsing
+
+The parser for RFC 5424 syslog messages now accepts structured data that
+slightly diverges from the RFC 5424 specification. In particular, quotes and
+other special characters are allowed in values unless it's ambiguous where they
+belong to.
+
+By [@jachris](https://github.com/jachris) in [#5541](https://github.com/tenzir/tenzir/pull/5541).
+
+### Bug Fixes
+
+#### Fixed a shutdown crash in `save_tcp`
+
+We fixed an issue that caused the `save_tcp` operator to occasionally crash
+while shutting down.
+
+By [@tobim](https://github.com/tobim) in [#5540](https://github.com/tenzir/tenzir/pull/5540).
+
+#### Error reporting in `load_balance`
+
+The `load_balance` operator now correctly reports errors that happen during the
+actual execution.
+
+By [@jachris](https://github.com/jachris) in [#5542](https://github.com/tenzir/tenzir/pull/5542).
