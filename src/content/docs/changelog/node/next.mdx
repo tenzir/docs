@@ -4,6 +4,17 @@ title: Next
 
 Unreleased changes.
 
+### Changes
+
+#### More permissive syslog parsing
+
+The parser for RFC 5424 syslog messages now accepts structured data that
+slightly diverges from the RFC 5424 specification. In particular, quotes and
+other special characters are allowed in values unless it's ambiguous where they
+belong to.
+
+By [@jachris](https://github.com/jachris) in [#5541](https://github.com/tenzir/tenzir/pull/5541).
+
 ### Bug Fixes
 
 #### Fixed a shutdown crash in `save_tcp`
