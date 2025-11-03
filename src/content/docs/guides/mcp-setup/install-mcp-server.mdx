@@ -110,6 +110,77 @@ system:
 
 After updating the configuration, restart Claude Desktop to load the MCP server.
 
+### Codex
+
+Configure the [Codex CLI](https://github.com/sourcegraph/cody) by adding the
+server through the built-in MCP manager. This persists the settings in
+`~/.codex/config.toml`.
+
+<Tabs syncKey="install-method">
+<TabItem label="Docker" icon="seti:docker">
+
+```bash
+codex mcp add tenzir -- docker run --pull=always -i tenzir/mcp
+```
+
+</TabItem>
+<TabItem label="Native" icon="seti:python">
+
+```bash
+codex mcp add tenzir -- uvx tenzir-mcp@latest
+```
+
+</TabItem>
+</Tabs>
+
+Codex automatically starts the MCP server when you launch a new session. To
+inspect or tweak the entry later, run `codex mcp list` or `codex mcp get
+tenzir`.
+
+### Cursor
+
+Cursor reads MCP settings from `mcp.json`. Use either the global file at
+`~/.cursor/mcp.json` or add a project-specific config at `.cursor/mcp.json` in
+your workspace root.
+
+<Tabs syncKey="install-method">
+<TabItem label="Docker" icon="seti:docker">
+
+```json
+{
+  "mcpServers": {
+    "tenzir": {
+      "type": "stdio",
+      "command": "docker",
+      "args": ["run", "--pull=always", "-i", "tenzir/mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem label="Native" icon="seti:python">
+
+```json
+{
+  "mcpServers": {
+    "tenzir": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["tenzir-mcp@latest"],
+      "env": {}
+    }
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+Restart Cursor or reload the MCP config (`Cmd+,` → MCP Servers → Reload) so the
+Composer agent picks up the new tools.
+
 ### Gemini CLI
 
 Google's [Gemini CLI](https://github.com/google-gemini/gemini-cli) supports
