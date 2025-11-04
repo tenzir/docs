@@ -132,6 +132,30 @@ Useful options:
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
 
+## Python API
+
+The harness is also available as a typed Python library. Import `tenzir_test`
+and call `execute()` when you need to run scenarios from automation or another
+tool without shelling out to the CLI:
+
+```python
+from pathlib import Path
+
+from tenzir_test import ExecutionResult, execute
+
+result: ExecutionResult = execute(tests=[Path("tests/pipeline.tql")])
+if result.exit_code:
+    # propagate non-zero status to your orchestration layer
+    raise SystemExit(result.exit_code)
+for project in result.project_results:
+    print(project.selection.root, project.summary.total)
+```
+
+The helper mirrors the CLI options but returns an `ExecutionResult` with
+aggregated `Summary` objects and metadata you can inspect or serialize. Errors
+surface as `HarnessError` exceptions so callers can control reporting and retry
+logic.
+
 ## Selections
 
 A _selection_ is the ordered list of positional paths you pass after the CLI
