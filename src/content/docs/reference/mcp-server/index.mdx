@@ -43,6 +43,7 @@ This page focuses on **when** to use each tool and provides usage examples.
 ### `run_pipeline` <Badge text="Execution" variant="danger" />
 
 **When to use:**
+
 - Testing TQL code before adding it to a package
 - Debugging pipeline behavior with sample data
 - Verifying operator syntax and semantics
@@ -51,6 +52,7 @@ This page focuses on **when** to use each tool and provides usage examples.
 Pipelines run with diagnostics enabled, providing detailed error messages and warnings.
 
 **Example:**
+
 ```python
 # Execute inline TQL code
 run_pipeline(pipeline="from stdin | head 5", is_file=False)
@@ -62,6 +64,7 @@ run_pipeline(pipeline="/path/to/pipeline.tql", is_file=True, max_execution_time=
 ### `run_test` <Badge text="Execution" variant="danger" />
 
 **When to use:**
+
 - Verifying package operators work correctly
 - Running regression tests after making changes
 - Generating test baselines (with `update=True`)
@@ -71,6 +74,7 @@ Tests use the [`tenzir-test`](/reference/test-framework) framework and can inclu
 fixtures like embedded Tenzir nodes for integration testing.
 
 **Example:**
+
 ```python
 # Run all tests
 run_test(root="/path/to/package", selection=[])
@@ -88,12 +92,14 @@ run_test(root="/path/to/package", selection=["tests/parse.tql"], update=True)
 ### `docs_read` <Badge text="Documentation" variant="success" />
 
 **When to use:**
+
 - Read operator documentation **BEFORE** using any operator in TQL
 - Read function documentation **BEFORE** using any function
 - Study tutorials and guides for learning workflows
 - List all available operators or functions
 
 **Example:**
+
 ```python
 # Read operator docs (critical before using!)
 docs_read(path="reference/operators/read_json")
@@ -113,6 +119,7 @@ prevents syntax errors and ensures correct usage.
 ### `docs_search` <Badge text="Documentation" variant="success" />
 
 **When to use:**
+
 - Find operators or functions by keyword (e.g., "json", "parse", "filter")
 - Discover related documentation through See Also links (`depth` > 0)
 - Explore specific documentation areas (`search_type` filter)
@@ -122,6 +129,7 @@ The `depth` parameter traverses cross-references, helping you discover operators
 and functions you might not have known about.
 
 **Example:**
+
 ```python
 # Find operators by keyword
 docs_search(query="json", search_type="operators")
@@ -133,6 +141,7 @@ docs_search(query="from", depth=1)
 ### `ocsf_get_versions` <Badge text="OCSF" variant="caution" />
 
 **When to use:**
+
 - See which OCSF schema versions are available
 - Choose a specific version for your mapping work
 
@@ -141,6 +150,7 @@ Typically you'll want `ocsf_get_latest_version` to get the most recent stable ve
 ### `ocsf_get_latest_version` <Badge text="OCSF" variant="caution" />
 
 **When to use:**
+
 - Get the current recommended OCSF version for new mappings
 - Ensure you're using up-to-date schema definitions
 - Start OCSF mapping workflows with the latest standard
@@ -150,6 +160,7 @@ Filters out development versions (alpha, beta, rc) and returns only stable relea
 ### `ocsf_get_classes` <Badge text="OCSF" variant="caution" />
 
 **When to use:**
+
 - Browse available OCSF event classes before creating a mapping
 - Identify which class best matches your log data
 - Understand the purpose and scope of each event class
@@ -157,6 +168,7 @@ Filters out development versions (alpha, beta, rc) and returns only stable relea
 Once you identify a candidate class, use `ocsf_get_class` to see its complete schema.
 
 **Example:**
+
 ```python
 ocsf_get_classes(version="1.3.0")
 ```
@@ -164,6 +176,7 @@ ocsf_get_classes(version="1.3.0")
 ### `ocsf_get_class` <Badge text="OCSF" variant="caution" />
 
 **When to use:**
+
 - Understand the full schema of an OCSF event class before mapping
 - See required vs optional fields
 - Discover nested object structures and their field definitions
@@ -172,6 +185,7 @@ ocsf_get_classes(version="1.3.0")
 Returns the complete class definition including all attributes, types, and constraints.
 
 **Example:**
+
 ```python
 ocsf_get_class(version="1.3.0", name="Network Activity")
 ```
@@ -179,6 +193,7 @@ ocsf_get_class(version="1.3.0", name="Network Activity")
 ### `ocsf_get_object` <Badge text="OCSF" variant="caution" />
 
 **When to use:**
+
 - Understand complex nested object structures in OCSF classes
 - See the fields and types within objects like 'file', 'process', 'user'
 - Map source data to nested OCSF structures correctly
@@ -186,6 +201,7 @@ ocsf_get_class(version="1.3.0", name="Network Activity")
 Objects are reusable components within OCSF event classes, defining standard structures.
 
 **Example:**
+
 ```python
 ocsf_get_object(version="1.3.0", name="process")
 ```
@@ -193,6 +209,7 @@ ocsf_get_object(version="1.3.0", name="process")
 ### `package_create` <Badge text="Packaging" variant="tip" />
 
 **When to use:**
+
 - Start a new Tenzir package project
 - Set up the standard directory structure for operators, tests, and documentation
 - Initialize package metadata (ID, name, author, description)
@@ -200,6 +217,7 @@ ocsf_get_object(version="1.3.0", name="process")
 Creates the foundation for building custom TQL operators, parsers, and OCSF mappings.
 
 **Example:**
+
 ```python
 package_create(package_dir="/tmp/my-ocsf-parser")
 # Creates: operators/, pipelines/, tests/inputs/, changelog/
@@ -209,6 +227,7 @@ package_create(package_dir="/tmp/my-ocsf-parser")
 ### `package_add_operator` <Badge text="Packaging" variant="tip" />
 
 **When to use:**
+
 - Add custom TQL operators to your package
 - Organize operators using nested namespaces (e.g., `ocsf::logs::firewall`)
 - Create parsers, transformations, or OCSF mappings as reusable operators
@@ -217,6 +236,7 @@ package_create(package_dir="/tmp/my-ocsf-parser")
 Operators become available as `package_id::operator_name` in TQL pipelines after installation.
 
 **Example:**
+
 ```python
 # Simple operator
 package_add_operator(
@@ -238,6 +258,7 @@ package_add_operator(
 ### `package_add_context` <Badge text="Packaging" variant="tip" />
 
 **When to use:**
+
 - Declare lookup tables for enrichment (e.g., threat intel, asset inventory)
 - Define GeoIP contexts for IP address geolocation
 - Specify other stateful resources your operators need
@@ -247,6 +268,7 @@ Contexts are defined in `package.yaml` and must be created/populated separately 
 ### `package_add_test` <Badge text="Packaging" variant="tip" />
 
 **When to use:**
+
 - Create test cases for your operators
 - Define expected behavior with input/output pairs
 - Set up integration tests with fixtures (e.g., embedded Tenzir nodes)
@@ -255,6 +277,7 @@ Contexts are defined in `package.yaml` and must be created/populated separately 
 Tests use the `tenzir-test` framework. Provide input/output when known, or omit and use `run_test` with `update=True` to generate baselines.
 
 **Example:**
+
 ```python
 # Test with input/output
 package_add_test(
@@ -274,6 +297,7 @@ package_add_test(
 ### `package_add_changelog` <Badge text="Packaging" variant="tip" />
 
 **When to use:**
+
 - Document changes to your package
 - Track breaking changes, new features, bug fixes, and general changes
 - Maintain a history of package evolution
@@ -282,6 +306,7 @@ package_add_test(
 Changelog entries are timestamped and categorized, helping users understand version changes.
 
 **Example:**
+
 ```python
 package_add_changelog(
     package_dir="/tmp/my-package",
@@ -293,6 +318,7 @@ package_add_changelog(
 ### `make_parser` <Badge text="Coding" variant="note" />
 
 **When to use:**
+
 - You have sample log events and need to parse them into structured data
 - You're starting a new parser for JSON, CSV, syslog, or key-value logs
 - You want guidance on format detection and TQL operator selection
@@ -303,6 +329,7 @@ This tool provides a complete workflow with step-by-step instructions for analyz
 **Supported Formats:** JSON, CSV, syslog (RFC 3164/5424), key-value pairs
 
 **Example:**
+
 ```python
 make_parser(sample='''
 {"timestamp": "2024-01-01T00:00:00Z", "level": "INFO", "message": "test"}
@@ -314,6 +341,7 @@ make_parser(sample='''
 ### `make_ocsf_mapping` <Badge text="Coding" variant="note" />
 
 **When to use:**
+
 - You need to map security logs to the OCSF standard
 - You're normalizing data from multiple sources into a common schema
 - You want to make your data compatible with OCSF-aware tools
@@ -322,6 +350,7 @@ make_parser(sample='''
 This tool provides a complete workflow with step-by-step instructions for analyzing your data, identifying the appropriate OCSF class, creating field mappings, generating TQL operators, and testing the transformation.
 
 **Example:**
+
 ```python
 make_ocsf_mapping(sample='''
 {"src_ip": "10.0.0.1", "dst_ip": "192.168.1.1", "proto": "tcp", "port": 443}
