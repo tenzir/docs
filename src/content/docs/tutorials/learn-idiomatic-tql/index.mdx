@@ -674,3 +674,53 @@ where geo?.country? == "US"  // No warning if geo missing
 
 This layered approach ensures critical data meets requirements while allowing
 flexibility for optional enrichments.
+
+## OCSF mapping best practices
+
+### Work with record-based mappings
+
+✅ Drive dispatching with clear maps:
+
+```tql
+let $severities = {
+  critical: 5,
+  high: 4,
+  medium: 3,
+  low: 2,
+  none: 0,
+}
+ocsf.severity_id = $severities[source.severity]? else 0
+```
+
+❌ Don't use `if-else` chains for this.
+
+### Use range checks to map status codes
+
+✅ Derive `status_id` from status codes, e.g., HTTP:
+
+```tql
+if http_status >= 200 and http_status < 400 {
+  ocsf.status_id = 1  // Success
+} else if http_status >= 400 {
+  ocsf.status_id = 2  // Failure
+} else {
+  ocsf.status_id = 0  // Unknown
+}
+```
+
+❌ Don't use `record` mapping when status code are partitioned into ranges.
+
+✅ Use `status_detail` for human-readable status messages.
+
+✅ Use `status_code` for the raw status code (as `string`).
+
+### OCSF Profile: Network Proxy
+
+✅ For proxy logs, identify which endpoint is the proxy itself:
+  - `src_endpoint`: The client machine initiating the request
+  - `dst_endpoint`: The destination server being accessed
+  - `proxy_endpoint`: The proxy/gateway infrastructure
+
+### OCSF Profile: Security Control
+
+✅ Set `is_alert` to `true` if the event represents an alert.
