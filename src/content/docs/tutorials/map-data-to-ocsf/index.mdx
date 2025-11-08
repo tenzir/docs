@@ -240,7 +240,7 @@ ocsf.src_endpoint = {
 // ...fill out remaining primary attributes.
 drop zeek.id // 👈 remove source field after mapping
 
-// --- Finalize ---------------------------------
+// --- Epilogue ---------------------------------
 
 // (3) Hoist all `ocsf` attributes into the root and declare the remaining fields in
 // `zeek` as `unmapped`.
@@ -248,6 +248,9 @@ this = {...ocsf, unmapped: zeek}
 
 // (4) Assign metadata, such as a name for easier filtering downstream.
 @name = "ocsf.network_activity"
+
+// (5) Populate sibling fields.
+ocsf::derive
 ```
 
 import { Steps } from "@astrojs/starlight/components";
@@ -273,6 +276,9 @@ Let's unpack this:
    `unmapped` catch-all record and you can tweak your mapping later.
 4. We give the event a new schema name so that we can easily filter by its shape
    in further pipelines.
+5. We keep the mapping terse by only mapping the `*_[u]id` field and relying on
+   [`ocsf::derive`](/reference/operators/ocsf/derive) to auto-populate the
+   corresponding sibling fields.
 
 </Steps>
 
@@ -297,9 +303,9 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 ```
 
 Note that computing the field `type_uid` requires simple arithmetic. You can
-also rely on [`ocsf::derive`](/reference/operators/ocsf/derive) to populate
-sibling fields—an optimization to write more concise mappings. This would
-simplify the above snippet to:
+rely on [`ocsf::derive`](/reference/operators/ocsf/derive) to populate sibling
+fields—an optimization to write more concise mappings. This would simplify the
+above snippet to:
 
 ```tql
 ocsf.activity_id = 6
@@ -311,9 +317,7 @@ ocsf::derive
 ```
 
 The computed sibbling fields for `<field>_id` often have the pattern
-`<field>_name` or simply `<field>`. We highly recommend to use
-[`ocsf::derive`](/reference/operators/ocsf/derive) at the very end of the
-mapping to keep the mapping compact and avoid unnecessary errors.
+`<field>_name` or simply `<field>`.
 
 #### Occurrence Attributes
 
