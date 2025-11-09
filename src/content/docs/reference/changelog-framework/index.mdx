@@ -19,6 +19,23 @@ uv add tenzir-changelog
 uvx tenzir-changelog --help
 ```
 
+## Python API
+
+Drive the CLI flows from another Python process by importing the
+`Changelog` helper:
+
+```python
+from pathlib import Path
+from tenzir_changelog import Changelog
+
+client = Changelog(root=Path("changelog"))
+client.add(title="API entry", entry_type="feature", description="Body text")
+client.show(identifiers=["unreleased"], view="json", include_emoji=False)
+```
+
+For advanced scenarios, reuse `tenzir_changelog.create_cli_context` and call
+the helper functions from `tenzir_changelog.cli` directly.
+
 ## Core concepts
 
 - **Project** – Identifies which documentation stream the changelog belongs to.
