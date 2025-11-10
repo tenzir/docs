@@ -9,7 +9,7 @@ to interact with Tenzir through the [Model Context
 Protocol](https://modelcontextprotocol.io) (MCP).
 
 :::tip[Quick Start]
-Check our [installation guide](/guides/mcp-setup/install-mcp-server) to get up
+Check our [installation guide](/guides/mcp-usage/install-mcp-server) to get up
 and running with the MCP Server.
 :::
 
@@ -49,17 +49,8 @@ This page focuses on **when** to use each tool and provides usage examples.
 - Verifying operator syntax and semantics
 - Iterating quickly on pipeline development
 
-Pipelines run with diagnostics enabled, providing detailed error messages and warnings.
-
-**Example:**
-
-```python
-# Execute inline TQL code
-run_pipeline(pipeline="from stdin | head 5", is_file=False)
-
-# Execute from a file
-run_pipeline(pipeline="/path/to/pipeline.tql", is_file=True, max_execution_time=60)
-```
+Pipelines run with diagnostics enabled, providing detailed error messages and
+warnings.
 
 ### `run_test` <Badge text="Execution" variant="danger" />
 
@@ -73,22 +64,6 @@ run_pipeline(pipeline="/path/to/pipeline.tql", is_file=True, max_execution_time=
 Tests use the [`tenzir-test`](/reference/test-framework) framework and can include
 fixtures like embedded Tenzir nodes for integration testing.
 
-**Example:**
-
-```python
-# Run all tests
-run_test(root="/path/to/package", selection=[])
-
-# Run specific test
-run_test(root="/path/to/package", selection=["tests/parse.tql"])
-
-# Debug with passthrough
-run_test(root="/path/to/package", selection=["tests/parse.tql"], passthrough=True)
-
-# Generate baseline
-run_test(root="/path/to/package", selection=["tests/parse.tql"], update=True)
-```
-
 ### `docs_read` <Badge text="Documentation" variant="success" />
 
 **When to use:**
@@ -97,24 +72,6 @@ run_test(root="/path/to/package", selection=["tests/parse.tql"], update=True)
 - Read function documentation **BEFORE** using any function
 - Study tutorials and guides for learning workflows
 - List all available operators or functions
-
-**Example:**
-
-```python
-# Read operator docs (critical before using!)
-docs_read(path="reference/operators/read_json")
-
-# List all operators
-docs_read(path="reference/operators")
-
-# Read tutorial
-docs_read(path="tutorials/map-data-to-ocsf")
-```
-
-:::tip[Critical: Read Before Using]
-Always read operator/function documentation before writing TQL code. This
-prevents syntax errors and ensures correct usage.
-:::
 
 ### `docs_search` <Badge text="Documentation" variant="success" />
 
@@ -214,15 +171,8 @@ ocsf_get_object(version="1.3.0", name="process")
 - Set up the standard directory structure for operators, tests, and documentation
 - Initialize package metadata (ID, name, author, description)
 
-Creates the foundation for building custom TQL operators, parsers, and OCSF mappings.
-
-**Example:**
-
-```python
-package_create(package_dir="/tmp/my-ocsf-parser")
-# Creates: operators/, pipelines/, tests/inputs/, changelog/
-# Generates: package.yaml, README.md
-```
+Creates the foundation for building custom TQL operators, parsers, and OCSF
+mappings.
 
 ### `package_add_operator` <Badge text="Packaging" variant="tip" />
 
@@ -233,27 +183,8 @@ package_create(package_dir="/tmp/my-ocsf-parser")
 - Create parsers, transformations, or OCSF mappings as reusable operators
 - Automatically generate test scaffolds for new operators
 
-Operators become available as `package_id::operator_name` in TQL pipelines after installation.
-
-**Example:**
-
-```python
-# Simple operator
-package_add_operator(
-    package_dir="/tmp/my-package",
-    name="parse",
-    description="Parse custom log format",
-    code="read_json | unflatten"
-)
-
-# Nested namespace
-package_add_operator(
-    package_dir="/tmp/my-package",
-    name="ocsf::logs::firewall",
-    description="Parse firewall logs to OCSF",
-    code="read_json | unflatten"
-)
-```
+Operators become available as `package_id::operator_name` in TQL pipelines after
+installation.
 
 ### `package_add_context` <Badge text="Packaging" variant="tip" />
 
@@ -263,7 +194,8 @@ package_add_operator(
 - Define GeoIP contexts for IP address geolocation
 - Specify other stateful resources your operators need
 
-Contexts are defined in `package.yaml` and must be created/populated separately in the Tenzir node.
+Contexts are defined in `package.yaml` and must be created/populated separately
+in the Tenzir Node.
 
 ### `package_add_test` <Badge text="Packaging" variant="tip" />
 
@@ -274,25 +206,8 @@ Contexts are defined in `package.yaml` and must be created/populated separately 
 - Set up integration tests with fixtures (e.g., embedded Tenzir nodes)
 - Generate test scaffolds to be populated later with `run_test`
 
-Tests use the `tenzir-test` framework. Provide input/output when known, or omit and use `run_test` with `update=True` to generate baselines.
-
-**Example:**
-
-```python
-# Test with input/output
-package_add_test(
-    package_dir="/tmp/my-package",
-    test="from stdin | my_package::parse",
-    input='{"message": "test"}'
-)
-
-# Test with inline data
-package_add_test(
-    package_dir="/tmp/my-package",
-    test='from {message: "test"} | my_package::parse',
-    fixtures=["node"]
-)
-```
+Tests use the `tenzir-test` framework. Provide input/output when known, or omit
+and use `run_test` with `update=True` to generate baselines.
 
 ### `package_add_changelog` <Badge text="Packaging" variant="tip" />
 
@@ -303,18 +218,6 @@ package_add_test(
 - Maintain a history of package evolution
 - Communicate updates to package users
 
-Changelog entries are timestamped and categorized, helping users understand version changes.
-
-**Example:**
-
-```python
-package_add_changelog(
-    package_dir="/tmp/my-package",
-    type="feature",
-    description="Initial release with custom parser"
-)
-```
-
 ### `make_parser` <Badge text="Coding" variant="note" />
 
 **When to use:**
@@ -324,19 +227,9 @@ package_add_changelog(
 - You want guidance on format detection and TQL operator selection
 - You need to infer types and create proper schema transformations
 
-This tool provides a complete workflow with step-by-step instructions for analyzing log format, selecting TQL operators, generating parsing code, creating a package, and testing.
-
-**Supported Formats:** JSON, CSV, syslog (RFC 3164/5424), key-value pairs
-
-**Example:**
-
-```python
-make_parser(sample='''
-{"timestamp": "2024-01-01T00:00:00Z", "level": "INFO", "message": "test"}
-{"timestamp": "2024-01-01T00:01:00Z", "level": "ERROR", "message": "fail"}
-''')
-# Returns workflow instructions for format detection, parser generation, and testing
-```
+This tool provides a complete workflow with step-by-step instructions for
+analyzing log format, selecting TQL operators, generating parsing code, creating
+a package, and testing.
 
 ### `make_ocsf_mapping` <Badge text="Coding" variant="note" />
 
@@ -347,57 +240,6 @@ make_parser(sample='''
 - You want to make your data compatible with OCSF-aware tools
 - You need guidance on OCSF class selection and field mapping
 
-This tool provides a complete workflow with step-by-step instructions for analyzing your data, identifying the appropriate OCSF class, creating field mappings, generating TQL operators, and testing the transformation.
-
-**Example:**
-
-```python
-make_ocsf_mapping(sample='''
-{"src_ip": "10.0.0.1", "dst_ip": "192.168.1.1", "proto": "tcp", "port": 443}
-{"src_ip": "10.0.0.2", "dst_ip": "192.168.1.2", "proto": "udp", "port": 53}
-''')
-# Returns workflow instructions for OCSF class selection, field mapping, and testing
-```
-
-## Recommended Workflows
-
-### Quick Parser Generation
-
-For generating a parser from sample logs:
-
-1. **Get workflow instructions**: Call `make_parser` with sample events to receive detailed workflow instructions.
-2. **Follow the workflow**: The tool provides step-by-step guidance for format detection, parser generation, and testing.
-3. **Test the parser**: Use `run_pipeline` to test the generated TQL code with sample data.
-4. **Create package**: Use `package_create`, `package_add_operator`, and `package_add_test` to formalize the parser.
-
-### OCSF Mapping Package
-
-For creating a complete OCSF mapping package:
-
-1. **Get workflow instructions**: Call `make_ocsf_mapping` with sample events to receive detailed workflow instructions.
-2. **Follow the workflow**: The tool provides guidance for OCSF class detection, field mapping, and operator generation.
-3. **Create operators**: Use `package_add_operator` to add the mapping operator to your package.
-4. **Add tests**: Use `package_add_test` to create test cases for the mapping.
-5. **Update test baseline**: Run `run_test` with `update=True` to generate expected outputs.
-6. **Verify mappings**: Review and adjust field mappings as needed.
-
-### Manual Package Development
-
-For building a package from scratch:
-
-1. **Create scaffold**: Call `package_create` to set up the structure.
-2. **Research operators**: Use `docs_search` to find relevant operators, then `docs_read` to study them.
-3. **Add operators**: Call `package_add_operator` for each UDO, with code `make_parser` generates or manual TQL.
-4. **Add tests**: Call `package_add_test` to create test scaffolds.
-5. **Run and iterate**: Use `run_test` to execute tests, `run_pipeline` to debug.
-6. **Document changes**: Call `package_add_changelog` for each significant change.
-
-### Documentation Discovery
-
-Before writing any TQL:
-
-1. **Search for operators**: `docs_search(query="keyword", search_type="operators")`
-2. **Read operator docs**: `docs_read(path="reference/operators/<name>")`  
-   **Critical**: Always read documentation before using operators!
-3. **Explore related**: Use `depth=1` in `docs_search` to discover related operators.
-4. **List all**: `docs_read(path="reference/operators")` to see all available operators.
+This tool provides a complete workflow with step-by-step instructions for
+analyzing your data, identifying the appropriate OCSF class, creating field
+mappings, generating TQL operators, and testing the transformation.

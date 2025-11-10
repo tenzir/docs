@@ -36,9 +36,13 @@ export const guides = [
     ],
   },
   {
-    label: "MCP Setup",
+    label: "MCP Usage",
     collapsed: true,
-    items: ["guides/mcp-setup/install-mcp-server"],
+    items: [
+      "guides/mcp-usage/install-mcp-server",
+      "guides/mcp-usage/generate-a-parser",
+      "guides/mcp-usage/generate-an-ocsf-mapping",
+    ],
   },
   {
     label: "Basic Usage",
