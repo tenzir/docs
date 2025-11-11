@@ -19,7 +19,7 @@ repository that normalizes and stores security data from multiple sources.
 
 The operator automatically handles Amazon Security Lake's partitioning
 requirements and file size constraints, but does not validate the OCSF schema of
-the events. Consider [`ocsf::apply`](/reference/operators/ocsf/apply) in your
+the events. Consider [`ocsf::cast`](/reference/operators/ocsf/cast) in your
 pipeline to ensure schema compliance.
 
 For a list of OCSF event classes supported by Amazon Security Lake, see the [AWS
@@ -112,7 +112,7 @@ let $s3_uri = "s3://aws-security-data-lake-eu-west-2-lake-abcdefghijklmnopqrstuv
 
 subscribe "ocsf"
 where @name == "ocsf.network_activity"
-ocsf::apply
+ocsf::cast
 to_amazon_security_lake $s3_uri,
   region="eu-west-2",
   account_id="123456789012"
@@ -120,5 +120,5 @@ to_amazon_security_lake $s3_uri,
 
 ## See Also
 
-[`ocsf::apply`](/reference/operators/ocsf/apply),
+[`ocsf::cast`](/reference/operators/ocsf/cast),
 [`save_s3`](/reference/operators/save_s3)

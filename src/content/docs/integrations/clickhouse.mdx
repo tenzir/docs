@@ -97,7 +97,7 @@ schema. For example, to ingest OCSF network activity data:
 
 ```tql
 from "ocsf_network_activity.json"
-ocsf::apply
+ocsf::cast
 to_clickhouse table="ocsf.network_activity", primary=timestamp, tls=false
 ```
 
@@ -106,7 +106,7 @@ operator uses the first event to determine the schema. You must take care that
 there are no untyped nulls in this event, as the operator cannot transmit
 those.
 
-In this example, we use the [`ocsf::apply`](/reference/operators/ocsf/apply)
+In this example, we use the [`ocsf::cast`](/reference/operators/ocsf/cast)
 operator, which will automatically align events with the correct OCSF schema,
 giving all fields the correct types and adding all fields that should be in
 `ocsf.network_activity`. This ensures that we create a complete table without
