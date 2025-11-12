@@ -3,3 +3,16 @@ title: Next
 ---
 
 Unreleased changes.
+
+### Bug Fixes
+
+#### Fixed excessive memory allocation
+
+We have switched the allocator back to the system allocator for now, as the
+`mimalloc` setup led to significant memory usage issues on some systems.
+
+Furthermore, we added quite a few experimental memory-usage related metrics to
+`metrics "memory"`, providing additional insight into the memory usage of
+Tenzir.
+
+By [@IyeOnline](https://github.com/IyeOnline), [@jachris](https://github.com/jachris), [@raxyte](https://github.com/raxyte) in [#5561](https://github.com/tenzir/tenzir/pull/5561).
