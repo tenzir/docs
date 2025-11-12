@@ -61,34 +61,39 @@ A complete OCSF mapping [package](/explanations/packages) that:
    Your AI agent follows these instructions to build the mapping.
 
 3. **Verify and iterate**. The above log sample resulted in a new package
-   `fortinet` in your agent's current working directory that may have the
-   following structure:
-
-   <FileTree>
-   - fortinet/
-     - operators/
-       - ocsf/
-         - dns.tql
-       - parse.tql
-     - tests/
-       - inputs/
-         - ocsf/
-           - dns.txt
-         - parse.txt
-       - ocsf/
-         - dns.tql
-         - dns.txt
-       - parse.tql
-       - parse.txt
-     - package.yaml
-   </FileTree>
-
-   This is a valid package including tests. The package contains both
-   user-defined operators `fortinet::parse` for parsing the raw logs and
-   `fortinet::ocsf::map` for mapping the parsed data to OCSF. Make sure to check
-   the test outputs to ensure the OCSF mapping is correct.
+   `fortinet` in your agent's current working directory. Review its directory
+   structure to confirm that both the parser and the OCSF mapping are present
+   before you continue refining the workflows.
 
 </Steps>
+
+The generated package may look like this:
+
+<FileTree>
+
+- fortinet/
+  - operators/
+    - ocsf/
+      - dns.tql
+    - parse.tql
+  - tests/
+    - inputs/
+      - ocsf/
+        - dns.txt
+      - parse.txt
+    - ocsf/
+      - dns.tql
+      - dns.txt
+    - parse.tql
+    - parse.txt
+  - package.yaml
+
+</FileTree>
+
+This is a valid package including tests. The package contains both
+user-defined operators `fortinet::parse` for parsing the raw logs and
+`fortinet::ocsf::map` for mapping the parsed data to OCSF. Make sure to check
+the test outputs to ensure the OCSF mapping is correct.
 
 ## Next steps
 
