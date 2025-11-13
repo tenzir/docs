@@ -95,7 +95,17 @@ TENZIR_PLATFORM_OIDC_PROVIDER_NAME=
 TENZIR_PLATFORM_OIDC_PROVIDER_ISSUER_URL=
 
 # A JSON object (or array of objects) containing the OIDC issuer and audiences that the platform
-# accepts. Example: '{"issuer": "keycloak.example.org", "audiences": ["tenzir_platform"]}'
+# accepts. Required fields: "issuer" (string), "audiences" (array of strings).
+# Optional field: "jwks_uri" (string) - explicit JWKS URI override.
+#
+# Example with automatic discovery:
+# '{"issuer": "https://keycloak.example.org/realms/master", "audiences": ["tenzir_platform"]}'
+#
+# Example with explicit JWKS URI override (for providers without discovery document):
+# '{"issuer": "https://cloud.google.com/iap", "audiences": ["your-audience"], "jwks_uri": "https://www.gstatic.com/iap/verify/public_key-jwk"}'
+#
+# Multiple issuers:
+# '[{"issuer": "https://idp1.example.org", "audiences": ["aud1"]}, {"issuer": "https://idp2.example.org", "audiences": ["aud2"]}]'
 TENZIR_PLATFORM_OIDC_TRUSTED_AUDIENCES=
 
 # The client ID for the Tenzir Platform CLI.
