@@ -16,6 +16,16 @@ By [@mavam](https://github.com/mavam) in [#5570](https://github.com/tenzir/tenzi
 
 ### Bug Fixes
 
+#### Backpressure in `publish` and `subscribe`
+
+Previously, the backpressure mechanism in `publish` and `subscribe` was not
+working as intended. Thus, publishing pipelines continued processing data
+even when downstream consumers were lagging far behind. This is now fixed. As a
+result, memory consumption for pipelines connected by `publish` and `subscribe`
+is reduced significantly in those cases.
+
+By [@jachris](https://github.com/jachris) in [#5568](https://github.com/tenzir/tenzir/pull/5568).
+
 #### Gracefully handle server errors in the web plugin
 
 The node now prints a proper error message in case the builtin web server can't start because the port is already in use.
