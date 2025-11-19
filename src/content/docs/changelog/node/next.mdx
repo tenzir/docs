@@ -21,3 +21,11 @@ By [@mavam](https://github.com/mavam) in [#5570](https://github.com/tenzir/tenzi
 The node now prints a proper error message in case the builtin web server can't start because the port is already in use.
 
 By [@tobim](https://github.com/tobim) in [#5577](https://github.com/tenzir/tenzir/pull/5577).
+
+#### Fixed a race in concurrent function application
+
+We fixed a race condition in case multiple pipelines used the same
+transformation on the same data, such as string manipulations in where clauses
+to filter the input. The bug caused those pipelines to fail sporadically.
+
+By [@tobim](https://github.com/tobim) in [#5578](https://github.com/tenzir/tenzir/pull/5578).
