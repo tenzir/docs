@@ -14,6 +14,14 @@ By [@jachris](https://github.com/jachris) in [#5580](https://github.com/tenzir/t
 
 ### Changes
 
+#### Parse time to UNIX epoch
+
+The `parse_time()` function would earlier default to `1900` when the year was
+unspecified. This has now been changed to `1970` to match the assumptions about
+epoch in other parts of the language.
+
+By [@raxyte](https://github.com/raxyte) in [#5571](https://github.com/tenzir/tenzir/pull/5571).
+
 #### Easier multi-key deduplication
 
 We now support multiple keys for deduplication, e.g., `deduplicate a, b.c, d`
