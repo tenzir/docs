@@ -23,3 +23,19 @@ from {x: hash_sha3_256("foo")}
 ```
 
 By [@mavam](https://github.com/mavam) in [#5574](https://github.com/tenzir/tenzir/pull/5574).
+
+### Bug Fixes
+
+#### Fixed assertion failure in `to_hive`
+
+We addressed an assertion failure in the `to_hive` operator, which could fail
+the partitioned writes for some data and format combinations.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5582](https://github.com/tenzir/tenzir/pull/5582).
+
+#### Fixed `write_parquet`
+
+In the last release we introduced a bug that made the `write_parquet` operator
+exit early without writing the file. This has now been fixed.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5582](https://github.com/tenzir/tenzir/pull/5582).
