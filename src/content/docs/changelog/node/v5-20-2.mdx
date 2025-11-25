@@ -1,0 +1,34 @@
+---
+title: Backport Release
+sidebar:
+  badge:
+    text: v5.20.2
+    variant: note
+---
+
+This release backports the changes made in v5.21.1 to v5.20.1.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.20.2).
+
+### Bug Fixes
+
+#### Fixed assertion failure in `to_hive`
+
+We addressed an assertion failure in the `to_hive` operator, which could fail
+the partitioned writes for some data and format combinations.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5582](https://github.com/tenzir/tenzir/pull/5582).
+
+#### Improved parquet support
+
+We fixed a crash when performing some operations on data read from external
+parquet files, such as Amazon Security Lake.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5579](https://github.com/tenzir/tenzir/pull/5579).
+
+#### Fixed `write_parquet`
+
+In the last release we introduced a bug that made the `write_parquet` operator
+exit early without writing the file. This has now been fixed.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5582](https://github.com/tenzir/tenzir/pull/5582).
