@@ -202,7 +202,14 @@ export const reference = [
   },
   {
     label: "Python API",
-    link: "reference/python-api",
+    items: [
+      { label: "Overview", link: "reference/python-api" },
+      "reference/python-api/pipeline-execution",
+      "reference/python-api/io-configuration",
+      "reference/python-api/data-types",
+      "reference/python-api/conversion-utilities",
+      "reference/python-api/error-handling",
+    ],
   },
 ];
 

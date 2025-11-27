@@ -1,0 +1,74 @@
+---
+title: Conversion utilities
+description: Convert between Arrow and JSON formats.
+---
+
+## Arrow conversions
+
+### `to_pyarrow(batch)`
+
+Convert a `TableSlice` into a `pyarrow.RecordBatch`.
+
+**Parameters:**
+- `batch` — A `TableSlice` instance
+
+**Returns:** `pyarrow.RecordBatch`
+
+**Raises:** `TypeError` when the slice is not backed by Arrow data
+
+```python
+for slice in result.output:
+    batch = to_pyarrow(slice)
+    print(batch.to_pandas())
+```
+
+---
+
+### `collect_pyarrow(stream)`
+
+Iterate over a stream of `TableSlice` objects, group batches by schema, and
+return a mapping from schema name to lists of `pyarrow.Table` instances.
+
+**Parameters:**
+- `stream` — Iterable or async iterable of `TableSlice` objects
+
+**Returns:** Dictionary mapping schema names to lists of `pyarrow.Table` instances
+
+```python
+tables = await collect_pyarrow(result.output)
+for schema_name, table_list in tables.items():
+    print(f"Schema: {schema_name}")
+    for table in table_list:
+        print(table.to_pandas())
+```
+
+---
+
+## JSON conversions
+
+### `arrow_dict_to_json_dict(dictionary)`
+
+Normalize Arrow-generated dictionaries into JSON-compatible structures by
+encoding bytes, timestamps, and decimals.
+
+**Parameters:**
+- `dictionary` — Dictionary with Arrow values
+
+**Returns:** JSON-compatible dictionary
+
+---
+
+### `to_json_rows(stream)`
+
+Convert a `TableSlice` stream into an async iterator of `TenzirRow` instances
+with JSON-compatible payloads.
+
+**Parameters:**
+- `stream` — Async iterable of `TableSlice` objects
+
+**Returns:** Async iterator of `TenzirRow` instances
+
+```python
+async for row in to_json_rows(result.output):
+    print(row.name, row.data)
+```

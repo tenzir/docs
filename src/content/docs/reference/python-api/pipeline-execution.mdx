@@ -1,0 +1,145 @@
+---
+title: Pipeline execution
+description: Create and run Tenzir pipelines from Python.
+---
+
+## Creating pipelines
+
+### `PipelineSpec(text, description=None)`
+
+Represents a pipeline definition.
+
+**Parameters:**
+- `text` — Pipeline definition as a string
+- `description` — Optional informational description
+
+**Factory methods:**
+- `PipelineSpec.from_file(path)` — Reads a `.tql` file
+- `PipelineSpec.from_stages(stages)` — Joins stage strings with `|`
+
+```python
+# Inline pipeline
+spec = PipelineSpec("from 'data.json' | where x > 10")
+
+# From file
+spec = PipelineSpec.from_file("pipeline.tql")
+
+# From stages
+spec = PipelineSpec.from_stages([
+    "from 'data.json'",
+    "where x > 10",
+    "select x, y"
+])
+```
+
+---
+
+### `PipelineOptions(extra_args=(), env=None, cwd=None, timeout=None)`
+
+Execution settings that influence how the binary starts.
+
+**Parameters:**
+- `extra_args` — Tuple of CLI flags to append before the pipeline definition
+- `env` — Dictionary of environment variables to merge with current environment
+- `cwd` — Working directory for the subprocess
+- `timeout` — Reserved for future use (currently informational)
+
+```python
+options = PipelineOptions(
+    extra_args=("--color=always",),
+    env={"TENZIR_PLUGINS": "/path/to/plugins"},
+    cwd="/tmp"
+)
+```
+
+---
+
+## Execution helpers
+
+### `stream_pipeline(spec, io=None, options=None)`
+
+Runs a pipeline asynchronously and returns a `PipelineRun` context manager.
+
+**Parameters:**
+- `spec` — String or `PipelineSpec` instance
+- `io` — Optional `PipelineIO` configuration (defaults to Arrow output)
+- `options` — Optional `PipelineOptions`
+
+**Returns:** `PipelineRun` async context manager
+
+**Raises:** `PipelineError` when the process exits with a non-zero code while stderr is captured
+
+```python
+async with stream_pipeline("from 'data.json'") as run:
+    async for batch in run.output:
+        print(batch)
+```
+
+---
+
+### `run_pipeline(spec, io=None, options=None)`
+
+Awaitable wrapper that collects stdout and stderr.
+
+**Parameters:**
+- `spec` — String or `PipelineSpec` instance
+- `io` — Optional `PipelineIO` configuration
+- `options` — Optional `PipelineOptions`
+
+**Returns:** `CompletedPipeline` with output, stderr, and returncode
+
+```python
+result = await run_pipeline("from 'data.json'")
+for batch in result.output:
+    print(batch)
+```
+
+---
+
+### `run_pipeline_sync(spec, io=None, options=None)`
+
+Synchronous convenience wrapper that executes `run_pipeline()` with `asyncio.run()`.
+
+**Parameters:**
+- `spec` — String or `PipelineSpec` instance
+- `io` — Optional `PipelineIO` configuration
+- `options` — Optional `PipelineOptions`
+
+**Returns:** `CompletedPipeline` dataclass
+
+```python
+result = run_pipeline_sync("from 'data.json'")
+for batch in result.output:
+    print(batch)
+```
+
+---
+
+## Execution results
+
+### `PipelineRun`
+
+Async context manager returned by `stream_pipeline()`.
+
+**Attributes:**
+- `output` — Stream adapter produced by the selected output mode
+- `stderr` — Captured stderr handle or `None`
+- `command` — Tuple containing the executed command line
+
+**Methods:**
+- `wait()` — Waits for the process to finish and returns the exit code
+- `collect_output()` — Consumes stdout through the configured adapter
+- `collect_stderr()` — Returns captured stderr text when available
+- `terminate()` — Sends SIGTERM and waits for completion
+- `kill()` — Sends SIGKILL and waits for completion
+
+---
+
+### `CompletedPipeline(output, stderr, returncode)`
+
+Dataclass returned by `run_pipeline()` and `run_pipeline_sync()`.
+
+**Attributes:**
+- `output` — Collected stdout as a list of table slices
+- `stderr` — Captured stderr text or `None`
+- `returncode` — Exit code of the process

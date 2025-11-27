@@ -1,0 +1,97 @@
+---
+title: I/O configuration
+description: Configure pipeline input and output adapters.
+---
+
+## `PipelineIO(input=None, output=None, stderr=None)`
+
+Configures stdin, stdout, and stderr handling for a pipeline run.
+
+**Default behavior:**
+- Uses Arrow output (`arrow_output()`)
+- Captures stderr text (`capture_stderr()`)
+
+---
+
+## Input adapters
+
+### `PipelineIO.arrow_input(source)`
+
+Accepts a `pyarrow.RecordBatch`, `Table`, or an iterable/async iterable of batches and writes an IPC stream to stdin.
+
+```python
+import pyarrow as pa
+
+table = pa.table({"x": [1, 2, 3]})
+io = PipelineIO.arrow(input=table)
+```
+
+---
+
+### `PipelineIO.bytes_input(data)`
+
+Writes raw bytes (or text) to stdin.
+
+```python
+io = PipelineIO(
+    input=PipelineIO.bytes_input(b'{"x": 1}\n{"x": 2}\n')
+)
+```
+
+---
+
+## Output adapters
+
+### `PipelineIO.arrow_output()`
+
+Reads stdout as an IPC stream and yields `PyArrowTableSlice` objects.
+
+This is the default output mode.
+
+---
+
+### `PipelineIO.json_output()`
+
+Converts the Arrow stream into `TenzirRow` instances via `to_json_rows()`.
+
+```python
+io = PipelineIO(output=PipelineIO.json_output())
+result = await run_pipeline("from 'data.json'", io=io)
+for row in result.output:
+    print(row.name, row.data)
+```
+
+---
+
+### `PipelineIO.bytes_output()`
+
+Exposes stdout as raw bytes.
+
+```python
+io = PipelineIO(output=PipelineIO.bytes_output())
+result = await run_pipeline("from 'data.json'", io=io)
+print(result.output)  # bytes
+```
+
+---
+
+### `PipelineIO.capture_stderr()`
+
+Captures stderr text for diagnostics.
+
+This is the default stderr mode.
+
+---
+
+## Convenience method
+
+### `PipelineIO.arrow(input=..., stderr=...)`
+
+Combines Arrow input with the default output configuration.
+
+```python
+import pyarrow as pa
+
+table = pa.table({"x": [1, 2, 3]})
+io = PipelineIO.arrow(input=table)
+```

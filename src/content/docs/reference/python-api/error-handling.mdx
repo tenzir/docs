@@ -1,0 +1,23 @@
+---
+title: Error handling
+description: Handle pipeline failures and exceptions.
+---
+
+## `PipelineError(message, *, returncode, stderr, command)`
+
+Exception raised for non-zero exits when stderr is captured.
+
+**Attributes:**
+- `message` — Error message
+- `returncode` — Exit code of the failed process
+- `stderr` — Captured stderr text or `None`
+- `command` — Tuple containing the executed command line
+
+```python
+try:
+    result = await run_pipeline("invalid syntax")
+except PipelineError as e:
+    print(f"Pipeline failed with code {e.returncode}")
+    print(f"Error: {e.stderr}")
+    print(f"Command: {' '.join(e.command)}")
+```

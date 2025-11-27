@@ -1,0 +1,60 @@
+---
+title: Data types
+description: Table slices and structured event data.
+---
+
+## Table slices
+
+### `TableSlice`
+
+Marker base class for table slice objects produced by pipeline output adapters.
+
+---
+
+### `PyArrowTableSlice`
+
+Wraps a `pyarrow.RecordBatch`.
+
+**Attributes:**
+- `_batch` — The underlying `pyarrow.RecordBatch` object
+
+Access the underlying batch through the `_batch` attribute when you need to interact with the raw Arrow object.
+
+```python
+for slice in result.output:
+    if isinstance(slice, PyArrowTableSlice):
+        batch = slice._batch
+        print(batch.schema)
+```
+
+---
+
+### `AsyncRecordBatchStreamReader(source)`
+
+Async iterator that lazily calls `pyarrow.ipc.open_stream(source)` and yields
+`PyArrowTableSlice` instances until the stream ends.
+
+**Parameters:**
+- `source` — Byte stream source
+
+Use it to consume stdout from pipelines that emit Arrow IPC streams.
+
+---
+
+## Structured data
+
+### `TenzirRow(name, data)`
+
+Dataclass used by `to_json_rows()` to expose structured event data.
+
+**Attributes:**
+- `name` — Schema name
+- `data` — JSON-compatible event data dictionary
+
+```python
+io = PipelineIO(output=PipelineIO.json_output())
+result = await run_pipeline("from 'data.json'", io=io)
+for row in result.output:
+    print(f"Schema: {row.name}")
+    print(f"Data: {row.data}")
+```
