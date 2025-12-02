@@ -1,28 +1,43 @@
-### `tls = bool (optional)`
+### `tls = record (optional)`
 
-Enables TLS.
+<<<<<<< Updated upstream
+TLS configuration. Set to `true`, to use the default TLS settings specified in
+the configuration file. Set to `false` to disable TLS entirely (not recommended).
+Provide a `record` to pass specific TLS settings for this operator.
+=======
+TLS configuration. Provide an empty record (`tls={}`) to enable TLS with
+defaults or set fields to customize it.
 
-<span>
-  Defaults to <code>{props.tls_default}</code>.
-</span>
+> > > > > > > Stashed changes
 
-### `cacert = string (optional)`
+```tql
+{
+  skip_peer_verification: bool, // skip certificate verification.
+  cacert: string,               // CA bundle to verify peers.
+  certfile: string,             // client certificate to present.
+  keyfile: string,              // private key for the client certificate.
+  min_version: string,          // minimum TLS version (`"1.0"`, `"1.1"`, `"1.2"`, "1.3"`).
+  ciphers: string,              // OpenSSL cipher list string.
+  client_ca: string,            // CA to validate client certificates.
+                                // (only on operators that accept incoming connections)
+  require_client_cert,          // require clients to present a certificate.
+                                // (only on operators that accept incoming connections)
+}
+```
 
-Path to the CA certificate used to verify the server's certificate.
+<<<<<<< Updated upstream
+Any value not specified in the record will either be picked up from the configuration
+or if not configured will not be used by the operator.
+=======
 
-Defaults to the Tenzir configuration value `tenzir.cacert`, which in turn
-defaults to a common cacert location for the system.
-
-### `certfile = string (optional)`
-
-Path to the client certificate.
-
-### `keyfile = string (optional)`
-
-Path to the key for the client certificate.
-
-### `skip_peer_verification = bool (optional)`
-
-Toggles TLS certificate verification.
-
-Defaults to `false`.
+- `skip_peer_verification: bool` — skip certificate verification.
+- `cacert: string` — CA bundle to verify peers.
+- `certfile: string` — client certificate to present.
+- `keyfile: string` — private key for the client certificate.
+- `min_version: string` — minimum TLS version (`"1.0"`, `"1.1"`, `"1.2"`,
+  `"1.3"`).
+- `ciphers: string` — OpenSSL cipher list string.
+- `client_ca: string` — CA to validate client certificates (server mode only).
+- `require_client_cert: bool` — require clients to present a certificate
+  (server mode only).
+  > > > > > > > Stashed changes
