@@ -3,26 +3,52 @@
 Enables TLS.
 
 <span>
-  Defaults to <code>{props.tls_default}</code>.
+  Defaults to the configuration value `tenzir.operator-tls.tls` or <code>{props.tls_default}</code>
+  if the configuration value is not set.
 </span>
 
 ### `cacert = string (optional)`
 
 Path to the CA certificate used to verify the server's certificate.
 
-Defaults to the Tenzir configuration value `tenzir.cacert`, which in turn
+Defaults to the Tenzir configuration value `tenzir.operator-tls.cacert`, which in turn
 defaults to a common cacert location for the system.
 
 ### `certfile = string (optional)`
 
 Path to the client certificate.
 
+Defaults to the configuration value `tenzir.operator-tls.certfile`, if it is set.
+
 ### `keyfile = string (optional)`
 
 Path to the key for the client certificate.
+
+Defaults to the configuration value `tenzir.operator-tls.keyfile`, if it is set.
 
 ### `skip_peer_verification = bool (optional)`
 
 Toggles TLS certificate verification.
 
-Defaults to `false`.
+Defaults to the configuration value `tenzir.operator-tls.skip-peer-verification`,
+or `false` if it not set.
+
+### `tls_min_version = string (optional)`
+
+The minimum TLS version required for the connection(s). Must be one of `"1.0"`,
+`"1.1"`, `"1.2"` or `"1.3"`.
+
+Defaults to the configuration value `tenzir.operator-tls.tls-min-version` if it
+is set. Otherwise all versions are accepted
+
+### `tls_ciphers = string (optional)`
+
+OpenSSL cipher list to use for TLS connections. This is a colon-separated string
+of cipher suites.
+
+Example: `"ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"`
+
+Please refer to the OpenSSL documentation for cipher list format.
+
+Defaults to the configuration value `tenzir.operator-tls.tls-ciphers`, if it is
+set.
