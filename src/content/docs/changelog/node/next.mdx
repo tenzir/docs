@@ -12,3 +12,12 @@ The `to_google_cloud_logging` operator now checks for the `GOOGLE_CLOUD_PROJECT`
 if no explicit project id is given, before falling back to the Google Metadata service.
 
 By [@lava](https://github.com/lava) in [#5591](https://github.com/tenzir/tenzir/pull/5591).
+
+### Bug Fixes
+
+#### Fixed an assertion failure in parsers
+
+We fixed a bug in a common component used across all parsers, which could enter
+an inconsistent state, leading to an "unexpected internal error: unreachable".
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5590](https://github.com/tenzir/tenzir/pull/5590).
