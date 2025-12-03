@@ -154,6 +154,21 @@ summary showing how many tests each project contributes and which runners are
 involved. Add `--summary` when you prefer the tabular breakdown and detailed
 failure listing after each project.
 
+### Load packages explicitly
+
+When your tests need packages, point `--package-dirs` at the package directories
+(or a parent that contains them). The flag is repeatable and supports
+comma-separated lists:
+
+```sh
+uvx tenzir-test --package-dirs example-library example-library
+```
+
+Here `example-library` contains multiple packages, so the harness loads them all
+and makes sibling packages visible for cross-imports. You can also declare
+package directories in a directory `test.yaml` via `package-dirs:`; those entries
+merge with `--package-dirs`.
+
 ## Step 7: Introduce a fixture
 
 Fixtures let you bootstrap external resources and expose their configuration

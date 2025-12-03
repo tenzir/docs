@@ -25,8 +25,11 @@ uvx tenzir-test --help
 - **Project root** – Directory passed to `--root`; typically contains
   `fixtures/`, `inputs/`, `runners/`, and `tests/`.
 - **Mode** – Auto-detected as _project_ or _package_. A `package.yaml` in the
-  current directory (or its parent when you run from `<package>/tests`) switches
-  to package mode.
+  current directory (or its parent when you run from `<package>/tests`)
+  switches to package mode.
+- **Library** – A root that contains multiple packages (each with a
+  `package.yaml` and its own `tests/`). The harness can discover all packages
+  under such a library root and run their suites in one invocation.
 - **Test** – Any supported file under `tests/`; frontmatter controls execution.
 - **Runner** – Named strategy that executes a test (`tenzir`, `python`, custom
   entries).
@@ -85,15 +88,18 @@ my-package/
 
 ## Execution modes and packages
 
-- The harness treats `--root` as the project root. If that directory (or its
-  parent when named `tests`) contains `package.yaml`, `tenzir-test` switches to
-  **package mode** and exposes:
+- Mode resolution:
+  - `--root` with `tests/` → **project mode**.
+  - `--root` (or its parent when named `tests`) with a `package.yaml` →
+    **package mode**.
+- In **package mode** the harness exposes:
   - `TENZIR_PACKAGE_ROOT` – Absolute package directory.
   - `TENZIR_INPUTS` – `<package>/tests/inputs/` unless a directory `test.yaml`
     or the test frontmatter overrides it.
   - `--package-dirs=<package>` – Passed automatically to the `tenzir` binary.
-- Without a manifest the harness stays in **project mode**, recursively discovers
-  tests under `tests/`, and applies global fixtures, runners, and inputs.
+- Without a manifest the harness stays in **project mode**, recursively
+  discovers tests under `tests/`, and applies global fixtures, runners, and
+  inputs.
 
 ## CLI reference
 
@@ -323,15 +329,16 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key        | Type            | Default   | Description                                            |
-| ---------- | --------------- | --------- | ------------------------------------------------------ |
-| `runner`   | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).     |
-| `fixtures` | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.  |
-| `timeout`  | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.) |
-| `error`    | boolean         | `false`   | Expect a non-zero exit code.                           |
-| `skip`     | string          | unset     | Mark the test as skipped (reason required).            |
-| `inputs`   | string          | project   | Override `TENZIR_INPUTS` for this directory or test.   |
-| `retry`    | integer         | `1`       | Total attempt budget for flaky tests (see below).      |
+| Key            | Type            | Default   | Description                                                      |
+| -------------- | --------------- | --------- | ---------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).               |
+| `fixtures`     | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.            |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)           |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                     |
+| `skip`         | string          | unset     | Mark the test as skipped (reason required).                      |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.             |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`. |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
