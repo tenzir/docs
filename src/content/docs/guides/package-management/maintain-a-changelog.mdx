@@ -94,7 +94,7 @@ The card view displays detailed metadata and the full entry body:
 ```text
 ❯ tenzir-changelog show -c 1
 ╭─ 🐞 Normalize release note paragraphs ───────────────────────────────────╮
-│ Entry ID:  01-normalize-release-note-paragraphs                          │
+│ Entry ID:  normalize-release-note-paragraphs                             │
 │ Type:      bugfix                                                        │
 │ Created:   2025-10-27                                                    │
 │ Authors:   @codex                                                        │
@@ -444,21 +444,22 @@ uvx tenzir-changelog add \
 ```
 
 Each invocation writes a Markdown file inside `unreleased/`. For example,
-`01-add-pipeline-builder.md` looks like:
+`add-pipeline-builder.md` looks like:
 
 ```markdown
 ---
 title: Add pipeline builder
 type: feature
-authors:
-  - alice
-created: 2025-10-16
-prs:
-  - 101
+author: alice
+created: 2025-10-16T09:30:00Z
+pr: 101
 ---
 
 Introduces the new pipeline builder UI.
 ```
+
+You can use either singular (`author`, `pr`) or plural (`authors`, `prs`) keys.
+The singular form is shorthand for single values.
 
 If an entry spans multiple pull requests, repeat `--pr` during `add`. The CLI
 stores a `prs:` list in the generated frontmatter automatically.

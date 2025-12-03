@@ -66,15 +66,15 @@ import { FileTree } from '@astrojs/starlight/components';
   - changelog/
     - config.yaml
     - unreleased/
-      - 01-add-feature.md
-      - 02-fix-bug.md
+      - add-feature.md
+      - fix-bug.md
     - releases/
       - v1.0.0/
         - manifest.yaml
         - notes.md
         - entries/
-          - 01-add-feature.md
-          - 02-fix-bug.md
+          - add-feature.md
+          - fix-bug.md
 
 </FileTree>
 
@@ -103,8 +103,10 @@ All commands accept `--config` to point at an explicit configuration file (YAML
 format, defaulting to `config.yaml`) and `--root` to operate on another
 repository. When you omit both options, the CLI looks for `config.yaml` inside
 the changelog root or, failing that, for a `package.yaml` one directory above
-the changelog folder. This _package mode_ lets you run commands from either the
-package root or the `changelog/` directory without repeating `--root`.
+the changelog folder. The CLI also automatically uses a `changelog/`
+subdirectory as the project root when running from a parent directory that
+contains one. This _package mode_ lets you run commands from either the package
+root or the `changelog/` directory without repeating `--root`.
 
 ### show
 
@@ -151,8 +153,8 @@ tenzir-changelog add [options]
 
 The command prompts for any information you do not pass explicitly. The first
 invocation scaffolds `config.yaml`, `unreleased/`, and `releases/`
-automatically. The CLI assigns globally sequential filenames with numeric
-prefixes (e.g., `01-feature-name.md`).
+automatically. The CLI names entry files using the slugified title (e.g.,
+`my-feature.md`).
 
 ### release create
 
@@ -264,8 +266,8 @@ automatically.
 ## Entry file format
 
 Entry files live in `unreleased/` or `releases/<version>/entries/` as Markdown
-files with YAML frontmatter. The CLI assigns sequential numeric prefixes (e.g.,
-`01-feature-name.md`, `02-bugfix.md`).
+files with YAML frontmatter. The CLI names entry files using the slugified title
+(e.g., `my-feature.md`, `fix-bug.md`).
 
 Example entry:
 
@@ -273,27 +275,29 @@ Example entry:
 ---
 title: Add pipeline builder
 type: feature
-authors:
-  - alice
-created: 2025-10-16
-prs:
-  - 101
+author: alice
+created: 2025-10-16T14:30:00Z
+pr: 101
 component: cli
 ---
 
 Introduces the new pipeline builder UI with drag-and-drop support.
 ```
 
+You can use either singular (`author`, `pr`) or plural (`authors`, `prs`) keys.
+The singular form is shorthand for single values and is normalized to the plural
+form internally.
+
 Frontmatter fields:
 
-| Field       | Type         | Required | Description                                  |
-| ----------- | ------------ | -------- | -------------------------------------------- |
-| `title`     | string       | yes      | Entry title                                  |
-| `type`      | string       | yes      | `breaking`, `feature`, `bugfix`, or `change` |
-| `authors`   | list[string] | no       | Contributor names                            |
-| `created`   | string       | yes      | Creation date in `YYYY-MM-DD` format         |
-| `prs`       | list[int]    | no       | Pull request numbers                         |
-| `component` | string       | no       | Label matching configured components         |
+| Field                | Type         | Required | Description                                    |
+| -------------------- | ------------ | -------- | ---------------------------------------------- |
+| `title`              | string       | yes      | Entry title                                    |
+| `type`               | string       | yes      | `breaking`, `feature`, `bugfix`, or `change`   |
+| `author` / `authors` | list[string] | no       | Contributor names (singular or plural form)    |
+| `created`            | string       | yes      | Creation datetime in ISO 8601 UTC format       |
+| `pr` / `prs`         | list[int]    | no       | Pull request numbers (singular or plural form) |
+| `component`          | string       | no       | Label matching configured components           |
 
 ## Release manifest format
 

@@ -29,7 +29,8 @@ uvx tenzir-test --help
   switches to package mode.
 - **Library** – A root that contains multiple packages (each with a
   `package.yaml` and its own `tests/`). The harness can discover all packages
-  under such a library root and run their suites in one invocation.
+  under such a library root and run their suites in one invocation. Use
+  `--package-dirs` to load packages so their operators can cross-import.
 - **Test** – Any supported file under `tests/`; frontmatter controls execution.
 - **Runner** – Named strategy that executes a test (`tenzir`, `python`, custom
   entries).
@@ -120,6 +121,10 @@ Useful options:
 - `--coverage` and `--coverage-source-dir`: Enable LLVM coverage.
 - `-k`, `--keep`: Preserve per-test scratch directories instead of deleting
   them (same as setting `TENZIR_KEEP_TMP_DIRS=1`).
+- `--package-dirs <path>`: Extra package directories for Tenzir binaries.
+  Repeatable and accepts comma-separated lists. Entries merge with any
+  `package-dirs:` declared in directory `test.yaml` files, then get
+  normalized, de-duplicated, and exported via `TENZIR_PACKAGE_DIRS`.
 - `--debug`: Emit framework-level diagnostics (fixture lifecycle, discovery
   notes, comparison targets, etc.). The same mode is available via
   `TENZIR_TEST_DEBUG=1`.
@@ -430,6 +435,8 @@ assert result.returncode == 0
 - CLI and node configuration are independent: configure the CLI with
   `tenzir.yaml` and drop a `tenzir-node.yaml` (or set `TENZIR_NODE_CONFIG`) only
   when the node needs custom settings.
+- When `tenzir-node` fails to start, the fixture reports the exit code and
+  stderr output, making it easier to diagnose startup failures.
 
 ### Registering fixtures
 
