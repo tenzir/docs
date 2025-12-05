@@ -9,30 +9,29 @@ messages from a subscription.
 
 ![Google Cloud Pub/Sub](cloud-pubsub.svg)
 
-:::tip[URL Support]
-The URL scheme `gcps://` dispatches to
-[`load_google_cloud_pubsub`](/reference/operators/load_google_cloud_pubsub)
-and
-[`save_google_cloud_pubsub`](/reference/operators/save_google_cloud_pubsub)
-for seamless URL-style use via [`from`](/reference/operators/from) and
-[`to`](/reference/operators/to).
-:::
-
 ## Examples
 
 ### Publish a message to a topic
 
 ```tql
 from {foo: 42}
-to "gcps://my-project/my-topic" {
-  write_json
-}
+to_google_cloud_pubsub project_id="my-project",
+  topic_id="my-topic",
+  message = this.print_ndjson()
 ```
 
 ### Receive messages from a subscription
 
+Assuming a connection between `my-topic` and `my-subscription`:
+
 ```tql
-from "gcps://my-project/my-topic" {
-  read_json
+from_google_cloud_pubsub project_id="my-project",
+  subscription_id="my-subscription"
+parsed = message.parse_json() // The `message` field is a string
+```
+```tql
+{
+  message: "{\"foo\": 42}"
+  parsed: {foo: 42}
 }
 ```
