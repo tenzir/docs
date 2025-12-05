@@ -148,7 +148,7 @@ tenzir-changelog add [options]
 | `--description <text>` | Entry body                                   |
 | `--author <name>`      | Contributor name (repeatable)                |
 | `--pr <number>`        | Pull request number (repeatable)             |
-| `--component <label>`  | Component label (must match configuration)   |
+| `--component <label>`  | Component label (repeatable)                 |
 | `--web`                | Open prefilled GitHub file creation URL      |
 
 The command prompts for any information you do not pass explicitly. The first
@@ -287,20 +287,20 @@ component: cli
 Introduces the new pipeline builder UI with drag-and-drop support.
 ```
 
-You can use either singular (`author`, `pr`) or plural (`authors`, `prs`) keys.
-The singular form is shorthand for single values and is normalized to the plural
-form internally.
+You can use either singular (`author`, `pr`, `component`) or plural (`authors`,
+`prs`, `components`) keys. The singular form is shorthand for single values and
+is normalized to the plural form internally.
 
 Frontmatter fields:
 
-| Field                | Type         | Required | Description                                    |
-| -------------------- | ------------ | -------- | ---------------------------------------------- |
-| `title`              | string       | yes      | Entry title                                    |
-| `type`               | string       | yes      | `breaking`, `feature`, `bugfix`, or `change`   |
-| `author` / `authors` | list[string] | no       | Contributor names (singular or plural form)    |
-| `created`            | string       | yes      | Creation datetime in ISO 8601 UTC format       |
-| `pr` / `prs`         | list[int]    | no       | Pull request numbers (singular or plural form) |
-| `component`          | string       | no       | Label matching configured components           |
+| Field                      | Type         | Required | Description                                    |
+| -------------------------- | ------------ | -------- | ---------------------------------------------- |
+| `title`                    | string       | yes      | Entry title                                    |
+| `type`                     | string       | yes      | `breaking`, `feature`, `bugfix`, or `change`   |
+| `author` / `authors`       | list[string] | no       | Contributor names (singular or plural form)    |
+| `created`                  | string       | yes      | Creation datetime in ISO 8601 UTC format       |
+| `pr` / `prs`               | list[int]    | no       | Pull request numbers (singular or plural form) |
+| `component` / `components` | list[string] | no       | Labels matching configured components          |
 
 ## Release manifest format
 
