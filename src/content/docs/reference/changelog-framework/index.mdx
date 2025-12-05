@@ -152,8 +152,10 @@ tenzir-changelog add [options]
 | `--web`                | Open prefilled GitHub file creation URL      |
 
 The command prompts for any information you do not pass explicitly. The first
-invocation scaffolds `config.yaml`, `unreleased/`, and `releases/`
-automatically. The CLI names entry files using the slugified title (e.g.,
+invocation scaffolds the project automatically, creating a `changelog/`
+subdirectory with `config.yaml` and `unreleased/`. When you provide an explicit
+`--root` flag, the CLI uses that directory directly instead of creating a
+subdirectory. The CLI names entry files using the slugified title (e.g.,
 `my-feature.md`).
 
 ### release create
@@ -258,10 +260,11 @@ components:
   - operators
 ```
 
-The first invocation of `tenzir-changelog add` scaffolds `config.yaml`
-automatically, inferring defaults from the directory name. Projects with
-`package.yaml` next to `changelog/` reuse the package `id` and `name`
-automatically.
+The first invocation of `tenzir-changelog add` scaffolds a `changelog/`
+subdirectory with `config.yaml`, inferring defaults from the parent directory
+name. When you provide an explicit `--root` flag, the CLI uses that directory
+directly. Projects with `package.yaml` next to `changelog/` reuse the package
+`id` and `name` automatically.
 
 ## Entry file format
 

@@ -18,7 +18,6 @@ workflow from adding your first entry to publishing a release on GitHub.
 Create your first changelog entry to scaffold the project:
 
 ```sh
-mkdir changelog && cd changelog
 uvx tenzir-changelog add
 ```
 
@@ -26,11 +25,13 @@ The wizard will guide you through the process of creating a new changelog entry.
 It will ask you for the title, type, and description of the change, as well as
 the author.
 
-The first invocation also writes the project-wide `config.yaml` configuration,
-prepares `unreleased/`, and infers sensible defaults from the directory name—no
-separate bootstrap step required. Changelog projects that already expose
-`package.yaml` next to their `changelog/` directory reuse the package `id` and
-`name` automatically, so the CLI creates no extra files.
+The first invocation creates a `changelog/` subdirectory with `config.yaml` and
+`unreleased/`, inferring sensible defaults from the parent directory name—no
+separate bootstrap step required. When you provide an explicit `--root` flag,
+the CLI uses that directory directly instead of creating a subdirectory.
+Changelog projects that already expose `package.yaml` next to their `changelog/`
+directory reuse the package `id` and `name` automatically, so the CLI creates no
+extra files.
 
 View the current changelog for your working tree:
 
@@ -400,11 +401,10 @@ backlog, and publish a release manifest with custom introductory content.
 
 ### Create a project
 
-Initialize a new changelog project:
+Initialize a new changelog project from your project root:
 
 ```sh
-mkdir my-changelog
-cd my-changelog
+cd my-project
 uvx tenzir-changelog add \
   --title "Add pipeline builder" \
   --type feature \
@@ -413,13 +413,14 @@ uvx tenzir-changelog add \
   --pr 101
 ```
 
-The first `add` invocation scaffolds the project automatically—no manual config
-editing needed. After the command completes, inspect `config.yaml` (or update
-`package.yaml` if you're using the package layout):
+The first `add` invocation scaffolds the project automatically, creating a
+`changelog/` subdirectory—no manual config editing needed. After the command
+completes, inspect `changelog/config.yaml` (or update `package.yaml` if you're
+using the package layout):
 
 ```yaml
-id: my-changelog
-name: My Changelog
+id: my-project
+name: My Project
 ```
 
 ### Capture entries
@@ -443,8 +444,8 @@ uvx tenzir-changelog add \
   --pr 103
 ```
 
-Each invocation writes a Markdown file inside `unreleased/`. For example,
-`add-pipeline-builder.md` looks like:
+Each invocation writes a Markdown file inside `changelog/unreleased/`. For
+example, `add-pipeline-builder.md` looks like:
 
 ```markdown
 ---
