@@ -29,7 +29,12 @@ from pathlib import Path
 from tenzir_changelog import Changelog
 
 client = Changelog(root=Path("changelog"))
-client.add(title="API entry", entry_type="feature", description="Body text")
+client.add(
+    title="API entry",
+    entry_type="feature",
+    description="Body text",
+    co_authors=["claude"],
+)
 client.show(identifiers=["unreleased"], view="json", include_emoji=False)
 ```
 
@@ -147,6 +152,7 @@ tenzir-changelog add [options]
 | `--type <type>`        | `breaking`, `feature`, `bugfix`, or `change` |
 | `--description <text>` | Entry body                                   |
 | `--author <name>`      | Contributor name (repeatable)                |
+| `--co-author <name>`   | Additional contributor (repeatable)          |
 | `--pr <number>`        | Pull request number (repeatable)             |
 | `--component <label>`  | Component label (repeatable)                 |
 | `--web`                | Open prefilled GitHub file creation URL      |
@@ -157,6 +163,13 @@ subdirectory with `config.yaml` and `unreleased/`. When you provide an explicit
 `--root` flag, the CLI uses that directory directly instead of creating a
 subdirectory. The CLI names entry files using the slugified title (e.g.,
 `my-feature.md`).
+
+By default, the CLI infers the primary author from environment variables
+(`TENZIR_CHANGELOG_AUTHOR`, `GH_USERNAME`) or the GitHub CLI (`gh api user`).
+Using `--author` overrides this inference entirely. The `--co-author` option
+adds to the inferred or explicit author list without replacing it, making it
+ideal for AI-assisted development, pair programming, or collaborative
+contributions. Duplicates are removed automatically while preserving order.
 
 ### release create
 

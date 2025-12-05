@@ -76,6 +76,42 @@ uvx tenzir-changelog add \
 The CLI prompts for missing information interactively. Use one-key shortcuts for
 change types: `0` for breaking, `1` for feature, `2` for bugfix, `3` for change.
 
+### Add co-authors
+
+Use `--co-author` to credit additional contributors alongside the automatically
+inferred author:
+
+```sh
+uvx tenzir-changelog add \
+  --title "Implement caching layer" \
+  --type feature \
+  --co-author claude
+```
+
+This is ideal for AI-assisted development, pair programming, or collaborative
+contributions. The CLI infers the primary author from environment variables or
+the GitHub CLI, then appends co-authors in the order you specify:
+
+```sh
+uvx tenzir-changelog add \
+  --title "Refactor authentication" \
+  --type change \
+  --co-author claude \
+  --co-author copilot \
+  --pr 150
+```
+
+You can also combine `--author` with `--co-author` to set the primary author
+explicitly:
+
+```sh
+uvx tenzir-changelog add \
+  --title "Fix race condition" \
+  --type bugfix \
+  --author alice \
+  --co-author bob
+```
+
 ### View pending changes
 
 List all unreleased entries:
