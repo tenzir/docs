@@ -134,6 +134,66 @@ Sometimes, users may wish to run Tenzir without side effects, e.g., when
 wrapping Tenzir in their own scripts. Run with `--bare-mode` to disable looking
 at all system- and user-specified configuration paths.
 
+## TLS Configuration
+
+Tenzir provides node-level TLS configuration that applies to all operators and
+connectors using TLS/HTTPS connections. These settings are used by operators
+that make outbound connections (e.g., `to_opensearch`, `to_splunk`, `email`,
+`curl`) and those that accept inbound connections (e.g., `load_tcp`, `save_tcp`).
+
+{% aside type="note" title="Use Only When Required" %}
+We do not recommend manually configuring TLS settings unless required for
+specific compliance or security policies. The default TLS configuration uses
+OpenSSL's secure defaults, which are regularly updated and work with most
+services. Only override these settings if you have specific requirements.
+{% /aside %}
+
+### Minimum TLS Version
+
+You can configure the minimum TLS protocol version to use for all TLS
+connections:
+
+```yaml title="<configdir>/tenzir/tenzir.yaml"
+tenzir:
+  tls:
+    min-version: "1.2"
+```
+
+Valid values are `"1.0"`, `"1.1"`, `"1.2"`, and `"1.3"`. We recommend using
+`"1.2"` or higher for security.
+
+{% aside type="caution" title="TLS 1.0 and 1.1 Deprecated" %}
+TLS versions 1.0 and 1.1 are considered deprecated and insecure. Most modern
+services no longer support them. Use TLS 1.2 or 1.3 whenever possible.
+{% /aside %}
+
+### Cipher Suites
+
+You can specify which cipher suites to use for TLS connections:
+
+```yaml title="<configdir>/tenzir/tenzir.yaml"
+tenzir:
+  tls:
+    ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+```
+
+The cipher list format follows OpenSSL cipher list syntax. See the [OpenSSL
+documentation](https://www.openssl.org/docs/man1.1.1/man1/ciphers.html) for
+details on how to construct cipher lists.
+
+### Operators Supporting TLS Configuration
+
+The following operators and connectors automatically respect the node-level TLS
+configuration:
+
+- **to_opensearch**: Applies min version and ciphers to HTTPS connections
+- **to_splunk**: Applies min version and ciphers to Splunk HEC connections
+- **email**: Applies min version and ciphers to SMTP connections
+- **curl**: Applies min version and ciphers to HTTP/HTTPS/FTP/FTPS connections
+- **load_tcp**: Applies min version and ciphers to TLS server mode
+- **save_tcp**: Applies min version and ciphers to TLS client and server modes
+- **from_opensearch**: Applies min version to TLS server mode
+
 ## Plugins
 
 Tenzir's plugin architecture allows for flexible replacement and enhancement of
@@ -196,6 +256,38 @@ option: 42
 After initialization with the configuration options, the plugin is fully
 operational and Tenzir will call its functions at the plugin-specific
 customization points.
+
+### Platform TLS Configuration
+
+The platform plugin supports plugin-specific TLS configuration for connections
+to the Tenzir Platform. These settings take precedence over the node-level
+`tenzir.tls.*` settings, but fall back to them if not specified.
+
+{% aside type="note" title="Use Only When Required" %}
+We do not recommend manually configuring TLS settings unless required for
+specific compliance or security policies. The default TLS configuration is
+secure and compatible with the Tenzir Platform.
+{% /aside %}
+
+You can configure these settings in `<configdir>/tenzir/plugin/platform.yaml`:
+
+```yaml title="<configdir>/tenzir/plugin/platform.yaml"
+# Minimum TLS protocol version for platform connections
+# Valid values: "1.0", "1.1", "1.2", "1.3"
+tls-min-version: "1.2"
+
+# OpenSSL cipher list for platform connections
+tls-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
+
+# Other platform plugin settings...
+# control-endpoint: wss://ws.app.tenzir.com
+# skip-peer-verification: false
+# cacert: /path/to/ca-bundle.crt
+```
+
+These options only affect WebSocket connections from the node to the Tenzir
+Platform. If not specified, the plugin falls back to the node-level
+`tenzir.tls.min-version` and `tenzir.tls.ciphers` settings.
 
 ### List plugins
 
