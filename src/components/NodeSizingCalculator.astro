@@ -1,0 +1,699 @@
+---
+// Node Sizing Calculator - Interactive component to estimate CPU, RAM, and storage requirements
+---
+
+<node-sizing-calculator>
+  <div class="calculator-card">
+    <!-- Workloads Row -->
+    <div class="input-row">
+      <span class="row-label">Workloads</span>
+      <div class="toggle-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="shaping" checked />
+          <span class="checkmark"></span>
+          <span>Data Shaping</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="aggregation" checked />
+          <span class="checkmark"></span>
+          <span>Aggregation</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="enrichment" />
+          <span class="checkmark"></span>
+          <span>Enrichment</span>
+        </label>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Data Volume Section -->
+    <div class="data-volume-section">
+      <div class="section-header">
+        <span class="section-label">Data Volume</span>
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab active" data-mode="gb-day">GB/day</button>
+          <button type="button" class="mode-tab" data-mode="eps">EPS</button>
+        </div>
+        <output class="calculated-value" data-output="ingest-rate" hidden>432.0 GB/day</output>
+      </div>
+
+      <!-- GB/day mode inputs (shown by default) -->
+      <div class="gbday-inputs" data-mode="gb-day">
+        <div class="input-row">
+          <div class="row-label with-select">
+            <span>Ingest</span>
+            <select name="unit" class="inline-select">
+              <option value="MB">MB</option>
+              <option value="GB" selected>GB</option>
+              <option value="TB">TB</option>
+            </select>
+          </div>
+          <div class="slider-row">
+            <input type="range" name="ingest-volume" min="1" max="999" value="10" />
+            <output class="slider-value">10</output>
+          </div>
+        </div>
+      </div>
+
+      <!-- EPS mode inputs (hidden by default) -->
+      <div class="eps-inputs" data-mode="eps" hidden>
+        <div class="input-row">
+          <span class="row-label">Events/sec</span>
+          <div class="slider-row">
+            <input type="range" name="eps" min="0" max="250000" value="10000" step="1000" />
+            <output class="slider-value">10,000</output>
+          </div>
+        </div>
+        <div class="input-row">
+          <span class="row-label">Bytes/event</span>
+          <div class="slider-row">
+            <input type="range" name="bytes-per-event" min="0" max="10000" value="500" step="10" />
+            <output class="slider-value">500</output>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Sources Row -->
+    <div class="input-row">
+      <span class="row-label">Sources</span>
+      <div class="slider-row">
+        <input type="range" name="data-sources" min="0" max="1000" value="1" />
+        <output class="slider-value">1</output>
+      </div>
+    </div>
+
+    <!-- Pipelines Row -->
+    <div class="input-row">
+      <span class="row-label">Pipelines</span>
+      <div class="slider-row">
+        <input type="range" name="pipelines" min="0" max="1000" value="1" />
+        <output class="slider-value">1</output>
+      </div>
+    </div>
+
+    <!-- Retention Row -->
+    <div class="input-row">
+      <span class="row-label">Retention</span>
+      <div class="slider-row">
+        <input type="range" name="retention" min="1" max="36" value="3" />
+        <output class="slider-value">3 months</output>
+      </div>
+    </div>
+
+    <!-- Context Size Row (conditional) -->
+    <div class="input-row" data-section="enrichment" hidden>
+      <span class="row-label">Context Size</span>
+      <div class="slider-row">
+        <input type="range" name="context-size" min="1" max="100" value="2" />
+        <output class="slider-value">2 GB</output>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Output Cards -->
+    <div class="calculator-outputs">
+      <div class="metric-card">
+        <span class="metric-label">CPU</span>
+        <span class="metric-value" data-output="cpu">2 cores</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">RAM</span>
+        <span class="metric-value" data-output="ram">1.0 GB</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Storage</span>
+        <span class="metric-value" data-output="storage">0.18 TB</span>
+      </div>
+    </div>
+  </div>
+</node-sizing-calculator>
+
+<script>
+  class NodeSizingCalculator extends HTMLElement {
+    private state = {
+      shaping: true,
+      aggregation: true,
+      enrichment: false,
+      mode: 'gb-day' as 'gb-day' | 'eps',
+      unit: 'GB' as 'MB' | 'GB' | 'TB',
+      ingestVolume: 10,
+      eps: 10000,
+      bytesPerEvent: 500,
+      dataSources: 1,
+      pipelines: 1,
+      retention: 3,
+      contextSize: 2,
+    };
+
+    private readonly COMPRESSION = 5;
+    private readonly OVER_SUBSCRIPTION = 0.1;
+    private readonly GB_INGEST_PER_CORE = 250;
+    private readonly INDEXING_LOAD = 2; // Fixed "normal" indexing
+
+    private get ingestBytesPerDay(): number {
+      if (this.state.mode === 'eps') {
+        return this.state.eps * this.state.bytesPerEvent * 86400;
+      }
+      const multipliers: Record<string, number> = { MB: 1e6, GB: 1e9, TB: 1e12 };
+      return this.state.ingestVolume * multipliers[this.state.unit];
+    }
+
+    private get complexity(): number {
+      let c = 1;
+      if (this.state.shaping) c += 0.5;
+      if (this.state.aggregation) c += 1;
+      return c;
+    }
+
+    private get cpuCores(): number {
+      const ingestGbPerDay = this.ingestBytesPerDay / 1e9;
+      const cores =
+        this.OVER_SUBSCRIPTION * this.state.pipelines * this.complexity +
+        ingestGbPerDay / this.GB_INGEST_PER_CORE;
+      return Math.max(2, Math.round(cores));
+    }
+
+    private get storageTb(): number {
+      const ingestGbPerDay = this.ingestBytesPerDay / 1e9;
+      return ((ingestGbPerDay * 30) / this.COMPRESSION) * this.state.retention / 1000;
+    }
+
+    private get ramGb(): number {
+      const sketchOverhead = this.storageTb * this.INDEXING_LOAD;
+      const contextSize = this.state.enrichment ? this.state.contextSize : 0;
+      const ram =
+        this.OVER_SUBSCRIPTION * this.state.pipelines * this.complexity +
+        sketchOverhead +
+        contextSize;
+      return Math.max(1, ram);
+    }
+
+    connectedCallback() {
+      this.bindEvents();
+      this.updateUI();
+    }
+
+    private bindEvents() {
+      this.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((el) => {
+        el.addEventListener('change', () => this.handleCheckbox(el));
+      });
+
+      this.querySelectorAll<HTMLSelectElement>('select').forEach((el) => {
+        el.addEventListener('change', () => this.handleSelect(el));
+      });
+
+      this.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((el) => {
+        el.addEventListener('input', () => this.handleSlider(el));
+      });
+
+      this.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach((el) => {
+        el.addEventListener('click', () => this.handleModeTab(el));
+      });
+    }
+
+    private handleCheckbox(el: HTMLInputElement) {
+      const name = el.name;
+      if (name === 'shaping') this.state.shaping = el.checked;
+      else if (name === 'aggregation') this.state.aggregation = el.checked;
+      else if (name === 'enrichment') this.state.enrichment = el.checked;
+      this.updateUI();
+    }
+
+    private handleSelect(el: HTMLSelectElement) {
+      const name = el.name;
+      const value = el.value;
+      if (name === 'unit') this.state.unit = value as 'MB' | 'GB' | 'TB';
+      this.updateUI();
+    }
+
+    private handleModeTab(el: HTMLButtonElement) {
+      const mode = el.dataset.mode as 'gb-day' | 'eps';
+      this.state.mode = mode;
+
+      // Update tab active states
+      this.querySelectorAll('.mode-tab').forEach((tab) => {
+        tab.classList.toggle('active', tab === el);
+      });
+
+      this.updateUI();
+    }
+
+    private handleSlider(el: HTMLInputElement) {
+      const name = el.name;
+      const value = Number(el.value);
+
+      if (name === 'data-sources') {
+        this.state.dataSources = value;
+        if (this.state.pipelines < this.state.dataSources) {
+          this.state.pipelines = this.state.dataSources;
+          this.updateSlider('pipelines', this.state.pipelines);
+        }
+      } else if (name === 'pipelines') {
+        this.state.pipelines = value;
+        if (this.state.dataSources > this.state.pipelines) {
+          this.state.dataSources = this.state.pipelines;
+          this.updateSlider('data-sources', this.state.dataSources);
+        }
+      } else if (name === 'ingest-volume') {
+        this.state.ingestVolume = value;
+      } else if (name === 'eps') {
+        this.state.eps = value;
+      } else if (name === 'bytes-per-event') {
+        this.state.bytesPerEvent = value;
+      } else if (name === 'retention') {
+        this.state.retention = value;
+      } else if (name === 'context-size') {
+        this.state.contextSize = value;
+      }
+
+      this.updateSliderOutput(el);
+      this.updateUI();
+    }
+
+    private updateSlider(name: string, value: number) {
+      const input = this.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+      if (input) {
+        input.value = String(value);
+        this.updateSliderOutput(input);
+      }
+    }
+
+    private updateSliderOutput(input: HTMLInputElement) {
+      // Find output in slider-row
+      const container = input.closest('.slider-row');
+      const output = container?.querySelector('output');
+      if (!output) return;
+
+      const value = Number(input.value);
+      const name = input.name;
+
+      if (name === 'retention') {
+        output.textContent = `${value} month${value !== 1 ? 's' : ''}`;
+      } else if (name === 'context-size') {
+        output.textContent = `${value} GB`;
+      } else {
+        output.textContent = value.toLocaleString();
+      }
+    }
+
+    private formatNumber(value: number, decimals: number): string {
+      return value.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    }
+
+    private updateUI() {
+      // Update output cards
+      this.updateOutput('cpu', `${this.cpuCores.toLocaleString()} cores`);
+      this.updateOutput('ram', `${this.formatNumber(this.ramGb, 1)} GB`);
+      this.updateOutput('storage', `${this.formatNumber(this.storageTb, 2)} TB`);
+
+      // Update EPS calculated ingest rate
+      if (this.state.mode === 'eps') {
+        const ingestGb = this.ingestBytesPerDay / 1e9;
+        this.updateOutput('ingest-rate', `${this.formatNumber(ingestGb, 1)} GB/day`);
+      }
+
+      // Toggle mode sections
+      const gbdayInputs = this.querySelector<HTMLElement>('.gbday-inputs');
+      const epsInputs = this.querySelector<HTMLElement>('.eps-inputs');
+      const ingestRateOutput = this.querySelector<HTMLElement>('[data-output="ingest-rate"]');
+
+      if (gbdayInputs) gbdayInputs.hidden = this.state.mode !== 'gb-day';
+      if (epsInputs) epsInputs.hidden = this.state.mode !== 'eps';
+      if (ingestRateOutput) ingestRateOutput.hidden = this.state.mode !== 'eps';
+
+      // Toggle enrichment section
+      const enrichmentSection = this.querySelector<HTMLElement>('[data-section="enrichment"]');
+      if (enrichmentSection) {
+        enrichmentSection.hidden = !this.state.enrichment;
+      }
+    }
+
+    private updateOutput(name: string, value: string) {
+      const el = this.querySelector(`[data-output="${name}"]`);
+      if (el) el.textContent = value;
+    }
+  }
+
+  customElements.define('node-sizing-calculator', NodeSizingCalculator);
+</script>
+
+<style is:global>
+  /* Scoped to node-sizing-calculator custom element */
+  node-sizing-calculator {
+    display: block;
+    max-width: 640px;
+    font-family: var(--sl-font);
+  }
+
+  node-sizing-calculator .calculator-card {
+    background-color: var(--sl-color-bg-sidebar);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+  }
+
+  node-sizing-calculator .divider {
+    border: none;
+    border-top: 1px solid var(--sl-color-gray-5);
+    margin: 1.25rem 0;
+  }
+
+  /* Row layout */
+  node-sizing-calculator .input-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  node-sizing-calculator .row-label {
+    flex: 0 0 110px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-2);
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+  }
+
+  node-sizing-calculator .row-label.with-select {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Checkbox toggle group */
+  node-sizing-calculator .toggle-group {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  node-sizing-calculator .checkbox-label {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--sl-color-text);
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+  }
+
+  node-sizing-calculator .checkbox-label input[type='checkbox'] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  node-sizing-calculator .checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--sl-color-gray-4);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  node-sizing-calculator .checkmark::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: var(--sl-color-accent);
+    border-radius: 2px;
+    transform: scale(0);
+    transition: transform 0.15s ease;
+  }
+
+  node-sizing-calculator .checkbox-label input:checked + .checkmark {
+    border-color: var(--sl-color-accent);
+  }
+
+  node-sizing-calculator .checkbox-label input:checked + .checkmark::after {
+    transform: scale(1);
+  }
+
+  node-sizing-calculator .checkbox-label input:focus-visible + .checkmark {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Data volume section */
+  node-sizing-calculator .data-volume-section {
+    margin-bottom: 0;
+  }
+
+  node-sizing-calculator .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  node-sizing-calculator .section-label {
+    flex: 0 0 110px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-2);
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+  }
+
+  node-sizing-calculator .mode-tabs {
+    display: inline-flex;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
+  node-sizing-calculator .mode-tab {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-bg);
+    border: none;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+    margin: 0;
+  }
+
+  node-sizing-calculator .mode-tab:not(:last-child) {
+    border-right: 1px solid var(--sl-color-gray-5);
+  }
+
+  node-sizing-calculator .mode-tab:hover {
+    background-color: var(--sl-color-gray-6);
+  }
+
+  node-sizing-calculator .mode-tab.active {
+    background-color: var(--sl-color-accent);
+    color: white;
+  }
+
+  node-sizing-calculator .mode-tab.active:hover {
+    background-color: var(--sl-color-accent);
+  }
+
+  node-sizing-calculator .inline-select {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.2;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 0.375rem;
+    background-color: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  node-sizing-calculator .inline-select:focus {
+    outline: none;
+    border-color: var(--sl-color-accent);
+  }
+
+  /* GB/day inputs section */
+  node-sizing-calculator .gbday-inputs {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Slider rows */
+  node-sizing-calculator .slider-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Unified slider styling */
+  node-sizing-calculator input[type='range'] {
+    flex: 1;
+    height: 6px;
+    appearance: none;
+    background: var(--sl-color-gray-4);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  node-sizing-calculator input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--sl-color-accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+  }
+
+  node-sizing-calculator input[type='range']::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--sl-color-accent);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 20%);
+  }
+
+  /* Slider output values */
+  node-sizing-calculator .slider-value {
+    min-width: 80px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  node-sizing-calculator .calculated-value {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  /* EPS inputs section */
+  node-sizing-calculator .eps-inputs {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Output cards */
+  node-sizing-calculator .calculator-outputs {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  node-sizing-calculator .metric-card {
+    flex: 1;
+    background-color: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 0;
+    text-align: center;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+    transition: box-shadow 0.15s ease;
+  }
+
+  node-sizing-calculator .metric-card:hover {
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  }
+
+  node-sizing-calculator .metric-label {
+    display: block;
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--sl-color-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  node-sizing-calculator .metric-value {
+    display: block;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--sl-color-text);
+  }
+
+  /* Hidden utility */
+  node-sizing-calculator [hidden] {
+    display: none !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    node-sizing-calculator .input-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    node-sizing-calculator .row-label {
+      flex: none;
+    }
+
+    node-sizing-calculator .toggle-group,
+    node-sizing-calculator .slider-row {
+      width: 100%;
+    }
+
+    node-sizing-calculator .toggle-group {
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+    }
+
+    node-sizing-calculator .slider-row {
+      flex-wrap: wrap;
+    }
+
+    node-sizing-calculator .slider-row input[type='range'] {
+      width: 100%;
+      order: 10;
+    }
+
+    node-sizing-calculator .calculator-outputs {
+      flex-direction: column;
+    }
+  }
+</style>
