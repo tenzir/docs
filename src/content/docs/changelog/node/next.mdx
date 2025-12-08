@@ -30,7 +30,26 @@ this = message.parse_json()
 
 By [@raxyte](https://github.com/raxyte) in [#5575](https://github.com/tenzir/tenzir/pull/5575).
 
+#### Support for duplicate keys in parsers
+
+Our parsers now have improved support for repeated keys in a an event.
+Previously a later key-value pair would always overwrite the previous one.
+With this change the value is transparently upgraded to a list of values.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5445](https://github.com/tenzir/tenzir/pull/5445).
+
 ### Bug Fixes
+
+#### Fixed missing Zeek fields
+
+Zeek JSON contains fields such as `io.data.read.bytes` and
+`io.data.read.bytes.per-second`. These fields would previously overwrite each other
+in order of appearance.
+
+With this change `bytes` now is a record and the original value is kept under the
+key `""`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5445](https://github.com/tenzir/tenzir/pull/5445).
 
 #### Fixed an assertion failure in parsers
 
