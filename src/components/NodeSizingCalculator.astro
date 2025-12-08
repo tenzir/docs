@@ -4,30 +4,6 @@
 
 <node-sizing-calculator>
   <div class="calculator-card">
-    <!-- Workloads Row -->
-    <div class="input-row">
-      <span class="row-label">Workloads</span>
-      <div class="toggle-group">
-        <label class="checkbox-label">
-          <input type="checkbox" name="shaping" checked />
-          <span class="checkmark"></span>
-          <span>Data Shaping</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" name="aggregation" checked />
-          <span class="checkmark"></span>
-          <span>Aggregation</span>
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" name="enrichment" />
-          <span class="checkmark"></span>
-          <span>Enrichment</span>
-        </label>
-      </div>
-    </div>
-
-    <hr class="divider" />
-
     <!-- Data Volume Section -->
     <div class="data-volume-section">
       <div class="section-header">
@@ -37,6 +13,7 @@
           <button type="button" class="mode-tab" data-mode="eps">EPS</button>
         </div>
         <output class="calculated-value" data-output="ingest-rate" hidden>432.0 GB/day</output>
+        <output class="calculated-value" data-output="eps-rate">232 EPS</output>
       </div>
 
       <!-- GB/day mode inputs (shown by default) -->
@@ -53,6 +30,13 @@
           <div class="slider-row">
             <input type="range" name="ingest-volume" min="1" max="999" value="10" />
             <output class="slider-value">10</output>
+          </div>
+        </div>
+        <div class="input-row">
+          <span class="row-label">Bytes/event</span>
+          <div class="slider-row">
+            <input type="range" name="bytes-per-event-gbday" min="100" max="10000" value="500" step="100" />
+            <output class="slider-value">500</output>
           </div>
         </div>
       </div>
@@ -82,26 +66,50 @@
     <div class="input-row">
       <span class="row-label">Sources</span>
       <div class="slider-row">
-        <input type="range" name="data-sources" min="0" max="1000" value="1" />
+        <input type="range" name="sources" min="1" max="100" value="1" />
         <output class="slider-value">1</output>
       </div>
     </div>
 
-    <!-- Pipelines Row -->
+    <!-- Destinations Row -->
     <div class="input-row">
-      <span class="row-label">Pipelines</span>
+      <span class="row-label">Destinations</span>
       <div class="slider-row">
-        <input type="range" name="pipelines" min="0" max="1000" value="1" />
+        <input type="range" name="destinations" min="1" max="20" value="1" />
         <output class="slider-value">1</output>
       </div>
     </div>
 
-    <!-- Retention Row -->
+    <!-- Edge Storage Row -->
     <div class="input-row">
-      <span class="row-label">Retention</span>
+      <span class="row-label">Edge Storage</span>
       <div class="slider-row">
         <input type="range" name="retention" min="1" max="36" value="3" />
         <output class="slider-value">3 months</output>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Workloads Row -->
+    <div class="input-row">
+      <span class="row-label">Workloads</span>
+      <div class="toggle-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="normalization" checked />
+          <span class="checkmark"></span>
+          <span>Normalization</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="enrichment" />
+          <span class="checkmark"></span>
+          <span>Enrichment</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="detection" />
+          <span class="checkmark"></span>
+          <span>Detection</span>
+        </label>
       </div>
     </div>
 
@@ -128,7 +136,7 @@
       </div>
       <div class="metric-card">
         <span class="metric-label">Storage</span>
-        <span class="metric-value" data-output="storage">0.18 TB</span>
+        <span class="metric-value" data-output="storage">0.09 TB</span>
       </div>
     </div>
   </div>
@@ -137,60 +145,59 @@
 <script>
   class NodeSizingCalculator extends HTMLElement {
     private state = {
-      shaping: true,
-      aggregation: true,
+      normalization: true,
       enrichment: false,
+      detection: false,
       mode: 'gb-day' as 'gb-day' | 'eps',
       unit: 'GB' as 'MB' | 'GB' | 'TB',
       ingestVolume: 10,
       eps: 10000,
       bytesPerEvent: 500,
-      dataSources: 1,
-      pipelines: 1,
+      sources: 1,
+      destinations: 1,
       retention: 3,
       contextSize: 2,
     };
 
-    private readonly COMPRESSION = 5;
-    private readonly OVER_SUBSCRIPTION = 0.1;
-    private readonly GB_INGEST_PER_CORE = 250;
-    private readonly INDEXING_LOAD = 2; // Fixed "normal" indexing
+    // Constants
+    private readonly COMPRESSION = 10; // Zstd compression ratio
+    private readonly GB_PER_CORE = 250; // Base ingest throughput per core
+    private readonly LOG_TYPES_PER_SOURCE = 10; // Avg log types per source
+    private readonly INDEX_OVERHEAD = 2; // GB RAM per TB stored
+    private readonly BUFFER_PER_CONNECTION = 0.1; // GB per source/destination
 
-    private get ingestBytesPerDay(): number {
+    private get ingestGbPerDay(): number {
       if (this.state.mode === 'eps') {
-        return this.state.eps * this.state.bytesPerEvent * 86400;
+        return (this.state.eps * this.state.bytesPerEvent * 86400) / 1e9;
       }
-      const multipliers: Record<string, number> = { MB: 1e6, GB: 1e9, TB: 1e12 };
+      const multipliers: Record<string, number> = { MB: 1e-3, GB: 1, TB: 1e3 };
       return this.state.ingestVolume * multipliers[this.state.unit];
     }
 
-    private get complexity(): number {
-      let c = 1;
-      if (this.state.shaping) c += 0.5;
-      if (this.state.aggregation) c += 1;
-      return c;
-    }
-
     private get cpuCores(): number {
-      const ingestGbPerDay = this.ingestBytesPerDay / 1e9;
+      const ingestBase = this.ingestGbPerDay / this.GB_PER_CORE;
+      const sourceParsing = this.state.sources * 0.1;
+      const destinationSerialization = this.state.destinations * 0.1;
+      const normalization = this.state.normalization
+        ? this.state.sources * this.LOG_TYPES_PER_SOURCE * 0.02
+        : 0;
+      const detection = this.state.detection ? 0.5 : 0;
       const cores =
-        this.OVER_SUBSCRIPTION * this.state.pipelines * this.complexity +
-        ingestGbPerDay / this.GB_INGEST_PER_CORE;
+        ingestBase + sourceParsing + destinationSerialization + normalization + detection;
       return Math.max(2, Math.round(cores));
     }
 
     private get storageTb(): number {
-      const ingestGbPerDay = this.ingestBytesPerDay / 1e9;
-      return ((ingestGbPerDay * 30) / this.COMPRESSION) * this.state.retention / 1000;
+      return (this.ingestGbPerDay * 30 * this.state.retention) / this.COMPRESSION / 1000;
     }
 
     private get ramGb(): number {
-      const sketchOverhead = this.storageTb * this.INDEXING_LOAD;
+      const buffers =
+        (this.state.sources + this.state.destinations) * this.BUFFER_PER_CONNECTION;
+      const indexOverhead = this.storageTb * this.INDEX_OVERHEAD;
       const contextSize = this.state.enrichment ? this.state.contextSize : 0;
-      const ram =
-        this.OVER_SUBSCRIPTION * this.state.pipelines * this.complexity +
-        sketchOverhead +
-        contextSize;
+      const detectionState = this.state.detection ? 0.5 : 0;
+      const ram = buffers + indexOverhead + contextSize + detectionState;
       return Math.max(1, ram);
     }
 
@@ -219,9 +226,9 @@
 
     private handleCheckbox(el: HTMLInputElement) {
       const name = el.name;
-      if (name === 'shaping') this.state.shaping = el.checked;
-      else if (name === 'aggregation') this.state.aggregation = el.checked;
+      if (name === 'normalization') this.state.normalization = el.checked;
       else if (name === 'enrichment') this.state.enrichment = el.checked;
+      else if (name === 'detection') this.state.detection = el.checked;
       this.updateUI();
     }
 
@@ -248,24 +255,19 @@
       const name = el.name;
       const value = Number(el.value);
 
-      if (name === 'data-sources') {
-        this.state.dataSources = value;
-        if (this.state.pipelines < this.state.dataSources) {
-          this.state.pipelines = this.state.dataSources;
-          this.updateSlider('pipelines', this.state.pipelines);
-        }
-      } else if (name === 'pipelines') {
-        this.state.pipelines = value;
-        if (this.state.dataSources > this.state.pipelines) {
-          this.state.dataSources = this.state.pipelines;
-          this.updateSlider('data-sources', this.state.dataSources);
-        }
+      if (name === 'sources') {
+        this.state.sources = value;
+      } else if (name === 'destinations') {
+        this.state.destinations = value;
       } else if (name === 'ingest-volume') {
         this.state.ingestVolume = value;
       } else if (name === 'eps') {
         this.state.eps = value;
-      } else if (name === 'bytes-per-event') {
+      } else if (name === 'bytes-per-event' || name === 'bytes-per-event-gbday') {
         this.state.bytesPerEvent = value;
+        // Sync both sliders
+        this.updateSlider('bytes-per-event', value);
+        this.updateSlider('bytes-per-event-gbday', value);
       } else if (name === 'retention') {
         this.state.retention = value;
       } else if (name === 'context-size') {
@@ -315,20 +317,26 @@
       this.updateOutput('ram', `${this.formatNumber(this.ramGb, 1)} GB`);
       this.updateOutput('storage', `${this.formatNumber(this.storageTb, 2)} TB`);
 
-      // Update EPS calculated ingest rate
+      // Update calculated conversions
       if (this.state.mode === 'eps') {
-        const ingestGb = this.ingestBytesPerDay / 1e9;
-        this.updateOutput('ingest-rate', `${this.formatNumber(ingestGb, 1)} GB/day`);
+        this.updateOutput('ingest-rate', `${this.formatNumber(this.ingestGbPerDay, 1)} GB/day`);
+      } else {
+        // Calculate EPS from GB/day and bytes/event
+        const bytesPerDay = this.ingestGbPerDay * 1e9;
+        const eps = bytesPerDay / this.state.bytesPerEvent / 86400;
+        this.updateOutput('eps-rate', `${Math.round(eps).toLocaleString()} EPS`);
       }
 
       // Toggle mode sections
       const gbdayInputs = this.querySelector<HTMLElement>('.gbday-inputs');
       const epsInputs = this.querySelector<HTMLElement>('.eps-inputs');
       const ingestRateOutput = this.querySelector<HTMLElement>('[data-output="ingest-rate"]');
+      const epsRateOutput = this.querySelector<HTMLElement>('[data-output="eps-rate"]');
 
       if (gbdayInputs) gbdayInputs.hidden = this.state.mode !== 'gb-day';
       if (epsInputs) epsInputs.hidden = this.state.mode !== 'eps';
       if (ingestRateOutput) ingestRateOutput.hidden = this.state.mode !== 'eps';
+      if (epsRateOutput) epsRateOutput.hidden = this.state.mode !== 'gb-day';
 
       // Toggle enrichment section
       const enrichmentSection = this.querySelector<HTMLElement>('[data-section="enrichment"]');
