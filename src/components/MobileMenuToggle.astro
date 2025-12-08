@@ -7,53 +7,27 @@ import Default from '@astrojs/starlight/components/MobileMenuToggle.astro';
 </Default>
 
 <style>
-    starlight-menu-button button {
+  /*
+   * Override Starlight's mobile menu button styles.
+   * !important is required to override Starlight's built-in styles.
+   * The --sl-color-* and --tnz-nav-hover-bg tokens are theme-aware,
+   * so no separate light/dark mode rules are needed.
+   */
+  starlight-menu-button button {
     background-color: transparent !important;
     box-shadow: none !important;
     color: var(--sl-color-gray-1) !important;
     transition: all var(--tnz-transition-base) !important;
-    }
+  }
 
-    starlight-menu-button button:hover {
+  starlight-menu-button button:hover {
     background-color: var(--tnz-nav-hover-bg) !important;
     color: var(--sl-color-gray-2) !important;
-    }
+  }
 
-    starlight-menu-button[aria-expanded="true"] button {
+  starlight-menu-button[aria-expanded="true"] button {
     background-color: var(--tnz-nav-hover-bg) !important;
     color: var(--sl-color-gray-2) !important;
     box-shadow: none !important;
-    }
-
-    /* Light mode overrides */
-    :root[data-theme="light"] starlight-menu-button button {
-    background-color: transparent !important;
-    color: var(--sl-color-gray-1) !important;
-    }
-
-    :root[data-theme="light"] starlight-menu-button button:hover {
-    background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
-    }
-
-    :root[data-theme="light"] starlight-menu-button[aria-expanded="true"] button {
-    background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
-    }
-
-    /* Dark mode overrides */
-    :root[data-theme="dark"] starlight-menu-button button {
-    background-color: transparent !important;
-    color: var(--sl-color-gray-1) !important;
-    }
-
-    :root[data-theme="dark"] starlight-menu-button button:hover {
-    background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
-    }
-
-    :root[data-theme="dark"] starlight-menu-button[aria-expanded="true"] button {
-    background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
-}
+  }
 </style>

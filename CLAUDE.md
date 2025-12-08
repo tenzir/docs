@@ -44,7 +44,7 @@ Use `tql` as the language identifier for Tenzir Query Language:
 ```tql
 from {x: 42}
 where x > 0
-````
+```
 
 ### Partials
 
