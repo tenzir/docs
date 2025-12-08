@@ -1,0 +1,837 @@
+---
+// Node Sizing Calculator - Interactive component to estimate CPU, RAM, and storage requirements
+---
+
+<node-sizing-calculator>
+  <div class="calculator-card">
+    <!-- Data Volume Section -->
+    <div class="data-volume-section">
+      <div class="section-header">
+        <span class="section-label">Data Volume</span>
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab active" data-mode="gb-day">GB/day</button>
+          <button type="button" class="mode-tab" data-mode="eps">EPS</button>
+        </div>
+        <output class="calculated-value" data-output="ingest-rate" hidden>432.0 GB/day</output>
+        <output class="calculated-value" data-output="eps-rate">232 EPS</output>
+      </div>
+
+      <!-- GB/day mode inputs (shown by default) -->
+      <div class="gbday-inputs" data-mode="gb-day">
+        <div class="input-row">
+          <div class="row-label with-select">
+            <span>Ingest</span>
+            <select name="unit" class="inline-select">
+              <option value="MB">MB</option>
+              <option value="GB" selected>GB</option>
+              <option value="TB">TB</option>
+            </select>
+          </div>
+          <div class="slider-row">
+            <input type="range" name="ingest-volume" min="1" max="999" value="10" />
+            <output class="slider-value">10</output>
+          </div>
+        </div>
+        <div class="input-row">
+          <span class="row-label">Bytes/event</span>
+          <div class="slider-row">
+            <input type="range" name="bytes-per-event-gbday" min="100" max="10000" value="500" step="100" />
+            <output class="slider-value">500</output>
+          </div>
+        </div>
+      </div>
+
+      <!-- EPS mode inputs (hidden by default) -->
+      <div class="eps-inputs" data-mode="eps" hidden>
+        <div class="input-row">
+          <span class="row-label">Events/sec</span>
+          <div class="slider-row">
+            <input type="range" name="eps" min="0" max="250000" value="10000" step="1000" />
+            <output class="slider-value">10,000</output>
+          </div>
+        </div>
+        <div class="input-row">
+          <span class="row-label">Bytes/event</span>
+          <div class="slider-row">
+            <input type="range" name="bytes-per-event" min="0" max="10000" value="500" step="10" />
+            <output class="slider-value">500</output>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Sources Row -->
+    <div class="input-row">
+      <span class="row-label">Sources</span>
+      <div class="slider-row">
+        <input type="range" name="sources" min="1" max="100" value="1" />
+        <output class="slider-value">1</output>
+      </div>
+    </div>
+
+    <!-- Destinations Row -->
+    <div class="input-row">
+      <span class="row-label">Destinations</span>
+      <div class="slider-row">
+        <input type="range" name="destinations" min="1" max="20" value="1" />
+        <output class="slider-value">1</output>
+      </div>
+    </div>
+
+    <!-- Edge Storage Row -->
+    <div class="input-row">
+      <span class="row-label">Edge Storage</span>
+      <div class="slider-row">
+        <input type="range" name="retention" min="1" max="36" value="3" />
+        <output class="slider-value">3 months</output>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Workloads Row -->
+    <div class="input-row">
+      <span class="row-label">Workloads</span>
+      <div class="toggle-group">
+        <label class="checkbox-label">
+          <input type="checkbox" name="normalization" checked />
+          <span class="checkmark"></span>
+          <span>Normalization</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="enrichment" />
+          <span class="checkmark"></span>
+          <span>Enrichment</span>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="detection" />
+          <span class="checkmark"></span>
+          <span>Detection</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Context Size Row (conditional) -->
+    <div class="input-row" data-section="enrichment" hidden>
+      <span class="row-label">Context Size</span>
+      <div class="slider-row">
+        <input type="range" name="context-size" min="1" max="100" value="2" />
+        <output class="slider-value">2 GB</output>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Output Cards -->
+    <div class="calculator-outputs">
+      <div class="metric-card">
+        <span class="metric-label">CPU</span>
+        <span class="metric-value" data-output="cpu">2 cores</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">RAM</span>
+        <span class="metric-value" data-output="ram">1.0 GB</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Storage</span>
+        <span class="metric-value" data-output="storage">0.09 TB</span>
+      </div>
+    </div>
+  </div>
+</node-sizing-calculator>
+
+<script>
+  class NodeSizingCalculator extends HTMLElement {
+    private state = {
+      normalization: true,
+      enrichment: false,
+      detection: false,
+      mode: 'gb-day' as 'gb-day' | 'eps',
+      unit: 'GB' as 'MB' | 'GB' | 'TB',
+      ingestVolume: 10,
+      eps: 10000,
+      bytesPerEvent: 500,
+      sources: 1,
+      destinations: 1,
+      retention: 3,
+      contextSize: 2,
+    };
+
+    // Constants
+    private readonly COMPRESSION = 10; // Zstd compression ratio
+    private readonly GB_PER_CORE = 250; // Base ingest throughput per core
+    private readonly LOG_TYPES_PER_SOURCE = 10; // Avg log types per source
+    private readonly INDEX_OVERHEAD = 2; // GB RAM per TB stored
+    private readonly BUFFER_PER_CONNECTION = 0.1; // GB per source/destination
+
+    private get ingestGbPerDay(): number {
+      if (this.state.mode === 'eps') {
+        return (this.state.eps * this.state.bytesPerEvent * 86400) / 1e9;
+      }
+      const multipliers: Record<string, number> = { MB: 1e-3, GB: 1, TB: 1e3 };
+      return this.state.ingestVolume * multipliers[this.state.unit];
+    }
+
+    private get cpuCores(): number {
+      const ingestBase = this.ingestGbPerDay / this.GB_PER_CORE;
+      const sourceParsing = this.state.sources * 0.1;
+      const destinationSerialization = this.state.destinations * 0.1;
+      const normalization = this.state.normalization
+        ? this.state.sources * this.LOG_TYPES_PER_SOURCE * 0.02
+        : 0;
+      const detection = this.state.detection ? 0.5 : 0;
+      const cores =
+        ingestBase + sourceParsing + destinationSerialization + normalization + detection;
+      return Math.max(2, Math.round(cores));
+    }
+
+    private get storageTb(): number {
+      return (this.ingestGbPerDay * 30 * this.state.retention) / this.COMPRESSION / 1000;
+    }
+
+    private get ramGb(): number {
+      const buffers =
+        (this.state.sources + this.state.destinations) * this.BUFFER_PER_CONNECTION;
+      const indexOverhead = this.storageTb * this.INDEX_OVERHEAD;
+      const contextSize = this.state.enrichment ? this.state.contextSize : 0;
+      const detectionState = this.state.detection ? 0.5 : 0;
+      const ram = buffers + indexOverhead + contextSize + detectionState;
+      return Math.max(1, ram);
+    }
+
+    connectedCallback() {
+      this.bindEvents();
+      this.updateUI();
+    }
+
+    private bindEvents() {
+      this.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((el) => {
+        el.addEventListener('change', () => this.handleCheckbox(el));
+      });
+
+      this.querySelectorAll<HTMLSelectElement>('select').forEach((el) => {
+        el.addEventListener('change', () => this.handleSelect(el));
+      });
+
+      this.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((el) => {
+        el.addEventListener('input', () => this.handleSlider(el));
+      });
+
+      this.querySelectorAll<HTMLButtonElement>('.mode-tab').forEach((el) => {
+        el.addEventListener('click', () => this.handleModeTab(el));
+      });
+    }
+
+    private handleCheckbox(el: HTMLInputElement) {
+      const name = el.name;
+      if (name === 'normalization') this.state.normalization = el.checked;
+      else if (name === 'enrichment') this.state.enrichment = el.checked;
+      else if (name === 'detection') this.state.detection = el.checked;
+      this.updateUI();
+    }
+
+    private handleSelect(el: HTMLSelectElement) {
+      const name = el.name;
+      const value = el.value;
+      if (name === 'unit') this.state.unit = value as 'MB' | 'GB' | 'TB';
+      this.updateUI();
+    }
+
+    private handleModeTab(el: HTMLButtonElement) {
+      const mode = el.dataset.mode as 'gb-day' | 'eps';
+      this.state.mode = mode;
+
+      // Update tab active states
+      this.querySelectorAll('.mode-tab').forEach((tab) => {
+        tab.classList.toggle('active', tab === el);
+      });
+
+      this.updateUI();
+    }
+
+    private handleSlider(el: HTMLInputElement) {
+      const name = el.name;
+      const value = Number(el.value);
+
+      if (name === 'sources') {
+        this.state.sources = value;
+      } else if (name === 'destinations') {
+        this.state.destinations = value;
+      } else if (name === 'ingest-volume') {
+        this.state.ingestVolume = value;
+      } else if (name === 'eps') {
+        this.state.eps = value;
+      } else if (name === 'bytes-per-event' || name === 'bytes-per-event-gbday') {
+        this.state.bytesPerEvent = value;
+        // Sync both sliders
+        this.updateSlider('bytes-per-event', value);
+        this.updateSlider('bytes-per-event-gbday', value);
+      } else if (name === 'retention') {
+        this.state.retention = value;
+      } else if (name === 'context-size') {
+        this.state.contextSize = value;
+      }
+
+      this.updateSliderOutput(el);
+      this.updateUI();
+    }
+
+    private updateSlider(name: string, value: number) {
+      const input = this.querySelector<HTMLInputElement>(`input[name="${name}"]`);
+      if (input) {
+        input.value = String(value);
+        this.updateSliderOutput(input);
+      }
+    }
+
+    private updateSliderOutput(input: HTMLInputElement) {
+      // Find output in slider-row
+      const container = input.closest('.slider-row');
+      const output = container?.querySelector('output');
+      if (!output) return;
+
+      const value = Number(input.value);
+      const name = input.name;
+
+      if (name === 'retention') {
+        output.textContent = `${value} month${value !== 1 ? 's' : ''}`;
+      } else if (name === 'context-size') {
+        output.textContent = `${value} GB`;
+      } else {
+        output.textContent = value.toLocaleString();
+      }
+    }
+
+    private formatNumber(value: number, decimals: number): string {
+      return value.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    }
+
+    private updateUI() {
+      // Update output cards
+      this.updateOutput('cpu', `${this.cpuCores.toLocaleString()} cores`);
+      this.updateOutput('ram', `${this.formatNumber(this.ramGb, 1)} GB`);
+      this.updateOutput('storage', `${this.formatNumber(this.storageTb, 2)} TB`);
+
+      // Update calculated conversions
+      if (this.state.mode === 'eps') {
+        this.updateOutput('ingest-rate', `${this.formatNumber(this.ingestGbPerDay, 1)} GB/day`);
+      } else {
+        // Calculate EPS from GB/day and bytes/event
+        const bytesPerDay = this.ingestGbPerDay * 1e9;
+        const eps = bytesPerDay / this.state.bytesPerEvent / 86400;
+        this.updateOutput('eps-rate', `${Math.round(eps).toLocaleString()} EPS`);
+      }
+
+      // Toggle mode sections
+      const gbdayInputs = this.querySelector<HTMLElement>('.gbday-inputs');
+      const epsInputs = this.querySelector<HTMLElement>('.eps-inputs');
+      const ingestRateOutput = this.querySelector<HTMLElement>('[data-output="ingest-rate"]');
+      const epsRateOutput = this.querySelector<HTMLElement>('[data-output="eps-rate"]');
+
+      if (gbdayInputs) gbdayInputs.hidden = this.state.mode !== 'gb-day';
+      if (epsInputs) epsInputs.hidden = this.state.mode !== 'eps';
+      if (ingestRateOutput) ingestRateOutput.hidden = this.state.mode !== 'eps';
+      if (epsRateOutput) epsRateOutput.hidden = this.state.mode !== 'gb-day';
+
+      // Toggle enrichment section
+      const enrichmentSection = this.querySelector<HTMLElement>('[data-section="enrichment"]');
+      if (enrichmentSection) {
+        enrichmentSection.hidden = !this.state.enrichment;
+      }
+    }
+
+    private updateOutput(name: string, value: string) {
+      const el = this.querySelector(`[data-output="${name}"]`);
+      if (el) el.textContent = value;
+    }
+  }
+
+  customElements.define('node-sizing-calculator', NodeSizingCalculator);
+</script>
+
+<style is:global>
+  /* Node Sizing Calculator - uses Tenzir Design System tokens from design-system-core.css */
+  node-sizing-calculator {
+    display: block;
+    max-width: 640px;
+    font-family: var(--tnz-font-sans);
+  }
+
+  /* Calculator Card Container */
+  node-sizing-calculator .calculator-card {
+    background-color: var(--tnz-neutral-50);
+    border: 1px solid var(--tnz-neutral-200);
+    border-radius: var(--tnz-radius);
+    padding: 24px;
+    box-shadow: var(--tnz-shadow-xs);
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .calculator-card {
+    background-color: var(--tnz-neutral-800);
+    border-color: var(--tnz-neutral-700);
+  }
+
+  node-sizing-calculator .divider {
+    border: none;
+    border-top: 1px solid var(--tnz-neutral-200);
+    margin: 20px 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .divider {
+    border-top-color: var(--tnz-neutral-700);
+  }
+
+  /* Row layout */
+  node-sizing-calculator .input-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  node-sizing-calculator .row-label {
+    flex: 0 0 110px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tnz-neutral-800);
+    line-height: 20px;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .row-label {
+    color: var(--tnz-neutral-50);
+  }
+
+  node-sizing-calculator .row-label.with-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Checkbox toggle group */
+  node-sizing-calculator .toggle-group {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+  }
+
+  node-sizing-calculator .checkbox-label {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--tnz-neutral-800);
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+    line-height: 20px;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .checkbox-label {
+    color: var(--tnz-neutral-50);
+  }
+
+  node-sizing-calculator .checkbox-label input[type='checkbox'] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Tenzir Brand Checkbox - 16px, 5px radius */
+  node-sizing-calculator .checkmark {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    background: var(--tnz-neutral-50);
+    border: 1px solid var(--tnz-neutral-300);
+    border-radius: var(--tnz-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .checkmark {
+    background: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-500);
+  }
+
+  node-sizing-calculator .checkbox-label:hover .checkmark {
+    background: var(--tnz-neutral-100);
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .checkbox-label:hover .checkmark {
+    background: var(--tnz-neutral-600);
+  }
+
+  /* Checkmark SVG icon */
+  node-sizing-calculator .checkmark::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 8' fill='none'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='%23FDFDFE' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  node-sizing-calculator .checkbox-label input:checked + .checkmark {
+    background: var(--tnz-primary-500);
+    border-color: var(--tnz-primary-500);
+  }
+
+  node-sizing-calculator .checkbox-label input:checked + .checkmark::after {
+    opacity: 1;
+  }
+
+  node-sizing-calculator .checkbox-label:hover input:checked + .checkmark {
+    background: var(--tnz-primary-600);
+    border-color: var(--tnz-primary-600);
+  }
+
+  node-sizing-calculator .checkbox-label input:focus-visible + .checkmark {
+    box-shadow: 0 0 0 2px var(--tnz-primary-200);
+    outline: none;
+  }
+
+  /* Data volume section */
+  node-sizing-calculator .data-volume-section {
+    margin-bottom: 0;
+  }
+
+  node-sizing-calculator .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  node-sizing-calculator .section-label {
+    flex: 0 0 110px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--tnz-neutral-800);
+    line-height: 20px;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .section-label {
+    color: var(--tnz-neutral-50);
+  }
+
+  /* Tenzir Brand Segmented Control */
+  node-sizing-calculator .mode-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 2px;
+    background: var(--tnz-neutral-100);
+    border: 1px solid var(--tnz-neutral-200);
+    border-radius: var(--tnz-radius);
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .mode-tabs {
+    background: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-600);
+  }
+
+  node-sizing-calculator .mode-tab {
+    height: 24px;
+    padding: 0 8px;
+    min-width: 20px;
+    font-family: var(--tnz-font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    color: var(--tnz-neutral-500);
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: none;
+    margin: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .mode-tab {
+    color: var(--tnz-neutral-400);
+  }
+
+  node-sizing-calculator .mode-tab.active {
+    background: var(--tnz-neutral-50);
+    color: var(--tnz-neutral-800);
+    border-radius: var(--tnz-radius-sm);
+    box-shadow: 0px 1px 4px 0px rgba(14, 18, 23, 0.2);
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .mode-tab.active {
+    background: var(--tnz-neutral-600);
+    color: var(--tnz-neutral-50);
+  }
+
+  /* Tenzir Brand Select/Dropdown */
+  node-sizing-calculator .inline-select {
+    height: 28px;
+    padding: 4px 8px;
+    font-family: var(--tnz-font-sans);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    border: 1px solid var(--tnz-neutral-200);
+    border-radius: var(--tnz-radius);
+    background-color: var(--tnz-neutral-100);
+    color: var(--tnz-neutral-800);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .inline-select {
+    background-color: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-600);
+    color: var(--tnz-neutral-50);
+  }
+
+  node-sizing-calculator .inline-select:hover {
+    border-color: var(--tnz-neutral-250);
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .inline-select:hover {
+    border-color: var(--tnz-neutral-500);
+  }
+
+  node-sizing-calculator .inline-select:focus {
+    outline: none;
+    border-color: var(--tnz-primary-500);
+    box-shadow: 0 0 0 3px var(--tnz-primary-200);
+  }
+
+  /* GB/day inputs section */
+  node-sizing-calculator .gbday-inputs {
+    margin-bottom: 8px;
+  }
+
+  /* Slider rows */
+  node-sizing-calculator .slider-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Tenzir Brand Slider */
+  node-sizing-calculator input[type='range'] {
+    flex: 1;
+    height: 4px;
+    appearance: none;
+    background: var(--tnz-neutral-200);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator input[type='range'] {
+    background: var(--tnz-neutral-600);
+  }
+
+  node-sizing-calculator input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--tnz-primary-500);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(14, 18, 23, 0.2);
+    transition: background 0.15s ease;
+  }
+
+  node-sizing-calculator input[type='range']::-webkit-slider-thumb:hover {
+    background: var(--tnz-primary-600);
+  }
+
+  node-sizing-calculator input[type='range']::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--tnz-primary-500);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(14, 18, 23, 0.2);
+    transition: background 0.15s ease;
+  }
+
+  node-sizing-calculator input[type='range']::-moz-range-thumb:hover {
+    background: var(--tnz-primary-600);
+  }
+
+  node-sizing-calculator input[type='range']:focus-visible {
+    outline: none;
+  }
+
+  node-sizing-calculator input[type='range']:focus-visible::-webkit-slider-thumb {
+    box-shadow:
+      0 1px 4px rgba(14, 18, 23, 0.2),
+      0 0 0 3px var(--tnz-primary-200);
+  }
+
+  node-sizing-calculator input[type='range']:focus-visible::-moz-range-thumb {
+    box-shadow:
+      0 1px 4px rgba(14, 18, 23, 0.2),
+      0 0 0 3px var(--tnz-primary-200);
+  }
+
+  /* Slider output values */
+  node-sizing-calculator .slider-value {
+    min-width: 80px;
+    font-family: var(--tnz-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tnz-neutral-800);
+    line-height: 20px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .slider-value {
+    color: var(--tnz-neutral-50);
+  }
+
+  node-sizing-calculator .calculated-value {
+    display: inline-block;
+    font-family: var(--tnz-font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tnz-neutral-800);
+    line-height: 20px;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .calculated-value {
+    color: var(--tnz-neutral-50);
+  }
+
+  /* EPS inputs section */
+  node-sizing-calculator .eps-inputs {
+    margin-bottom: 8px;
+  }
+
+  /* Tenzir Brand Output Cards */
+  node-sizing-calculator .calculator-outputs {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  node-sizing-calculator .metric-card {
+    flex: 1;
+    background-color: var(--tnz-neutral-100);
+    border: 1px solid var(--tnz-neutral-200);
+    border-radius: var(--tnz-radius);
+    padding: 16px;
+    margin: 0;
+    text-align: center;
+    box-shadow: var(--tnz-shadow-xs);
+    transition: box-shadow 0.15s ease;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .metric-card {
+    background-color: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-600);
+  }
+
+  node-sizing-calculator .metric-card:hover {
+    box-shadow: var(--tnz-shadow-s);
+  }
+
+  node-sizing-calculator .metric-label {
+    display: block;
+    margin: 0 0 4px 0;
+    font-family: var(--tnz-font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--tnz-neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 14px;
+  }
+
+  node-sizing-calculator .metric-value {
+    display: block;
+    margin: 0;
+    font-family: var(--tnz-font-sans);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--tnz-neutral-800);
+    line-height: 28px;
+  }
+
+  :root[data-theme='dark'] node-sizing-calculator .metric-value {
+    color: var(--tnz-neutral-50);
+  }
+
+  /* Hidden utility */
+  node-sizing-calculator [hidden] {
+    display: none !important;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    node-sizing-calculator .input-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    node-sizing-calculator .row-label {
+      flex: none;
+    }
+
+    node-sizing-calculator .toggle-group,
+    node-sizing-calculator .slider-row {
+      width: 100%;
+    }
+
+    node-sizing-calculator .toggle-group {
+      flex-wrap: wrap;
+      gap: 12px 20px;
+    }
+
+    node-sizing-calculator .slider-row {
+      flex-wrap: wrap;
+    }
+
+    node-sizing-calculator .slider-row input[type='range'] {
+      width: 100%;
+      order: 10;
+    }
+
+    node-sizing-calculator .calculator-outputs {
+      flex-direction: column;
+    }
+  }
+</style>

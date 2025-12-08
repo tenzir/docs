@@ -2,78 +2,77 @@
 title: Size a node
 ---
 
-To better understand what resources you need to run a node, we provide guidance
-on sizing and a [calculator](#calculator) to derive concrete **CPU**, **RAM**,
-and **storage** requirements.
+import NodeSizingCalculator from '../../../../components/NodeSizingCalculator.astro';
 
-## Considerations
-
-Several factors have an impact on sizing. Since you can run many types of
-workloads in pipelines, it is difficult to make a one-size-fits-all
-recommendation. The following considerations affect your resource requirements:
-
-### Workloads
-
-Depending on what you do with pipelines, you may generate a different resource
-profile.
-
-#### Data Shaping
-
-[Shaping](/guides/data-shaping/shape-data) operation changes the form of the
-data, e.g., filtering events, removing columns, or changing values. This
-workload predominantly incurs **CPU** load.
-
-#### Aggregation
-
-Performing in-stream or historical aggregations often requires extensive
-buffering of the aggregation groups, which adds to your **RAM** requirements. If
-you run intricate custom aggregation functions, you also may see an additional
-increase CPU usage.
-
-#### Enrichment
-
-[Enriching](/explanations/enrichment) dataflows with contexts requires
-holding in-memory state proportional to the context size. Therefore, enrichment
-affects your **RAM** requirements. Bloom filters are a fixed-size
-space-efficient structure for representing large sets, and lookup tables grow
-linearly with the number of entries.
-
-### Data Diversity
-
-The more data sources you have, the more pipelines you run. In the simplest
-scenario where you just import all data into a node, you deploy one pipeline per
-data source. The number of data sources is a thus a lower bound for the number
-of pipelines.
-
-### Data Volume
-
-The throughput of pipeline has an impact on performance. Pipelines with low data
-volume do not strain the system much, but high-volume pipelines substantially
-affect **CPU** and **RAM** requirements. Therefore, understanding your ingress
-volume, either as events per second or bytes per day, is helpful for sizing your
-node proportionally.
-
-### Retention
-
-When you leverage the node's built-in storage engine by
-[importing](/guides/edge-storage/import-into-a-node) and
-[exporting](/guides/edge-storage/export-from-a-node) data, you need
-persistent **storage**. To assess your retention span, you need to understand
-your data volume and your capacity.
-
-Tenzir storage engine builds sparse indexes to accelerate historical queries.
-Based on how aggressively configure indexing, your **RAM** requirements may
-vary.
+This guide helps you determine the **CPU**, **RAM**, and **storage** resources
+needed to run a Tenzir node. Use the [calculator](#calculator) below to get
+concrete estimates based on your deployment scenario.
 
 ## Calculator
 
-<div style={{ width: "100%", height: "1300px", overflow: "visible" }}>
-  <iframe
-    src="https://tenzir-node-sizing.streamlit.app/?embed=true"
-    style={{
-      width: "100%",
-      height: "100%",
-      border: "none",
-    }}
-  ></iframe>
-</div>
+Adjust the sliders to match your expected workload:
+
+<NodeSizingCalculator />
+
+## Input factors
+
+The calculator considers the following factors to estimate resource
+requirements.
+
+### Data volume
+
+The amount of data flowing through your node is the primary driver for resource
+requirements. You can specify your ingest rate either as **GB/day** or as
+**events per second (EPS)**. The calculator converts between these units based
+on the average bytes per event.
+
+Typical event sizes vary by source:
+
+- Firewall logs: 300–800 bytes
+- EDR telemetry: 500–2,000 bytes
+- Cloud audit logs: 1,000–5,000 bytes
+
+### Sources
+
+The number of distinct data sources feeding into your node. Each source requires
+parsing incoming data (typically JSON) and maintaining input buffers. The
+calculator assumes approximately 10 different log types per source, which is
+typical for firewalls, EDRs, and cloud providers.
+
+### Destinations
+
+The number of outputs where your node sends data. Each destination requires
+serializing data (e.g., to Parquet or JSON) and maintaining output buffers.
+Common destinations include cloud storage, SIEMs, and data lakes.
+
+### Edge storage
+
+How long data stays in the node's edge storage before deletion or archival. This determines your **storage** requirements.
+Tenzir uses Zstd compression, achieving roughly 10× reduction of the raw input
+volume.
+
+Note that this refers to data stored _on the node itself_, not data forwarded to
+external destinations like a data lake.
+
+## Workloads
+
+Optional workloads add overhead to the base resource requirements.
+
+### Normalization
+
+Normalization parses and transforms raw data into structured events with a
+common schema. This adds **CPU** overhead proportional to the number of sources
+and log types.
+
+### Enrichment
+
+[Enriching](/explanations/enrichment) events with context data requires holding
+lookup tables in memory. The **Context Size** slider lets you specify how much
+data you plan to use for enrichment. This directly affects your **RAM**
+requirements.
+
+### Detection
+
+Running detection rules, correlations, or analytics adds **CPU** overhead for
+rule evaluation and **RAM** for maintaining state across events (e.g., for
+time-windowed correlations).
