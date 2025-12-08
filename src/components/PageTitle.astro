@@ -120,27 +120,28 @@ for (let i = 0; i < segments.length - 1; i++) {
     display: contents;
   }
 
-  /* Copy the original h1 styles from Starlight */
+  /* Page title h1 styles */
   h1 {
-    margin-top: var(--tnz-space-4);
+    margin-top: var(--tnz-space-3);
     font-size: var(--sl-text-h1);
     line-height: var(--sl-line-height-headings);
     font-weight: var(--tnz-font-semibold);
     color: var(--sl-color-white);
+    letter-spacing: -0.02em;
   }
 
   /* Breadcrumb Component Styles */
   :global(.c-breadcrumbs) {
-    margin-bottom: var(--tnz-space-6);
+    margin-bottom: var(--tnz-space-4);
     font-size: var(--tnz-text-xs);
-    line-height: var(--sl-line-height-headings);
+    line-height: var(--tnz-leading-xs);
   }
 
   :global(.c-breadcrumbs__crumbs) {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--tnz-space-1);
+    gap: var(--tnz-space-0-5);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -149,13 +150,13 @@ for (let i = 0; i < segments.length - 1; i++) {
   :global(.c-breadcrumbs__crumb) {
     display: flex;
     align-items: center;
-    gap: var(--tnz-space-1);
+    gap: var(--tnz-space-0-5);
   }
 
   :global(.c-breadcrumbs__link) {
-    color: var(--sl-color-gray-3);
+    color: var(--tnz-neutral-400);
     text-decoration: none;
-    transition: all var(--tnz-transition-base);
+    transition: color var(--tnz-transition-base);
     display: inline-flex;
     align-items: center;
     padding: var(--tnz-space-0-5) var(--tnz-space-1);
@@ -163,13 +164,12 @@ for (let i = 0; i < segments.length - 1; i++) {
   }
 
   :global(.c-breadcrumbs__link:hover) {
-    color: var(--sl-color-gray-3);
-    background-color: var(--tnz-nav-hover-bg);
+    color: var(--sl-color-white);
   }
 
   :global(.c-breadcrumbs__link.is-current) {
     color: var(--sl-color-white);
-    font-weight: var(--tnz-font-semibold);
+    font-weight: var(--tnz-font-medium);
     pointer-events: none;
   }
 
@@ -177,36 +177,59 @@ for (let i = 0; i < segments.length - 1; i++) {
   :global(.c-breadcrumbs__link.breadcrumb-disabled) {
     pointer-events: none;
     text-decoration: none;
-    color: var(--sl-color-gray-3);
+    color: var(--tnz-neutral-500);
     cursor: default;
   }
 
   :global(.c-breadcrumbs__link.is-index) {
-    padding: var(--tnz-space-1);
+    padding: var(--tnz-space-0-5);
   }
 
   :global(.c-breadcrumbs__link.is-index svg) {
-    width: var(--tnz-text-sm);
-    height: var(--tnz-text-sm);
+    width: 14px;
+    height: 14px;
   }
 
   :global(.c-breadcrumbs__separator) {
-    color: var(--sl-color-gray-4);
-    opacity: 0.5;
+    color: var(--tnz-neutral-600);
     display: flex;
     align-items: center;
-    margin: 0 var(--tnz-space-0-5);
   }
 
   :global(.c-breadcrumbs__separator svg) {
-    width: var(--tnz-text-xs);
-    height: var(--tnz-text-xs);
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Light mode */
+  :global([data-theme='light'] .c-breadcrumbs__link) {
+    color: var(--tnz-neutral-500);
+  }
+
+  :global([data-theme='light'] .c-breadcrumbs__link:hover) {
+    color: var(--tnz-neutral-800);
+  }
+
+  :global([data-theme='light'] .c-breadcrumbs__link.is-current) {
+    color: var(--tnz-neutral-800);
+  }
+
+  :global([data-theme='light'] .c-breadcrumbs__link.breadcrumb-disabled) {
+    color: var(--tnz-neutral-400);
+  }
+
+  :global([data-theme='light'] .c-breadcrumbs__separator) {
+    color: var(--tnz-neutral-300);
   }
 
   @media (max-width: 50rem) {
+    h1 {
+      margin-top: var(--tnz-space-2);
+    }
+
     :global(.c-breadcrumbs) {
       font-size: var(--tnz-text-xxs);
-      margin-bottom: var(--tnz-space-4);
+      margin-bottom: var(--tnz-space-3);
     }
 
     :global(.c-breadcrumbs__crumbs) {
@@ -222,17 +245,13 @@ for (let i = 0; i < segments.length - 1; i++) {
     }
 
     :global(.c-breadcrumbs__link.is-index svg) {
-      width: var(--tnz-text-xs);
-      height: var(--tnz-text-xs);
-    }
-
-    :global(.c-breadcrumbs__separator) {
-      margin: 0;
+      width: 12px;
+      height: 12px;
     }
 
     :global(.c-breadcrumbs__separator svg) {
-      width: var(--tnz-text-xxs);
-      height: var(--tnz-text-xxs);
+      width: 10px;
+      height: 10px;
     }
   }
 </style>

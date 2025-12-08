@@ -10,24 +10,50 @@ import Default from '@astrojs/starlight/components/MobileMenuToggle.astro';
   /*
    * Override Starlight's mobile menu button styles.
    * !important is required to override Starlight's built-in styles.
-   * The --sl-color-* and --tnz-nav-hover-bg tokens are theme-aware,
-   * so no separate light/dark mode rules are needed.
    */
   starlight-menu-button button {
     background-color: transparent !important;
     box-shadow: none !important;
-    color: var(--sl-color-gray-1) !important;
-    transition: all var(--tnz-transition-base) !important;
+    border: none !important;
+    color: var(--tnz-neutral-400) !important;
+    border-radius: var(--tnz-radius-sm) !important;
+    padding: var(--tnz-space-2) !important;
+    transition: color var(--tnz-transition-base), background-color var(--tnz-transition-base) !important;
   }
 
   starlight-menu-button button:hover {
     background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
+    color: var(--sl-color-white) !important;
+  }
+
+  starlight-menu-button button:focus-visible {
+    outline: 2px solid var(--tnz-primary-500) !important;
+    outline-offset: 2px !important;
   }
 
   starlight-menu-button[aria-expanded="true"] button {
-    background-color: var(--tnz-nav-hover-bg) !important;
-    color: var(--sl-color-gray-2) !important;
+    background-color: var(--tnz-nav-active-bg) !important;
+    color: var(--sl-color-white) !important;
     box-shadow: none !important;
+  }
+
+  /* Light mode */
+  :global([data-theme='light']) starlight-menu-button button {
+    color: var(--tnz-neutral-500) !important;
+  }
+
+  :global([data-theme='light']) starlight-menu-button button:hover {
+    color: var(--tnz-neutral-800) !important;
+  }
+
+  :global([data-theme='light']) starlight-menu-button[aria-expanded="true"] button {
+    color: var(--tnz-neutral-800) !important;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    starlight-menu-button button {
+      transition: none !important;
+    }
   }
 </style>
