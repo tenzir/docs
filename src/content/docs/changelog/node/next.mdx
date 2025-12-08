@@ -111,6 +111,17 @@ an inconsistent state, leading to an "unexpected internal error: unreachable".
 
 By [@IyeOnline](https://github.com/IyeOnline) in [#5590](https://github.com/tenzir/tenzir/pull/5590).
 
+#### Fixed an assertion in parsers
+
+When parsing typed-data (e.g. integers in JSON), with a predefined schema that
+expected a different type (e.g. a `time`), the parser would crash with an
+assertion failure.
+
+This has now been resolved and the field will simply be null instead with a
+warning being emitted.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5595](https://github.com/tenzir/tenzir/pull/5595).
+
 #### Removed warning for `void` metrics
 
 The non-actionable warning "received an operator metric without a unit" that was
