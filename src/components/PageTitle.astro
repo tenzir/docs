@@ -60,10 +60,11 @@ for (let i = 0; i < segments.length - 1; i++) {
 
   if (!pageExists) {
     // This intermediate path doesn't exist, so make it non-clickable
+    // Include c-breadcrumbs__link base class since the library replaces rather than merges classes
     customizeLinks.push({
       index: i + 1, // +1 because index 0 is Home
       href: '#',
-      class: 'breadcrumb-disabled',
+      class: 'c-breadcrumbs__link breadcrumb-disabled',
       onclick: 'return false;',
       tabindex: '-1'
     });
@@ -153,9 +154,12 @@ for (let i = 0; i < segments.length - 1; i++) {
     gap: var(--tnz-space-0-5);
   }
 
-  :global(.c-breadcrumbs__link) {
-    color: var(--tnz-neutral-400);
-    text-decoration: none;
+  :global(.c-breadcrumbs__link),
+  :global(.c-breadcrumbs__link:link),
+  :global(.c-breadcrumbs__link:visited) {
+    color: var(--tnz-neutral-400) !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
     transition: color var(--tnz-transition-base);
     display: inline-flex;
     align-items: center;
@@ -163,8 +167,11 @@ for (let i = 0; i < segments.length - 1; i++) {
     border-radius: var(--tnz-radius-sm);
   }
 
-  :global(.c-breadcrumbs__link:hover) {
-    color: var(--sl-color-white);
+  :global(.c-breadcrumbs__link:hover),
+  :global(.c-breadcrumbs__link:focus) {
+    color: var(--sl-color-white) !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
   }
 
   :global(.c-breadcrumbs__link.is-current) {
@@ -202,12 +209,19 @@ for (let i = 0; i < segments.length - 1; i++) {
   }
 
   /* Light mode */
-  :global([data-theme='light'] .c-breadcrumbs__link) {
-    color: var(--tnz-neutral-500);
+  :global([data-theme='light'] .c-breadcrumbs__link),
+  :global([data-theme='light'] .c-breadcrumbs__link:link),
+  :global([data-theme='light'] .c-breadcrumbs__link:visited) {
+    color: var(--tnz-neutral-500) !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
   }
 
-  :global([data-theme='light'] .c-breadcrumbs__link:hover) {
-    color: var(--tnz-neutral-800);
+  :global([data-theme='light'] .c-breadcrumbs__link:hover),
+  :global([data-theme='light'] .c-breadcrumbs__link:focus) {
+    color: var(--tnz-neutral-800) !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
   }
 
   :global([data-theme='light'] .c-breadcrumbs__link.is-current) {
