@@ -170,6 +170,109 @@ tutorial OCSF mapping](/tutorials/map-data-to-ocsf) where we cover OCSF at great
 length.
 :::
 
+### Add arguments to your operators
+
+So far, our operators are static—they always do the same thing. But what if we
+want to make them more flexible? [Parameterized
+operators](/explanations/packages#parameterized-operators) allow you to pass
+arguments and options, just like built-in operators.
+
+Let's create a reusable operator that tags events with threat intelligence
+metadata. We'll make the confidence level configurable:
+
+```tql title="operators/tag_threat.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+      description: The field containing the indicator value
+  named:
+    - name: confidence
+      type: string
+      default: "Medium"
+      description: Confidence level (Low, Medium, High)
+    - name: source
+      type: string
+      default: "SSLBL"
+      description: The threat intelligence source name
+---
+this.threat = {
+  indicator: $field,
+  confidence: $confidence,
+  source: $source,
+}
+```
+
+The YAML frontmatter defines the operator's interface:
+
+- **Positional arguments** (`args.positional`) are passed in order
+- **Named arguments** (`args.named`) use the `name=value` syntax and can have
+  defaults
+
+Now you can call this operator with different configurations:
+
+```tql
+// Use defaults
+from {hash: "abc123"}
+sslbl::tag_threat this.hash
+```
+
+```tql
+{hash: "abc123", threat: {indicator: "abc123", confidence: "Medium", source: "SSLBL"}}
+```
+
+```tql
+// Override confidence
+from {hash: "abc123"}
+sslbl::tag_threat this.hash, confidence="High"
+```
+
+```tql
+{hash: "abc123", threat: {indicator: "abc123", confidence: "High", source: "SSLBL"}}
+```
+
+```tql
+// Override both options
+from {hash: "abc123"}
+sslbl::tag_threat this.hash, confidence="High", source="Custom Feed"
+```
+
+```tql
+{hash: "abc123", threat: {indicator: "abc123", confidence: "High", source: "Custom Feed"}}
+```
+
+The `field` type is special—it accepts field selectors like `this.hash` and
+allows your operator to work with any field the caller specifies.
+
+#### Supported parameter types
+
+You can constrain parameters to specific types:
+
+| Type     | Description                          | Example value |
+| -------- | ------------------------------------ | ------------- |
+| `field`  | A field selector                     | `this.name`   |
+| `string` | Text values                          | `"hello"`     |
+| `int`    | Integer numbers                      | `42`          |
+| `double` | Floating-point numbers               | `3.14`        |
+| `bool`   | Boolean values                       | `true`        |
+| `ip`     | IP addresses                         | `192.168.1.1` |
+| `secret` | Sensitive strings (handled securely) | `"api-key"`   |
+
+Omit the `type` field to accept any value. All types accept `null`.
+
+#### Test parameterized operators
+
+Testing parameterized operators works the same way as regular operators. Create
+test files that exercise different argument combinations:
+
+```tql title="tests/tag_threat.tql"
+from {hash: "test123"}
+sslbl::tag_threat this.hash, confidence="High", source="Test"
+```
+
+This ensures your operator handles various inputs correctly
+
 ## Add deployable pipelines
 
 With our user-defined operators, we get building blocks, but not yet entire
@@ -312,8 +415,9 @@ mkdir tests
 mkdir tests/inputs # files we reference from tests
 ```
 
-We'll put a trimmed version of https://sslbl.abuse.ch/blacklist/sslblacklist.csv
-into `tests/inputs/`:
+We'll put a trimmed version of the
+[sslblacklist.csv](https://sslbl.abuse.ch/blacklist/sslblacklist.csv) file into
+`tests/inputs/`:
 
 import sslblacklistCsv from '/public/packages/sslbl/tests/inputs/sslblacklist.csv?raw';
 

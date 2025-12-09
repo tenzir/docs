@@ -76,6 +76,191 @@ to_file "ocsf.json"
 
 The `tests/` directory can include tests for these operators.
 
+#### Parameterized operators
+
+Operators can accept arguments and options, enabling you to create flexible,
+reusable building blocks that match the calling conventions of built-in
+operators. Define parameters in a YAML frontmatter block at the beginning of the
+`.tql` file.
+
+##### Defining arguments
+
+Arguments are **positional parameters** passed in order when calling the
+operator. Define them under the `args.positional` key:
+
+```tql title="operators/tag.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+    - name: value
+      type: string
+---
+$field = $value
+```
+
+Call this operator with positional arguments:
+
+```tql
+from {x: 1}
+pkg::tag this.name, "Alice"
+```
+
+```tql
+{x: 1, name: "Alice"}
+```
+
+##### Defining options
+
+Options are **named parameters** with optional default values. Define them
+under the `args.named` key:
+
+```tql title="operators/tag.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+    - name: value
+      type: string
+  named:
+    - name: prefix
+      type: string
+      default: ""
+---
+$field = $prefix + $value
+```
+
+Call this operator with both arguments and options:
+
+```tql
+from {x: 1}
+pkg::tag this.name, "Alice", prefix="User: "
+```
+
+```tql
+{x: 1, name: "User: Alice"}
+```
+
+##### Parameter schema
+
+Each parameter supports the following fields:
+
+| Field         | Required | Description                                          |
+| ------------- | -------- | ---------------------------------------------------- |
+| `name`        | Yes      | Parameter name, used as `$name` in the operator body |
+| `type`        | No       | Type constraint for the parameter value              |
+| `description` | No       | Documentation string for the parameter               |
+| `default`     | No       | Default value if the argument is not provided        |
+
+##### Supported types
+
+The `type` field constrains what values the parameter accepts:
+
+| Type     | Description                                                |
+| -------- | ---------------------------------------------------------- |
+| `field`  | A field selector (e.g., `this.name`). Cannot have defaults |
+| `string` | A string literal or expression                             |
+| `int`    | An integer value                                           |
+| `double` | A floating-point value                                     |
+| `bool`   | A boolean value                                            |
+| `ip`     | An IP address                                              |
+| `secret` | A secret string (accepts string literals)                  |
+
+If you omit the `type` field, the parameter accepts any value.
+
+:::note[Null values]
+All typed parameters accept `null` values regardless of their declared type.
+:::
+
+##### Optional positional arguments
+
+Positional arguments with a `default` value become optional. Callers can omit
+them, and Tenzir substitutes the default:
+
+```tql title="operators/greet.tql"
+---
+args:
+  positional:
+    - name: name
+      type: string
+      default: "World"
+---
+this.greeting = "Hello, " + $name + "!"
+```
+
+```tql
+from {}
+pkg::greet
+```
+
+```tql
+{greeting: "Hello, World!"}
+```
+
+```tql
+from {}
+pkg::greet "Alice"
+```
+
+```tql
+{greeting: "Hello, Alice!"}
+```
+
+##### Using field parameters
+
+The `field` type enables dynamic field selection. The caller passes a field
+path, and the operator uses it to read or write data:
+
+```tql title="operators/double_value.tql"
+---
+args:
+  positional:
+    - name: target
+      type: field
+---
+$target = $target * 2
+```
+
+```tql
+from {count: 5, score: 10}
+pkg::double_value this.count
+```
+
+```tql
+{count: 10, score: 10}
+```
+
+##### Calling other operators
+
+Parameterized operators can call other operators, including passing through
+their own parameters:
+
+```tql title="operators/transform.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+  named:
+    - name: multiplier
+      type: int
+      default: 2
+---
+other_pkg::scale $field, factor=$multiplier
+```
+
+##### Type checking
+
+Tenzir validates parameter types at compile time when possible:
+
+- **Compile-time checking** occurs when arguments are constant values
+- **Runtime checking** defers validation for expressions containing runtime data
+
+If a type mismatch occurs, Tenzir reports an error with the expected type and
+shows usage information for the operator.
+
 ### `pipelines`: End-to-end deployable TQL
 
 The `pipelines` directory contains fully deployable TQL pipelines. Unlike UDOs,
