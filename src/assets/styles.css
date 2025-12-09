@@ -1665,7 +1665,9 @@ starlight-tabs [role="tab"] > * {
   font-weight: var(--tnz-font-medium); /* 500 */
   line-height: var(--tnz-leading-sm); /* 20px */
   white-space: nowrap;
-  transition: background-color var(--tnz-transition-base), color var(--tnz-transition-base);
+  transition:
+    background-color var(--tnz-transition-base),
+    color var(--tnz-transition-base);
 }
 
 /* Inactive state - grey text (NOT blue) */
@@ -1675,7 +1677,7 @@ starlight-tabs [role="tab"]:not([aria-selected="true"]) {
 
 /* Tab bottom border indicator - 2px */
 starlight-tabs [role="tab"]::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -1735,11 +1737,15 @@ starlight-tabs [role="tabpanel"] {
 }
 
 /* Light mode - use design system light mode colors */
-:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]) {
+:root[data-theme="light"]
+  starlight-tabs
+  [role="tab"]:not([aria-selected="true"]) {
   color: var(--tnz-neutral-500) !important;
 }
 
-:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
+:root[data-theme="light"]
+  starlight-tabs
+  [role="tab"]:not([aria-selected="true"]):hover {
   color: var(--tnz-neutral-700) !important;
 }
 
@@ -1751,11 +1757,16 @@ starlight-tabs [role="tabpanel"] {
   color: var(--tnz-neutral-800) !important;
 }
 
-:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover {
+:root[data-theme="light"]
+  starlight-tabs
+  [role="tab"][aria-selected="true"]:hover {
   color: var(--tnz-neutral-800);
 }
 
-:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover > * {
+:root[data-theme="light"]
+  starlight-tabs
+  [role="tab"][aria-selected="true"]:hover
+  > * {
   background-color: transparent;
 }
 
