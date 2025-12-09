@@ -789,9 +789,25 @@ header[data-scrolled] {
   border-right: 1px solid var(--sl-color-gray-6);
 }
 
-/* Sidebar link styling */
+/* Sidebar link styling - override Starlight defaults */
 .sidebar-content a {
   transition: color var(--tnz-transition-base);
+}
+
+/* Override Starlight's active page styling - use transparent bg with left border */
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover {
+  background-color: transparent !important;
+  border-inline-start: 2px solid var(--tnz-primary-500) !important;
+  padding-inline-start: calc(0.5rem - 2px) !important;
+  font-weight: var(--tnz-font-medium) !important;
+  color: var(--sl-color-white) !important;
+  border-radius: 0 !important;
+}
+
+:root[data-theme="light"] .sidebar-content a[aria-current="page"],
+:root[data-theme="light"] .sidebar-content a[aria-current="page"]:hover {
+  color: var(--tnz-neutral-800) !important;
 }
 
 .sidebar-content {
@@ -1652,9 +1668,9 @@ starlight-tabs [role="tab"] > * {
   transition: background-color var(--tnz-transition-base), color var(--tnz-transition-base);
 }
 
-/* Inactive state - neutral-500 text */
-starlight-tabs [role="tab"] {
-  color: var(--tnz-neutral-400);
+/* Inactive state - grey text (NOT blue) */
+starlight-tabs [role="tab"]:not([aria-selected="true"]) {
+  color: var(--tnz-neutral-400) !important;
 }
 
 /* Tab bottom border indicator - 2px */
@@ -1670,8 +1686,8 @@ starlight-tabs [role="tab"]::after {
 }
 
 /* Hover state - background on text container */
-starlight-tabs [role="tab"]:hover {
-  color: var(--tnz-neutral-200);
+starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
+  color: var(--tnz-neutral-200) !important;
 }
 
 starlight-tabs [role="tab"]:hover > * {
@@ -1690,7 +1706,7 @@ starlight-tabs [role="tab"]:focus-visible > * {
 
 /* Active state - primary color text, 2px bottom border */
 starlight-tabs [role="tab"][aria-selected="true"] {
-  color: var(--tnz-primary-400);
+  color: var(--tnz-primary-400) !important;
 }
 
 starlight-tabs [role="tab"][aria-selected="true"]::after {
@@ -1719,12 +1735,12 @@ starlight-tabs [role="tabpanel"] {
 }
 
 /* Light mode - use design system light mode colors */
-:root[data-theme="light"] starlight-tabs [role="tab"] {
-  color: var(--tnz-neutral-500);
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]) {
+  color: var(--tnz-neutral-500) !important;
 }
 
-:root[data-theme="light"] starlight-tabs [role="tab"]:hover {
-  color: var(--tnz-neutral-700);
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
+  color: var(--tnz-neutral-700) !important;
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"]:hover > * {
@@ -1732,7 +1748,7 @@ starlight-tabs [role="tabpanel"] {
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"] {
-  color: var(--tnz-neutral-800);
+  color: var(--tnz-neutral-800) !important;
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover {
