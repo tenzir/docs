@@ -78,15 +78,15 @@ The `tests/` directory can include tests for these operators.
 
 #### Parameterized operators
 
-Operators can accept arguments and options, enabling you to create flexible,
-reusable building blocks that match the calling conventions of built-in
-operators. Define parameters in a YAML frontmatter block at the beginning of the
+Operators can accept positional and named arguments, enabling you to create
+flexible, reusable building blocks that match the calling conventions of
+built-in operators. Define parameters in a YAML frontmatter block at the beginning of the
 `.tql` file.
 
-##### Defining arguments
+##### Defining positional arguments
 
-Arguments are **positional parameters** passed in order when calling the
-operator. Define them under the `args.positional` key:
+Positional arguments are passed in order when calling the operator. Define them
+under the `args.positional` key:
 
 ```tql title="operators/tag.tql"
 ---
@@ -111,10 +111,10 @@ pkg::tag name, "Alice"
 {x: 1, name: "Alice"}
 ```
 
-##### Defining options
+##### Defining named arguments
 
-Options are **named parameters** with optional default values. Define them
-under the `args.named` key:
+Named arguments use the `name=value` syntax and can have default values. Define
+them under the `args.named` key:
 
 ```tql title="operators/tag.tql"
 ---
@@ -132,7 +132,7 @@ args:
 $field = $prefix + $value
 ```
 
-Call this operator with both arguments and options:
+Call this operator with both positional and named arguments:
 
 ```tql
 from {x: 1}
