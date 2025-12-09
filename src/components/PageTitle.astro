@@ -1,7 +1,6 @@
 ---
 import type { Props } from '@astrojs/starlight/props';
-import { Breadcrumbs } from 'astro-breadcrumbs';
-import 'astro-breadcrumbs/breadcrumbs.css';
+import { getEntry } from 'astro:content';
 import { getSearchWeight } from '../search-weights';
 
 // PAGE_TITLE_ID is just '_top' in Starlight
@@ -29,46 +28,66 @@ if (pagefindWeight !== undefined) {
   h1Attrs['data-pagefind-weight'] = pagefindWeight * 100000;
 }
 
-// Build customization array for breadcrumb links
-const customizeLinks: any[] = [];
+// Helper to capitalize slug segments as fallback
+function formatSlug(slug: string): string {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
 
-// For each intermediate segment, check if we need to customize it
-for (let i = 0; i < segments.length - 1; i++) {
-  const pathToCheck = '/' + segments.slice(0, i + 1).join('/');
+// Build custom crumbs array with page titles
+interface BreadcrumbItem {
+  text: string;
+  href: string;
+  class?: string;
+  onclick?: string;
+  tabindex?: string;
+}
 
-  // Check if a page exists at this path
-  let pageExists = true;
-  try {
-    // Use import.meta.glob to check if there's an index page at this path
-    const allPages = import.meta.glob('/src/content/docs/**/*.{md,mdx,mdoc}', { query: '?raw', import: 'default' });
+const crumbs: BreadcrumbItem[] = [];
 
-    // Check if this path has a corresponding page
-    const hasIndex = Object.keys(allPages).some(key =>
-      key === `/src/content/docs${pathToCheck}/index.md` ||
-      key === `/src/content/docs${pathToCheck}/index.mdx` ||
-      key === `/src/content/docs${pathToCheck}/index.mdoc` ||
-      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.md` ||
-      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdx` ||
-      key === `/src/content/docs${pathToCheck.replace(/\/$/, '')}.mdoc`
-    );
+// Build breadcrumbs for each path segment
+for (let i = 0; i < segments.length; i++) {
+  const pathSegments = segments.slice(0, i + 1);
+  const href = '/' + pathSegments.join('/');
+  const slug = pathSegments.join('/');
+  const currentSegment = segments[i];
 
-    pageExists = hasIndex;
-  } catch (e) {
-    // If we can't determine, assume it exists
+  // Try to get the page title from content collection
+  let title: string | null = null;
+  let pageExists = false;
+
+  // Try index page first (e.g., guides/index.mdx for /guides)
+  const indexEntry = await getEntry('docs', `${slug}/index`);
+  if (indexEntry) {
+    title = indexEntry.data.title;
     pageExists = true;
+  } else {
+    // Try direct page (e.g., guides/quickstart.mdx for /guides/quickstart)
+    const directEntry = await getEntry('docs', slug);
+    if (directEntry) {
+      title = directEntry.data.title;
+      pageExists = true;
+    }
   }
 
+  // Use formatted slug as fallback if no page found
+  const text = title || formatSlug(currentSegment);
+
+  const crumb: BreadcrumbItem = {
+    text,
+    href: pageExists ? href : '#',
+  };
+
+  // Add disabled styling for non-existent pages
   if (!pageExists) {
-    // This intermediate path doesn't exist, so make it non-clickable
-    // Include c-breadcrumbs__link base class since the library replaces rather than merges classes
-    customizeLinks.push({
-      index: i + 1, // +1 because index 0 is Home
-      href: '#',
-      class: 'c-breadcrumbs__link breadcrumb-disabled',
-      onclick: 'return false;',
-      tabindex: '-1'
-    });
+    crumb.class = 'c-breadcrumbs__link breadcrumb-disabled';
+    crumb.onclick = 'return false;';
+    crumb.tabindex = '-1';
   }
+
+  crumbs.push(crumb);
 }
 ---
 
@@ -77,39 +96,77 @@ for (let i = 0; i < segments.length - 1; i++) {
     <meta data-pagefind-meta={`type:${pagefindType}`} />
   )}
   {!isHomePage && (
-    <Breadcrumbs customizeLinks={customizeLinks}>
-    <svg
-      slot="index"
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-label="Home"
-    >
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-      <polyline points="9 22 9 12 15 12 15 22"></polyline>
-    </svg>
-    <svg
-      slot="separator"
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-    </Breadcrumbs>
+    <nav class="c-breadcrumbs" aria-label="Breadcrumbs">
+      <ol class="c-breadcrumbs__crumbs">
+        <li class="c-breadcrumbs__crumb">
+          <a href="/" class="c-breadcrumbs__link c-breadcrumbs__link--home" aria-label="Home">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </a>
+          <span class="c-breadcrumbs__separator" aria-hidden="true">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </span>
+        </li>
+        {crumbs.map((crumb, index) => (
+          <li class="c-breadcrumbs__crumb">
+            <a
+              href={crumb.href}
+              class:list={[
+                'c-breadcrumbs__link',
+                { 'breadcrumb-disabled': crumb.class?.includes('breadcrumb-disabled') },
+                { 'is-current': index === crumbs.length - 1 }
+              ]}
+              aria-current={index === crumbs.length - 1 ? 'page' : undefined}
+              onclick={crumb.onclick}
+              tabindex={crumb.tabindex}
+            >
+              {crumb.text}
+            </a>
+            {index < crumbs.length - 1 && (
+              <span class="c-breadcrumbs__separator" aria-hidden="true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
   )}
   <h1 {...h1Attrs}>
     {starlightRoute.entry.data.title}
@@ -132,14 +189,13 @@ for (let i = 0; i < segments.length - 1; i++) {
   }
 
   /* Breadcrumb Component Styles */
-  :global(.c-breadcrumbs) {
-    --size-font-breadcrumbs: var(--tnz-text-sm);
+  .c-breadcrumbs {
     margin-bottom: var(--tnz-space-4);
     font-size: var(--tnz-text-sm);
     line-height: var(--tnz-leading-sm);
   }
 
-  :global(.c-breadcrumbs__crumbs) {
+  .c-breadcrumbs__crumbs {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -149,18 +205,18 @@ for (let i = 0; i < segments.length - 1; i++) {
     padding: 0;
   }
 
-  :global(.c-breadcrumbs__crumb) {
+  .c-breadcrumbs__crumb {
     display: flex;
     align-items: center;
     gap: var(--tnz-space-0-5);
   }
 
-  :global(.c-breadcrumbs__link),
-  :global(.c-breadcrumbs__link:link),
-  :global(.c-breadcrumbs__link:visited) {
-    color: var(--tnz-neutral-400) !important;
-    text-decoration: none !important;
-    border-bottom: none !important;
+  .c-breadcrumbs__link,
+  .c-breadcrumbs__link:link,
+  .c-breadcrumbs__link:visited {
+    color: var(--tnz-neutral-400);
+    text-decoration: none;
+    border-bottom: none;
     transition: color var(--tnz-transition-base);
     display: inline-flex;
     align-items: center;
@@ -168,72 +224,72 @@ for (let i = 0; i < segments.length - 1; i++) {
     border-radius: var(--tnz-radius-sm);
   }
 
-  :global(.c-breadcrumbs__link:hover),
-  :global(.c-breadcrumbs__link:focus) {
-    color: var(--sl-color-white) !important;
-    text-decoration: none !important;
-    border-bottom: none !important;
+  .c-breadcrumbs__link:hover,
+  .c-breadcrumbs__link:focus {
+    color: var(--sl-color-white);
+    text-decoration: none;
+    border-bottom: none;
   }
 
-  :global(.c-breadcrumbs__link.is-current) {
+  .c-breadcrumbs__link.is-current {
     color: var(--sl-color-white);
     font-weight: var(--tnz-font-medium);
     pointer-events: none;
   }
 
   /* Disabled breadcrumb link (intermediate path without page) */
-  :global(.c-breadcrumbs__link.breadcrumb-disabled) {
+  .c-breadcrumbs__link.breadcrumb-disabled {
     pointer-events: none;
     text-decoration: none;
     color: var(--tnz-neutral-500);
     cursor: default;
   }
 
-  :global(.c-breadcrumbs__link.is-index) {
+  .c-breadcrumbs__link--home {
     padding: var(--tnz-space-0-5);
   }
 
-  :global(.c-breadcrumbs__link.is-index svg) {
+  .c-breadcrumbs__link--home svg {
     width: 14px;
     height: 14px;
   }
 
-  :global(.c-breadcrumbs__separator) {
+  .c-breadcrumbs__separator {
     color: var(--tnz-neutral-600);
     display: flex;
     align-items: center;
   }
 
-  :global(.c-breadcrumbs__separator svg) {
+  .c-breadcrumbs__separator svg {
     width: 12px;
     height: 12px;
   }
 
   /* Light mode */
-  :global([data-theme='light'] .c-breadcrumbs__link),
-  :global([data-theme='light'] .c-breadcrumbs__link:link),
-  :global([data-theme='light'] .c-breadcrumbs__link:visited) {
-    color: var(--tnz-neutral-500) !important;
-    text-decoration: none !important;
-    border-bottom: none !important;
+  :global([data-theme='light']) .c-breadcrumbs__link,
+  :global([data-theme='light']) .c-breadcrumbs__link:link,
+  :global([data-theme='light']) .c-breadcrumbs__link:visited {
+    color: var(--tnz-neutral-500);
+    text-decoration: none;
+    border-bottom: none;
   }
 
-  :global([data-theme='light'] .c-breadcrumbs__link:hover),
-  :global([data-theme='light'] .c-breadcrumbs__link:focus) {
-    color: var(--tnz-neutral-800) !important;
-    text-decoration: none !important;
-    border-bottom: none !important;
+  :global([data-theme='light']) .c-breadcrumbs__link:hover,
+  :global([data-theme='light']) .c-breadcrumbs__link:focus {
+    color: var(--tnz-neutral-800);
+    text-decoration: none;
+    border-bottom: none;
   }
 
-  :global([data-theme='light'] .c-breadcrumbs__link.is-current) {
+  :global([data-theme='light']) .c-breadcrumbs__link.is-current {
     color: var(--tnz-neutral-800);
   }
 
-  :global([data-theme='light'] .c-breadcrumbs__link.breadcrumb-disabled) {
+  :global([data-theme='light']) .c-breadcrumbs__link.breadcrumb-disabled {
     color: var(--tnz-neutral-400);
   }
 
-  :global([data-theme='light'] .c-breadcrumbs__separator) {
+  :global([data-theme='light']) .c-breadcrumbs__separator {
     color: var(--tnz-neutral-300);
   }
 
@@ -242,30 +298,29 @@ for (let i = 0; i < segments.length - 1; i++) {
       margin-top: var(--tnz-space-2);
     }
 
-    :global(.c-breadcrumbs) {
-      --size-font-breadcrumbs: var(--tnz-text-sm);
+    .c-breadcrumbs {
       font-size: var(--tnz-text-sm);
       margin-bottom: var(--tnz-space-3);
     }
 
-    :global(.c-breadcrumbs__crumbs) {
+    .c-breadcrumbs__crumbs {
       gap: var(--tnz-space-0-5);
     }
 
-    :global(.c-breadcrumbs__link) {
+    .c-breadcrumbs__link {
       padding: var(--tnz-space-0-5);
     }
 
-    :global(.c-breadcrumbs__link.is-index) {
+    .c-breadcrumbs__link--home {
       padding: var(--tnz-space-0-5);
     }
 
-    :global(.c-breadcrumbs__link.is-index svg) {
+    .c-breadcrumbs__link--home svg {
       width: 12px;
       height: 12px;
     }
 
-    :global(.c-breadcrumbs__separator svg) {
+    .c-breadcrumbs__separator svg {
       width: 10px;
       height: 10px;
     }
