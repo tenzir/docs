@@ -58,11 +58,12 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
 ## Workflow
 
-### Building and Testing
+### Development Server
 
-- Do not use `pnpm dev` to start a dev server, as the user most likely runs an
-  instance and you'll get a colliding port.
-- Use `pnpm build` to build the site. Output goes to `/build`.
+- Use `pnpm dev` to start a development server in the background for live
+  preview during development.
+- Use `pnpm build` only when you need to inspect build artifacts. Output goes
+  to `/build`.
 
 ### Linting
 
