@@ -104,7 +104,7 @@ Call this operator with positional arguments:
 
 ```tql
 from {x: 1}
-pkg::tag this.name, "Alice"
+pkg::tag name, "Alice"
 ```
 
 ```tql
@@ -136,7 +136,7 @@ Call this operator with both arguments and options:
 
 ```tql
 from {x: 1}
-pkg::tag this.name, "Alice", prefix="User: "
+pkg::tag name, "Alice", prefix="User: "
 ```
 
 ```tql
@@ -158,15 +158,15 @@ Each parameter supports the following fields:
 
 The `type` field constrains what values the parameter accepts:
 
-| Type     | Description                                                |
-| -------- | ---------------------------------------------------------- |
-| `field`  | A field selector (e.g., `this.name`). Cannot have defaults |
-| `string` | A string literal or expression                             |
-| `int`    | An integer value                                           |
-| `double` | A floating-point value                                     |
-| `bool`   | A boolean value                                            |
-| `ip`     | An IP address                                              |
-| `secret` | A secret string (accepts string literals)                  |
+| Type     | Description                                           |
+| -------- | ----------------------------------------------------- |
+| `field`  | A field selector (e.g., `name`). Cannot have defaults |
+| `string` | A string literal or expression                        |
+| `int`    | An integer value                                      |
+| `double` | A floating-point value                                |
+| `bool`   | A boolean value                                       |
+| `ip`     | An IP address                                         |
+| `secret` | A secret string (accepts string literals)             |
 
 If you omit the `type` field, the parameter accepts any value.
 
@@ -225,7 +225,7 @@ $target = $target * 2
 
 ```tql
 from {count: 5, score: 10}
-pkg::double_value this.count
+pkg::double_value count
 ```
 
 ```tql
