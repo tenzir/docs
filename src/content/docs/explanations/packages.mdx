@@ -202,6 +202,8 @@ pkg::greet
 {greeting: "Hello, World!"}
 ```
 
+Passing an explicit argument overrides the default:
+
 ```tql
 from {}
 pkg::greet "Alice"
@@ -223,8 +225,11 @@ args:
     - name: target
       type: field
 ---
+
 $target = $target * 2
 ```
+
+Using the operator:
 
 ```tql
 from {count: 5, score: 10}
@@ -251,6 +256,7 @@ args:
       type: int
       default: 2
 ---
+
 other_pkg::scale $field, factor=$multiplier
 ```
 
