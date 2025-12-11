@@ -81,14 +81,18 @@ jobs:
           # Clean up
           rm -rf /tmp/tenzir
 
+      - name: Configure ssh-agent for platform-internal
+        if: inputs.product == 'platform'
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PLATFORM_INTERNAL_DEPLOY_KEY }}
+
       - name: Update Tenzir Platform docs
         if: inputs.product == 'platform'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Updating Tenzir Platform docs..."
           git clone --depth 1 \
-            https://x-access-token:${GITHUB_TOKEN}@github.com/tenzir/platform-internal.git \
+            git@github.com:tenzir/platform-internal.git \
             /tmp/platform-internal
           # Run changelog script
           uv run ./changelog/changelog.py --product=platform /tmp/platform-internal/changelog
