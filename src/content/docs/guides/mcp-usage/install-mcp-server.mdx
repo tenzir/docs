@@ -7,8 +7,8 @@ import { Tabs, TabItem, Steps } from '@astrojs/starlight/components';
 To install the [Tenzir MCP Server](/reference/mcp-server) server, you can choose
 between two options:
 
-1. **Docker**: `docker run -i tenzir/mcp`
-2. **Native**: `uvx tenzir-mcp`
+1. **Docker**: `docker run --pull=always -i tenzir/mcp`
+2. **Native**: `uvx tenzir-mcp@latest`
 
 The Docker version runs a container that bundles the MCP server along with a
 Tenzir Node installation as a convenient one-stop solution.
@@ -17,16 +17,16 @@ The native version only runs the MCP server and you need to make sure that it
 can access a Tenzir Node installation yourself.
 
 :::note[Always running latest versions]
-For the native installation, the `@latest` suffix ensures you always get the
-most recent MCP server package from PyPI when launching your MCP clients, at
-the cost of increased startup time. To reduce initial load time, omit `@latest`
-and manually refresh the cache with `uvx tenzir-mcp@latest` when you want
-updates.
+For native installations, the `@latest` suffix ensures you always get the most
+recent MCP server package from PyPI when launching your MCP clients. We
+recommend keeping `@latest` to stay up to date. If startup time is a concern,
+omit `@latest` and manually refresh the cache with `uvx tenzir-mcp@latest` when
+you want updates.
 
 For Docker, the `--pull=always` flag serves a similar purpose, ensuring you
-always pull the latest image before running the container. To avoid the pull
-overhead on every start, omit this flag and manually update with `docker pull
-tenzir/mcp` when needed.
+always pull the latest image before running the container. We recommend keeping
+this flag to stay current. If startup time is a concern, omit it and manually
+update with `docker pull tenzir/mcp` when needed.
 :::
 
 ## AI agent configuration
