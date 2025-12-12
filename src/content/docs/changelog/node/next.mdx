@@ -30,6 +30,46 @@ this = message.parse_json()
 
 By [@raxyte](https://github.com/raxyte) in [#5575](https://github.com/tenzir/tenzir/pull/5575).
 
+#### Getting data from SentinelOne Data Lake
+
+The new `from_sentinelone_data_lake` operator allows you to query the SentinelOne
+Singularity Data Lake using PowerQuery and retrieve security events directly into
+your Tenzir pipelines. Tenzir's integrations with SentinelOne now allow you to
+send data to _and_ load data from SentinelOne Data Lakes.
+
+**Example**
+
+Query threat events and filter by severity:
+
+```tql
+from_sentinelone_data_lake "https://xdr.eu1.sentinelone.net",
+  token=secret("sentinelone-token"),
+  query="severity > 3 | columns id",
+  start=now()-7d
+```
+
+The operator sends a request to the `/api/powerQuery` endpoint with optional time
+range filters and parses the tabular response into events for downstream processing.
+
+By [@raxyte](https://github.com/raxyte) in [#5599](https://github.com/tenzir/tenzir/pull/5599).
+
+#### Backpressure and connection limits for HTTP server
+
+The `from_http` operator in server mode now implements backpressure, waiting for
+each request to be processed before accepting new data. This prevents memory
+pressure during traffic spikes from webhook integrations or log receivers.
+
+A new `max_connections` parameter limits simultaneous connections:
+
+```tql
+from_http "0.0.0.0:8080", server=true, max_connections=50
+```
+
+The default is 10 connections. Additional connections are rejected until a slot
+frees up, keeping your pipelines stable under heavy load.
+
+By [@raxyte](https://github.com/raxyte) in [#5601](https://github.com/tenzir/tenzir/pull/5601).
+
 #### Support for duplicate keys in parsers
 
 Our parsers now have improved support for repeated keys in a an event.
