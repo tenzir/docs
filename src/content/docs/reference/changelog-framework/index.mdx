@@ -60,6 +60,9 @@ the helper functions from `tenzir_changelog.cli` directly.
 - **Components** – You may constrain the optional `component` field on entries
   by listing allowed labels in configuration. Component filters apply to the
   CLI table, exports, and validation.
+- **Modules** – Nested changelog projects discovered via a glob pattern. Use
+  modules for monorepos where each subproject has its own changelog and independent
+  versioning. The `show` command aggregates entries from all modules by default.
 
 A typical project layout looks like this:
 
@@ -121,18 +124,19 @@ Display changelog entries in multiple views.
 tenzir-changelog show [identifiers...] [options]
 ```
 
-| Option                | Description                                                 |
-| --------------------- | ----------------------------------------------------------- |
-| `identifiers`         | Row numbers, entry IDs, release versions, or `-` (optional) |
-| `-c/--card`           | Show detailed cards for matching entries                    |
-| `-m/--markdown`       | Export as Markdown                                          |
-| `-j/--json`           | Export as JSON                                              |
-| `--compact`           | Use compact bullet-list layout                              |
-| `--no-compact`        | Use detailed card layout                                    |
-| `--no-emoji`          | Remove type emoji from output                               |
-| `--project <id>`      | Filter to specific project                                  |
-| `--component <label>` | Filter to specific component                                |
-| `--banner <text>`     | Add banner text to table output                             |
+| Option                           | Description                                                 |
+| -------------------------------- | ----------------------------------------------------------- |
+| `identifiers`                    | Row numbers, entry IDs, release versions, or `-` (optional) |
+| `-c/--card`                      | Show detailed cards for matching entries                    |
+| `-m/--markdown`                  | Export as Markdown                                          |
+| `-j/--json`                      | Export as JSON                                              |
+| `--compact`                      | Use compact bullet-list layout                              |
+| `--no-compact`                   | Use detailed card layout                                    |
+| `--no-emoji`                     | Remove type emoji from output                               |
+| `--project <id>`                 | Filter to specific project                                  |
+| `--component <label>`            | Filter to specific component                                |
+| `--banner <text>`                | Add banner text to table output                             |
+| `--include-modules/--no-modules` | Include or exclude entries from discovered modules          |
 
 The table view (default) lists entries with ID, title, type, project, PRs, and
 authors. Row numbers count backward from the newest entry, so `#1` always
@@ -240,7 +244,20 @@ tenzir-changelog validate
 ```
 
 The validator reports missing metadata, unused entries, duplicate entry IDs, and
-configuration drift across repositories.
+configuration drift across repositories. When modules are configured, validation
+runs against the parent project and all discovered modules. Issues from modules
+are prefixed with the module ID.
+
+### modules
+
+List discovered modules when a `modules` glob pattern is configured.
+
+```text
+tenzir-changelog modules
+```
+
+The command displays a table with module ID, name, relative path, and count of
+unreleased entries. Use this to discover module paths for `--root` operations.
 
 ## Configuration
 
@@ -258,6 +275,7 @@ Configuration fields:
 | `repository`   | Optional GitHub slug (e.g., `owner/repo`) used by `release publish` |
 | `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards  |
 | `components`   | Optional list of component labels that entries must satisfy         |
+| `modules`      | Optional glob pattern for discovering nested changelog projects     |
 
 Example:
 
@@ -396,7 +414,81 @@ Multi-project markdown exports follow this hierarchical structure:
   own configuration metadata when you specify multiple `--root` flags.
 - The `add` and `validate` commands do not support multi-project mode—operate on
   each project individually.
-  :::
+
+:::
+
+## Modules
+
+Modules are nested changelog projects discovered automatically via a
+configurable glob pattern. This enables repositories with multiple subprojects—each
+with its own changelog and independent versioning—to manage them from a single
+parent project.
+
+### Configuration
+
+Add a `modules` field to your parent project's `config.yaml`:
+
+```yaml
+id: library
+name: Tenzir Library
+modules: "../packages/*/changelog"
+```
+
+The glob pattern resolves relative to the changelog root directory. Each matched
+directory must contain a valid `config.yaml` with its own `id` and `name`.
+
+Example module config (`packages/amazon_vpc_flow/changelog/config.yaml`):
+
+```yaml
+id: amazon_vpc_flow
+name: Amazon VPC Flow Package
+```
+
+### Aggregated views
+
+When `modules` is configured, `show` includes entries from all modules by
+default. The table displays a **Project** column showing which project (parent
+or module) each entry belongs to:
+
+```sh
+# Show all unreleased entries (parent + modules)
+tenzir-changelog show
+
+# Show only parent entries
+tenzir-changelog show --no-modules
+```
+
+### Operating on modules
+
+Modules are fully standalone changelog projects. Use `--root` to operate on a
+specific module:
+
+```sh
+# Add entry to a module
+tenzir-changelog --root ../packages/amazon_vpc_flow/changelog add --title "Add parser"
+
+# Create a release for a module
+tenzir-changelog --root ../packages/amazon_vpc_flow/changelog release create v1.0.0
+```
+
+The `modules` command displays paths for convenient copy-paste into `--root`
+flags.
+
+### Validation
+
+When `modules` is configured, `tenzir-changelog validate` checks:
+
+- Module ID uniqueness across all discovered modules
+- Valid configuration in each module directory
+
+:::note[Modules vs multi-project mode]
+
+**Modules** are nested projects discovered automatically within a repository.
+**Multi-project mode** (via multiple `--root` flags) coordinates releases across
+separate repositories. Use modules for monorepo subprojects; use multi-project mode
+for independent repositories that release together.
+
+:::
 
 ## Troubleshooting
 
