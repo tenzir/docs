@@ -1,0 +1,56 @@
+---
+import { LinkCard as StarlightLinkCard, Icon } from '@astrojs/starlight/components';
+import { remark } from 'remark';
+import remarkHtml from 'remark-html';
+import type { HTMLAttributes } from 'astro/types';
+import type { StarlightIcon } from '@astrojs/starlight/components/Icons';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
+  title: string;
+  description?: string;
+  badge?: string;
+  icon?: StarlightIcon;
+}
+
+const { badge, description, icon, ...linkCardProps } = Astro.props;
+
+let renderedDescription: string | undefined;
+if (description) {
+  const result = await remark().use(remarkHtml).process(description);
+  renderedDescription = String(result).replace(/^<p>|<\/p>\s*$/g, '');
+}
+---
+
+<div class="link-card-wrapper">
+  {icon && <Icon name={icon} class="link-card-icon" size="1.5rem" />}
+  <StarlightLinkCard {...linkCardProps} description={renderedDescription} />
+  {badge && <span class="link-card-badge">{badge}</span>}
+</div>
+
+<style>
+  .link-card-wrapper {
+    position: relative;
+  }
+  .link-card-wrapper :global(.sl-link-card .icon) {
+    display: none;
+  }
+  .link-card-icon {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: var(--sl-color-gray-3);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .link-card-wrapper:has(.link-card-icon) :global(.sl-link-card) {
+    padding-left: 3.5rem;
+  }
+  .link-card-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    pointer-events: none;
+  }
+</style>

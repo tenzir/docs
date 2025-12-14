@@ -209,7 +209,7 @@ Run 'pnpm run generate:reference' to regenerate this file.
 */}
 
 import { CardGrid } from '@astrojs/starlight/components';
-import ReferenceCard from '../../../components/ReferenceCard.astro';
+import ReferenceCard from '@components/ReferenceCard.astro';
 
 `;
 

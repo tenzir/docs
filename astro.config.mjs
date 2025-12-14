@@ -179,8 +179,6 @@ export default defineConfig({
         ]),
         starlightSidebarTopics(topics, {
           topics: {
-            changelog_node: ["/changelog/node/*"],
-            changelog_platform: ["/changelog/platform/*"],
             reference: [
               "/reference/node/api",
               "/reference/node/api/**/*",
@@ -188,6 +186,16 @@ export default defineConfig({
               "/reference/platform/api/**/*",
               "/reference/functions/**/*",
               "/reference/operators/**/*",
+            ],
+            // Changelog project topics
+            "changelog-changelog": [
+              "/changelog/changelog",
+              "/changelog/changelog/**/*",
+            ],
+            "changelog-mcp": ["/changelog/mcp", "/changelog/mcp/**/*"],
+            "changelog-tenzir-test": [
+              "/changelog/tenzir-test",
+              "/changelog/tenzir-test/**/*",
             ],
           },
         }),
