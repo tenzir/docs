@@ -33,8 +33,8 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     <span class="topic-dropdown-label">{currentItem?.label}</span>
     <svg
       class="topic-dropdown-chevron"
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -107,13 +107,14 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     align-items: center;
     gap: var(--tnz-space-2);
     width: 100%;
-    padding: var(--tnz-space-2) var(--tnz-space-3);
+    height: 32px;
+    padding: var(--tnz-space-1) var(--tnz-space-2);
     background-color: var(--tnz-neutral-700);
     border: 1px solid var(--tnz-neutral-600);
     border-radius: var(--tnz-radius);
     color: var(--tnz-neutral-100);
     font-size: var(--tnz-text-sm);
-    font-weight: var(--tnz-font-medium);
+    font-weight: 500;
     cursor: pointer;
     transition: all var(--tnz-transition-base);
     text-align: left;
@@ -125,8 +126,9 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
   }
 
   .topic-dropdown-trigger:focus-visible {
-    outline: 2px solid var(--tnz-primary-500);
-    outline-offset: 2px;
+    outline: none;
+    border-color: var(--tnz-neutral-200);
+    box-shadow: 0 0 0 3px var(--tnz-neutral-250);
   }
 
   .topic-dropdown-trigger[aria-expanded='true'] {
@@ -156,8 +158,8 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
 
   .topic-dropdown-chevron {
     flex-shrink: 0;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     color: var(--tnz-neutral-400);
     transition: transform var(--tnz-transition-base);
   }
@@ -167,7 +169,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     top: calc(100% + var(--tnz-space-1));
     left: 0;
     right: 0;
-    z-index: var(--tnz-z-dropdown);
+    z-index: 100;
     margin: 0;
     padding: var(--tnz-space-1);
     background-color: var(--tnz-neutral-700);
@@ -191,7 +193,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     color: var(--tnz-neutral-200);
     font-size: var(--tnz-text-sm);
     text-decoration: none;
-    border-radius: var(--tnz-radius-sm);
+    border-radius: var(--tnz-radius);
     transition: all var(--tnz-transition-base);
   }
 
@@ -216,29 +218,29 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
   }
 
   .topic-dropdown-item.is-current {
-    background-color: var(--tnz-primary-500);
+    background-color: var(--tnz-neutral-600);
     color: var(--tnz-neutral-50);
   }
 
   .topic-dropdown-item.is-current:hover {
-    background-color: var(--tnz-primary-400);
+    background-color: var(--tnz-neutral-500);
   }
 
   /* Light mode */
   :global([data-theme='light']) .topic-dropdown-trigger {
-    background-color: var(--tnz-neutral-100);
-    border-color: var(--tnz-neutral-300);
+    background-color: transparent;
+    border-color: var(--tnz-neutral-250);
     color: var(--tnz-neutral-800);
   }
 
   :global([data-theme='light']) .topic-dropdown-trigger:hover {
-    background-color: var(--tnz-neutral-200);
-    border-color: var(--tnz-neutral-400);
+    background-color: var(--tnz-neutral-100);
+    border-color: var(--tnz-neutral-250);
   }
 
   :global([data-theme='light']) .topic-dropdown-trigger[aria-expanded='true'] {
-    background-color: var(--tnz-neutral-200);
-    border-color: var(--tnz-neutral-400);
+    background-color: var(--tnz-neutral-100);
+    border-color: var(--tnz-neutral-250);
   }
 
   :global([data-theme='light']) .topic-dropdown-chevron {
@@ -247,7 +249,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
 
   :global([data-theme='light']) .topic-dropdown-menu {
     background-color: var(--tnz-neutral-50);
-    border-color: var(--tnz-neutral-300);
+    border-color: var(--tnz-neutral-250);
   }
 
   :global([data-theme='light']) .topic-dropdown-item {
@@ -255,12 +257,16 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
   }
 
   :global([data-theme='light']) .topic-dropdown-item:hover {
-    background-color: var(--tnz-neutral-200);
+    background-color: var(--tnz-neutral-100);
     color: var(--tnz-neutral-800);
   }
 
   :global([data-theme='light']) .topic-dropdown-item.is-current {
-    background-color: var(--tnz-primary-500);
-    color: var(--tnz-neutral-50);
+    background-color: var(--tnz-neutral-200);
+    color: var(--tnz-neutral-800);
+  }
+
+  :global([data-theme='light']) .topic-dropdown-item.is-current:hover {
+    background-color: var(--tnz-neutral-250);
   }
 </style>
