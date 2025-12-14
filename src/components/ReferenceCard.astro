@@ -37,6 +37,7 @@ const renderedDescription = renderMarkdown(description);
 
 <style>
   .reference-card {
+    position: relative;
     border: 1px solid var(--tnz-neutral-600);
     border-radius: var(--tnz-radius);
     padding: var(--tnz-space-4);
@@ -84,6 +85,14 @@ const renderedDescription = renderMarkdown(description);
     color: inherit;
   }
 
+  /* Stretched link: make the whole card clickable */
+  .reference-card-title-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
   .reference-card-title-link:hover {
     text-decoration: none;
   }
@@ -123,6 +132,8 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card-description a {
+    position: relative;
+    z-index: 2;
     color: var(--tnz-primary-400);
     text-decoration: none;
     border-bottom: 1px solid transparent;
@@ -143,6 +154,8 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card-example {
+    position: relative;
+    z-index: 2;
     margin-top: auto;
     padding-top: var(--tnz-space-3);
   }
