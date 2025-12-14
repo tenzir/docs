@@ -7,7 +7,12 @@ import {
 } from "./sidebar";
 
 // Try generated changelog data, fall back to stub
-let changelogTopics: { label: string; id: string; link: string; items: unknown[] }[] = [];
+let changelogTopics: {
+  label: string;
+  id: string;
+  link: string;
+  items: unknown[];
+}[] = [];
 let changelogTopicParents: Record<string, string> = {};
 try {
   const generated = await import("./sidebar-changelog.generated");
