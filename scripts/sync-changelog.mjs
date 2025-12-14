@@ -496,23 +496,17 @@ ${project.description ? project.description + "\n\n" : ""}${
   }
 
   // Generate main changelog landing page
-  const projectIcons = {
-    "Tenzir Changelog": "open-book",
-    "Tenzir MCP Server": "puzzle",
-    "Tenzir Test": "rocket",
-  };
+  // Icons are defined in src/topics.ts - use generic icon here, topics.ts is authoritative
   const projectCards = projects
     .map((project) => {
       const releases = projectVersions[project.id] || [];
       const latestRelease = releases.find((r) => !r.isUnreleased);
       const version = latestRelease?.version || "";
-      const icon = projectIcons[project.name] || "document";
       return `<LinkCard
   title="${project.name}"
   description="${project.description}"
   href="/changelog/${project.id}"
   badge="${version}"
-  icon="${icon}"
 />`;
     })
     .join("\n\n");
