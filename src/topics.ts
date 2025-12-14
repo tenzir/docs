@@ -5,6 +5,7 @@ import {
   reference,
   integrations,
 } from "./sidebar";
+import changelogProjects from "./changelog-projects.json";
 
 // Try generated changelog data, fall back to stub
 let changelogTopics: {
@@ -22,6 +23,11 @@ try {
   // No generated data yet - changelog section will be empty until sync runs
 }
 
+// Build changelog project icons from shared config (keyed by display name)
+const changelogIcons = Object.fromEntries(
+  Object.values(changelogProjects).map((p) => [p.name, p.icon]),
+);
+
 // All topic icons in one place
 const icons: Record<string, string> = {
   // Main topics
@@ -32,10 +38,8 @@ const icons: Record<string, string> = {
   Explanations: "information",
   Reference: "list-format",
   Changelog: "pen",
-  // Changelog projects (by label)
-  "Tenzir Changelog": "open-book",
-  "Tenzir MCP Server": "puzzle",
-  "Tenzir Test": "rocket",
+  // Changelog projects (from shared config)
+  ...changelogIcons,
 };
 
 // Helper to create topic definitions

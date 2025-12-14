@@ -5,6 +5,11 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { createRequire } from "module";
+
+// Load shared project config (icons defined once, used by both sync and topics.ts)
+const require = createRequire(import.meta.url);
+const changelogProjects = require("../src/changelog-projects.json");
 
 /**
  * Sync changelog from tenzir/news repository.
@@ -13,13 +18,6 @@ import { execSync } from "child_process";
  *   node sync-changelog.mjs              # Clone from GitHub
  *   node sync-changelog.mjs <local-path> # Use local clone
  */
-
-// Icons for changelog projects (must match topics.ts)
-const projectIcons = {
-  changelog: "open-book",
-  mcp: "puzzle",
-  "tenzir-test": "rocket",
-};
 
 /**
  * Parse simple YAML files (config.yaml, manifest.yaml).
@@ -509,7 +507,7 @@ ${project.description ? project.description + "\n\n" : ""}${
       const releases = projectVersions[project.id] || [];
       const latestRelease = releases.find((r) => !r.isUnreleased);
       const version = latestRelease?.version || "";
-      const icon = projectIcons[project.id] || "document";
+      const icon = changelogProjects[project.id]?.icon || "document";
       return `<LinkCard
   title="${project.name}"
   description="${project.description}"
