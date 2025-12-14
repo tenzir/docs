@@ -14,6 +14,13 @@ import { execSync } from "child_process";
  *   node sync-changelog.mjs <local-path> # Use local clone
  */
 
+// Icons for changelog projects (must match topics.ts)
+const projectIcons = {
+  changelog: "open-book",
+  mcp: "puzzle",
+  "tenzir-test": "rocket",
+};
+
 /**
  * Parse simple YAML files (config.yaml, manifest.yaml).
  * Handles basic key-value pairs and multiline strings (>-).
@@ -502,10 +509,12 @@ ${project.description ? project.description + "\n\n" : ""}${
       const releases = projectVersions[project.id] || [];
       const latestRelease = releases.find((r) => !r.isUnreleased);
       const version = latestRelease?.version || "";
+      const icon = projectIcons[project.id] || "document";
       return `<LinkCard
   title="${project.name}"
   description="${project.description}"
   href="/changelog/${project.id}"
+  icon="${icon}"
   badge="${version}"
 />`;
     })
@@ -533,10 +542,10 @@ our [Discord](https://tenzir.com/discord).
   console.log(`Generated: src/content/docs/changelog/index.mdx`);
 
   // Generate sidebar and topics configuration
-  const sidebarFilePath = path.join(srcDir, "sidebar-changelog.ts");
+  const sidebarFilePath = path.join(srcDir, "sidebar-changelog.generated.ts");
   const sidebarContent = generateSidebarFile(projects, projectVersions);
   await fs.writeFile(sidebarFilePath, sidebarContent);
-  console.log(`Generated: src/sidebar-changelog.ts`);
+  console.log(`Generated: src/sidebar-changelog.generated.ts`);
 
   console.log(`\nSync complete!`);
   console.log(

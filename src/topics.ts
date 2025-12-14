@@ -5,7 +5,17 @@ import {
   reference,
   integrations,
 } from "./sidebar";
-import { changelogTopics, changelogTopicParents } from "./sidebar-changelog";
+
+// Try generated changelog data, fall back to stub
+let changelogTopics: { label: string; id: string; link: string; items: unknown[] }[] = [];
+let changelogTopicParents: Record<string, string> = {};
+try {
+  const generated = await import("./sidebar-changelog.generated");
+  changelogTopics = generated.changelogTopics;
+  changelogTopicParents = generated.changelogTopicParents;
+} catch {
+  // No generated data yet - changelog section will be empty until sync runs
+}
 
 // All topic icons in one place
 const icons: Record<string, string> = {
