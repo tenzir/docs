@@ -35,7 +35,8 @@ client.add(
     description="Body text",
     co_authors=["claude"],
 )
-client.show(identifiers=["unreleased"], view="json", include_emoji=False)
+client.show(identifiers=["unreleased"], view="markdown", explicit_links=True)
+client.release_notes("v1.0.0", explicit_links=True)
 ```
 
 For advanced scenarios, reuse `tenzir_changelog.create_cli_context` and call
@@ -133,6 +134,7 @@ tenzir-changelog show [identifiers...] [options]
 | `--compact`                      | Use compact bullet-list layout                              |
 | `--no-compact`                   | Use detailed card layout                                    |
 | `--no-emoji`                     | Remove type emoji from output                               |
+| `--explicit-links`               | Render @mentions and PR refs as explicit Markdown links     |
 | `--project <id>`                 | Filter to specific project                                  |
 | `--component <label>`            | Filter to specific component                                |
 | `--banner <text>`                | Add banner text to table output                             |
@@ -207,13 +209,21 @@ Re-export release notes without modifying files.
 tenzir-changelog release notes <identifier> [options]
 ```
 
-| Option       | Description                           |
-| ------------ | ------------------------------------- |
-| `identifier` | Release version or `-` for unreleased |
-| `-m`         | Export as Markdown (default)          |
-| `-j`         | Export as JSON                        |
-| `--compact`  | Use bullet-list layout                |
-| `--no-emoji` | Drop type icons                       |
+| Option             | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| `identifier`       | Release version or `-` for unreleased                   |
+| `-m`               | Export as Markdown (default)                            |
+| `-j`               | Export as JSON                                          |
+| `--compact`        | Use bullet-list layout                                  |
+| `--no-emoji`       | Drop type icons                                         |
+| `--explicit-links` | Render @mentions and PR refs as explicit Markdown links |
+
+Use `--explicit-links` when rendering Markdown outside of GitHub. By default,
+the output uses `@username` and `#123` references that GitHub auto-links. With
+`--explicit-links`, these become explicit Markdown links like
+`[@username](https://github.com/username)` and
+`[#123](https://github.com/owner/repo/pull/123)`, making the output portable to
+documentation sites, blogs, or other Markdown renderers.
 
 ### release publish
 
