@@ -62,9 +62,10 @@ the helper functions from `tenzir_changelog.cli` directly.
   by declaring allowed labels in configuration. Use a dict mapping component
   names to descriptions. Component filters apply to the CLI table, exports, and
   validation.
-- **Modules** – Nested changelog projects discovered via a glob pattern. Use
-  modules for monorepos where each subproject has its own changelog and independent
-  versioning. The `show` command aggregates entries from all modules by default.
+- **Modules** – Independent changelog projects discovered via a glob pattern.
+  Each module has its own configuration and versioning. The parent project acts
+  as a workspace that provides discovery, aggregated views, and typically
+  handles distribution of the bundled modules.
 
 A typical project layout looks like this:
 
@@ -243,7 +244,9 @@ tenzir-changelog release publish <version> [options]
 | `--tag`        | Create and push annotated Git tag |
 
 The command reads project metadata from `config.yaml` or `package.yaml` for the
-repository slug and uses `notes.md` as the release body.
+repository slug and uses `notes.md` as the release body. Projects without a
+`repository` field cannot publish—this is intentional for changelogs that track
+changes without producing GitHub releases (e.g., modules in a workspace).
 
 ### validate
 
@@ -278,15 +281,15 @@ precedence when both exist.
 
 Configuration fields:
 
-| Field          | Description                                                         |
-| -------------- | ------------------------------------------------------------------- |
-| `id`           | Canonical project slug written into entry frontmatter (required)    |
-| `name`         | Human-friendly label surfaced in release titles and CLI output      |
-| `description`  | Optional project description included in release manifests          |
-| `repository`   | Optional GitHub slug (e.g., `owner/repo`) used by `release publish` |
-| `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards  |
-| `components`   | Optional dict mapping component names to descriptions               |
-| `modules`      | Optional glob pattern for discovering nested changelog projects     |
+| Field          | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+| `id`           | Canonical project slug written into entry frontmatter (required)   |
+| `name`         | Human-friendly label surfaced in release titles and CLI output     |
+| `description`  | Optional project description included in release manifests         |
+| `repository`   | GitHub slug (e.g., `owner/repo`) required by `release publish`     |
+| `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards |
+| `components`   | Optional dict mapping component names to descriptions              |
+| `modules`      | Optional glob pattern for discovering nested changelog projects    |
 
 Example:
 
@@ -416,62 +419,12 @@ The CLI recognizes these environment variables:
 | -------------- | ------------------------------------------------ |
 | `GITHUB_TOKEN` | GitHub token with `repo` scope for private repos |
 
-## Multi-project mode
-
-For managing multiple related projects, `tenzir-changelog` supports coordinated
-changelog operations across multiple project roots using the `--root` flag
-repeatedly.
-
-When you specify multiple `--root` flags, the CLI enters multi-project mode:
-
-- The `show` command displays entries from all projects in a unified table with
-  a Project column, sorting entries by project order (as specified by `--root`
-  flags) and then by date within each project.
-- Markdown and JSON exports group entries by project using a hierarchical
-  format: version → project → entry type → entries.
-- The `release create` command performs atomic coordinated releases across all
-  projects. If any project fails validation (e.g., the version already exists),
-  the CLI makes no changes to any project.
-
-Use `--project <id>` to filter output to specific projects. Entry identifiers
-may repeat across projects, and the CLI keeps them correctly scoped to their
-origin project when rendering tables or exports.
-
-Multi-project markdown exports follow this hierarchical structure:
-
-```markdown
-# v5.0.0
-
-## Tenzir Core
-
-### Features
-
-- **Add pipeline builder**: Introduces the new pipeline builder UI.
-
-## Tenzir Cloud
-
-### Features
-
-- **Add SSO support**: Integrates enterprise SSO for authentication.
-```
-
-:::caution[Multi-project mode limitations]
-
-- Version bumping (`--patch`, `--minor`, `--major`) is not supported—you must
-  provide an explicit version string.
-- The `--config` flag applies only to single-project mode; each project uses its
-  own configuration metadata when you specify multiple `--root` flags.
-- The `add` and `validate` commands do not support multi-project mode—operate on
-  each project individually.
-
-:::
-
 ## Modules
 
-Modules are nested changelog projects discovered automatically via a
-configurable glob pattern. This enables repositories with multiple subprojects—each
-with its own changelog and independent versioning—to manage them from a single
-parent project.
+Modules enable monorepo support by discovering nested changelog projects via a
+glob pattern. Each module is a fully independent project with its own
+configuration, versioning, and release cycle. The parent project serves as a
+**workspace** that provides discovery and aggregated views.
 
 ### Configuration
 
@@ -484,14 +437,24 @@ modules: "../packages/*/changelog"
 ```
 
 The glob pattern resolves relative to the changelog root directory. Each matched
-directory must contain a valid `config.yaml` with its own `id` and `name`.
-
-Example module config (`packages/amazon_vpc_flow/changelog/config.yaml`):
+directory must contain a valid `config.yaml` with its own `id` and `name`:
 
 ```yaml
 id: amazon_vpc_flow
 name: Amazon VPC Flow Package
 ```
+
+### Parent as workspace
+
+When a parent project defines `modules`, it typically acts as a workspace
+coordinator rather than a versioned project itself. The parent provides:
+
+- **Discovery**: Automatically finds modules matching the glob pattern
+- **Aggregation**: Shows entries from all modules in unified views
+- **Validation**: Checks module ID uniqueness and configuration validity
+
+The parent may or may not have its own releases. A parent without releases
+exists purely for coordination.
 
 ### Aggregated views
 
@@ -509,7 +472,7 @@ tenzir-changelog show --no-modules
 
 ### Operating on modules
 
-Modules are fully standalone changelog projects. Use `--root` to operate on a
+Each module is a standalone changelog project. Use `--root` to operate on a
 specific module:
 
 ```sh
@@ -520,8 +483,18 @@ tenzir-changelog --root ../packages/amazon_vpc_flow/changelog add --title "Add p
 tenzir-changelog --root ../packages/amazon_vpc_flow/changelog release create v1.0.0
 ```
 
-The `modules` command displays paths for convenient copy-paste into `--root`
-flags.
+The `modules` command lists discovered modules with their paths for convenient
+copy-paste into `--root` flags.
+
+### Independent versioning
+
+Each module maintains its own version history and releases on its own schedule.
+There is no coordinated release mechanism—modules evolve independently.
+
+Typically, modules do not publish GitHub releases themselves. Instead, the
+parent workspace handles distribution (e.g., bundling modules into a product
+release or publishing to a package registry). Modules that need to publish
+standalone GitHub releases can add a `repository` field to their configuration.
 
 ### Validation
 
@@ -529,15 +502,6 @@ When `modules` is configured, `tenzir-changelog validate` checks:
 
 - Module ID uniqueness across all discovered modules
 - Valid configuration in each module directory
-
-:::note[Modules vs multi-project mode]
-
-**Modules** are nested projects discovered automatically within a repository.
-**Multi-project mode** (via multiple `--root` flags) coordinates releases across
-separate repositories. Use modules for monorepo subprojects; use multi-project mode
-for independent repositories that release together.
-
-:::
 
 ## Troubleshooting
 

@@ -234,13 +234,7 @@ uvx tenzir-changelog release notes unreleased
 
 ### Publish to GitHub
 
-Choose the publication path that matches your setup:
-
-- Single project: publish directly from the changelog project using the CLI.
-- Unified multi-project notes in one repo: publish once with `gh` using the
-  combined notes you exported with `show -m`.
-
-Single project (CLI-managed publish):
+Publish directly from the changelog project using the CLI:
 
 ```sh
 uvx tenzir-changelog release publish v5.4.0 --yes
@@ -259,176 +253,11 @@ uvx tenzir-changelog release publish v5.4.0 --draft --yes
 uvx tenzir-changelog release publish v5.4.0 --prerelease --yes
 ```
 
-Unified notes in one repository (manual publish with `gh`):
-
-```sh
-gh release create v5.4.0 --notes-file release-notes.md
-```
-
 :::note[Terminology]
-We use the verb “publish” in prose even though the GitHub CLI subcommand to
+We use the verb "publish" in prose even though the GitHub CLI subcommand to
 create a release is `gh release create`. If you created a draft first, you can
 publish it with `gh release edit v5.4.0 --draft=false`.
 :::
-
-## Multi-project releases
-
-Coordinate releases across multiple projects using multiple `--root` flags.
-
-### View entries across projects
-
-Display entries from all projects in a unified table:
-
-```sh
-uvx tenzir-changelog show \
-  --root ~/core \
-  --root ~/cloud \
-  --root ~/cli
-```
-
-Filter to specific projects:
-
-```sh
-uvx tenzir-changelog show \
-  --root ~/core \
-  --root ~/cloud \
-  --project cloud
-```
-
-Target a shared release:
-
-```sh
-uvx tenzir-changelog show v5.0.0 \
-  --root ~/core \
-  --root ~/cloud
-```
-
-### Export unified release notes
-
-Generate combined release notes for all projects:
-
-```sh
-uvx tenzir-changelog show -m v5.0.0 \
-  --root ~/core \
-  --root ~/cloud \
-  > release-notes.md
-```
-
-The output follows a hierarchical structure:
-
-```markdown
-# v5.0.0
-
-## Tenzir Core
-
-### Features
-
-- **Add pipeline builder**: Introduces the new pipeline builder UI.
-
-## Tenzir Cloud
-
-### Features
-
-- **Add SSO support**: Integrates enterprise SSO for authentication.
-```
-
-### Create coordinated releases
-
-Preview coordinated release across all projects:
-
-```sh
-uvx tenzir-changelog release create v5.0.0 \
-  --root ~/core \
-  --root ~/cloud \
-  --root ~/cli
-```
-
-Commit changes atomically after reviewing:
-
-```sh
-uvx tenzir-changelog release create v5.0.0 \
-  --root ~/core \
-  --root ~/cloud \
-  --root ~/cli \
-  --yes
-```
-
-This creates `releases/v5.0.0/` in each project, moves unreleased entries, and
-validates all projects before making changes. If any project fails validation,
-the CLI makes no changes to any project.
-
-### Monorepo workflow example
-
-```sh
-# From monorepo root with structure: services/api/changelog/,
-# services/worker/changelog/, services/ui/changelog/
-
-# Preview unreleased changes
-uvx tenzir-changelog show \
-  --root services/api/changelog \
-  --root services/worker/changelog \
-  --root services/ui/changelog
-
-# Create coordinated release
-uvx tenzir-changelog release create v5.0.0 \
-  --root services/api/changelog \
-  --root services/worker/changelog \
-  --root services/ui/changelog \
-  --yes
-
-# Generate unified release notes
-uvx tenzir-changelog show -m v5.0.0 \
-  --root services/api/changelog \
-  --root services/worker/changelog \
-  --root services/ui/changelog \
-  > release-notes.md
-
-# Commit, tag, and publish the GitHub release
-git add .
-git commit -m "Release v5.0.0"
-git tag -a v5.0.0 -m "Release v5.0.0"
-gh release create v5.0.0 --notes-file release-notes.md
-```
-
-:::caution[Single GitHub release with multiple roots]
-When multiple `--root` projects share the same GitHub repository, avoid running
-`uvx tenzir-changelog release publish` for each project. Doing so would
-repeatedly update the same GitHub release and overwrite notes. Prefer the
-unified `gh release create` approach shown above.
-:::
-
-### Multi-repo workflow example
-
-```sh
-# Preview changes across separate repositories
-uvx tenzir-changelog show \
-  --root ~/repos/core \
-  --root ~/repos/cloud \
-  --root ~/repos/cli
-
-# Create releases in all repos
-uvx tenzir-changelog release create v5.0.0 \
-  --root ~/repos/core \
-  --root ~/repos/cloud \
-  --root ~/repos/cli \
-  --yes
-
-# Generate unified notes
-uvx tenzir-changelog show -m v5.0.0 \
-  --root ~/repos/core \
-  --root ~/repos/cloud \
-  --root ~/repos/cli \
-  > release-notes.md
-
-# Tag and push each repository
-cd ~/repos/core && git tag -a v5.0.0 -m "Release v5.0.0" && git push --tags
-cd ~/repos/cloud && git tag -a v5.0.0 -m "Release v5.0.0" && git push --tags
-cd ~/repos/cli && git tag -a v5.0.0 -m "Release v5.0.0" && git push --tags
-
-# Publish unified release (e.g., to umbrella repo)
-cd ~/repos/umbrella
-gh release create v5.0.0 --notes-file ../release-notes.md
-```
 
 ## End-to-end Walkthrough
 
