@@ -177,7 +177,9 @@ async function readUnreleased(newsRepoPath, project) {
 
   try {
     // Check if unreleased directory exists and has entries
-    const dirEntries = await fs.readdir(unreleasedPath, { withFileTypes: true });
+    const dirEntries = await fs.readdir(unreleasedPath, {
+      withFileTypes: true,
+    });
     const mdFiles = dirEntries.filter(
       (e) => e.isFile() && e.name.endsWith(".md"),
     );
@@ -642,6 +644,17 @@ async function syncChangelog(newsRepoPath) {
       (r) => r.majorVersion === currentMajor,
     );
 
+    // Generate unreleased card if present
+    const unreleasedRelease = releases.find((r) => r.isUnreleased);
+    const unreleasedCard = unreleasedRelease
+      ? `<LinkCard
+  title="${project.name}"
+  description="Upcoming changes not yet published in a release."
+  href="/changelog/${project.id}/unreleased"
+  meta="upcoming"
+/>`
+      : "";
+
     // Generate LinkCards for all releases in current major version
     const releaseCards = currentMajorReleases
       .map((r) => {
@@ -661,6 +674,11 @@ async function syncChangelog(newsRepoPath) {
       })
       .join("\n\n");
 
+    // Combine unreleased card with release cards
+    const allCards = [unreleasedCard, releaseCards]
+      .filter(Boolean)
+      .join("\n\n");
+
     const indexContent = `---
 title: ${project.name}
 description: ${project.description}
@@ -671,7 +689,7 @@ sidebar:
 import LinkCard from '@components/LinkCard.astro';
 
 ${project.description ? project.description + "\n\n" : ""}${
-      latestRelease ? releaseCards : "No releases available yet."
+      allCards || "No releases available yet."
     }
 `;
     await fs.writeFile(indexPath, indexContent);
