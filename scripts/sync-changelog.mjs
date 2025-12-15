@@ -177,33 +177,46 @@ async function readUnreleased(newsRepoPath, project) {
 
   try {
     // Check if unreleased directory exists and has entries
-    const entries = await fs.readdir(unreleasedPath, { withFileTypes: true });
-    const mdFiles = entries.filter((e) => e.isFile() && e.name.endsWith(".md"));
+    const dirEntries = await fs.readdir(unreleasedPath, { withFileTypes: true });
+    const mdFiles = dirEntries.filter(
+      (e) => e.isFile() && e.name.endsWith(".md"),
+    );
 
     if (mdFiles.length === 0) return null;
 
-    // Run tenzir-changelog to get properly formatted markdown
-    let markdown = execSync("uvx tenzir-changelog show --markdown -", {
+    // Run tenzir-changelog to get structured JSON data
+    const jsonOutput = execSync("uvx tenzir-changelog show --json -", {
       cwd: projectPath,
       encoding: "utf-8",
     }).trim();
 
-    if (!markdown) return null;
+    if (!jsonOutput) return null;
 
-    // Strip redundant "# Unreleased Changes" title
-    markdown = markdown.replace(/^#\s+Unreleased Changes\n+/, "");
+    const changelog = JSON.parse(jsonOutput);
+    if (!changelog.entries || changelog.entries.length === 0) return null;
+
+    // Extract unique components from all entries
+    const components = [
+      ...new Set(changelog.entries.flatMap((e) => e.components || [])),
+    ];
+
+    // Extract entry types for summary
+    const entryTypes = [...new Set(changelog.entries.map((e) => e.type))];
 
     return {
       version: "Unreleased",
       slug: "unreleased",
       title: "Unreleased",
-      created: "",
-      intro: "",
-      notes: markdown,
+      created: changelog.created || "",
+      intro: changelog.intro || "",
+      entries: changelog.entries, // Store raw entries for MDX generation
       majorVersion: Infinity, // Sort to top
       minorVersion: 0,
       patchVersion: 0,
       isUnreleased: true,
+      components,
+      entryTypes,
+      entryCount: changelog.entries.length,
     };
   } catch {
     return null;
@@ -224,23 +237,46 @@ async function readReleases(newsRepoPath, project) {
   }
 
   try {
-    const entries = await fs.readdir(releasesPath, { withFileTypes: true });
+    const dirEntries = await fs.readdir(releasesPath, { withFileTypes: true });
 
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
+    for (const dirEntry of dirEntries) {
+      if (!dirEntry.isDirectory()) continue;
 
-      const manifestPath = path.join(releasesPath, entry.name, "manifest.yaml");
-      const notesPath = path.join(releasesPath, entry.name, "notes.md");
+      const manifestPath = path.join(
+        releasesPath,
+        dirEntry.name,
+        "manifest.yaml",
+      );
 
       try {
-        const [manifestContent, notesContent] = await Promise.all([
-          fs.readFile(manifestPath, "utf-8"),
-          fs.readFile(notesPath, "utf-8"),
-        ]);
-
+        const manifestContent = await fs.readFile(manifestPath, "utf-8");
         const manifest = parseYaml(manifestContent);
-        const version = entry.name;
+        const version = dirEntry.name;
         const parsed = parseVersion(version);
+
+        // Get structured data via JSON export
+        let entries = [];
+        let components = [];
+        let entryTypes = [];
+        try {
+          const jsonOutput = execSync(
+            `uvx tenzir-changelog show --json ${version}`,
+            {
+              cwd: path.join(newsRepoPath, project.dirName),
+              encoding: "utf-8",
+            },
+          ).trim();
+          const changelog = JSON.parse(jsonOutput);
+          if (changelog.entries) {
+            entries = changelog.entries;
+            components = [
+              ...new Set(changelog.entries.flatMap((e) => e.components || [])),
+            ];
+            entryTypes = [...new Set(changelog.entries.map((e) => e.type))];
+          }
+        } catch {
+          // JSON export may not be available for older releases
+        }
 
         releases.push({
           version,
@@ -248,10 +284,13 @@ async function readReleases(newsRepoPath, project) {
           title: manifest.title || `${project.name} ${version}`,
           created: manifest.created || "",
           intro: manifest.intro || "",
-          notes: notesContent,
+          entries, // Store raw entries for MDX generation
           majorVersion: parsed.major,
           minorVersion: parsed.minor,
           patchVersion: parsed.patch,
+          components,
+          entryTypes,
+          entryCount: entries.length,
         });
       } catch {
         // Skip releases without required files
@@ -268,10 +307,142 @@ async function readReleases(newsRepoPath, project) {
 }
 
 /**
+ * Generate badges JSX array string from components.
+ * Returns empty string if no components.
+ */
+function generateBadgesAttr(components) {
+  if (!components || components.length === 0) return "";
+  const badges = components.map((c) => `"${c}"`);
+  return `\n  badges={[${badges.join(", ")}]}`;
+}
+
+/**
+ * Entry type configuration for rendering.
+ */
+const entryTypeConfig = {
+  breaking: { emoji: "💥", heading: "Breaking Changes", order: 0 },
+  feature: { emoji: "🚀", heading: "Features", order: 1 },
+  change: { emoji: "🔧", heading: "Changes", order: 2 },
+  bugfix: { emoji: "🐞", heading: "Bug Fixes", order: 3 },
+};
+
+/**
+ * Format author for display.
+ * GitHub-style handles get @ prefix, names with spaces don't.
+ */
+function formatAuthor(author) {
+  if (author.includes(" ")) {
+    return author;
+  }
+  return `@${author}`;
+}
+
+/**
+ * Format date for display (YYYY-MM-DD -> readable format).
+ */
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  // Handle ISO datetime strings
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/**
+ * Render a single changelog entry as markdown.
+ */
+function renderEntry(entry) {
+  let md = `### ${entry.title}\n\n`;
+
+  // Build details line: date · authors · PRs · components (badges)
+  const detailParts = [];
+
+  // Date
+  if (entry.created) {
+    const dateStr = formatDate(entry.created);
+    if (dateStr) {
+      detailParts.push(dateStr);
+    }
+  }
+
+  // Authors
+  if (entry.authors && entry.authors.length > 0) {
+    const formatted = entry.authors.map(formatAuthor).join(", ");
+    detailParts.push(formatted);
+  }
+
+  // PRs
+  if (entry.prs && entry.prs.length > 0) {
+    const prLinks = entry.prs.map((pr) => `#${pr}`).join(", ");
+    detailParts.push(prLinks);
+  }
+
+  // Components as badges (last)
+  if (entry.components && entry.components.length > 0) {
+    const badges = entry.components
+      .map((c) => `<span class="badge">${c}</span>`)
+      .join(" ");
+    detailParts.push(badges);
+  }
+
+  if (detailParts.length > 0) {
+    md += `<p class="entry-details">${detailParts.join(" · ")}</p>\n\n`;
+  }
+
+  // Add body
+  if (entry.body) {
+    md += `${entry.body}\n\n`;
+  }
+
+  return md;
+}
+
+/**
+ * Generate release notes content from JSON entries.
+ */
+function generateNotesFromEntries(entries) {
+  if (!entries || entries.length === 0) return "";
+
+  // Group entries by type
+  const grouped = {};
+  for (const entry of entries) {
+    const type = entry.type || "change";
+    if (!grouped[type]) {
+      grouped[type] = [];
+    }
+    grouped[type].push(entry);
+  }
+
+  // Sort types by configured order
+  const sortedTypes = Object.keys(grouped).sort((a, b) => {
+    const orderA = entryTypeConfig[a]?.order ?? 99;
+    const orderB = entryTypeConfig[b]?.order ?? 99;
+    return orderA - orderB;
+  });
+
+  // Render each section
+  let md = "";
+  for (const type of sortedTypes) {
+    const config = entryTypeConfig[type] || { emoji: "📝", heading: "Other" };
+    md += `## ${config.emoji} ${config.heading}\n\n`;
+
+    for (const entry of grouped[type]) {
+      md += renderEntry(entry);
+    }
+  }
+
+  return md;
+}
+
+/**
  * Generate MDX content for a release.
  */
 function generateMdxContent(project, release) {
-  let frontmatter = `---
+  const frontmatter = `---
 title: "${project.name} ${release.version}"
 sidebar:
   label: "${release.version}"
@@ -279,15 +450,20 @@ sidebar:
 
 `;
 
-  // Add intro if present and different from notes start
-  let content = release.notes;
+  // Generate content from entries if available, otherwise fall back to notes
+  let content = "";
+  if (release.entries && release.entries.length > 0) {
+    content = generateNotesFromEntries(release.entries);
+  } else if (release.notes) {
+    content = release.notes;
+  }
 
   // Add download link if repository is specified (not for unreleased)
   if (project.repository && !release.isUnreleased) {
     const repoUrl = project.repository.startsWith("http")
       ? project.repository
       : `https://github.com/${project.repository}`;
-    content += `\n\nDownload the release on [GitHub](${repoUrl}/releases/tag/${release.version}).\n`;
+    content += `\n---\n\nDownload the release on [GitHub](${repoUrl}/releases/tag/${release.version}).\n`;
   }
 
   return frontmatter + content;
@@ -475,11 +651,12 @@ async function syncChangelog(newsRepoPath) {
         }
         // Escape quotes for JSX
         description = description.replace(/"/g, '\\"');
+        const badgesAttr = generateBadgesAttr(r.components);
         return `<LinkCard
   title="${project.name} ${r.version}"
   description="${description}"
   href="/changelog/${project.id}/${r.slug}"
-  badge="${r.created}"
+  meta="${r.created}"${badgesAttr}
 />`;
       })
       .join("\n\n");
@@ -513,7 +690,7 @@ ${project.description ? project.description + "\n\n" : ""}${
   description="${project.description}"
   href="/changelog/${project.id}"
   icon="${icon}"
-  badge="${version}"
+  meta="${version}"
 />`;
     })
     .join("\n\n");

@@ -1,5 +1,5 @@
 ---
-import { LinkCard as StarlightLinkCard, Icon } from '@astrojs/starlight/components';
+import { Icon } from '@astrojs/starlight/components';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import type { HTMLAttributes } from 'astro/types';
@@ -8,11 +8,14 @@ import type { StarlightIcon } from '@astrojs/starlight/components/Icons';
 interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
   title: string;
   description?: string;
-  badge?: string;
+  /** Small text displayed next to title (e.g., date, version) */
+  meta?: string;
+  /** Array of badge labels to display */
+  badges?: string[];
   icon?: StarlightIcon;
 }
 
-const { badge, description, icon, ...linkCardProps } = Astro.props;
+const { title, meta, badges, description, icon, href, ...rest } = Astro.props;
 
 let renderedDescription: string | undefined;
 if (description) {
@@ -21,44 +24,133 @@ if (description) {
 }
 ---
 
-<div class="link-card-wrapper">
-  {icon && <Icon name={icon} class="link-card-icon" size="1.5rem" />}
-  <StarlightLinkCard {...linkCardProps} description={renderedDescription} />
-  {badge && <span class="link-card-badge">{badge}</span>}
+<div class="link-card">
+  <a {href} {...rest}>
+    <div class="link-card-header">
+      {icon && <Icon name={icon} class="link-card-icon" size="1.5rem" />}
+      <span class="link-card-title">{title}</span>
+      {
+        (meta || (badges && badges.length > 0)) && (
+          <span class="link-card-meta-group">
+            {badges &&
+              badges.map((badge) => (
+                <span class="link-card-badge">{badge}</span>
+              ))}
+            {meta && <span class="link-card-meta">{meta}</span>}
+          </span>
+        )
+      }
+    </div>
+    {renderedDescription && <p class="link-card-description" set:html={renderedDescription} />}
+  </a>
 </div>
 
 <style>
-  .link-card-wrapper {
-    position: relative;
+  /* Card container - dark mode default */
+  .link-card {
+    border: 1px solid var(--tnz-neutral-700);
+    border-radius: var(--tnz-radius);
+    background: var(--tnz-neutral-800);
+    transition: border-color var(--tnz-transition-base);
   }
-  .link-card-wrapper :global(.sl-link-card .icon) {
-    display: none;
+  .link-card:hover {
+    border-color: var(--tnz-neutral-500);
   }
-  .link-card-icon {
-    position: absolute;
-    top: var(--tnz-space-4);
-    left: var(--tnz-space-4);
-    color: var(--tnz-neutral-400);
-    pointer-events: none;
-    z-index: 1;
+  :root[data-theme='light'] .link-card {
+    background: var(--tnz-neutral-50);
+    border-color: var(--tnz-neutral-200);
+  }
+  :root[data-theme='light'] .link-card:hover {
+    border-color: var(--tnz-neutral-400);
   }
 
+  /* Link wrapper */
+  .link-card a {
+    display: block;
+    padding: var(--tnz-space-4);
+    text-decoration: none;
+    color: inherit;
+  }
+  .link-card a:hover {
+    text-decoration: none;
+  }
+
+  /* Header row: icon + title on left, meta on right */
+  .link-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--tnz-space-3);
+  }
+
+  /* Icon - vertically centered with title via flexbox */
+  .link-card-icon {
+    flex-shrink: 0;
+    color: var(--tnz-neutral-400);
+  }
   :root[data-theme='light'] .link-card-icon {
     color: var(--tnz-neutral-500);
   }
-  .link-card-wrapper:has(.link-card-icon) :global(.sl-link-card) {
-    padding-left: 3.5rem;
+
+  /* Title - grows to push meta to the right */
+  .link-card-title {
+    flex-grow: 1;
+    font-size: var(--tnz-text-lg);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--tnz-neutral-50);
   }
-  .link-card-badge {
-    position: absolute;
-    top: var(--tnz-space-4);
-    right: var(--tnz-space-4);
-    font-size: var(--tnz-text-xs);
-    color: var(--tnz-neutral-400);
-    pointer-events: none;
+  :root[data-theme='light'] .link-card-title {
+    color: var(--tnz-neutral-800);
   }
 
+  /* Meta group (badges + date) */
+  .link-card-meta-group {
+    display: flex;
+    align-items: center;
+    gap: var(--tnz-space-2);
+    flex-shrink: 0;
+  }
+
+  /* Badge */
+  .link-card-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--tnz-control-size-sm);
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid var(--tnz-neutral-600);
+    font-size: 8px;
+    font-weight: 600;
+    line-height: 14px;
+    color: var(--tnz-neutral-400);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
   :root[data-theme='light'] .link-card-badge {
+    border-color: var(--tnz-neutral-300);
     color: var(--tnz-neutral-500);
+  }
+
+  /* Meta text (date/version) */
+  .link-card-meta {
+    font-size: var(--tnz-text-xs);
+    line-height: 1;
+    color: var(--tnz-neutral-400);
+    white-space: nowrap;
+  }
+  :root[data-theme='light'] .link-card-meta {
+    color: var(--tnz-neutral-500);
+  }
+
+  /* Description */
+  .link-card-description {
+    margin: var(--tnz-space-2) 0 0;
+    font-size: var(--tnz-text-sm);
+    line-height: 1.5;
+    color: var(--tnz-neutral-400);
+  }
+  :root[data-theme='light'] .link-card-description {
+    color: var(--tnz-neutral-600);
   }
 </style>
