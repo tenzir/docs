@@ -127,20 +127,19 @@ Display changelog entries in multiple views.
 tenzir-changelog show [identifiers...] [options]
 ```
 
-| Option                           | Description                                                 |
-| -------------------------------- | ----------------------------------------------------------- |
-| `identifiers`                    | Row numbers, entry IDs, release versions, or `-` (optional) |
-| `-c/--card`                      | Show detailed cards for matching entries                    |
-| `-m/--markdown`                  | Export as Markdown                                          |
-| `-j/--json`                      | Export as JSON                                              |
-| `--compact`                      | Use compact bullet-list layout                              |
-| `--no-compact`                   | Use detailed card layout                                    |
-| `--no-emoji`                     | Remove type emoji from output                               |
-| `--explicit-links`               | Render @mentions and PR refs as explicit Markdown links     |
-| `--project <id>`                 | Filter to specific project                                  |
-| `--component <label>`            | Filter to specific component                                |
-| `--banner <text>`                | Add banner text to table output                             |
-| `--include-modules/--no-modules` | Include or exclude entries from discovered modules          |
+| Option                | Description                                                 |
+| --------------------- | ----------------------------------------------------------- |
+| `identifiers`         | Row numbers, entry IDs, release versions, or `-` (optional) |
+| `-c/--card`           | Show detailed cards for matching entries                    |
+| `-m/--markdown`       | Export as Markdown                                          |
+| `-j/--json`           | Export as JSON                                              |
+| `--compact`           | Use compact bullet-list layout                              |
+| `--no-compact`        | Use detailed card layout                                    |
+| `--no-emoji`          | Remove type emoji from output                               |
+| `--explicit-links`    | Render @mentions and PR refs as explicit Markdown links     |
+| `--project <id>`      | Filter to specific project (repeatable)                     |
+| `--component <label>` | Filter to specific component (repeatable)                   |
+| `--banner`            | Display project banner above table output                   |
 
 The table view (default) lists entries with ID, title, type, project, PRs, and
 authors. Row numbers count backward from the newest entry, so `#1` always
@@ -458,16 +457,16 @@ exists purely for coordination.
 
 ### Aggregated views
 
-When `modules` is configured, `show` includes entries from all modules by
-default. The table displays a **Project** column showing which project (parent
-or module) each entry belongs to:
+When `modules` is configured, `show` includes entries from all modules. The
+table displays a **Project** column showing which project (parent or module)
+each entry belongs to:
 
 ```sh
-# Show all unreleased entries (parent + modules)
+# Show all entries (parent + modules)
 tenzir-changelog show
 
 # Show only parent entries
-tenzir-changelog show --no-modules
+tenzir-changelog show --project parent
 ```
 
 ### Operating on modules
