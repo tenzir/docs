@@ -59,8 +59,9 @@ the helper functions from `tenzir_changelog.cli` directly.
   or a compact bullet-list layout. Set `export_style: compact` in configuration
   to prefer the bullet-list format without passing `--compact` each time.
 - **Components** – You may constrain the optional `component` field on entries
-  by listing allowed labels in configuration. Component filters apply to the
-  CLI table, exports, and validation.
+  by declaring allowed labels in configuration. Use a dict mapping component
+  names to descriptions. Component filters apply to the CLI table, exports, and
+  validation.
 - **Modules** – Nested changelog projects discovered via a glob pattern. Use
   modules for monorepos where each subproject has its own changelog and independent
   versioning. The `show` command aggregates entries from all modules by default.
@@ -284,7 +285,7 @@ Configuration fields:
 | `description`  | Optional project description included in release manifests          |
 | `repository`   | Optional GitHub slug (e.g., `owner/repo`) used by `release publish` |
 | `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards  |
-| `components`   | Optional list of component labels that entries must satisfy         |
+| `components`   | Optional dict mapping component names to descriptions               |
 | `modules`      | Optional glob pattern for discovering nested changelog projects     |
 
 Example:
@@ -296,9 +297,9 @@ description: Core pipeline engine
 repository: tenzir/tenzir
 export_style: compact
 components:
-  - cli
-  - engine
-  - operators
+  cli: Command-line interface and user commands
+  engine: Core pipeline engine internals
+  operators: Built-in pipeline operators
 ```
 
 The first invocation of `tenzir-changelog add` scaffolds a `changelog/`
@@ -368,6 +369,44 @@ Manifest fields:
 The CLI generates `notes.md` by stitching together the intro and grouped entry
 sections. Intro content comes from either `--intro` (inline text) or
 `--intro-file` (file path) when creating a release.
+
+## JSON export format
+
+JSON exports (`-j` flag) return structured objects for programmatic consumption.
+Entries include `prs` and `authors` fields as structured objects with URLs.
+
+### PR objects
+
+Each PR is an object with `number` and optional `url`:
+
+```json
+{
+  "prs": [
+    {"number": 123, "url": "https://github.com/owner/repo/pull/123"},
+    {"number": 456, "url": "https://github.com/owner/repo/pull/456"}
+  ]
+}
+```
+
+The `url` field is included when the project's `repository` setting is
+configured. Without a repository, PRs contain only the `number` field.
+
+### Author objects
+
+Each author is an object with either `handle` + `url` (for GitHub handles) or
+`name` (for full names):
+
+```json
+{
+  "authors": [
+    {"handle": "alice", "url": "https://github.com/alice"},
+    {"name": "Bob Smith"}
+  ]
+}
+```
+
+GitHub handles (names without spaces) include a `url` field linking to the
+user's profile. Full names (containing spaces) include only the `name` field.
 
 ## Environment variables
 
