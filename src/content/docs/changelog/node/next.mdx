@@ -30,6 +30,22 @@ this = message.parse_json()
 
 By [@raxyte](https://github.com/raxyte) in [#5575](https://github.com/tenzir/tenzir/pull/5575).
 
+#### Improved Google Cloud PubSub Integration
+
+We have improved our Google Cloud PubSub integration with the addition of the new
+`from_google_cloud_pubsub` and `to_google_cloud_pubsub` operators.
+
+These operators are direct *void -> event* and *event -> void* operators, which
+means that they ensure a 1:1 relation between events and messages.
+
+The `from_google_cloud_pubsub` operator can also attach metadata such
+as message ID, publish time, and attributes for downstream enrichment.
+
+The legacy `load_google_cloud_pubsub` and `save_google_cloud_pubsub` operators
+are deprecated in favor of these event-preserving counterparts.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5593](https://github.com/tenzir/tenzir/pull/5593).
+
 #### Run pipelines with uvx tenzir
 
 The `tenzir` binary is now bundled directly with the `tenzir` Python wheel.
@@ -150,6 +166,14 @@ cannot declare defaults.
 By [@tobim](https://github.com/tobim).
 
 ### Changes
+
+#### Removed `gcps://` URI scheme
+
+We have removed the `gcps:/` URI scheme, which previously would dispatch to
+`load_google_cloud_pubsub` and `save_google_cloud_pubsub`. As these operators
+are deprecated and will be removed, the schemas are being retired as well.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5593](https://github.com/tenzir/tenzir/pull/5593).
 
 #### Update default retention policies for metrics and diagnostics
 

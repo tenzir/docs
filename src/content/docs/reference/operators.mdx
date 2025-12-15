@@ -347,6 +347,10 @@ operators:
     description: 'Reads one or multiple files from Google Cloud Storage.'
     example: 'from_gcs "gs://my-bucket/data/**.json"'
     path: 'reference/operators/from_gcs'
+  - name: 'from_google_cloud_pubsub'
+    description: 'Subscribes to a Google Cloud Pub/Sub subscription and yields events.'
+    example: 'from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"'
+    path: 'reference/operators/from_google_cloud_pubsub'
   - name: 'from_http'
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
@@ -703,6 +707,10 @@ operators:
     description: 'Sends events to Google Cloud Logging.'
     example: 'to_google_cloud_logging …'
     path: 'reference/operators/to_google_cloud_logging'
+  - name: 'to_google_cloud_pubsub'
+    description: 'Publishes events to a Google Cloud Pub/Sub topic.'
+    example: 'to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text'
+    path: 'reference/operators/to_google_cloud_pubsub'
   - name: 'to_google_secops'
     description: 'Sends unstructured events to a Google SecOps Chronicle instance.'
     example: 'to_google_secops …'
@@ -2144,6 +2152,14 @@ from_gcs "gs://my-bucket/data/**.json"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and yields events." href="/reference/operators/from_google_cloud_pubsub">
+
+```tql
+from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_http" description="Sends and receives HTTP/1.1 requests." href="/reference/operators/from_http">
 
 ```tql
@@ -2470,6 +2486,14 @@ to_fluent_bit "elasticsearch" …
 
 ```tql
 to_google_cloud_logging …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_pubsub" description="Publishes events to a Google Cloud Pub/Sub topic." href="/reference/operators/to_google_cloud_pubsub">
+
+```tql
+to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
 ```
 
 </ReferenceCard>
