@@ -89,6 +89,7 @@ nested pipelines that increase indentation.
 - **In files**: Always use newlines (vertical)
 - **On command-line**: Use pipes (horizontal)
 - **Never**: Mix both styles
+
   :::
 
 ### Trailing commas in vertical structures
@@ -252,6 +253,7 @@ Don't confuse the [`replace`](/reference/operators/replace) operator with the
   replace all `"-"` with `null`)
 - **Function**: Replaces substrings within a string (e.g., `"hello".replace("l",
 "r")` → `"herro"`)
+
   :::
 
 ### Use meaningful names for computed fields
@@ -725,3 +727,35 @@ if http_status >= 200 and http_status < 400 {
 ### OCSF Profile: Security Control
 
 ✅ Set `is_alert` to `true` if the event represents an alert.
+
+### Only add profiles when necessary
+
+OCSF profiles extend the base event class with additional fields. Only declare a
+profile in `metadata.profiles` when your source data contains fields that:
+
+1. Map naturally to profile-specific OCSF fields
+2. Would otherwise end up in `unmapped` without a proper home
+
+✅ Add a profile when you have data for its fields:
+
+```tql
+// Source has cloud-specific fields like account_id, region, zone
+ocsf.metadata.profiles = ["cloud"]
+ocsf.cloud.account.uid = move source.account_id
+ocsf.cloud.region = move source.region
+```
+
+❌ Don't add profiles "just in case" or for redundant fields:
+
+```tql
+// Wrong: datetime profile adds *_dt variants of time fields,
+// but TQL timestamps already serialize as ISO 8601 datetimes
+ocsf.metadata.profiles = ["cloud", "datetime"]  // datetime is redundant
+ocsf.start_time = source.start.seconds().from_epoch()
+ocsf.start_time_dt = ocsf.start_time  // Same value, no benefit
+```
+
+The datetime profile is particularly prone to misuse—it adds `time_dt`,
+`start_time_dt`, and `end_time_dt` fields that duplicate the base timestamp
+fields. Since TQL's `time` type already serializes as ISO 8601 datetimes, these
+`_dt` variants provide no additional value.
