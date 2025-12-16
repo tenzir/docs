@@ -17,7 +17,10 @@ import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 // Initialize web-tree-sitter (WASM-based, no native compilation required).
 await Parser.init();
 const wasmPath = fileURLToPath(
-  new URL("../../node_modules/tree-sitter-tql/tree-sitter-tql.wasm", import.meta.url),
+  new URL(
+    "../../node_modules/tree-sitter-tql/tree-sitter-tql.wasm",
+    import.meta.url,
+  ),
 );
 const TQL = await Language.load(wasmPath);
 const parser = new Parser();
@@ -149,12 +152,11 @@ const captureToSetting = new Map(
     comment: "tql.comment",
     "constant.builtin": "tql.constant",
     constant: "tql.constant",
-    "variable.builtin": "tql.variable",
-    dollar_var: "tql.variable",
-    // Map sigils to the same style as variables so $foo appears as a unified
-    // token rather than having distinct colors for the sigil and the name.
-    global_sigil: "tql.variable",
-    metadata_sigil: "tql.variable",
+    // Style dollar variables ($foo) like numbers/literals (blue).
+    "variable.builtin": "tql.number",
+    dollar_var: "tql.number",
+    global_sigil: "tql.number",
+    metadata_sigil: "tql.number",
     meta_selector: "tql.attribute",
     attribute: "tql.attribute",
     ip: "tql.literal",
