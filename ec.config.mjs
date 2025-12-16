@@ -1,6 +1,7 @@
-// @ts-check
+import { defineEcConfig } from "@astrojs/starlight/expressive-code";
+import treeSitterTqlPlugin from "./src/plugins/expressive-code-tree-sitter-tql.js";
 
-/** @type {import('@astrojs/starlight/expressive-code').AstroExpressiveCodeOptions} */
-export default {
+export default defineEcConfig({
   themes: ["github-light", "github-dark"],
-};
+  plugins: [treeSitterTqlPlugin()],
+});
