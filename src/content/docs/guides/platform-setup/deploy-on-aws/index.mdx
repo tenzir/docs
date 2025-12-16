@@ -149,9 +149,9 @@ MARKETPLACE_REGISTRY="709825985650.dkr.ecr.us-east-1.amazonaws.com"
 LOCAL_REGISTRY="$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com"
 
 IMAGES=(
-  "tenzir/tenzir-platform-ui"
-  "tenzir/tenzir-platform-api"
-  "tenzir/tenzir-platform-gateway"
+  "tenzir/se-platform-ui"
+  "tenzir/se-platform-api"
+  "tenzir/se-platform-gateway"
 )
 
 echo "Creating ECR repositories..."
@@ -206,12 +206,12 @@ Create three ECR repositories using the AWS Console:
 
 1. Open the [Amazon ECR console](https://console.aws.amazon.com/ecr/)
 2. Click **Create repository**
-3. Enter the repository name: `tenzir/tenzir-platform-ui`
+3. Enter the repository name: `tenzir/se-platform-ui`
 4. Leave other settings as default
 5. Click **Create repository**
 6. Repeat for the remaining repositories:
-   - `tenzir/tenzir-platform-api`
-   - `tenzir/tenzir-platform-gateway`
+   - `tenzir/se-platform-api`
+   - `tenzir/se-platform-gateway`
 
 ### Copy images from Marketplace
 
@@ -235,13 +235,13 @@ aws ecr get-login-password --region $AWS_REGION | \
 
 # Copy each image
 for IMAGE in ui api gateway; do
-  docker pull 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION
-  docker tag 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION \
-    $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION
-  docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION
-  docker tag $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:$VERSION \
-    $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:latest
-  docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-$IMAGE:latest
+  docker pull 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/se-platform-$IMAGE:$VERSION
+  docker tag 709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/se-platform-$IMAGE:$VERSION \
+    $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-$IMAGE:$VERSION
+  docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-$IMAGE:$VERSION
+  docker tag $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-$IMAGE:$VERSION \
+    $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-$IMAGE:latest
+  docker push $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-$IMAGE:latest
 done
 ```
 
@@ -271,11 +271,11 @@ hosted template.
    - **Use Random Subdomain**: Whether to add a random subdomain prefix
      (`false` for production)
    - **UI Container Image**: Full image URI with the `latest` tag you pushed in Step 2
-     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-ui:latest`)
+     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/se-platform-ui:latest`)
    - **API Container Image**: Full image URI with the `latest` tag you pushed in Step 2
-     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-api:latest`)
+     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/se-platform-api:latest`)
    - **Gateway Container Image**: Full image URI with the `latest` tag you pushed in Step 2
-     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-platform-gateway:latest`)
+     (e.g., `123456789012.dkr.ecr.us-east-1.amazonaws.com/tenzir/se-platform-gateway:latest`)
    - **Demo Node Container Image**: (Optional) Full image URI. Leave as default to use the public demo node image.
    - **Use External OIDC Provider**: Whether to use an external identity
      provider instead of [AWS Cognito](https://aws.amazon.com/cognito/) (`false`
@@ -308,9 +308,9 @@ aws cloudformation create-stack \
     ParameterKey=DomainName,ParameterValue=example.org \
     ParameterKey=RandomSubdomain,ParameterValue=false \
     ParameterKey=UseExternalOIDC,ParameterValue=false \
-    ParameterKey=ContainerImageUI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-ui:$IMAGE_TAG \
-    ParameterKey=ContainerImageAPI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-api:$IMAGE_TAG \
-    ParameterKey=ContainerImageGateway,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/tenzir-platform-gateway:$IMAGE_TAG \
+    ParameterKey=ContainerImageUI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-ui:$IMAGE_TAG \
+    ParameterKey=ContainerImageAPI,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-api:$IMAGE_TAG \
+    ParameterKey=ContainerImageGateway,ParameterValue=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/tenzir/se-platform-gateway:$IMAGE_TAG \
   --capabilities CAPABILITY_NAMED_IAM
 ```
 
