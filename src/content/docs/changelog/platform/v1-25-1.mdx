@@ -1,0 +1,21 @@
+---
+title: Tenzir Platform v1.25.1
+sidebar:
+  badge:
+    text: v1.25.1
+    variant: note
+---
+
+This patch release fixes an issue with default filesystem paths in the Tenzir Platform docker containers for Sovereign Edition users.
+
+Download the release on [GitHub](https://github.com/tenzir/platform/releases/tag/v1.25.1).
+
+### Changes
+
+#### Replace tenant_manager/ path with platform_api/ in example configs
+
+We switched the docker images used by our example setups from one combined `tenzir/platform` image for both the Tenzir Platform API and the Tenzir Gateway to use separate images `tenzir/platform-api` and `tenzir/platform-gateway`.
+
+⚠️ **NOTE**: We continue building and uploading the combined `tenzir/platform` image, although we recommend switching to the new images. Due to an internal CI issue, for versions `v1.24.0` and `v1.25.0` it is necessary to change the configured command from `tenant_manager/*` to `platform_api/*`, for example `tenant_manager/rest/server/local.py` becomes `platform_api/rest/server/local.py`. We recommend skipping these versions if possible.
+
+By [@lava](https://github.com/lava) in [#13](https://github.com/tenzir/platform/pull/13).
