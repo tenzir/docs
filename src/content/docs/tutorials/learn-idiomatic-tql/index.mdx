@@ -298,6 +298,41 @@ where src_ip.string().starts_with("10.")
 where duration_ms > 300000
 ```
 
+### Use method chaining for time conversions
+
+When converting numeric values to timestamps or durations, prefer method
+chaining over multiplication with duration units.
+
+✅ Idiomatic method chaining:
+
+```tql
+// Convert Unix epoch seconds to timestamp
+timestamp = epoch_secs.seconds().from_epoch()
+
+// Convert to duration
+timeout = timeout_secs.seconds()
+
+// Chain multiple conversions
+duration_ms = (end_time - start_time).milliseconds()
+```
+
+❌ Less readable multiplication:
+
+```tql
+// Multiplication obscures intent
+timestamp = from_epoch(epoch_secs * 1s)
+
+// What unit is this? Seconds? Milliseconds?
+timeout = timeout_value * 1s
+
+// Hard to parse at a glance
+duration_ms = count_milliseconds(from_epoch(end * 1s) - from_epoch(start * 1s))
+```
+
+Method chaining reads naturally left-to-right: "take epoch seconds, interpret as
+seconds, convert from epoch." The multiplication style requires understanding
+that `* 1s` converts a number to a duration, which is less intuitive.
+
 ## Performance considerations
 
 ### Place filters early in pipelines
