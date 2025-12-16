@@ -292,11 +292,14 @@ async function readUnreleased(newsRepoPath, changelogPath) {
 
     if (mdFiles.length === 0) return null;
 
-    // Run tenzir-changelog to get structured JSON data
-    const jsonOutput = execSync("uvx tenzir-changelog show --json -", {
-      cwd: fullChangelogPath,
-      encoding: "utf-8",
-    }).trim();
+    // Run tenzir-changelog to get structured JSON data with explicit links
+    const jsonOutput = execSync(
+      "uvx tenzir-changelog show --json --explicit-links -",
+      {
+        cwd: fullChangelogPath,
+        encoding: "utf-8",
+      },
+    ).trim();
 
     if (!jsonOutput) return null;
 
@@ -366,13 +369,13 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
         const version = dirEntry.name;
         const parsed = parseVersion(version);
 
-        // Get structured data via JSON export
+        // Get structured data via JSON export with explicit links
         let entries = [];
         let components = [];
         let entryTypes = [];
         try {
           const jsonOutput = execSync(
-            `uvx tenzir-changelog show --json ${version}`,
+            `uvx tenzir-changelog show --json --explicit-links ${version}`,
             { cwd: fullChangelogPath, encoding: "utf-8" },
           ).trim();
           const changelog = JSON.parse(jsonOutput);
@@ -437,25 +440,41 @@ const entryTypeConfig = {
 
 /**
  * Format author for display.
- * Handles both string authors and object authors with handle/url.
- * GitHub-style handles get @ prefix, names with spaces don't.
+ * Handles multiple formats:
+ * - Markdown link: "[@handle](url)" - passed through unchanged
+ * - Object: { handle: "mavam", url: "..." } - converted to link
+ * - String handle: "mavam" - prefixed with @
+ * - String name: "Full Name" - used as-is
  */
 function formatAuthor(author) {
+  // Handle string format (including markdown links from --explicit-links)
+  if (typeof author === "string") {
+    // Already a markdown link - pass through unchanged
+    if (author.startsWith("[") && author.includes("](")) {
+      return author;
+    }
+    // Name with spaces - use as-is
+    if (author.includes(" ")) {
+      return author;
+    }
+    // Handle - add @ prefix
+    return `@${author}`;
+  }
+
   // Handle object format: { handle: "mavam", url: "https://github.com/mavam" }
   if (typeof author === "object" && author !== null) {
     const handle = author.handle || author.name || "unknown";
+    const url = author.url;
+    // If we have a URL, create a markdown link
+    if (url) {
+      const displayName = handle.includes(" ") ? handle : `@${handle}`;
+      return `[${displayName}](${url})`;
+    }
+    // No URL - just format the handle
     if (handle.includes(" ")) {
       return handle;
     }
     return `@${handle}`;
-  }
-
-  // Handle string format (legacy)
-  if (typeof author === "string") {
-    if (author.includes(" ")) {
-      return author;
-    }
-    return `@${author}`;
   }
 
   return String(author);
@@ -499,9 +518,24 @@ function renderEntry(entry) {
     detailParts.push(formatted);
   }
 
-  // PRs
+  // PRs (may be numbers, strings, or objects from --explicit-links)
   if (entry.prs && entry.prs.length > 0) {
-    const prLinks = entry.prs.map((pr) => `#${pr}`).join(", ");
+    const prLinks = entry.prs
+      .map((pr) => {
+        // Object format from --explicit-links: { number: 123, url: "..." }
+        if (typeof pr === "object" && pr !== null) {
+          const num = pr.number || pr.id || "?";
+          const url = pr.url;
+          return url ? `[#${num}](${url})` : `#${num}`;
+        }
+        // Already a markdown link string - pass through
+        if (typeof pr === "string" && pr.startsWith("[")) {
+          return pr;
+        }
+        // Just a number or string - format as #N
+        return `#${pr}`;
+      })
+      .join(", ");
     detailParts.push(prLinks);
   }
 
