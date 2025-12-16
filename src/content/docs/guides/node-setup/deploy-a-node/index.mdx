@@ -299,9 +299,7 @@ After clicking the button above, follow these steps in the AWS console:
 
 </Steps>
 
-:::tip[Stack Management]
-
-#### Update your node
+### Update your node
 
 To update your Tenzir node to a new version, you need to update the **Container image URL** parameter with a new version tag. The image URL format is:
 
@@ -311,7 +309,7 @@ To update your Tenzir node to a new version, you need to update the **Container 
 
 Replace `v<MAJOR>.<MINOR>.<PATCH>` with the desired version (e.g., `v4.30.3`). Check the [node changelog](/changelog/node/) for the latest version.
 
-<Tabs>
+<Tabs syncKey="aws-cloudformation">
 <TabItem value="console" label="Console">
 
 1. Navigate to [CloudFormation](https://console.aws.amazon.com/cloudformation/) in the AWS console.
@@ -340,11 +338,11 @@ Replace `tenzir-node-prod` with your stack name and `v4.30.3` with the desired v
 
 Your node will restart with the new version automatically.
 
-#### Delete your node
+### Delete your node
 
 To remove the node and all associated resources, delete the stack.
 
-<Tabs>
+<Tabs syncKey="aws-cloudformation">
 <TabItem value="console" label="Console">
 
 1. Navigate to [CloudFormation](https://console.aws.amazon.com/cloudformation/) in the AWS console.
@@ -362,8 +360,6 @@ Replace `tenzir-node-prod` with your stack name.
 
 </TabItem>
 </Tabs>
-
-:::
 
 </TabItem>
 <TabItem value="manual" label="Manual">
