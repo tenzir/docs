@@ -40,7 +40,6 @@ const TQL_TOKEN_SCOPES = {
   comment: ["comment"],
   variable: ["variable", "variable.other"],
   attribute: ["entity.other.attribute-name", "support.type.property-name"],
-  sigil: ["variable.language", "variable.other"],
   literal: ["constant.language", "constant.other"],
 };
 
@@ -148,8 +147,10 @@ const captureToSetting = new Map(
     constant: "tql.constant",
     "variable.builtin": "tql.variable",
     dollar_var: "tql.variable",
-    global_sigil: "tql.sigil",
-    metadata_sigil: "tql.sigil",
+    // Map sigils to the same style as variables so $foo appears as a unified
+    // token rather than having distinct colors for the sigil and the name.
+    global_sigil: "tql.variable",
+    metadata_sigil: "tql.variable",
     meta_selector: "tql.attribute",
     attribute: "tql.attribute",
     ip: "tql.literal",
