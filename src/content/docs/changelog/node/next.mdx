@@ -64,6 +64,23 @@ and you need to install the `tenzir` binary separately.
 
 By [@tobim](https://github.com/tobim) in [#5482, 5588, 5589](https://github.com/tenzir/tenzir/pull/5482, 5588, 5589).
 
+#### Filter files by modification times with `max_age`
+
+The `from_file`, `from_s3`, `from_gcs`, and `from_azure_blob_storage` operators
+now support an optional `max_age` parameter that filters files based on their
+last modification time. Only files modified within the specified duration from
+now will be processed.
+
+**Example**
+
+Process only files modified in the last hour:
+
+```tql
+from_file "/var/log/security/*.json", max_age=1h
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5611](https://github.com/tenzir/tenzir/pull/5611).
+
 #### Getting data from SentinelOne Data Lake
 
 The new `from_sentinelone_data_lake` operator allows you to query the SentinelOne
