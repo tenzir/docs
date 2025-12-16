@@ -18,7 +18,7 @@
     "lint:prettier:fix": "prettier --write .",
     "build:linkcheck": "RUN_LINK_CHECK=true pnpm build",
     "lint:fix": "pnpm run lint:markdown:fix && pnpm run lint:eslint:fix && pnpm run lint:prettier:fix",
-    "postinstall": "node scripts/fix-starlight-llms-txt.js && CXXFLAGS=--std=c++20 pnpm rebuild tree-sitter tree-sitter-tql tree-sitter-yaml"
+    "postinstall": "node scripts/fix-starlight-llms-txt.js"
   },
   "dependencies": {
     "@astrojs/markdoc": "^0.15.8",
@@ -38,18 +38,14 @@
     "starlight-llms-txt": "github:tenzir/starlight-llms-txt#topic/markdown-pages",
     "starlight-openapi": "^0.21.1",
     "starlight-sidebar-topics": "^0.6.2",
-    "tree-sitter": "0.25.0",
-    "tree-sitter-tql": "github:tenzir/tree-sitter-tql#v0.3.0",
-    "tree-sitter-yaml": "0.4.1",
+    "tree-sitter-tql": "^1.0.0",
+    "web-tree-sitter": "^0.25.0",
     "yaml": "^2.8.1"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
-      "sharp",
-      "tree-sitter",
-      "tree-sitter-tql",
-      "tree-sitter-yaml"
+      "sharp"
     ]
   },
   "devDependencies": {

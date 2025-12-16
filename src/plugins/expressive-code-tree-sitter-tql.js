@@ -1,6 +1,6 @@
-import Parser from "tree-sitter";
-import TreeSitterTql from "tree-sitter-tql";
+import { Parser, Language, Query } from "web-tree-sitter";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   InlineStyleAnnotation,
   PluginStyleSettings,
@@ -14,27 +14,23 @@ import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 // captures (for example, a sigil versus the variable name), the theme decides
 // whether they share a color.
 
+// Initialize web-tree-sitter (WASM-based, no native compilation required).
+await Parser.init();
+const wasmPath = fileURLToPath(
+  new URL("../../node_modules/tree-sitter-tql/tree-sitter-tql.wasm", import.meta.url),
+);
+const TQL = await Language.load(wasmPath);
 const parser = new Parser();
-parser.setLanguage(TreeSitterTql);
+parser.setLanguage(TQL);
 
-let highlightQuery;
-try {
-  highlightQuery = new Parser.Query(
-    TreeSitterTql,
-    readFileSync(
-      new URL(
-        "../../node_modules/tree-sitter-tql/queries/tql/highlights.scm",
-        import.meta.url,
-      ),
-      "utf8",
-    ),
-  );
-} catch (error) {
-  throw new Error(
-    `Failed to load TQL highlights query. Ensure tree-sitter-tql is installed ` +
-      `and rebuilt (run: pnpm install). Original error: ${error.message}`,
-  );
-}
+const highlightQuerySource = readFileSync(
+  new URL(
+    "../../node_modules/tree-sitter-tql/queries/tql/highlights.scm",
+    import.meta.url,
+  ),
+  "utf8",
+);
+const highlightQuery = new Query(TQL, highlightQuerySource);
 
 const TQL_TOKEN_SCOPES = {
   keyword: ["keyword"],
@@ -242,7 +238,13 @@ const plugin = definePlugin({
       }
 
       for (const { name, node } of captures) {
-        const settingKey = captureToSetting.get(name);
+        // The highlights.scm maps sigils to @keyword, but we want them styled
+        // as variables. Check the node type to override the capture name.
+        const effectiveName =
+          node.type === "global_sigil" || node.type === "metadata_sigil"
+            ? node.type
+            : name;
+        const settingKey = captureToSetting.get(effectiveName);
         if (!settingKey) {
           continue;
         }

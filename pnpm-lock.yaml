@@ -59,15 +59,12 @@ importers:
       starlight-sidebar-topics:
         specifier: ^0.6.2
         version: 0.6.2(@astrojs/starlight@0.36.3(astro@5.16.6(@types/node@24.7.2)(rollup@4.52.4)(typescript@5.9.2)(yaml@2.8.1)))
-      tree-sitter:
-        specifier: 0.25.0
-        version: 0.25.0
       tree-sitter-tql:
-        specifier: github:tenzir/tree-sitter-tql#v0.3.0
-        version: https://codeload.github.com/tenzir/tree-sitter-tql/tar.gz/402ce0026db8a5fe403328f16d1fc816c10d2716(tree-sitter@0.25.0)
-      tree-sitter-yaml:
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: ^1.0.0
+        version: 1.0.0(tree-sitter@0.25.0)
+      web-tree-sitter:
+        specifier: ^0.25.0
+        version: 0.25.10
       yaml:
         specifier: ^2.8.1
         version: 2.8.1
@@ -2173,9 +2170,6 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  nan@2.23.0:
-    resolution: {integrity: sha512-1UxuyYGdoQHcGg87Lkqm3FzefucTa0NAiOcuRsDmysep3c1LVCRK2krrUDafMWtjSG04htvAmvg96+SDknOmgQ==}
-
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -2729,17 +2723,13 @@ packages:
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
-  tree-sitter-tql@https://codeload.github.com/tenzir/tree-sitter-tql/tar.gz/402ce0026db8a5fe403328f16d1fc816c10d2716:
-    resolution: {tarball: https://codeload.github.com/tenzir/tree-sitter-tql/tar.gz/402ce0026db8a5fe403328f16d1fc816c10d2716}
-    version: 0.3.0
+  tree-sitter-tql@1.0.0:
+    resolution: {integrity: sha512-fmrMdDZGkVILxkXas2vh5MSl0RVj2RtV9GgbUv61oVbf2MFKcpIMLgeKTDOQRx5fBuayGCFVB8Oj0qTbfupIJg==}
     peerDependencies:
       tree-sitter: ^0.25.0
     peerDependenciesMeta:
       tree-sitter:
         optional: true
-
-  tree-sitter-yaml@0.4.1:
-    resolution: {integrity: sha512-AlcioClF7JNJfhfiJ5uGx/u+U1LlvwpPLwsNwoRtfxNEpycyrg3OM9zfr23mkEaSMDWx3hAR0nrBqLgE93Ht+A==}
 
   tree-sitter@0.25.0:
     resolution: {integrity: sha512-PGZZzFW63eElZJDe/b/R/LbsjDDYJa5UEjLZJB59RQsMX+fo0j54fqBPn1MGKav/QNa0JR0zBiVaikYDWCj5KQ==}
@@ -2977,6 +2967,14 @@ packages:
 
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
+
+  web-tree-sitter@0.25.10:
+    resolution: {integrity: sha512-Y09sF44/13XvgVKgO2cNDw5rGk6s26MgoZPXLESvMXeefBf7i6/73eFurre0IsTW6E14Y0ArIzhUMmjoc7xyzA==}
+    peerDependencies:
+      '@types/emscripten': ^1.40.0
+    peerDependenciesMeta:
+      '@types/emscripten':
+        optional: true
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -5770,8 +5768,6 @@ snapshots:
 
   ms@2.1.3: {}
 
-  nan@2.23.0: {}
-
   nanoid@3.3.11: {}
 
   natural-compare@1.4.0: {}
@@ -6448,21 +6444,18 @@ snapshots:
 
   tr46@0.0.3: {}
 
-  tree-sitter-tql@https://codeload.github.com/tenzir/tree-sitter-tql/tar.gz/402ce0026db8a5fe403328f16d1fc816c10d2716(tree-sitter@0.25.0):
+  tree-sitter-tql@1.0.0(tree-sitter@0.25.0):
     dependencies:
       node-addon-api: 8.5.0
       node-gyp-build: 4.8.4
     optionalDependencies:
       tree-sitter: 0.25.0
 
-  tree-sitter-yaml@0.4.1:
-    dependencies:
-      nan: 2.23.0
-
   tree-sitter@0.25.0:
     dependencies:
       node-addon-api: 8.5.0
       node-gyp-build: 4.8.4
+    optional: true
 
   trim-lines@3.0.1: {}
 
@@ -6627,6 +6620,8 @@ snapshots:
       vite: 6.4.1(@types/node@24.7.2)(yaml@2.8.1)
 
   web-namespaces@2.0.1: {}
+
+  web-tree-sitter@0.25.10: {}
 
   webidl-conversions@3.0.1: {}
 
