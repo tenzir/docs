@@ -5,32 +5,30 @@ import {
   reference,
   integrations,
 } from "./sidebar";
-import changelogProjects from "./changelog-projects.json";
 
 // Try generated changelog data, fall back to stub
 let changelogTopics: {
   label: string;
   id: string;
   link: string;
+  icon: string;
   items: unknown[];
 }[] = [];
 let changelogTopicParents: Record<string, string> = {};
+let changelogTopicPaths: Record<string, string[]> = {};
 try {
   const generated = await import("./sidebar-changelog.generated");
   changelogTopics = generated.changelogTopics;
   changelogTopicParents = generated.changelogTopicParents;
+  changelogTopicPaths = generated.changelogTopicPaths;
 } catch {
   // No generated data yet - changelog section will be empty until sync runs
 }
 
-// Build changelog project icons from shared config (keyed by display name)
-const changelogIcons = Object.fromEntries(
-  Object.values(changelogProjects).map((p) => [p.name, p.icon]),
-);
+export { changelogTopicPaths };
 
-// All topic icons in one place
+// Icons for main topics (changelog icons come from generated file)
 const icons: Record<string, string> = {
-  // Main topics
   Docs: "open-book",
   Integrations: "puzzle",
   Guides: "right-arrow",
@@ -38,8 +36,6 @@ const icons: Record<string, string> = {
   Explanations: "information",
   Reference: "list-format",
   Changelog: "pen",
-  // Changelog projects (from shared config)
-  ...changelogIcons,
 };
 
 // Helper to create topic definitions
@@ -50,12 +46,6 @@ const topic = (label: string, link: string, items: unknown[] = []) => ({
   icon: icons[label] || "document",
   items,
 });
-
-// Apply icons to changelog topics (generated without icons)
-const changelogTopicsWithIcons = changelogTopics.map((t) => ({
-  ...t,
-  icon: icons[t.label] || "pen",
-}));
 
 export const topics = [
   // Root topics
@@ -68,8 +58,8 @@ export const topics = [
   topic("Reference", "reference", reference),
   // Changelog root
   topic("Changelog", "changelog"),
-  // Changelog children (generated)
-  ...changelogTopicsWithIcons,
+  // Changelog children (generated with icons from changelog-projects.json)
+  ...changelogTopics,
 ];
 
 // Topic hierarchy - null means root topic

@@ -9,7 +9,7 @@ import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
 import markdoc from "@astrojs/markdoc";
-import { topics } from "./src/topics";
+import { topics, changelogTopicPaths } from "./src/topics";
 import { bundledLanguages } from "shiki";
 import inlineSVGs from "./src/utils/inline-svgs.mjs";
 import { generateRedirects } from "./src/utils/redirects.mjs";
@@ -187,16 +187,8 @@ export default defineConfig({
               "/reference/functions/**/*",
               "/reference/operators/**/*",
             ],
-            // Changelog project topics
-            "changelog-changelog": [
-              "/changelog/changelog",
-              "/changelog/changelog/**/*",
-            ],
-            "changelog-mcp": ["/changelog/mcp", "/changelog/mcp/**/*"],
-            "changelog-tenzir-test": [
-              "/changelog/tenzir-test",
-              "/changelog/tenzir-test/**/*",
-            ],
+            // Changelog project topics (auto-generated)
+            ...changelogTopicPaths,
           },
         }),
       ],

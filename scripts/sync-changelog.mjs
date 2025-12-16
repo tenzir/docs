@@ -116,49 +116,75 @@ function versionToSlug(version) {
 }
 
 /**
- * Compare versions for sorting (newest first).
+ * Check if a dirent is a directory (follows symlinks).
+ */
+function isDirectoryEntry(basePath, entry) {
+  if (entry.isDirectory()) return true;
+  if (entry.isSymbolicLink()) {
+    return fsSync.statSync(path.join(basePath, entry.name)).isDirectory();
+  }
+  return false;
+}
+
+/**
+ * Compare versions for sorting (newest first, unreleased at top).
  */
 function compareVersions(a, b) {
-  const va = parseVersion(a.version);
-  const vb = parseVersion(b.version);
-
-  if (va.major !== vb.major) return vb.major - va.major;
-  if (va.minor !== vb.minor) return vb.minor - va.minor;
-  if (va.patch !== vb.patch) return vb.patch - va.patch;
-
-  // Handle prereleases (non-prerelease > prerelease)
-  if (va.prerelease && !vb.prerelease) return 1;
-  if (!va.prerelease && vb.prerelease) return -1;
+  // Use majorVersion property (Infinity for unreleased) for primary sort
+  if (a.majorVersion !== b.majorVersion) return b.majorVersion - a.majorVersion;
+  if (a.minorVersion !== b.minorVersion) return b.minorVersion - a.minorVersion;
+  if (a.patchVersion !== b.patchVersion) return b.patchVersion - a.patchVersion;
 
   return 0;
 }
 
 /**
  * Read all projects from the news repo.
+ * Projects have structure: {project}/changelog/config.yaml
+ * Projects may have modules configured via glob pattern.
  */
 async function readProjects(newsRepoPath) {
   const projects = [];
   const entries = await fs.readdir(newsRepoPath, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (!entry.isDirectory() || entry.name.startsWith(".")) {
+    // Skip hidden entries and non-directories
+    if (entry.name.startsWith(".") || !isDirectoryEntry(newsRepoPath, entry)) {
       continue;
     }
 
-    const configPath = path.join(newsRepoPath, entry.name, "config.yaml");
+    // Config is at {project}/changelog/config.yaml
+    const configPath = path.join(
+      newsRepoPath,
+      entry.name,
+      "changelog",
+      "config.yaml",
+    );
     try {
       const configContent = await fs.readFile(configPath, "utf-8");
       const config = parseYaml(configContent);
 
       if (config.id) {
-        projects.push({
+        const project = {
           id: config.id,
           name: config.name || config.id,
           description: config.description || "",
           repository: config.repository || "",
           components: config.components || [],
           dirName: entry.name,
-        });
+          modules: [], // Will be populated if modules field exists
+        };
+
+        // Check for modules configuration
+        if (config.modules) {
+          project.modules = await discoverModules(
+            newsRepoPath,
+            entry.name,
+            config.modules,
+          );
+        }
+
+        projects.push(project);
       }
     } catch {
       // Skip directories without config.yaml
@@ -169,11 +195,91 @@ async function readProjects(newsRepoPath) {
 }
 
 /**
- * Read unreleased changelog entries for a project using tenzir-changelog CLI.
+ * Discover module changelogs based on glob pattern.
+ * @param {string} newsRepoPath - Base path to news repo
+ * @param {string} projectDir - Project directory name
+ * @param {string} modulesGlob - Glob pattern from config (e.g., "../plugins/wildcard/changelog")
  */
-async function readUnreleased(newsRepoPath, project) {
-  const projectPath = path.join(newsRepoPath, project.dirName);
-  const unreleasedPath = path.join(projectPath, "unreleased");
+async function discoverModules(newsRepoPath, projectDir, modulesGlob) {
+  const modules = [];
+  const changelogRoot = path.join(newsRepoPath, projectDir, "changelog");
+
+  // Resolve the glob pattern relative to changelog root
+  // Pattern like "../plugins/*/changelog" resolves to {project}/plugins/*/changelog
+  const resolvedPattern = path.resolve(changelogRoot, modulesGlob);
+
+  // Extract the base path and wildcard part
+  // e.g., /path/to/news/claude-plugins/plugins/*/changelog
+  const parts = resolvedPattern.split("*");
+  if (parts.length !== 2) {
+    console.warn(`  Warning: Unsupported glob pattern: ${modulesGlob}`);
+    return modules;
+  }
+
+  const basePath = parts[0]; // /path/to/news/claude-plugins/plugins/
+  const suffix = parts[1]; // /changelog
+
+  try {
+    const dirEntries = await fs.readdir(basePath, { withFileTypes: true });
+
+    for (const dirEntry of dirEntries) {
+      // Skip hidden entries and non-directories
+      if (
+        dirEntry.name.startsWith(".") ||
+        !isDirectoryEntry(basePath, dirEntry)
+      ) {
+        continue;
+      }
+
+      const moduleConfigPath = path.join(
+        basePath,
+        dirEntry.name,
+        suffix.replace(/^\//, ""),
+        "config.yaml",
+      );
+
+      try {
+        const configContent = await fs.readFile(moduleConfigPath, "utf-8");
+        const config = parseYaml(configContent);
+
+        if (config.id) {
+          // Compute changelog path relative to news repo
+          const moduleChangelogDir = path.join(
+            basePath,
+            dirEntry.name,
+            suffix.replace(/^\//, ""),
+          );
+          modules.push({
+            id: config.id,
+            name: config.name || config.id,
+            description: config.description || "",
+            repository: config.repository || "",
+            components: config.components || [],
+            changelogPath: path.relative(newsRepoPath, moduleChangelogDir),
+          });
+        }
+      } catch {
+        // Skip modules without valid config
+      }
+    }
+  } catch {
+    console.warn(`  Warning: Could not read modules from ${basePath}`);
+  }
+
+  // Sort modules alphabetically by id
+  modules.sort((a, b) => a.id.localeCompare(b.id));
+
+  return modules;
+}
+
+/**
+ * Read unreleased changelog entries for a project using tenzir-changelog CLI.
+ * @param {string} newsRepoPath - Base path to news repo
+ * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
+ */
+async function readUnreleased(newsRepoPath, changelogPath) {
+  const fullChangelogPath = path.join(newsRepoPath, changelogPath);
+  const unreleasedPath = path.join(fullChangelogPath, "unreleased");
 
   try {
     // Check if unreleased directory exists and has entries
@@ -188,7 +294,7 @@ async function readUnreleased(newsRepoPath, project) {
 
     // Run tenzir-changelog to get structured JSON data
     const jsonOutput = execSync("uvx tenzir-changelog show --json -", {
-      cwd: projectPath,
+      cwd: fullChangelogPath,
       encoding: "utf-8",
     }).trim();
 
@@ -226,14 +332,18 @@ async function readUnreleased(newsRepoPath, project) {
 }
 
 /**
- * Read all releases for a project.
+ * Read all releases for a changelog.
+ * @param {string} newsRepoPath - Base path to news repo
+ * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
+ * @param {string} projectName - Name for release titles
  */
-async function readReleases(newsRepoPath, project) {
+async function readReleases(newsRepoPath, changelogPath, projectName) {
   const releases = [];
-  const releasesPath = path.join(newsRepoPath, project.dirName, "releases");
+  const fullChangelogPath = path.join(newsRepoPath, changelogPath);
+  const releasesPath = path.join(fullChangelogPath, "releases");
 
   // Check for unreleased entries first
-  const unreleased = await readUnreleased(newsRepoPath, project);
+  const unreleased = await readUnreleased(newsRepoPath, changelogPath);
   if (unreleased) {
     releases.push(unreleased);
   }
@@ -263,10 +373,7 @@ async function readReleases(newsRepoPath, project) {
         try {
           const jsonOutput = execSync(
             `uvx tenzir-changelog show --json ${version}`,
-            {
-              cwd: path.join(newsRepoPath, project.dirName),
-              encoding: "utf-8",
-            },
+            { cwd: fullChangelogPath, encoding: "utf-8" },
           ).trim();
           const changelog = JSON.parse(jsonOutput);
           if (changelog.entries) {
@@ -283,7 +390,7 @@ async function readReleases(newsRepoPath, project) {
         releases.push({
           version,
           slug: versionToSlug(version),
-          title: manifest.title || `${project.name} ${version}`,
+          title: manifest.title || `${projectName} ${version}`,
           created: manifest.created || "",
           intro: manifest.intro || "",
           entries, // Store raw entries for MDX generation
@@ -330,13 +437,28 @@ const entryTypeConfig = {
 
 /**
  * Format author for display.
+ * Handles both string authors and object authors with handle/url.
  * GitHub-style handles get @ prefix, names with spaces don't.
  */
 function formatAuthor(author) {
-  if (author.includes(" ")) {
-    return author;
+  // Handle object format: { handle: "mavam", url: "https://github.com/mavam" }
+  if (typeof author === "object" && author !== null) {
+    const handle = author.handle || author.name || "unknown";
+    if (handle.includes(" ")) {
+      return handle;
+    }
+    return `@${handle}`;
   }
-  return `@${author}`;
+
+  // Handle string format (legacy)
+  if (typeof author === "string") {
+    if (author.includes(" ")) {
+      return author;
+    }
+    return `@${author}`;
+  }
+
+  return String(author);
 }
 
 /**
@@ -442,22 +564,34 @@ function generateNotesFromEntries(entries) {
 
 /**
  * Generate MDX content for a release.
+ * @param {object} project - Project or module object
+ * @param {object} release - Release object
+ * @param {object} options - Optional settings
+ * @param {string} [options.topicId] - Topic ID for frontmatter
+ * @param {string} [options.sidebarLabel] - Custom sidebar label (defaults to version)
  */
-function generateMdxContent(project, release) {
+function generateMdxContent(project, release, { topicId, sidebarLabel } = {}) {
+  const topicLine = topicId ? `\ntopic: ${topicId}` : "";
+  const label = sidebarLabel || release.version;
   const frontmatter = `---
 title: "${project.name} ${release.version}"
 sidebar:
-  label: "${release.version}"
+  label: "${label}"${topicLine}
 ---
 
 `;
 
-  // Generate content from entries if available, otherwise fall back to notes
+  // Add intro paragraph if available
   let content = "";
+  if (release.intro) {
+    content += release.intro + "\n\n";
+  }
+
+  // Generate content from entries if available, otherwise fall back to notes
   if (release.entries && release.entries.length > 0) {
-    content = generateNotesFromEntries(release.entries);
+    content += generateNotesFromEntries(release.entries);
   } else if (release.notes) {
-    content = release.notes;
+    content += release.notes;
   }
 
   // Add download link if repository is specified (not for unreleased)
@@ -515,57 +649,110 @@ function groupVersionsByMajor(releases) {
 }
 
 /**
- * Generate TypeScript sidebar file content with topics.
- * Icons are applied in topics.ts, not here.
+ * Build sidebar items for a set of releases.
+ * @param {string} basePath - URL path prefix (e.g., "changelog/mcp")
+ * @param {string} projectName - Name for version group labels
+ * @param {Array} releases - Array of release objects
  */
-function generateSidebarFile(projects, projectVersions) {
+function buildSidebarItems(basePath, projectName, releases) {
+  const sidebarItems = [];
+  const versionGroups = groupVersionsByMajor(releases);
+
+  for (const group of versionGroups) {
+    if (group.isUnreleased) {
+      // Unreleased is a standalone link at the top
+      sidebarItems.push(`${basePath}/unreleased`);
+    } else {
+      // Version groups are collapsible, first one expanded
+      const isFirst =
+        sidebarItems.length === 0 ||
+        (sidebarItems.length === 1 && typeof sidebarItems[0] === "string");
+      sidebarItems.push({
+        label: `${projectName} ${group.label}`,
+        collapsed: !isFirst,
+        items: group.versions.map((v) => `${basePath}/${v.slug}`),
+      });
+    }
+  }
+
+  return sidebarItems;
+}
+
+/**
+ * Generate TypeScript sidebar file content with topics.
+ * Icons come from changelog-projects.json.
+ */
+function generateSidebarFile(projects, projectVersions, moduleVersions) {
   const topics = [];
   const topicParents = {};
 
   for (const project of projects) {
     const releases = projectVersions[project.id] || [];
-    const versionGroups = groupVersionsByMajor(releases);
-
-    // Build sidebar items
+    const hasModules = project.modules.length > 0;
     const sidebarItems = [];
 
-    for (const group of versionGroups) {
-      if (group.isUnreleased) {
-        // Unreleased is a standalone link at the top
+    if (hasModules) {
+      // Add parent project's unreleased entry if any
+      const parentUnreleased = releases.find((r) => r.isUnreleased);
+      if (parentUnreleased) {
         sidebarItems.push(`changelog/${project.id}/unreleased`);
-      } else {
-        // Version groups are collapsible, first one expanded
-        const isFirst =
-          sidebarItems.length === 0 ||
-          (sidebarItems.length === 1 && typeof sidebarItems[0] === "string");
+      }
+
+      // Add each module with flat version list
+      for (const mod of project.modules) {
+        const moduleReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+        if (moduleReleases.length === 0) continue;
+
         sidebarItems.push({
-          label: `${project.name} ${group.label}`,
-          collapsed: !isFirst,
-          items: group.versions.map((v) => `changelog/${project.id}/${v.slug}`),
+          label: mod.name,
+          collapsed: true,
+          items: moduleReleases.map(
+            (r) => `changelog/${project.id}/${mod.id}/${r.slug}`,
+          ),
         });
       }
+    } else {
+      // Use standard version grouping for regular projects
+      sidebarItems.push(
+        ...buildSidebarItems(`changelog/${project.id}`, project.name, releases),
+      );
     }
 
-    // Topic definition for this project (icon applied in topics.ts)
+    // Get icon from changelog-projects.json, fallback to pen
+    const icon = changelogProjects[project.id]?.icon || "pen";
+
     topics.push({
       label: project.name,
       id: `changelog-${project.id}`,
       link: `changelog/${project.id}`,
+      icon,
       items: sidebarItems,
     });
 
-    // Parent relationship
     topicParents[project.name] = "Changelog";
   }
 
+  // Generate topic path mappings for starlight-sidebar-topics
+  const topicPaths = {};
+  for (const project of projects) {
+    const topicId = `changelog-${project.id}`;
+    topicPaths[topicId] = [
+      `/changelog/${project.id}`,
+      `/changelog/${project.id}/**/*`,
+    ];
+  }
+
   return `// This file is auto-generated by scripts/sync-changelog.mjs
-// Do not edit manually. Icons are applied in topics.ts.
+// Do not edit manually.
 
 // Individual project topics (children of Changelog)
 export const changelogTopics = ${JSON.stringify(topics, null, 2)};
 
 // Parent mappings for the dropdown
 export const changelogTopicParents = ${JSON.stringify(topicParents, null, 2)};
+
+// Topic path mappings for starlight-sidebar-topics
+export const changelogTopicPaths = ${JSON.stringify(topicPaths, null, 2)};
 `;
 }
 
@@ -599,6 +786,117 @@ function getNewsRepo(localPath) {
 }
 
 /**
+ * Generate release cards for an index page.
+ */
+function generateReleaseCards(releases, projectName, basePath) {
+  // Get releases from the current major version (excluding unreleased)
+  const releasedVersions = releases.filter((r) => !r.isUnreleased);
+  const latestRelease = releasedVersions[0];
+  const currentMajor = latestRelease?.majorVersion;
+  const currentMajorReleases = releasedVersions.filter(
+    (r) => r.majorVersion === currentMajor,
+  );
+
+  // Generate unreleased card if present
+  const unreleasedRelease = releases.find((r) => r.isUnreleased);
+  const unreleasedCard = unreleasedRelease
+    ? `<LinkCard
+  title="${projectName}"
+  description="Upcoming changes not yet published in a release."
+  href="${basePath}/unreleased"
+  meta="upcoming"
+/>`
+    : "";
+
+  // Generate LinkCards for all releases in current major version
+  const releaseCards = currentMajorReleases
+    .map((r) => {
+      let description = r.intro || "";
+      if (description.length > 300) {
+        description = description.slice(0, 297) + "...";
+      }
+      // Escape quotes for JSX
+      description = description.replace(/"/g, '\\"');
+      const badgesAttr = generateBadgesAttr(r.components);
+      return `<LinkCard
+  title="${projectName} ${r.version}"
+  description="${description}"
+  href="${basePath}/${r.slug}"
+  meta="${r.created}"${badgesAttr}
+/>`;
+    })
+    .join("\n\n");
+
+  return [unreleasedCard, releaseCards].filter(Boolean).join("\n\n");
+}
+
+/**
+ * Generate index MDX content for a changelog (project or module).
+ * @param {string} name - Page title
+ * @param {string} description - Page description
+ * @param {string} cards - Card content to include
+ * @param {object} options - Optional settings
+ * @param {string} [options.topicId] - Topic ID for frontmatter
+ * @param {boolean} [options.useCardGrid] - Wrap cards in CardGrid component
+ * @param {string} [options.prefixContent] - Content to render before the CardGrid (full width)
+ */
+function generateIndexContent(
+  name,
+  description,
+  cards,
+  { topicId, useCardGrid, prefixContent } = {},
+) {
+  const topicLine = topicId ? `\ntopic: ${topicId}` : "";
+  const imports = useCardGrid
+    ? `import LinkCard from '@components/LinkCard.astro';
+import { CardGrid } from '@astrojs/starlight/components';`
+    : `import LinkCard from '@components/LinkCard.astro';`;
+
+  let body = prefixContent || "";
+  if (useCardGrid && cards) {
+    body += `<CardGrid>\n${cards}\n</CardGrid>`;
+  } else if (cards) {
+    body += cards;
+  }
+
+  return `---
+title: ${name}
+description: ${description}
+sidebar:
+  hidden: true${topicLine}
+---
+
+${imports}
+
+${description ? description + "\n\n" : ""}${body || "No releases available yet."}
+`;
+}
+
+/**
+ * Write MDX files for a list of releases.
+ * @param {string} dir - Output directory
+ * @param {object} entity - Project or module object
+ * @param {Array} releases - Release objects
+ * @param {object} options - Optional settings passed to generateMdxContent
+ * @returns {number} Number of files written.
+ */
+async function writeReleaseMdxFiles(dir, entity, releases, options = {}) {
+  let count = 0;
+  for (const release of releases) {
+    const mdxPath = path.join(dir, `${release.slug}.mdx`);
+    // For parent projects (no topicId), use entity name as sidebar label for unreleased
+    const releaseOptions = { ...options };
+    if (!options.topicId && release.isUnreleased) {
+      releaseOptions.sidebarLabel = entity.name;
+    }
+    const mdxContent = generateMdxContent(entity, release, releaseOptions);
+    await fs.writeFile(mdxPath, mdxContent);
+    count++;
+  }
+  return count;
+}
+
+/**
  * Main sync function.
  */
 async function syncChangelog(newsRepoPath) {
@@ -608,95 +906,144 @@ async function syncChangelog(newsRepoPath) {
 
   console.log(`Syncing changelog from: ${newsRepoPath}`);
 
-  // Read all projects
-  const projects = await readProjects(newsRepoPath);
+  // Read all projects and sort by order in changelog-projects.json
+  const configOrder = Object.keys(changelogProjects);
+  let projects = await readProjects(newsRepoPath);
+  projects.sort((a, b) => {
+    const orderA = configOrder.indexOf(a.id);
+    const orderB = configOrder.indexOf(b.id);
+    // Unknown projects go to the end
+    return (
+      (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB)
+    );
+  });
   console.log(
     `Found ${projects.length} projects: ${projects.map((p) => p.id).join(", ")}`,
   );
 
-  // Read releases for each project
+  // Read releases for each project and their modules
   const projectVersions = {};
+  const moduleVersions = {};
+  let totalPages = 0;
 
   for (const project of projects) {
-    const releases = await readReleases(newsRepoPath, project);
-    projectVersions[project.id] = releases;
-    console.log(`  ${project.id}: ${releases.length} releases`);
+    const hasModules = project.modules.length > 0;
+    const topicId = `changelog-${project.id}`;
 
-    // Create project directory
+    // Read parent project releases
+    const changelogPath = path.join(project.dirName, "changelog");
+    const releases = await readReleases(
+      newsRepoPath,
+      changelogPath,
+      project.name,
+    );
+    projectVersions[project.id] = releases;
+
+    // Clean and create project directory
     const projectDir = path.join(changelogContentDir, project.id);
+    await fs.rm(projectDir, { recursive: true, force: true });
     await fs.mkdir(projectDir, { recursive: true });
 
-    // Generate MDX files for each release
-    for (const release of releases) {
-      const mdxPath = path.join(projectDir, `${release.slug}.mdx`);
-      const mdxContent = generateMdxContent(project, release);
-      await fs.writeFile(mdxPath, mdxContent);
+    // Log project info
+    const moduleInfo = hasModules ? `, ${project.modules.length} modules` : "";
+    console.log(`  ${project.id}: ${releases.length} releases${moduleInfo}`);
+
+    // Write release MDX files for the parent project
+    totalPages += await writeReleaseMdxFiles(projectDir, project, releases);
+
+    // Process modules if present
+    if (hasModules) {
+      for (const mod of project.modules) {
+        const moduleReleases = await readReleases(
+          newsRepoPath,
+          mod.changelogPath,
+          mod.name,
+        );
+        moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
+        console.log(`    ${mod.id}: ${moduleReleases.length} releases`);
+
+        // Create module directory and write release files
+        const moduleDir = path.join(projectDir, mod.id);
+        await fs.mkdir(moduleDir, { recursive: true });
+        totalPages += await writeReleaseMdxFiles(
+          moduleDir,
+          mod,
+          moduleReleases,
+          { topicId },
+        );
+
+        // Generate module index
+        const moduleCards = generateReleaseCards(
+          moduleReleases,
+          mod.name,
+          `/changelog/${project.id}/${mod.id}`,
+        );
+        const moduleIndexContent = generateIndexContent(
+          mod.name,
+          mod.description,
+          moduleCards,
+          { topicId },
+        );
+        await fs.writeFile(
+          path.join(moduleDir, "index.mdx"),
+          moduleIndexContent,
+        );
+      }
     }
 
-    // Generate index file for the project (hidden from sidebar)
+    // Generate project index
     const indexPath = path.join(projectDir, "index.mdx");
+    if (hasModules) {
+      // Module cards for parent project index
+      const moduleCardsList = project.modules
+        .map((mod) => {
+          const modReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+          const latestRelease = modReleases.find((r) => !r.isUnreleased);
+          const version = latestRelease?.version || "";
+          return `<LinkCard
+  title="${mod.name}"
+  description="${mod.description}"
+  href="/changelog/${project.id}/${mod.id}"
+  meta="${version}"
+/>`;
+        })
+        .join("\n\n");
 
-    // Get releases from the current major version (excluding unreleased)
-    const releasedVersions = releases.filter((r) => !r.isUnreleased);
-    const latestRelease = releasedVersions[0];
-    const currentMajor = latestRelease?.majorVersion;
-    const currentMajorReleases = releasedVersions.filter(
-      (r) => r.majorVersion === currentMajor,
-    );
-
-    // Generate unreleased card if present
-    const unreleasedRelease = releases.find((r) => r.isUnreleased);
-    const unreleasedCard = unreleasedRelease
-      ? `<LinkCard
+      // Add unreleased card before modules if present (full width, outside grid)
+      const parentUnreleased = releases.find((r) => r.isUnreleased);
+      const unreleasedCard = parentUnreleased
+        ? `<LinkCard
   title="${project.name}"
   description="Upcoming changes not yet published in a release."
   href="/changelog/${project.id}/unreleased"
   meta="upcoming"
-/>`
-      : "";
+/>\n\n`
+        : "";
 
-    // Generate LinkCards for all releases in current major version
-    const releaseCards = currentMajorReleases
-      .map((r) => {
-        let description = r.intro || "";
-        if (description.length > 300) {
-          description = description.slice(0, 297) + "...";
-        }
-        // Escape quotes for JSX
-        description = description.replace(/"/g, '\\"');
-        const badgesAttr = generateBadgesAttr(r.components);
-        return `<LinkCard
-  title="${project.name} ${r.version}"
-  description="${description}"
-  href="/changelog/${project.id}/${r.slug}"
-  meta="${r.created}"${badgesAttr}
-/>`;
-      })
-      .join("\n\n");
-
-    // Combine unreleased card with release cards
-    const allCards = [unreleasedCard, releaseCards]
-      .filter(Boolean)
-      .join("\n\n");
-
-    const indexContent = `---
-title: ${project.name}
-description: ${project.description}
-sidebar:
-  hidden: true
----
-
-import LinkCard from '@components/LinkCard.astro';
-
-${project.description ? project.description + "\n\n" : ""}${
-      allCards || "No releases available yet."
+      const indexContent = generateIndexContent(
+        project.name,
+        project.description,
+        moduleCardsList,
+        { useCardGrid: true, prefixContent: unreleasedCard },
+      );
+      await fs.writeFile(indexPath, indexContent);
+    } else {
+      // Regular project: show release cards
+      const allCards = generateReleaseCards(
+        releases,
+        project.name,
+        `/changelog/${project.id}`,
+      );
+      const indexContent = generateIndexContent(
+        project.name,
+        project.description,
+        allCards,
+      );
+      await fs.writeFile(indexPath, indexContent);
     }
-`;
-    await fs.writeFile(indexPath, indexContent);
   }
 
   // Generate main changelog landing page
-  // Icons are defined in src/topics.ts - use generic icon here, topics.ts is authoritative
   const projectCards = projects
     .map((project) => {
       const releases = projectVersions[project.id] || [];
@@ -736,14 +1083,16 @@ our [Discord](https://tenzir.com/discord).
 
   // Generate sidebar and topics configuration
   const sidebarFilePath = path.join(srcDir, "sidebar-changelog.generated.ts");
-  const sidebarContent = generateSidebarFile(projects, projectVersions);
+  const sidebarContent = generateSidebarFile(
+    projects,
+    projectVersions,
+    moduleVersions,
+  );
   await fs.writeFile(sidebarFilePath, sidebarContent);
   console.log(`Generated: src/sidebar-changelog.generated.ts`);
 
   console.log(`\nSync complete!`);
-  console.log(
-    `Generated ${Object.values(projectVersions).flat().length} changelog pages.`,
-  );
+  console.log(`Generated ${totalPages} changelog pages.`);
 }
 
 // CLI entry point
