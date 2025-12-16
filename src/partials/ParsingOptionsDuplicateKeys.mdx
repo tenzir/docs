@@ -1,0 +1,30 @@
+### Duplicate Keys
+
+If the parser encounters a duplicate key in an event, it will transparently
+upgrade the field to be a list of values instead.
+
+For a simple example, consider this JSON file:
+
+```json title="Duplicate Keys"
+{"key": 7}
+{"key": 0.0, "key": 1}
+{"key": 42}
+```
+
+```tql
+{key: 7}
+{key: [0.0, 1.0]}
+{key: 42}
+```
+
+If the values are of different type, conversions to a common type will be attempted,
+such as to a common number type. Ultimately values will be stringified if they
+do not share a common type:
+
+```json title="Type Conflict"
+{"key": 0.0, "key": "1.1.1.1", "key": "example.com"}
+```
+
+```tql
+{key: ["0", "1.1.1.1", "example.com"]}
+```
