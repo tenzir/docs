@@ -299,11 +299,67 @@ After clicking the button above, follow these steps in the AWS console:
 
 </Steps>
 
-:::tip[Stack Management]
-You can update your node by updating the CloudFormation stack with new
-parameters. To remove the node and all associated resources,
-simply delete the stack.
-:::
+### Update your node
+
+To update your Tenzir node to a new version, you need to update the **Container image URL** parameter with a new version tag. The image URL format is:
+
+```
+709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-node:v<MAJOR>.<MINOR>.<PATCH>
+```
+
+Replace `v<MAJOR>.<MINOR>.<PATCH>` with the desired version (e.g., `v4.30.3`). Check the [node changelog](/changelog/node/) for the latest version.
+
+<Tabs syncKey="aws-cloudformation">
+<TabItem value="console" label="Console">
+
+1. Navigate to [CloudFormation](https://console.aws.amazon.com/cloudformation/) in the AWS console.
+2. Select your stack and click _Update_.
+3. Choose _Use current template_ and click _Next_.
+4. Update the **Container image URL** parameter with the new version.
+5. Click through the remaining screens and submit the update.
+
+</TabItem>
+<TabItem value="cli" label="CLI">
+
+```bash
+aws cloudformation update-stack \
+  --stack-name tenzir-node-prod \
+  --use-previous-template \
+  --parameters \
+    ParameterKey=ContainerImageUrl,ParameterValue=709825985650.dkr.ecr.us-east-1.amazonaws.com/tenzir/tenzir-node:v4.30.3 \
+    ParameterKey=TenzirToken,UsePreviousValue=true \
+  --capabilities CAPABILITY_IAM
+```
+
+Replace `tenzir-node-prod` with your stack name and `v4.30.3` with the desired version.
+
+</TabItem>
+</Tabs>
+
+Your node will restart with the new version automatically.
+
+### Delete your node
+
+To remove the node and all associated resources, delete the stack.
+
+<Tabs syncKey="aws-cloudformation">
+<TabItem value="console" label="Console">
+
+1. Navigate to [CloudFormation](https://console.aws.amazon.com/cloudformation/) in the AWS console.
+2. Select your stack and click _Delete_.
+3. Confirm the deletion.
+
+</TabItem>
+<TabItem value="cli" label="CLI">
+
+```bash
+aws cloudformation delete-stack --stack-name tenzir-node-prod
+```
+
+Replace `tenzir-node-prod` with your stack name.
+
+</TabItem>
+</Tabs>
 
 </TabItem>
 <TabItem value="manual" label="Manual">
