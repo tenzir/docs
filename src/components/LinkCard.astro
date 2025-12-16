@@ -13,9 +13,11 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
   /** Array of badge labels to display */
   badges?: string[];
   icon?: StarlightIcon;
+  /** Color name for the icon (e.g., 'blue', 'green', 'purple') */
+  color?: string;
 }
 
-const { title, meta, badges, description, icon, href, ...rest } = Astro.props;
+const { title, meta, badges, description, icon, color, href, ...rest } = Astro.props;
 
 let renderedDescription: string | undefined;
 if (description) {
@@ -27,7 +29,11 @@ if (description) {
 <div class="link-card">
   <a {href} {...rest}>
     <div class="link-card-header">
-      {icon && <Icon name={icon} class="link-card-icon" size="1.5rem" />}
+      {icon && (
+        <span class="link-card-icon" data-color={color}>
+          <Icon name={icon} size="1.5rem" />
+        </span>
+      )}
       <span class="link-card-title">{title}</span>
       {
         (meta || (badges && badges.length > 0)) && (
@@ -83,13 +89,42 @@ if (description) {
     gap: var(--tnz-space-3);
   }
 
-  /* Icon - vertically centered with title via flexbox */
+  /* Icon wrapper - vertically centered with title via flexbox */
   .link-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
     color: var(--tnz-neutral-400);
   }
-  :root[data-theme='light'] .link-card-icon {
+  :root[data-theme='light'] .link-card-icon:not([data-color]) {
     color: var(--tnz-neutral-500);
+  }
+
+  /* Colored icons - use 400 shade for balanced appearance */
+  .link-card-icon[data-color='blue'] {
+    color: var(--tnz-primary-400);
+  }
+  .link-card-icon[data-color='green'] {
+    color: var(--tnz-green-400);
+  }
+  .link-card-icon[data-color='purple'] {
+    color: var(--tnz-purple-400);
+  }
+  .link-card-icon[data-color='orange'] {
+    color: var(--tnz-orange-400);
+  }
+  .link-card-icon[data-color='lightblue'] {
+    color: var(--tnz-lightblue-400);
+  }
+  .link-card-icon[data-color='pink'] {
+    color: var(--tnz-pink-400);
+  }
+  .link-card-icon[data-color='yellow'] {
+    color: var(--tnz-yellow-400);
+  }
+  .link-card-icon[data-color='red'] {
+    color: var(--tnz-red-400);
   }
 
   /* Title - grows to push meta to the right */

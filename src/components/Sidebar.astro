@@ -4,8 +4,20 @@ import Default from '@astrojs/starlight/components/Sidebar.astro';
 
 import { topicParents, childTopics, dropdownTopics } from '../topics.ts';
 import TopicDropdown from './TopicDropdown.astro';
+import changelogProjects from '../changelog-projects.json';
 
 const { topics } = Astro.locals.starlightSidebarTopics;
+
+// Create color lookup by label since starlight-sidebar-topics may not pass through id
+const projectColorsByName: Record<string, string | undefined> = {};
+for (const [projectId, config] of Object.entries(changelogProjects)) {
+  if (config.name) {
+    projectColorsByName[config.name] = config.color;
+  }
+}
+const getTopicColor = (label: string): string | undefined => {
+  return projectColorsByName[label];
+};
 
 // Find the current topic
 const currentTopic = topics.find((topic) => topic.isCurrent);
@@ -26,12 +38,14 @@ const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label))
 // Check if this root topic uses a dropdown
 const useDropdown = dropdownTopics.has(rootLabel);
 
-// Prepare dropdown data
+// Prepare dropdown data - look up colors from changelog-projects.json since
+// starlight-sidebar-topics doesn't pass through custom properties
 const dropdownItems = useDropdown
   ? sidebarTopics.map((t) => ({
       label: t.label,
       link: t.link,
       icon: t.icon,
+      color: getTopicColor(t.label),
       isCurrent: t.isCurrent,
     }))
   : [];

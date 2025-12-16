@@ -10,6 +10,7 @@ interface Props {
     label: string;
     link: string;
     icon?: string;
+    color?: string;
     isCurrent: boolean;
   }>;
 }
@@ -26,7 +27,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     aria-haspopup="listbox"
   >
     {currentItem?.icon && (
-      <span class="topic-dropdown-trigger-icon">
+      <span class="topic-dropdown-trigger-icon" data-color={currentItem.color}>
         <Icon name={currentItem.icon} />
       </span>
     )}
@@ -53,7 +54,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
           class:list={['topic-dropdown-item', { 'is-current': item.isCurrent }]}
         >
           {item.icon && (
-            <span class="topic-dropdown-icon">
+            <span class="topic-dropdown-icon" data-color={item.color}>
               <Icon name={item.icon} />
             </span>
           )}
@@ -209,9 +210,43 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     color: var(--tnz-neutral-400);
   }
 
-  .topic-dropdown-item:hover .topic-dropdown-icon,
-  .topic-dropdown-item.is-current .topic-dropdown-icon {
+  .topic-dropdown-item:hover .topic-dropdown-icon:not([data-color]),
+  .topic-dropdown-item.is-current .topic-dropdown-icon:not([data-color]) {
     color: inherit;
+  }
+
+  /* Colored icons - use :global to ensure specificity matches light mode rules */
+  :global(.topic-dropdown-trigger-icon[data-color='blue']),
+  :global(.topic-dropdown-icon[data-color='blue']) {
+    color: var(--tnz-primary-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='green']),
+  :global(.topic-dropdown-icon[data-color='green']) {
+    color: var(--tnz-green-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='purple']),
+  :global(.topic-dropdown-icon[data-color='purple']) {
+    color: var(--tnz-purple-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='orange']),
+  :global(.topic-dropdown-icon[data-color='orange']) {
+    color: var(--tnz-orange-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='lightblue']),
+  :global(.topic-dropdown-icon[data-color='lightblue']) {
+    color: var(--tnz-lightblue-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='pink']),
+  :global(.topic-dropdown-icon[data-color='pink']) {
+    color: var(--tnz-pink-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='yellow']),
+  :global(.topic-dropdown-icon[data-color='yellow']) {
+    color: var(--tnz-yellow-400);
+  }
+  :global(.topic-dropdown-trigger-icon[data-color='red']),
+  :global(.topic-dropdown-icon[data-color='red']) {
+    color: var(--tnz-red-400);
   }
 
   .topic-dropdown-item:hover {

@@ -718,16 +718,19 @@ function generateSidebarFile(projects, projectVersions, moduleVersions) {
       );
     }
 
-    // Get icon from changelog-projects.json, fallback to pen
+    // Get icon and color from changelog-projects.json
     const icon = changelogProjects[project.id]?.icon || "pen";
+    const color = changelogProjects[project.id]?.color;
 
-    topics.push({
+    const topicEntry = {
       label: project.name,
       id: `changelog-${project.id}`,
       link: `changelog/${project.id}`,
       icon,
       items: sidebarItems,
-    });
+    };
+    if (color) topicEntry.color = color;
+    topics.push(topicEntry);
 
     topicParents[project.name] = "Changelog";
   }
@@ -1050,11 +1053,13 @@ async function syncChangelog(newsRepoPath) {
       const latestRelease = releases.find((r) => !r.isUnreleased);
       const version = latestRelease?.version || "";
       const icon = changelogProjects[project.id]?.icon || "document";
+      const color = changelogProjects[project.id]?.color;
+      const colorAttr = color ? `\n  color="${color}"` : "";
       return `<LinkCard
   title="${project.name}"
   description="${project.description}"
   href="/changelog/${project.id}"
-  icon="${icon}"
+  icon="${icon}"${colorAttr}
   meta="${version}"
 />`;
     })
