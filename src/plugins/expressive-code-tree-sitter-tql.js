@@ -17,16 +17,24 @@ import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 const parser = new Parser();
 parser.setLanguage(TreeSitterTql);
 
-const highlightQuery = new Parser.Query(
-  TreeSitterTql,
-  readFileSync(
-    new URL(
-      "../../node_modules/tree-sitter-tql/queries/tql/highlights.scm",
-      import.meta.url,
+let highlightQuery;
+try {
+  highlightQuery = new Parser.Query(
+    TreeSitterTql,
+    readFileSync(
+      new URL(
+        "../../node_modules/tree-sitter-tql/queries/tql/highlights.scm",
+        import.meta.url,
+      ),
+      "utf8",
     ),
-    "utf8",
-  ),
-);
+  );
+} catch (error) {
+  throw new Error(
+    `Failed to load TQL highlights query. Ensure tree-sitter-tql is installed ` +
+      `and rebuilt (run: pnpm install). Original error: ${error.message}`,
+  );
+}
 
 const TQL_TOKEN_SCOPES = {
   keyword: ["keyword"],
