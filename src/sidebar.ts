@@ -36,12 +36,13 @@ export const guides = [
     ],
   },
   {
-    label: "MCP Usage",
+    label: "AI Workbench",
     collapsed: true,
     items: [
-      "guides/mcp-usage/install-mcp-server",
-      "guides/mcp-usage/generate-a-parser",
-      "guides/mcp-usage/generate-an-ocsf-mapping",
+      "guides/ai-workbench/install-mcp-server",
+      "guides/ai-workbench/configure-your-agent",
+      "guides/ai-workbench/generate-a-parser",
+      "guides/ai-workbench/generate-an-ocsf-mapping",
     ],
   },
   {

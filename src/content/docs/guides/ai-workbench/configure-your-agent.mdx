@@ -1,0 +1,178 @@
+---
+title: Configure Agent for Development
+description: Optimize your AI agent for working with Tenzir projects
+---
+
+After [installing the MCP server](/guides/ai-workbench/install-mcp-server), you can
+further optimize your AI agent for Tenzir development workflows. This guide
+covers project-level configuration that enhances the development experience.
+
+:::note[Why we recommend Claude Code]
+Tenzir uses Claude Code internally and recommends it for TQL development. The
+[Tenzir Claude Marketplace](https://github.com/tenzir/claude-plugins) bundles
+authoritative procedural knowledge—skills, slash commands, and hooks that encode
+how we write code, documentation, and changelogs. Other AI agents can use the
+MCP server for basic TQL assistance, but they lack this curated workflow
+integration. We support them to give you choice, though team bandwidth limits
+what we can maintain out of the box.
+:::
+
+## Claude Code
+
+Claude Code supports a [plugin
+marketplace](https://docs.claudecode.dev/plugin-marketplace) that provides
+custom skills, slash commands, and MCP servers tailored for specific
+development workflows. The [Tenzir Claude
+Marketplace](https://github.com/tenzir/claude-plugins) includes plugins for TQL
+development, documentation writing, and changelog management.
+
+### Quick setup
+
+Run the following commands in Claude Code to register the marketplace and
+install plugins interactively:
+
+```
+/plugin marketplace add tenzir/claude-plugins
+/plugin
+```
+
+If you prefer HTTPS over SSH:
+
+```
+/plugin marketplace add https://github.com/tenzir/claude-plugins.git
+```
+
+### Team setup
+
+For team projects, configure `.claude/settings.json` to share the marketplace
+and plugins with all contributors. When team members trust the project folder,
+Claude Code automatically prompts them to enable the configured plugins.
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_tql_tenzir",
+      "Read",
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "WebFetch",
+      "WebSearch",
+      "Skill",
+      "SlashCommand",
+      "ExitPlanMode"
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "tenzir": {
+      "source": {
+        "source": "github",
+        "repo": "tenzir/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "tql@tenzir": true,
+    "formatter@tenzir": true,
+    "git@tenzir": true,
+    "changelog@tenzir": true
+  }
+}
+```
+
+:::tip[Bash permissions]
+`Bash` is intentionally omitted from the shared configuration. If you want to
+allow shell access, add it to your personal `settings.local.json`, which is
+typically gitignored:
+
+```json
+{
+  "permissions": {
+    "allow": ["Bash"]
+  }
+}
+```
+
+:::
+
+### Recommended plugins
+
+The following plugins enhance TQL development:
+
+| Plugin             | Description                                        |
+| ------------------ | -------------------------------------------------- |
+| `tql@tenzir`       | TQL language server with validation and completion |
+| `formatter@tenzir` | Automatic code formatting using Tenzir guidelines  |
+| `git@tenzir`       | Git workflows with Tenzir-specific commit messages |
+| `changelog@tenzir` | Changelog management following Tenzir conventions  |
+
+## Cursor
+
+### Project rules
+
+Create `.cursor/rules` in your project root with TQL-specific guidance:
+
+```text
+When writing TQL (Tenzir Query Language) pipelines:
+- Use `tql` as the language identifier for code blocks
+- Pipelines flow from sources through transformations to sinks
+- Use the pipe operator to chain operators
+- Prefer `from` for data sources and `to` for sinks
+```
+
+### MCP configuration
+
+Configure the Tenzir MCP server in `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "tenzir": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["tenzir-mcp@latest"],
+      "env": {}
+    }
+  }
+}
+```
+
+## VS Code with Copilot
+
+VS Code with GitHub Copilot supports MCP servers starting with version 1.102.
+
+### MCP configuration
+
+Create `.vscode/mcp.json` in your project root:
+
+```json
+{
+  "servers": {
+    "tenzir": {
+      "command": "uvx",
+      "args": ["tenzir-mcp@latest"]
+    }
+  }
+}
+```
+
+### TQL extension
+
+Install the [TQL extension](https://github.com/tenzir/vscode-tql) for syntax
+highlighting and language support.
+
+## Zed
+
+[Zed](https://zed.dev) is a high-performance editor with AI integration.
+
+### TQL extension
+
+Install the [TQL extension](https://github.com/tenzir/zed-tql) for syntax
+highlighting.
+
+## Next steps
+
+- [Generate a parser](/guides/ai-workbench/generate-a-parser) using AI assistance
+- [Generate an OCSF mapping](/guides/ai-workbench/generate-an-ocsf-mapping) for
+  data normalization
