@@ -1,0 +1,265 @@
+---
+title: UDO Arguments
+sidebar:
+  badge:
+    text: v5.22.0
+    variant: success
+---
+
+This release introduces support for arguments in user-defined operators, letting operators declare positional and named parameters with optional default values and use them just like built-in operators. It also enhances parser behavior for duplicate keys and includes several important stability, parsing, and retention improvements to make pipelines more flexible and reliable.
+
+Download the release on [GitHub](https://github.com/tenzir/tenzir/releases/tag/v5.22.0).
+
+### Features
+
+#### Support GOOGLE_CLOUD_PROJECT environment variable in `to_google_cloud_logging` operator
+
+The `to_google_cloud_logging` operator now checks for the `GOOGLE_CLOUD_PROJECT` environment variable
+if no explicit project id is given, before falling back to the Google Metadata service.
+
+By [@lava](https://github.com/lava) in [#5591](https://github.com/tenzir/tenzir/pull/5591).
+
+#### Getting Kafka records with `from_kafka`
+
+The new `from_kafka` operator allows you to receive one event per Kafka message,
+thus keeping the event boundary unlike `load_kafka`, which has now been
+deprecated.
+
+**Example**
+
+Use `from_kafka` to parse JSON events from a topic:
+
+```tql
+from_kafka "events"
+this = message.parse_json()
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5575](https://github.com/tenzir/tenzir/pull/5575).
+
+#### Improved Google Cloud PubSub Integration
+
+We have improved our Google Cloud PubSub integration with the addition of the new
+`from_google_cloud_pubsub` and `to_google_cloud_pubsub` operators.
+
+These operators are direct *void -> event* and *event -> void* operators, which
+means that they ensure a 1:1 relation between events and messages.
+
+The `from_google_cloud_pubsub` operator can also attach metadata such
+as message ID, publish time, and attributes for downstream enrichment.
+
+The legacy `load_google_cloud_pubsub` and `save_google_cloud_pubsub` operators
+are deprecated in favor of these event-preserving counterparts.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5593](https://github.com/tenzir/tenzir/pull/5593).
+
+#### Run pipelines with uvx tenzir
+
+The `tenzir` binary is now bundled directly with the `tenzir` Python wheel.
+This means you can run Tenzir pipelines on any machine with uv installed,
+without any separate installation steps.
+
+Just use `uvx`:
+
+```bash
+uvx tenzir 'version'
+```
+
+The bundled binary is available for Apple Silicon Macs, aarch64 Linux, and
+x86_64 Linux. On other platforms, the wheel only contains the Python bindings
+and you need to install the `tenzir` binary separately.
+
+By [@tobim](https://github.com/tobim) in [#5482, 5588, 5589](https://github.com/tenzir/tenzir/pull/5482, 5588, 5589).
+
+#### Filter files by modification times with `max_age`
+
+The `from_file`, `from_s3`, `from_gcs`, and `from_azure_blob_storage` operators
+now support an optional `max_age` parameter that filters files based on their
+last modification time. Only files modified within the specified duration from
+now will be processed.
+
+**Example**
+
+Process only files modified in the last hour:
+
+```tql
+from_file "/var/log/security/*.json", max_age=1h
+```
+
+By [@raxyte](https://github.com/raxyte) in [#5611](https://github.com/tenzir/tenzir/pull/5611).
+
+#### Getting data from SentinelOne Data Lake
+
+The new `from_sentinelone_data_lake` operator allows you to query the SentinelOne
+Singularity Data Lake using PowerQuery and retrieve security events directly into
+your Tenzir pipelines. Tenzir's integrations with SentinelOne now allow you to
+send data to _and_ load data from SentinelOne Data Lakes.
+
+**Example**
+
+Query threat events and filter by severity:
+
+```tql
+from_sentinelone_data_lake "https://xdr.eu1.sentinelone.net",
+  token=secret("sentinelone-token"),
+  query="severity > 3 | columns id",
+  start=now()-7d
+```
+
+The operator sends a request to the `/api/powerQuery` endpoint with optional time
+range filters and parses the tabular response into events for downstream processing.
+
+By [@raxyte](https://github.com/raxyte) in [#5599](https://github.com/tenzir/tenzir/pull/5599).
+
+#### Backpressure and connection limits for HTTP server
+
+The `from_http` operator in server mode now implements backpressure, waiting for
+each request to be processed before accepting new data. This prevents memory
+pressure during traffic spikes from webhook integrations or log receivers.
+
+A new `max_connections` parameter limits simultaneous connections:
+
+```tql
+from_http "0.0.0.0:8080", server=true, max_connections=50
+```
+
+The default is 10 connections. Additional connections are rejected until a slot
+frees up, keeping your pipelines stable under heavy load.
+
+By [@raxyte](https://github.com/raxyte) in [#5601](https://github.com/tenzir/tenzir/pull/5601).
+
+#### Support for duplicate keys in parsers
+
+Our parsers now have improved support for repeated keys in a an event.
+Previously a later key-value pair would always overwrite the previous one.
+With this change the value is transparently upgraded to a list of values.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5445](https://github.com/tenzir/tenzir/pull/5445).
+
+#### Argument support for User-defined operators
+
+User-defined operators in packages can now declare arguments in their YAML
+frontmatter, enabling parameterized operator definitions with the same calling
+convention as built-in operators.
+
+Arguments can be positional or named. Both support optional default values and
+can be called with literals, constant expressions, or dynamically evaluated
+runtime expressions such as fields.
+
+For example, create a reusable operator to set fields dynamically:
+
+```yaml
+---
+description: "Set a field to a value"
+args:
+  positional:
+    - name: field
+      type: field
+    - name: value
+      type: string
+  named:
+    - name: prefix
+      type: string
+      default: ""
+---
+$field = $prefix + $value
+```
+
+Use the operator with both constant and runtime arguments:
+
+```tql
+from {x: 1}
+mypkg::set_field this.name, "Alice", prefix="User: "
+```
+
+```tql
+{
+  x: 1,
+  name: "User: Alice",
+}
+```
+
+Parameters can be typed with a type name passed in the namesake field. In case
+the passed in expression can be evaluated at instantiation time it is checked
+against the type and a diagnostic is returned if it does not match. In case a
+type check is not possible because the expression contains references to
+run-time data, the type check is omitted, and potential errors will be flagged at
+runtime. Field-path arguments (declared via `type: field`) accept selectors and
+cannot declare defaults.
+
+By [@tobim](https://github.com/tobim).
+
+### Changes
+
+#### Simplified `publish` and `subscribe` connection
+
+We made an under-the-hood change to the `publish` and `subscribe` implementation
+that reduces the overhead when publishing to high-throughput topics.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5597](https://github.com/tenzir/tenzir/pull/5597).
+
+#### Removed `gcps://` URI scheme
+
+We have removed the `gcps:/` URI scheme, which previously would dispatch to
+`load_google_cloud_pubsub` and `save_google_cloud_pubsub`. As these operators
+are deprecated and will be removed, the schemas are being retired as well.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5593](https://github.com/tenzir/tenzir/pull/5593).
+
+#### Update default retention policies for metrics and diagnostics
+
+Tenzir now applies default retention policies for internal metrics and diagnostics:
+
+- **Metrics** (schema `tenzir.metrics.*`): Retained for 16 days by default
+- **Diagnostics** (schema `tenzir.diagnostics.*`): Retained for 30 days by default
+
+These defaults help manage storage usage while keeping sufficient history for troubleshooting. You can customize these settings:
+
+```yaml
+# tenzir.yaml
+tenzir:
+  retention:
+    metrics: 16d      # Retention period for general metrics
+    diagnostics: 30d  # Retention period for diagnostics
+```
+
+Set any retention period to `0` to disable automatic deletion for that category.
+
+By [@lava](https://github.com/lava) in [#5594](https://github.com/tenzir/tenzir/pull/5594).
+
+### Bug Fixes
+
+#### Fixed missing Zeek fields
+
+Zeek JSON contains fields such as `io.data.read.bytes` and
+`io.data.read.bytes.per-second`. These fields would previously overwrite each other
+in order of appearance.
+
+With this change `bytes` now is a record and the original value is kept under the
+key `""`.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5445](https://github.com/tenzir/tenzir/pull/5445).
+
+#### Fixed an assertion failure in parsers
+
+We fixed a bug in a common component used across all parsers, which could enter
+an inconsistent state, leading to an "unexpected internal error: unreachable".
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5590](https://github.com/tenzir/tenzir/pull/5590).
+
+#### Fixed an assertion in parsers
+
+When parsing typed-data (e.g. integers in JSON), with a predefined schema that
+expected a different type (e.g. a `time`), the parser would crash with an
+assertion failure.
+
+This has now been resolved and the field will simply be null instead with a
+warning being emitted.
+
+By [@IyeOnline](https://github.com/IyeOnline) in [#5595](https://github.com/tenzir/tenzir/pull/5595).
+
+#### Removed warning for `void` metrics
+
+The non-actionable warning "received an operator metric without a unit" that was
+sometimes emitted for closed subpipelines was removed.
+
+By [@jachris](https://github.com/jachris) in [#5598](https://github.com/tenzir/tenzir/pull/5598).
