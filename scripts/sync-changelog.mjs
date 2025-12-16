@@ -607,12 +607,19 @@ function generateNotesFromEntries(entries) {
 function generateMdxContent(project, release, { topicId, sidebarLabel } = {}) {
   const topicLine = topicId ? `\ntopic: ${topicId}` : "";
   const label = sidebarLabel || release.version;
+
+  // Determine if we need LinkCard import (for download link)
+  const hasDownloadLink = project.repository && !release.isUnreleased;
+  const imports = hasDownloadLink
+    ? `\nimport LinkCard from '@components/LinkCard.astro';\n`
+    : "";
+
   const frontmatter = `---
 title: "${project.name} ${release.version}"
 sidebar:
   label: "${label}"${topicLine}
 ---
-
+${imports}
 `;
 
   // Add intro paragraph if available
@@ -629,11 +636,17 @@ sidebar:
   }
 
   // Add download link if repository is specified (not for unreleased)
-  if (project.repository && !release.isUnreleased) {
+  if (hasDownloadLink) {
     const repoUrl = project.repository.startsWith("http")
       ? project.repository
       : `https://github.com/${project.repository}`;
-    content += `\n---\n\nDownload the release on [GitHub](${repoUrl}/releases/tag/${release.version}).\n`;
+    const downloadUrl = `${repoUrl}/releases/tag/${release.version}`;
+    content += `\n<LinkCard
+  title="Download on GitHub"
+  description="Get the release artifacts and source code."
+  href="${downloadUrl}"
+  icon="github"
+/>\n`;
   }
 
   return frontmatter + content;
