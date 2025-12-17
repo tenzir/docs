@@ -39,6 +39,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prod
 
+      - name: Sync changelog
+        run: pnpm sync:changelog
+
       - name: Setup GitHub Pages
         id: pages
         uses: actions/configure-pages@v5

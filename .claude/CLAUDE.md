@@ -65,12 +65,19 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 - Use `pnpm build` only when you need to inspect build artifacts. Output goes
   to `/build`.
 
+### Generated Content
+
+Some content is auto-generated and excluded from linting:
+
+- **Changelog**: Run `pnpm sync:changelog` to fetch from `tenzir/news` repo.
+  Generated files: `src/content/docs/changelog/`, `src/sidebar-changelog.ts`.
+- **Reference docs**: Run `pnpm generate:reference` for function/operator docs.
+
 ### Linting
 
-- Run `pnpm lint` to execute every linter, including markdownlint, ESLint,
-  Prettier, and the link checker.
-- Run `pnpm lint:fix` to apply automatic fixes across all linters before you
-  commit.
+- Run `pnpm lint` to check markdownlint, ESLint, and Prettier.
+- Run `pnpm lint:fix` to apply automatic fixes across all linters.
+- Link checking runs separately in CI via `pnpm build:linkcheck`.
 
 ### Reviewing Pull Requests
 

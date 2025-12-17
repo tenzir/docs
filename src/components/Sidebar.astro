@@ -2,9 +2,22 @@
 import { Badge, Icon } from '@astrojs/starlight/components';
 import Default from '@astrojs/starlight/components/Sidebar.astro';
 
-import { topicParents, childTopics } from '../topics.ts';
+import { topicParents, childTopics, dropdownTopics } from '../topics.ts';
+import TopicDropdown from './TopicDropdown.astro';
+import changelogProjects from '../changelog-projects.json';
 
 const { topics } = Astro.locals.starlightSidebarTopics;
+
+// Create color lookup by label since starlight-sidebar-topics may not pass through id
+const projectColorsByName: Record<string, string | undefined> = {};
+for (const [projectId, config] of Object.entries(changelogProjects)) {
+  if (config.name) {
+    projectColorsByName[config.name] = config.color;
+  }
+}
+const getTopicColor = (label: string): string | undefined => {
+  return projectColorsByName[label];
+};
 
 // Find the current topic
 const currentTopic = topics.find((topic) => topic.isCurrent);
@@ -14,16 +27,33 @@ if (!currentTopic) {
 
 // If current is a root → show its children
 // If current is a child → show its siblings
-const currentLabel = currentTopic.label;
+const currentLabel = currentTopic?.label || '';
 const parentLabel = topicParents[currentLabel];
 const rootLabel = parentLabel ?? currentLabel;
 
 // Get the list of child topic labels (could be empty)
 const sidebarTopicLabels = childTopics(rootLabel);
 const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label));
+
+// Check if this root topic uses a dropdown
+const useDropdown = dropdownTopics.has(rootLabel);
+
+// Prepare dropdown data - look up colors from changelog-projects.json since
+// starlight-sidebar-topics doesn't pass through custom properties
+const dropdownItems = useDropdown
+  ? sidebarTopics.map((t) => ({
+      label: t.label,
+      link: t.link,
+      icon: t.icon,
+      color: getTopicColor(t.label),
+      isCurrent: t.isCurrent,
+    }))
+  : [];
 ---
 
-{sidebarTopics.length > 0 && (
+{useDropdown && dropdownItems.length > 0 ? (
+  <TopicDropdown items={dropdownItems} />
+) : sidebarTopics.length > 0 && (
   <ul class="starlight-sidebar-topics">
     {
       sidebarTopics.map((topic) => (
@@ -68,7 +98,7 @@ const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label))
     background-color: var(--tnz-neutral-700);
   }
 
-  :global([data-theme='light']) ul::after {
+  :root[data-theme='light'] ul::after {
     background-color: var(--tnz-neutral-200);
   }
 
@@ -119,16 +149,16 @@ const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label))
   }
 
   /* Light mode */
-  :global([data-theme='light']) a {
+  :root[data-theme='light'] a {
     color: var(--tnz-neutral-500);
   }
 
-  :global([data-theme='light']) a:hover,
-  :global([data-theme='light']) a:focus-visible {
+  :root[data-theme='light'] a:hover,
+  :root[data-theme='light'] a:focus-visible {
     color: var(--tnz-neutral-800);
   }
 
-  :global([data-theme='light']) a.starlight-sidebar-topics-current {
+  :root[data-theme='light'] a.starlight-sidebar-topics-current {
     color: var(--tnz-neutral-800);
   }
 
@@ -154,16 +184,16 @@ const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label))
     border-color: var(--tnz-neutral-400);
   }
 
-  :global([data-theme='light']) .starlight-sidebar-topics-icon {
+  :root[data-theme='light'] .starlight-sidebar-topics-icon {
     border-color: var(--tnz-neutral-300);
   }
 
-  :global([data-theme='light']) a:hover .starlight-sidebar-topics-icon,
-  :global([data-theme='light']) a:focus-visible .starlight-sidebar-topics-icon {
+  :root[data-theme='light'] a:hover .starlight-sidebar-topics-icon,
+  :root[data-theme='light'] a:focus-visible .starlight-sidebar-topics-icon {
     border-color: var(--tnz-neutral-400);
   }
 
-  :global([data-theme='light']) a.starlight-sidebar-topics-current .starlight-sidebar-topics-icon {
+  :root[data-theme='light'] a.starlight-sidebar-topics-current .starlight-sidebar-topics-icon {
     border-color: var(--tnz-neutral-500);
   }
 

@@ -24,6 +24,9 @@ export default [
       "package-lock.json",
       "yarn.lock",
       "**/*.py",
+      // Auto-generated changelog
+      "src/content/docs/changelog/",
+      "src/sidebar-changelog.ts",
     ],
   },
 

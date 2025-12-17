@@ -169,55 +169,44 @@ svgo image.svg
 This automatically rewrites the file in-place with redundant code removed and
 optimized structure.
 
-## Auto-Updated Files
+## Auto-Generated Files
 
-**Important**: Some files in this repository are automatically updated by CI and
+**Important**: Some files in this repository are automatically generated and
 should **never** be manually edited. Manual changes to these files will be
-overwritten the next time the [update
-workflow](https://github.com/tenzir/docs/blob/main/.github/workflows/update.yaml)
-runs.
+overwritten.
 
-### Automatically Updated Files
+### Generated Files
 
-The following files are synchronized from upstream repositories:
+**Changelog** (generated at build time by `pnpm sync:changelog`):
 
-**Tenzir Node Documentation:**
+- `src/content/docs/changelog/` — release notes from
+  [tenzir/news](https://github.com/tenzir/news)
+- `src/sidebar-changelog.ts` — sidebar configuration for changelog pages
 
-- `src/content/docs/changelog/node` is generated from individual changelog
-  entries
-- `src/content/docs/reference/functions` is synced from
+**Reference Documentation** (synced from upstream repositories):
+
+- `src/content/docs/reference/functions/` — from
   [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/functions/`
-- `src/content/docs/reference/operators` is synced from
+- `src/content/docs/reference/operators/` — from
   [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/operators/`
-- `src/content/docs/reference/functions.mdx` is generated from individual
-  function files
-- `src/content/docs/reference/operators.mdx` is generated from individual
-  operator files
-- `src/content/apis/openapi.node.yaml` is the API specification for Tenzir Node
-  and generated from the node's source code
-- `tenzir.yaml.example` is the node's example configuration file
-
-**Tenzir Platform Documentation:**
-
-- `src/content/docs/changelog/platform` is generated from individual changelog
-  entries
-- `src/content/docs/reference/platform-cli.mdx` is synced from
+- `src/content/docs/reference/functions.mdx` — generated index of functions
+- `src/content/docs/reference/operators.mdx` — generated index of operators
+- `src/content/docs/reference/platform-cli.mdx` — from
   [tenzir/platform](https://github.com/tenzir/platform) at `docs/platform-cli.mdx`
+- `src/content/apis/openapi.node.yaml` — API specification for Tenzir Node
+- `tenzir.yaml.example` — example configuration file
 
-### Making Changes to Auto-Updated Content
+### Making Changes to Generated Content
 
 If you need to update content in these files:
 
-1. **For Functions/Operators**: Make changes in the
+1. **Changelog**: Make changes in the
+   [tenzir/news](https://github.com/tenzir/news) repository
+2. **Functions/Operators**: Make changes in the
    [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
-2. **For Platform CLI**: Make changes in the
+3. **Platform CLI**: Make changes in the
    [tenzir/platform](https://github.com/tenzir/platform) repository
-3. **For generation logic**: Modify the scripts in `scripts/` or the update
-   workflow
-
-Our CI will automatically prevent pull requests that modify auto-updated files.
-If you encounter this error, revert your changes and make them in the
-appropriate upstream repository instead.
+4. **Generation logic**: Modify the scripts in `scripts/`
 
 ## Edit Diagrams
 

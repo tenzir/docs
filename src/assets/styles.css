@@ -266,10 +266,7 @@ html[data-theme="dark"] {
   margin-bottom: var(--tnz-space-4);
 }
 
-.sl-markdown-content .card:hover {
-  box-shadow: var(--tnz-shadow-xs);
-  background-color: var(--sl-color-gray-7);
-}
+/* Card hover styles defined in theme-specific rules below */
 
 /* Card grid layout - ensure consistent spacing */
 .sl-markdown-content .card-grid {
@@ -501,30 +498,26 @@ html[data-theme="dark"] {
 /* Light Mode Specific Button Styles */
 
 /* === Light Mode Primary/Default Buttons - Light Text on Blue Background === */
-:root[data-theme="light"] .sl-markdown-content .sl-link-button,
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal),
 :root[data-theme="light"] .sl-link-button.primary {
-  /* The background color (e.g., --tnz-primary-500) is set by generic Starlight rules */
-  color: var(
-    --tnz-neutral-50
-  ) !important; /* Light text for contrast on blue background */
+  color: var(--tnz-neutral-50) !important;
 }
 
-:root[data-theme="light"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):hover,
 :root[data-theme="light"] .sl-link-button.primary:hover {
-  /* Hover background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
+  color: var(--tnz-neutral-50) !important;
 }
 
-:root[data-theme="light"] .sl-markdown-content .sl-link-button:active {
-  /* Active background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
-}
-
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):active,
 :root[data-theme="light"] .sl-link-button.primary:active {
-  /* Active background for .primary (e.g., --tnz-primary-500) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
+  color: var(--tnz-neutral-50) !important;
 }
-/* =================================================================== */
 
 /* === Light Mode Secondary Buttons - FORCE DARK TEXT === */
 /* === Light Mode Secondary Buttons - TRICK to FORCE DARK TEXT === */
@@ -585,22 +578,28 @@ html[data-theme="dark"] {
 
 /* Dark Mode Button Styles - Balanced Appearance */
 
-/* Primary / Default Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button,
+/* Primary / Default Buttons in Dark Mode (exclude secondary and minimal) */
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal),
 :root[data-theme="dark"] .sl-link-button.primary {
   background-color: var(--tnz-primary-500) !important;
   color: var(--tnz-neutral-50) !important;
   border-color: var(--tnz-primary-500) !important;
 }
 
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):hover,
 :root[data-theme="dark"] .sl-link-button.primary:hover {
   background-color: var(--tnz-primary-400) !important;
   color: var(--tnz-neutral-50) !important;
   border-color: var(--tnz-primary-400) !important;
 }
 
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button:active,
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):active,
 :root[data-theme="dark"] .sl-link-button.primary:active {
   background-color: var(--tnz-primary-600) !important;
   color: var(--tnz-neutral-50) !important;
@@ -608,25 +607,26 @@ html[data-theme="dark"] {
 }
 
 /* Secondary Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-link-button.secondary {
+:root[data-theme="dark"] .sl-link-button.secondary,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary {
   background-color: transparent !important;
-  border-color: var(--tnz-primary-400) !important;
-  color: var(--tnz-primary-300) !important;
+  border-color: var(--tnz-neutral-500) !important;
+  color: var(--tnz-neutral-200) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.secondary:hover {
+:root[data-theme="dark"] .sl-link-button.secondary:hover,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary:hover {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 10%,
     transparent
-  ) !important; /* dim blue effect as button fill */
-  border-color: var(
-    --tnz-primary-500
-  ) !important; /* nice primary blue border */
-  color: var(--tnz-primary-500) !important; /* text also primary blue */
+  ) !important;
+  border-color: var(--tnz-primary-400) !important;
+  color: var(--tnz-primary-300) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.secondary:active {
+:root[data-theme="dark"] .sl-link-button.secondary:active,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary:active {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 25%,
@@ -637,13 +637,15 @@ html[data-theme="dark"] {
 }
 
 /* Minimal Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-link-button.minimal {
+:root[data-theme="dark"] .sl-link-button.minimal,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal {
   background-color: transparent !important;
   color: var(--tnz-primary-300) !important;
   border-color: transparent !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.minimal:hover {
+:root[data-theme="dark"] .sl-link-button.minimal:hover,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal:hover {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 10%,
@@ -652,7 +654,8 @@ html[data-theme="dark"] {
   color: var(--tnz-primary-200) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.minimal:active {
+:root[data-theme="dark"] .sl-link-button.minimal:active,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal:active {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 20%,
@@ -671,14 +674,11 @@ html[data-theme="dark"] {
 
 .sl-markdown-content .sl-link-card:hover {
   background-color: var(--sl-color-gray-7);
-  box-shadow: var(--tnz-shadow-s);
-  transform: translateY(-1px);
+  box-shadow: var(--tnz-shadow-xs);
 }
 
 :root[data-theme="dark"] .sl-markdown-content .sl-link-card:hover {
-  background-color: var(
-    --sl-color-gray-6
-  ); /* Dark mode: tnz-neutral-700, a step lighter than base */
+  background-color: var(--sl-color-gray-6);
 }
 
 .sl-markdown-content .sl-link-card .title {
@@ -714,6 +714,7 @@ html[data-theme="dark"] {
 
 /* Search button styling */
 site-search button[data-open-modal] {
+  height: var(--tnz-button-height-l);
   border-radius: var(--tnz-radius-sm);
   padding: var(--tnz-space-2) var(--tnz-space-3);
   font-size: var(--tnz-text-sm);
@@ -744,11 +745,14 @@ site-search button[data-open-modal]:hover {
   color: var(--tnz-primary-400);
 }
 
-/* Ensure link buttons never get underlined */
 .sl-markdown-content a.sl-link-button,
 .sl-markdown-content a.sl-link-button:hover,
-.sl-markdown-content a.sl-link-button:focus {
+.sl-markdown-content a.sl-link-button:focus,
+.sl-markdown-content .sl-link-card a,
+.sl-markdown-content .sl-link-card a:hover,
+.sl-markdown-content .sl-link-card a:focus {
   text-decoration: none !important;
+  color: inherit !important;
 }
 
 /* Header styling */
@@ -1278,16 +1282,24 @@ mobile-starlight-toc a[aria-current="true"] {
   visibility: hidden;
 }
 
-/* LinkButton text color override */
-.sl-link-button,
-.sl-link-button *,
-.sl-markdown-content .sl-link-button,
-.sl-markdown-content .sl-link-button *,
-.card .sl-link-button,
-.card .sl-link-button * {
+/* LinkButton text color override - only for primary buttons */
+.sl-link-button:not(.secondary):not(.minimal),
+.sl-link-button:not(.secondary):not(.minimal) *,
+.sl-markdown-content .sl-link-button:not(.secondary):not(.minimal),
+.sl-markdown-content .sl-link-button:not(.secondary):not(.minimal) *,
+.card .sl-link-button:not(.secondary):not(.minimal),
+.card .sl-link-button:not(.secondary):not(.minimal) * {
   color: var(--sl-color-text-invert) !important;
   text-decoration: none !important;
   --sl-color-black: var(--sl-color-text-invert) !important;
+}
+
+/* Secondary and minimal buttons preserve their own color rules */
+.sl-link-button.secondary,
+.sl-link-button.secondary *,
+.sl-link-button.minimal,
+.sl-link-button.minimal * {
+  text-decoration: none !important;
 }
 
 /* Badge styling for dark mode - aligned with aside styling */
@@ -1776,4 +1788,80 @@ starlight-tabs [role="tabpanel"] {
   starlight-tabs [role="tab"]::after {
     transition: none;
   }
+}
+
+/* LinkCard - Tenzir brand styling overrides */
+.sl-link-card {
+  transition: border-color var(--tnz-transition-base);
+}
+
+.sl-link-card:hover {
+  /* Remove movement - only subtle border change */
+  transform: none;
+  border-color: var(--tnz-neutral-500);
+}
+
+.sl-link-card:hover .sl-link-card__title {
+  /* Remove underline on hover */
+  text-decoration: none;
+}
+
+/* Light mode */
+:root[data-theme="light"] .sl-link-card:hover {
+  border-color: var(--tnz-neutral-400);
+}
+
+/* Changelog page spacing */
+/* Reduce space before first h2 after intro paragraph */
+.sl-markdown-content > p:first-of-type + .sl-heading-wrapper.level-h2 {
+  margin-top: var(--tnz-space-6) !important;
+}
+
+/* Add spacing before LinkCard at the bottom of changelog pages */
+.sl-markdown-content .link-card {
+  margin-top: var(--tnz-space-8);
+}
+
+/* Changelog entry details line */
+.sl-markdown-content h3:has(+ .entry-details) {
+  margin-bottom: var(--tnz-space-2) !important;
+}
+
+.sl-markdown-content p.entry-details {
+  margin-top: 0 !important;
+}
+
+.entry-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tnz-space-1);
+  margin-bottom: var(--tnz-space-3);
+  font-size: var(--tnz-text-sm);
+  color: var(--tnz-neutral-400);
+}
+
+:root[data-theme="light"] .entry-details {
+  color: var(--tnz-neutral-500);
+}
+
+.entry-details .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--tnz-control-size-sm);
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid var(--tnz-neutral-600);
+  font-size: 8px;
+  font-weight: 600;
+  line-height: 14px;
+  color: var(--tnz-neutral-400);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+:root[data-theme="light"] .entry-details .badge {
+  border-color: var(--tnz-neutral-300);
+  color: var(--tnz-neutral-500);
 }
