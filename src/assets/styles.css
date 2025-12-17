@@ -266,10 +266,7 @@ html[data-theme="dark"] {
   margin-bottom: var(--tnz-space-4);
 }
 
-.sl-markdown-content .card:hover {
-  box-shadow: var(--tnz-shadow-xs);
-  background-color: var(--sl-color-gray-7);
-}
+/* Card hover styles defined in theme-specific rules below */
 
 /* Card grid layout - ensure consistent spacing */
 .sl-markdown-content .card-grid {
@@ -501,30 +498,26 @@ html[data-theme="dark"] {
 /* Light Mode Specific Button Styles */
 
 /* === Light Mode Primary/Default Buttons - Light Text on Blue Background === */
-:root[data-theme="light"] .sl-markdown-content .sl-link-button,
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal),
 :root[data-theme="light"] .sl-link-button.primary {
-  /* The background color (e.g., --tnz-primary-500) is set by generic Starlight rules */
-  color: var(
-    --tnz-neutral-50
-  ) !important; /* Light text for contrast on blue background */
+  color: var(--tnz-neutral-50) !important;
 }
 
-:root[data-theme="light"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):hover,
 :root[data-theme="light"] .sl-link-button.primary:hover {
-  /* Hover background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
+  color: var(--tnz-neutral-50) !important;
 }
 
-:root[data-theme="light"] .sl-markdown-content .sl-link-button:active {
-  /* Active background color (e.g., --tnz-primary-600) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
-}
-
+:root[data-theme="light"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):active,
 :root[data-theme="light"] .sl-link-button.primary:active {
-  /* Active background for .primary (e.g., --tnz-primary-500) is set by generic Starlight rules */
-  color: var(--tnz-neutral-50) !important; /* Ensure text remains light */
+  color: var(--tnz-neutral-50) !important;
 }
-/* =================================================================== */
 
 /* === Light Mode Secondary Buttons - FORCE DARK TEXT === */
 /* === Light Mode Secondary Buttons - TRICK to FORCE DARK TEXT === */
@@ -585,22 +578,28 @@ html[data-theme="dark"] {
 
 /* Dark Mode Button Styles - Balanced Appearance */
 
-/* Primary / Default Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button,
+/* Primary / Default Buttons in Dark Mode (exclude secondary and minimal) */
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal),
 :root[data-theme="dark"] .sl-link-button.primary {
   background-color: var(--tnz-primary-500) !important;
   color: var(--tnz-neutral-50) !important;
   border-color: var(--tnz-primary-500) !important;
 }
 
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button:hover,
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):hover,
 :root[data-theme="dark"] .sl-link-button.primary:hover {
   background-color: var(--tnz-primary-400) !important;
   color: var(--tnz-neutral-50) !important;
   border-color: var(--tnz-primary-400) !important;
 }
 
-:root[data-theme="dark"] .sl-markdown-content .sl-link-button:active,
+:root[data-theme="dark"]
+  .sl-markdown-content
+  .sl-link-button:not(.secondary):not(.minimal):active,
 :root[data-theme="dark"] .sl-link-button.primary:active {
   background-color: var(--tnz-primary-600) !important;
   color: var(--tnz-neutral-50) !important;
@@ -608,25 +607,26 @@ html[data-theme="dark"] {
 }
 
 /* Secondary Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-link-button.secondary {
+:root[data-theme="dark"] .sl-link-button.secondary,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary {
   background-color: transparent !important;
-  border-color: var(--tnz-primary-400) !important;
-  color: var(--tnz-primary-300) !important;
+  border-color: var(--tnz-neutral-500) !important;
+  color: var(--tnz-neutral-200) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.secondary:hover {
+:root[data-theme="dark"] .sl-link-button.secondary:hover,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary:hover {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 10%,
     transparent
-  ) !important; /* dim blue effect as button fill */
-  border-color: var(
-    --tnz-primary-500
-  ) !important; /* nice primary blue border */
-  color: var(--tnz-primary-500) !important; /* text also primary blue */
+  ) !important;
+  border-color: var(--tnz-primary-400) !important;
+  color: var(--tnz-primary-300) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.secondary:active {
+:root[data-theme="dark"] .sl-link-button.secondary:active,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.secondary:active {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 25%,
@@ -637,13 +637,15 @@ html[data-theme="dark"] {
 }
 
 /* Minimal Buttons in Dark Mode */
-:root[data-theme="dark"] .sl-link-button.minimal {
+:root[data-theme="dark"] .sl-link-button.minimal,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal {
   background-color: transparent !important;
   color: var(--tnz-primary-300) !important;
   border-color: transparent !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.minimal:hover {
+:root[data-theme="dark"] .sl-link-button.minimal:hover,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal:hover {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 10%,
@@ -652,7 +654,8 @@ html[data-theme="dark"] {
   color: var(--tnz-primary-200) !important;
 }
 
-:root[data-theme="dark"] .sl-link-button.minimal:active {
+:root[data-theme="dark"] .sl-link-button.minimal:active,
+:root[data-theme="dark"] .sl-markdown-content .sl-link-button.minimal:active {
   background-color: color-mix(
     in srgb,
     var(--tnz-primary-500) 20%,
@@ -1279,16 +1282,24 @@ mobile-starlight-toc a[aria-current="true"] {
   visibility: hidden;
 }
 
-/* LinkButton text color override */
-.sl-link-button,
-.sl-link-button *,
-.sl-markdown-content .sl-link-button,
-.sl-markdown-content .sl-link-button *,
-.card .sl-link-button,
-.card .sl-link-button * {
+/* LinkButton text color override - only for primary buttons */
+.sl-link-button:not(.secondary):not(.minimal),
+.sl-link-button:not(.secondary):not(.minimal) *,
+.sl-markdown-content .sl-link-button:not(.secondary):not(.minimal),
+.sl-markdown-content .sl-link-button:not(.secondary):not(.minimal) *,
+.card .sl-link-button:not(.secondary):not(.minimal),
+.card .sl-link-button:not(.secondary):not(.minimal) * {
   color: var(--sl-color-text-invert) !important;
   text-decoration: none !important;
   --sl-color-black: var(--sl-color-text-invert) !important;
+}
+
+/* Secondary and minimal buttons preserve their own color rules */
+.sl-link-button.secondary,
+.sl-link-button.secondary *,
+.sl-link-button.minimal,
+.sl-link-button.minimal * {
+  text-decoration: none !important;
 }
 
 /* Badge styling for dark mode - aligned with aside styling */
