@@ -34,6 +34,7 @@ function parseYaml(content) {
     // Handle multiline continuation
     if (isMultiline) {
       if (line.startsWith("  ") || line.trim() === "") {
+        // Always fold into a single paragraph (join with spaces)
         multilineValue += (multilineValue ? " " : "") + line.trim();
         continue;
       } else {
@@ -48,8 +49,8 @@ function parseYaml(content) {
       const key = line.slice(0, colonIndex).trim();
       let value = line.slice(colonIndex + 1).trim();
 
-      // Check for multiline indicator
-      if (value === ">-" || value === ">") {
+      // Check for multiline indicator (|, |-, >, >-) - all treated as folded
+      if (value === ">-" || value === ">" || value === "|" || value === "|-") {
         currentKey = key;
         isMultiline = true;
         multilineValue = "";
@@ -298,6 +299,7 @@ async function readUnreleased(newsRepoPath, changelogPath) {
       {
         cwd: fullChangelogPath,
         encoding: "utf-8",
+        stdio: ["pipe", "pipe", "pipe"],
       },
     ).trim();
 
@@ -376,7 +378,7 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
         try {
           const jsonOutput = execSync(
             `uvx tenzir-changelog show --json --explicit-links ${version}`,
-            { cwd: fullChangelogPath, encoding: "utf-8" },
+            { cwd: fullChangelogPath, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
           ).trim();
           const changelog = JSON.parse(jsonOutput);
           if (changelog.entries) {
@@ -939,7 +941,7 @@ function generateIndexContent(
 
   return `---
 title: ${name}
-description: ${description || ""}
+description: "${description || ""}"
 sidebar:
   hidden: true${topicLine}
 ---
