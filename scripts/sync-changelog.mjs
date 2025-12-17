@@ -378,7 +378,11 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
         try {
           const jsonOutput = execSync(
             `uvx tenzir-changelog show --json --explicit-links ${version}`,
-            { cwd: fullChangelogPath, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] },
+            {
+              cwd: fullChangelogPath,
+              encoding: "utf-8",
+              stdio: ["pipe", "pipe", "pipe"],
+            },
           ).trim();
           const changelog = JSON.parse(jsonOutput);
           if (changelog.entries) {
@@ -418,16 +422,6 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
   releases.sort(compareVersions);
 
   return releases;
-}
-
-/**
- * Generate badges JSX array string from components.
- * Returns empty string if no components.
- */
-function generateBadgesAttr(components) {
-  if (!components || components.length === 0) return "";
-  const badges = components.map((c) => `"${c}"`);
-  return `\n  badges={[${badges.join(", ")}]}`;
 }
 
 /**
@@ -849,7 +843,10 @@ function generateTimelineEntries(releases, basePath) {
       description = description.slice(0, 297) + "...";
     }
     // Escape quotes and newlines for JSON
-    description = description.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, " ");
+    description = description
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, " ");
 
     const entry = {
       version: r.isUnreleased ? "Unreleased" : r.version,
@@ -882,7 +879,14 @@ function generateTimelineEntries(releases, basePath) {
 function generateIndexContent(
   name,
   description,
-  { topicId, useCardGrid, cardContent, prefixContent, timelineEntries, repository } = {},
+  {
+    topicId,
+    useCardGrid,
+    cardContent,
+    prefixContent,
+    timelineEntries,
+    repository,
+  } = {},
 ) {
   const topicLine = topicId ? `\ntopic: ${topicId}` : "";
 
@@ -901,7 +905,9 @@ function generateIndexContent(
     importLines.push(`import Timeline from '@components/Timeline.astro';`);
   }
   if (starlightComponents.length > 0) {
-    importLines.push(`import { ${starlightComponents.join(", ")} } from '@astrojs/starlight/components';`);
+    importLines.push(
+      `import { ${starlightComponents.join(", ")} } from '@astrojs/starlight/components';`,
+    );
   }
   const imports = importLines.join("\n");
 
