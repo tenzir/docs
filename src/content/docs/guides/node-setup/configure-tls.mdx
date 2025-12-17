@@ -7,6 +7,11 @@ Tenzir supports Transport Layer Security (TLS) for encrypting network
 connections. You can configure TLS settings centrally in `tenzir.yaml` so they
 apply to all compatible operators, or override them per-operator as needed.
 
+:::tip[Platform connection]
+To configure TLS for the connection to the Tenzir Platform, see
+[Configure TLS for the Platform connection](/guides/node-setup/configure-a-node#configure-tls-for-the-platform-connection).
+:::
+
 ## Node-level TLS configuration
 
 Instead of passing TLS options to each operator individually, configure them
@@ -71,22 +76,6 @@ tenzir:
 
 When `tls-require-client-cert` is enabled, connections from clients without
 valid certificates are rejected.
-
-## Platform plugin TLS
-
-The Tenzir Platform plugin supports separate TLS configuration for WebSocket
-connections to the Tenzir Platform. Configure these in your platform plugin
-settings:
-
-```yaml title="tenzir.yaml"
-plugins:
-  platform:
-    tls-min-version: "1.2"
-    tls-ciphers: "HIGH:!aNULL:!MD5"
-```
-
-If not specified, the platform plugin falls back to the node-level
-`tenzir.operator-tls` settings.
 
 ## Generate test certificates
 

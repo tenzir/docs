@@ -34,3 +34,19 @@ enable this feature, which is disabled by default.
 
 Learn more about [pipeline subprocesses](/explanations/architecture/node#pipeline-subprocesses)
 and their trade-offs.
+
+## Configure TLS for the Platform connection
+
+You can configure TLS settings for the WebSocket connection to the Tenzir
+Platform. Configure these in your platform settings:
+
+```yaml title="tenzir.yaml"
+plugins:
+  platform:
+    tls-min-version: "1.2"
+    tls-ciphers: "HIGH:!aNULL:!MD5"
+```
+
+If not specified, the platform falls back to the node-level
+`tenzir.operator-tls` settings. See [Configure TLS](/guides/node-setup/configure-tls)
+for all available TLS options.
