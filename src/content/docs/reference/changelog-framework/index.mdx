@@ -193,6 +193,7 @@ tenzir-changelog release create [version] [options]
 | `--minor`             | Bump minor version from latest release                     |
 | `--major`             | Bump major version from latest release                     |
 | `--yes`               | Commit changes (default is dry run)                        |
+| `--title <text>`      | Custom title for release heading                           |
 | `--intro <text>`      | Inline intro text (mutually exclusive with `--intro-file`) |
 | `--intro-file <path>` | Path to intro file (mutually exclusive with `--intro`)     |
 | `--compact`           | Use bullet-list layout for `notes.md`                      |
@@ -355,6 +356,7 @@ Example manifest:
 
 ```yaml
 created: 2025-10-18
+title: Big Release
 intro: |
   Welcome to version 1.0.0!
 
@@ -366,11 +368,18 @@ Manifest fields:
 | Field     | Type   | Required | Description                              |
 | --------- | ------ | -------- | ---------------------------------------- |
 | `created` | string | yes      | Release date in `YYYY-MM-DD` format      |
+| `title`   | string | no       | Custom title for the release heading     |
 | `intro`   | string | no       | Introductory content (supports Markdown) |
 
-The CLI generates `notes.md` by stitching together the intro and grouped entry
-sections. Intro content comes from either `--intro` (inline text) or
-`--intro-file` (file path) when creating a release.
+The CLI generates `notes.md` with an H1 heading followed by the intro and
+grouped entry sections. The heading format depends on whether a custom title is
+set:
+
+- **With custom title**: `# {title}` (e.g., `# Big Release`)
+- **Without title**: `# {name} {version}` (e.g., `# My Project v1.0.0`)
+
+Intro content comes from either `--intro` (inline text) or `--intro-file` (file
+path) when creating a release.
 
 ## JSON export format
 
