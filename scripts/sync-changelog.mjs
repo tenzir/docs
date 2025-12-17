@@ -836,89 +836,117 @@ function getNewsRepo(localPath) {
 }
 
 /**
- * Generate release cards for an index page.
+ * Generate Timeline entries array for an index page.
  */
-function generateReleaseCards(releases, projectName, basePath) {
-  // Get releases from the current major version (excluding unreleased)
-  const releasedVersions = releases.filter((r) => !r.isUnreleased);
-  const latestRelease = releasedVersions[0];
-  const currentMajor = latestRelease?.majorVersion;
-  const currentMajorReleases = releasedVersions.filter(
-    (r) => r.majorVersion === currentMajor,
-  );
+function generateTimelineEntries(releases, basePath) {
+  const entries = [];
 
-  // Generate unreleased card if present
-  const unreleasedRelease = releases.find((r) => r.isUnreleased);
-  const unreleasedCard = unreleasedRelease
-    ? `<LinkCard
-  title="${projectName}"
-  description="Upcoming changes not yet published in a release."
-  href="${basePath}/unreleased"
-  meta="upcoming"
-/>`
-    : "";
+  for (const r of releases) {
+    let description = r.intro || "";
+    if (description.length > 300) {
+      description = description.slice(0, 297) + "...";
+    }
+    // Escape quotes and newlines for JSON
+    description = description.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\n/g, " ");
 
-  // Generate LinkCards for all releases in current major version
-  const releaseCards = currentMajorReleases
-    .map((r) => {
-      let description = r.intro || "";
-      if (description.length > 300) {
-        description = description.slice(0, 297) + "...";
-      }
-      // Escape quotes for JSX
-      description = description.replace(/"/g, '\\"');
-      const badgesAttr = generateBadgesAttr(r.components);
-      return `<LinkCard
-  title="${projectName} ${r.version}"
-  description="${description}"
-  href="${basePath}/${r.slug}"
-  meta="${r.created}"${badgesAttr}
-/>`;
-    })
-    .join("\n\n");
+    const entry = {
+      version: r.isUnreleased ? "Unreleased" : r.version,
+      date: r.isUnreleased ? "upcoming" : formatDate(r.created),
+      href: `${basePath}/${r.slug}`,
+    };
 
-  return [unreleasedCard, releaseCards].filter(Boolean).join("\n\n");
+    if (description) {
+      entry.description = description;
+    }
+
+    entries.push(entry);
+  }
+
+  return entries;
 }
 
 /**
  * Generate index MDX content for a changelog (project or module).
  * @param {string} name - Page title
  * @param {string} description - Page description
- * @param {string} cards - Card content to include
  * @param {object} options - Optional settings
  * @param {string} [options.topicId] - Topic ID for frontmatter
- * @param {boolean} [options.useCardGrid] - Wrap cards in CardGrid component
+ * @param {boolean} [options.useCardGrid] - Wrap content in CardGrid component (for module lists)
+ * @param {string} [options.cardContent] - Card content for CardGrid mode
  * @param {string} [options.prefixContent] - Content to render before the CardGrid (full width)
+ * @param {Array} [options.timelineEntries] - Timeline entries for release list
+ * @param {string} [options.repository] - GitHub repository URL for the button
  */
 function generateIndexContent(
   name,
   description,
-  cards,
-  { topicId, useCardGrid, prefixContent } = {},
+  { topicId, useCardGrid, cardContent, prefixContent, timelineEntries, repository } = {},
 ) {
   const topicLine = topicId ? `\ntopic: ${topicId}` : "";
-  const imports = useCardGrid
-    ? `import LinkCard from '@components/LinkCard.astro';
-import { CardGrid } from '@astrojs/starlight/components';`
-    : `import LinkCard from '@components/LinkCard.astro';`;
 
-  let body = prefixContent || "";
-  if (useCardGrid && cards) {
-    body += `<CardGrid>\n${cards}\n</CardGrid>`;
-  } else if (cards) {
-    body += cards;
+  // Build imports based on what's needed
+  const importLines = [];
+  const starlightComponents = [];
+
+  if (useCardGrid) {
+    importLines.push(`import LinkCard from '@components/LinkCard.astro';`);
+    starlightComponents.push("CardGrid");
+  }
+  if (repository) {
+    starlightComponents.push("LinkButton");
+  }
+  if (timelineEntries && timelineEntries.length > 0) {
+    importLines.push(`import Timeline from '@components/Timeline.astro';`);
+  }
+  if (starlightComponents.length > 0) {
+    importLines.push(`import { ${starlightComponents.join(", ")} } from '@astrojs/starlight/components';`);
+  }
+  const imports = importLines.join("\n");
+
+  // Build body content
+  let body = "";
+
+  // Header with description and optional GitHub button
+  if (description) {
+    if (repository) {
+      const repoUrl = repository.startsWith("http")
+        ? repository
+        : `https://github.com/${repository}`;
+      body += `<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--tnz-space-4); margin-bottom: var(--tnz-space-6);">
+  <p style="margin: 0;">${description}</p>
+  <LinkButton href="${repoUrl}" icon="github" variant="secondary" style="flex-shrink: 0;">GitHub</LinkButton>
+</div>\n\n`;
+    } else {
+      body += description + "\n\n";
+    }
+  }
+
+  // Prefix content (e.g., unreleased card before module grid)
+  if (prefixContent) {
+    body += prefixContent;
+  }
+
+  // Main content: either CardGrid or Timeline
+  if (useCardGrid && cardContent) {
+    body += `<CardGrid>\n${cardContent}\n</CardGrid>`;
+  } else if (timelineEntries && timelineEntries.length > 0) {
+    // Generate Timeline component with entries
+    const entriesJson = JSON.stringify(timelineEntries, null, 2);
+    body += `<Timeline entries={${entriesJson}} />`;
+  } else if (!prefixContent) {
+    body += "No releases available yet.";
   }
 
   return `---
 title: ${name}
-description: ${description}
+description: ${description || ""}
 sidebar:
   hidden: true${topicLine}
 ---
 
 ${imports}
 
-${description ? description + "\n\n" : ""}${body || "No releases available yet."}
+${body}
 `;
 }
 
@@ -1022,17 +1050,18 @@ async function syncChangelog(newsRepoPath) {
           { topicId },
         );
 
-        // Generate module index
-        const moduleCards = generateReleaseCards(
+        // Generate module index with Timeline
+        const moduleTimelineEntries = generateTimelineEntries(
           moduleReleases,
-          mod.name,
           `/changelog/${project.id}/${mod.id}`,
         );
         const moduleIndexContent = generateIndexContent(
           mod.name,
           mod.description,
-          moduleCards,
-          { topicId },
+          {
+            topicId,
+            timelineEntries: moduleTimelineEntries,
+          },
         );
         await fs.writeFile(
           path.join(moduleDir, "index.mdx"),
@@ -1073,21 +1102,27 @@ async function syncChangelog(newsRepoPath) {
       const indexContent = generateIndexContent(
         project.name,
         project.description,
-        moduleCardsList,
-        { useCardGrid: true, prefixContent: unreleasedCard },
+        {
+          useCardGrid: true,
+          cardContent: moduleCardsList,
+          prefixContent: unreleasedCard,
+          repository: changelogProjects[project.id]?.repository,
+        },
       );
       await fs.writeFile(indexPath, indexContent);
     } else {
-      // Regular project: show release cards
-      const allCards = generateReleaseCards(
+      // Regular project: show Timeline
+      const timelineEntries = generateTimelineEntries(
         releases,
-        project.name,
         `/changelog/${project.id}`,
       );
       const indexContent = generateIndexContent(
         project.name,
         project.description,
-        allCards,
+        {
+          timelineEntries,
+          repository: changelogProjects[project.id]?.repository,
+        },
       );
       await fs.writeFile(indexPath, indexContent);
     }

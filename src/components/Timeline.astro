@@ -1,0 +1,219 @@
+---
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+
+/**
+ * Timeline component for changelog pages.
+ *
+ * Structure:
+ *   [dot] [content: header + description]
+ *
+ * The connecting line between entries is drawn using a pseudo-element
+ * on each entry (except the last), positioned absolutely to span from
+ * below the current dot to the top of the next dot.
+ */
+interface TimelineEntry {
+  version: string;
+  date: string;
+  href: string;
+  description?: string;
+}
+
+interface Props {
+  entries: TimelineEntry[];
+}
+
+const { entries } = Astro.props;
+
+async function renderMarkdown(text: string): Promise<string> {
+  const result = await remark().use(remarkHtml).process(text);
+  return String(result);
+}
+
+const renderedEntries = await Promise.all(
+  entries.map(async (entry) => ({
+    ...entry,
+    renderedDescription: entry.description
+      ? await renderMarkdown(entry.description)
+      : undefined,
+  })),
+);
+
+const isLastEntry = (index: number) => index === renderedEntries.length - 1;
+---
+
+<ul class="timeline">
+  {renderedEntries.map((entry, index) => (
+    <li class:list={["timeline-entry", { "timeline-entry--last": isLastEntry(index) }]}>
+      <a href={entry.href} class="timeline-link">
+        <div class:list={["timeline-dot", { "timeline-dot--first": index === 0 }]} />
+        <div class:list={["timeline-content", { "timeline-content--last": isLastEntry(index) }]}>
+          <div class="timeline-header">
+            <span class="timeline-version">{entry.version}</span>
+            <time class="timeline-date">{entry.date}</time>
+          </div>
+          {entry.renderedDescription && (
+            /* eslint-disable-next-line astro/no-set-html-directive */
+            <div class="timeline-description" set:html={entry.renderedDescription} />
+          )}
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .timeline-entry {
+    position: relative;
+    margin-top: 0; /* Reset Starlight's .sl-markdown-content margin */
+  }
+
+  /* Vertical line connecting to next entry - drawn as pseudo-element */
+  .timeline-entry:not(.timeline-entry--last)::before {
+    content: '';
+    position: absolute;
+    /* Center the 2px line under the 10px dot: (10 - 2) / 2 = 4px from left edge of dot */
+    /* The dot is at left: 0, so line is at left: 4px */
+    left: 4px;
+    /* Start below the dot: 9px (dot margin-top) + 10px (dot height) = 19px */
+    top: 19px;
+    /* Extend into next entry to meet the next dot's top edge */
+    /* Next dot starts 9px down (its margin-top), so extend 9px past entry bottom */
+    bottom: -9px;
+    width: 2px;
+    background: var(--tnz-neutral-600);
+    transition: background-color var(--tnz-transition-base);
+  }
+
+  :root[data-theme='light'] .timeline-entry:not(.timeline-entry--last)::before {
+    background: var(--tnz-neutral-250);
+  }
+
+  .timeline-link {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tnz-space-3);
+    text-decoration: none !important;
+    color: inherit;
+    position: relative;
+  }
+
+  .timeline-link:hover,
+  .timeline-link:hover * {
+    text-decoration: none !important;
+  }
+
+  .timeline-entry:not(.timeline-entry--last):hover::before {
+    background: var(--tnz-primary-500);
+  }
+
+  .timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--tnz-neutral-500);
+    flex-shrink: 0;
+    /* Align dot center with text center: (line-height - dot-size) / 2 */
+    /* Assuming ~1.6 line-height on 16px text = 25.6px, center at 12.8px, dot center at margin + 5 */
+    margin-top: 9px !important;
+    /* Ensure dot appears above the line */
+    position: relative;
+    z-index: 1;
+    transition: background-color var(--tnz-transition-base);
+  }
+
+  :root[data-theme='light'] .timeline-dot {
+    background: var(--tnz-neutral-300);
+  }
+
+  .timeline-dot--first {
+    background: var(--tnz-primary-500);
+  }
+
+  .timeline-link:hover .timeline-dot {
+    background: var(--tnz-primary-500);
+  }
+
+  /* Right column: header + description */
+  .timeline-content {
+    flex: 1;
+    min-width: 0;
+    padding-bottom: var(--tnz-space-4);
+    margin-top: 0 !important; /* Reset Starlight's .sl-markdown-content margin */
+  }
+
+  .timeline-content--last {
+    padding-bottom: 0;
+  }
+
+  .timeline-header {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tnz-space-2);
+    flex-wrap: wrap;
+    margin-top: 0; /* Reset Starlight's .sl-markdown-content margin */
+  }
+
+  .timeline-version {
+    font-size: var(--tnz-text-base);
+    font-weight: 600;
+    color: var(--tnz-blue-400);
+    transition: color var(--tnz-transition-base);
+  }
+
+  .timeline-link:hover .timeline-version {
+    color: var(--tnz-blue-300);
+  }
+
+  :root[data-theme='light'] .timeline-version {
+    color: var(--tnz-primary-500);
+  }
+
+  :root[data-theme='light'] .timeline-link:hover .timeline-version {
+    color: var(--tnz-primary-600);
+  }
+
+  .timeline-date {
+    font-size: var(--tnz-text-sm);
+    color: var(--tnz-neutral-500);
+  }
+
+  :root[data-theme='light'] .timeline-date {
+    color: var(--tnz-neutral-400);
+  }
+
+  .timeline-description {
+    margin-top: var(--tnz-space-1);
+    font-size: var(--tnz-text-sm);
+    line-height: 1.6;
+    color: var(--tnz-neutral-400);
+  }
+
+  :root[data-theme='light'] .timeline-description {
+    color: var(--tnz-neutral-600);
+  }
+
+  .timeline-description :global(p) {
+    margin: 0;
+  }
+
+  .timeline-description :global(code) {
+    background: var(--tnz-neutral-700);
+    border: 1px solid var(--tnz-neutral-600);
+    padding: var(--tnz-space-0-5) var(--tnz-space-1);
+    border-radius: var(--tnz-radius-sm);
+    font-family: var(--tnz-font-mono);
+    font-size: 0.9em;
+  }
+
+  :root[data-theme='light'] .timeline-description :global(code) {
+    background: var(--tnz-neutral-100);
+    border-color: var(--tnz-neutral-250);
+  }
+</style>
