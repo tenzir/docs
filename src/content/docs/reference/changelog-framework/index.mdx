@@ -235,13 +235,16 @@ Publish a release to GitHub via `gh`.
 tenzir-changelog release publish <version> [options]
 ```
 
-| Option         | Description                       |
-| -------------- | --------------------------------- |
-| `version`      | Release version                   |
-| `--yes`        | Skip confirmation prompts         |
-| `--draft`      | Mark as draft                     |
-| `--prerelease` | Mark as prerelease                |
-| `--tag`        | Create and push annotated Git tag |
+| Option             | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| `version`          | Release version                                         |
+| `--yes`            | Skip confirmation prompts                               |
+| `--draft`          | Mark as draft                                           |
+| `--prerelease`     | Mark as prerelease                                      |
+| `--no-latest`      | Prevent GitHub from marking as latest release           |
+| `--tag`            | Create and push annotated Git tag                       |
+| `--commit`         | Commit staged changes before tagging (requires `--tag`) |
+| `--commit-message` | Custom commit message (default: `Release {version}`)    |
 
 The command reads project metadata from `config.yaml` or `package.yaml` for the
 repository slug and uses `notes.md` as the release body. Projects without a
@@ -290,6 +293,7 @@ Configuration fields:
 | `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards |
 | `components`   | Optional dict mapping component names to descriptions              |
 | `modules`      | Optional glob pattern for discovering nested changelog projects    |
+| `release`      | Release settings block (see below)                                 |
 
 Example:
 
@@ -303,7 +307,15 @@ components:
   cli: Command-line interface and user commands
   engine: Core pipeline engine internals
   operators: Built-in pipeline operators
+release:
+  commit_message: "Release {version}"
 ```
+
+The `release` block supports:
+
+| Field            | Default             | Description                                       |
+| ---------------- | ------------------- | ------------------------------------------------- |
+| `commit_message` | `Release {version}` | Template for `--commit` flag; `{version}` expands |
 
 The first invocation of `tenzir-changelog add` scaffolds a `changelog/`
 subdirectory with `config.yaml`, inferring defaults from the parent directory
