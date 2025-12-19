@@ -26,7 +26,7 @@ export default [
       "**/*.py",
       // Auto-generated changelog
       "src/content/docs/changelog/",
-      "src/sidebar-changelog.ts",
+      "src/sidebar-changelog.generated.ts",
     ],
   },
 

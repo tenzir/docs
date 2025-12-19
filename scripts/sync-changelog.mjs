@@ -46,7 +46,11 @@ function parseYaml(content) {
     }
 
     // Handle nested object properties (indented key-value pairs)
-    if (isNestedObject && line.startsWith("  ") && !line.trim().startsWith("-")) {
+    if (
+      isNestedObject &&
+      line.startsWith("  ") &&
+      !line.trim().startsWith("-")
+    ) {
       const trimmed = line.trim();
       const nestedColonIndex = trimmed.indexOf(":");
       if (nestedColonIndex > 0) {
@@ -1120,7 +1124,8 @@ async function syncChangelog(newsRepoPath) {
         for (const mod of project.modules) {
           const modVersion = release.modules[mod.id];
           if (modVersion) {
-            const allModReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+            const allModReleases =
+              moduleVersions[`${project.id}/${mod.id}`] || [];
             const matchingRelease = allModReleases.find(
               (r) => r.version === modVersion,
             );
