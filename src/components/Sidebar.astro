@@ -8,10 +8,13 @@ import changelogProjects from '../changelog-projects.json';
 
 const { topics } = Astro.locals.starlightSidebarTopics;
 
-// Look up color by topic link (format: "changelog/{projectId}")
+// Look up color by topic link (handles various formats: "changelog/tenzir", "/changelog/tenzir/", etc.)
 const getTopicColor = (link: string | undefined): string | undefined => {
-  if (!link?.startsWith('changelog/')) return undefined;
-  const projectId = link.slice('changelog/'.length);
+  if (!link) return undefined;
+  // Normalize: remove leading/trailing slashes
+  const normalized = link.replace(/^\/|\/$/g, '');
+  if (!normalized.startsWith('changelog/')) return undefined;
+  const projectId = normalized.slice('changelog/'.length);
   return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
@@ -56,7 +59,7 @@ const dropdownItems = useDropdown
         <li>
           <a href={topic.link} class:list={{ 'starlight-sidebar-topics-current': topic.isCurrent }}>
             {topic.icon && (
-              <div class="starlight-sidebar-topics-icon">
+              <div class="starlight-sidebar-topics-icon" data-color={getTopicColor(topic.link)}>
                 <Icon name={topic.icon} />
               </div>
             )}
@@ -191,6 +194,58 @@ const dropdownItems = useDropdown
 
   :root[data-theme='light'] a.starlight-sidebar-topics-current .starlight-sidebar-topics-icon {
     border-color: var(--tnz-neutral-500);
+  }
+
+  /* Colored icons - subtle tint blended into neutral base */
+  .starlight-sidebar-topics-icon[data-color='blue'] {
+    color: color-mix(in srgb, var(--tnz-primary-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='green'] {
+    color: color-mix(in srgb, var(--tnz-green-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='purple'] {
+    color: color-mix(in srgb, var(--tnz-purple-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='orange'] {
+    color: color-mix(in srgb, var(--tnz-orange-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='lightblue'] {
+    color: color-mix(in srgb, var(--tnz-lightblue-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='pink'] {
+    color: color-mix(in srgb, var(--tnz-pink-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='yellow'] {
+    color: color-mix(in srgb, var(--tnz-yellow-500) 80%, var(--tnz-neutral-400));
+  }
+  .starlight-sidebar-topics-icon[data-color='red'] {
+    color: color-mix(in srgb, var(--tnz-red-500) 80%, var(--tnz-neutral-400));
+  }
+
+  /* Light mode icon colors */
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='blue'] {
+    color: color-mix(in srgb, var(--tnz-primary-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='green'] {
+    color: color-mix(in srgb, var(--tnz-green-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='purple'] {
+    color: color-mix(in srgb, var(--tnz-purple-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='orange'] {
+    color: color-mix(in srgb, var(--tnz-orange-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='lightblue'] {
+    color: color-mix(in srgb, var(--tnz-lightblue-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='pink'] {
+    color: color-mix(in srgb, var(--tnz-pink-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='yellow'] {
+    color: color-mix(in srgb, var(--tnz-yellow-500) 80%, var(--tnz-neutral-500));
+  }
+  :root[data-theme='light'] .starlight-sidebar-topics-icon[data-color='red'] {
+    color: color-mix(in srgb, var(--tnz-red-500) 80%, var(--tnz-neutral-500));
   }
 
   .starlight-sidebar-topics-badge {
