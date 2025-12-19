@@ -29,6 +29,7 @@ function parseYaml(content) {
   let currentKey = null;
   let isMultiline = false;
   let multilineValue = "";
+  let isNestedObject = false;
 
   for (const line of lines) {
     // Handle multiline continuation
@@ -44,6 +45,27 @@ function parseYaml(content) {
       }
     }
 
+    // Handle nested object properties (indented key-value pairs)
+    if (isNestedObject && line.startsWith("  ") && !line.trim().startsWith("-")) {
+      const trimmed = line.trim();
+      const nestedColonIndex = trimmed.indexOf(":");
+      if (nestedColonIndex > 0) {
+        const nestedKey = trimmed.slice(0, nestedColonIndex).trim();
+        let nestedValue = trimmed.slice(nestedColonIndex + 1).trim();
+        // Remove quotes if present
+        if (
+          (nestedValue.startsWith('"') && nestedValue.endsWith('"')) ||
+          (nestedValue.startsWith("'") && nestedValue.endsWith("'"))
+        ) {
+          nestedValue = nestedValue.slice(1, -1);
+        }
+        data[currentKey][nestedKey] = nestedValue;
+        continue;
+      }
+    } else if (isNestedObject && !line.startsWith("  ") && line.trim() !== "") {
+      isNestedObject = false;
+    }
+
     const colonIndex = line.indexOf(":");
     if (colonIndex > 0 && !line.startsWith(" ") && !line.startsWith("-")) {
       const key = line.slice(0, colonIndex).trim();
@@ -57,9 +79,17 @@ function parseYaml(content) {
         continue;
       }
 
-      // Handle array start
+      // Handle nested object or array start (empty value)
       if (value === "") {
-        data[key] = [];
+        // Look ahead to determine if it's an array or object
+        const lineIndex = lines.indexOf(line);
+        const nextLine = lines[lineIndex + 1] || "";
+        if (nextLine.trim().startsWith("-")) {
+          data[key] = [];
+        } else {
+          data[key] = {};
+          isNestedObject = true;
+        }
         currentKey = key;
         continue;
       }
@@ -409,6 +439,7 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
           components,
           entryTypes,
           entryCount: entries.length,
+          modules: manifest.modules || null, // Module versions for parent releases
         });
       } catch {
         // Skip releases without required files
@@ -599,8 +630,13 @@ function generateNotesFromEntries(entries) {
  * @param {object} options - Optional settings
  * @param {string} [options.topicId] - Topic ID for frontmatter
  * @param {string} [options.sidebarLabel] - Custom sidebar label (defaults to version)
+ * @param {Array} [options.moduleReleases] - Module releases to include after parent content
  */
-function generateMdxContent(project, release, { topicId, sidebarLabel } = {}) {
+function generateMdxContent(
+  project,
+  release,
+  { topicId, sidebarLabel, moduleReleases } = {},
+) {
   const topicLine = topicId ? `\ntopic: ${topicId}` : "";
   const label = sidebarLabel || release.version;
 
@@ -629,6 +665,24 @@ ${imports}
     content += generateNotesFromEntries(release.entries);
   } else if (release.notes) {
     content += release.notes;
+  }
+
+  // Add module releases if provided (for parent releases with modules)
+  // Uses compact bullet format: "- 🚀 Title — _@author_"
+  if (moduleReleases && moduleReleases.length > 0) {
+    content += "\n---\n\n";
+    for (const modRelease of moduleReleases) {
+      content += `## ${modRelease.name} ${modRelease.version}\n\n`;
+      if (modRelease.entries && modRelease.entries.length > 0) {
+        for (const entry of modRelease.entries) {
+          const emoji = entryTypeConfig[entry.type]?.emoji || "📝";
+          const authors = entry.authors?.map(formatAuthor).join(" and ") || "";
+          const authorSuffix = authors ? ` — _${authors}_` : "";
+          content += `- ${emoji} ${entry.title}${authorSuffix}\n`;
+        }
+        content += "\n";
+      }
+    }
   }
 
   // Add download link if repository is specified (not for unreleased)
@@ -1038,10 +1092,7 @@ async function syncChangelog(newsRepoPath) {
     const moduleInfo = hasModules ? `, ${project.modules.length} modules` : "";
     console.log(`  ${project.id}: ${releases.length} releases${moduleInfo}`);
 
-    // Write release MDX files for the parent project
-    totalPages += await writeReleaseMdxFiles(projectDir, project, releases);
-
-    // Process modules if present
+    // Read all module releases first (needed for parent release pages)
     if (hasModules) {
       for (const mod of project.modules) {
         const moduleReleases = await readReleases(
@@ -1051,6 +1102,51 @@ async function syncChangelog(newsRepoPath) {
         );
         moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
         console.log(`    ${mod.id}: ${moduleReleases.length} releases`);
+      }
+    }
+
+    // Write release MDX files for the parent project
+    // For projects with modules, include module releases in parent release pages
+    for (const release of releases) {
+      const mdxPath = path.join(projectDir, `${release.slug}.mdx`);
+      const releaseOptions = {};
+      if (release.isUnreleased) {
+        releaseOptions.sidebarLabel = project.name;
+      }
+
+      // If this release has module versions, gather their releases
+      if (release.modules && hasModules) {
+        const modReleases = [];
+        for (const mod of project.modules) {
+          const modVersion = release.modules[mod.id];
+          if (modVersion) {
+            const allModReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+            const matchingRelease = allModReleases.find(
+              (r) => r.version === modVersion,
+            );
+            if (matchingRelease) {
+              modReleases.push({
+                name: mod.name,
+                version: matchingRelease.version,
+                entries: matchingRelease.entries,
+              });
+            }
+          }
+        }
+        if (modReleases.length > 0) {
+          releaseOptions.moduleReleases = modReleases;
+        }
+      }
+
+      const mdxContent = generateMdxContent(project, release, releaseOptions);
+      await fs.writeFile(mdxPath, mdxContent);
+      totalPages++;
+    }
+
+    // Process modules if present - write module release pages
+    if (hasModules) {
+      for (const mod of project.modules) {
+        const moduleReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
 
         // Create module directory and write release files
         const moduleDir = path.join(projectDir, mod.id);
