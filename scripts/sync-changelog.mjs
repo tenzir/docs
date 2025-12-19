@@ -735,11 +735,14 @@ function generateSidebarFile(projects, projectVersions, moduleVersions) {
     const sidebarItems = [];
 
     if (hasModules) {
-      // Add parent project releases (including unreleased) with version grouping
+      // Add parent project releases as flat list (no major version grouping)
+      // to avoid excessive nesting with modules
       if (releases.length > 0) {
-        sidebarItems.push(
-          ...buildSidebarItems(`changelog/${project.id}`, project.name, releases),
-        );
+        sidebarItems.push({
+          label: project.name,
+          collapsed: true,
+          items: releases.map((r) => `changelog/${project.id}/${r.slug}`),
+        });
       }
 
       // Add each module with flat version list
@@ -1173,17 +1176,9 @@ For general release announcements and deeper dives into selected features,
 check out our [blog](https://tenzir.com/blog) or join the conversation on
 our [Discord](https://tenzir.com/discord).
 `;
-  // Write landing page and sidebar only in CI or if they don't exist
-  // This preserves stub files locally to avoid dirtying the git tree
-  const isCI = process.env.CI === "true" || process.env.CI === "1";
-
   const landingPath = path.join(changelogContentDir, "index.mdx");
-  if (isCI || !fsSync.existsSync(landingPath)) {
-    await fs.writeFile(landingPath, landingContent);
-    console.log(`Generated: src/content/docs/changelog/index.mdx`);
-  } else {
-    console.log(`Skipped: src/content/docs/changelog/index.mdx (stub preserved)`);
-  }
+  await fs.writeFile(landingPath, landingContent);
+  console.log(`Generated: src/content/docs/changelog/index.mdx`);
 
   // Generate sidebar and topics configuration
   const sidebarFilePath = path.join(srcDir, "sidebar-changelog.generated.ts");
@@ -1192,12 +1187,8 @@ our [Discord](https://tenzir.com/discord).
     projectVersions,
     moduleVersions,
   );
-  if (isCI || !fsSync.existsSync(sidebarFilePath)) {
-    await fs.writeFile(sidebarFilePath, sidebarContent);
-    console.log(`Generated: src/sidebar-changelog.generated.ts`);
-  } else {
-    console.log(`Skipped: src/sidebar-changelog.generated.ts (stub preserved)`);
-  }
+  await fs.writeFile(sidebarFilePath, sidebarContent);
+  console.log(`Generated: src/sidebar-changelog.generated.ts`);
 
   console.log(`\nSync complete!`);
   console.log(`Generated ${totalPages} changelog pages.`);
