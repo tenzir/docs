@@ -1201,16 +1201,33 @@ async function syncChangelog(newsRepoPath) {
         })
         .join("\n\n");
 
-      // Add unreleased card before modules if present (full width, outside grid)
+      // Add parent project card(s) before modules (full width, outside grid)
+      // Shows latest release and/or unreleased if present
+      let prefixCards = "";
+      const latestParentRelease = releases.find((r) => !r.isUnreleased);
       const parentUnreleased = releases.find((r) => r.isUnreleased);
-      const unreleasedCard = parentUnreleased
-        ? `<LinkCard
+      const projectIcon = changelogProjects[project.id]?.icon || "document";
+      const projectColor = changelogProjects[project.id]?.color;
+      const colorAttr = projectColor ? `\n  color="${projectColor}"` : "";
+
+      if (latestParentRelease) {
+        prefixCards += `<LinkCard
+  title="${project.name}"
+  description="Root release notes for the project and all modules."
+  href="/changelog/${project.id}/${latestParentRelease.slug}"
+  icon="${projectIcon}"${colorAttr}
+  meta="${latestParentRelease.version}"
+/>\n\n`;
+      }
+
+      if (parentUnreleased) {
+        prefixCards += `<LinkCard
   title="${project.name}"
   description="Upcoming changes not yet published in a release."
   href="/changelog/${project.id}/unreleased"
   meta="upcoming"
-/>\n\n`
-        : "";
+/>\n\n`;
+      }
 
       const indexContent = generateIndexContent(
         project.name,
@@ -1218,7 +1235,7 @@ async function syncChangelog(newsRepoPath) {
         {
           useCardGrid: true,
           cardContent: moduleCardsList,
-          prefixContent: unreleasedCard,
+          prefixContent: prefixCards || undefined,
           repository: changelogProjects[project.id]?.repository,
         },
       );
