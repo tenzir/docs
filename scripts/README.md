@@ -15,6 +15,18 @@ configuration.
 pnpm sync:changelog
 ```
 
+### `sync-openapi.sh`
+
+Fetches OpenAPI specs from upstream repositories:
+
+- `openapi.node.yaml` from `tenzir/tenzir`
+
+**Usage:**
+
+```bash
+pnpm sync:openapi
+```
+
 ### `fix-starlight-llms-txt.js`
 
 Post-install script that fixes Starlight LLMS integration.

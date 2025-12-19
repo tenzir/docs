@@ -35,10 +35,8 @@ jobs:
         run: |
           # Define exact paths and patterns for auto-updated files
           auto_updated_files=(
-            # API specs (synced from upstream)
+            # API spec synced from tenzir/tenzir via pnpm sync:openapi
             "src/content/apis/openapi.node.yaml"
-            "src/content/apis/openapi.platform.yaml"
-            "tenzir.yaml.example"
           )
 
           auto_updated_directories=(
@@ -118,21 +116,13 @@ jobs:
 
             **What to do:**
 
-            1. **For API spec changes:** Make your changes in the upstream repositories:
-               - **Node API:** Update files in the [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
-               - **Platform API:** Update files in the [tenzir/platform](https://github.com/tenzir/platform) repository
+            1. **For Node API spec changes:** Update [openapi.node.yaml](https://github.com/tenzir/tenzir/blob/main/openapi.node.yaml) in the tenzir/tenzir repository
 
-            2. **For file structure or sync logic changes:** Modify the update scripts or workflow in this repository
+            2. **For sync logic changes:** Modify \`scripts/sync-openapi.sh\` in this repository
 
-            3. **Remove the manual changes** from this PR and revert these files to their original state
+            3. **Remove the manual changes** from this PR and revert the file to its original state
 
-            The following files are automatically synced and should **never** be manually edited:
-
-            - \`src/content/apis/openapi.node.yaml\` (Tenzir Node API spec)
-            - \`src/content/apis/openapi.platform.yaml\` (Tenzir Platform API spec)
-            - \`tenzir.yaml.example\` (Example configuration)
-
-            See our [documentation contribution guide](https://docs.tenzir.com/guides/contribution/documentation#auto-updated-files) for more details.
+            The file \`src/content/apis/openapi.node.yaml\` is automatically synced via \`pnpm sync:openapi\` and should **not** be manually edited.
 
             *This comment will be removed automatically when this problem is resolved.*`;
 
