@@ -1,10 +1,15 @@
 ---
 import type { Props } from '@astrojs/starlight/props';
-import { getEntry } from 'astro:content';
+import { getCollection } from 'astro:content';
 import { getSearchWeight } from '../search-weights';
 
 // PAGE_TITLE_ID is just '_top' in Starlight
 const PAGE_TITLE_ID = '_top';
+
+// Build a lookup map of all docs entries to avoid getEntry warnings for
+// non-existent pages
+const allDocs = await getCollection('docs');
+const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 
 // Get the current path segments
 const currentPath = Astro.url.pathname;
@@ -59,13 +64,13 @@ for (let i = 0; i < segments.length; i++) {
   let pageExists = false;
 
   // Try index page first (e.g., guides/index.mdx for /guides)
-  const indexEntry = await getEntry('docs', `${slug}/index`);
+  const indexEntry = docsMap.get(`${slug}/index`);
   if (indexEntry) {
     title = indexEntry.data.title;
     pageExists = true;
   } else {
     // Try direct page (e.g., guides/quickstart.mdx for /guides/quickstart)
-    const directEntry = await getEntry('docs', slug);
+    const directEntry = docsMap.get(slug);
     if (directEntry) {
       title = directEntry.data.title;
       pageExists = true;
