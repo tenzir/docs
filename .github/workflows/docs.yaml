@@ -55,7 +55,7 @@ jobs:
             pnpm astro build \
               --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
           else
-            pnpm astro build \
+            CI_BUILD=true pnpm astro build \
               --site "${{ steps.pages.outputs.origin }}" \
               --base "${{ steps.pages.outputs.base_path }}"
           fi

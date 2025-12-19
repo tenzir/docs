@@ -18,7 +18,7 @@ import {
   platformAPISidebarGroup,
 } from "./src/sidebar-shared-groups.ts";
 
-const runLinkCheck = process.env.RUN_LINK_CHECK || false;
+const ciBuild = process.env.CI_BUILD || false;
 const isProd = process.env.NODE_ENV === "production";
 
 // Sidebar groups are now imported from shared-sidebar-groups.ts to ensure
@@ -96,40 +96,45 @@ export default defineConfig({
         },
       },
       plugins: [
-        starlightLlmsTxt({
-          projectName: "Tenzir",
-          description: "The low-code data pipeline solution for security teams",
-          generatePageMarkdown: true,
-          markdownFilePattern: "replace",
-          customSets: [
-            {
-              label: "Reference",
-              paths: ["reference/**/*"],
-            },
-            {
-              label: "Guides",
-              paths: ["guides/**/*"],
-            },
-            {
-              label: "Tutorials",
-              paths: ["tutorials/**/*"],
-            },
-            {
-              label: "Explanations",
-              paths: ["explanations/**/*"],
-            },
-            {
-              label: "Integrations",
-              paths: ["integrations/**/*"],
-            },
-            {
-              label: "Changelog",
-              paths: ["changelog/**/*"],
-            },
-          ],
-          demote: ["changelog/**/*"],
-        }),
-        ...(runLinkCheck
+        ...(ciBuild
+          ? [
+              starlightLlmsTxt({
+                projectName: "Tenzir",
+                description:
+                  "The low-code data pipeline solution for security teams",
+                generatePageMarkdown: true,
+                markdownFilePattern: "replace",
+                customSets: [
+                  {
+                    label: "Reference",
+                    paths: ["reference/**/*"],
+                  },
+                  {
+                    label: "Guides",
+                    paths: ["guides/**/*"],
+                  },
+                  {
+                    label: "Tutorials",
+                    paths: ["tutorials/**/*"],
+                  },
+                  {
+                    label: "Explanations",
+                    paths: ["explanations/**/*"],
+                  },
+                  {
+                    label: "Integrations",
+                    paths: ["integrations/**/*"],
+                  },
+                  {
+                    label: "Changelog",
+                    paths: ["changelog/**/*"],
+                  },
+                ],
+                demote: ["changelog/**/*"],
+              }),
+            ]
+          : []),
+        ...(ciBuild
           ? [
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
