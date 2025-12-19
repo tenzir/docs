@@ -35,18 +35,13 @@ jobs:
         run: |
           # Define exact paths and patterns for auto-updated files
           auto_updated_files=(
-            # Tenzir Node auto-updated files (exact paths)
+            # API specs (synced from upstream)
             "src/content/apis/openapi.node.yaml"
             "src/content/apis/openapi.platform.yaml"
             "tenzir.yaml.example"
-            "src/content/docs/reference/functions.mdx"
-            "src/content/docs/reference/operators.mdx"
           )
 
           auto_updated_directories=(
-            # Tenzir Node auto-updated directories
-            "src/content/docs/reference/functions/"
-            "src/content/docs/reference/operators/"
           )
 
           changed_files="${{ steps.changed-files.outputs.changed_files }}"
@@ -123,27 +118,19 @@ jobs:
 
             **What to do:**
 
-            1. **For documentation content changes:** Make your changes in the upstream repositories:
-               - **Functions/Operators:** Update files in the [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
-               - **Platform CLI:** Update files in the [tenzir/platform](https://github.com/tenzir/platform) repository
+            1. **For API spec changes:** Make your changes in the upstream repositories:
+               - **Node API:** Update files in the [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
+               - **Platform API:** Update files in the [tenzir/platform](https://github.com/tenzir/platform) repository
 
-            2. **For file structure or generation logic changes:** Modify the update scripts or workflow in this repository
+            2. **For file structure or sync logic changes:** Modify the update scripts or workflow in this repository
 
             3. **Remove the manual changes** from this PR and revert these files to their original state
 
-            The following files and directories are automatically updated and should **never** be manually edited:
+            The following files are automatically synced and should **never** be manually edited:
 
-            **Files:**
             - \`src/content/apis/openapi.node.yaml\` (Tenzir Node API spec)
             - \`src/content/apis/openapi.platform.yaml\` (Tenzir Platform API spec)
             - \`tenzir.yaml.example\` (Example configuration)
-            - \`src/content/docs/reference/functions.mdx\` (Generated functions overview)
-            - \`src/content/docs/reference/operators.mdx\` (Generated operators overview)
-            - \`src/content/docs/reference/platform-cli.mdx\` (Platform CLI reference)
-
-            **Directories:**
-            - \`src/content/docs/reference/functions/\` (Individual function docs)
-            - \`src/content/docs/reference/operators/\` (Individual operator docs)
 
             See our [documentation contribution guide](https://docs.tenzir.com/guides/contribution/documentation#auto-updated-files) for more details.
 

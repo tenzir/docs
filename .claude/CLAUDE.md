@@ -71,7 +71,6 @@ Some content is auto-generated and excluded from linting:
 
 - **Changelog**: Run `pnpm sync:changelog` to fetch from `tenzir/news` repo.
   Generated files: `src/content/docs/changelog/`, `src/sidebar-changelog.ts`.
-- **Reference docs**: Run `pnpm generate:reference` for function/operator docs.
 
 ### Linting
 
