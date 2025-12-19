@@ -8,10 +8,10 @@ import changelogProjects from '../changelog-projects.json';
 
 const { topics } = Astro.locals.starlightSidebarTopics;
 
-// Look up color by topic id (format: "changelog-{projectId}")
-const getTopicColor = (id: string | undefined): string | undefined => {
-  if (!id?.startsWith('changelog-')) return undefined;
-  const projectId = id.slice('changelog-'.length);
+// Look up color by topic link (format: "changelog/{projectId}")
+const getTopicColor = (link: string | undefined): string | undefined => {
+  if (!link?.startsWith('changelog/')) return undefined;
+  const projectId = link.slice('changelog/'.length);
   return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
@@ -41,7 +41,7 @@ const dropdownItems = useDropdown
       label: t.label,
       link: t.link,
       icon: t.icon,
-      color: getTopicColor(t.id),
+      color: getTopicColor(t.link),
       isCurrent: t.isCurrent,
     }))
   : [];
