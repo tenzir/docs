@@ -18,10 +18,6 @@ import {
   platformAPISidebarGroup,
 } from "./src/sidebar-shared-groups.ts";
 
-// A GitHub Actions workflow pushes upstream changes in tenzir/vscode-tql
-// directly into this repository, keeping this file up to date.
-import tqlLang from "./tql.tmLanguage.json" assert { type: "json" };
-
 const runLinkCheck = process.env.RUN_LINK_CHECK || false;
 const isProd = process.env.NODE_ENV === "production";
 
@@ -204,14 +200,7 @@ export default defineConfig({
         light: "github-light",
         dark: "github-dark",
       },
-      langs: [
-        {
-          ...tqlLang,
-          id: "tql",
-          scopeName: "source.tql",
-        },
-        ...Object.keys(bundledLanguages),
-      ],
+      langs: [...Object.keys(bundledLanguages)],
     },
     rehypePlugins: [
       [
