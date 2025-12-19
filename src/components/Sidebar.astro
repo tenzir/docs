@@ -8,15 +8,11 @@ import changelogProjects from '../changelog-projects.json';
 
 const { topics } = Astro.locals.starlightSidebarTopics;
 
-// Create color lookup by label since starlight-sidebar-topics may not pass through id
-const projectColorsByName: Record<string, string | undefined> = {};
-for (const [projectId, config] of Object.entries(changelogProjects)) {
-  if (config.name) {
-    projectColorsByName[config.name] = config.color;
-  }
-}
-const getTopicColor = (label: string): string | undefined => {
-  return projectColorsByName[label];
+// Look up color by topic id (format: "changelog-{projectId}")
+const getTopicColor = (id: string | undefined): string | undefined => {
+  if (!id?.startsWith('changelog-')) return undefined;
+  const projectId = id.slice('changelog-'.length);
+  return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
 // Find the current topic
@@ -45,7 +41,7 @@ const dropdownItems = useDropdown
       label: t.label,
       link: t.link,
       icon: t.icon,
-      color: getTopicColor(t.label),
+      color: getTopicColor(t.id),
       isCurrent: t.isCurrent,
     }))
   : [];
