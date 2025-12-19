@@ -251,6 +251,69 @@ repository slug and uses `notes.md` as the release body. Projects without a
 `repository` field cannot publish—this is intentional for changelogs that track
 changes without producing GitHub releases (e.g., modules in a workspace).
 
+#### How it works
+
+The `release publish` command executes the following steps:
+
+1. **Validate configuration**: Checks that the `repository` field is set in
+   `config.yaml` or `package.yaml`. This field determines the GitHub repository
+   to publish to (e.g., `tenzir/tenzir`).
+
+2. **Check for `gh` CLI**: Verifies that the [GitHub CLI](https://cli.github.com/)
+   is installed and available in `PATH`. The command uses `gh` for all GitHub
+   operations.
+
+3. **Find release manifest**: Locates the release manifest at
+   `releases/<version>/manifest.yaml`. Fails if the specified version doesn't
+   exist.
+
+4. **Verify release notes**: Checks that `releases/<version>/notes.md` exists
+   and is non-empty. If missing, prompts you to run `release create` first.
+
+5. **Commit staged changes** (if `--commit`): Creates a git commit with all
+   staged changes. Requires `--tag` to be set. Uses the commit message from
+   `--commit-message`, the `release.commit_message` config field, or defaults
+   to `Release {version}`.
+
+6. **Create and push git tag** (if `--tag`): Creates an annotated git tag named
+   after the version with message `Release {version}`. If the tag already
+   exists, skips creation but continues. Pushes the current branch to its
+   upstream remote, then pushes the tag to the remote matching the configured
+   repository.
+
+7. **Check for existing GitHub release**: Queries GitHub to determine if a
+   release with this version already exists.
+
+8. **Create or update GitHub release**:
+   - If the release exists, runs `gh release edit` to update the release notes
+     and title.
+   - If the release doesn't exist, runs `gh release create` with the version
+     tag, release notes from `notes.md`, and optional `--draft`, `--prerelease`,
+     or `--latest=false` flags.
+
+9. **Confirm and execute**: Unless `--yes` is provided, prompts for confirmation
+   before running the `gh` command. Shows the exact action (`gh release create`
+   or `gh release edit`) that will run.
+
+#### Typical workflow
+
+A full release workflow with commit and tag looks like:
+
+```sh
+# 1. Create the release (generates manifest.yaml and notes.md)
+tenzir-changelog release create v1.0.0 --yes
+
+# 2. Stage release files
+git add changelog/releases/v1.0.0/
+
+# 3. Publish with commit and tag
+tenzir-changelog release publish v1.0.0 --commit --tag
+```
+
+This creates the release artifacts, commits the staged files, creates tag
+`v1.0.0`, pushes both to the remote, and creates the GitHub release in one
+command.
+
 ### validate
 
 Run structural checks across entry files, release manifests, and exported
