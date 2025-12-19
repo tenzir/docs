@@ -377,11 +377,29 @@ intro: |
 
 Manifest fields:
 
-| Field     | Type   | Required | Description                              |
-| --------- | ------ | -------- | ---------------------------------------- |
-| `created` | string | yes      | Release date in `YYYY-MM-DD` format      |
-| `title`   | string | no       | Custom title for the release heading     |
-| `intro`   | string | no       | Introductory content (supports Markdown) |
+| Field     | Type   | Required | Description                                      |
+| --------- | ------ | -------- | ------------------------------------------------ |
+| `created` | string | yes      | Release date in `YYYY-MM-DD` format              |
+| `title`   | string | no       | Custom title for the release heading             |
+| `intro`   | string | no       | Introductory content (supports Markdown)         |
+| `modules` | dict   | no       | Module versions at release time (auto-populated) |
+
+The `modules` field is automatically populated when creating a release for a
+parent project with configured modules. It maps module IDs to their latest
+versions, enabling incremental module summaries in subsequent releases.
+
+Example manifest with modules:
+
+```yaml
+created: 2025-10-18
+title: Marketplace v1.0.0
+intro: |
+  Initial release with all plugins.
+modules:
+  git: v1.0.0
+  docs: v1.1.0
+  changelog: v1.2.0
+```
 
 The CLI generates `notes.md` with an H1 heading followed by the intro and
 grouped entry sections. The heading format depends on whether a custom title is
@@ -489,6 +507,37 @@ tenzir-changelog show
 # Show only parent entries
 tenzir-changelog show --project parent
 ```
+
+### Aggregated release summaries
+
+When creating a release for a parent project, `release create` automatically
+appends a summary of module changes to the release notes. Each module with new
+entries since the previous parent release gets a section showing:
+
+- The module name and version as a heading
+- A compact bullet list of entries with emoji prefix, title, and byline
+
+```markdown
+---
+
+## Git Plugin v1.1.0
+
+- 🚀 Add commit message templates — *@alice*
+- 🐞 Fix branch detection — *@bob and @claude*
+
+## Docs Plugin v1.2.0
+
+- 🔧 Improve search indexing — *@alice*
+```
+
+The release manifest records each module's version at release time in the
+`modules` field. Subsequent releases compare against this baseline and only
+include entries from module releases newer than the recorded version. This
+prevents duplicate entries across parent releases.
+
+The `release notes` command also renders module summaries when viewing a
+specific release, using the same incremental logic based on the manifest's
+recorded module versions.
 
 ### Operating on modules
 
