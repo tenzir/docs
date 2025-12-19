@@ -24,6 +24,7 @@ to return in reply to a message request. Use the `poll_time` option to adjust
 the timeout.
 
 The operator requires the following AWS permissions:
+
 - `sqs:GetQueueUrl`
 - `sqs:SendMessage`
 

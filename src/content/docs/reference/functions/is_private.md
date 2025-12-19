@@ -16,11 +16,13 @@ The `is_private` function checks whether a given IP address `x` is a private
 address according to RFC 1918 (IPv4) and RFC 4193 (IPv6).
 
 For IPv4, private addresses are:
+
 - 10.0.0.0/8 (10.0.0.0 - 10.255.255.255)
 - 172.16.0.0/12 (172.16.0.0 - 172.31.255.255)
 - 192.168.0.0/16 (192.168.0.0 - 192.168.255.255)
 
 For IPv6, private addresses are:
+
 - fc00::/7 (Unique Local Addresses)
 
 Note: Link-local addresses (169.254.0.0/16 for IPv4 and fe80::/10 for IPv6)

@@ -37,17 +37,20 @@ certificate, which you can generate as follows. (Velociraptor ships as a static
 binary that we refer to as `velociraptor-binary` here.)
 
 1. Create a server configuration `server.yaml`:
+
    ```bash
    velociraptor-binary config generate > server.yaml
    ```
 
 2. Create an API client:
+
    ```bash
    velociraptor-binary -c server.yaml config api_client name tenzir client.yaml
    ```
 
    Copy the generated `client.yaml` to your Tenzir plugin configuration
    directory as `velociraptor.yaml` so that the operator can find it:
+
    ```bash
    cp client.yaml /etc/tenzir/plugin/velociraptor.yaml
    ```

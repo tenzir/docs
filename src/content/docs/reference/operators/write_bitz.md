@@ -4,7 +4,7 @@ category: Printing
 example: 'write_bitz'
 ---
 
-Writes events in *BITZ* format.
+Writes events in _BITZ_ format.
 
 ```tql
 write_bitz

@@ -32,9 +32,9 @@ determines how to intepret the binary `data` field containing the raw packet
 data.
 
 :::note[Wireshark?]
-With `decapsulate`, we aim to provide a *minimal* packet parsing up to the
+With `decapsulate`, we aim to provide a _minimal_ packet parsing up to the
 transport layer so that you can work with packets in pipelines and implement use
-cases such as alert-based PCAP. The goal is *not* to comprehensively parse all
+cases such as alert-based PCAP. The goal is _not_ to comprehensively parse all
 protocol fields at great depth. If this is your objective, consider
 [Zeek](https://zeek.org), [Suricata](https://suricata.io), or
 [Wireshark](https://wireshark.org).

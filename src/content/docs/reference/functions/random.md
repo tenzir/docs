@@ -4,7 +4,7 @@ category: Utility
 example: 'random()'
 ---
 
-Generates a random number in *[0,1]*.
+Generates a random number in _[0,1]_.
 
 ```tql
 random() -> float
@@ -14,7 +14,7 @@ random() -> float
 
 The `random` function generates a random number by drawing from a [uniform
 distribution](https://en.wikipedia.org/wiki/Continuous_uniform_distribution) in
-the interval *[0,1]*.
+the interval _[0,1]_.
 
 ## Examples
 

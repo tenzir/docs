@@ -25,7 +25,7 @@ For each rule, the operator transpiles the YAML into an
 [`where`](/reference/operators/where) operator, followed by assignments to
 generate an output. Here's how the transpilation works. The Sigma rule YAML
 format requires a `detection` attribute that includes a map of named
-sub-expression called *search identifiers*. In addition, `detection` must
+sub-expression called _search identifiers_. In addition, `detection` must
 include a final `condition` that combines search identifiers using boolean
 algebra (AND, OR, and NOT) or syntactic sugar to reference groups of search
 expressions, e.g., using the `1/all of *` or plain wildcard syntax. Consider the
@@ -99,7 +99,7 @@ If `path` points to a rule, the operator transpiles the rule file at the time of
 pipeline creation.
 
 If this points to a directory, the operator watches it and attempts to parse
-each contained file as a Sigma rule. The `sigma` operator matches if *any* of
+each contained file as a Sigma rule. The `sigma` operator matches if _any_ of
 the contained rules match, effectively creating a disjunction of all rules
 inside the directory.
 

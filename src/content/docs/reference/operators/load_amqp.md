@@ -98,7 +98,7 @@ Defaults to `false`.
 
 ### `no_auto_delete = bool (optional)`
 
-If `true`, the exchange will *not* be deleted when all queues have finished using
+If `true`, the exchange will _not_ be deleted when all queues have finished using
 it.
 
 Defaults to `false`.

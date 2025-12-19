@@ -20,7 +20,7 @@ events.
 [pcapng-rfc]: https://www.ietf.org/archive/id/draft-tuexen-opsawg-pcapng-05.html
 
 :::note[PCAPNG]
-The current implementation does *not* support [PCAPNG][pcapng-rfc].
+The current implementation does _not_ support [PCAPNG][pcapng-rfc].
 :::
 
 ### `emit_file_headers = bool (optional)`
@@ -49,13 +49,13 @@ The operator emits events with the following schema.
 
 Contains information about all accessed API endpoints, emitted once per second.
 
-| Field                    | Type       | Description                                            |
-| :----------------------- | :--------- | :----------------------------------------------------- |
-| `timestamp`              | `time`     | The time of capturing the packet.                      |
-| `linktype`               | `uint64`   | The linktype of the captured packet.                   |
-| `original_packet_length` | `uint64`   | The length of the original packet.                     |
-| `captured_packet_length` | `uint64`   | The length of the captured packet.                     |
-| `data`                   | `blob`     | The captured packet's data as a blob.                  |
+| Field                    | Type     | Description                           |
+| :----------------------- | :------- | :------------------------------------ |
+| `timestamp`              | `time`   | The time of capturing the packet.     |
+| `linktype`               | `uint64` | The linktype of the captured packet.  |
+| `original_packet_length` | `uint64` | The length of the original packet.    |
+| `captured_packet_length` | `uint64` | The length of the captured packet.    |
+| `data`                   | `blob`   | The captured packet's data as a blob. |
 
 ## Examples
 

@@ -50,7 +50,9 @@ For example, given `field_split` `\s*,\s*` and `value_split` `=`, the input
 ```
 "key"="nested = value",key2="value, and more"
 ```
+
 will parse as
+
 ```tql
 {
   key: "nested = value",
@@ -92,6 +94,7 @@ surname:"John Norman", family_name:Smith, date_of_birth: 1995-05-26
 read_kv field_split=r"\s*,\s*",
   value_split=r"\s*:\s*"
 ```
+
 ```tql
 {
   surname: "John Norman",
@@ -111,6 +114,7 @@ PATH: D:\bar VALUE: 42 INFO: Great
 read_kv field_split=r"(\s+)[A-Z][A-Z_]+:",
   value_split=r":\s*"
 ```
+
 ```tql
 {
   PATH: "C:\\foo",
@@ -132,13 +136,14 @@ match is used to split key and value, this leaves the path intact.
 
 ### Fields without a `value_split`
 
-
 ```txt title="Input"
 x=1 y=2 z=3 4 5 a=6
 ```
+
 ```tql
 read_kv
 ```
+
 ```tql
 {
   x: 1,
@@ -147,7 +152,6 @@ read_kv
   a: 6,
 }
 ```
-
 
 ## See Also
 

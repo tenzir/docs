@@ -28,6 +28,7 @@ Defaults to `false`.
 from {x: { x: 0, y: 1 } }, { x: [0,1,2,] }
 x = x.print_yaml()
 ```
+
 ```tql
 {
   x: "x: 0\ny: 1",

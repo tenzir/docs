@@ -20,11 +20,11 @@ corresponds to one event, minus the header.
 
 The following table lists existing XSV configurations:
 
-|Format               |Field Separator|List Separator|Null Value|
-|---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](/reference/operators/write_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](/reference/operators/write_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](/reference/operators/write_tsv)   |`\t`           |`,`           |`-`       |
+| Format                                  | Field Separator | List Separator | Null Value |
+| --------------------------------------- | :-------------: | :------------: | :--------: |
+| [`csv`](/reference/operators/write_csv) |       `,`       |      `;`       |   empty    |
+| [`ssv`](/reference/operators/write_ssv) |    `<space>`    |      `,`       |    `-`     |
+| [`tsv`](/reference/operators/write_tsv) |      `\t`       |      `,`       |    `-`     |
 
 [csv]: https://en.wikipedia.org/wiki/Comma-separated_values
 [xsv]: https://en.wikipedia.org/wiki/Delimiter-separated_values
@@ -53,6 +53,7 @@ Whether to not print a header line containing the field names.
 from {x:1, y:true, z: "String"}
 write_xsv field_separator="/", list_separator=";", null_value=""
 ```
+
 ```
 x/y/z
 1/true/String

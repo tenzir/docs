@@ -27,6 +27,7 @@ The value to search for. Cannot be a list or record.
 ### `exact: bool` (optional)
 
 Controls the matching behavior:
+
 - When `false` (default): strings match via substring search, and subnets/IPs use containment checks
 - When `true`: only exact equality matches are considered
 

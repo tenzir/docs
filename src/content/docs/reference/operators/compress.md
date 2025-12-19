@@ -54,7 +54,7 @@ compress "gzip"
 save_file "/tmp/backup.json.gz"
 ```
 
-###  Recompress a Zstd-compressed file at a higher compression level
+### Recompress a Zstd-compressed file at a higher compression level
 
 ```tql
 load_file "in.zst"

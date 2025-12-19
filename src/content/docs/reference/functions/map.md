@@ -89,6 +89,7 @@ from {
 }
 l = l.map(str => str.parse_grok($pattern))
 ```
+
 ```tql
 {
   l: [
@@ -117,6 +118,7 @@ from {
 }
 l = l.map(str => str.parse_json())
 ```
+
 ```tql
 {
   l: [

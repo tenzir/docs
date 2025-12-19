@@ -27,13 +27,13 @@ Tenzir emits plugin information with the following schema.
 
 Contains detailed information about the available plugins.
 
-|Field|Type|Description|
-|:-|:-|:-|
-|`name`|`string`|The unique, case-insensitive name of the plugin.|
-|`version`|`string`|The version identifier of the plugin, or `bundled` if the plugin has no version of its own.|
-|`kind`|`string`|The kind of plugin. One of `builtin`, `static`, or `dynamic`.|
-|`types`|`list<string>`|The interfaces implemented by the plugin, e.g., `operator` or `function`.|
-|`dependencies`|`list<string>`|Plugins that must be loaded for this plugin to function.|
+| Field          | Type           | Description                                                                                 |
+| :------------- | :------------- | :------------------------------------------------------------------------------------------ |
+| `name`         | `string`       | The unique, case-insensitive name of the plugin.                                            |
+| `version`      | `string`       | The version identifier of the plugin, or `bundled` if the plugin has no version of its own. |
+| `kind`         | `string`       | The kind of plugin. One of `builtin`, `static`, or `dynamic`.                               |
+| `types`        | `list<string>` | The interfaces implemented by the plugin, e.g., `operator` or `function`.                   |
+| `dependencies` | `list<string>` | Plugins that must be loaded for this plugin to function.                                    |
 
 ## Examples
 

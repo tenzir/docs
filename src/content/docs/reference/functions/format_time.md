@@ -34,7 +34,7 @@ allowed format specifiers are the same as for `strftime(3)`:
 |   `%C`    | Century as a decimal number            | `20`                      |
 |   `%d`    | Day of the month with zero padding     | `01`, `31`                |
 |   `%D`    | Equivalent to `%m/%d/%y`               | `01/31/24`                |
-|   `%e`    | Day of the month with space padding    | ` 1`, `31`                |
+|   `%e`    | Day of the month with space padding    | `1`, `31`                 |
 |   `%F`    | Equivalent to `%Y-%m-%d`               | `2024-01-31`              |
 |   `%g`    | Last two digits of ISO week-based year | `24`                      |
 |   `%G`    | ISO week-based year                    | `2024`                    |

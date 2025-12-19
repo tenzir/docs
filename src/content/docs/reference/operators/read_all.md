@@ -30,6 +30,7 @@ of type `blob` instead of `string`.
 load_file "data.txt"
 read_all
 ```
+
 ```tql
 {data: "<file contents>"}
 ```
@@ -40,6 +41,7 @@ read_all
 load_file "data.bin"
 read_all binary=true
 ```
+
 ```tql
 {data: b"<file contents>"}
 ```

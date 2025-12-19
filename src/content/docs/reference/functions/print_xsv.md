@@ -16,11 +16,11 @@ The `parse_xsv` function prints a record's values as delimiter separated string.
 
 The following table lists existing XSV configurations:
 
-|Format               |Field Separator|List Separator|Null Value|
-|---------------------|:-------------:|:------------:|:--------:|
-|[`csv`](/reference/functions/print_csv)   |`,`            |`;`           | empty    |
-|[`ssv`](/reference/functions/print_ssv)   |`<space>`      |`,`           |`-`       |
-|[`tsv`](/reference/functions/print_tsv)   |`\t`           |`,`           |`-`       |
+| Format                                  | Field Separator | List Separator | Null Value |
+| --------------------------------------- | :-------------: | :------------: | :--------: |
+| [`csv`](/reference/functions/print_csv) |       `,`       |      `;`       |   empty    |
+| [`ssv`](/reference/functions/print_ssv) |    `<space>`    |      `,`       |    `-`     |
+| [`tsv`](/reference/functions/print_tsv) |      `\t`       |      `,`       |    `-`     |
 
 ### `field_separator = str`
 

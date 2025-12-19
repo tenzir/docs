@@ -48,6 +48,7 @@ from {
 }
 ocsf::trim
 ```
+
 ```tql
 {
   class_uid: 3002,
@@ -81,6 +82,7 @@ from {
 }
 ocsf::trim drop_optional=true, drop_recommended=false
 ```
+
 ```tql
 {
   class_uid: 1001,
@@ -112,6 +114,7 @@ from {
 }
 ocsf::trim drop_optional=true, drop_recommended=true
 ```
+
 ```tql
 {
   class_uid: 4001,

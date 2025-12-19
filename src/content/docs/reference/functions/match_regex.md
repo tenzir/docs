@@ -39,6 +39,7 @@ from {input: "Hello There World"},
   {input: "Good Morning" }
 output = input.match_regex("[T|t]here")
 ```
+
 ```tql
 {input: "Hello There World", output: true}
 {input: "hi there!", output: true}
@@ -53,6 +54,7 @@ from {input: "example"},
   {input: "example?" }
 output = input.match_regex("^[E|e]xample[!]?$")
 ```
+
 ```tql
 {input: "example", output: true}
 {input: "example!", output: true}

@@ -27,6 +27,7 @@ before the `cache` operator in the same pipeline.
 :::tip[Cache Policy]
 Set the `tenzir.cache` configuration section controls how caches behave in
 Tenzir Nodes:
+
 - `tenzir.cache.lifetime` sets the default write timeout for newly created
   caches.
 - `tenzir.cache.capacity` sets an upper bound for the estimated total memory
@@ -41,6 +42,7 @@ tenzir:
     lifetime: 10min
     capacity: 1Gi
 ```
+
 :::
 
 ### `id: string`

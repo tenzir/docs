@@ -50,7 +50,9 @@ For example, given `field_split` `\s*,\s*` and `value_split` `=`, the input
 ```
 "key"="nested = value",key2="value, and more"
 ```
+
 will parse as
+
 ```tql
 {
   key: "nested = value",
@@ -112,6 +114,7 @@ output = input.parse_kv(field_split=r"\s*,\s*", value_split=r"\s*:\s*")
 from  { input: "x=1 y=2 z=3 4 5 a=6" }
 this = { ...input.parse_kv() }
 ```
+
 ```tql
 {
   x: 1,
