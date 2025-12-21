@@ -912,7 +912,7 @@ function generateTimelineEntries(releases, basePath) {
 
     const entry = {
       version: r.isUnreleased ? "Unreleased" : r.version,
-      date: r.isUnreleased ? "upcoming" : formatDate(r.created),
+      date: r.isUnreleased ? "" : formatDate(r.created),
       href: `${basePath}/${r.slug}`,
     };
 
@@ -1225,7 +1225,6 @@ async function syncChangelog(newsRepoPath) {
   title="${project.name}"
   description="Upcoming changes not yet published in a release."
   href="/changelog/${project.id}/unreleased"
-  meta="upcoming"
 />\n\n`;
       }
 
