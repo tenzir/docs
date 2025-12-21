@@ -37,6 +37,13 @@ client.add(
 )
 client.show(identifiers=["unreleased"], view="markdown", explicit_links=True)
 client.release_notes("v1.0.0", explicit_links=True)
+
+# Get the latest version
+version = client.release_version()  # Returns "v1.0.0"
+bare_version = client.release_version(bare=True)  # Returns "1.0.0"
+
+# Publish defaults to latest release
+client.release_publish(create_tag=True, assume_yes=True)
 ```
 
 For advanced scenarios, reuse `tenzir_changelog.create_cli_context` and call
@@ -203,6 +210,34 @@ The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
 into `entries/`. It performs a dry run by default. When the release already
 exists, the CLI appends additional unreleased entries.
 
+### release version
+
+Print the latest released version.
+
+```text
+tenzir-changelog release version [options]
+```
+
+| Option   | Description                      |
+| -------- | -------------------------------- |
+| `--bare` | Print version without `v` prefix |
+
+Use this command in scripts to query the current version without parsing
+output from other commands:
+
+```sh
+# Get the latest version
+tenzir-changelog release version
+# Output: v1.2.0
+
+# Get version without prefix (for semver tools)
+tenzir-changelog release version --bare
+# Output: 1.2.0
+
+# Use in commit messages
+git commit -m "Release $(tenzir-changelog release version)"
+```
+
 ### release notes
 
 Re-export release notes without modifying files.
@@ -232,12 +267,12 @@ documentation sites, blogs, or other Markdown renderers.
 Publish a release to GitHub via `gh`.
 
 ```text
-tenzir-changelog release publish <version> [options]
+tenzir-changelog release publish [version] [options]
 ```
 
 | Option             | Description                                             |
 | ------------------ | ------------------------------------------------------- |
-| `version`          | Release version                                         |
+| `version`          | Release version (defaults to latest)                    |
 | `--yes`            | Skip confirmation prompts                               |
 | `--draft`          | Mark as draft                                           |
 | `--prerelease`     | Mark as prerelease                                      |
@@ -297,22 +332,35 @@ The `release publish` command executes the following steps:
 
 #### Typical workflow
 
-A full release workflow with commit and tag looks like:
+A full release workflow with commit and tag:
 
 ```sh
 # 1. Create the release (generates manifest.yaml and notes.md)
-tenzir-changelog release create v1.0.0 --yes
+tenzir-changelog release create --minor --yes
 
-# 2. Stage release files
-git add changelog/releases/v1.0.0/
+# 2. Review the generated notes
+tenzir-changelog release notes
 
-# 3. Publish with commit and tag
-tenzir-changelog release publish v1.0.0 --commit --tag
+# 3. Stage release files
+git add changelog/releases/
+
+# 4. Publish with commit and tag (defaults to latest release)
+tenzir-changelog release publish --commit --tag --yes
 ```
 
-This creates the release artifacts, commits the staged files, creates tag
-`v1.0.0`, pushes both to the remote, and creates the GitHub release in one
-command.
+Alternatively, commit manually to customize the message using `release version`:
+
+```sh
+# 3. Stage and commit with custom message
+git add changelog/releases/
+git commit -m "Release $(tenzir-changelog release version)"
+
+# 4. Publish (defaults to latest release)
+tenzir-changelog release publish --tag --yes
+```
+
+Both workflows are version-agnostic after step 1. The `release publish` command
+defaults to the latest release when no version is specified.
 
 ### validate
 
