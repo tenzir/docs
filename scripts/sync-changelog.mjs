@@ -708,7 +708,7 @@ ${imports}
 
 /**
  * Group versions by major version.
- * Unreleased entries are kept separate at the top.
+ * Unreleased entries are included at the top of the latest major version group.
  */
 function groupVersionsByMajor(releases) {
   const groups = new Map();
@@ -733,17 +733,11 @@ function groupVersionsByMajor(releases) {
       label: `v${major}.x`,
       major,
       versions,
-      isUnreleased: false,
     }));
 
-  // Add unreleased at the top if present
-  if (unreleased.length > 0) {
-    result.unshift({
-      label: "Unreleased",
-      major: null,
-      versions: unreleased,
-      isUnreleased: true,
-    });
+  // Add unreleased entries to the top of the latest major version group
+  if (unreleased.length > 0 && result.length > 0) {
+    result[0].versions = [...unreleased, ...result[0].versions];
   }
 
   return result;
@@ -760,20 +754,13 @@ function buildSidebarItems(basePath, projectName, releases) {
   const versionGroups = groupVersionsByMajor(releases);
 
   for (const group of versionGroups) {
-    if (group.isUnreleased) {
-      // Unreleased is a standalone link at the top
-      sidebarItems.push(`${basePath}/unreleased`);
-    } else {
-      // Version groups are collapsible, first one expanded
-      const isFirst =
-        sidebarItems.length === 0 ||
-        (sidebarItems.length === 1 && typeof sidebarItems[0] === "string");
-      sidebarItems.push({
-        label: `${projectName} ${group.label}`,
-        collapsed: !isFirst,
-        items: group.versions.map((v) => `${basePath}/${v.slug}`),
-      });
-    }
+    // Version groups are collapsible, first one expanded
+    const isFirst = sidebarItems.length === 0;
+    sidebarItems.push({
+      label: `${projectName} ${group.label}`,
+      collapsed: !isFirst,
+      items: group.versions.map((v) => `${basePath}/${v.slug}`),
+    });
   }
 
   return sidebarItems;
@@ -1032,12 +1019,7 @@ async function writeReleaseMdxFiles(dir, entity, releases, options = {}) {
   let count = 0;
   for (const release of releases) {
     const mdxPath = path.join(dir, `${release.slug}.mdx`);
-    // For parent projects (no topicId), use entity name as sidebar label for unreleased
-    const releaseOptions = { ...options };
-    if (!options.topicId && release.isUnreleased) {
-      releaseOptions.sidebarLabel = entity.name;
-    }
-    const mdxContent = generateMdxContent(entity, release, releaseOptions);
+    const mdxContent = generateMdxContent(entity, release, options);
     await fs.writeFile(mdxPath, mdxContent);
     count++;
   }
@@ -1114,9 +1096,6 @@ async function syncChangelog(newsRepoPath) {
     for (const release of releases) {
       const mdxPath = path.join(projectDir, `${release.slug}.mdx`);
       const releaseOptions = {};
-      if (release.isUnreleased) {
-        releaseOptions.sidebarLabel = project.name;
-      }
 
       // If this release has module versions, gather their releases
       if (release.modules && hasModules) {
