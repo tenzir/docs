@@ -27,6 +27,7 @@ export default [
       // Auto-generated changelog
       "src/content/docs/changelog/",
       "src/sidebar-changelog.generated.ts",
+      "src/unified-timeline-data.generated.ts",
     ],
   },
 

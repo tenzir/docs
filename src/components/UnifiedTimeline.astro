@@ -1,0 +1,43 @@
+---
+/**
+ * UnifiedTimeline component for the /changelog/timeline page.
+ *
+ * Displays all changelog entries from all projects in reverse-chronological
+ * order, with a toggle to include/exclude unreleased entries.
+ */
+import Timeline from "./Timeline.astro";
+import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
+
+interface TimelineEntry {
+  version: string;
+  date: string;
+  href: string;
+  description?: string;
+  project?: {
+    id: string;
+    name: string;
+    icon: StarlightIcon;
+    color: string;
+    parentName?: string;
+  };
+}
+
+// Try to load generated data, fall back to empty array
+let entries: TimelineEntry[] = [];
+try {
+  const generated = await import("../unified-timeline-data.generated");
+  entries = generated.unifiedTimelineEntries;
+} catch {
+  // No generated data yet - run `pnpm sync:changelog` to generate
+}
+---
+
+<unified-timeline-view>
+  <Timeline entries={entries} showProjectInfo />
+</unified-timeline-view>
+
+<style>
+  unified-timeline-view {
+    display: block;
+  }
+</style>

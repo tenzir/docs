@@ -144,6 +144,18 @@ function parseVersion(version) {
 }
 
 /**
+ * Strip links from intro text to keep timeline rows fully clickable.
+ */
+function stripIntroLinks(text) {
+  if (!text) return "";
+  let output = text;
+  output = output.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+  output = output.replace(/\[([^\]]+)\]\[[^\]]*\]/g, "$1");
+  output = output.replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, "$1");
+  return output;
+}
+
+/**
  * Convert version to slug format (v5.21.2 -> v5-21-2).
  */
 function versionToSlug(version) {
@@ -375,8 +387,15 @@ async function readUnreleased(newsRepoPath, changelogPath) {
  * @param {string} newsRepoPath - Base path to news repo
  * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
  * @param {string} projectName - Name for release titles
+ * @param {object} options - Optional settings
+ * @param {function} [options.onProgress] - Callback for progress updates (current, total)
  */
-async function readReleases(newsRepoPath, changelogPath, projectName) {
+async function readReleases(
+  newsRepoPath,
+  changelogPath,
+  projectName,
+  { onProgress } = {},
+) {
   const releases = [];
   const fullChangelogPath = path.join(newsRepoPath, changelogPath);
   const releasesPath = path.join(fullChangelogPath, "releases");
@@ -389,10 +408,10 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
 
   try {
     const dirEntries = await fs.readdir(releasesPath, { withFileTypes: true });
+    const directories = dirEntries.filter((e) => e.isDirectory());
+    let processed = 0;
 
-    for (const dirEntry of dirEntries) {
-      if (!dirEntry.isDirectory()) continue;
-
+    for (const dirEntry of directories) {
       const manifestPath = path.join(
         releasesPath,
         dirEntry.name,
@@ -447,6 +466,11 @@ async function readReleases(newsRepoPath, changelogPath, projectName) {
         });
       } catch {
         // Skip releases without required files
+      }
+
+      processed++;
+      if (onProgress) {
+        onProgress(processed, directories.length);
       }
     }
   } catch {
@@ -767,6 +791,118 @@ function buildSidebarItems(basePath, projectName, releases) {
 }
 
 /**
+ * Generate unified timeline entries across all projects.
+ * Returns released entries sorted by date (newest first).
+ * Unreleased entries are excluded from the unified timeline.
+ */
+function generateUnifiedTimelineEntries(
+  projects,
+  projectVersions,
+  moduleVersions,
+) {
+  const entries = [];
+
+  for (const project of projects) {
+    const releases = projectVersions[project.id] || [];
+    const icon = changelogProjects[project.id]?.icon || "document";
+    const color = changelogProjects[project.id]?.color || "";
+
+    // Add project releases (skip unreleased)
+    for (const release of releases) {
+      if (release.isUnreleased) continue;
+
+      let description = stripIntroLinks(release.intro || "");
+      if (description.length > 300) {
+        description = description.slice(0, 297) + "...";
+      }
+
+      entries.push({
+        version: release.version,
+        date: formatDate(release.created),
+        href: `/changelog/${project.id}/${release.slug}`,
+        description: description || undefined,
+        // Store raw date for sorting
+        _sortDate: release.created || "",
+        project: {
+          id: project.id,
+          name: project.name,
+          icon,
+          color,
+        },
+      });
+    }
+
+    // Add module releases (skip unreleased)
+    if (project.modules && project.modules.length > 0) {
+      for (const mod of project.modules) {
+        const moduleReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+        for (const release of moduleReleases) {
+          if (release.isUnreleased) continue;
+
+          let description = stripIntroLinks(release.intro || "");
+          if (description.length > 300) {
+            description = description.slice(0, 297) + "...";
+          }
+
+          entries.push({
+            version: release.version,
+            date: formatDate(release.created),
+            href: `/changelog/${project.id}/${mod.id}/${release.slug}`,
+            description: description || undefined,
+            _sortDate: release.created || "",
+            project: {
+              id: mod.id,
+              name: mod.name,
+              icon,
+              color,
+              parentName: project.name,
+            },
+          });
+        }
+      }
+    }
+  }
+
+  // Sort by date (newest first)
+  entries.sort((a, b) => new Date(b._sortDate) - new Date(a._sortDate));
+
+  // Remove internal sort field and clean up undefined descriptions
+  return entries.map(({ _sortDate, description, ...entry }) => {
+    if (description) {
+      return { ...entry, description };
+    }
+    return entry;
+  });
+}
+
+/**
+ * Generate unified timeline TypeScript file.
+ */
+function generateUnifiedTimelineFile(entries) {
+  return `// This file is auto-generated by scripts/sync-changelog.mjs
+// Do not edit manually.
+
+import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
+
+export interface UnifiedTimelineEntry {
+  version: string;
+  date: string;
+  href: string;
+  description?: string;
+  project: {
+    id: string;
+    name: string;
+    icon: StarlightIcon;
+    color: string;
+    parentName?: string;
+  };
+}
+
+export const unifiedTimelineEntries: UnifiedTimelineEntry[] = ${JSON.stringify(entries, null, 2)};
+`;
+}
+
+/**
  * Generate TypeScript sidebar file content with topics.
  * Icons come from changelog-projects.json.
  */
@@ -887,7 +1023,7 @@ function generateTimelineEntries(releases, basePath) {
   const entries = [];
 
   for (const r of releases) {
-    let description = r.intro || "";
+    let description = stripIntroLinks(r.intro || "");
     if (description.length > 300) {
       description = description.slice(0, 297) + "...";
     }
@@ -1034,7 +1170,14 @@ async function syncChangelog(newsRepoPath) {
   const changelogContentDir = path.join(docsRoot, "src/content/docs/changelog");
   const srcDir = path.join(docsRoot, "src");
 
-  console.log(`Syncing changelog from: ${newsRepoPath}`);
+  // Helper for inline progress updates
+  const writeProgress = (text) => {
+    process.stdout.clearLine?.(0);
+    process.stdout.cursorTo?.(0);
+    process.stdout.write(text);
+  };
+
+  console.log(`Syncing from: ${newsRepoPath}`);
 
   // Read all projects and sort by order in changelog-projects.json
   const configOrder = Object.keys(changelogProjects);
@@ -1047,9 +1190,7 @@ async function syncChangelog(newsRepoPath) {
       (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB)
     );
   });
-  console.log(
-    `Found ${projects.length} projects: ${projects.map((p) => p.id).join(", ")}`,
-  );
+  console.log(`Found ${projects.length} projects\n`);
 
   // Read releases for each project and their modules
   const projectVersions = {};
@@ -1060,12 +1201,22 @@ async function syncChangelog(newsRepoPath) {
     const hasModules = project.modules.length > 0;
     const topicId = `changelog-${project.id}`;
 
-    // Read parent project releases
+    // Show project being processed
+    writeProgress(`  ${project.id}: reading releases...`);
+
+    // Read parent project releases with progress
     const changelogPath = path.join(project.dirName, "changelog");
     const releases = await readReleases(
       newsRepoPath,
       changelogPath,
       project.name,
+      {
+        onProgress: (current, total) => {
+          writeProgress(
+            `  ${project.id}: reading releases ${current}/${total}`,
+          );
+        },
+      },
     );
     projectVersions[project.id] = releases;
 
@@ -1074,20 +1225,28 @@ async function syncChangelog(newsRepoPath) {
     await fs.rm(projectDir, { recursive: true, force: true });
     await fs.mkdir(projectDir, { recursive: true });
 
-    // Log project info
-    const moduleInfo = hasModules ? `, ${project.modules.length} modules` : "";
-    console.log(`  ${project.id}: ${releases.length} releases${moduleInfo}`);
+    // Log project completion
+    const moduleInfo = hasModules ? ` + ${project.modules.length} modules` : "";
+    writeProgress(
+      `  ${project.id}: ${releases.length} releases${moduleInfo}\n`,
+    );
 
     // Read all module releases first (needed for parent release pages)
     if (hasModules) {
       for (const mod of project.modules) {
+        writeProgress(`    ${mod.id}: reading...`);
         const moduleReleases = await readReleases(
           newsRepoPath,
           mod.changelogPath,
           mod.name,
+          {
+            onProgress: (current, total) => {
+              writeProgress(`    ${mod.id}: reading ${current}/${total}`);
+            },
+          },
         );
         moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
-        console.log(`    ${mod.id}: ${moduleReleases.length} releases`);
+        writeProgress(`    ${mod.id}: ${moduleReleases.length} releases\n`);
       }
     }
 
@@ -1263,6 +1422,7 @@ import LinkCard from '@components/LinkCard.astro';
 
 Welcome to the Tenzir changelog hub. Here you can find release notes,
 feature updates, and behind-the-scenes improvements across our projects.
+You can also [view all changes chronologically](/changelog/timeline).
 
 ${projectCards}
 
@@ -1274,7 +1434,6 @@ our [Discord](https://tenzir.com/discord).
 `;
   const landingPath = path.join(changelogContentDir, "index.mdx");
   await fs.writeFile(landingPath, landingContent);
-  console.log(`Generated: src/content/docs/changelog/index.mdx`);
 
   // Generate sidebar and topics configuration
   const sidebarFilePath = path.join(srcDir, "sidebar-changelog.generated.ts");
@@ -1284,10 +1443,25 @@ our [Discord](https://tenzir.com/discord).
     moduleVersions,
   );
   await fs.writeFile(sidebarFilePath, sidebarContent);
-  console.log(`Generated: src/sidebar-changelog.generated.ts`);
 
-  console.log(`\nSync complete!`);
-  console.log(`Generated ${totalPages} changelog pages.`);
+  // Generate unified timeline data
+  const unifiedEntries = generateUnifiedTimelineEntries(
+    projects,
+    projectVersions,
+    moduleVersions,
+  );
+  const unifiedTimelinePath = path.join(
+    srcDir,
+    "unified-timeline-data.generated.ts",
+  );
+  await fs.writeFile(
+    unifiedTimelinePath,
+    generateUnifiedTimelineFile(unifiedEntries),
+  );
+
+  console.log(
+    `\nGenerated ${totalPages} pages, ${unifiedEntries.length} timeline entries`,
+  );
 }
 
 // CLI entry point
