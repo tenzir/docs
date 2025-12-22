@@ -96,10 +96,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Sync external content
-        run: |
-          pnpm sync:changelog
-          pnpm sync:openapi
+
+      # TODO: remove after having validated it's really not needed by build:ci
+      #- name: Sync external content
+      #  run: |
+      #    pnpm sync:changelog
 
       - name: Run link check
         run: pnpm run build:ci
