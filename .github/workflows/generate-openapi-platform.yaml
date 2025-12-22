@@ -25,8 +25,8 @@ jobs:
       - name: Generate OpenAPI spec
         run: |
           TAG="${{ inputs.platform_docker_tag || 'latest' }}"
-          docker run --rm "ghcr.io/tenzir/platform-api:${TAG}" \
-            ./scripts/generate_openapi.py > src/content/apis/openapi.platform.yaml
+          docker run --rm --entrypoint python "ghcr.io/tenzir/platform-api:${TAG}" \
+            /scripts/generate_openapi.py > src/content/apis/openapi.platform.yaml
 
       - name: Commit if changed
         run: |
