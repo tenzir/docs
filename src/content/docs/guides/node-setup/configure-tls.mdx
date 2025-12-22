@@ -10,7 +10,7 @@ apply to all compatible operators, or override them per-operator as needed.
 ## Node-level TLS configuration
 
 Instead of passing TLS options to each operator individually, configure them
-once under `tenzir.operator-tls` in your `tenzir.yaml`:
+once under `tenzir.tls` in your `tenzir.yaml`:
 
 ```yaml title="tenzir.yaml"
 tenzir:
@@ -46,7 +46,7 @@ settings. This lets you override specific connections when needed:
 load_http "https://api.example.com/data"
 
 // Overrides with a custom certificate
-load_http "https://internal.example.com/data", tls.cacert="/path/to/internal-ca.crt"
+load_http "https://internal.example.com/data", tls={cacert: "/path/to/internal-ca.crt"}
 ```
 
 ## Mutual TLS (mTLS)
@@ -57,7 +57,7 @@ identity.
 
 ```yaml title="tenzir.yaml"
 tenzir:
-  operator-tls:
+  tls:
     certfile: "/etc/tenzir/server.crt"
     keyfile: "/etc/tenzir/server.key"
     tls-client-ca: "/etc/tenzir/client-ca.crt"
@@ -86,7 +86,7 @@ plugins:
 ```
 
 If not specified, the platform plugin falls back to the node-level
-`tenzir.operator-tls` settings.
+`tenzir.tls` settings.
 
 ## Generate test certificates
 
