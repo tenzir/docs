@@ -180,7 +180,13 @@ Use the `count_field` option to add a field showing how many events were
 dropped for each key:
 
 ```tql
-from {x: 1, seq: 1}, {x: 1, seq: 2}, {x: 1, seq: 3}, {x: 2, seq: 4}, {x: 2, seq: 5}, {x: 1, seq: 6}
+from \
+  {x: 1, seq: 1},
+  {x: 1, seq: 2},
+  {x: 1, seq: 3},
+  {x: 2, seq: 4},
+  {x: 2, seq: 5},
+  {x: 1, seq: 6}
 deduplicate x, distance=2, count_field=drop_count
 ```
 
