@@ -12,11 +12,15 @@ defaults or set fields to customize it.
   min_version: string,          // minimum TLS version (`"1.0"`, `"1.1"`, `"1.2"`, "1.3"`).
   ciphers: string,              // OpenSSL cipher list string.
   client_ca: string,            // CA to validate client certificates.
-                                // (only on operators that accept incoming connections)
   require_client_cert,          // require clients to present a certificate.
-                                // (only on operators that accept incoming connections)
 }
 ```
 
+The `client_ca` and `require_client_cert` options are only applied
+for operators that accept incoming client connections, and otherwise
+ignored.
+
 Any value not specified in the record will either be picked up from the configuration
 or if not configured will not be used by the operator.
+
+See the [Node TLS Setup guide](/guides/node-setup/configure-tls) for more details.
