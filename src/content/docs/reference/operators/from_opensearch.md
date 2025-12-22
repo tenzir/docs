@@ -36,7 +36,7 @@ The maximum size of an incoming request to accept.
 
 Defaults to `10Mib`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
 

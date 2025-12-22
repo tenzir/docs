@@ -165,7 +165,7 @@ The maximum number of simultaneous incoming connections to accept.
 
 Defaults to `10`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
 

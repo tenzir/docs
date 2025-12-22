@@ -110,7 +110,7 @@ Maximum amount of requests that can be in progress at any time.
 
 Defaults to `1`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
 
