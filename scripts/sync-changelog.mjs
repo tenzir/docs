@@ -1321,7 +1321,10 @@ async function syncChangelog(newsRepoPath) {
           },
         );
         moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
-        writeProgress(`    ${mod.id}: ${moduleReleases.length} releases\n`, true);
+        writeProgress(
+          `    ${mod.id}: ${moduleReleases.length} releases\n`,
+          true,
+        );
       }
     }
 
