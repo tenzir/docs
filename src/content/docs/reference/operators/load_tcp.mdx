@@ -78,7 +78,7 @@ streams according to the schema `"my_schema"`, forwarding no more than 20 events
 per individual connection:
 
 ```tql
-load_tcp "127.0.0.1:4000", tls={enabled: true, certfile: "key_and_cert.pem", keyfile: "key_and_cert.pem"} {
+load_tcp "127.0.0.1:4000", tls={certfile: "key_and_cert.pem", keyfile: "key_and_cert.pem"} {
   read_json schema="my_schema"
   head 20
 }
@@ -101,7 +101,7 @@ openssl s_client 127.0.0.1:4000
 Require clients to present valid certificates signed by a trusted CA:
 
 ```tql
-load_tcp "0.0.0.0:4000", tls=true, certfile="server.pem", keyfile="server-key.pem", tls_client_ca="ca.pem", tls_require_client_cert=true {
+load_tcp "0.0.0.0:4000", tls={certfile: "server.pem", keyfile: "server-key.pem", tls_client_ca: "ca.pem", tls_require_client_cert: true} {
   read_json
 }
 ```
