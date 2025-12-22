@@ -57,6 +57,7 @@ option and an appropriate `Content-Type` is set for the request.
 ### `encode = string (optional)`
 
 Specifies how to encode `record` bodies. Supported values:
+
 - `json`
 - `form`
 
@@ -78,10 +79,10 @@ Field to insert metadata into when using the parsing pipeline.
 
 The metadata has the following schema:
 
-| Field                | Type     | Description                           |
-| :------------------- | :------- | :------------------------------------ |
-| `code`               | `uint64` | The HTTP status code of the response. |
-| `headers`            | `record` | The response headers.                 |
+| Field     | Type     | Description                           |
+| :-------- | :------- | :------------------------------------ |
+| `code`    | `uint64` | The HTTP status code of the response. |
+| `headers` | `record` | The response headers.                 |
 
 ### `error_field = field (optional)`
 

@@ -61,6 +61,7 @@ option and an appropriate `Content-Type` is set for the request.
 ### `encode = string (optional)`
 
 Specifies how to encode `record` bodies. Supported values:
+
 - `json`
 - `form`
 
@@ -76,21 +77,21 @@ Field to insert metadata into when using the parsing pipeline.
 
 The response metadata (when using the client mode) has the following schema:
 
-| Field                | Type     | Description                           |
-| :------------------- | :------- | :------------------------------------ |
-| `code`               | `uint64` | The HTTP status code of the response. |
-| `headers`            | `record` | The response headers.                 |
+| Field     | Type     | Description                           |
+| :-------- | :------- | :------------------------------------ |
+| `code`    | `uint64` | The HTTP status code of the response. |
+| `headers` | `record` | The response headers.                 |
 
 The request metadata (when using the server mode) has the following schema:
 
-| Field                | Type     | Description                           |
-| :------------------- | :------- | :------------------------------------ |
-| `headers`            | `record` | The request headers.                  |
-| `query`              | `record` | The query parameters of the request.  |
-| `path`               | `string` | The path requested.                   |
-| `fragment`           | `string` | The URI fragment of the request.      |
-| `method`             | `string` | The HTTP method of the request.       |
-| `version`            | `string` | The HTTP version of the request.      |
+| Field      | Type     | Description                          |
+| :--------- | :------- | :----------------------------------- |
+| `headers`  | `record` | The request headers.                 |
+| `query`    | `record` | The query parameters of the request. |
+| `path`     | `string` | The path requested.                  |
+| `fragment` | `string` | The URI fragment of the request.     |
+| `method`   | `string` | The HTTP method of the request.      |
+| `version`  | `string` | The HTTP version of the request.     |
 
 ### `error_field = field (optional)`
 
