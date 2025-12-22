@@ -1,0 +1,45 @@
+name: Generate Platform OpenAPI Spec
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform_docker_tag:
+        description: Platform API Docker image tag to generate the spec from
+        required: false
+
+jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout docs
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate OpenAPI spec
+        run: |
+          TAG="${{ inputs.platform_docker_tag || 'latest' }}"
+          docker run --rm "ghcr.io/tenzir/platform-api:${TAG}" \
+            ./scripts/generate_openapi.py > src/content/apis/openapi.platform.yaml
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/content/apis/openapi.platform.yaml
+          if ! git diff --cached --quiet; then
+            MSG="Update OpenAPI spec from tenzir/platform"
+            if [ -n "${{ inputs.platform_docker_tag }}" ]; then
+              MSG="$MSG:${{ inputs.platform_docker_tag }}"
+            fi
+            git commit -m "$MSG"
+            git push
+          else
+            echo "No changes to OpenAPI spec"
+          fi
