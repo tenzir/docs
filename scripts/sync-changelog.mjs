@@ -876,6 +876,29 @@ function generateUnifiedTimelineEntries(
 }
 
 /**
+ * Group timeline entries by year.
+ * Returns a Map with year as key and entries for that year as value.
+ * Years are sorted newest first.
+ */
+function groupEntriesByYear(entries) {
+  const yearGroups = new Map();
+
+  for (const entry of entries) {
+    // Extract year from date string (format: "Dec 19, 2024")
+    const match = entry.date.match(/\d{4}/);
+    const year = match ? match[0] : "Unknown";
+
+    if (!yearGroups.has(year)) {
+      yearGroups.set(year, []);
+    }
+    yearGroups.get(year).push(entry);
+  }
+
+  // Sort by year descending and return as array of [year, entries] tuples
+  return Array.from(yearGroups.entries()).sort((a, b) => b[0] - a[0]);
+}
+
+/**
  * Generate unified timeline TypeScript file.
  */
 function generateUnifiedTimelineFile(entries) {
@@ -903,10 +926,36 @@ export const unifiedTimelineEntries: UnifiedTimelineEntry[] = ${JSON.stringify(e
 }
 
 /**
+ * Generate MDX content for a year-specific timeline page.
+ */
+function generateYearTimelineContent(year, entries) {
+  const entriesJson = JSON.stringify(entries, null, 2);
+
+  return `---
+title: "${year}"
+sidebar:
+  label: "${year}"
+topic: changelog-timeline
+---
+
+import Timeline from '@components/Timeline.astro';
+
+All changes across Tenzir projects released in ${year}.
+
+<Timeline entries={${entriesJson}} showProjectInfo />
+`;
+}
+
+/**
  * Generate TypeScript sidebar file content with topics.
  * Icons come from changelog-projects.json.
  */
-function generateSidebarFile(projects, projectVersions, moduleVersions) {
+function generateSidebarFile(
+  projects,
+  projectVersions,
+  moduleVersions,
+  timelineYears = [],
+) {
   const topics = [];
   const topicParents = {};
 
@@ -963,6 +1012,19 @@ function generateSidebarFile(projects, projectVersions, moduleVersions) {
     topicParents[project.name] = "Changelog";
   }
 
+  // Add timeline topic with year-based sidebar items
+  if (timelineYears.length > 0) {
+    const timelineTopic = {
+      label: "Timeline",
+      id: "changelog-timeline",
+      link: "changelog/timeline",
+      icon: "open-book",
+      items: timelineYears.map((year) => `changelog/timeline/${year}`),
+    };
+    topics.unshift(timelineTopic); // Add at the beginning
+    topicParents["Timeline"] = "Changelog";
+  }
+
   // Generate topic path mappings for starlight-sidebar-topics
   const topicPaths = {};
   for (const project of projects) {
@@ -970,6 +1032,14 @@ function generateSidebarFile(projects, projectVersions, moduleVersions) {
     topicPaths[topicId] = [
       `/changelog/${project.id}`,
       `/changelog/${project.id}/**/*`,
+    ];
+  }
+
+  // Add timeline topic paths
+  if (timelineYears.length > 0) {
+    topicPaths["changelog-timeline"] = [
+      "/changelog/timeline",
+      "/changelog/timeline/**/*",
     ];
   }
 
@@ -1395,7 +1465,57 @@ async function syncChangelog(newsRepoPath) {
     }
   }
 
+  // Generate unified timeline data
+  const unifiedEntries = generateUnifiedTimelineEntries(
+    projects,
+    projectVersions,
+    moduleVersions,
+  );
+  const unifiedTimelinePath = path.join(
+    srcDir,
+    "unified-timeline-data.generated.ts",
+  );
+  await fs.writeFile(
+    unifiedTimelinePath,
+    generateUnifiedTimelineFile(unifiedEntries),
+  );
+
+  // Generate year-based timeline pages
+  const yearGroups = groupEntriesByYear(unifiedEntries);
+  const timelineYears = yearGroups.map(([year]) => year);
+  const timelineDir = path.join(changelogContentDir, "timeline");
+  await fs.rm(timelineDir, { recursive: true, force: true });
+  await fs.mkdir(timelineDir, { recursive: true });
+
+  for (const [year, entries] of yearGroups) {
+    const yearContent = generateYearTimelineContent(year, entries);
+    await fs.writeFile(path.join(timelineDir, `${year}.mdx`), yearContent);
+  }
+
+  // Generate timeline index page (mirrors the original timeline.mdx)
+  const timelineIndexContent = `---
+title: Timeline
+description: "A chronological view of all changes across all Tenzir projects."
+sidebar:
+  hidden: true
+topic: changelog-timeline
+---
+
+import UnifiedTimeline from "@components/UnifiedTimeline.astro";
+
+Browse all release updates across Tenzir projects in reverse-chronological
+order. Use the toggle to include unreleased changes that are in development.
+
+<UnifiedTimeline />
+`;
+  await fs.writeFile(path.join(timelineDir, "index.mdx"), timelineIndexContent);
+
+  console.log(
+    `  timeline: ${timelineYears.length} years (${timelineYears.join(", ")})`,
+  );
+
   // Generate main changelog landing page
+  const latestTimelineYear = timelineYears[0] || "2025";
   const projectCards = projects
     .map((project) => {
       const releases = projectVersions[project.id] || [];
@@ -1416,13 +1536,14 @@ async function syncChangelog(newsRepoPath) {
 
   const landingContent = `---
 title: Changelog
+template: splash
 ---
 
 import LinkCard from '@components/LinkCard.astro';
 
 Welcome to the Tenzir changelog hub. Here you can find release notes,
 feature updates, and behind-the-scenes improvements across our projects.
-You can also [view all changes chronologically](/changelog/timeline).
+You can also [view all changes chronologically](/changelog/timeline/${latestTimelineYear}).
 
 ${projectCards}
 
@@ -1441,23 +1562,9 @@ our [Discord](https://tenzir.com/discord).
     projects,
     projectVersions,
     moduleVersions,
+    timelineYears,
   );
   await fs.writeFile(sidebarFilePath, sidebarContent);
-
-  // Generate unified timeline data
-  const unifiedEntries = generateUnifiedTimelineEntries(
-    projects,
-    projectVersions,
-    moduleVersions,
-  );
-  const unifiedTimelinePath = path.join(
-    srcDir,
-    "unified-timeline-data.generated.ts",
-  );
-  await fs.writeFile(
-    unifiedTimelinePath,
-    generateUnifiedTimelineFile(unifiedEntries),
-  );
 
   console.log(
     `\nGenerated ${totalPages} pages, ${unifiedEntries.length} timeline entries`,

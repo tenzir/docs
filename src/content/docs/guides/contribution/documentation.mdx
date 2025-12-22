@@ -10,12 +10,13 @@ https://github.com/tenzir/docs. We use [Astro](https://astro.build) with
 
 ### Essential Commands
 
-| Command        | Action                                     |
-| :------------- | :----------------------------------------- |
-| `pnpm install` | Install dependencies                       |
-| `pnpm dev`     | Start local dev server at `localhost:4321` |
-| `pnpm build`   | Build production site to `./dist/`         |
-| `pnpm preview` | Preview build locally before deploying     |
+| Command               | Action                                                            |
+| :-------------------- | :---------------------------------------------------------------- |
+| `pnpm install`        | Install dependencies                                              |
+| `pnpm dev`            | Start local dev server at `localhost:4321`                        |
+| `pnpm build`          | Build production site to `./dist/`                                |
+| `pnpm preview`        | Preview build locally before deploying                            |
+| `pnpm sync:changelog` | Sync changelog from [tenzir/news](https://github.com/tenzir/news) |
 
 ### Development Commands
 
@@ -168,45 +169,6 @@ svgo image.svg
 
 This automatically rewrites the file in-place with redundant code removed and
 optimized structure.
-
-## Auto-Generated Files
-
-**Important**: Some files in this repository are automatically generated and
-should **never** be manually edited. Manual changes to these files will be
-overwritten.
-
-### Generated Files
-
-**Changelog** (generated at build time by `pnpm sync:changelog`):
-
-- `src/content/docs/changelog/` — release notes from
-  [tenzir/news](https://github.com/tenzir/news)
-- `src/sidebar-changelog.ts` — sidebar configuration for changelog pages
-
-**Reference Documentation** (synced from upstream repositories):
-
-- `src/content/docs/reference/functions/` — from
-  [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/functions/`
-- `src/content/docs/reference/operators/` — from
-  [tenzir/tenzir](https://github.com/tenzir/tenzir) at `docs/operators/`
-- `src/content/docs/reference/functions.mdx` — generated index of functions
-- `src/content/docs/reference/operators.mdx` — generated index of operators
-- `src/content/docs/reference/platform-cli.mdx` — from
-  [tenzir/platform](https://github.com/tenzir/platform) at `docs/platform-cli.mdx`
-- `src/content/apis/openapi.node.yaml` — API specification for Tenzir Node
-- `tenzir.yaml.example` — example configuration file
-
-### Making Changes to Generated Content
-
-If you need to update content in these files:
-
-1. **Changelog**: Make changes in the
-   [tenzir/news](https://github.com/tenzir/news) repository
-2. **Functions/Operators**: Make changes in the
-   [tenzir/tenzir](https://github.com/tenzir/tenzir) repository
-3. **Platform CLI**: Make changes in the
-   [tenzir/platform](https://github.com/tenzir/platform) repository
-4. **Generation logic**: Modify the scripts in `scripts/`
 
 ## Edit Diagrams
 

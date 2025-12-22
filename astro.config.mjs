@@ -188,9 +188,9 @@ export default defineConfig({
               "/reference/functions/**/*",
               "/reference/operators/**/*",
             ],
-            // Changelog root topic (for pages like /changelog/timeline)
-            changelog: ["/changelog", "/changelog/timeline"],
-            // Changelog project topics (auto-generated)
+            // Changelog root topic (for the landing page)
+            changelog: ["/changelog"],
+            // Changelog project and timeline topics (auto-generated)
             ...changelogTopicPaths,
           },
         }),
