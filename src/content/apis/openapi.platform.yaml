@@ -1,0 +1,3367 @@
+openapi: 3.1.0
+info:
+  title: Tenzir Platform API
+  description: API for managing Tenzir Platform workspaces, nodes, and dashboards.
+  version: 1.0.0
+paths:
+  /user/dashboard/store:
+    post:
+      tags:
+      - user
+      summary: Store Endpoint
+      description: 'Store a new dashboard revision.
+
+
+        Multiple dashboards can be created for any given  Dashboard ids
+
+        only need to be unique per
+
+
+        The data stored can be any free form json. It is splitted into:
+
+
+        - summary, a lightweight summarized version of the data that is also
+
+        returned when calling the `/list` endpoint
+
+
+        - the content, which holds the bulk of the dashboard description and
+
+        that can be retrieved by calling the `/get` endpoint
+
+
+        The total size of the data stored for each dashboard must not exceed a
+
+        few hundred kilobytes, otherwise the backing stores might present
+
+        degraded performances or hit quotas.
+
+
+        The revision of the dashboard is an arbitrary string that is used to
+
+        ensure no concurrent updates are performed. For new dashboards, it
+
+        should be left empty. For existing endpoints, it is obtained from
+
+        the response of the `/list` or `/get` endpoints.'
+      operationId: store_endpoint_user_dashboard_store_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreDashboardRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardRevisionMetadata'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '409':
+          description: '`{"detail": "Dashboard revision changed"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/dashboard/get:
+    post:
+      tags:
+      - user
+      summary: Get Endpoint
+      description: Get the latest revision of a dashboard for the given
+      operationId: get_endpoint_user_dashboard_get_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetDashboardRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardRevision'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Dashboard not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/dashboard/list:
+    post:
+      tags:
+      - user
+      summary: List Endpoint
+      description: 'List the metadata of all dashboards for the given
+
+
+        To get the full content of a dashboard, use the `/get` enpoint. The
+
+        returned `revision` fields can be used to perform updates using the
+
+        `/store` endpoint.'
+      operationId: list_endpoint_user_dashboard_list_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListDashboardRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListDashboardResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Dashboard not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/dashboard/delete:
+    post:
+      tags:
+      - user
+      summary: Delete Endpoint
+      description: 'Definitively delete all revisions of a given dashboard for the
+
+        given'
+      operationId: delete_endpoint_user_dashboard_delete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteDashboardRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/alert/add:
+    post:
+      tags:
+      - user
+      summary: Add Endpoint
+      description: Add a new alert
+      operationId: add_endpoint_user_alert_add_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAlertRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddAlertResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/alert/list:
+    post:
+      tags:
+      - user
+      summary: List Endpoint
+      description: List all configured alerts.
+      operationId: list_endpoint_user_alert_list_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListAlertsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAlertsResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Dashboard not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/alert/delete:
+    post:
+      tags:
+      - user
+      summary: Delete Endpoint
+      description: Delete the specified alert
+      operationId: delete_endpoint_user_alert_delete_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAlertRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAlertResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Alert not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/add-external-store:
+    post:
+      tags:
+      - user
+      summary: Add External Store Endpoint
+      description: Add a new secrets store
+      operationId: add_external_store_endpoint_user_secrets_add_external_store_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddExternalStoreRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddExternalStoreResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/select-store:
+    post:
+      tags:
+      - user
+      summary: Set Default Store Endpoint
+      description: Sets the default store
+      operationId: set_default_store_endpoint_user_secrets_select_store_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SelectStoreRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelectStoreResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Secret store not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/delete-external-store:
+    post:
+      tags:
+      - user
+      summary: Delete External Store Endpoint
+      description: Remove an external secrets store
+      operationId: delete_external_store_endpoint_user_secrets_delete_external_store_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteExternalStoreRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteExternalStoreResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '400':
+          description: '`{"detail": "Readonly secret store"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/list-stores:
+    post:
+      tags:
+      - user
+      summary: List Stores Endpoint
+      description: List the metadata of all configured secrets stores
+      operationId: list_stores_endpoint_user_secrets_list_stores_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListStoresRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListStoresResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/add:
+    post:
+      tags:
+      - user
+      summary: Add Endpoint
+      description: Add a new secret
+      operationId: add_endpoint_user_secrets_add_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddSecretRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddSecretResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '400':
+          description: '`{"detail": "Secret already exists"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/update:
+    post:
+      tags:
+      - user
+      summary: Update Endpoint
+      description: Update an existing secret
+      operationId: update_endpoint_user_secrets_update_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSecretRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateSecretResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/remove:
+    post:
+      tags:
+      - user
+      summary: Remove Endpoint
+      description: Remove a secret
+      operationId: remove_endpoint_user_secrets_remove_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveSecretRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemoveSecretResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '400':
+          description: '`{"detail": "Readonly secret store"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/secrets/list:
+    post:
+      tags:
+      - user
+      summary: List Endpoint
+      description: List all secrets
+      operationId: list_endpoint_user_secrets_list_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListSecretsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListSecretsResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '400':
+          description: '`{"detail": "Invalid or missing secret store credentials.
+            Please check your configuration."}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/health:
+    get:
+      tags:
+      - user
+      summary: Health Endpoint
+      operationId: health_endpoint_user_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /user/delete-tenant:
+    post:
+      tags:
+      - user
+      summary: Delete Tenant Endpoint
+      description: 'Deleting shared accounts via this endpoint is currently not supported
+
+        to prevent accidents'
+      operationId: delete_tenant_endpoint_user_delete_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteTenantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteTenantResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/list-nodes:
+    post:
+      tags:
+      - user
+      summary: List Nodes Endpoint
+      operationId: list_nodes_endpoint_user_list_nodes_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListNodesRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNodesResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/create-node:
+    post:
+      tags:
+      - user
+      summary: Create Node Endpoint
+      description: Creates a new node.
+      operationId: create_node_endpoint_user_create_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateNodeResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '409':
+          description: '`{"detail": "Tenant state changed"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/rename-node:
+    post:
+      tags:
+      - user
+      summary: Rename Node Endpoint
+      description: Renames an existing node.
+      operationId: rename_node_endpoint_user_rename_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenameNodeResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/delete-node:
+    post:
+      tags:
+      - user
+      summary: Delete Node Endpoint
+      operationId: delete_node_endpoint_user_delete_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteNodeResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/rename-tenant:
+    post:
+      tags:
+      - user
+      summary: Update Tenant Name Endpoint
+      operationId: update_tenant_name_endpoint_user_rename_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameTenantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenameTenantResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/get-node-token:
+    post:
+      tags:
+      - user
+      summary: Get Node Token Endpoint
+      operationId: get_node_token_endpoint_user_get_node_token_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetNodeTokenRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNodeTokenResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/generate-client-config:
+    post:
+      tags:
+      - user
+      summary: Generate Client Config Endpoint
+      operationId: generate_client_config_endpoint_user_generate_client_config_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateClientConfigRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateClientConfigResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/generate-download-url:
+    post:
+      tags:
+      - user
+      summary: Generate Download Url Endpoint
+      operationId: generate_download_url_endpoint_user_generate_download_url_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDownloadUrlRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerateDownloadUrlResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/create-demo-node:
+    post:
+      tags:
+      - user
+      summary: Create Demo Node Endpoint
+      operationId: create_demo_node_endpoint_user_create_demo_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDemoNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NodeStatus'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '400':
+          description: '`{"detail": "Demo node already exists"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/retire-demo-node:
+    post:
+      tags:
+      - user
+      summary: Retire Demo Node Endpoint
+      description: Remove the demo node infrastructure if there is one
+      operationId: retire_demo_node_endpoint_user_retire_demo_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetireDemoNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '400':
+          description: '`{"detail": "Demo node already exists"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/proxy:
+    post:
+      tags:
+      - user
+      summary: Proxy Endpoint
+      operationId: proxy_endpoint_user_proxy_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxyResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/node-proxy/{tenant_id}/{node_id}/{http_path}:
+    delete:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    options:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    head:
+      tags:
+      - user
+      summary: Transparent Proxy Endpoint
+      operationId: transparent_proxy_endpoint_user_node_proxy__tenant_id___node_id___http_path__delete
+      security:
+      - User Key: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      - name: http_path
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Http Path
+      - name: x-tenzir-request-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenzir-Request-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/proxy-cached:
+    post:
+      tags:
+      - user
+      summary: Proxy Cached Endpoint
+      operationId: proxy_cached_endpoint_user_proxy_cached_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CachedProxyResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Cache not found"}`
+
+            `{"detail": "Tenant not found"}`
+
+            `{"detail": "Node not found"}`'
+        '408':
+          description: '`{"detail": "Proxy timed out"}`'
+        '410':
+          description: '`{"detail": "Node not connected"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - User Key: []
+  /user/get-login-info:
+    post:
+      tags:
+      - user
+      summary: Get Login Info Endpoint
+      operationId: get_login_info_endpoint_user_get_login_info_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetLoginInfoRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLoginInfoResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '404':
+          description: '`{"detail": "User not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /user/switch-tenant:
+    post:
+      tags:
+      - user
+      summary: Switch Tenant Endpoint
+      operationId: switch_tenant_endpoint_user_switch_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwitchTenantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SwitchTenantResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "User not found"}`
+
+            `{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /admin/webapp-key:
+    get:
+      tags:
+      - admin
+      summary: Get Webapp Key Endpoint
+      operationId: get_webapp_key_endpoint_admin_webapp_key_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyResponse'
+      security:
+      - Admin Key: []
+  /admin/create-tenant:
+    post:
+      tags:
+      - admin
+      summary: Create Tenant Endpoint
+      operationId: create_tenant_endpoint_admin_create_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantV2Request'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateTenantV2Response'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`'
+        '400':
+          description: '`{"detail": "Given user already has tenant {tenant_id}"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/generate-user-key:
+    post:
+      tags:
+      - admin
+      summary: Generate User Key Endpoint
+      operationId: generate_user_key_endpoint_admin_generate_user_key_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserKey'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/spawn-node:
+    post:
+      tags:
+      - admin
+      summary: Spawn Node Endpoint
+      operationId: spawn_node_endpoint_admin_spawn_node_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpawnNodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Node'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/global-tenant-list:
+    get:
+      tags:
+      - admin
+      summary: List Tenants Endpoint
+      operationId: list_tenants_endpoint_admin_global_tenant_list_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Tenant'
+                type: array
+                title: Response List Tenants Endpoint Admin Global Tenant List Get
+      security:
+      - Admin Key: []
+  /admin/force-delete-tenant:
+    post:
+      tags:
+      - admin
+      summary: Delete Tenant Endpoint
+      description: 'Similar to the user /delete-tenant endpoint, but does not protect
+
+        shared tenants from deletion.'
+      operationId: delete_tenant_endpoint_admin_force_delete_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteTenantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteTenantResponse'
+        '403':
+          description: '`{"detail": "Invalid API Key"}`
+
+            `{"detail": "Not permitted to access this tenant"}`'
+        '404':
+          description: '`{"detail": "Tenant not found"}`'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/check-connectivy:
+    post:
+      tags:
+      - admin
+      summary: Check Connectivity Endpoint
+      operationId: check_connectivity_endpoint_admin_check_connectivy_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/NodeIdentifier'
+              type: array
+              title: Nodes
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  type: boolean
+                type: array
+                title: Response Check Connectivity Endpoint Admin Check Connectivy
+                  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/update-tenant:
+    post:
+      tags:
+      - admin
+      summary: Update Tenant Owner
+      operationId: update_tenant_owner_admin_update_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTenantRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateTenantResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/add-auth-function:
+    post:
+      tags:
+      - admin
+      summary: Add Auth Function Endpoint
+      operationId: add_auth_function_endpoint_admin_add_auth_function_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAuthFunctionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+  /admin/delete-auth-function:
+    post:
+      tags:
+      - admin
+      summary: Delete Auth Function Endpoint
+      description: Fails silently if the index is out of bound
+      operationId: delete_auth_function_endpoint_admin_delete_auth_function_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAuthFunctionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/UserAuthFunction'
+                  - $ref: '#/components/schemas/EmailDomainFunction'
+                  - $ref: '#/components/schemas/OrganizationRoleFunction'
+                  - $ref: '#/components/schemas/OrganizationMembershipFunction'
+                  - $ref: '#/components/schemas/AllowAllAuthFunction'
+                type: array
+                title: Response Delete Auth Function Endpoint Admin Delete Auth Function
+                  Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - Admin Key: []
+components:
+  schemas:
+    AddAlertRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+        duration:
+          type: integer
+          title: Duration
+        webhook_url:
+          type: string
+          title: Webhook Url
+        webhook_body:
+          type: string
+          title: Webhook Body
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      - duration
+      - webhook_url
+      - webhook_body
+      title: AddAlertRequest
+    AddAlertResponse:
+      properties:
+        alert_id:
+          type: string
+          title: Alert Id
+      additionalProperties: false
+      type: object
+      required:
+      - alert_id
+      title: AddAlertResponse
+    AddAuthFunctionRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        auth_fn:
+          anyOf:
+          - $ref: '#/components/schemas/UserAuthFunction'
+          - $ref: '#/components/schemas/EmailDomainFunction'
+          - $ref: '#/components/schemas/OrganizationRoleFunction'
+          - $ref: '#/components/schemas/OrganizationMembershipFunction'
+          - $ref: '#/components/schemas/AllowAllAuthFunction'
+          title: Auth Fn
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - auth_fn
+      title: AddAuthFunctionRequest
+    AddExternalStoreRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        type:
+          $ref: '#/components/schemas/StoreType'
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_writable:
+          type: boolean
+          title: Is Writable
+          default: false
+        make_default:
+          type: boolean
+          title: Make Default
+          default: false
+        options:
+          additionalProperties:
+            type: string
+          type: object
+          title: Options
+      type: object
+      required:
+      - tenant_id
+      - type
+      - options
+      title: AddExternalStoreRequest
+    AddExternalStoreResponse:
+      properties:
+        store_id:
+          type: string
+          title: Store Id
+      type: object
+      required:
+      - store_id
+      title: AddExternalStoreResponse
+    AddSecretRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        store_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Id
+        name:
+          type: string
+          title: Name
+        value:
+          type: string
+          title: Value
+      type: object
+      required:
+      - tenant_id
+      - name
+      - value
+      title: AddSecretRequest
+    AddSecretResponse:
+      properties:
+        secret_id:
+          type: string
+          title: Secret Id
+      type: object
+      required:
+      - secret_id
+      title: AddSecretResponse
+    AllowAllAuthFunction:
+      properties:
+        auth_fn:
+          type: string
+          const: auth_allow_all
+          title: Auth Fn
+          default: auth_allow_all
+      type: object
+      title: AllowAllAuthFunction
+    AwsAccessKey:
+      properties:
+        access_key_id:
+          type: string
+          title: Access Key Id
+        secret_access_key:
+          type: string
+          format: password
+          title: Secret Access Key
+          writeOnly: true
+      type: object
+      required:
+      - access_key_id
+      - secret_access_key
+      title: AwsAccessKey
+    AwsWorkspaceSecretOptions:
+      properties:
+        region:
+          type: string
+          title: Region
+        assumed_role_arn:
+          type: string
+          title: Assumed Role Arn
+        access_key:
+          anyOf:
+          - $ref: '#/components/schemas/AwsAccessKey'
+          - type: 'null'
+      type: object
+      required:
+      - region
+      - assumed_role_arn
+      title: AwsWorkspaceSecretOptions
+    BuiltinWorkspaceSecretOptions:
+      properties:
+        derived_key:
+          anyOf:
+          - $ref: '#/components/schemas/DerivedKey'
+          - type: 'null'
+      type: object
+      title: BuiltinWorkspaceSecretOptions
+    CachedProxyResponse:
+      properties:
+        http:
+          $ref: '#/components/schemas/ProxiedHttpResponse'
+        request_id:
+          type: string
+          title: Request Id
+        from_cache:
+          type: boolean
+          title: From Cache
+          default: false
+        cache_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cache Time
+      additionalProperties: false
+      type: object
+      required:
+      - http
+      - request_id
+      title: CachedProxyResponse
+    ConfigType:
+      type: string
+      enum:
+      - tenzir
+      - docker
+      - tenzir-node
+      title: ConfigType
+    CreateDemoNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_name:
+          type: string
+          title: Node Name
+        env_overrides:
+          items:
+            type: string
+          type: array
+          title: Env Overrides
+          default: []
+      type: object
+      required:
+      - tenant_id
+      - node_name
+      title: CreateDemoNodeRequest
+      description: 'Create a new demo node.
+
+
+        Return an error if that user already has a demo node.'
+    CreateNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_name:
+          type: string
+          title: Node Name
+      type: object
+      required:
+      - tenant_id
+      - node_name
+      title: CreateNodeRequest
+    CreateNodeResponse:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+      type: object
+      required:
+      - node_id
+      title: CreateNodeResponse
+    CreateTenantV2Request:
+      properties:
+        owner:
+          $ref: '#/components/schemas/TenantOwner'
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        icon_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon Url
+      type: object
+      required:
+      - owner
+      title: CreateTenantV2Request
+      description: Create a new tenant. Will return an error if that user already
+        owns a tenant.
+    CreateTenantV2Response:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        create_date_time:
+          type: string
+          title: Create Date Time
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeResponse'
+          type: array
+          title: Nodes
+      type: object
+      required:
+      - tenant_id
+      - create_date_time
+      - nodes
+      title: CreateTenantV2Response
+      description: Application facing subset of the tenant model.
+    DashboardRevision:
+      properties:
+        metadata:
+          $ref: '#/components/schemas/DashboardRevisionMetadata'
+        summary:
+          additionalProperties: true
+          type: object
+          title: Summary
+        content:
+          additionalProperties: true
+          type: object
+          title: Content
+      additionalProperties: false
+      type: object
+      required:
+      - metadata
+      - summary
+      - content
+      title: DashboardRevision
+    DashboardRevisionMetadata:
+      properties:
+        update_time:
+          type: string
+          title: Update Time
+        revision:
+          type: string
+          title: Revision
+        dashboard_id:
+          type: string
+          title: Dashboard Id
+      additionalProperties: false
+      type: object
+      required:
+      - update_time
+      - revision
+      - dashboard_id
+      title: DashboardRevisionMetadata
+    DashboardRevisionSummary:
+      properties:
+        metadata:
+          $ref: '#/components/schemas/DashboardRevisionMetadata'
+        summary:
+          additionalProperties: true
+          type: object
+          title: Summary
+      additionalProperties: false
+      type: object
+      required:
+      - metadata
+      - summary
+      title: DashboardRevisionSummary
+    DeleteAlertRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        alert_id:
+          type: string
+          title: Alert Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - alert_id
+      title: DeleteAlertRequest
+    DeleteAlertResponse:
+      properties: {}
+      additionalProperties: false
+      type: object
+      title: DeleteAlertResponse
+    DeleteAuthFunctionRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        index:
+          type: integer
+          title: Index
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - index
+      title: DeleteAuthFunctionRequest
+    DeleteDashboardRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        dashboard_id:
+          type: string
+          title: Dashboard Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - dashboard_id
+      title: DeleteDashboardRequest
+    DeleteExternalStoreRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        store_id:
+          type: string
+          title: Store Id
+      type: object
+      required:
+      - tenant_id
+      - store_id
+      title: DeleteExternalStoreRequest
+    DeleteExternalStoreResponse:
+      properties: {}
+      type: object
+      title: DeleteExternalStoreResponse
+    DeleteNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      title: DeleteNodeRequest
+    DeleteNodeResponse:
+      properties:
+        infra_error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Infra Error
+      type: object
+      title: DeleteNodeResponse
+    DeleteTenantRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - tenant_id
+      title: DeleteTenantRequest
+    DeleteTenantResponse:
+      properties:
+        infra_errors:
+          items:
+            type: string
+          type: array
+          title: Infra Errors
+      type: object
+      required:
+      - infra_errors
+      title: DeleteTenantResponse
+    DerivedKey:
+      properties:
+        public_key:
+          type: string
+          title: Public Key
+        keypath:
+          type: string
+          title: Keypath
+      type: object
+      required:
+      - public_key
+      - keypath
+      title: DerivedKey
+    EmailDomainFunction:
+      properties:
+        auth_fn:
+          type: string
+          const: auth_email_suffix
+          title: Auth Fn
+          default: auth_email_suffix
+        connection:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connection
+        email_domain:
+          type: string
+          title: Email Domain
+      type: object
+      required:
+      - email_domain
+      title: EmailDomainFunction
+      description: 'Grants access for users from a specific connection (e.g. gmail)
+
+        having email addresses from a given domain (e.g. @tenzir.com)'
+    GenerateClientConfigRequest:
+      properties:
+        config_type:
+          $ref: '#/components/schemas/ConfigType'
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Node Name
+        node_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Node Id
+      type: object
+      required:
+      - config_type
+      - tenant_id
+      title: GenerateClientConfigRequest
+    GenerateClientConfigResponse:
+      properties:
+        filename:
+          type: string
+          title: Filename
+        contents:
+          type: string
+          title: Contents
+        node_id:
+          type: string
+          title: Node Id
+      type: object
+      required:
+      - filename
+      - contents
+      - node_id
+      title: GenerateClientConfigResponse
+    GenerateDownloadUrlRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        expiration:
+          type: number
+          title: Expiration
+          default: 3600.0
+        filename:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Filename
+        usage:
+          $ref: '#/components/schemas/UrlpairUsageIntention'
+          default: frontend_upload_frontend_download
+      type: object
+      required:
+      - tenant_id
+      title: GenerateDownloadUrlRequest
+    GenerateDownloadUrlResponse:
+      properties:
+        upload_url:
+          type: string
+          title: Upload Url
+        download_url:
+          type: string
+          title: Download Url
+      type: object
+      required:
+      - upload_url
+      - download_url
+      title: GenerateDownloadUrlResponse
+    GetDashboardRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        dashboard_id:
+          type: string
+          title: Dashboard Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - dashboard_id
+      title: GetDashboardRequest
+    GetLoginInfoRequest:
+      properties:
+        id_token:
+          type: string
+          title: Id Token
+      additionalProperties: false
+      type: object
+      required:
+      - id_token
+      title: GetLoginInfoRequest
+    GetLoginInfoResponse:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        user_email:
+          type: string
+          title: User Email
+        allowed_tenants:
+          items:
+            $ref: '#/components/schemas/TenantDescription'
+          type: array
+          title: Allowed Tenants
+      additionalProperties: false
+      type: object
+      required:
+      - user_id
+      - user_email
+      - allowed_tenants
+      title: GetLoginInfoResponse
+    GetNodeTokenRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      title: GetNodeTokenRequest
+    GetNodeTokenResponse:
+      properties:
+        tenzir_token:
+          type: string
+          title: Tenzir Token
+      type: object
+      required:
+      - tenzir_token
+      title: GetNodeTokenResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    KeyResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+      additionalProperties: false
+      type: object
+      required:
+      - key
+      title: KeyResponse
+    ListAlertsRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      title: ListAlertsRequest
+    ListAlertsResponse:
+      properties:
+        alerts:
+          items:
+            $ref: '#/components/schemas/NodeOfflineAlert'
+          type: array
+          title: Alerts
+      additionalProperties: false
+      type: object
+      required:
+      - alerts
+      title: ListAlertsResponse
+    ListDashboardRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      title: ListDashboardRequest
+    ListDashboardResponse:
+      properties:
+        dashboards:
+          items:
+            $ref: '#/components/schemas/DashboardRevisionSummary'
+          type: array
+          title: Dashboards
+      additionalProperties: false
+      type: object
+      required:
+      - dashboards
+      title: ListDashboardResponse
+    ListNodesRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        update_pipeline_warnings:
+          type: boolean
+          title: Update Pipeline Warnings
+          default: false
+      type: object
+      required:
+      - tenant_id
+      title: ListNodesRequest
+    ListNodesResponse:
+      properties:
+        nodes:
+          items:
+            $ref: '#/components/schemas/NodeStatus'
+          type: array
+          title: Nodes
+      type: object
+      required:
+      - nodes
+      title: ListNodesResponse
+    ListSecretsRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        store_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Id
+      type: object
+      required:
+      - tenant_id
+      title: ListSecretsRequest
+    ListSecretsResponse:
+      properties:
+        secrets:
+          items:
+            $ref: '#/components/schemas/SecretDetails'
+          type: array
+          title: Secrets
+      type: object
+      required:
+      - secrets
+      title: ListSecretsResponse
+    ListStoresRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+      type: object
+      required:
+      - tenant_id
+      title: ListStoresRequest
+    ListStoresResponse:
+      properties:
+        default_store_id:
+          type: string
+          title: Default Store Id
+        stores:
+          items:
+            $ref: '#/components/schemas/SecretStoreDetails'
+          type: array
+          title: Stores
+      type: object
+      required:
+      - default_store_id
+      - stores
+      title: ListStoresResponse
+    Method:
+      type: string
+      enum:
+      - GET
+      - POST
+      - DELETE
+      - PUT
+      - HEAD
+      - PATCH
+      - OPTIONS
+      title: Method
+    Namespace:
+      type: string
+      enum:
+      - user
+      - team
+      - organization
+      - static-configuration
+      - dcso-organization
+      title: Namespace
+    Node:
+      properties:
+        name:
+          type: string
+          title: Name
+        connection_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connection Id
+        key:
+          type: string
+          title: Key
+        id:
+          type: string
+          title: Id
+        create_date_time:
+          type: string
+          format: date-time
+          title: Create Date Time
+        last_known_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Known Version
+        last_known_features:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Known Features
+        destroy_date_time:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Destroy Date Time
+        infra_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Infra Id
+        demo:
+          type: boolean
+          title: Demo
+        ephemeral:
+          type: boolean
+          title: Ephemeral
+          default: false
+      type: object
+      required:
+      - name
+      - key
+      - id
+      - create_date_time
+      - demo
+      title: Node
+    NodeIdentifier:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      title: NodeIdentifier
+    NodeLifecycleState:
+      type: string
+      enum:
+      - created
+      - connected
+      - disconnected
+      title: NodeLifecycleState
+    NodeOfflineAlert:
+      properties:
+        type:
+          type: string
+          const: node_offline
+          title: Type
+          default: node_offline
+        id:
+          type: string
+          title: Id
+        node_id:
+          type: string
+          title: Node Id
+        duration:
+          type: integer
+          title: Duration
+        webhook_url:
+          type: string
+          title: Webhook Url
+        webhook_body:
+          type: string
+          title: Webhook Body
+      type: object
+      required:
+      - id
+      - node_id
+      - duration
+      - webhook_url
+      - webhook_body
+      title: NodeOfflineAlert
+    NodeResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        node_id:
+          type: string
+          title: Node Id
+        create_date_time:
+          type: string
+          title: Create Date Time
+        destroy_date_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destroy Date Time
+        last_known_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Known Version
+        last_known_features:
+          items:
+            type: string
+          type: array
+          title: Last Known Features
+        demo:
+          type: boolean
+          title: Demo
+        ephemeral:
+          type: boolean
+          title: Ephemeral
+          default: false
+      type: object
+      required:
+      - name
+      - node_id
+      - create_date_time
+      - destroy_date_time
+      - last_known_version
+      - last_known_features
+      - demo
+      title: NodeResponse
+      description: The node part of a tenant response.
+    NodeStatus:
+      properties:
+        name:
+          type: string
+          title: Name
+        node_id:
+          type: string
+          title: Node Id
+        create_date_time:
+          type: string
+          title: Create Date Time
+        destroy_date_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destroy Date Time
+        last_known_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Known Version
+        last_known_features:
+          items:
+            type: string
+          type: array
+          title: Last Known Features
+        demo:
+          type: boolean
+          title: Demo
+        ephemeral:
+          type: boolean
+          title: Ephemeral
+          default: false
+        connected:
+          type: boolean
+          title: Connected
+          description: 'DEPRECATED: Use `lifecycle_state` field instead'
+        lifecycle_state:
+          $ref: '#/components/schemas/NodeLifecycleState'
+        has_failed_pipelines:
+          type: boolean
+          title: Has Failed Pipelines
+      type: object
+      required:
+      - name
+      - node_id
+      - create_date_time
+      - destroy_date_time
+      - last_known_version
+      - last_known_features
+      - demo
+      - connected
+      - lifecycle_state
+      - has_failed_pipelines
+      title: NodeStatus
+      description: 'Describes the current status of a node
+
+
+        This object represents both the internal connection state of the Node domain
+
+        object and the result of a live connectivity check.
+
+
+        DEPRECATED: `connected` is deprecated, use `lifecycle_state` instead.'
+    OrganizationMembershipFunction:
+      properties:
+        auth_fn:
+          type: string
+          const: auth_organization
+          title: Auth Fn
+          default: auth_organization
+        connection:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connection
+        organization_claim:
+          type: string
+          title: Organization Claim
+        organization:
+          type: string
+          title: Organization
+      type: object
+      required:
+      - organization_claim
+      - organization
+      title: OrganizationMembershipFunction
+      description: Grants access to users that belong to some organization.
+    OrganizationRoleFunction:
+      properties:
+        auth_fn:
+          type: string
+          const: auth_organization_role
+          title: Auth Fn
+          default: auth_organization_role
+        connection:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Connection
+        roles_claim:
+          type: string
+          title: Roles Claim
+        role:
+          type: string
+          title: Role
+        organization_claim:
+          type: string
+          title: Organization Claim
+        organization:
+          type: string
+          title: Organization
+      type: object
+      required:
+      - roles_claim
+      - role
+      - organization_claim
+      - organization
+      title: OrganizationRoleFunction
+      description: Grants access to users who have some role in some organization.
+    Owner:
+      properties:
+        namespace:
+          type: string
+          title: Namespace
+        owner_id:
+          type: string
+          title: Owner Id
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+      type: object
+      required:
+      - namespace
+      - owner_id
+      title: Owner
+    ProxiedHttpResponse:
+      properties:
+        code:
+          type: integer
+          title: Code
+        body_json:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Body Json
+      additionalProperties: false
+      type: object
+      required:
+      - code
+      title: ProxiedHttpResponse
+    ProxiedRawHttpRequest:
+      properties:
+        path:
+          type: string
+          title: Path
+        method:
+          $ref: '#/components/schemas/Method'
+        api_version:
+          type: integer
+          title: Api Version
+          default: 0
+        headers:
+          additionalProperties:
+            type: string
+          type: object
+          title: Headers
+          default: {}
+        body_base64:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body Base64
+      additionalProperties: false
+      type: object
+      required:
+      - path
+      - method
+      title: ProxiedRawHttpRequest
+    ProxyRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+        http:
+          $ref: '#/components/schemas/ProxiedRawHttpRequest'
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      - http
+      title: ProxyRequest
+      description: This is sent as request body to the /proxy endpoint.
+    ProxyResponse:
+      properties:
+        http:
+          $ref: '#/components/schemas/ProxiedHttpResponse'
+        request_id:
+          type: string
+          title: Request Id
+      additionalProperties: false
+      type: object
+      required:
+      - http
+      - request_id
+      title: ProxyResponse
+      description: The JSON response of the /proxy endpoint
+    RemoveSecretRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        secret_id:
+          type: string
+          title: Secret Id
+        store_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Id
+      type: object
+      required:
+      - tenant_id
+      - secret_id
+      title: RemoveSecretRequest
+    RemoveSecretResponse:
+      properties: {}
+      type: object
+      title: RemoveSecretResponse
+    RenameNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+        node_name:
+          type: string
+          title: Node Name
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      - node_name
+      title: RenameNodeRequest
+    RenameNodeResponse:
+      properties: {}
+      type: object
+      title: RenameNodeResponse
+    RenameTenantRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - tenant_id
+      - name
+      title: RenameTenantRequest
+    RenameTenantResponse:
+      properties: {}
+      type: object
+      title: RenameTenantResponse
+    RetireDemoNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        node_id:
+          type: string
+          title: Node Id
+      type: object
+      required:
+      - tenant_id
+      - node_id
+      title: RetireDemoNodeRequest
+    SecretDetails:
+      properties:
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+        last_accessed:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Accessed
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+      type: object
+      required:
+      - last_updated
+      - last_accessed
+      - id
+      - name
+      title: SecretDetails
+    SecretStoreDetails:
+      properties:
+        type:
+          $ref: '#/components/schemas/SecretStoreType'
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        is_writable:
+          type: boolean
+          title: Is Writable
+        is_deletable:
+          type: boolean
+          title: Is Deletable
+        options:
+          anyOf:
+          - $ref: '#/components/schemas/AwsWorkspaceSecretOptions'
+          - $ref: '#/components/schemas/BuiltinWorkspaceSecretOptions'
+          title: Options
+      type: object
+      required:
+      - type
+      - id
+      - name
+      - is_writable
+      - is_deletable
+      - options
+      title: SecretStoreDetails
+    SecretStoreType:
+      type: string
+      enum:
+      - aws
+      - tenzir
+      title: SecretStoreType
+    SelectStoreRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        store_id:
+          type: string
+          title: Store Id
+      type: object
+      required:
+      - tenant_id
+      - store_id
+      title: SelectStoreRequest
+    SelectStoreResponse:
+      properties: {}
+      type: object
+      title: SelectStoreResponse
+    SpawnNodeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        image:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image
+        node_name:
+          type: string
+          title: Node Name
+        memory:
+          type: integer
+          title: Memory
+          default: 16384
+        lifetime:
+          type: integer
+          title: Lifetime
+          default: 360
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - node_name
+      title: SpawnNodeRequest
+    StoreDashboardRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        dashboard_id:
+          type: string
+          title: Dashboard Id
+        revision:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Revision
+        content:
+          additionalProperties: true
+          type: object
+          title: Content
+        summary:
+          additionalProperties: true
+          type: object
+          title: Summary
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - dashboard_id
+      - content
+      - summary
+      title: StoreDashboardRequest
+    StoreType:
+      type: string
+      enum:
+      - aws
+      title: StoreType
+    SwitchTenantRequest:
+      properties:
+        id_token:
+          type: string
+          title: Id Token
+        tenant_id:
+          type: string
+          title: Tenant Id
+      additionalProperties: false
+      type: object
+      required:
+      - id_token
+      - tenant_id
+      title: SwitchTenantRequest
+    SwitchTenantResponse:
+      properties:
+        user_key:
+          type: string
+          title: User Key
+      additionalProperties: false
+      type: object
+      required:
+      - user_key
+      title: SwitchTenantResponse
+    Tenant:
+      properties:
+        id:
+          type: string
+          title: Id
+        owner:
+          $ref: '#/components/schemas/Owner'
+        create_date_time:
+          type: string
+          format: date-time
+          title: Create Date Time
+        nodes:
+          items:
+            $ref: '#/components/schemas/Node'
+          type: array
+          title: Nodes
+        auth_functions:
+          items:
+            anyOf:
+            - $ref: '#/components/schemas/UserAuthFunction'
+            - $ref: '#/components/schemas/EmailDomainFunction'
+            - $ref: '#/components/schemas/OrganizationRoleFunction'
+            - $ref: '#/components/schemas/OrganizationMembershipFunction'
+            - $ref: '#/components/schemas/AllowAllAuthFunction'
+          type: array
+          title: Auth Functions
+          default: []
+        name:
+          type: string
+          title: Name
+          default: ''
+        icon_url:
+          type: string
+          title: Icon Url
+          default: ''
+        alerts:
+          anyOf:
+          - additionalProperties:
+              $ref: '#/components/schemas/NodeOfflineAlert'
+            type: object
+          - type: 'null'
+          title: Alerts
+          default: {}
+        metrics_opt_out:
+          type: boolean
+          title: Metrics Opt Out
+          default: false
+        secret_stores:
+          items:
+            $ref: '#/components/schemas/SecretStoreDetails'
+          type: array
+          title: Secret Stores
+          default:
+          - type: tenzir
+            id: default
+            name: Tenzir Platform
+            is_writable: true
+            is_deletable: false
+            options: {}
+        current_default_secret_store:
+          type: string
+          title: Current Default Secret Store
+          default: default
+        node_registration_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Node Registration Key
+      type: object
+      required:
+      - id
+      - owner
+      - create_date_time
+      - nodes
+      title: Tenant
+    TenantDescription:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        owner:
+          $ref: '#/components/schemas/TenantOwner'
+        name:
+          type: string
+          title: Name
+        icon_url:
+          type: string
+          title: Icon Url
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      - owner
+      - name
+      - icon_url
+      title: TenantDescription
+    TenantOwner:
+      properties:
+        namespace:
+          $ref: '#/components/schemas/Namespace'
+        owner_id:
+          type: string
+          title: Owner Id
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+      additionalProperties: false
+      type: object
+      required:
+      - namespace
+      - owner_id
+      title: TenantOwner
+    UpdateSecretRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        store_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Store Id
+        secret_id:
+          type: string
+          title: Secret Id
+        value:
+          type: string
+          title: Value
+      type: object
+      required:
+      - tenant_id
+      - secret_id
+      - value
+      title: UpdateSecretRequest
+    UpdateSecretResponse:
+      properties: {}
+      type: object
+      title: UpdateSecretResponse
+    UpdateTenantRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        icon_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Icon Url
+        owner_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Id
+        owner_namespace:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Namespace
+        owner_display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Owner Display Name
+      additionalProperties: false
+      type: object
+      required:
+      - tenant_id
+      title: UpdateTenantRequest
+    UpdateTenantResponse:
+      properties: {}
+      additionalProperties: false
+      type: object
+      title: UpdateTenantResponse
+    UrlpairUsageIntention:
+      type: string
+      enum:
+      - nodes_upload_nodes_download
+      - nodes_upload_frontend_download
+      - nodes_download_frontend_upload
+      - frontend_upload_frontend_download
+      title: UrlpairUsageIntention
+    UserAuthFunction:
+      properties:
+        auth_fn:
+          type: string
+          const: auth_user
+          title: Auth Fn
+          default: auth_user
+        user_id:
+          type: string
+          title: User Id
+      type: object
+      required:
+      - user_id
+      title: UserAuthFunction
+    UserKey:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        expires:
+          type: integer
+          title: Expires
+        tenant_ids:
+          items:
+            type: string
+          type: array
+          title: Tenant Ids
+      type: object
+      required:
+      - user_id
+      - tenant_ids
+      title: UserKey
+      description: The decrypted X-Tenzir-UserKey header
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    User Key:
+      type: apiKey
+      in: header
+      name: X-Tenzir-UserKey
+    Admin Key:
+      type: apiKey
+      in: header
+      name: X-Tenzir-AdminKey
+
