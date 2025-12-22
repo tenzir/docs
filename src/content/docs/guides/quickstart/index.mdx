@@ -2,18 +2,20 @@
 title: Quickstart
 ---
 
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
 Drowning in logs, alerts, and rigid tools? Meet **Tenzir**—your engine for
 taming security data. In just a few minutes, you'll be ingesting, transforming,
 and enriching data on your terms, with full control.
 Here's what you'll accomplish:
 
-{% steps %}
+<Steps>
 
 1. Use Tenzir instantly
 2. Deploy your first pipeline
 3. See results in action
 
-{% /steps %}
+</Steps>
 
 ## Prerequisites
 
@@ -32,17 +34,17 @@ account](/guides/account-creation), and you'll see this page:
 
 Begin with deploying a node:
 
-{% steps %}
+<Steps>
 
 1. Select the **Cloud-hosted demo-node** tab.
 2. Click **Add node**.
 3. Click **Get Started**.
 
-{% /steps %}
+</Steps>
 
 Spinning up a demo node can take up to 2 minutes. Sorry for the wait, we'll cut
 down this time soon! Grab a coffee or learn more about the [key Tenzir
-concepts](/explanations/architecture) while we get everything set up. ☕
+concepts](/explanations/architecture) while we get everything set up.
 
 ## Get started with demo data
 
@@ -64,7 +66,7 @@ Note the two new pipelines that import data into our demo node. If you click on
 them, a context pane opens on the right and you'll see details about their
 activity as well as the their definition.
 
-{% aside type="tip" title="Tenzir Query Language (TQL)" %}
+:::tip[Tenzir Query Language (TQL)]
 One major difference to other pipeline tools is that Tenzir comes with a
 full-fledged streaming execution engine and domain-specific language to process
 data. TQL is a powerful dataflow language similar to Splunk's SPL or Microsoft's
@@ -73,7 +75,7 @@ KQL, just with a lot more power when it comes to transforming data.
 Also check out our [FAQ
 entry](/explanations/faqs/#why-did-you-create-a-new-query-language-why-not-sql)
 for why we did not opt for SQL.
-{% /aside %}
+:::
 
 ## Explore the demo data
 
@@ -94,18 +96,18 @@ You'll now see Explorer filling up with events.
 
 ![Getting a taste](./demo-node-export-taste.png)
 
-{% aside type="note" title="Auto-completion of pipelines" %}
+:::note[Auto-completion of pipelines]
 If you look carefully, you'll note that the above pipeline doesn't end with an
-*output operator*. Just an input (`export`) and a transformation (`taste`). But
+_output operator_. Just an input (`export`) and a transformation (`taste`). But
 for a [pipeline](/explanations/architecture/pipeline) to be well-formed, it must
 have at least one input and one output. Otherwise data would leak somewhere! So
-what's happening? 🤔
+what's happening?
 
 If you don't write an output operator in the Explorer, the platform
 auto-completes the [`serve`](/reference/operators/serve) operator, turning your
 pipeline into a tiny REST API, so that platform can extract events from it and
 show them to you in the browser.
-{% /aside %}
+:::
 
 Also note the **Schemas** pane. It gives you an overview of how heterogeneous
 the data is. Click on a schema to zoom into all events having the same shape.
@@ -138,8 +140,8 @@ is a string that contains the name of the event. Actually, let's hone in on the
 connection logs only, once for [Zeek](https://zeek.org) and once for
 [Suricata](https://suricata.io):
 
-{% tabs %}
-{% tabitem label="Zeek" %}
+<Tabs>
+<TabItem label="Zeek">
 
 ```tql
 export
@@ -170,9 +172,9 @@ set @name = "flow"
 }
 ```
 
-{% /tabitem %}
+</TabItem>
 
-{% tabitem label="Suricata" %}
+<TabItem label="Suricata">
 
 ```tql
 export
@@ -203,14 +205,14 @@ set @name = "flow"
 }
 ```
 
-{% /tabitem %}
-{% /tabs %}
+</TabItem>
+</Tabs>
 
 A few notes:
 
 - The [`set`](/reference/operators/set) operator performs an assignment and
   creates new fields.
-- Because `set` is *the* most frequently used operator, it is "implied" and you
+- Because `set` is _the_ most frequently used operator, it is "implied" and you
   just write `x = y` instead of `set x = y`. We generally recommend doing so and
   write it out only out for didactic reasons.
 - You can use `set` to assign schema names, e.g., `@name = "new-schema-name"`.
@@ -249,8 +251,8 @@ publish "out"
 
 Let's adapt our transformation pipelines from above:
 
-{% tabs %}
-{% tabitem label="Zeek" %}
+<Tabs>
+<TabItem label="Zeek">
 ```tql
 subscribe "zeek"
 where @name == "zeek.conn"
@@ -265,8 +267,8 @@ set dst_endpoint = {
 select src_endpoint, dst_endpoint, protocol=proto
 publish "flow"
 ```
-{% /tabitem %}
-{% tabitem label="Suricata" %}
+</TabItem>
+<TabItem label="Suricata">
 ```tql
 subscribe "suricata"
 where @name == "suricata.flow"
@@ -281,10 +283,10 @@ set dst_endpoint = {
 select src_endpoint, dst_endpoint, protocol=proto.to_lower()
 publish "flow"
 ```
-{% /tabitem %}
-{% /tabs %}
+</TabItem>
+</Tabs>
 
-When clicking the **Run** button for these pipeline, the events will *not* show
+When clicking the **Run** button for these pipeline, the events will _not_ show
 up in the Explorer because we now use `publish` as output operator. Instead,
 you'll see this deployment modal:
 
@@ -302,14 +304,14 @@ pipeline that accepts logs via [Syslog](/integrations/syslog) and forwards them
 to the transformation pipeline. Then you can write two more pipelines that each
 take a subset to implement split-routing scenario.
 
-{% aside type="tip" title="Data fabric as network of pipelines" %}
-You've probably heard the buzzy term *data fabric* before. With Tenzir, you
+:::tip[Data fabric as network of pipelines]
+You've probably heard the buzzy term _data fabric_ before. With Tenzir, you
 implement a data fabric as a network of pipelines, potentially distributed over
 multiple nodes. With our growing library of [packages](/explanations/packages)
 to 1-click-deploy pre-packaged pipelines, and of course AI to generate
 pipelines, you can roll out sophisticated use cases without the need for
 dedicated data engineers.
-{% /aside %}
+:::
 
 ## What's Next?
 

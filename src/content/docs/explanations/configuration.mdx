@@ -2,6 +2,8 @@
 title: Configuration
 ---
 
+import { Steps } from '@astrojs/starlight/components';
+
 There exist multiple options to configure the behavior of the Tenzir pipeline
 executor (`tenzir`) and Tenzir Node (`tenzir-node`) that ship with a Tenzir
 package:
@@ -47,8 +49,8 @@ to the command line option `--endpoint=1.2.3.4` and YAML configuration
 There exists a one-to-one mapping from configuration file keys to environment
 variable names. Here are two examples:
 
-- `tenzir.import.batch-size` 👈 configuration file key
-- `TENZIR_IMPORT__BATCH_SIZE` 👈 environment variable
+- `tenzir.import.batch-size` - configuration file key
+- `TENZIR_IMPORT__BATCH_SIZE` - environment variable
 
 A hierarchical key of the form `tenzir.x.y.z` maps to the environment variable
 `TENZIR_X__Y__Z`. More generally, the `KEY` in `TENZIR_{KEY}=VALUE` adheres to
@@ -70,7 +72,7 @@ TENZIR_ENDPOINT=0.0.0.0:42000 tenzir-node
 tenzir-node --endpoint=0.0.0.0:42000
 ```
 
-{% aside type="caution" title="CAF and Plugin Settings" %}
+:::caution[CAF and Plugin Settings]
 To provide [CAF](https://github.com/actor-framework/actor-framework) and plugin
 settings, which have the form `caf.x.y.z` and `plugins.name.x.y.z` in the
 configuration file, the environment variable must have the form
@@ -80,7 +82,7 @@ The configuration file is an exception in this regard: `tenzir.caf.` and
 `tenzir.plugins.` are invalid key prefixes. Instead, CAF and plugin
 configuration file keys have the prefixes `caf.` and `plugins.`, i.e., they are
 hoisted into the global scope.
-{% /aside %}
+:::
 
 ### Values
 
@@ -99,7 +101,7 @@ be inferred. For example, `TENZIR_PLUGINS=` will not be considered.
 Tenzir's configuration file is in YAML format. On startup, Tenzir attempts to
 read configuration files from the following places, in order:
 
-{% steps %}
+<Steps>
 
 1. `/opt/tenzir/etc/tenzir/tenzir.yaml` for system-wide configuration, where
    `/opt/tenzir` is the default install prefix and `/etc/tenzir` is the default
@@ -110,17 +112,17 @@ read configuration files from the following places, in order:
 
 3. A path to a configuration file passed via `--config=/path/to/tenzir.yaml`.
 
-{% /steps %}
+</Steps>
 
 If there exist configuration files in multiple locations, options from all
 configuration files are merged in order, with the latter files receiving a
 higher precedence than former ones. For lists, merging means concatenating the
 list elements.
 
-{% aside type="tip" title="Example configuration" %}
+:::tip[Example configuration]
 Check out the [example configuration](/reference/node/configuration) for a fully
 documented `tenzir.yaml` that shows all available settings.
-{% /aside %}
+:::
 
 ### Plugin Configuration Files
 
