@@ -74,8 +74,7 @@ Let's use the `enrich` operator to add the subnet context to the two IP address
 fields:
 
 ```tql
-load_file "/tmp/sample.json"
-read_json
+from_file "/tmp/sample.json"
 context::enrich "subnets", key=src_ip, into=src_ip_context
 context::enrich "subnets", key=dest_ip, into=dest_ip_context
 ```
