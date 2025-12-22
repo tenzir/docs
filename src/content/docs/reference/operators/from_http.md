@@ -11,9 +11,9 @@ from_http url:string, [method=string, body=record|string|blob, encode=string,
           headers=record, metadata_field=field, error_field=field,
           paginate=record->string, paginate_delay=duration,
           connection_timeout=duration, max_retry_count=int,
-          retry_delay=duration, tls=record { … }]
+          retry_delay=duration, tls=record]
 from_http url:string, server=true, [metadata_field=field, responses=record,
-          max_request_size=int, max_connections=int, tls=record { … }]
+          max_request_size=int, max_connections=int, tls=record]
 ```
 
 ## Description
