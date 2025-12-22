@@ -18,8 +18,7 @@ UUIDs, 128-bit numbers, uniquely identify information in computer systems.
 
 This function generates several UUID versions based on relevant standards like
 [RFC 4122](https://www.rfc-editor.org/rfc/rfc4122.html) and the newer [RFC
-9562](https://www.rfc-editor.org/rfc/rfc9562.html) which defines versions 6 and
-7.
+9562](https://www.rfc-editor.org/rfc/rfc9562.html) which defines versions 6 and 7.
 
 ### `version = string (optional)`
 

@@ -26,6 +26,7 @@ all event classes. Extensions are currently limited to those versioned with
 OCSF, including the `win` and `linux` extensions.
 
 To this end, the operator performs the following steps:
+
 - Add optional fields that are not present in the original event with a `null`
   value
 - Emit a warning for extra fields that should not be there and drop them
@@ -67,6 +68,7 @@ from {
 }
 ocsf::apply
 ```
+
 ```tql
 {
   class_uid: 4001,
@@ -97,6 +99,7 @@ from {
 ocsf::apply preserve_variants=true
 select unmapped
 ```
+
 ```tql
 {
   unmapped: {

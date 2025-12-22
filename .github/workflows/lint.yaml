@@ -96,8 +96,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Sync changelog
-        run: pnpm sync:changelog
+      - name: Sync external content
+        run: |
+          pnpm sync:changelog
+          pnpm sync:openapi
 
       - name: Run link check
         run: pnpm run build:ci

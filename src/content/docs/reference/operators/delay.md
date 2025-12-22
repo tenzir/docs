@@ -56,9 +56,9 @@ Defaults to 1.0.
 ### Replay logs in real time
 
 Replay the M57 Zeek logs with real-world inter-arrival times from the `ts`
-field. For example, if an event arrives at time *t* and the next event at
-time *u*, then the `delay` operator will wait time *u - t* between emitting the
-two events. If *t > u* then the operator immediately emits next event.
+field. For example, if an event arrives at time _t_ and the next event at
+time _u_, then the `delay` operator will wait time _u - t_ between emitting the
+two events. If _t > u_ then the operator immediately emits next event.
 
 ```tql
 load_http "https://storage.googleapis.com/tenzir-datasets/M57/zeek-all.log.zst"
@@ -95,6 +95,7 @@ read_zeek_tsv
 timeshift ts
 delay ts, start=now()+2h
 ```
+
 ## See Also
 
 [`timeshift`](/reference/operators/timeshift)

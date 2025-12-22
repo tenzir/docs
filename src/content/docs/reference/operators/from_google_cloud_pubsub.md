@@ -57,6 +57,7 @@ this = message.parse_json()
 ```tql
 from_google_cloud_pubsub project_id="amazing-project-123456", subscription_id="my-subscription", metadata_field=metadata
 ```
+
 ```
 {
   message: "some text",

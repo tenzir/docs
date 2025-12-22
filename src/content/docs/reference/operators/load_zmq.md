@@ -22,7 +22,7 @@ helpful to work around firewall restrictions and fit into broader set of
 existing ZeroMQ applications.
 
 With the `monitor` option, you can activate message buffering for TCP
-sockets that hold off sending messages until *at least one* remote peer has
+sockets that hold off sending messages until _at least one_ remote peer has
 connected. This can be helpful when you want to delay publishing until you have
 one connected subscriber, e.g., when the publisher spawns before any subscriber
 exists.

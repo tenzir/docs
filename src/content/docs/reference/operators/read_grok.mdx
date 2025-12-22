@@ -21,11 +21,12 @@ found [here](https://github.com/logstash-plugins/logstash-patterns-core/tree/mai
 
 In short, `pattern` consists of replacement fields, that look like
 `%{SYNTAX[:SEMANTIC[:CONVERSION]]}`, where:
+
 - `SYNTAX` is a reference to a pattern, either built-in or user-defined
-    through the `pattern_defintions` option.
+  through the `pattern_defintions` option.
 - `SEMANTIC` is an identifier that names the field in the parsed record.
 - `CONVERSION` is either `infer` (default), `string` (default with
-    `raw=true`), `int`, or `float`.
+  `raw=true`), `int`, or `float`.
 
 The supported regular expression syntax is the one supported by
 [Boost.Regex](https://www.boost.org/doc/libs/1_81_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html),
@@ -87,6 +88,7 @@ import ParsingOptions from '../../.../../../../partials/operators/ParsingOptions
 let $pattern = "%{IP:client} %{WORD} %{URIPATHPARAM:req} %{NUMBER:bytes} %{NUMBER:dur}"
 read_grok $pattern
 ```
+
 ```tql
 {
   client: 55.3.244.1,

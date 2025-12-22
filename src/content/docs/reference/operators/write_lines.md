@@ -4,7 +4,7 @@ category: Printing
 example: 'write_lines'
 ---
 
-Writes events as key-value pairsthe *values* of an event.
+Writes events as key-value pairsthe _values_ of an event.
 
 ```tql
 write_lines

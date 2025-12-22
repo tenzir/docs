@@ -38,6 +38,7 @@ Supported URI format:
 `s3://[<access-key>:<secret-key>@]<bucket-name>/<full-path-to-object>(?<options>)`
 
 Options can be appended to the path as query parameters:
+
 - `region`: AWS region (e.g., `us-east-1`)
 - `scheme`: Connection scheme (`http` or `https`)
 - `endpoint_override`: Custom S3-compatible endpoint

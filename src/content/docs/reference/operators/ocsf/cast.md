@@ -21,6 +21,7 @@ profiles, and all event classes. Currently, we limit extensions to those
 versioned with OCSF, including the `win` and `linux` extensions.
 
 The operator performs these steps:
+
 - Adds optional fields that don't exist in the original event with a `null`
   value
 - Emits warnings for extra fields that shouldn't exist and drops them
@@ -87,6 +88,7 @@ from {
 }
 ocsf::cast null_fill=true encode_variants=true
 ```
+
 ```tql
 {
   class_uid: 4001,

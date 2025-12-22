@@ -30,7 +30,7 @@ pcap.packet:
 ```
 
 :::note[PCAPNG]
-The current implementation does *not* support [PCAPNG][pcapng-rfc].
+The current implementation does _not_ support [PCAPNG][pcapng-rfc].
 :::
 
 [pcapng-rfc]: https://www.ietf.org/archive/id/draft-tuexen-opsawg-pcapng-05.html

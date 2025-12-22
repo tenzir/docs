@@ -41,6 +41,7 @@ operator. For this, the `gcps://` scheme can be used. The URI is then translated
 ```tql
 to "gcps://my_project/my_topic"
 ```
+
 ```tql
 save_google_cloud_pubsub project_id="my_project", topic_id="my_topic"
 ```

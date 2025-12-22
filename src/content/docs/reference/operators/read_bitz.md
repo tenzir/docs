@@ -4,7 +4,7 @@ category: Parsing
 example: 'read_bitz'
 ---
 
-Parses bytes as *BITZ* format.
+Parses bytes as _BITZ_ format.
 
 ```tql
 read_bitz

@@ -85,6 +85,7 @@ Optional expression to group the aggregations with.
 ### `position = string (optional)`
 
 Determines how the `y` values are displayed. Possible values:
+
 - `grouped`
 - `stacked`
 

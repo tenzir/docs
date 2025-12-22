@@ -72,6 +72,7 @@ Defaults to `false`.
 from {activity_id: 16, activity_name: "Query", rdata: 31.3.245.133, dst_endpoint: {ip: 192.168.4.1, port: 53}}
 write_tql
 ```
+
 ```tql
 {
   activity_id: 16,
@@ -90,6 +91,7 @@ write_tql
 from {yes: 1, no: null}
 write_tql strip_null_fields=true
 ```
+
 ```tql
 {
   yes: 1,

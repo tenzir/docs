@@ -39,6 +39,7 @@ Write an event as CSV.
 from {x:1, y:true, z: "String"}
 write_csv
 ```
+
 ```
 x,y,z
 1,true,String
