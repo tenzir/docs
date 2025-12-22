@@ -1240,11 +1240,15 @@ async function syncChangelog(newsRepoPath) {
   const changelogContentDir = path.join(docsRoot, "src/content/docs/changelog");
   const srcDir = path.join(docsRoot, "src");
 
-  // Helper for inline progress updates
-  const writeProgress = (text) => {
-    process.stdout.clearLine?.(0);
-    process.stdout.cursorTo?.(0);
-    process.stdout.write(text);
+  // Helper for inline progress updates (only in TTY mode)
+  const isTTY = process.stdout.isTTY;
+  const writeProgress = (text, isFinal = false) => {
+    if (!isTTY && !isFinal) return; // Skip intermediate progress in CI
+    if (isTTY) {
+      process.stdout.clearLine?.(0);
+      process.stdout.cursorTo?.(0);
+    }
+    process.stdout.write(isFinal && !isTTY ? text : text);
   };
 
   console.log(`Syncing from: ${newsRepoPath}`);
@@ -1299,6 +1303,7 @@ async function syncChangelog(newsRepoPath) {
     const moduleInfo = hasModules ? ` + ${project.modules.length} modules` : "";
     writeProgress(
       `  ${project.id}: ${releases.length} releases${moduleInfo}\n`,
+      true,
     );
 
     // Read all module releases first (needed for parent release pages)
@@ -1316,7 +1321,7 @@ async function syncChangelog(newsRepoPath) {
           },
         );
         moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
-        writeProgress(`    ${mod.id}: ${moduleReleases.length} releases\n`);
+        writeProgress(`    ${mod.id}: ${moduleReleases.length} releases\n`, true);
       }
     }
 
