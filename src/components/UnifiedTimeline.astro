@@ -22,14 +22,13 @@ interface TimelineEntry {
   };
 }
 
-// Try to load generated data, fall back to empty array
-let entries: TimelineEntry[] = [];
-try {
-  const generated = await import("../unified-timeline-data.generated");
-  entries = generated.unifiedTimelineEntries;
-} catch {
-  // No generated data yet - run `pnpm sync:changelog` to generate
-}
+// Use import.meta.glob to gracefully handle missing generated file
+const modules = import.meta.glob<{ unifiedTimelineEntries: TimelineEntry[] }>(
+  "../unified-timeline-data.generated.ts",
+  { eager: true },
+);
+const generated = Object.values(modules)[0];
+const entries = generated?.unifiedTimelineEntries ?? [];
 ---
 
 <unified-timeline-view>

@@ -6,24 +6,24 @@ import {
   integrations,
 } from "./sidebar";
 
-// Try generated changelog data, fall back to stub
-let changelogTopics: {
-  label: string;
-  id: string;
-  link: string;
-  icon: string;
-  items: unknown[];
-}[] = [];
-let changelogTopicParents: Record<string, string> = {};
-let changelogTopicPaths: Record<string, string[]> = {};
-try {
-  const generated = await import("./sidebar-changelog.generated");
-  changelogTopics = generated.changelogTopics;
-  changelogTopicParents = generated.changelogTopicParents;
-  changelogTopicPaths = generated.changelogTopicPaths;
-} catch {
-  // No generated data yet - changelog section will be empty until sync runs
-}
+// Use import.meta.glob to gracefully handle missing generated file
+// Returns empty object if file doesn't exist, avoiding build errors
+const modules = import.meta.glob<{
+  changelogTopics: {
+    label: string;
+    id: string;
+    link: string;
+    icon: string;
+    items: unknown[];
+  }[];
+  changelogTopicParents: Record<string, string>;
+  changelogTopicPaths: Record<string, string[]>;
+}>("./sidebar-changelog.generated.ts", { eager: true });
+
+const generated = Object.values(modules)[0];
+const changelogTopics = generated?.changelogTopics ?? [];
+const changelogTopicParents = generated?.changelogTopicParents ?? {};
+const changelogTopicPaths = generated?.changelogTopicPaths ?? {};
 
 export { changelogTopicPaths };
 
