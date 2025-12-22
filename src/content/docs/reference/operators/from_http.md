@@ -11,11 +11,9 @@ from_http url:string, [method=string, body=record|string|blob, encode=string,
           headers=record, metadata_field=field, error_field=field,
           paginate=record->string, paginate_delay=duration,
           connection_timeout=duration, max_retry_count=int,
-          retry_delay=duration, tls=bool, certfile=string, keyfile=string,
-          password=string { … }]
+          retry_delay=duration, tls=record { … }]
 from_http url:string, server=true, [metadata_field=field, responses=record,
-          max_request_size=int, max_connections=int, tls=bool, certfile=string,
-          keyfile=string, password=string { … }]
+          max_request_size=int, max_connections=int, tls=record { … }]
 ```
 
 ## Description
@@ -63,7 +61,6 @@ option and an appropriate `Content-Type` is set for the request.
 ### `encode = string (optional)`
 
 Specifies how to encode `record` bodies. Supported values:
-
 - `json`
 - `form`
 
@@ -79,21 +76,21 @@ Field to insert metadata into when using the parsing pipeline.
 
 The response metadata (when using the client mode) has the following schema:
 
-| Field     | Type     | Description                           |
-| :-------- | :------- | :------------------------------------ |
-| `code`    | `uint64` | The HTTP status code of the response. |
-| `headers` | `record` | The response headers.                 |
+| Field                | Type     | Description                           |
+| :------------------- | :------- | :------------------------------------ |
+| `code`               | `uint64` | The HTTP status code of the response. |
+| `headers`            | `record` | The response headers.                 |
 
 The request metadata (when using the server mode) has the following schema:
 
-| Field      | Type     | Description                          |
-| :--------- | :------- | :----------------------------------- |
-| `headers`  | `record` | The request headers.                 |
-| `query`    | `record` | The query parameters of the request. |
-| `path`     | `string` | The path requested.                  |
-| `fragment` | `string` | The URI fragment of the request.     |
-| `method`   | `string` | The HTTP method of the request.      |
-| `version`  | `string` | The HTTP version of the request.     |
+| Field                | Type     | Description                           |
+| :------------------- | :------- | :------------------------------------ |
+| `headers`            | `record` | The request headers.                  |
+| `query`              | `record` | The query parameters of the request.  |
+| `path`               | `string` | The path requested.                   |
+| `fragment`           | `string` | The URI fragment of the request.      |
+| `method`             | `string` | The HTTP method of the request.       |
+| `version`            | `string` | The HTTP version of the request.      |
 
 ### `error_field = field (optional)`
 
@@ -167,23 +164,9 @@ The maximum number of simultaneous incoming connections to accept.
 
 Defaults to `10`.
 
-### `tls = bool (optional)`
+import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
 
-Enables TLS.
-
-Defaults to `false`.
-
-### `certfile = string (optional)`
-
-Path to the client certificate. Required for server if `tls` is `true`.
-
-### `keyfile = string (optional)`
-
-Path to the key for the client certificate. Required for server if `tls` is `true`.
-
-### `password = string (optional)`
-
-Password for keyfile.
+<TLSOptions tls_default="false"/>
 
 ### `{ … } (optional)`
 
