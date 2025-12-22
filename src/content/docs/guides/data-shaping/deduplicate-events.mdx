@@ -151,6 +151,61 @@ For example, if a host is repeatedly targeted:
 - 9:30 AM: Duplicate suppressed
 - 10:05 AM: Same alert shown again (timeout expired)
 
+## Tracking dropped events
+
+Sometimes you need visibility into how many duplicates were suppressed. The
+`count_field` option adds a field to each output event showing the number of
+dropped events for that deduplication key.
+
+### Monitoring alert suppression
+
+When deduplicating security alerts, you may want to know how many duplicates
+were suppressed to understand the volume of repeated activity:
+
+```tql
+from {src_ip: "10.0.0.1", signature: "Port Scan", time: 1},
+     {src_ip: "10.0.0.1", signature: "Port Scan", time: 2},
+     {src_ip: "10.0.0.1", signature: "Port Scan", time: 3},
+     {src_ip: "10.0.0.2", signature: "Port Scan", time: 4},
+     {src_ip: "10.0.0.2", signature: "Port Scan", time: 5},
+     {src_ip: "10.0.0.1", signature: "Port Scan", time: 6}
+deduplicate {src: src_ip, sig: signature}, distance=2, count_field=suppressed
+```
+
+```tql
+{src_ip: "10.0.0.1", signature: "Port Scan", time: 1, suppressed: 0}
+{src_ip: "10.0.0.2", signature: "Port Scan", time: 4, suppressed: 0}
+{src_ip: "10.0.0.1", signature: "Port Scan", time: 6, suppressed: 2}
+```
+
+The `suppressed` field shows:
+
+- First occurrence from each source has `suppressed: 0`
+- When 10.0.0.1 appears again at time 6, it shows `suppressed: 2` because
+  events at times 2 and 3 were dropped due to the `distance=2` constraint
+
+This information helps you understand the scale of duplicate activity. A high
+suppression count might indicate:
+
+- Persistent scanning or attack attempts from a specific source
+- Noisy sensors generating excessive duplicate events
+- Configuration issues causing event duplication
+
+### Understanding suppression counts
+
+The `count_field` value represents events dropped since the last output for that
+key:
+
+- **First occurrence**: Always has a count of `0` since no previous events were
+  dropped
+- **After suppression**: Shows how many events were dropped before this one was
+  allowed through
+- **After timeout expiration**: Resets to `0` since the deduplication state was
+  cleared
+
+This makes it easy to identify which events represent the start of a new
+pattern versus continuation of existing activity.
+
 ## Best practices
 
 1. **Choose fields carefully**: Deduplicate on fields that truly identify unique
@@ -178,3 +233,7 @@ For example, if a host is repeatedly targeted:
    normalized_ip = src_ip.string()
    deduplicate normalized_ip
    ```
+
+5. **Track suppression for context**: Use `count_field` when you need visibility
+   into duplicate volume, especially for security monitoring where the number of
+   repeated events can indicate severity or persistence of threats.

@@ -8,7 +8,7 @@ Removes duplicate events based on a common key.
 
 ```tql
 deduplicate [keys…:any, limit=int, distance=int, create_timeout=duration,
-             write_timeout=duration, read_timeout=duration]
+             write_timeout=duration, read_timeout=duration, count_field=field]
 ```
 
 ## Description
@@ -59,6 +59,13 @@ duplicate. The timeout resets when a key is seen, even if the event is
 suppressed.
 
 The read timeout must be smaller than the write and create timeouts.
+
+### `count_field = field (optional)`
+
+When specified, adds a field to each output event containing the number of
+events that were dropped since the last output for that key. Events that are
+the first occurrence of a key or that trigger output after expiration have a
+count of `0`.
 
 ## Examples
 
@@ -166,6 +173,29 @@ metrics "platform", live=true
 deduplicate connected, distance=1
 where not connected
 ```
+
+### Track how many duplicates were dropped
+
+Use the `count_field` option to add a field showing how many events were
+dropped for each key:
+
+```tql
+from {x: 1, seq: 1}, {x: 1, seq: 2}, {x: 1, seq: 3}, {x: 2, seq: 4}, {x: 2, seq: 5}, {x: 1, seq: 6}
+deduplicate x, distance=2, count_field=drop_count
+```
+
+```tql
+{x: 1, seq: 1, drop_count: 0}
+{x: 2, seq: 4, drop_count: 0}
+{x: 1, seq: 6, drop_count: 2}
+```
+
+The first event has a count of `0`. When the next event with `x: 1` is emitted
+at `seq: 6`, it shows that 2 events were dropped (seq 2 and 3) before this one
+was allowed through due to the `distance=2` constraint. The event at `seq: 4`
+has `x: 2`, which is a different key, so it also has `drop_count: 0`. Events
+that trigger output after timeout expiration also have a count of `0`, since
+the deduplication state for that key was reset.
 
 ## See Also
 
