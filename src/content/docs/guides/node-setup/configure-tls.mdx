@@ -14,7 +14,7 @@ once under `tenzir.operator-tls` in your `tenzir.yaml`:
 
 ```yaml title="tenzir.yaml"
 tenzir:
-  operator-tls:
+  tls:
     tls-min-version: "1.2"
     tls-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
     cacert: "/etc/ssl/certs/ca-certificates.crt"
@@ -46,7 +46,7 @@ settings. This lets you override specific connections when needed:
 load_http "https://api.example.com/data"
 
 // Overrides with a custom certificate
-load_http "https://internal.example.com/data", cacert="/path/to/internal-ca.crt"
+load_http "https://internal.example.com/data", tls.cacert="/path/to/internal-ca.crt"
 ```
 
 ## Mutual TLS (mTLS)
@@ -90,13 +90,10 @@ If not specified, the platform plugin falls back to the node-level
 
 ## Generate test certificates
 
-For testing purposes, generate a self-signed certificate:
+For testing purposes, generate a certificate from a local CA:
 
 ```bash
-openssl req -x509 -newkey rsa:2048 \
-  -keyout key.pem -out cert.pem \
-  -days 365 -nodes \
-  -subj "/CN=localhost"
+uv run --with trustme python -m trustme
 ```
 
 :::caution
