@@ -20,9 +20,11 @@ tenzir:
     cacert: "/etc/ssl/certs/ca-certificates.crt"
 ```
 
-These settings apply automatically to operators like `load_http`, `save_http`,
-`load_tcp`, `save_tcp`, `to_opensearch`, `from_opensearch`, `to_splunk`,
-`save_email`, and `to_fluent_bit`.
+These settings apply automatically to operators like [`from_http`](/reference/operators/from_http),
+[`load_tcp`](/reference/operators/load_tcp), [`save_tcp`](/reference/operators/save_tcp),
+[`to_opensearch`](/reference/operators/to_opensearch), [`from_opensearch`](/reference/operators/from_opensearch),
+[`to_splunk`](/reference/operators/to_splunk), [`save_email`](/reference/operators/save_email),
+and [`to_fluent_bit`](/reference/operators/to_fluent_bit).
 
 ### Available options
 
@@ -43,10 +45,10 @@ settings. This lets you override specific connections when needed:
 
 ```tql
 // Uses node-level TLS settings
-load_http "https://api.example.com/data"
+from_http "https://api.example.com/data"
 
 // Overrides with a custom certificate
-load_http "https://internal.example.com/data", tls={cacert: "/path/to/internal-ca.crt"}
+from_http "https://internal.example.com/data", tls={cacert: "/path/to/internal-ca.crt"}
 ```
 
 ## Mutual TLS (mTLS)
@@ -72,11 +74,10 @@ tenzir:
 When `tls-require-client-cert` is enabled, connections from clients without
 valid certificates are rejected.
 
-## Platform plugin TLS
+## Platform connection TLS
 
-The Tenzir Platform plugin supports separate TLS configuration for WebSocket
-connections to the Tenzir Platform. Configure these in your platform plugin
-settings:
+When connecting a node to the Tenzir Platform, you can configure TLS settings
+specifically for this connection:
 
 ```yaml title="tenzir.yaml"
 plugins:
@@ -85,8 +86,8 @@ plugins:
     tls-ciphers: "HIGH:!aNULL:!MD5"
 ```
 
-If not specified, the platform plugin falls back to the node-level
-`tenzir.tls` settings.
+If not specified, these settings fall back to the node-level `tenzir.tls`
+settings.
 
 ## Generate test certificates
 
