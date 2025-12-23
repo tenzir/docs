@@ -274,8 +274,12 @@ authenticates using one of the following methods:
    Vault using the AppRole auth method. This approach is recommended for
    production deployments as it allows for automatic credential rotation.
 
-The `--mount` parameter specifies the KV v2 secrets engine mount path where
-secrets are stored (e.g., `secret/tenzir`). For Vault Enterprise deployments,
+The `--mount` parameter specifies the path to a Vault [KV version 2][kv-v2]
+secrets engine (e.g., `secret`).
+
+[kv-v2]: https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2
+
+For Vault Enterprise deployments,
 use the `--namespace` parameter to specify the namespace.
 
 Vault secrets are returned as JSON by default. You can append a `:key` suffix to
