@@ -8,8 +8,7 @@ Saves bytes to a TCP or TLS connection.
 
 ```tql
 save_tcp endpoint:string, [retry_delay=duration, max_retry_count=int,
-                           tls=bool, cacert=string, certifle=string,
-                           keyfile=string, skip_peer_verification=bool]
+                           tls=record]
 ```
 
 ## Description
@@ -39,7 +38,7 @@ attempt fails and the error is deemed recoverable. Defaults to `30s`.
 The number of retries to attempt in case of connection errors before
 transitioning into the error state. Defaults to `10`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
 

@@ -9,8 +9,7 @@ Loads a byte stream via HTTP.
 ```tql
 load_http url:string, [data=record, params=record, headers=record,
           method=string, form=bool, chunked=bool, multipart=bool,
-          parallel=int, tls=bool, cacert=string, certifle=string,
-          keyfile=string, skip_peer_verification=bool]
+          parallel=int, tls=record]
 ```
 
 ## Description
@@ -67,9 +66,11 @@ This automatically sets the `Content-Type` header to
 
 Defaults to `false`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="true"/>
+
+<TLSOptions/>
 
 ## Examples
 

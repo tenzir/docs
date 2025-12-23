@@ -8,9 +8,7 @@ Saves bytes through an SMTP server.
 
 ```tql
 save_email recipient:str, [endpoint=str, from=str, subject=str, username=str,
-      password=str, authzid=str, authorization=str, tls=bool,
-      skip_peer_verification=bool, cacert=string, certfile=string, keyfile=string,
-      mime=bool]
+      password=str, authzid=str, authorization=str, tls=record, mime=bool]
 ```
 
 ## Description
@@ -74,7 +72,7 @@ The authorization options for an authenticated SMTP connection.
 This login option defines the preferred authentication mechanism, e.g.,
 `AUTH=PLAIN`, `AUTH=LOGIN`, or `AUTH=*`.
 
-import TLSOptions from '../../.../../../../partials/operators/TLSOptions.mdx';
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
 

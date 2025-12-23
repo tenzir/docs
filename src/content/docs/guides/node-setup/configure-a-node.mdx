@@ -34,3 +34,24 @@ enable this feature, which is disabled by default.
 
 Learn more about [pipeline subprocesses](/explanations/architecture/node#pipeline-subprocesses)
 and their trade-offs.
+
+## Specifically configure the Platform TLS connection
+
+By default, the platform connection uses TLS and will pick up the settings from
+the configurations section `tenzir.tls`. See [Configure TLS](/guides/node-setup/configure-tls)
+for all available TLS options.
+
+If you need to, you can configure TLS settings for the platform connection
+specifically:
+
+```yaml title="tenzir.yaml"
+plugins:
+  platform:
+    tls-min-version: "1.2"
+    tls-ciphers: "HIGH:!aNULL:!MD5"
+```
+
+The `tls-ciphers` option uses [OpenSSL cipher list
+syntax](https://www.openssl.org/docs/man1.1.1/man1/ciphers.html). The example
+above selects high-strength ciphers while excluding those without authentication
+(`!aNULL`) and those using MD5 (`!MD5`).

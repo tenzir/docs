@@ -15,6 +15,7 @@ export const guides = [
       "guides/node-setup/size-a-node",
       "guides/node-setup/deploy-a-node",
       "guides/node-setup/configure-a-node",
+      "guides/node-setup/configure-tls",
       "guides/node-setup/start-the-api",
       "guides/node-setup/tune-performance",
     ],
