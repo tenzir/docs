@@ -6,6 +6,41 @@ export interface Props {
 
 const { imageSrc = "/docs-structure.svg", activeSection = null } = Astro.props;
 
+const sections = [
+  {
+    id: "tutorials",
+    label: "Go to Tutorials",
+    x: 30.253476805227137,
+    y: 30,
+    width: 340,
+    height: 160,
+  },
+  {
+    id: "guides",
+    label: "Go to Guides",
+    x: 490.25347680522714,
+    y: 30,
+    width: 340,
+    height: 160,
+  },
+  {
+    id: "explanations",
+    label: "Go to Explanations",
+    x: 30.357785625969427,
+    y: 310.1043088207423,
+    width: 340,
+    height: 160,
+  },
+  {
+    id: "reference",
+    label: "Go to Reference",
+    x: 490.25347680522714,
+    y: 310,
+    width: 340,
+    height: 160,
+  },
+];
+
 // Define which sections should be clickable based on the active section
 const getClickableStatus = (section: string) => {
   return activeSection !== section;
@@ -19,161 +54,98 @@ const getHref = (section: string) => {
 ---
 
 <div class="interactive-diagram-container">
-  <!-- The SVG image -->
-  <img src={imageSrc} alt="Documentation structure" class="diagram-image inline-svg" />
-
-  <!-- Clickable overlay areas -->
-  <div class="overlay-container">
-    <!-- Tutorials (top-left) -->
+  <svg
+    class="diagram-svg"
+    viewBox="0 0 859.7111327472201 500.19774685637094"
+    role="img"
+    aria-label="Documentation structure"
+  >
+    <image
+      href={imageSrc}
+      x="0"
+      y="0"
+      width="859.7111327472201"
+      height="500.19774685637094"
+      preserveAspectRatio="xMidYMid meet"
+      class="diagram-image inline-svg"
+    />
     {
-      getClickableStatus("tutorials") ? (
-        <a
-          href={getHref("tutorials")}
-          class="overlay-area tutorials"
-          aria-label="Go to Tutorials"
-        >
-          <div class="overlay-content" />
-        </a>
-      ) : (
-        <div class="overlay-area tutorials inactive">
-          <div class="overlay-content" />
-        </div>
-      )
+      sections.map((section) => {
+        const isClickable = getClickableStatus(section.id);
+        const href = getHref(section.id);
+        return isClickable ? (
+          <a
+            href={href}
+            class="overlay-link"
+            aria-label={section.label}
+          >
+            <rect
+              class="overlay-rect"
+              x={section.x}
+              y={section.y}
+              width={section.width}
+              height={section.height}
+              vector-effect="non-scaling-stroke"
+            />
+          </a>
+        ) : (
+          <g class="overlay-link inactive" aria-label={section.label}>
+            <rect
+              class="overlay-rect"
+              x={section.x}
+              y={section.y}
+              width={section.width}
+              height={section.height}
+              vector-effect="non-scaling-stroke"
+            />
+          </g>
+        );
+      })
     }
-
-    <!-- Guides (top-right) -->
-    {
-      getClickableStatus("guides") ? (
-        <a
-          href={getHref("guides")}
-          class="overlay-area guides"
-          aria-label="Go to Guides"
-        >
-          <div class="overlay-content" />
-        </a>
-      ) : (
-        <div class="overlay-area guides inactive">
-          <div class="overlay-content" />
-        </div>
-      )
-    }
-
-    <!-- Explanations (bottom-left) -->
-    {
-      getClickableStatus("explanations") ? (
-        <a
-          href={getHref("explanations")}
-          class="overlay-area explanations"
-          aria-label="Go to Explanations"
-        >
-          <div class="overlay-content" />
-        </a>
-      ) : (
-        <div class="overlay-area explanations inactive">
-          <div class="overlay-content" />
-        </div>
-      )
-    }
-
-    <!-- Reference (bottom-right) -->
-    {
-      getClickableStatus("reference") ? (
-        <a
-          href={getHref("reference")}
-          class="overlay-area reference"
-          aria-label="Go to Reference"
-        >
-          <div class="overlay-content" />
-        </a>
-      ) : (
-        <div class="overlay-area reference inactive">
-          <div class="overlay-content" />
-        </div>
-      )
-    }
-  </div>
+  </svg>
 </div>
 
 <style>
     .interactive-diagram-container {
     position: relative;
-    display: inline-block;
+    display: block;
+    width: 100%;
     max-width: 100%;
     margin: var(--tnz-space-8) auto;
     }
 
-    .diagram-image {
+    .diagram-svg {
     width: 100%;
     height: auto;
     display: block;
     }
 
-    .overlay-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: 3.52% 39.55% 13.93% 39.55% 3.45%;
-    grid-template-rows: 2% 32% 24% 32% 10%;
-    gap: 0;
-    }
-
-    .overlay-area {
-    position: relative;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-    transition: all var(--tnz-transition-slow);
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    }
-
-    .overlay-area:hover {
-    background-color: var(--tnz-nav-hover-bg);
-    }
-
-    .overlay-area:focus {
-    outline: 2px solid var(--sl-color-text-accent);
-    outline-offset: -2px;
-    }
-
-    .overlay-area.inactive {
-    cursor: default;
+    .diagram-image {
     pointer-events: none;
     }
 
-    .overlay-area.inactive:hover {
-    background-color: transparent;
-    border-color: transparent;
+    .overlay-link {
+    cursor: pointer;
     }
 
-    .overlay-content {
-    display: none;
+    .overlay-rect {
+    fill: transparent;
+    transition: fill var(--tnz-transition-slow);
     }
 
-    /* Specific positioning adjustments */
-    .tutorials {
-      grid-column: 2;
-      grid-row: 2;
+    .overlay-link:hover .overlay-rect {
+    fill: var(--tnz-nav-hover-bg);
     }
 
-    .guides {
-      grid-column: 4;
-      grid-row: 2;
+    .overlay-link:focus .overlay-rect,
+    .overlay-link:focus-visible .overlay-rect {
+    stroke: var(--sl-color-text-accent);
+    stroke-width: 2;
     }
 
-    .explanations {
-      grid-column: 2;
-      grid-row: 4;
-    }
-
-    .reference {
-      grid-column: 4;
-      grid-row: 4;
+    .overlay-link.inactive {
+    cursor: default;
+    pointer-events: none;
     }
 
     /* Responsive adjustments */
