@@ -202,9 +202,9 @@ Outputs the list of secrets in JSON format when used with the
 You can configure workspaces to use external secret stores instead of the
 Tenzir Platform's built-in secret store.
 
-Currently, the platform only supports
-[AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) as an external
-store.
+Currently, the platform supports
+[AWS Secrets Manager](https://aws.amazon.com/secrets-manager/) and
+[HashiCorp Vault](https://www.vaultproject.io/) as external stores.
 
 By default, the platform mounts external secret stores as read-only. You can't
 add or update secrets from the CLI or web interface. Some external secret store
@@ -220,6 +220,12 @@ tenzir-platform secret store add aws
     [--prefix=<prefix>]
     [--access-key-id=<key_id>]
     [--secret-access-key=<key>]
+tenzir-platform secret store add vault
+    --address=<address>
+    --mount=<mount>
+    (--token=<token> | --role-id=<role_id> --secret-id=<secret_id>)
+    [--name=<name>]
+    [--namespace=<namespace>]
 tenzir-platform secret store set-default <store_id>
 tenzir-platform secret store delete <store_id>
 tenzir-platform secret store list [--json]
@@ -254,6 +260,33 @@ configure one of the following options:
    platform instance on `https://app.tenzir.com`.
 
 We plan to add an OIDC-based option as an alternative to options 1 and 3.
+
+For HashiCorp Vault, the platform connects directly to your Vault server and
+authenticates using one of the following methods:
+
+1. **Token authentication**: Pass a Vault token via the `--token` argument. The
+   token must have read access to secrets under the configured mount path. This
+   approach works well for development or when using periodic tokens that can be
+   renewed automatically.
+
+2. **AppRole authentication**: Pass the role ID and secret ID via the
+   `--role-id` and `--secret-id` arguments. The platform authenticates with
+   Vault using the AppRole auth method. This approach is recommended for
+   production deployments as it allows for automatic credential rotation.
+
+The `--mount` parameter specifies the path to a Vault [KV version 2][kv-v2]
+secrets engine (e.g., `secret`).
+
+[kv-v2]: https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2
+
+For Vault Enterprise deployments,
+use the `--namespace` parameter to specify the namespace.
+
+Vault secrets are returned as JSON by default. You can append a `:key` suffix to
+the secret name to return just the value of that key as a string instead. For
+example, if a secret at path `database` contains keys `username` and `password`,
+use `secret("database:password")` in your pipeline to retrieve only the password
+value.
 
 ## Manage Alerts
 
