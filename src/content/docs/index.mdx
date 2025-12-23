@@ -5,7 +5,7 @@ template: splash
 ---
 
 import InteractiveDocsStructure from '@components/InteractiveDocsStructure.astro';
-import { Card, CardGrid, LinkButton } from '@astrojs/starlight/components';
+import LinkCard from '@components/LinkCard.astro';
 
 **Tenzir** is the data pipeline engine for security teams. Our pipelines
 collect, shape, normalize, optimize, enrich, store, replay, and route your
@@ -15,45 +15,42 @@ telemetry data.
 
 ## How are the docs organized?
 
-The Tenzir documentation consists of four different types of materials:
+We structure our docs using the [Diátaxis framework](https://diataxis.fr/)—four
+types of content, each serving a different need:
 
 <InteractiveDocsStructure />
 
-- **Guides**: Practical step-by-step explanation to help you achieve a
+- **Guides**: Practical step-by-step instructions to help you achieve a
   specific goal. Most useful when you're trying to get something done.
 - **Reference**: Nitty-gritty technical descriptions of how Tenzir works. Most
   useful when you need detailed information about Tenzir's building blocks.
 - **Explanations**: Big-picture explanations of higher-level Tenzir concepts.
   Most useful for building understanding of a particular topic.
-- **Tutorial**: Learning-oriented lesson that take you through a series of steps
-  to complete a project. Most useful when you want to get started with Tenzir.
+- **Tutorials**: Learning-oriented lessons that take you through a series of
+  steps to complete a project. Most useful when you want to get started.
 
 ## How do I start?
 
-<CardGrid>
-
-<Card title="Ready to dive in?" icon="pencil">
-Get your fingers dirty and explore the demo node with just a few clicks and
-a guided tour. Security data has never been easier.
-<LinkButton href="/guides/quickstart/">
-Quickstart
-</LinkButton>
-</Card>
-
-<Card title="New to Tenzir?" icon="document">
-Learn the basics of pipelines and get familiar with the Tenzir Query
-Language (TQL). You'll master security data in no time.
-<LinkButton href="/explanations/language/">
-Learn TQL
-</LinkButton>
-</Card>
-
-</CardGrid>
-
-<Card title="More questions? Need answers?" icon="discord">
-Tenzir is a community-driven open-source project. Join our friendly
-Discord server to chat with security data enthusiasts and the Tenzir team.
-<LinkButton href="/discord" icon="external">
-Join Discord
-</LinkButton>
-</Card>
+<div class="card-grid">
+  <LinkCard
+    title="Try the Quickstart"
+    href="/guides/quickstart/"
+    description="Explore a demo node with a few clicks. Get hands-on with security data in minutes."
+    icon="rocket"
+    color="blue"
+  />
+  <LinkCard
+    title="Learn TQL"
+    href="/explanations/language/"
+    description="Master the Tenzir Query Language. Understand pipelines and how to shape your data."
+    icon="open-book"
+    color="green"
+  />
+  <LinkCard
+    title="Join the Community"
+    href="/discord"
+    description="Chat with security data enthusiasts and the Tenzir team on Discord. We'd love to hear from you!"
+    icon="discord"
+    color="purple"
+  />
+</div>
