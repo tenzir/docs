@@ -108,9 +108,26 @@ For example, if an index entry has `path: reference/operators/from.md`, read:
 2. Find by vendor or keyword
 3. Read full integration doc for setup instructions
 
+## Summaries
+
+For conceptual overviews, read these summaries before diving into full documentation:
+
+| Summary                                              | Contents                                        |
+| ---------------------------------------------------- | ----------------------------------------------- |
+| [architecture.md](./summaries/architecture.md)       | Pipeline, Node, Platform concepts               |
+| [tql-language.md](./summaries/tql-language.md)       | TQL syntax, types, expressions, execution model |
+| [common-patterns.md](./summaries/common-patterns.md) | Frequently used idioms and best practices       |
+
+Use summaries when:
+
+- User asks about Tenzir architecture or how components relate
+- User needs TQL language overview before writing pipelines
+- User wants idiomatic patterns without reading full tutorials
+
 ## Tips
 
 - **Start with the index** - Don't read full docs until you've identified the right one
 - **Use keywords** - Match user query terms against `keywords` arrays
 - **Check examples** - The `example` field often answers simple "how do I" questions
 - **Follow paths** - Index `path` fields are relative to `src/content/docs/`
+- **Read summaries first** - For conceptual questions, summaries provide quick context

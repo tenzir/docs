@@ -130,6 +130,46 @@ class TestEntryContent:
                 assert "summary" in func, f"Function {func.get('name')} missing summary"
 
 
+class TestSummaries:
+    """Test that summary files are valid."""
+
+    @pytest.fixture
+    def summaries_dir(self) -> Path:
+        """Get the summaries directory path."""
+        cwd = Path.cwd()
+        for parent in [cwd, *cwd.parents]:
+            summaries_path = (
+                parent
+                / ".claude"
+                / "plugins"
+                / "knowledge"
+                / "skills"
+                / "navigating-docs"
+                / "summaries"
+            )
+            if summaries_path.is_dir():
+                return summaries_path
+        pytest.skip("Summaries directory not found")
+
+    def test_all_summaries_exist(self, summaries_dir: Path) -> None:
+        """All expected summary files should exist."""
+        expected = ["architecture.md", "tql-language.md", "common-patterns.md"]
+        for name in expected:
+            assert (summaries_dir / name).exists(), f"{name} should exist"
+
+    def test_summaries_are_not_empty(self, summaries_dir: Path) -> None:
+        """Summary files should have content."""
+        for md_file in summaries_dir.glob("*.md"):
+            content = md_file.read_text()
+            assert len(content) > 100, f"{md_file.name} should have substantial content"
+
+    def test_summaries_have_headings(self, summaries_dir: Path) -> None:
+        """Summary files should have markdown headings."""
+        for md_file in summaries_dir.glob("*.md"):
+            content = md_file.read_text()
+            assert "# " in content, f"{md_file.name} should have a heading"
+
+
 class TestPluginStructure:
     """Test that the plugin structure is correct."""
 
