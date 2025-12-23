@@ -75,6 +75,7 @@ def validate(ctx: click.Context) -> None:
     """Check generated content for correctness."""
     repo_root: Path = ctx.obj["repo_root"]
     skill_path = repo_root / OUTPUT_ROOT
+    docs_path = repo_root / DOCS_ROOT
 
     console.print(f"[blue]Skill path:[/] {skill_path}")
 
@@ -84,7 +85,7 @@ def validate(ctx: click.Context) -> None:
 
     from skill_teacher.validation.schema import validate_skill
 
-    errors = validate_skill(skill_path)
+    errors = validate_skill(skill_path, docs_path)
     if errors:
         for error in errors:
             console.print(f"[red]Error:[/] {error}")
