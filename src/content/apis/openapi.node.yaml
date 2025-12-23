@@ -616,7 +616,7 @@ paths:
                   type: string
                   example: exact
                   default: legacy
-                  description: The output format in which schemas are represented. Must be one of "legacy", "exact", or "never". Use "exact" to switch to a type representation matching Tenzir's type system exactly, and "never" to omit schema schema definitions from the output entirely.
+                  description: The output format in which schemas are represented. Must be one of "legacy", "exact", or "never". Use "exact" to switch to a type representation matching Tenzir's type system exactly, and "never" to omit schema definitions from the output entirely.
       responses:
         200:
           description: Success.
@@ -699,6 +699,151 @@ paths:
                           schema: suricata.dns
                           schema_id: cd4771bas235f1
                           events: 50
+        400:
+          description: Invalid arguments.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid arguments
+                    description: The error message.
+  /serve-multi:
+    post:
+      summary: Return data from multiple pipelines
+      description: "Returns events from existing pipelines. The pipeline definitions must include a serve operator. By default, the endpoint performs long polling (`timeout: 5s`) and returns events as soon as they are available (`min_events: 1`)."
+      requestBody:
+        description: Body for the serve-multi endpoint
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requests
+              properties:
+                requests:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      serve_id:
+                        type: string
+                        example: query1
+                        description: The id that was passed to the serve operator.
+                      continuation_token:
+                        type: string
+                        example: 340ce2j
+                        description: The continuation token that was returned with the last response. For the initial request this is null.
+                max_events:
+                  type: integer
+                  example: 1024
+                  default: 1024
+                  description: The maximum number of events returned. This is split evenly for all serve_ids. If necessary, it is rounded up.
+                min_events:
+                  type: integer
+                  example: 1
+                  default: 1
+                  description: Wait for this number of events before returning. This is split evenly for all serve_ids. If necessary, it is rounded up.
+                timeout:
+                  type: string
+                  example: 200ms
+                  default: 5s
+                  description: The maximum amount of time spent on the request. Hitting the timeout is not an error. The timeout must not be greater than 10 seconds.
+                schema:
+                  type: string
+                  example: exact
+                  default: legacy
+                  description: The output format in which schemas are represented. Must be one of "legacy", "exact", or "never". Use "exact" to switch to a type representation matching Tenzir's type system exactly, and "never" to omit schema definitions from the output entirely.
+      responses:
+        200:
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  description: The response is keyed by the serve-id
+                  properties:
+                    next_continuation_token:
+                      type: string
+                      description: A token to access the next pipeline data batch, null if the pipeline is completed.
+                      example: 340ce2j
+                    state:
+                      type: string
+                      description: The state of the corresponding pipeline at the time of the request. One of `running`, `completed`, or `failed`.
+                      example: running
+                    schemas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          schema_id:
+                            type: string
+                            description: The unique schema identifier.
+                          definition:
+                            type: object
+                            description: The schema definition in JSON format.
+                      description: The schemas that the served events are based on.
+                      example:
+                        - schema_id: c631d301e4b18f4
+                          definition:
+                            - name: tenzir.summarize
+                              kind: record
+                              type: tenzir.summarize
+                              attributes:
+                                {}
+                              path:
+                                []
+                              fields:
+                                - name: severity
+                                  kind: string
+                                  type: string
+                                  attributes:
+                                    {}
+                                  path:
+                                    - 0
+                                  fields:
+                                    []
+                                - name: pipeline_id
+                                  kind: string
+                                  type: string
+                                  attributes:
+                                    {}
+                                  path:
+                                    - 1
+                                  fields:
+                                    []
+                    events:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          schema_id:
+                            type: string
+                            description: The unique schema identifier.
+                          data:
+                            type: object
+                            description: The actual served data in JSON format.
+                      description: The served events.
+                      example:
+                        - schema_id: c631d301e4b18f4
+                          data:
+                            timestamp: 2023-04-26T12:00:00Z
+                            schema: zeek.conn
+                            schema_id: ab2371bas235f1
+                            events: 50
+                        - schema_id: c631d301e4b18f4
+                          data:
+                            timestamp: 2023-04-26T12:05:00Z
+                            schema: suricata.dns
+                            schema_id: cd4771bas235f1
+                            events: 50
         400:
           description: Invalid arguments.
           content:
