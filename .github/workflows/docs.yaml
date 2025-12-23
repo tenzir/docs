@@ -43,6 +43,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Sync external content
+        if: github.event_name != 'pull_request'
         run: |
           pnpm sync:changelog
 
@@ -53,10 +54,10 @@ jobs:
       - name: Build with Astro
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            pnpm astro build \
+            CHECK_LINKS=true pnpm astro build \
               --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
           else
-            CI_BUILD=true pnpm astro build \
+            CHECK_LINKS=true LLMS_TXT=true pnpm astro build \
               --site "${{ steps.pages.outputs.origin }}" \
               --base "${{ steps.pages.outputs.base_path }}"
           fi

@@ -17,7 +17,8 @@ import {
   platformAPISidebarGroup,
 } from "./src/sidebar-shared-groups.ts";
 
-const ciBuild = process.env.CI_BUILD || false;
+const checkLinks = !!process.env.CHECK_LINKS;
+const llmsTxt = !!process.env.LLMS_TXT;
 const isProd = process.env.NODE_ENV === "production";
 
 // Sidebar groups are now imported from shared-sidebar-groups.ts to ensure
@@ -95,7 +96,7 @@ export default defineConfig({
         },
       },
       plugins: [
-        ...(ciBuild
+        ...(llmsTxt
           ? [
               starlightLlmsTxt({
                 projectName: "Tenzir",
@@ -133,7 +134,7 @@ export default defineConfig({
               }),
             ]
           : []),
-        ...(ciBuild
+        ...(checkLinks
           ? [
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
