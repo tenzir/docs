@@ -145,12 +145,12 @@ that make outbound connections (e.g., [`to_opensearch`](/reference/operators/to_
 and those that accept inbound connections (e.g., [`load_tcp`](/reference/operators/load_tcp),
 [`save_tcp`](/reference/operators/save_tcp)).
 
-{% aside type="note" title="Use Only When Required" %}
+:::note[Use Only When Required]
 We do not recommend manually configuring TLS settings unless required for
 specific compliance or security policies. The default TLS configuration uses
 OpenSSL's secure defaults, which are regularly updated and work with most
 services. Only override these settings if you have specific requirements.
-{% /aside %}
+:::
 
 ### Minimum TLS Version
 
@@ -166,10 +166,10 @@ tenzir:
 Valid values are `"1.0"`, `"1.1"`, `"1.2"`, and `"1.3"`. We recommend using
 `"1.2"` or higher for security.
 
-{% aside type="caution" title="TLS 1.0 and 1.1 Deprecated" %}
+:::caution[TLS 1.0 and 1.1 Deprecated]
 TLS versions 1.0 and 1.1 are considered deprecated and insecure. Most modern
 services no longer support them. Use TLS 1.2 or 1.3 whenever possible.
-{% /aside %}
+:::
 
 ### Cipher Suites
 
@@ -266,11 +266,11 @@ When connecting a node to the Tenzir Platform, you can configure TLS settings
 specifically for this connection. These settings take precedence over the
 node-level `tenzir.tls.*` settings, but fall back to them if not specified.
 
-{% aside type="note" title="Use Only When Required" %}
+:::note[Use Only When Required]
 We do not recommend manually configuring TLS settings unless required for
 specific compliance or security policies. The default TLS configuration is
 secure and compatible with the Tenzir Platform.
-{% /aside %}
+:::
 
 You can configure these settings in `<configdir>/tenzir/plugin/platform.yaml`:
 
