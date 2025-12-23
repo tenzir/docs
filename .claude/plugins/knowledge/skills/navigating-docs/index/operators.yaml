@@ -1,3632 +1,3634 @@
 metadata:
   docs_root: src/content/docs
-  generated: '2025-12-23T16:55:54.962735Z'
+  generated: "2025-12-23T16:55:54.962735Z"
   source_commit: e2e1aacc
 categories:
-- name: Analyze
-  description: Analyze operators and functions
-  operators:
-  - name: rare
-    path: reference/operators/rare.md
-    summary: Shows the least common values.
-    category: Analyze
-    example: rare auth.token
-    use_when:
-    - analyzing data patterns
-    related: []
-    keywords:
-    - common
-    - find
-    - five
-    - least
-    - show
-    - sort
-    - summarize
-  - name: reverse
-    path: reference/operators/reverse.md
-    summary: Reverses the event order.
-    category: Analyze
-    example: reverse
-    use_when:
-    - analyzing data patterns
-    - sorting events
-    related: []
-    keywords:
-    - events
-    - reverse
-    - sort
-    - stream
-  - name: sort
-    path: reference/operators/sort.md
-    summary: Sorts events by the given expressions.
-    category: Analyze
-    example: sort name, -abs(transaction)
-    use_when:
-    - ordering events
-    - analyzing data patterns
-    - sorting events
-    related: []
-    keywords:
-    - ascending
-    - descending
-    - field
-    - fields
-    - multiple
-    - order
-    - sort
-  - name: summarize
-    path: reference/operators/summarize.md
-    summary: Groups events and applies aggregate functions to each group.
-    category: Analyze
-    example: summarize name, sum(amount)
-    use_when:
-    - aggregating events
-    - analyzing data patterns
-    - aggregating data
-    related: []
-    keywords:
-    - 1-hour
-    - aggregate
-    - any
-    - buckets
-    - check
-    - compute
-    - create
-    - events
-    - field
-    - gather
-    - group
-    - list
-    - max
-    - min
-    - stream
-  - name: top
-    path: reference/operators/top.md
-    summary: Shows the most common values.
-    category: Analyze
-    example: top user
-    use_when:
-    - analyzing data patterns
-    related: []
-    keywords:
-    - common
-    - find
-    - show
-    - sort
-    - summarize
-    - top-most
-- name: Charts
-  description: Charts operators and functions
-  operators:
-  - name: chart_area
-    path: reference/operators/chart_area.md
-    summary: Plots events on an area chart.
-    category: Charts
-    example: chart_area …
-    use_when:
-    - visualizing data
-    related: []
-    keywords:
-    - chart
-    - group
-    - load
-    - metrics
-    - read
-    - tcp
-  - name: chart_bar
-    path: reference/operators/chart_bar.md
-    summary: Plots events on an bar chart.
-    category: Charts
-    example: chart_bar …
-    use_when:
-    - visualizing data
-    related: []
-    keywords:
-    - chart
-    - count
-    - events
-    - group
-    - import
-    - imported
-    - load
-    - schema
-    - unique
-  - name: chart_line
-    path: reference/operators/chart_line.md
-    summary: Plots events on an line chart.
-    category: Charts
-    example: chart_line …
-    use_when:
-    - visualizing data
-    related: []
-    keywords:
-    - chart
-    - events
-    - group
-    - load
-    - publish
-    - published
-  - name: chart_pie
-    path: reference/operators/chart_pie.md
-    summary: Plots events on an pie chart.
-    category: Charts
-    example: chart_pie …
-    use_when:
-    - visualizing data
-    related: []
-    keywords:
-    - chart
-    - count
-    - events
-    - group
-    - import
-    - imported
-    - load
-    - schema
-    - unique
-- name: Connecting Pipelines
-  description: Connecting Pipelines operators and functions
-  operators:
-  - name: publish
-    path: reference/operators/publish.md
-    summary: Publishes events to a channel with a topic.
-    category: Connecting Pipelines
-    example: publish "topic"
-    use_when:
-    - connecting pipelines
-    related: []
-    keywords:
-    - connection
-    - depending
-    - dynamic
-    - event
-    - events
-    - fixed
-    - import
-    - logs
-    - publish
-    - receive
-    - subscribe
-    - suricata
-    - topic
-    - type
-    - zeek
-  - name: subscribe
-    path: reference/operators/subscribe.md
-    summary: Subscribes to events from a channel with a topic.
-    category: Connecting Pipelines
-    example: subscribe "topic"
-    use_when:
-    - connecting pipelines
-    related: []
-    keywords:
-    - events
-    - export
-    - multiple
-    - publish
-    - receive
-    - subscribe
-    - topic
-    - topics
-- name: Contexts
-  description: Contexts operators and functions
-  operators:
-  - name: context::create_bloom_filter
-    path: reference/operators/context/create_bloom_filter.md
-    summary: Creates a Bloom filter context.
-    category: Contexts
-    example: context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01
-    use_when:
-    - using lookup tables or enrichment
-    - filtering events
-    - enriching with external data
-    related: []
-    keywords:
-    - bloom
-    - context
-    - create
-    - enrich
-    - filter
-    - load
-    - save
-  - name: context::create_geoip
-    path: reference/operators/context/create_geoip.md
-    summary: Creates a GeoIP context.
-    category: Contexts
-    example: context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    - network data
-    related: []
-    keywords:
-    - context
-    - create
-    - enrich
-    - geoip
-    - load
-    - location
-    - populate
-    - remote
-    - save
-  - name: context::create_lookup_table
-    path: reference/operators/context/create_lookup_table.md
-    summary: Creates a lookup table context.
-    category: Contexts
-    example: context::create_lookup_table "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - context
-    - create
-    - enrich
-    - load
-    - lookup
-    - save
-    - table
-  - name: context::enrich
-    path: reference/operators/context/enrich.md
-    summary: Enriches events with data from a context.
-    category: Contexts
-    example: context::enrich "ctx", key=x
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - appending
-    - array
-    - enrich
-    - enrichment
-    - load
-    - lookup
-    - ocsf
-    - save
-    - table
-    - write
-  - name: context::erase
-    path: reference/operators/context/erase.md
-    summary: Removes entries from a context.
-    category: Contexts
-    example: context::erase "ctx", key=x
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - context
-    - delete
-    - enrich
-    - entries
-    - load
-    - save
-  - name: context::inspect
-    path: reference/operators/context/inspect.md
-    summary: Resets a context.
-    category: Contexts
-    example: context::inspect "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - context
-    - enrich
-    - inspect
-    - load
-    - save
-  - name: context::list
-    path: reference/operators/context/list.md
-    summary: Lists all contexts
-    category: Contexts
-    example: context::list
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - contexts
-    - enrich
-    - load
-    - save
-    - show
-  - name: context::load
-    path: reference/operators/context/load.md
-    summary: Loads context state.
-    category: Contexts
-    example: context::load "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    - loading data
-    related: []
-    keywords:
-    - context
-    - database
-    - enrich
-    - geoip
-    - load
-    - replace
-    - save
-  - name: context::remove
-    path: reference/operators/context/remove.md
-    summary: Deletes a context.
-    category: Contexts
-    example: context::remove "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - context
-    - delete
-    - enrich
-    - load
-    - save
-  - name: context::reset
-    path: reference/operators/context/reset.md
-    summary: Resets a context.
-    category: Contexts
-    example: context::reset "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - context
-    - enrich
-    - load
-    - reset
-    - save
-  - name: context::save
-    path: reference/operators/context/save.md
-    summary: Saves context state.
-    category: Contexts
-    example: context::save "ctx"
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    - saving data
-    related: []
-    keywords:
-    - context
-    - database
-    - enrich
-    - geoip
-    - load
-    - save
-    - store
-  - name: context::update
-    path: reference/operators/context/update.md
-    summary: Updates a context with new data.
-    category: Contexts
-    example: context::update "ctx", key=x, value=y
-    use_when:
-    - using lookup tables or enrichment
-    - enriching with external data
-    related: []
-    keywords:
-    - custom
-    - data
-    - enrich
-    - load
-    - lookup
-    - populate
-    - save
-    - table
-- name: Detection
-  description: Detection operators and functions
-  operators:
-  - name: sigma
-    path: reference/operators/sigma.md
-    summary: Filter the input with Sigma rules and output matching events.
-    category: Detection
-    example: sigma "/tmp/rules/"
-    use_when:
-    - running detection rules
-    - filtering events
-    related: []
-    keywords:
-    - apply
-    - data
-    - encode
-    - evtx
-    - export
-    - file
-    - filter
-    - historical
-    - parse
-    - rule
-    - rules
-    - run
-    - select
-    - set
-    - sigma
-  - name: yara
-    path: reference/operators/yara.md
-    summary: Executes YARA rules on byte streams.
-    category: Detection
-    example: yara "/path/to/rules", blockwise=true
-    use_when:
-    - running detection rules
-    related: []
-    keywords:
-    - files
-    - one-shot
-    - perform
-    - scanning
-    - stream
-- name: Encode & Decode
-  description: Encode & Decode operators and functions
-  operators:
-  - name: compress
-    path: reference/operators/compress.md
-    summary: Compresses a stream of bytes.
-    category: Encode & Decode
-    example: compress "zstd"
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - compress
-    - compression
-    - decode
-    - decompress
-    - encode
-    - events
-    - export
-    - file
-    - gzip-compressed
-    - higher
-    - level
-    - ndjson
-    - recompress
-    - stream
-    - zstd-compressed
-  - name: compress_brotli
-    path: reference/operators/compress_brotli.md
-    summary: Compresses a stream of bytes using Brotli compression.
-    category: Encode & Decode
-    example: compress_brotli, level=10
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - brotli-compressed
-    - compression
-    - different
-    - events
-    - export
-    - file
-    - level
-    - ndjson
-    - recompress
-    - stream
-  - name: compress_bz2
-    path: reference/operators/compress_bz2.md
-    summary: Compresses a stream of bytes using bz2 compression.
-    category: Encode & Decode
-    example: compress_bz2, level=9
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - bzip2-compressed
-    - compression
-    - different
-    - events
-    - export
-    - file
-    - level
-    - ndjson
-    - recompress
-    - stream
-  - name: compress_gzip
-    path: reference/operators/compress_gzip.md
-    summary: Compresses a stream of bytes using gzip compression.
-    category: Encode & Decode
-    example: compress_gzip, level=8
-    use_when:
-    - encoding data
-    - compressing data
-    - network data
-    related: []
-    keywords:
-    - compress
-    - compression
-    - deflate
-    - different
-    - events
-    - export
-    - file
-    - gzip
-    - gzip-compressed
-    - level
-    - ndjson
-    - recompress
-    - stream
-  - name: compress_lz4
-    path: reference/operators/compress_lz4.md
-    summary: Compresses a stream of bytes using lz4 compression.
-    category: Encode & Decode
-    example: compress_lz4, level=7
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - compression
-    - different
-    - events
-    - export
-    - file
-    - level
-    - lz4-compressed
-    - ndjson
-    - recompress
-    - stream
-  - name: compress_zstd
-    path: reference/operators/compress_zstd.md
-    summary: Compresses a stream of bytes using zstd compression.
-    category: Encode & Decode
-    example: compress_zstd, level=6
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - compression
-    - different
-    - events
-    - export
-    - file
-    - level
-    - ndjson
-    - recompress
-    - stream
-    - zstd-compressed
-  - name: decompress
-    path: reference/operators/decompress.md
-    summary: Decompresses a stream of bytes.
-    category: Encode & Decode
-    example: decompress "gzip"
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - compress
-    - convert
-    - decode
-    - decompress
-    - encode
-    - events
-    - file
-    - import
-    - lz4-compressed
-    - stream
-    - suricata
-    - zstd-compressed
-  - name: decompress_brotli
-    path: reference/operators/decompress_brotli.md
-    summary: Decompresses a stream of bytes in the Brotli format.
-    category: Encode & Decode
-    example: decompress_brotli
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - brotli-compressed
-    - events
-    - file
-    - import
-    - stream
-    - suricata
-  - name: decompress_bz2
-    path: reference/operators/decompress_bz2.md
-    summary: Decompresses a stream of bytes in the Bzip2 format.
-    category: Encode & Decode
-    example: decompress_bz2
-    use_when:
-    - encoding data
-    - compressing data
-    - network data
-    related: []
-    keywords:
-    - bzip2-compressed
-    - events
-    - file
-    - import
-    - stream
-    - suricata
-  - name: decompress_gzip
-    path: reference/operators/decompress_gzip.md
-    summary: Decompresses a stream of bytes in the Gzip format.
-    category: Encode & Decode
-    example: decompress_gzip
-    use_when:
-    - encoding data
-    - compressing data
-    - network data
-    related: []
-    keywords:
-    - events
-    - file
-    - gzip-compressed
-    - import
-    - stream
-    - suricata
-  - name: decompress_lz4
-    path: reference/operators/decompress_lz4.md
-    summary: Decompresses a stream of bytes in the Lz4 format.
-    category: Encode & Decode
-    example: decompress_lz4
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - events
-    - file
-    - import
-    - lz4-compressed
-    - stream
-    - suricata
-  - name: decompress_zstd
-    path: reference/operators/decompress_zstd.md
-    summary: Decompresses a stream of bytes in the Zstd format.
-    category: Encode & Decode
-    example: decompress_zstd
-    use_when:
-    - encoding data
-    - compressing data
-    related: []
-    keywords:
-    - events
-    - file
-    - import
-    - stream
-    - suricata
-    - zstd-compressed
-- name: Escape Hatches
-  description: Escape Hatches operators and functions
-  operators:
-  - name: python
-    path: reference/operators/python.md
-    summary: Executes Python code against each event of the input.
-    category: Escape Hatches
-    example: python "self.x = self.y"
-    use_when:
-    - running external code
-    related: []
-    keywords:
-    - convert
-    - event
-    - field
-    - fields
-    - import
-    - insert
-    - make
-    - modify
-    - packages
-    - party
-    - receive
-    - remove
-    - secrets
-    - third
-  - name: shell
-    path: reference/operators/shell.md
-    summary: Executes a system command and hooks its stdin and stdout into the pipeline.
-    category: Escape Hatches
-    example: shell "echo hello"
-    use_when:
-    - running external code
-    - network data
-    related: []
-    keywords:
-    - live
-    - log
-    - secrets
-    - service
-    - show
-- name: Filter
-  description: Filter operators and functions
-  operators:
-  - name: assert
-    path: reference/operators/assert.md
-    summary: Drops events and emits a warning if the invariant is violated.
-    category: Filter
-    example: assert name.starts_with("John")
-    use_when:
-    - filtering or selecting events
-    related: []
-    keywords:
-    - certain
-    - check
-    - contains
-    - events
-    - filter
-    - make
-    - subscribe
-    - sure
-    - topic
-  - name: assert_throughput
-    path: reference/operators/assert_throughput.md
-    summary: Emits a warning if the pipeline does not have the expected throughput
-    category: Filter
-    example: assert_throughput 1000, within=1s
-    use_when:
-    - filtering or selecting events
-    - network data
-    related: []
-    keywords:
-    - '000'
-    - 30s
-    - events
-    - failing
-    - issue
-    - per
-    - persists
-    - require
-    - second
-  - name: deduplicate
-    path: reference/operators/deduplicate.md
-    summary: Removes duplicate events based on a common key.
-    category: Filter
-    example: deduplicate src_ip
-    use_when:
-    - removing duplicate events
-    - filtering or selecting events
-    related: []
-    keywords:
-    - based
-    - deduplicate
-    - disconnected
-    - dropped
-    - duplicates
-    - entire
-    - event
-    - events
-    - fields
-    - get
-    - hour
-    - many
-    - multiple
-    - node
-    - per
-  - name: head
-    path: reference/operators/head.md
-    summary: Limits the input to the first n events.
-    category: Filter
-    example: head 20
-    use_when:
-    - limiting to first N events
-    - filtering or selecting events
-    related: []
-    keywords:
-    - events
-    - get
-    - n
-  - name: sample
-    path: reference/operators/sample.md
-    summary: Dynamically samples events from a event stream.
-    category: Filter
-    example: sample 30s, max_samples=2k
-    use_when:
-    - filtering or selecting events
-    related: []
-    keywords:
-    - 30s
-    - dynamically
-    - group
-    - hour
-    - load
-    - metrics
-    - sample
-    - stream
-    - subscribe
-  - name: slice
-    path: reference/operators/slice.md
-    summary: Keeps a range of events within the interval [begin, end) stepping by stride.
-    category: Filter
-    example: slice begin=10, end=30
-    use_when:
-    - filtering or selecting events
-    related: []
-    keywords:
-    - '100'
-    - event
-    - events
-    - except
-    - five
-    - get
-    - order
-    - reverse
-    - second
-    - skip
-    - starting
-    - stream
-    - stride
-    - tenth
-  - name: tail
-    path: reference/operators/tail.md
-    summary: Limits the input to the last n events.
-    category: Filter
-    example: tail 20
-    use_when:
-    - getting last N events
-    - filtering or selecting events
-    related: []
-    keywords:
-    - export
-    - get
-    - n
-  - name: taste
-    path: reference/operators/taste.md
-    summary: Limits the input to n events per unique schema.
-    category: Filter
-    example: taste 1
-    use_when:
-    - filtering or selecting events
-    related: []
-    keywords:
-    - event
-    - events
-    - export
-    - get
-    - n
-    - one
-    - retrieve
-    - sample
-    - schema
-    - type
-    - unique
-  - name: where
-    path: reference/operators/where.md
-    summary: Keeps only events for which the given predicate is true.
-    category: Filter
-    example: where name.starts_with("John")
-    use_when:
-    - filtering events by condition
-    - filtering or selecting events
-    related: []
-    keywords:
-    - combine
-    - constraint
-    - constraints
-    - duration
-    - events
-    - field
-    - keep
-    - name
-    - nested
-    - select
-    - size
-    - subnet
-    - temporal
-- name: Flow Control
-  description: Flow Control operators and functions
-  operators:
-  - name: cron
-    path: reference/operators/cron.md
-    summary: Runs a pipeline periodically according to a cron expression.
-    category: Flow Control
-    example: cron "* */10 * * * MON-FRI" { from "https://example.org" }
-    use_when:
-    - controlling pipeline flow
-    - network data
-    related: []
-    keywords:
-    - api
-    - fetch
-    - minutes
-    - publish
-  - name: delay
-    path: reference/operators/delay.md
-    summary: Delays events relative to a given start time, with an optional speedup.
-    category: Flow Control
-    example: delay ts, speed=2.5
-    use_when:
-    - controlling pipeline flow
-    related: []
-    keywords:
-    - decompress
-    - delay
-    - exceeds
-    - given
-    - logs
-    - original
-    - real
-    - replay
-    - speed
-    - stream
-    - time
-    - times
-    - timestamp
-  - name: discard
-    path: reference/operators/discard.md
-    summary: Discards all incoming events.
-    category: Flow Control
-    example: discard
-    use_when:
-    - controlling pipeline flow
-    related: []
-    keywords:
-    - benchmark
-    - everything
-    - export
-    - long
-    - takes
-  - name: every
-    path: reference/operators/every.md
-    summary: Runs a pipeline periodically at a fixed interval.
-    category: Flow Control
-    example: every 10s { summarize sum(amount) }
-    use_when:
-    - controlling pipeline flow
-    - network data
-    related: []
-    keywords:
-    - api
-    - enumerate
-    - event
-    - fetch
-    - minutes
-    - one
-    - per
-    - produce
-    - publish
-    - second
-  - name: fork
-    path: reference/operators/fork.md
-    summary: Executes a subpipeline with a copy of the input.
-    category: Flow Control
-    example: fork { to "copy.json" }
-    use_when:
-    - controlling pipeline flow
-    - network data
-    related: []
-    keywords:
-    - events
-    - import
-    - importing
-    - incoming
-    - publish
-    - simultaneously
-    - while
-  - name: load_balance
-    path: reference/operators/load_balance.md
-    summary: Routes the data to one of multiple subpipelines.
-    category: Flow Control
-    example: load_balance $over { publish $over }
-    use_when:
-    - controlling pipeline flow
-    - network data
-    related: []
-    keywords:
-    - data
-    - endpoints
-    - load
-    - multiple
-    - ports
-    - route
-    - splunk
-    - stream
-    - subscribe
-    - tcp
-  - name: pass
-    path: reference/operators/pass.md
-    summary: Does nothing with the input.
-    category: Flow Control
-    example: pass
-    use_when:
-    - controlling pipeline flow
-    related: []
-    keywords:
-    - 10s
-    - any
-    - changes
-    - forward
-    - nothing
-    - without
-  - name: repeat
-    path: reference/operators/repeat.md
-    summary: Repeats the input a number of times.
-    category: Flow Control
-    example: repeat 100
-    use_when:
-    - controlling pipeline flow
-    related: []
-    keywords:
-    - event
-    - indefinitely
-    - repeat
-    - times
-  - name: throttle
-    path: reference/operators/throttle.md
-    summary: Limits the bandwidth of a pipeline.
-    category: Flow Control
-    example: throttle 100M, within=1min
-    use_when:
-    - controlling pipeline flow
-    - network data
-    related: []
-    keywords:
-    - byte
-    - decompress
-    - given
-    - import
-    - limit
-    - load
-    - per
-    - read
-    - second
-    - set
-    - stream
-    - throughput
-    - time
-    - window
-- name: Host Inspection
-  description: Host Inspection operators and functions
-  operators:
-  - name: files
-    path: reference/operators/files.md
-    summary: Shows file information for a given directory.
-    category: Host Inspection
-    example: files "/var/log/", recurse=true
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - compute
-    - current
-    - directory
-    - file
-    - find
-    - group
-    - named
-    - pipes
-    - read
-    - schemas
-    - size
-    - summarize
-    - total
-    - write
-  - name: nics
-    path: reference/operators/nics.md
-    summary: Shows a snapshot of available network interfaces.
-    category: Host Inspection
-    example: nics
-    use_when:
-    - inspecting node state
-    - network data
-    related: []
-    keywords:
-    - connected
-    - interfaces
-    - list
-    - network
-    - schemas
-  - name: processes
-    path: reference/operators/processes.md
-    summary: Shows a snapshot of running processes.
-    category: Host Inspection
-    example: processes
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - five
-    - group
-    - name
-    - processes
-    - running
-    - runtime
-    - schemas
-    - show
-    - sort
-    - top
-  - name: sockets
-    path: reference/operators/sockets.md
-    summary: Shows a snapshot of open sockets.
-    category: Host Inspection
-    example: sockets
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - address
-    - local
-    - process
-    - remote
-    - schemas
-    - select
-    - show
-    - sockets
-- name: Inputs/Bytes
-  description: Inputs/Bytes operators and functions
-  operators:
-  - name: load_amqp
-    path: reference/operators/load_amqp.md
-    summary: Loads a byte stream via AMQP messages.
-    category: Inputs/Bytes
-    example: load_amqp
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - messaging systems
-    related: []
-    keywords:
-    - amqp
-    - consume
-    - message
-    - queue
-    - receive
-    - send
-    - specified
-    - stream
-  - name: load_azure_blob_storage
-    path: reference/operators/load_azure_blob_storage.md
-    summary: Loads bytes from Azure Blob Storage.
-    category: Inputs/Bytes
-    example: load_azure_blob_storage "abfs://container/file"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - json
-    - load
-    - read
-    - write
-  - name: load_file
-    path: reference/operators/load_file.md
-    summary: Loads the contents of the file at path as a byte stream.
-    category: Inputs/Bytes
-    example: load_file "/tmp/data.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    related: []
-    keywords:
-    - contents
-    - file
-    - load
-    - path
-    - raw
-    - read
-    - stream
-  - name: load_ftp
-    path: reference/operators/load_ftp.mdx
-    summary: Loads a byte stream via FTP.
-    category: Inputs/Bytes
-    example: load_ftp "ftp.example.org"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    related: []
-    keywords:
-    - import
-    - stream
-  - name: load_gcs
-    path: reference/operators/load_gcs.md
-    summary: Loads bytes from a Google Cloud Storage object.
-    category: Inputs/Bytes
-    example: load_gcs "gs://bucket/object.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - read
-  - name: load_google_cloud_pubsub
-    path: reference/operators/load_google_cloud_pubsub.md
-    summary: Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.
-    category: Inputs/Bytes
-    example: load_google_cloud_pubsub project_id="my-project"
-    use_when:
-    - loading or ingesting data
-    - network data
-    related: []
-    keywords:
-    - connect
-    - integration
-    - json
-    - messages
-    - parse
-    - read
-    - subscribe
-    - subscription
-    - support
-    - uri
-  - name: load_http
-    path: reference/operators/load_http.mdx
-    summary: Loads a byte stream via HTTP.
-    category: Inputs/Bytes
-    example: 'load_http "example.org", params={n: 5}'
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - api
-    - call
-    - encode
-    - get
-    - import
-    - perform
-    - response
-    - stream
-  - name: load_kafka
-    path: reference/operators/load_kafka.md
-    summary: Loads a byte stream from an Apache Kafka topic.
-    category: Inputs/Bytes
-    example: load_kafka topic="example"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - messaging systems
-    related: []
-    keywords:
-    - '100'
-    - beginning
-    - group
-    - json
-    - logs
-    - messages
-    - read
-    - starting
-    - stream
-    - streaming
-    - topic
-    - zeek
-  - name: load_nic
-    path: reference/operators/load_nic.md
-    summary: Loads bytes from a network interface card (NIC).
-    category: Inputs/Bytes
-    example: load_nic "eth0"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - network data
-    related: []
-    keywords:
-    - equivalent
-    - load
-    - packets
-    - pcap
-    - perform
-    - read
-    - stream
-  - name: load_s3
-    path: reference/operators/load_s3.md
-    summary: Loads from an Amazon S3 object.
-    category: Inputs/Bytes
-    example: load_s3 "s3://my-bucket/obj.csv"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - load
-    - read
-  - name: load_sqs
-    path: reference/operators/load_sqs.md
-    summary: Loads bytes from [Amazon SQS][sqs] queues.
-    category: Inputs/Bytes
-    example: load_sqs "sqs://tenzir"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - messaging systems
-    related: []
-    keywords:
-    - read
-  - name: load_stdin
-    path: reference/operators/load_stdin.md
-    summary: Accepts bytes from standard input.
-    category: Inputs/Bytes
-    example: load_stdin
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - pipe
-    - text
-  - name: load_tcp
-    path: reference/operators/load_tcp.mdx
-    summary: Loads bytes from a TCP or TLS connection.
-    category: Inputs/Bytes
-    example: load_tcp "0.0.0.0:8090" { read_json }
-    use_when:
-    - loading or ingesting data
-    - loading data
-    related: []
-    keywords:
-    - authentication
-    - certificate
-    - client
-    - connect
-    - create
-    - enabled
-    - endpoint
-    - import
-    - incoming
-    - json
-    - listen
-    - localhost
-    - mtls
-    - mutual
-    - read
-  - name: load_udp
-    path: reference/operators/load_udp.md
-    summary: Loads bytes from a UDP socket.
-    category: Inputs/Bytes
-    example: load_udp "0.0.0.0:8090"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    related: []
-    keywords:
-    - connect
-    - import
-    - json
-    - listenting
-    - load
-    - localhost
-    - udp
-    - via
-  - name: load_zmq
-    path: reference/operators/load_zmq.md
-    summary: Receives ZeroMQ messages.
-    category: Inputs/Bytes
-    example: load_zmq
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - connect
-    - filter
-    - interpret
-    - json
-    - messages
-    - zeromq
-- name: Inputs/Events
-  description: Operators that produce events from data sources
-  operators:
-  - name: from
-    path: reference/operators/from.md
-    summary: Obtains events from an URI, inferring the source, compression and format.
-    category: Inputs/Events
-    example: from "data.json"
-    use_when:
-    - loading data from sources
-    - loading or ingesting data
-    - compressing data
-    related: []
-    keywords:
-    - compressed
-    - compression
-    - create
-    - decode
-    - decompressing
-    - deductions
-    - encode
-    - events
-    - explanation
-    - extensions
-    - file
-    - format
-    - header
-    - http
-    - load
-  - name: from_azure_blob_storage
-    path: reference/operators/from_azure_blob_storage.md
-    summary: Reads one or multiple files from Azure Blob Storage.
-    category: Inputs/Events
-    example: from_azure_blob_storage "abfs://container/data/**.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - account
-    - add
-    - archive
-    - authentication
-    - container
-    - continuously
-    - csv
-    - eve
-    - events
-    - file
-    - files
-    - json
-    - key
-    - logs
-    - matches
-  - name: from_file
-    path: reference/operators/from_file.md
-    summary: Reads one or multiple files from a filesystem.
-    category: Inputs/Events
-    example: from_file "s3://data/**.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - network data
-    related: []
-    keywords:
-    - afterwards
-    - continuously
-    - delete
-    - directory
-    - eve
-    - file
-    - filenames
-    - files
-    - json
-    - matches
-    - modified
-    - move
-    - preserving
-    - process
-    - read
-  - name: from_fluent_bit
-    path: reference/operators/from_fluent_bit.mdx
-    summary: Receives events via Fluent Bit.
-    category: Inputs/Events
-    example: from_fluent_bit "opentelemetry"
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - import
-    - ingest
-    - integration
-    - merge
-    - opentelemetry
-    - send
-    - splunk
-    - support
-    - uri
-  - name: from_gcs
-    path: reference/operators/from_gcs.md
-    summary: Reads one or multiple files from Google Cloud Storage.
-    category: Inputs/Events
-    example: from_gcs "gs://my-bucket/data/**.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - add
-    - bucket
-    - continuously
-    - csv
-    - custom
-    - eve
-    - events
-    - file
-    - files
-    - json
-    - logs
-    - matches
-    - parsing
-    - path
-    - public
-  - name: from_google_cloud_pubsub
-    path: reference/operators/from_google_cloud_pubsub.md
-    summary: Subscribes to a Google Cloud Pub/Sub subscription and yields events.
-    category: Inputs/Events
-    example: from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
-    use_when:
-    - loading or ingesting data
-    - network data
-    related: []
-    keywords:
-    - alongside
-    - collect
-    - connect
-    - consume
-    - json
-    - message
-    - messages
-    - metadata
-    - parse
-    - publish
-    - subscribe
-  - name: from_http
-    path: reference/operators/from_http.md
-    summary: Sends and receives HTTP/1.1 requests.
-    category: Inputs/Events
-    example: from_http "0.0.0.0:8080"
-    use_when:
-    - loading or ingesting data
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - '8080'
-    - api
-    - connect
-    - decompress
-    - encode
-    - failed
-    - get
-    - import
-    - listen
-    - load
-    - make
-    - paginated
-    - parse
-    - port
-    - request
-  - name: from_kafka
-    path: reference/operators/from_kafka.md
-    summary: Receives events from an Apache Kafka topic.
-    category: Inputs/Events
-    example: from_kafka "logs"
-    use_when:
-    - loading or ingesting data
-    - messaging systems
-    related: []
-    keywords:
-    - '100'
-    - authentication
-    - aws
-    - beginning
-    - caught
-    - consume
-    - exit
-    - group
-    - iam
-    - json
-    - messages
-    - msk
-    - parse
-    - starting
-  - name: from_opensearch
-    path: reference/operators/from_opensearch.md
-    summary: Receives events via Opensearch Bulk API.
-    category: Inputs/Events
-    example: from_opensearch
-    use_when:
-    - loading or ingesting data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - '8080'
-    - import
-    - interface
-    - listen
-    - port
-    - tls
-  - name: from_s3
-    path: reference/operators/from_s3.md
-    summary: Reads one or multiple files from Amazon S3.
-    category: Inputs/Events
-    example: from_s3 "s3://my-bucket/data/**.json"
-    use_when:
-    - loading or ingesting data
-    - loading data
-    - cloud storage
-    related: []
-    keywords:
-    - access
-    - add
-    - anonymous
-    - archive
-    - assume
-    - bucket
-    - continuously
-    - credentials
-    - csv
-    - custom
-    - endpoint
-    - events
-    - explicit
-    - file
-    - files
-  - name: from_sentinelone_data_lake
-    path: reference/operators/from_sentinelone_data_lake.md
-    summary: Retrieves PowerQuery results from SentinelOne Singularity Data Lake.
-    category: Inputs/Events
-    example: from_sentinelone_data_lake "https://…", …
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - events
-    - fields
-    - filters
-    - hours
-    - query
-    - range
-    - specific
-    - threat
-    - time
-  - name: from_udp
-    path: reference/operators/from_udp.md
-    summary: Receives UDP datagrams and outputs structured events.
-    category: Inputs/Events
-    example: from_udp "0.0.0.0:8090"
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - data
-    - datagrams
-    - decode
-    - filter
-    - information
-    - json
-    - parse
-    - receive
-    - schema
-    - select
-    - sender
-    - udp
-  - name: from_velociraptor
-    path: reference/operators/from_velociraptor.md
-    summary: Submits VQL to a Velociraptor server and returns the response as events.
-    category: Inputs/Events
-    example: from_velociraptor subscribe="Windows"
-    use_when:
-    - loading or ingesting data
-    related: []
-    keywords:
-    - artifact
-    - containing
-    - flow
-    - hunt
-    - processes
-    - select
-    - send
-    - show
-    - stream
-    - subscribe
-- name: Internals
-  description: Internals operators and functions
-  operators:
-  - name: api
-    path: reference/operators/api.md
-    summary: Use Tenzir's REST API directly from a pipeline.
-    category: Internals
-    example: api "/pipeline/list"
-    use_when:
-    - controlling pipeline behavior
-    - HTTP/API operations
-    - network data
-    related: []
-    keywords:
-    - create
-    - immediately
-    - import
-    - list
-    - pipeline
-    - pipelines
-    - read
-    - running
-    - send
-    - start
-  - name: batch
-    path: reference/operators/batch.md
-    summary: The batch operator controls the batch size of events.
-    category: Internals
-    example: batch timeout=1s
-    use_when:
-    - controlling pipeline behavior
-    related: []
-    keywords:
-    - batch
-  - name: buffer
-    path: reference/operators/buffer.md
-    summary: An in-memory buffer to improve handling of data spikes in upstream operators.
-    category: Internals
-    example: buffer 10M, policy="drop"
-    use_when:
-    - controlling pipeline behavior
-    related: []
-    keywords:
-    - buffer
-    - bytes
-    - events
-    - million
-    - receive
-  - name: cache
-    path: reference/operators/cache.md
-    summary: An in-memory cache shared between pipelines.
-    category: Internals
-    example: cache "w01wyhTZm3", ttl=10min
-    use_when:
-    - controlling pipeline behavior
-    - network data
-    related: []
-    keywords:
-    - cache
-    - expensive
-    - export
-    - get
-    - high-level
-    - query
-    - read
-    - statistics
-    - summarize
-    - write
-  - name: local
-    path: reference/operators/local.md
-    summary: Forces a pipeline to run locally.
-    category: Internals
-    example: local { sort foo }
-    use_when:
-    - controlling pipeline behavior
-    - network data
-    related: []
-    keywords:
-    - expensive
-    - export
-    - locally
-    - sort
-  - name: measure
-    path: reference/operators/measure.md
-    summary: Replaces the input with metrics describing the input.
-    category: Internals
-    example: measure
-    use_when:
-    - controlling pipeline behavior
-    related: []
-    keywords:
-    - bytes
-    - events
-    - file
-    - get
-    - grouped
-    - incrementally
-    - number
-    - read
-    - schema
-    - summarize
-    - total
-  - name: remote
-    path: reference/operators/remote.md
-    summary: Forces a pipeline to run remotely at a node.
-    category: Internals
-    example: remote { version }
-    use_when:
-    - controlling pipeline behavior
-    - network data
-    related: []
-    keywords:
-    - get
-    - node
-    - version
-  - name: serve
-    path: reference/operators/serve.md
-    summary: Make events available under the /serve REST API endpoint
-    category: Internals
-    example: serve "abcde12345"
-    use_when:
-    - controlling pipeline behavior
-    - HTTP/API operations
-    related: []
-    keywords:
-    - api
-    - available
-    - event
-    - make
-    - read
-    - rest
-    - wait
-  - name: strict
-    path: reference/operators/strict.md
-    summary: Treats all warnings as errors.
-    category: Internals
-    example: strict { assert false }
-    use_when:
-    - controlling pipeline behavior
-    related: []
-    keywords:
-    - any
-    - logs
-    - pipeline
-    - sending
-    - stop
-    - subscribe
-    - warnings
-  - name: unordered
-    path: reference/operators/unordered.md
-    summary: Removes ordering assumptions from a pipeline.
-    category: Internals
-    example: unordered { read_ndjson }
-    use_when:
-    - controlling pipeline behavior
-    - sorting events
-    - network data
-    related: []
-    keywords:
-    - json
-    - parse
-    - sort
-    - unordered
-- name: Modify
-  description: Modify operators and functions
-  operators:
-  - name: dns_lookup
-    path: reference/operators/dns_lookup.md
-    summary: Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses.
-    category: Modify
-    example: dns_lookup ip_address, result=dns_info
-    use_when:
-    - modifying event fields
-    - enriching with external data
-    - network data
-    related: []
-    keywords:
-    - dns
-    - failures
-    - forward
-    - handling
-    - lookup
-    - lookups
-    - multiple
-    - pipeline
-    - reverse
-  - name: drop
-    path: reference/operators/drop.md
-    summary: Removes fields from the event.
-    category: Modify
-    example: drop name, metadata.id
-    use_when:
-    - removing fields
-    - modifying event fields
-    related: []
-    keywords:
-    - drop
-    - fields
-    - select
-  - name: drop_null_fields
-    path: reference/operators/drop_null_fields.md
-    summary: Removes fields containing null values from the event.
-    category: Modify
-    example: drop_null_fields name, metadata.id
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - behavior
-    - drop
-    - field
-    - fields
-    - inside
-    - lists
-    - 'null'
-    - record
-    - records
-    - select
-    - specific
-    - within
-  - name: enumerate
-    path: reference/operators/enumerate.md
-    summary: Add a field with the number of preceding events.
-    category: Modify
-    example: enumerate num
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - count
-    - custom
-    - enumerate
-    - field
-    - group
-    - groups
-    - numbers
-    - prepending
-    - row
-    - within
-  - name: http
-    path: reference/operators/http.md
-    summary: Sends HTTP/1.1 requests and forwards the response.
-    category: Modify
-    example: http "example.com"
-    use_when:
-    - modifying event fields
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - api
-    - connect
-    - context
-    - decompress
-    - encode
-    - enrich
-    - get
-    - import
-    - keeping
-    - load
-    - make
-    - paginate
-    - parse
-    - request
-    - send
-  - name: move
-    path: reference/operators/move.md
-    summary: Moves values from one field to another, removing the original field.
-    category: Modify
-    example: move id=parsed_id, ctx.message=incoming.status
-    use_when:
-    - modifying event fields
-    related: []
-    keywords: []
-  - name: replace
-    path: reference/operators/replace.md
-    summary: Replaces all occurrences of a value with another value.
-    category: Modify
-    example: replace what=42, with=null
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - address
-    - fields
-    - 'null'
-    - occurrences
-    - redacted
-    - replace
-    - specific
-    - within
-  - name: select
-    path: reference/operators/select.md
-    summary: Selects some values and discards the rest.
-    category: Modify
-    example: select name, id=metadata.id
-    use_when:
-    - choosing specific fields
-    - modifying event fields
-    - filtering events
-    related: []
-    keywords:
-    - columns
-    - create
-    - select
-  - name: set
-    path: reference/operators/set.md
-    summary: Assigns a value to a field, creating it if necessary.
-    category: Modify
-    example: name = "Tenzir"
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - append
-    - existing
-    - field
-    - move
-    - read
-    - update
-  - name: timeshift
-    path: reference/operators/timeshift.md
-    summary: Adjusts timestamps relative to a given start time, with an optional speedup.
-    category: Modify
-    example: timeshift ts, start=2020-01-01
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - 100x
-    - '1984'
-    - begin
-    - decompress
-    - events
-    - inter-arrival
-    - jan
-    - reset
-    - scale
-    - times
-  - name: unroll
-    path: reference/operators/unroll.md
-    summary: 'Returns a new event for each member of a list or a record in an event,
+  - name: Analyze
+    description: Analyze operators and functions
+    operators:
+      - name: rare
+        path: reference/operators/rare.md
+        summary: Shows the least common values.
+        category: Analyze
+        example: rare auth.token
+        use_when:
+          - analyzing data patterns
+        related: []
+        keywords:
+          - common
+          - find
+          - five
+          - least
+          - show
+          - sort
+          - summarize
+      - name: reverse
+        path: reference/operators/reverse.md
+        summary: Reverses the event order.
+        category: Analyze
+        example: reverse
+        use_when:
+          - analyzing data patterns
+          - sorting events
+        related: []
+        keywords:
+          - events
+          - reverse
+          - sort
+          - stream
+      - name: sort
+        path: reference/operators/sort.md
+        summary: Sorts events by the given expressions.
+        category: Analyze
+        example: sort name, -abs(transaction)
+        use_when:
+          - ordering events
+          - analyzing data patterns
+          - sorting events
+        related: []
+        keywords:
+          - ascending
+          - descending
+          - field
+          - fields
+          - multiple
+          - order
+          - sort
+      - name: summarize
+        path: reference/operators/summarize.md
+        summary: Groups events and applies aggregate functions to each group.
+        category: Analyze
+        example: summarize name, sum(amount)
+        use_when:
+          - aggregating events
+          - analyzing data patterns
+          - aggregating data
+        related: []
+        keywords:
+          - 1-hour
+          - aggregate
+          - any
+          - buckets
+          - check
+          - compute
+          - create
+          - events
+          - field
+          - gather
+          - group
+          - list
+          - max
+          - min
+          - stream
+      - name: top
+        path: reference/operators/top.md
+        summary: Shows the most common values.
+        category: Analyze
+        example: top user
+        use_when:
+          - analyzing data patterns
+        related: []
+        keywords:
+          - common
+          - find
+          - show
+          - sort
+          - summarize
+          - top-most
+  - name: Charts
+    description: Charts operators and functions
+    operators:
+      - name: chart_area
+        path: reference/operators/chart_area.md
+        summary: Plots events on an area chart.
+        category: Charts
+        example: chart_area …
+        use_when:
+          - visualizing data
+        related: []
+        keywords:
+          - chart
+          - group
+          - load
+          - metrics
+          - read
+          - tcp
+      - name: chart_bar
+        path: reference/operators/chart_bar.md
+        summary: Plots events on an bar chart.
+        category: Charts
+        example: chart_bar …
+        use_when:
+          - visualizing data
+        related: []
+        keywords:
+          - chart
+          - count
+          - events
+          - group
+          - import
+          - imported
+          - load
+          - schema
+          - unique
+      - name: chart_line
+        path: reference/operators/chart_line.md
+        summary: Plots events on an line chart.
+        category: Charts
+        example: chart_line …
+        use_when:
+          - visualizing data
+        related: []
+        keywords:
+          - chart
+          - events
+          - group
+          - load
+          - publish
+          - published
+      - name: chart_pie
+        path: reference/operators/chart_pie.md
+        summary: Plots events on an pie chart.
+        category: Charts
+        example: chart_pie …
+        use_when:
+          - visualizing data
+        related: []
+        keywords:
+          - chart
+          - count
+          - events
+          - group
+          - import
+          - imported
+          - load
+          - schema
+          - unique
+  - name: Connecting Pipelines
+    description: Connecting Pipelines operators and functions
+    operators:
+      - name: publish
+        path: reference/operators/publish.md
+        summary: Publishes events to a channel with a topic.
+        category: Connecting Pipelines
+        example: publish "topic"
+        use_when:
+          - connecting pipelines
+        related: []
+        keywords:
+          - connection
+          - depending
+          - dynamic
+          - event
+          - events
+          - fixed
+          - import
+          - logs
+          - publish
+          - receive
+          - subscribe
+          - suricata
+          - topic
+          - type
+          - zeek
+      - name: subscribe
+        path: reference/operators/subscribe.md
+        summary: Subscribes to events from a channel with a topic.
+        category: Connecting Pipelines
+        example: subscribe "topic"
+        use_when:
+          - connecting pipelines
+        related: []
+        keywords:
+          - events
+          - export
+          - multiple
+          - publish
+          - receive
+          - subscribe
+          - topic
+          - topics
+  - name: Contexts
+    description: Contexts operators and functions
+    operators:
+      - name: context::create_bloom_filter
+        path: reference/operators/context/create_bloom_filter.md
+        summary: Creates a Bloom filter context.
+        category: Contexts
+        example: context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01
+        use_when:
+          - using lookup tables or enrichment
+          - filtering events
+          - enriching with external data
+        related: []
+        keywords:
+          - bloom
+          - context
+          - create
+          - enrich
+          - filter
+          - load
+          - save
+      - name: context::create_geoip
+        path: reference/operators/context/create_geoip.md
+        summary: Creates a GeoIP context.
+        category: Contexts
+        example: context::create_geoip "ctx", db_path="GeoLite2-City.mmdb"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+          - network data
+        related: []
+        keywords:
+          - context
+          - create
+          - enrich
+          - geoip
+          - load
+          - location
+          - populate
+          - remote
+          - save
+      - name: context::create_lookup_table
+        path: reference/operators/context/create_lookup_table.md
+        summary: Creates a lookup table context.
+        category: Contexts
+        example: context::create_lookup_table "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - context
+          - create
+          - enrich
+          - load
+          - lookup
+          - save
+          - table
+      - name: context::enrich
+        path: reference/operators/context/enrich.md
+        summary: Enriches events with data from a context.
+        category: Contexts
+        example: context::enrich "ctx", key=x
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - appending
+          - array
+          - enrich
+          - enrichment
+          - load
+          - lookup
+          - ocsf
+          - save
+          - table
+          - write
+      - name: context::erase
+        path: reference/operators/context/erase.md
+        summary: Removes entries from a context.
+        category: Contexts
+        example: context::erase "ctx", key=x
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - context
+          - delete
+          - enrich
+          - entries
+          - load
+          - save
+      - name: context::inspect
+        path: reference/operators/context/inspect.md
+        summary: Resets a context.
+        category: Contexts
+        example: context::inspect "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - context
+          - enrich
+          - inspect
+          - load
+          - save
+      - name: context::list
+        path: reference/operators/context/list.md
+        summary: Lists all contexts
+        category: Contexts
+        example: context::list
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - contexts
+          - enrich
+          - load
+          - save
+          - show
+      - name: context::load
+        path: reference/operators/context/load.md
+        summary: Loads context state.
+        category: Contexts
+        example: context::load "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+          - loading data
+        related: []
+        keywords:
+          - context
+          - database
+          - enrich
+          - geoip
+          - load
+          - replace
+          - save
+      - name: context::remove
+        path: reference/operators/context/remove.md
+        summary: Deletes a context.
+        category: Contexts
+        example: context::remove "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - context
+          - delete
+          - enrich
+          - load
+          - save
+      - name: context::reset
+        path: reference/operators/context/reset.md
+        summary: Resets a context.
+        category: Contexts
+        example: context::reset "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - context
+          - enrich
+          - load
+          - reset
+          - save
+      - name: context::save
+        path: reference/operators/context/save.md
+        summary: Saves context state.
+        category: Contexts
+        example: context::save "ctx"
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+          - saving data
+        related: []
+        keywords:
+          - context
+          - database
+          - enrich
+          - geoip
+          - load
+          - save
+          - store
+      - name: context::update
+        path: reference/operators/context/update.md
+        summary: Updates a context with new data.
+        category: Contexts
+        example: context::update "ctx", key=x, value=y
+        use_when:
+          - using lookup tables or enrichment
+          - enriching with external data
+        related: []
+        keywords:
+          - custom
+          - data
+          - enrich
+          - load
+          - lookup
+          - populate
+          - save
+          - table
+  - name: Detection
+    description: Detection operators and functions
+    operators:
+      - name: sigma
+        path: reference/operators/sigma.md
+        summary: Filter the input with Sigma rules and output matching events.
+        category: Detection
+        example: sigma "/tmp/rules/"
+        use_when:
+          - running detection rules
+          - filtering events
+        related: []
+        keywords:
+          - apply
+          - data
+          - encode
+          - evtx
+          - export
+          - file
+          - filter
+          - historical
+          - parse
+          - rule
+          - rules
+          - run
+          - select
+          - set
+          - sigma
+      - name: yara
+        path: reference/operators/yara.md
+        summary: Executes YARA rules on byte streams.
+        category: Detection
+        example: yara "/path/to/rules", blockwise=true
+        use_when:
+          - running detection rules
+        related: []
+        keywords:
+          - files
+          - one-shot
+          - perform
+          - scanning
+          - stream
+  - name: Encode & Decode
+    description: Encode & Decode operators and functions
+    operators:
+      - name: compress
+        path: reference/operators/compress.md
+        summary: Compresses a stream of bytes.
+        category: Encode & Decode
+        example: compress "zstd"
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - compress
+          - compression
+          - decode
+          - decompress
+          - encode
+          - events
+          - export
+          - file
+          - gzip-compressed
+          - higher
+          - level
+          - ndjson
+          - recompress
+          - stream
+          - zstd-compressed
+      - name: compress_brotli
+        path: reference/operators/compress_brotli.md
+        summary: Compresses a stream of bytes using Brotli compression.
+        category: Encode & Decode
+        example: compress_brotli, level=10
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - brotli-compressed
+          - compression
+          - different
+          - events
+          - export
+          - file
+          - level
+          - ndjson
+          - recompress
+          - stream
+      - name: compress_bz2
+        path: reference/operators/compress_bz2.md
+        summary: Compresses a stream of bytes using bz2 compression.
+        category: Encode & Decode
+        example: compress_bz2, level=9
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - bzip2-compressed
+          - compression
+          - different
+          - events
+          - export
+          - file
+          - level
+          - ndjson
+          - recompress
+          - stream
+      - name: compress_gzip
+        path: reference/operators/compress_gzip.md
+        summary: Compresses a stream of bytes using gzip compression.
+        category: Encode & Decode
+        example: compress_gzip, level=8
+        use_when:
+          - encoding data
+          - compressing data
+          - network data
+        related: []
+        keywords:
+          - compress
+          - compression
+          - deflate
+          - different
+          - events
+          - export
+          - file
+          - gzip
+          - gzip-compressed
+          - level
+          - ndjson
+          - recompress
+          - stream
+      - name: compress_lz4
+        path: reference/operators/compress_lz4.md
+        summary: Compresses a stream of bytes using lz4 compression.
+        category: Encode & Decode
+        example: compress_lz4, level=7
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - compression
+          - different
+          - events
+          - export
+          - file
+          - level
+          - lz4-compressed
+          - ndjson
+          - recompress
+          - stream
+      - name: compress_zstd
+        path: reference/operators/compress_zstd.md
+        summary: Compresses a stream of bytes using zstd compression.
+        category: Encode & Decode
+        example: compress_zstd, level=6
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - compression
+          - different
+          - events
+          - export
+          - file
+          - level
+          - ndjson
+          - recompress
+          - stream
+          - zstd-compressed
+      - name: decompress
+        path: reference/operators/decompress.md
+        summary: Decompresses a stream of bytes.
+        category: Encode & Decode
+        example: decompress "gzip"
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - compress
+          - convert
+          - decode
+          - decompress
+          - encode
+          - events
+          - file
+          - import
+          - lz4-compressed
+          - stream
+          - suricata
+          - zstd-compressed
+      - name: decompress_brotli
+        path: reference/operators/decompress_brotli.md
+        summary: Decompresses a stream of bytes in the Brotli format.
+        category: Encode & Decode
+        example: decompress_brotli
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - brotli-compressed
+          - events
+          - file
+          - import
+          - stream
+          - suricata
+      - name: decompress_bz2
+        path: reference/operators/decompress_bz2.md
+        summary: Decompresses a stream of bytes in the Bzip2 format.
+        category: Encode & Decode
+        example: decompress_bz2
+        use_when:
+          - encoding data
+          - compressing data
+          - network data
+        related: []
+        keywords:
+          - bzip2-compressed
+          - events
+          - file
+          - import
+          - stream
+          - suricata
+      - name: decompress_gzip
+        path: reference/operators/decompress_gzip.md
+        summary: Decompresses a stream of bytes in the Gzip format.
+        category: Encode & Decode
+        example: decompress_gzip
+        use_when:
+          - encoding data
+          - compressing data
+          - network data
+        related: []
+        keywords:
+          - events
+          - file
+          - gzip-compressed
+          - import
+          - stream
+          - suricata
+      - name: decompress_lz4
+        path: reference/operators/decompress_lz4.md
+        summary: Decompresses a stream of bytes in the Lz4 format.
+        category: Encode & Decode
+        example: decompress_lz4
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - events
+          - file
+          - import
+          - lz4-compressed
+          - stream
+          - suricata
+      - name: decompress_zstd
+        path: reference/operators/decompress_zstd.md
+        summary: Decompresses a stream of bytes in the Zstd format.
+        category: Encode & Decode
+        example: decompress_zstd
+        use_when:
+          - encoding data
+          - compressing data
+        related: []
+        keywords:
+          - events
+          - file
+          - import
+          - stream
+          - suricata
+          - zstd-compressed
+  - name: Escape Hatches
+    description: Escape Hatches operators and functions
+    operators:
+      - name: python
+        path: reference/operators/python.md
+        summary: Executes Python code against each event of the input.
+        category: Escape Hatches
+        example: python "self.x = self.y"
+        use_when:
+          - running external code
+        related: []
+        keywords:
+          - convert
+          - event
+          - field
+          - fields
+          - import
+          - insert
+          - make
+          - modify
+          - packages
+          - party
+          - receive
+          - remove
+          - secrets
+          - third
+      - name: shell
+        path: reference/operators/shell.md
+        summary: Executes a system command and hooks its stdin and stdout into the pipeline.
+        category: Escape Hatches
+        example: shell "echo hello"
+        use_when:
+          - running external code
+          - network data
+        related: []
+        keywords:
+          - live
+          - log
+          - secrets
+          - service
+          - show
+  - name: Filter
+    description: Filter operators and functions
+    operators:
+      - name: assert
+        path: reference/operators/assert.md
+        summary: Drops events and emits a warning if the invariant is violated.
+        category: Filter
+        example: assert name.starts_with("John")
+        use_when:
+          - filtering or selecting events
+        related: []
+        keywords:
+          - certain
+          - check
+          - contains
+          - events
+          - filter
+          - make
+          - subscribe
+          - sure
+          - topic
+      - name: assert_throughput
+        path: reference/operators/assert_throughput.md
+        summary: Emits a warning if the pipeline does not have the expected throughput
+        category: Filter
+        example: assert_throughput 1000, within=1s
+        use_when:
+          - filtering or selecting events
+          - network data
+        related: []
+        keywords:
+          - "000"
+          - 30s
+          - events
+          - failing
+          - issue
+          - per
+          - persists
+          - require
+          - second
+      - name: deduplicate
+        path: reference/operators/deduplicate.md
+        summary: Removes duplicate events based on a common key.
+        category: Filter
+        example: deduplicate src_ip
+        use_when:
+          - removing duplicate events
+          - filtering or selecting events
+        related: []
+        keywords:
+          - based
+          - deduplicate
+          - disconnected
+          - dropped
+          - duplicates
+          - entire
+          - event
+          - events
+          - fields
+          - get
+          - hour
+          - many
+          - multiple
+          - node
+          - per
+      - name: head
+        path: reference/operators/head.md
+        summary: Limits the input to the first n events.
+        category: Filter
+        example: head 20
+        use_when:
+          - limiting to first N events
+          - filtering or selecting events
+        related: []
+        keywords:
+          - events
+          - get
+          - n
+      - name: sample
+        path: reference/operators/sample.md
+        summary: Dynamically samples events from a event stream.
+        category: Filter
+        example: sample 30s, max_samples=2k
+        use_when:
+          - filtering or selecting events
+        related: []
+        keywords:
+          - 30s
+          - dynamically
+          - group
+          - hour
+          - load
+          - metrics
+          - sample
+          - stream
+          - subscribe
+      - name: slice
+        path: reference/operators/slice.md
+        summary: Keeps a range of events within the interval [begin, end) stepping by stride.
+        category: Filter
+        example: slice begin=10, end=30
+        use_when:
+          - filtering or selecting events
+        related: []
+        keywords:
+          - "100"
+          - event
+          - events
+          - except
+          - five
+          - get
+          - order
+          - reverse
+          - second
+          - skip
+          - starting
+          - stream
+          - stride
+          - tenth
+      - name: tail
+        path: reference/operators/tail.md
+        summary: Limits the input to the last n events.
+        category: Filter
+        example: tail 20
+        use_when:
+          - getting last N events
+          - filtering or selecting events
+        related: []
+        keywords:
+          - export
+          - get
+          - n
+      - name: taste
+        path: reference/operators/taste.md
+        summary: Limits the input to n events per unique schema.
+        category: Filter
+        example: taste 1
+        use_when:
+          - filtering or selecting events
+        related: []
+        keywords:
+          - event
+          - events
+          - export
+          - get
+          - n
+          - one
+          - retrieve
+          - sample
+          - schema
+          - type
+          - unique
+      - name: where
+        path: reference/operators/where.md
+        summary: Keeps only events for which the given predicate is true.
+        category: Filter
+        example: where name.starts_with("John")
+        use_when:
+          - filtering events by condition
+          - filtering or selecting events
+        related: []
+        keywords:
+          - combine
+          - constraint
+          - constraints
+          - duration
+          - events
+          - field
+          - keep
+          - name
+          - nested
+          - select
+          - size
+          - subnet
+          - temporal
+  - name: Flow Control
+    description: Flow Control operators and functions
+    operators:
+      - name: cron
+        path: reference/operators/cron.md
+        summary: Runs a pipeline periodically according to a cron expression.
+        category: Flow Control
+        example: cron "* */10 * * * MON-FRI" { from "https://example.org" }
+        use_when:
+          - controlling pipeline flow
+          - network data
+        related: []
+        keywords:
+          - api
+          - fetch
+          - minutes
+          - publish
+      - name: delay
+        path: reference/operators/delay.md
+        summary: Delays events relative to a given start time, with an optional speedup.
+        category: Flow Control
+        example: delay ts, speed=2.5
+        use_when:
+          - controlling pipeline flow
+        related: []
+        keywords:
+          - decompress
+          - delay
+          - exceeds
+          - given
+          - logs
+          - original
+          - real
+          - replay
+          - speed
+          - stream
+          - time
+          - times
+          - timestamp
+      - name: discard
+        path: reference/operators/discard.md
+        summary: Discards all incoming events.
+        category: Flow Control
+        example: discard
+        use_when:
+          - controlling pipeline flow
+        related: []
+        keywords:
+          - benchmark
+          - everything
+          - export
+          - long
+          - takes
+      - name: every
+        path: reference/operators/every.md
+        summary: Runs a pipeline periodically at a fixed interval.
+        category: Flow Control
+        example: every 10s { summarize sum(amount) }
+        use_when:
+          - controlling pipeline flow
+          - network data
+        related: []
+        keywords:
+          - api
+          - enumerate
+          - event
+          - fetch
+          - minutes
+          - one
+          - per
+          - produce
+          - publish
+          - second
+      - name: fork
+        path: reference/operators/fork.md
+        summary: Executes a subpipeline with a copy of the input.
+        category: Flow Control
+        example: fork { to "copy.json" }
+        use_when:
+          - controlling pipeline flow
+          - network data
+        related: []
+        keywords:
+          - events
+          - import
+          - importing
+          - incoming
+          - publish
+          - simultaneously
+          - while
+      - name: load_balance
+        path: reference/operators/load_balance.md
+        summary: Routes the data to one of multiple subpipelines.
+        category: Flow Control
+        example: load_balance $over { publish $over }
+        use_when:
+          - controlling pipeline flow
+          - network data
+        related: []
+        keywords:
+          - data
+          - endpoints
+          - load
+          - multiple
+          - ports
+          - route
+          - splunk
+          - stream
+          - subscribe
+          - tcp
+      - name: pass
+        path: reference/operators/pass.md
+        summary: Does nothing with the input.
+        category: Flow Control
+        example: pass
+        use_when:
+          - controlling pipeline flow
+        related: []
+        keywords:
+          - 10s
+          - any
+          - changes
+          - forward
+          - nothing
+          - without
+      - name: repeat
+        path: reference/operators/repeat.md
+        summary: Repeats the input a number of times.
+        category: Flow Control
+        example: repeat 100
+        use_when:
+          - controlling pipeline flow
+        related: []
+        keywords:
+          - event
+          - indefinitely
+          - repeat
+          - times
+      - name: throttle
+        path: reference/operators/throttle.md
+        summary: Limits the bandwidth of a pipeline.
+        category: Flow Control
+        example: throttle 100M, within=1min
+        use_when:
+          - controlling pipeline flow
+          - network data
+        related: []
+        keywords:
+          - byte
+          - decompress
+          - given
+          - import
+          - limit
+          - load
+          - per
+          - read
+          - second
+          - set
+          - stream
+          - throughput
+          - time
+          - window
+  - name: Host Inspection
+    description: Host Inspection operators and functions
+    operators:
+      - name: files
+        path: reference/operators/files.md
+        summary: Shows file information for a given directory.
+        category: Host Inspection
+        example: files "/var/log/", recurse=true
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - compute
+          - current
+          - directory
+          - file
+          - find
+          - group
+          - named
+          - pipes
+          - read
+          - schemas
+          - size
+          - summarize
+          - total
+          - write
+      - name: nics
+        path: reference/operators/nics.md
+        summary: Shows a snapshot of available network interfaces.
+        category: Host Inspection
+        example: nics
+        use_when:
+          - inspecting node state
+          - network data
+        related: []
+        keywords:
+          - connected
+          - interfaces
+          - list
+          - network
+          - schemas
+      - name: processes
+        path: reference/operators/processes.md
+        summary: Shows a snapshot of running processes.
+        category: Host Inspection
+        example: processes
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - five
+          - group
+          - name
+          - processes
+          - running
+          - runtime
+          - schemas
+          - show
+          - sort
+          - top
+      - name: sockets
+        path: reference/operators/sockets.md
+        summary: Shows a snapshot of open sockets.
+        category: Host Inspection
+        example: sockets
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - address
+          - local
+          - process
+          - remote
+          - schemas
+          - select
+          - show
+          - sockets
+  - name: Inputs/Bytes
+    description: Inputs/Bytes operators and functions
+    operators:
+      - name: load_amqp
+        path: reference/operators/load_amqp.md
+        summary: Loads a byte stream via AMQP messages.
+        category: Inputs/Bytes
+        example: load_amqp
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - messaging systems
+        related: []
+        keywords:
+          - amqp
+          - consume
+          - message
+          - queue
+          - receive
+          - send
+          - specified
+          - stream
+      - name: load_azure_blob_storage
+        path: reference/operators/load_azure_blob_storage.md
+        summary: Loads bytes from Azure Blob Storage.
+        category: Inputs/Bytes
+        example: load_azure_blob_storage "abfs://container/file"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - json
+          - load
+          - read
+          - write
+      - name: load_file
+        path: reference/operators/load_file.md
+        summary: Loads the contents of the file at path as a byte stream.
+        category: Inputs/Bytes
+        example: load_file "/tmp/data.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+        related: []
+        keywords:
+          - contents
+          - file
+          - load
+          - path
+          - raw
+          - read
+          - stream
+      - name: load_ftp
+        path: reference/operators/load_ftp.mdx
+        summary: Loads a byte stream via FTP.
+        category: Inputs/Bytes
+        example: load_ftp "ftp.example.org"
+        use_when:
+          - loading or ingesting data
+          - loading data
+        related: []
+        keywords:
+          - import
+          - stream
+      - name: load_gcs
+        path: reference/operators/load_gcs.md
+        summary: Loads bytes from a Google Cloud Storage object.
+        category: Inputs/Bytes
+        example: load_gcs "gs://bucket/object.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - read
+      - name: load_google_cloud_pubsub
+        path: reference/operators/load_google_cloud_pubsub.md
+        summary: Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.
+        category: Inputs/Bytes
+        example: load_google_cloud_pubsub project_id="my-project"
+        use_when:
+          - loading or ingesting data
+          - network data
+        related: []
+        keywords:
+          - connect
+          - integration
+          - json
+          - messages
+          - parse
+          - read
+          - subscribe
+          - subscription
+          - support
+          - uri
+      - name: load_http
+        path: reference/operators/load_http.mdx
+        summary: Loads a byte stream via HTTP.
+        category: Inputs/Bytes
+        example: 'load_http "example.org", params={n: 5}'
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - api
+          - call
+          - encode
+          - get
+          - import
+          - perform
+          - response
+          - stream
+      - name: load_kafka
+        path: reference/operators/load_kafka.md
+        summary: Loads a byte stream from an Apache Kafka topic.
+        category: Inputs/Bytes
+        example: load_kafka topic="example"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - messaging systems
+        related: []
+        keywords:
+          - "100"
+          - beginning
+          - group
+          - json
+          - logs
+          - messages
+          - read
+          - starting
+          - stream
+          - streaming
+          - topic
+          - zeek
+      - name: load_nic
+        path: reference/operators/load_nic.md
+        summary: Loads bytes from a network interface card (NIC).
+        category: Inputs/Bytes
+        example: load_nic "eth0"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - network data
+        related: []
+        keywords:
+          - equivalent
+          - load
+          - packets
+          - pcap
+          - perform
+          - read
+          - stream
+      - name: load_s3
+        path: reference/operators/load_s3.md
+        summary: Loads from an Amazon S3 object.
+        category: Inputs/Bytes
+        example: load_s3 "s3://my-bucket/obj.csv"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - load
+          - read
+      - name: load_sqs
+        path: reference/operators/load_sqs.md
+        summary: Loads bytes from [Amazon SQS][sqs] queues.
+        category: Inputs/Bytes
+        example: load_sqs "sqs://tenzir"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - messaging systems
+        related: []
+        keywords:
+          - read
+      - name: load_stdin
+        path: reference/operators/load_stdin.md
+        summary: Accepts bytes from standard input.
+        category: Inputs/Bytes
+        example: load_stdin
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - pipe
+          - text
+      - name: load_tcp
+        path: reference/operators/load_tcp.mdx
+        summary: Loads bytes from a TCP or TLS connection.
+        category: Inputs/Bytes
+        example: load_tcp "0.0.0.0:8090" { read_json }
+        use_when:
+          - loading or ingesting data
+          - loading data
+        related: []
+        keywords:
+          - authentication
+          - certificate
+          - client
+          - connect
+          - create
+          - enabled
+          - endpoint
+          - import
+          - incoming
+          - json
+          - listen
+          - localhost
+          - mtls
+          - mutual
+          - read
+      - name: load_udp
+        path: reference/operators/load_udp.md
+        summary: Loads bytes from a UDP socket.
+        category: Inputs/Bytes
+        example: load_udp "0.0.0.0:8090"
+        use_when:
+          - loading or ingesting data
+          - loading data
+        related: []
+        keywords:
+          - connect
+          - import
+          - json
+          - listenting
+          - load
+          - localhost
+          - udp
+          - via
+      - name: load_zmq
+        path: reference/operators/load_zmq.md
+        summary: Receives ZeroMQ messages.
+        category: Inputs/Bytes
+        example: load_zmq
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - connect
+          - filter
+          - interpret
+          - json
+          - messages
+          - zeromq
+  - name: Inputs/Events
+    description: Operators that produce events from data sources
+    operators:
+      - name: from
+        path: reference/operators/from.md
+        summary: Obtains events from an URI, inferring the source, compression and format.
+        category: Inputs/Events
+        example: from "data.json"
+        use_when:
+          - loading data from sources
+          - loading or ingesting data
+          - compressing data
+        related: []
+        keywords:
+          - compressed
+          - compression
+          - create
+          - decode
+          - decompressing
+          - deductions
+          - encode
+          - events
+          - explanation
+          - extensions
+          - file
+          - format
+          - header
+          - http
+          - load
+      - name: from_azure_blob_storage
+        path: reference/operators/from_azure_blob_storage.md
+        summary: Reads one or multiple files from Azure Blob Storage.
+        category: Inputs/Events
+        example: from_azure_blob_storage "abfs://container/data/**.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - account
+          - add
+          - archive
+          - authentication
+          - container
+          - continuously
+          - csv
+          - eve
+          - events
+          - file
+          - files
+          - json
+          - key
+          - logs
+          - matches
+      - name: from_file
+        path: reference/operators/from_file.md
+        summary: Reads one or multiple files from a filesystem.
+        category: Inputs/Events
+        example: from_file "s3://data/**.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - network data
+        related: []
+        keywords:
+          - afterwards
+          - continuously
+          - delete
+          - directory
+          - eve
+          - file
+          - filenames
+          - files
+          - json
+          - matches
+          - modified
+          - move
+          - preserving
+          - process
+          - read
+      - name: from_fluent_bit
+        path: reference/operators/from_fluent_bit.mdx
+        summary: Receives events via Fluent Bit.
+        category: Inputs/Events
+        example: from_fluent_bit "opentelemetry"
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - import
+          - ingest
+          - integration
+          - merge
+          - opentelemetry
+          - send
+          - splunk
+          - support
+          - uri
+      - name: from_gcs
+        path: reference/operators/from_gcs.md
+        summary: Reads one or multiple files from Google Cloud Storage.
+        category: Inputs/Events
+        example: from_gcs "gs://my-bucket/data/**.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - add
+          - bucket
+          - continuously
+          - csv
+          - custom
+          - eve
+          - events
+          - file
+          - files
+          - json
+          - logs
+          - matches
+          - parsing
+          - path
+          - public
+      - name: from_google_cloud_pubsub
+        path: reference/operators/from_google_cloud_pubsub.md
+        summary: Subscribes to a Google Cloud Pub/Sub subscription and yields events.
+        category: Inputs/Events
+        example: from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
+        use_when:
+          - loading or ingesting data
+          - network data
+        related: []
+        keywords:
+          - alongside
+          - collect
+          - connect
+          - consume
+          - json
+          - message
+          - messages
+          - metadata
+          - parse
+          - publish
+          - subscribe
+      - name: from_http
+        path: reference/operators/from_http.md
+        summary: Sends and receives HTTP/1.1 requests.
+        category: Inputs/Events
+        example: from_http "0.0.0.0:8080"
+        use_when:
+          - loading or ingesting data
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - "8080"
+          - api
+          - connect
+          - decompress
+          - encode
+          - failed
+          - get
+          - import
+          - listen
+          - load
+          - make
+          - paginated
+          - parse
+          - port
+          - request
+      - name: from_kafka
+        path: reference/operators/from_kafka.md
+        summary: Receives events from an Apache Kafka topic.
+        category: Inputs/Events
+        example: from_kafka "logs"
+        use_when:
+          - loading or ingesting data
+          - messaging systems
+        related: []
+        keywords:
+          - "100"
+          - authentication
+          - aws
+          - beginning
+          - caught
+          - consume
+          - exit
+          - group
+          - iam
+          - json
+          - messages
+          - msk
+          - parse
+          - starting
+      - name: from_opensearch
+        path: reference/operators/from_opensearch.md
+        summary: Receives events via Opensearch Bulk API.
+        category: Inputs/Events
+        example: from_opensearch
+        use_when:
+          - loading or ingesting data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - "8080"
+          - import
+          - interface
+          - listen
+          - port
+          - tls
+      - name: from_s3
+        path: reference/operators/from_s3.md
+        summary: Reads one or multiple files from Amazon S3.
+        category: Inputs/Events
+        example: from_s3 "s3://my-bucket/data/**.json"
+        use_when:
+          - loading or ingesting data
+          - loading data
+          - cloud storage
+        related: []
+        keywords:
+          - access
+          - add
+          - anonymous
+          - archive
+          - assume
+          - bucket
+          - continuously
+          - credentials
+          - csv
+          - custom
+          - endpoint
+          - events
+          - explicit
+          - file
+          - files
+      - name: from_sentinelone_data_lake
+        path: reference/operators/from_sentinelone_data_lake.md
+        summary: Retrieves PowerQuery results from SentinelOne Singularity Data Lake.
+        category: Inputs/Events
+        example: from_sentinelone_data_lake "https://…", …
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - events
+          - fields
+          - filters
+          - hours
+          - query
+          - range
+          - specific
+          - threat
+          - time
+      - name: from_udp
+        path: reference/operators/from_udp.md
+        summary: Receives UDP datagrams and outputs structured events.
+        category: Inputs/Events
+        example: from_udp "0.0.0.0:8090"
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - data
+          - datagrams
+          - decode
+          - filter
+          - information
+          - json
+          - parse
+          - receive
+          - schema
+          - select
+          - sender
+          - udp
+      - name: from_velociraptor
+        path: reference/operators/from_velociraptor.md
+        summary: Submits VQL to a Velociraptor server and returns the response as events.
+        category: Inputs/Events
+        example: from_velociraptor subscribe="Windows"
+        use_when:
+          - loading or ingesting data
+        related: []
+        keywords:
+          - artifact
+          - containing
+          - flow
+          - hunt
+          - processes
+          - select
+          - send
+          - show
+          - stream
+          - subscribe
+  - name: Internals
+    description: Internals operators and functions
+    operators:
+      - name: api
+        path: reference/operators/api.md
+        summary: Use Tenzir's REST API directly from a pipeline.
+        category: Internals
+        example: api "/pipeline/list"
+        use_when:
+          - controlling pipeline behavior
+          - HTTP/API operations
+          - network data
+        related: []
+        keywords:
+          - create
+          - immediately
+          - import
+          - list
+          - pipeline
+          - pipelines
+          - read
+          - running
+          - send
+          - start
+      - name: batch
+        path: reference/operators/batch.md
+        summary: The batch operator controls the batch size of events.
+        category: Internals
+        example: batch timeout=1s
+        use_when:
+          - controlling pipeline behavior
+        related: []
+        keywords:
+          - batch
+      - name: buffer
+        path: reference/operators/buffer.md
+        summary: An in-memory buffer to improve handling of data spikes in upstream operators.
+        category: Internals
+        example: buffer 10M, policy="drop"
+        use_when:
+          - controlling pipeline behavior
+        related: []
+        keywords:
+          - buffer
+          - bytes
+          - events
+          - million
+          - receive
+      - name: cache
+        path: reference/operators/cache.md
+        summary: An in-memory cache shared between pipelines.
+        category: Internals
+        example: cache "w01wyhTZm3", ttl=10min
+        use_when:
+          - controlling pipeline behavior
+          - network data
+        related: []
+        keywords:
+          - cache
+          - expensive
+          - export
+          - get
+          - high-level
+          - query
+          - read
+          - statistics
+          - summarize
+          - write
+      - name: local
+        path: reference/operators/local.md
+        summary: Forces a pipeline to run locally.
+        category: Internals
+        example: local { sort foo }
+        use_when:
+          - controlling pipeline behavior
+          - network data
+        related: []
+        keywords:
+          - expensive
+          - export
+          - locally
+          - sort
+      - name: measure
+        path: reference/operators/measure.md
+        summary: Replaces the input with metrics describing the input.
+        category: Internals
+        example: measure
+        use_when:
+          - controlling pipeline behavior
+        related: []
+        keywords:
+          - bytes
+          - events
+          - file
+          - get
+          - grouped
+          - incrementally
+          - number
+          - read
+          - schema
+          - summarize
+          - total
+      - name: remote
+        path: reference/operators/remote.md
+        summary: Forces a pipeline to run remotely at a node.
+        category: Internals
+        example: remote { version }
+        use_when:
+          - controlling pipeline behavior
+          - network data
+        related: []
+        keywords:
+          - get
+          - node
+          - version
+      - name: serve
+        path: reference/operators/serve.md
+        summary: Make events available under the /serve REST API endpoint
+        category: Internals
+        example: serve "abcde12345"
+        use_when:
+          - controlling pipeline behavior
+          - HTTP/API operations
+        related: []
+        keywords:
+          - api
+          - available
+          - event
+          - make
+          - read
+          - rest
+          - wait
+      - name: strict
+        path: reference/operators/strict.md
+        summary: Treats all warnings as errors.
+        category: Internals
+        example: strict { assert false }
+        use_when:
+          - controlling pipeline behavior
+        related: []
+        keywords:
+          - any
+          - logs
+          - pipeline
+          - sending
+          - stop
+          - subscribe
+          - warnings
+      - name: unordered
+        path: reference/operators/unordered.md
+        summary: Removes ordering assumptions from a pipeline.
+        category: Internals
+        example: unordered { read_ndjson }
+        use_when:
+          - controlling pipeline behavior
+          - sorting events
+          - network data
+        related: []
+        keywords:
+          - json
+          - parse
+          - sort
+          - unordered
+  - name: Modify
+    description: Modify operators and functions
+    operators:
+      - name: dns_lookup
+        path: reference/operators/dns_lookup.md
+        summary: Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses.
+        category: Modify
+        example: dns_lookup ip_address, result=dns_info
+        use_when:
+          - modifying event fields
+          - enriching with external data
+          - network data
+        related: []
+        keywords:
+          - dns
+          - failures
+          - forward
+          - handling
+          - lookup
+          - lookups
+          - multiple
+          - pipeline
+          - reverse
+      - name: drop
+        path: reference/operators/drop.md
+        summary: Removes fields from the event.
+        category: Modify
+        example: drop name, metadata.id
+        use_when:
+          - removing fields
+          - modifying event fields
+        related: []
+        keywords:
+          - drop
+          - fields
+          - select
+      - name: drop_null_fields
+        path: reference/operators/drop_null_fields.md
+        summary: Removes fields containing null values from the event.
+        category: Modify
+        example: drop_null_fields name, metadata.id
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - behavior
+          - drop
+          - field
+          - fields
+          - inside
+          - lists
+          - "null"
+          - record
+          - records
+          - select
+          - specific
+          - within
+      - name: enumerate
+        path: reference/operators/enumerate.md
+        summary: Add a field with the number of preceding events.
+        category: Modify
+        example: enumerate num
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - count
+          - custom
+          - enumerate
+          - field
+          - group
+          - groups
+          - numbers
+          - prepending
+          - row
+          - within
+      - name: http
+        path: reference/operators/http.md
+        summary: Sends HTTP/1.1 requests and forwards the response.
+        category: Modify
+        example: http "example.com"
+        use_when:
+          - modifying event fields
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - api
+          - connect
+          - context
+          - decompress
+          - encode
+          - enrich
+          - get
+          - import
+          - keeping
+          - load
+          - make
+          - paginate
+          - parse
+          - request
+          - send
+      - name: move
+        path: reference/operators/move.md
+        summary: Moves values from one field to another, removing the original field.
+        category: Modify
+        example: move id=parsed_id, ctx.message=incoming.status
+        use_when:
+          - modifying event fields
+        related: []
+        keywords: []
+      - name: replace
+        path: reference/operators/replace.md
+        summary: Replaces all occurrences of a value with another value.
+        category: Modify
+        example: replace what=42, with=null
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - address
+          - fields
+          - "null"
+          - occurrences
+          - redacted
+          - replace
+          - specific
+          - within
+      - name: select
+        path: reference/operators/select.md
+        summary: Selects some values and discards the rest.
+        category: Modify
+        example: select name, id=metadata.id
+        use_when:
+          - choosing specific fields
+          - modifying event fields
+          - filtering events
+        related: []
+        keywords:
+          - columns
+          - create
+          - select
+      - name: set
+        path: reference/operators/set.md
+        summary: Assigns a value to a field, creating it if necessary.
+        category: Modify
+        example: name = "Tenzir"
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - append
+          - existing
+          - field
+          - move
+          - read
+          - update
+      - name: timeshift
+        path: reference/operators/timeshift.md
+        summary: Adjusts timestamps relative to a given start time, with an optional speedup.
+        category: Modify
+        example: timeshift ts, start=2020-01-01
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - 100x
+          - "1984"
+          - begin
+          - decompress
+          - events
+          - inter-arrival
+          - jan
+          - reset
+          - scale
+          - times
+      - name: unroll
+        path: reference/operators/unroll.md
+        summary:
+          "Returns a new event for each member of a list or a record in an event,
 
-      duplicating the surrounding event.'
-    category: Modify
-    example: unroll names
-    use_when:
-    - modifying event fields
-    related: []
-    keywords:
-    - list
-    - record
-    - unroll
-- name: Node/Inspection
-  description: Node/Inspection operators and functions
-  operators:
-  - name: diagnostics
-    path: reference/operators/diagnostics.md
-    summary: Retrieves diagnostic events from a Tenzir node.
-    category: Node/Inspection
-    example: diagnostics
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - diagnostics
-    - error
-    - feed
-    - generated
-    - get
-    - live
-    - minutes
-    - past
-    - schemas
-    - view
-  - name: metrics
-    path: reference/operators/metrics.md
-    summary: Retrieves metrics events from a Tenzir node.
-    category: Node/Inspection
-    example: metrics "cpu"
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - bytes
-    - cpu
-    - current
-    - disk
-    - enrich
-    - events
-    - export
-    - get
-    - hour
-    - import
-    - inbound
-    - ingest
-    - ingress
-    - load
-    - memory
-  - name: openapi
-    path: reference/operators/openapi.md
-    summary: Shows the node's OpenAPI specification.
-    category: Node/Inspection
-    example: openapi
-    use_when:
-    - inspecting node state
-    - HTTP/API operations
-    related: []
-    keywords:
-    - openapi
-    - render
-    - specification
-    - yaml
-  - name: plugins
-    path: reference/operators/plugins.md
-    summary: Shows all available plugins and built-ins.
-    category: Node/Inspection
-    example: plugins
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - available
-    - currently
-    - functions
-    - schemas
-    - show
-    - summarize
-  - name: version
-    path: reference/operators/version.md
-    summary: Shows the current version.
-    category: Node/Inspection
-    example: version
-    use_when:
-    - inspecting node state
-    related: []
-    keywords:
-    - current
-    - schemas
-    - show
-    - version
-- name: Node/Storage Engine
-  description: Node/Storage Engine operators and functions
-  operators:
-  - name: export
-    path: reference/operators/export.md
-    summary: Retrieves events from a Tenzir node.
-    category: Node/Storage Engine
-    example: export
-    use_when:
-    - managing stored data
-    related: []
-    keywords:
-    - connect
-    - events
-    - export
-    - get
-    - import
-    - json
-    - matching
-    - publish
-    - stored
-    - subscribe
-    - subset
-  - name: fields
-    path: reference/operators/fields.md
-    summary: Retrieves all fields stored at a node.
-    category: Node/Storage Engine
-    example: fields
-    use_when:
-    - managing stored data
-    related: []
-    keywords:
-    - across
-    - fields
-    - frequently
-    - get
-    - schemas
-    - sort
-    - summarize
-    - top-5
-  - name: import
-    path: reference/operators/import.md
-    summary: Imports events into a Tenzir node.
-    category: Node/Storage Engine
-    example: import
-    use_when:
-    - managing stored data
-    - loading data
-    related: []
-    keywords:
-    - connection
-    - export
-    - format
-    - import
-    - logs
-    - publish
-    - tsv
-    - zeek
-  - name: partitions
-    path: reference/operators/partitions.md
-    summary: Retrieves metadata about events stored at a node.
-    category: Node/Storage Engine
-    example: partitions src_ip == 1.2.3.4
-    use_when:
-    - managing stored data
-    related: []
-    keywords:
-    - '127'
-    - bound
-    - contain
-    - data
-    - disk
-    - events
-    - export
-    - field
-    - get
-    - import
-    - many
-    - memory
-    - non-null
-    - partitions
-    - requirements
-  - name: schemas
-    path: reference/operators/schemas.md
-    summary: Retrieves all schemas for events stored at a node.
-    category: Node/Storage Engine
-    example: schemas
-    use_when:
-    - managing stored data
-    related: []
-    keywords:
-    - available
-    - definitions
-    - given
-    - schema
-- name: OCSF
-  description: OCSF operators and functions
-  operators:
-  - name: ocsf::apply
-    path: reference/operators/ocsf/apply.md
-    summary: Casts incoming events to their OCSF type.
-    category: OCSF
-    example: ocsf::apply
-    use_when:
-    - mapping to OCSF schema
-    related: []
-    keywords:
-    - cast
-    - clickhouse
-    - encode
-    - event
-    - events
-    - extract
-    - filter
-    - pre-defined
-    - preserve
-    - record
-    - select
-    - send
-    - single
-    - subscribe
-    - transform
-  - name: ocsf::cast
-    path: reference/operators/ocsf/cast.md
-    summary: Casts incoming events to their OCSF type.
-    category: OCSF
-    example: ocsf::cast
-    use_when:
-    - mapping to OCSF schema
-    related: []
-    keywords:
-    - cast
-    - clickhouse
-    - convert
-    - converts
-    - event
-    - events
-    - homogenize
-    - incoming
-    - pre-defined
-    - send
-    - single
-    - subscribe
-  - name: ocsf::derive
-    path: reference/operators/ocsf/derive.md
-    summary: 'Automatically assigns enum strings from their integer counterparts and vice
+          duplicating the surrounding event."
+        category: Modify
+        example: unroll names
+        use_when:
+          - modifying event fields
+        related: []
+        keywords:
+          - list
+          - record
+          - unroll
+  - name: Node/Inspection
+    description: Node/Inspection operators and functions
+    operators:
+      - name: diagnostics
+        path: reference/operators/diagnostics.md
+        summary: Retrieves diagnostic events from a Tenzir node.
+        category: Node/Inspection
+        example: diagnostics
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - diagnostics
+          - error
+          - feed
+          - generated
+          - get
+          - live
+          - minutes
+          - past
+          - schemas
+          - view
+      - name: metrics
+        path: reference/operators/metrics.md
+        summary: Retrieves metrics events from a Tenzir node.
+        category: Node/Inspection
+        example: metrics "cpu"
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - bytes
+          - cpu
+          - current
+          - disk
+          - enrich
+          - events
+          - export
+          - get
+          - hour
+          - import
+          - inbound
+          - ingest
+          - ingress
+          - load
+          - memory
+      - name: openapi
+        path: reference/operators/openapi.md
+        summary: Shows the node's OpenAPI specification.
+        category: Node/Inspection
+        example: openapi
+        use_when:
+          - inspecting node state
+          - HTTP/API operations
+        related: []
+        keywords:
+          - openapi
+          - render
+          - specification
+          - yaml
+      - name: plugins
+        path: reference/operators/plugins.md
+        summary: Shows all available plugins and built-ins.
+        category: Node/Inspection
+        example: plugins
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - available
+          - currently
+          - functions
+          - schemas
+          - show
+          - summarize
+      - name: version
+        path: reference/operators/version.md
+        summary: Shows the current version.
+        category: Node/Inspection
+        example: version
+        use_when:
+          - inspecting node state
+        related: []
+        keywords:
+          - current
+          - schemas
+          - show
+          - version
+  - name: Node/Storage Engine
+    description: Node/Storage Engine operators and functions
+    operators:
+      - name: export
+        path: reference/operators/export.md
+        summary: Retrieves events from a Tenzir node.
+        category: Node/Storage Engine
+        example: export
+        use_when:
+          - managing stored data
+        related: []
+        keywords:
+          - connect
+          - events
+          - export
+          - get
+          - import
+          - json
+          - matching
+          - publish
+          - stored
+          - subscribe
+          - subset
+      - name: fields
+        path: reference/operators/fields.md
+        summary: Retrieves all fields stored at a node.
+        category: Node/Storage Engine
+        example: fields
+        use_when:
+          - managing stored data
+        related: []
+        keywords:
+          - across
+          - fields
+          - frequently
+          - get
+          - schemas
+          - sort
+          - summarize
+          - top-5
+      - name: import
+        path: reference/operators/import.md
+        summary: Imports events into a Tenzir node.
+        category: Node/Storage Engine
+        example: import
+        use_when:
+          - managing stored data
+          - loading data
+        related: []
+        keywords:
+          - connection
+          - export
+          - format
+          - import
+          - logs
+          - publish
+          - tsv
+          - zeek
+      - name: partitions
+        path: reference/operators/partitions.md
+        summary: Retrieves metadata about events stored at a node.
+        category: Node/Storage Engine
+        example: partitions src_ip == 1.2.3.4
+        use_when:
+          - managing stored data
+        related: []
+        keywords:
+          - "127"
+          - bound
+          - contain
+          - data
+          - disk
+          - events
+          - export
+          - field
+          - get
+          - import
+          - many
+          - memory
+          - non-null
+          - partitions
+          - requirements
+      - name: schemas
+        path: reference/operators/schemas.md
+        summary: Retrieves all schemas for events stored at a node.
+        category: Node/Storage Engine
+        example: schemas
+        use_when:
+          - managing stored data
+        related: []
+        keywords:
+          - available
+          - definitions
+          - given
+          - schema
+  - name: OCSF
+    description: OCSF operators and functions
+    operators:
+      - name: ocsf::apply
+        path: reference/operators/ocsf/apply.md
+        summary: Casts incoming events to their OCSF type.
+        category: OCSF
+        example: ocsf::apply
+        use_when:
+          - mapping to OCSF schema
+        related: []
+        keywords:
+          - cast
+          - clickhouse
+          - encode
+          - event
+          - events
+          - extract
+          - filter
+          - pre-defined
+          - preserve
+          - record
+          - select
+          - send
+          - single
+          - subscribe
+          - transform
+      - name: ocsf::cast
+        path: reference/operators/ocsf/cast.md
+        summary: Casts incoming events to their OCSF type.
+        category: OCSF
+        example: ocsf::cast
+        use_when:
+          - mapping to OCSF schema
+        related: []
+        keywords:
+          - cast
+          - clickhouse
+          - convert
+          - converts
+          - event
+          - events
+          - homogenize
+          - incoming
+          - pre-defined
+          - send
+          - single
+          - subscribe
+      - name: ocsf::derive
+        path: reference/operators/ocsf/derive.md
+        summary:
+          "Automatically assigns enum strings from their integer counterparts and vice
 
-      versa.'
-    category: OCSF
-    example: ocsf::derive
-    use_when:
-    - mapping to OCSF schema
-    related: []
-    keywords:
-    - bidirectional
-    - enum
-    - integer
-    - read
-    - string
-    - validation
-  - name: ocsf::trim
-    path: reference/operators/ocsf/trim.md
-    summary: Drops fields from OCSF events to reduce their size.
-    category: OCSF
-    example: ocsf::trim
-    use_when:
-    - mapping to OCSF schema
-    related: []
-    keywords:
-    - behavior
-    - event
-    - explicitly
-    - field
-    - fields
-    - intelligent
-    - keep
-    - minimize
-    - remove
-    - selection
-    - size
-- name: Outputs/Bytes
-  description: Outputs/Bytes operators and functions
-  operators:
-  - name: save_amqp
-    path: reference/operators/save_amqp.md
-    summary: Saves a byte stream via AMQP messages.
-    category: Outputs/Bytes
-    example: save_amqp
-    use_when:
-    - exporting or saving data
-    - saving data
-    - messaging systems
-    related: []
-    keywords:
-    - json
-    - list
-    - plugins
-    - publish
-    - send
-    - stream
-  - name: save_azure_blob_storage
-    path: reference/operators/save_azure_blob_storage.md
-    summary: Saves bytes to Azure Blob Storage.
-    category: Outputs/Bytes
-    example: save_azure_blob_storage "abfs://container/file"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - cloud storage
-    related: []
-    keywords:
-    - json
-    - read
-    - save
-    - write
-  - name: save_email
-    path: reference/operators/save_email.mdx
-    summary: Saves bytes through an SMTP server.
-    category: Outputs/Bytes
-    example: save_email "user@example.org"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - import
-    - send
-  - name: save_file
-    path: reference/operators/save_file.md
-    summary: Writes a byte stream to a file.
-    category: Outputs/Bytes
-    example: save_file "/tmp/out.json"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - bytes
-    - file
-    - save
-    - stream
-    - write
-  - name: save_ftp
-    path: reference/operators/save_ftp.mdx
-    summary: Saves a byte stream via FTP.
-    category: Outputs/Bytes
-    example: save_ftp "ftp.example.org"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - import
-    - stream
-  - name: save_gcs
-    path: reference/operators/save_gcs.md
-    summary: Saves bytes to a Google Cloud Storage object.
-    category: Outputs/Bytes
-    example: save_gcs "gs://bucket/object.json"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - cloud storage
-    related: []
-    keywords:
-    - save
-    - write
-  - name: save_google_cloud_pubsub
-    path: reference/operators/save_google_cloud_pubsub.md
-    summary: Publishes to a Google Cloud Pub/Sub topic.
-    category: Outputs/Bytes
-    example: save_google_cloud_pubsub project_id="my-project"
-    use_when:
-    - exporting or saving data
-    related: []
-    keywords:
-    - alerts
-    - connect
-    - export
-    - given
-    - integration
-    - publish
-    - send
-    - support
-    - topic
-    - uri
-  - name: save_http
-    path: reference/operators/save_http.mdx
-    summary: Sends a byte stream via HTTP.
-    category: Outputs/Bytes
-    example: save_http "example.org/api"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - call
-    - data
-    - import
-    - pipeline
-    - stream
-    - webhook
-    - write
-  - name: save_kafka
-    path: reference/operators/save_kafka.md
-    summary: Saves a byte stream to a Apache Kafka topic.
-    category: Outputs/Bytes
-    example: save_kafka topic="example"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - messaging systems
-    related: []
-    keywords:
-    - csv
-    - file
-    - follow
-    - group
-    - past
-    - publish
-    - stream
-    - tenzir
-    - timestamp
-    - topic
-    - version
-    - write
-  - name: save_s3
-    path: reference/operators/save_s3.md
-    summary: Saves bytes to an Amazon S3 object.
-    category: Outputs/Bytes
-    example: save_s3 "s3://my-bucket/obj.csv"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - cloud storage
-    related: []
-    keywords:
-    - read
-    - save
-  - name: save_sqs
-    path: reference/operators/save_sqs.md
-    summary: Saves bytes to [Amazon SQS][sqs] queues.
-    category: Outputs/Bytes
-    example: save_sqs "sqs://tenzir"
-    use_when:
-    - exporting or saving data
-    - saving data
-    - messaging systems
-    related: []
-    keywords:
-    - subscribe
-    - write
-  - name: save_stdout
-    path: reference/operators/save_stdout.md
-    summary: Writes a byte stream to standard output.
-    category: Outputs/Bytes
-    example: save_stdout
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - colored
-    - compact
-    - stream
-    - tql-style
-    - write
-  - name: save_tcp
-    path: reference/operators/save_tcp.mdx
-    summary: Saves bytes to a TCP or TLS connection.
-    category: Outputs/Bytes
-    example: save_tcp "0.0.0.0:8090", tls=true
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - bitz
-    - connect
-    - count
-    - import
-    - incoming
-    - int
-    - localhost
-    - max
-    - retry
-    - save
-    - subscribe
-    - syslog
-    - tcp
-    - tls
-    - transform
-  - name: save_udp
-    path: reference/operators/save_udp.md
-    summary: Saves bytes to a UDP socket.
-    category: Outputs/Bytes
-    example: save_udp "0.0.0.0:8090"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - load
-    - send
-  - name: save_zmq
-    path: reference/operators/save_zmq.md
-    summary: Sends bytes as ZeroMQ messages.
-    category: Outputs/Bytes
-    example: save_zmq
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - connect
-    - connecting
-    - events
-    - pub
-    - publish
-    - socket
-- name: Outputs/Events
-  description: Operators that write events to destinations
-  operators:
-  - name: to
-    path: reference/operators/to.md
-    summary: Saves to an URI, inferring the destination, compression and format.
-    category: Outputs/Events
-    example: to "output.json"
-    use_when:
-    - sending data to destinations
-    - exporting or saving data
-    - compressing data
-    related: []
-    keywords:
-    - compressed
-    - compressing
-    - compression
-    - decode
-    - deductions
-    - encode
-    - explanation
-    - extensions
-    - file
-    - format
-    - load
-    - local
-    - save
-    - saving
-    - schemes
-  - name: to_amazon_security_lake
-    path: reference/operators/to_amazon_security_lake.md
-    summary: Sends OCSF events to Amazon Security Lake.
-    category: Outputs/Events
-    example: to_amazon_security_lake "s3://…"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - activity
-    - amazon
-    - events
-    - lake
-    - network
-    - ocsf
-    - security
-    - send
-    - subscribe
-    - write
-  - name: to_azure_log_analytics
-    path: reference/operators/to_azure_log_analytics.md
-    summary: Sends events to the Microsoft Azure Logs Ingestion API.
-    category: Outputs/Events
-    example: to_azure_log_analytics tenant_id="...", workspace_id="..."
-    use_when:
-    - exporting or saving data
-    - loading data
-    - saving data
-    related: []
-    keywords:
-    - events
-    - export
-    - ingest
-    - stream
-    - upload
-  - name: to_clickhouse
-    path: reference/operators/to_clickhouse.mdx
-    summary: Sends events to a ClickHouse table.
-    category: Outputs/Events
-    example: to_clickhouse table="my_table"
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - clickhouse
-    - create
-    - creation
-    - csv
-    - empty
-    - fields
-    - file
-    - import
-    - instance
-    - local
-    - multiple
-    - nulls
-    - records
-    - send
-    - table
-  - name: to_fluent_bit
-    path: reference/operators/to_fluent_bit.mdx
-    summary: Sends events via Fluent Bit.
-    category: Outputs/Events
-    example: to_fluent_bit "elasticsearch" …
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - import
-    - integration
-    - read
-    - send
-    - slack
-    - support
-    - uri
-  - name: to_google_cloud_logging
-    path: reference/operators/to_google_cloud_logging.md
-    summary: Sends events to Google Cloud Logging.
-    category: Outputs/Events
-    example: to_google_cloud_logging …
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - account
-    - adc
-    - authenticating
-    - automatically
-    - logs
-    - send
-    - service
-    - via
-  - name: to_google_cloud_pubsub
-    path: reference/operators/to_google_cloud_pubsub.md
-    summary: Publishes events to a Google Cloud Pub/Sub topic.
-    category: Outputs/Events
-    example: to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
-    use_when:
-    - exporting or saving data
-    related: []
-    keywords:
-    - alert
-    - connect
-    - export
-    - publish
-    - send
-    - text
-    - topic
-  - name: to_google_secops
-    path: reference/operators/to_google_secops.md
-    summary: Sends unstructured events to a Google SecOps Chronicle instance.
-    category: Outputs/Events
-    example: to_google_secops …
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - ingest
-    - send
-  - name: to_hive
-    path: reference/operators/to_hive.md
-    summary: Writes events to a URI using hive partitioning.
-    category: Outputs/Events
-    example: to_hive "s3://…", partition_by=[x]
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - azure
-    - blob
-    - bucket
-    - compress
-    - field
-    - file
-    - files
-    - group
-    - json
-    - local
-    - parquet
-    - partition
-    - partitioned
-    - single
-    - store
-  - name: to_kafka
-    path: reference/operators/to_kafka.md
-    summary: Sends messages to an Apache Kafka topic.
-    category: Outputs/Events
-    example: to_kafka "topic", message=this.print_json()
-    use_when:
-    - exporting or saving data
-    - saving data
-    - messaging systems
-    related: []
-    keywords:
-    - data
-    - events
-    - explicit
-    - field
-    - fixed
-    - json-formatted
-    - key
-    - message
-    - partitioning
-    - select
-    - send
-    - specific
-    - stream
-    - subscribe
-    - timestamp
-  - name: to_opensearch
-    path: reference/operators/to_opensearch.mdx
-    summary: Sends events to an OpenSearch-compatible Bulk API.
-    category: Outputs/Events
-    example: to_opensearch "localhost:9200", …
-    use_when:
-    - exporting or saving data
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - compress
-    - events
-    - file
-    - import
-    - json
-    - save
-    - send
-  - name: to_sentinelone_data_lake
-    path: reference/operators/to_sentinelone_data_lake.md
-    summary: Sends security events to SentinelOne Singularity Data Lake via REST API.
-    category: Outputs/Events
-    example: to_sentinelone_data_lake "https://…", …
-    use_when:
-    - exporting or saving data
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - additional
-    - data
-    - events
-    - information
-    - ingest
-    - lake
-    - parse
-    - select
-    - send
-    - sentinelone
-    - session
-    - unstructured
-  - name: to_snowflake
-    path: reference/operators/to_snowflake.md
-    summary: Sends events to a Snowflake database.
-    category: Outputs/Events
-    example: to_snowflake account_identifier="…
-    use_when:
-    - exporting or saving data
-    - saving data
-    related: []
-    keywords:
-    - event
-    - export
-    - ingest
-    - send
-    - snowflake
-    - table
-    - write
-  - name: to_splunk
-    path: reference/operators/to_splunk.mdx
-    summary: Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
-    category: Outputs/Events
-    example: to_splunk "localhost:8088", …
-    use_when:
-    - exporting or saving data
-    - saving data
-    - HTTP/API operations
-    related: []
-    keywords:
-    - compress
-    - data
-    - dependent
-    - endpoint
-    - file
-    - framing
-    - hec
-    - import
-    - json
-    - save
-    - send
-    - splunk
-- name: Packages
-  description: Packages operators and functions
-  operators:
-  - name: package::add
-    path: reference/operators/package/add.md
-    summary: Installs a package.
-    category: Packages
-    example: package::add "suricata-ocsf"
-    use_when:
-    - managing packages
-    related: []
-    keywords:
-    - add
-    - community
-    - inputs
-    - library
-    - local
-    - package
-  - name: package::list
-    path: reference/operators/package/list.md
-    summary: Shows installed packages.
-    category: Packages
-    example: package::list
-    use_when:
-    - managing packages
-    related: []
-    keywords:
-    - installed
-    - packages
-    - schemas
-    - show
-  - name: package::remove
-    path: reference/operators/package/remove.md
-    summary: Uninstalls a package.
-    category: Packages
-    example: package::remove "suricata-ocsf"
-    use_when:
-    - managing packages
-    related: []
-    keywords:
-    - installed
-    - package
-    - remove
-- name: Parsing
-  description: Parsing operators and functions
-  operators:
-  - name: read_all
-    path: reference/operators/read_all.md
-    summary: Parses an incoming bytes stream into a single event.
-    category: Parsing
-    example: read_all binary=true
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - binary
-    - entire
-    - event
-    - file
-    - read
-    - single
-    - stream
-    - text
-  - name: read_bitz
-    path: reference/operators/read_bitz.md
-    summary: Parses bytes as _BITZ_ format.
-    category: Parsing
-    example: read_bitz
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - read
-    - write
-  - name: read_cef
-    path: reference/operators/read_cef.mdx
-    summary: Parses an incoming Common Event Format (CEF) stream into events.
-    category: Parsing
-    example: read_cef
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - parsing log formats
-    related: []
-    keywords:
-    - import
-    - merge
-    - stream
-  - name: read_csv
-    path: reference/operators/read_csv.mdx
-    summary: Read CSV (Comma-Separated Values) from a byte stream.
-    category: Parsing
-    example: read_csv null_value="-"
-    use_when:
-    - parsing data formats
-    - loading data
-    - working with structured formats
-    related: []
-    keywords:
-    - csv
-    - file
-    - header
-    - import
-    - load
-    - manually
-    - read
-    - specify
-    - stream
-  - name: read_delimited
-    path: reference/operators/read_delimited.md
-    summary: Parses an incoming bytes stream into events using a string as delimiter.
-    category: Parsing
-    example: read_delimited "|"
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - binary
-    - blob
-    - csv-like
-    - custom
-    - data
-    - delimiter
-    - delimiters
-    - include
-    - parse
-    - separator
-    - simple
-    - split
-    - stream
-    - string
-  - name: read_delimited_regex
-    path: reference/operators/read_delimited_regex.md
-    summary: Parses an incoming bytes stream into events using a regular expression as delimiter.
-    category: Parsing
-    example: read_delimited_regex r"\s+"
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - binary
-    - blob
-    - data
-    - delimiters
-    - entries
-    - events
-    - include
-    - log
-    - multiple
-    - newline
-    - parse
-    - pattern
-    - patterns
-    - possible
-    - separated
-  - name: read_feather
-    path: reference/operators/read_feather.md
-    summary: Parses an incoming Feather byte stream into events.
-    category: Parsing
-    example: read_feather
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - feather
-    - file
-    - logs
-    - publish
-    - stream
-  - name: read_gelf
-    path: reference/operators/read_gelf.mdx
-    summary: Parses an incoming GELF stream into events.
-    category: Parsing
-    example: read_gelf
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - gelf
-    - import
-    - merge
-    - read
-    - socket
-    - stream
-    - tcp
-  - name: read_grok
-    path: reference/operators/read_grok.mdx
-    summary: Parses lines of input with a grok pattern.
-    category: Parsing
-    example: read_grok "%{IP:client} %{WORD:action}"
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - fictional
-    - http
-    - import
-    - log
-    - merge
-    - parse
-    - request
-  - name: read_json
-    path: reference/operators/read_json.mdx
-    summary: Parses an incoming JSON stream into events.
-    category: Parsing
-    example: read_json arrays_of_objects=true
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - working with structured formats
-    related: []
-    keywords:
-    - array
-    - file
-    - import
-    - ingest
-    - json
-    - load
-    - merge
-    - parse
-    - read
-    - read_ndjson
-    - stream
-  - name: read_kv
-    path: reference/operators/read_kv.mdx
-    summary: Read Key-Value pairs from a byte stream.
-    category: Parsing
-    example: read_kv r"(\s+)[A-Z_]+:", r":\s*"
-    use_when:
-    - parsing data formats
-    - loading data
-    related: []
-    keywords:
-    - comma-separated
-    - complex
-    - extract
-    - fields
-    - group
-    - import
-    - key-value
-    - merge
-    - pairs
-    - parse
-    - quoted
-    - read
-    - rules
-    - split
-    - stream
-  - name: read_leef
-    path: reference/operators/read_leef.mdx
-    summary: Parses an incoming [LEEF][leef] stream into events.
-    category: Parsing
-    example: read_leef
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - parsing log formats
-    related: []
-    keywords:
-    - import
-    - merge
-    - send
-    - stream
-  - name: read_lines
-    path: reference/operators/read_lines.md
-    summary: Parses an incoming bytes stream into events.
-    category: Parsing
-    example: read_lines
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - events
-    - file
-    - lines
-    - newline
-    - reads
-    - split
-    - stream
-    - syslog-like
-    - tcp
-    - terminators
-    - without
-  - name: read_ndjson
-    path: reference/operators/read_ndjson.mdx
-    summary: Parses an incoming NDJSON (newline-delimited JSON) stream into events.
-    category: Parsing
-    example: read_ndjson
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - working with structured formats
-    related: []
-    keywords:
-    - file
-    - import
-    - json
-    - merge
-    - newline-delimited
-    - read
-    - stream
-  - name: read_parquet
-    path: reference/operators/read_parquet.md
-    summary: Reads events from a Parquet byte stream.
-    category: Parsing
-    example: read_parquet
-    use_when:
-    - parsing data formats
-    - loading data
-    related: []
-    keywords:
-    - read
-    - stream
-  - name: read_pcap
-    path: reference/operators/read_pcap.md
-    summary: Reads raw network packets in PCAP file format.
-    category: Parsing
-    example: read_pcap
-    use_when:
-    - parsing data formats
-    - loading data
-    - network data
-    related: []
-    keywords:
-    - file
-    - interface
-    - network
-    - packets
-    - pcap
-    - read
-    - schemas
-    - stream
-  - name: read_ssv
-    path: reference/operators/read_ssv.mdx
-    summary: Read SSV (Space-Separated Values) from a byte stream.
-    category: Parsing
-    example: read_ssv header="name count"
-    use_when:
-    - parsing data formats
-    - loading data
-    related: []
-    keywords:
-    - file
-    - import
-    - load
-    - parse
-    - read
-    - ssv
-    - stream
-  - name: read_suricata
-    path: reference/operators/read_suricata.mdx
-    summary: Parse an incoming [Suricata EVE JSON][eve-json] stream into events.
-    category: Parsing
-    example: read_suricata
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - working with structured formats
-    related: []
-    keywords:
-    - domain
-    - eve
-    - file
-    - import
-    - json
-    - log
-    - parse
-    - read
-    - socket
-    - stream
-    - suricata
-    - unix
-  - name: read_syslog
-    path: reference/operators/read_syslog.mdx
-    summary: Parses an incoming Syslog stream into events.
-    category: Parsing
-    example: read_syslog
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - parsing log formats
-    related: []
-    keywords:
-    - import
-    - merge
-    - read
-    - stream
-  - name: read_tsv
-    path: reference/operators/read_tsv.mdx
-    summary: Read TSV (Tab-Separated Values) from a byte stream.
-    category: Parsing
-    example: read_tsv auto_expand=true
-    use_when:
-    - parsing data formats
-    - loading data
-    related: []
-    keywords:
-    - file
-    - import
-    - load
-    - parse
-    - read
-    - stream
-    - tsv
-  - name: read_xsv
-    path: reference/operators/read_xsv.mdx
-    summary: Read XSV from a byte stream.
-    category: Parsing
-    example: read_xsv ";", ":", "N/A"
-    use_when:
-    - parsing data formats
-    - loading data
-    related: []
-    keywords:
-    - import
-    - read
-    - stream
-  - name: read_yaml
-    path: reference/operators/read_yaml.mdx
-    summary: Parses an incoming YAML stream into events.
-    category: Parsing
-    example: read_yaml
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - working with structured formats
-    related: []
-    keywords:
-    - file
-    - import
-    - merge
-    - parse
-    - stream
-    - title
-    - yaml
-  - name: read_zeek_json
-    path: reference/operators/read_zeek_json.mdx
-    summary: Parse an incoming Zeek JSON stream into events.
-    category: Parsing
-    example: read_zeek_json
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    - working with structured formats
-    related: []
-    keywords:
-    - connection
-    - import
-    - load
-    - log
-    - parse
-    - stream
-    - zeek
-  - name: read_zeek_tsv
-    path: reference/operators/read_zeek_tsv.md
-    summary: Parses an incoming Zeek TSV stream into events.
-    category: Parsing
-    example: read_zeek_tsv
-    use_when:
-    - parsing data formats
-    - parsing structured data
-    related: []
-    keywords:
-    - connection
-    - extract
-    - file
-    - log
-    - read
-    - stream
-    - zeek
-- name: Pipelines
-  description: Pipelines operators and functions
-  operators:
-  - name: pipeline::activity
-    path: reference/operators/pipeline/activity.md
-    summary: Summarizes the activity of pipelines.
-    category: Pipelines
-    example: pipeline::activity range=1d, interval=1h
-    use_when:
-    - managing pipelines
-    - aggregating data
-    - network data
-    related: []
-    keywords:
-    - 20s
-    - activity
-    - schemas
-    - show
-    - summarize
-  - name: pipeline::detach
-    path: reference/operators/pipeline/detach.md
-    summary: Starts a pipeline in the node.
-    category: Pipelines
-    example: pipeline::detach { … }
-    use_when:
-    - managing pipelines
-    - network data
-    related: []
-    keywords:
-    - background
-    - pipeline
-    - run
-    - select
-  - name: pipeline::list
-    path: reference/operators/pipeline/list.md
-    summary: Shows managed pipelines.
-    category: Pipelines
-    example: pipeline::list
-    use_when:
-    - managing pipelines
-    - network data
-    related: []
-    keywords:
-    - count
-    - package
-    - per
-    - pipelines
-    - show
-    - state
-    - summarize
-  - name: pipeline::run
-    path: reference/operators/pipeline/run.md
-    summary: Starts a pipeline in the node and waits for it to complete.
-    category: Pipelines
-    example: pipeline::run { … }
-    use_when:
-    - managing pipelines
-    - network data
-    related: []
-    keywords:
-    - background
-    - complete
-    - pipeline
-    - run
-    - select
-    - wait
-- name: Printing
-  description: Printing operators and functions
-  operators:
-  - name: write_bitz
-    path: reference/operators/write_bitz.md
-    summary: Writes events in _BITZ_ format.
-    category: Printing
-    example: write_bitz
-    use_when:
-    - outputting formatted data
-    - saving data
-    related: []
-    keywords:
-    - read
-    - write
-  - name: write_csv
-    path: reference/operators/write_csv.md
-    summary: Transforms event stream to CSV (Comma-Separated Values) byte stream.
-    category: Printing
-    example: write_csv
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    - working with structured formats
-    related: []
-    keywords:
-    - stream
-    - write
-  - name: write_feather
-    path: reference/operators/write_feather.md
-    summary: Transforms the input event stream to Feather byte stream.
-    category: Printing
-    example: write_feather
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - convert
-    - feather
-    - file
-    - json
-    - stream
-  - name: write_json
-    path: reference/operators/write_json.md
-    summary: Transforms the input event stream to a JSON byte stream.
-    category: Printing
-    example: write_json
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    - working with structured formats
-    related: []
-    keywords:
-    - convert
-    - fields
-    - file
-    - json
-    - 'null'
-    - stream
-    - strip
-    - write
-    - yaml
-  - name: write_kv
-    path: reference/operators/write_kv.md
-    summary: Writes events in a Key-Value format.
-    category: Printing
-    example: write_kv
-    use_when:
-    - outputting formatted data
-    - saving data
-    related: []
-    keywords:
-    - join
-    - key-value
-    - nested
-    - pairs
-    - quoted
-    - records
-    - strings
-    - write
-  - name: write_lines
-    path: reference/operators/write_lines.md
-    summary: Writes events as key-value pairsthe _values_ of an event.
-    category: Printing
-    example: write_lines
-    use_when:
-    - outputting formatted data
-    - saving data
-    related: []
-    keywords:
-    - event
-    - write
-  - name: write_ndjson
-    path: reference/operators/write_ndjson.md
-    summary: Transforms the input event stream to a Newline-Delimited JSON byte stream.
-    category: Printing
-    example: write_ndjson
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    - working with structured formats
-    related: []
-    keywords:
-    - convert
-    - fields
-    - file
-    - json
-    - 'null'
-    - stream
-    - strip
-    - yaml
-  - name: write_parquet
-    path: reference/operators/write_parquet.md
-    summary: Transforms event stream to a Parquet byte stream.
-    category: Printing
-    example: write_parquet
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - compress
-    - stream
-    - write
-  - name: write_pcap
-    path: reference/operators/write_pcap.md
-    summary: Transforms event stream to PCAP byte stream.
-    category: Printing
-    example: write_pcap
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - events
-    - file
-    - packet
-    - pcap
-    - stream
-    - subscribe
-    - write
-  - name: write_ssv
-    path: reference/operators/write_ssv.md
-    summary: Transforms event stream to SSV (Space-Separated Values) byte stream.
-    category: Printing
-    example: write_ssv
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - stream
-    - write
-  - name: write_syslog
-    path: reference/operators/write_syslog.md
-    summary: Writes events as syslog.
-    category: Printing
-    example: write_syslog
-    use_when:
-    - outputting formatted data
-    - saving data
-    - parsing log formats
-    related: []
-    keywords:
-    - create
-    - manually
-    - syslog
-  - name: write_tql
-    path: reference/operators/write_tql.md
-    summary: Transforms the input event stream to a TQL notation byte stream.
-    category: Printing
-    example: write_tql
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - event
-    - fields
-    - 'null'
-    - print
-    - stream
-    - strip
-    - tql
-    - write
-  - name: write_tsv
-    path: reference/operators/write_tsv.md
-    summary: Transforms event stream to TSV (Tab-Separated Values) byte stream.
-    category: Printing
-    example: write_tsv
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - stream
-    - write
-  - name: write_xsv
-    path: reference/operators/write_xsv.md
-    summary: Transforms event stream to XSV byte stream.
-    category: Printing
-    example: write_xsv
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - stream
-  - name: write_yaml
-    path: reference/operators/write_yaml.md
-    summary: Transforms the input event stream to YAML byte stream.
-    category: Printing
-    example: write_yaml
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    - working with structured formats
-    related: []
-    keywords:
-    - convert
-    - file
-    - json
-    - stream
-    - yaml
-  - name: write_zeek_tsv
-    path: reference/operators/write_zeek_tsv.md
-    summary: Transforms event stream into Zeek Tab-Separated Value byte stream.
-    category: Printing
-    example: write_zeek_tsv
-    use_when:
-    - outputting formatted data
-    - converting between formats
-    related: []
-    keywords:
-    - format
-    - pipelines
-    - stream
-    - subscribe
-    - tsv
-    - write
-    - zeek
+          versa."
+        category: OCSF
+        example: ocsf::derive
+        use_when:
+          - mapping to OCSF schema
+        related: []
+        keywords:
+          - bidirectional
+          - enum
+          - integer
+          - read
+          - string
+          - validation
+      - name: ocsf::trim
+        path: reference/operators/ocsf/trim.md
+        summary: Drops fields from OCSF events to reduce their size.
+        category: OCSF
+        example: ocsf::trim
+        use_when:
+          - mapping to OCSF schema
+        related: []
+        keywords:
+          - behavior
+          - event
+          - explicitly
+          - field
+          - fields
+          - intelligent
+          - keep
+          - minimize
+          - remove
+          - selection
+          - size
+  - name: Outputs/Bytes
+    description: Outputs/Bytes operators and functions
+    operators:
+      - name: save_amqp
+        path: reference/operators/save_amqp.md
+        summary: Saves a byte stream via AMQP messages.
+        category: Outputs/Bytes
+        example: save_amqp
+        use_when:
+          - exporting or saving data
+          - saving data
+          - messaging systems
+        related: []
+        keywords:
+          - json
+          - list
+          - plugins
+          - publish
+          - send
+          - stream
+      - name: save_azure_blob_storage
+        path: reference/operators/save_azure_blob_storage.md
+        summary: Saves bytes to Azure Blob Storage.
+        category: Outputs/Bytes
+        example: save_azure_blob_storage "abfs://container/file"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - cloud storage
+        related: []
+        keywords:
+          - json
+          - read
+          - save
+          - write
+      - name: save_email
+        path: reference/operators/save_email.mdx
+        summary: Saves bytes through an SMTP server.
+        category: Outputs/Bytes
+        example: save_email "user@example.org"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - import
+          - send
+      - name: save_file
+        path: reference/operators/save_file.md
+        summary: Writes a byte stream to a file.
+        category: Outputs/Bytes
+        example: save_file "/tmp/out.json"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - bytes
+          - file
+          - save
+          - stream
+          - write
+      - name: save_ftp
+        path: reference/operators/save_ftp.mdx
+        summary: Saves a byte stream via FTP.
+        category: Outputs/Bytes
+        example: save_ftp "ftp.example.org"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - import
+          - stream
+      - name: save_gcs
+        path: reference/operators/save_gcs.md
+        summary: Saves bytes to a Google Cloud Storage object.
+        category: Outputs/Bytes
+        example: save_gcs "gs://bucket/object.json"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - cloud storage
+        related: []
+        keywords:
+          - save
+          - write
+      - name: save_google_cloud_pubsub
+        path: reference/operators/save_google_cloud_pubsub.md
+        summary: Publishes to a Google Cloud Pub/Sub topic.
+        category: Outputs/Bytes
+        example: save_google_cloud_pubsub project_id="my-project"
+        use_when:
+          - exporting or saving data
+        related: []
+        keywords:
+          - alerts
+          - connect
+          - export
+          - given
+          - integration
+          - publish
+          - send
+          - support
+          - topic
+          - uri
+      - name: save_http
+        path: reference/operators/save_http.mdx
+        summary: Sends a byte stream via HTTP.
+        category: Outputs/Bytes
+        example: save_http "example.org/api"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - call
+          - data
+          - import
+          - pipeline
+          - stream
+          - webhook
+          - write
+      - name: save_kafka
+        path: reference/operators/save_kafka.md
+        summary: Saves a byte stream to a Apache Kafka topic.
+        category: Outputs/Bytes
+        example: save_kafka topic="example"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - messaging systems
+        related: []
+        keywords:
+          - csv
+          - file
+          - follow
+          - group
+          - past
+          - publish
+          - stream
+          - tenzir
+          - timestamp
+          - topic
+          - version
+          - write
+      - name: save_s3
+        path: reference/operators/save_s3.md
+        summary: Saves bytes to an Amazon S3 object.
+        category: Outputs/Bytes
+        example: save_s3 "s3://my-bucket/obj.csv"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - cloud storage
+        related: []
+        keywords:
+          - read
+          - save
+      - name: save_sqs
+        path: reference/operators/save_sqs.md
+        summary: Saves bytes to [Amazon SQS][sqs] queues.
+        category: Outputs/Bytes
+        example: save_sqs "sqs://tenzir"
+        use_when:
+          - exporting or saving data
+          - saving data
+          - messaging systems
+        related: []
+        keywords:
+          - subscribe
+          - write
+      - name: save_stdout
+        path: reference/operators/save_stdout.md
+        summary: Writes a byte stream to standard output.
+        category: Outputs/Bytes
+        example: save_stdout
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - colored
+          - compact
+          - stream
+          - tql-style
+          - write
+      - name: save_tcp
+        path: reference/operators/save_tcp.mdx
+        summary: Saves bytes to a TCP or TLS connection.
+        category: Outputs/Bytes
+        example: save_tcp "0.0.0.0:8090", tls=true
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - bitz
+          - connect
+          - count
+          - import
+          - incoming
+          - int
+          - localhost
+          - max
+          - retry
+          - save
+          - subscribe
+          - syslog
+          - tcp
+          - tls
+          - transform
+      - name: save_udp
+        path: reference/operators/save_udp.md
+        summary: Saves bytes to a UDP socket.
+        category: Outputs/Bytes
+        example: save_udp "0.0.0.0:8090"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - load
+          - send
+      - name: save_zmq
+        path: reference/operators/save_zmq.md
+        summary: Sends bytes as ZeroMQ messages.
+        category: Outputs/Bytes
+        example: save_zmq
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - connect
+          - connecting
+          - events
+          - pub
+          - publish
+          - socket
+  - name: Outputs/Events
+    description: Operators that write events to destinations
+    operators:
+      - name: to
+        path: reference/operators/to.md
+        summary: Saves to an URI, inferring the destination, compression and format.
+        category: Outputs/Events
+        example: to "output.json"
+        use_when:
+          - sending data to destinations
+          - exporting or saving data
+          - compressing data
+        related: []
+        keywords:
+          - compressed
+          - compressing
+          - compression
+          - decode
+          - deductions
+          - encode
+          - explanation
+          - extensions
+          - file
+          - format
+          - load
+          - local
+          - save
+          - saving
+          - schemes
+      - name: to_amazon_security_lake
+        path: reference/operators/to_amazon_security_lake.md
+        summary: Sends OCSF events to Amazon Security Lake.
+        category: Outputs/Events
+        example: to_amazon_security_lake "s3://…"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - activity
+          - amazon
+          - events
+          - lake
+          - network
+          - ocsf
+          - security
+          - send
+          - subscribe
+          - write
+      - name: to_azure_log_analytics
+        path: reference/operators/to_azure_log_analytics.md
+        summary: Sends events to the Microsoft Azure Logs Ingestion API.
+        category: Outputs/Events
+        example: to_azure_log_analytics tenant_id="...", workspace_id="..."
+        use_when:
+          - exporting or saving data
+          - loading data
+          - saving data
+        related: []
+        keywords:
+          - events
+          - export
+          - ingest
+          - stream
+          - upload
+      - name: to_clickhouse
+        path: reference/operators/to_clickhouse.mdx
+        summary: Sends events to a ClickHouse table.
+        category: Outputs/Events
+        example: to_clickhouse table="my_table"
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - clickhouse
+          - create
+          - creation
+          - csv
+          - empty
+          - fields
+          - file
+          - import
+          - instance
+          - local
+          - multiple
+          - nulls
+          - records
+          - send
+          - table
+      - name: to_fluent_bit
+        path: reference/operators/to_fluent_bit.mdx
+        summary: Sends events via Fluent Bit.
+        category: Outputs/Events
+        example: to_fluent_bit "elasticsearch" …
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - import
+          - integration
+          - read
+          - send
+          - slack
+          - support
+          - uri
+      - name: to_google_cloud_logging
+        path: reference/operators/to_google_cloud_logging.md
+        summary: Sends events to Google Cloud Logging.
+        category: Outputs/Events
+        example: to_google_cloud_logging …
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - account
+          - adc
+          - authenticating
+          - automatically
+          - logs
+          - send
+          - service
+          - via
+      - name: to_google_cloud_pubsub
+        path: reference/operators/to_google_cloud_pubsub.md
+        summary: Publishes events to a Google Cloud Pub/Sub topic.
+        category: Outputs/Events
+        example: to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
+        use_when:
+          - exporting or saving data
+        related: []
+        keywords:
+          - alert
+          - connect
+          - export
+          - publish
+          - send
+          - text
+          - topic
+      - name: to_google_secops
+        path: reference/operators/to_google_secops.md
+        summary: Sends unstructured events to a Google SecOps Chronicle instance.
+        category: Outputs/Events
+        example: to_google_secops …
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - ingest
+          - send
+      - name: to_hive
+        path: reference/operators/to_hive.md
+        summary: Writes events to a URI using hive partitioning.
+        category: Outputs/Events
+        example: to_hive "s3://…", partition_by=[x]
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - azure
+          - blob
+          - bucket
+          - compress
+          - field
+          - file
+          - files
+          - group
+          - json
+          - local
+          - parquet
+          - partition
+          - partitioned
+          - single
+          - store
+      - name: to_kafka
+        path: reference/operators/to_kafka.md
+        summary: Sends messages to an Apache Kafka topic.
+        category: Outputs/Events
+        example: to_kafka "topic", message=this.print_json()
+        use_when:
+          - exporting or saving data
+          - saving data
+          - messaging systems
+        related: []
+        keywords:
+          - data
+          - events
+          - explicit
+          - field
+          - fixed
+          - json-formatted
+          - key
+          - message
+          - partitioning
+          - select
+          - send
+          - specific
+          - stream
+          - subscribe
+          - timestamp
+      - name: to_opensearch
+        path: reference/operators/to_opensearch.mdx
+        summary: Sends events to an OpenSearch-compatible Bulk API.
+        category: Outputs/Events
+        example: to_opensearch "localhost:9200", …
+        use_when:
+          - exporting or saving data
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - compress
+          - events
+          - file
+          - import
+          - json
+          - save
+          - send
+      - name: to_sentinelone_data_lake
+        path: reference/operators/to_sentinelone_data_lake.md
+        summary: Sends security events to SentinelOne Singularity Data Lake via REST API.
+        category: Outputs/Events
+        example: to_sentinelone_data_lake "https://…", …
+        use_when:
+          - exporting or saving data
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - additional
+          - data
+          - events
+          - information
+          - ingest
+          - lake
+          - parse
+          - select
+          - send
+          - sentinelone
+          - session
+          - unstructured
+      - name: to_snowflake
+        path: reference/operators/to_snowflake.md
+        summary: Sends events to a Snowflake database.
+        category: Outputs/Events
+        example: to_snowflake account_identifier="…
+        use_when:
+          - exporting or saving data
+          - saving data
+        related: []
+        keywords:
+          - event
+          - export
+          - ingest
+          - send
+          - snowflake
+          - table
+          - write
+      - name: to_splunk
+        path: reference/operators/to_splunk.mdx
+        summary: Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
+        category: Outputs/Events
+        example: to_splunk "localhost:8088", …
+        use_when:
+          - exporting or saving data
+          - saving data
+          - HTTP/API operations
+        related: []
+        keywords:
+          - compress
+          - data
+          - dependent
+          - endpoint
+          - file
+          - framing
+          - hec
+          - import
+          - json
+          - save
+          - send
+          - splunk
+  - name: Packages
+    description: Packages operators and functions
+    operators:
+      - name: package::add
+        path: reference/operators/package/add.md
+        summary: Installs a package.
+        category: Packages
+        example: package::add "suricata-ocsf"
+        use_when:
+          - managing packages
+        related: []
+        keywords:
+          - add
+          - community
+          - inputs
+          - library
+          - local
+          - package
+      - name: package::list
+        path: reference/operators/package/list.md
+        summary: Shows installed packages.
+        category: Packages
+        example: package::list
+        use_when:
+          - managing packages
+        related: []
+        keywords:
+          - installed
+          - packages
+          - schemas
+          - show
+      - name: package::remove
+        path: reference/operators/package/remove.md
+        summary: Uninstalls a package.
+        category: Packages
+        example: package::remove "suricata-ocsf"
+        use_when:
+          - managing packages
+        related: []
+        keywords:
+          - installed
+          - package
+          - remove
+  - name: Parsing
+    description: Parsing operators and functions
+    operators:
+      - name: read_all
+        path: reference/operators/read_all.md
+        summary: Parses an incoming bytes stream into a single event.
+        category: Parsing
+        example: read_all binary=true
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - binary
+          - entire
+          - event
+          - file
+          - read
+          - single
+          - stream
+          - text
+      - name: read_bitz
+        path: reference/operators/read_bitz.md
+        summary: Parses bytes as _BITZ_ format.
+        category: Parsing
+        example: read_bitz
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - read
+          - write
+      - name: read_cef
+        path: reference/operators/read_cef.mdx
+        summary: Parses an incoming Common Event Format (CEF) stream into events.
+        category: Parsing
+        example: read_cef
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - parsing log formats
+        related: []
+        keywords:
+          - import
+          - merge
+          - stream
+      - name: read_csv
+        path: reference/operators/read_csv.mdx
+        summary: Read CSV (Comma-Separated Values) from a byte stream.
+        category: Parsing
+        example: read_csv null_value="-"
+        use_when:
+          - parsing data formats
+          - loading data
+          - working with structured formats
+        related: []
+        keywords:
+          - csv
+          - file
+          - header
+          - import
+          - load
+          - manually
+          - read
+          - specify
+          - stream
+      - name: read_delimited
+        path: reference/operators/read_delimited.md
+        summary: Parses an incoming bytes stream into events using a string as delimiter.
+        category: Parsing
+        example: read_delimited "|"
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - binary
+          - blob
+          - csv-like
+          - custom
+          - data
+          - delimiter
+          - delimiters
+          - include
+          - parse
+          - separator
+          - simple
+          - split
+          - stream
+          - string
+      - name: read_delimited_regex
+        path: reference/operators/read_delimited_regex.md
+        summary: Parses an incoming bytes stream into events using a regular expression as delimiter.
+        category: Parsing
+        example: read_delimited_regex r"\s+"
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - binary
+          - blob
+          - data
+          - delimiters
+          - entries
+          - events
+          - include
+          - log
+          - multiple
+          - newline
+          - parse
+          - pattern
+          - patterns
+          - possible
+          - separated
+      - name: read_feather
+        path: reference/operators/read_feather.md
+        summary: Parses an incoming Feather byte stream into events.
+        category: Parsing
+        example: read_feather
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - feather
+          - file
+          - logs
+          - publish
+          - stream
+      - name: read_gelf
+        path: reference/operators/read_gelf.mdx
+        summary: Parses an incoming GELF stream into events.
+        category: Parsing
+        example: read_gelf
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - gelf
+          - import
+          - merge
+          - read
+          - socket
+          - stream
+          - tcp
+      - name: read_grok
+        path: reference/operators/read_grok.mdx
+        summary: Parses lines of input with a grok pattern.
+        category: Parsing
+        example: read_grok "%{IP:client} %{WORD:action}"
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - fictional
+          - http
+          - import
+          - log
+          - merge
+          - parse
+          - request
+      - name: read_json
+        path: reference/operators/read_json.mdx
+        summary: Parses an incoming JSON stream into events.
+        category: Parsing
+        example: read_json arrays_of_objects=true
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - working with structured formats
+        related: []
+        keywords:
+          - array
+          - file
+          - import
+          - ingest
+          - json
+          - load
+          - merge
+          - parse
+          - read
+          - read_ndjson
+          - stream
+      - name: read_kv
+        path: reference/operators/read_kv.mdx
+        summary: Read Key-Value pairs from a byte stream.
+        category: Parsing
+        example: read_kv r"(\s+)[A-Z_]+:", r":\s*"
+        use_when:
+          - parsing data formats
+          - loading data
+        related: []
+        keywords:
+          - comma-separated
+          - complex
+          - extract
+          - fields
+          - group
+          - import
+          - key-value
+          - merge
+          - pairs
+          - parse
+          - quoted
+          - read
+          - rules
+          - split
+          - stream
+      - name: read_leef
+        path: reference/operators/read_leef.mdx
+        summary: Parses an incoming [LEEF][leef] stream into events.
+        category: Parsing
+        example: read_leef
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - parsing log formats
+        related: []
+        keywords:
+          - import
+          - merge
+          - send
+          - stream
+      - name: read_lines
+        path: reference/operators/read_lines.md
+        summary: Parses an incoming bytes stream into events.
+        category: Parsing
+        example: read_lines
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - events
+          - file
+          - lines
+          - newline
+          - reads
+          - split
+          - stream
+          - syslog-like
+          - tcp
+          - terminators
+          - without
+      - name: read_ndjson
+        path: reference/operators/read_ndjson.mdx
+        summary: Parses an incoming NDJSON (newline-delimited JSON) stream into events.
+        category: Parsing
+        example: read_ndjson
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - working with structured formats
+        related: []
+        keywords:
+          - file
+          - import
+          - json
+          - merge
+          - newline-delimited
+          - read
+          - stream
+      - name: read_parquet
+        path: reference/operators/read_parquet.md
+        summary: Reads events from a Parquet byte stream.
+        category: Parsing
+        example: read_parquet
+        use_when:
+          - parsing data formats
+          - loading data
+        related: []
+        keywords:
+          - read
+          - stream
+      - name: read_pcap
+        path: reference/operators/read_pcap.md
+        summary: Reads raw network packets in PCAP file format.
+        category: Parsing
+        example: read_pcap
+        use_when:
+          - parsing data formats
+          - loading data
+          - network data
+        related: []
+        keywords:
+          - file
+          - interface
+          - network
+          - packets
+          - pcap
+          - read
+          - schemas
+          - stream
+      - name: read_ssv
+        path: reference/operators/read_ssv.mdx
+        summary: Read SSV (Space-Separated Values) from a byte stream.
+        category: Parsing
+        example: read_ssv header="name count"
+        use_when:
+          - parsing data formats
+          - loading data
+        related: []
+        keywords:
+          - file
+          - import
+          - load
+          - parse
+          - read
+          - ssv
+          - stream
+      - name: read_suricata
+        path: reference/operators/read_suricata.mdx
+        summary: Parse an incoming [Suricata EVE JSON][eve-json] stream into events.
+        category: Parsing
+        example: read_suricata
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - working with structured formats
+        related: []
+        keywords:
+          - domain
+          - eve
+          - file
+          - import
+          - json
+          - log
+          - parse
+          - read
+          - socket
+          - stream
+          - suricata
+          - unix
+      - name: read_syslog
+        path: reference/operators/read_syslog.mdx
+        summary: Parses an incoming Syslog stream into events.
+        category: Parsing
+        example: read_syslog
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - parsing log formats
+        related: []
+        keywords:
+          - import
+          - merge
+          - read
+          - stream
+      - name: read_tsv
+        path: reference/operators/read_tsv.mdx
+        summary: Read TSV (Tab-Separated Values) from a byte stream.
+        category: Parsing
+        example: read_tsv auto_expand=true
+        use_when:
+          - parsing data formats
+          - loading data
+        related: []
+        keywords:
+          - file
+          - import
+          - load
+          - parse
+          - read
+          - stream
+          - tsv
+      - name: read_xsv
+        path: reference/operators/read_xsv.mdx
+        summary: Read XSV from a byte stream.
+        category: Parsing
+        example: read_xsv ";", ":", "N/A"
+        use_when:
+          - parsing data formats
+          - loading data
+        related: []
+        keywords:
+          - import
+          - read
+          - stream
+      - name: read_yaml
+        path: reference/operators/read_yaml.mdx
+        summary: Parses an incoming YAML stream into events.
+        category: Parsing
+        example: read_yaml
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - working with structured formats
+        related: []
+        keywords:
+          - file
+          - import
+          - merge
+          - parse
+          - stream
+          - title
+          - yaml
+      - name: read_zeek_json
+        path: reference/operators/read_zeek_json.mdx
+        summary: Parse an incoming Zeek JSON stream into events.
+        category: Parsing
+        example: read_zeek_json
+        use_when:
+          - parsing data formats
+          - parsing structured data
+          - working with structured formats
+        related: []
+        keywords:
+          - connection
+          - import
+          - load
+          - log
+          - parse
+          - stream
+          - zeek
+      - name: read_zeek_tsv
+        path: reference/operators/read_zeek_tsv.md
+        summary: Parses an incoming Zeek TSV stream into events.
+        category: Parsing
+        example: read_zeek_tsv
+        use_when:
+          - parsing data formats
+          - parsing structured data
+        related: []
+        keywords:
+          - connection
+          - extract
+          - file
+          - log
+          - read
+          - stream
+          - zeek
+  - name: Pipelines
+    description: Pipelines operators and functions
+    operators:
+      - name: pipeline::activity
+        path: reference/operators/pipeline/activity.md
+        summary: Summarizes the activity of pipelines.
+        category: Pipelines
+        example: pipeline::activity range=1d, interval=1h
+        use_when:
+          - managing pipelines
+          - aggregating data
+          - network data
+        related: []
+        keywords:
+          - 20s
+          - activity
+          - schemas
+          - show
+          - summarize
+      - name: pipeline::detach
+        path: reference/operators/pipeline/detach.md
+        summary: Starts a pipeline in the node.
+        category: Pipelines
+        example: pipeline::detach { … }
+        use_when:
+          - managing pipelines
+          - network data
+        related: []
+        keywords:
+          - background
+          - pipeline
+          - run
+          - select
+      - name: pipeline::list
+        path: reference/operators/pipeline/list.md
+        summary: Shows managed pipelines.
+        category: Pipelines
+        example: pipeline::list
+        use_when:
+          - managing pipelines
+          - network data
+        related: []
+        keywords:
+          - count
+          - package
+          - per
+          - pipelines
+          - show
+          - state
+          - summarize
+      - name: pipeline::run
+        path: reference/operators/pipeline/run.md
+        summary: Starts a pipeline in the node and waits for it to complete.
+        category: Pipelines
+        example: pipeline::run { … }
+        use_when:
+          - managing pipelines
+          - network data
+        related: []
+        keywords:
+          - background
+          - complete
+          - pipeline
+          - run
+          - select
+          - wait
+  - name: Printing
+    description: Printing operators and functions
+    operators:
+      - name: write_bitz
+        path: reference/operators/write_bitz.md
+        summary: Writes events in _BITZ_ format.
+        category: Printing
+        example: write_bitz
+        use_when:
+          - outputting formatted data
+          - saving data
+        related: []
+        keywords:
+          - read
+          - write
+      - name: write_csv
+        path: reference/operators/write_csv.md
+        summary: Transforms event stream to CSV (Comma-Separated Values) byte stream.
+        category: Printing
+        example: write_csv
+        use_when:
+          - outputting formatted data
+          - converting between formats
+          - working with structured formats
+        related: []
+        keywords:
+          - stream
+          - write
+      - name: write_feather
+        path: reference/operators/write_feather.md
+        summary: Transforms the input event stream to Feather byte stream.
+        category: Printing
+        example: write_feather
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - convert
+          - feather
+          - file
+          - json
+          - stream
+      - name: write_json
+        path: reference/operators/write_json.md
+        summary: Transforms the input event stream to a JSON byte stream.
+        category: Printing
+        example: write_json
+        use_when:
+          - outputting formatted data
+          - converting between formats
+          - working with structured formats
+        related: []
+        keywords:
+          - convert
+          - fields
+          - file
+          - json
+          - "null"
+          - stream
+          - strip
+          - write
+          - yaml
+      - name: write_kv
+        path: reference/operators/write_kv.md
+        summary: Writes events in a Key-Value format.
+        category: Printing
+        example: write_kv
+        use_when:
+          - outputting formatted data
+          - saving data
+        related: []
+        keywords:
+          - join
+          - key-value
+          - nested
+          - pairs
+          - quoted
+          - records
+          - strings
+          - write
+      - name: write_lines
+        path: reference/operators/write_lines.md
+        summary: Writes events as key-value pairsthe _values_ of an event.
+        category: Printing
+        example: write_lines
+        use_when:
+          - outputting formatted data
+          - saving data
+        related: []
+        keywords:
+          - event
+          - write
+      - name: write_ndjson
+        path: reference/operators/write_ndjson.md
+        summary: Transforms the input event stream to a Newline-Delimited JSON byte stream.
+        category: Printing
+        example: write_ndjson
+        use_when:
+          - outputting formatted data
+          - converting between formats
+          - working with structured formats
+        related: []
+        keywords:
+          - convert
+          - fields
+          - file
+          - json
+          - "null"
+          - stream
+          - strip
+          - yaml
+      - name: write_parquet
+        path: reference/operators/write_parquet.md
+        summary: Transforms event stream to a Parquet byte stream.
+        category: Printing
+        example: write_parquet
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - compress
+          - stream
+          - write
+      - name: write_pcap
+        path: reference/operators/write_pcap.md
+        summary: Transforms event stream to PCAP byte stream.
+        category: Printing
+        example: write_pcap
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - events
+          - file
+          - packet
+          - pcap
+          - stream
+          - subscribe
+          - write
+      - name: write_ssv
+        path: reference/operators/write_ssv.md
+        summary: Transforms event stream to SSV (Space-Separated Values) byte stream.
+        category: Printing
+        example: write_ssv
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - stream
+          - write
+      - name: write_syslog
+        path: reference/operators/write_syslog.md
+        summary: Writes events as syslog.
+        category: Printing
+        example: write_syslog
+        use_when:
+          - outputting formatted data
+          - saving data
+          - parsing log formats
+        related: []
+        keywords:
+          - create
+          - manually
+          - syslog
+      - name: write_tql
+        path: reference/operators/write_tql.md
+        summary: Transforms the input event stream to a TQL notation byte stream.
+        category: Printing
+        example: write_tql
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - event
+          - fields
+          - "null"
+          - print
+          - stream
+          - strip
+          - tql
+          - write
+      - name: write_tsv
+        path: reference/operators/write_tsv.md
+        summary: Transforms event stream to TSV (Tab-Separated Values) byte stream.
+        category: Printing
+        example: write_tsv
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - stream
+          - write
+      - name: write_xsv
+        path: reference/operators/write_xsv.md
+        summary: Transforms event stream to XSV byte stream.
+        category: Printing
+        example: write_xsv
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - stream
+      - name: write_yaml
+        path: reference/operators/write_yaml.md
+        summary: Transforms the input event stream to YAML byte stream.
+        category: Printing
+        example: write_yaml
+        use_when:
+          - outputting formatted data
+          - converting between formats
+          - working with structured formats
+        related: []
+        keywords:
+          - convert
+          - file
+          - json
+          - stream
+          - yaml
+      - name: write_zeek_tsv
+        path: reference/operators/write_zeek_tsv.md
+        summary: Transforms event stream into Zeek Tab-Separated Value byte stream.
+        category: Printing
+        example: write_zeek_tsv
+        use_when:
+          - outputting formatted data
+          - converting between formats
+        related: []
+        keywords:
+          - format
+          - pipelines
+          - stream
+          - subscribe
+          - tsv
+          - write
+          - zeek
