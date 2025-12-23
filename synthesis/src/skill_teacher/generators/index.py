@@ -79,7 +79,7 @@ def generate_all_indexes(docs_path: Path, output_path: Path) -> None:
 
 
 def write_yaml(data: dict, output_file: Path) -> None:
-    """Write data to a YAML file with nice formatting."""
+    """Write data to a YAML file with prettier-compatible formatting."""
     # Custom representer for datetime
     def datetime_representer(dumper: yaml.Dumper, data: datetime) -> yaml.Node:
         return dumper.represent_scalar("tag:yaml.org,2002:timestamp", data.isoformat())
@@ -95,6 +95,17 @@ def write_yaml(data: dict, output_file: Path) -> None:
             sort_keys=False,
             width=100,
         )
+
+    # Run prettier to ensure consistent formatting
+    try:
+        subprocess.run(
+            ["pnpm", "prettier", "--write", str(output_file)],
+            capture_output=True,
+            check=True,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Prettier not available, skip formatting
+        pass
 
 
 # --- Operators Index ---
