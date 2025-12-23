@@ -1205,6 +1205,7 @@ title: ${name}
 description: "${description || ""}"
 sidebar:
   hidden: true${topicLine}
+tableOfContents: false
 ---
 
 ${imports}
