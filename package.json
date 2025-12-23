@@ -11,8 +11,8 @@
     "sync:changelog": "node scripts/sync-changelog.mjs",
     "sync:openapi": "bash scripts/sync-openapi.sh",
     "lint": "pnpm run lint:markdown && pnpm run lint:eslint && pnpm run lint:prettier",
-    "lint:markdown": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro",
-    "lint:markdown:fix": "markdownlint '**/*.md' '**/*.mdx' '**/*.mdoc' --ignore node_modules --ignore .astro --fix",
+    "lint:markdown": "markdownlint '**/*.md' '**/*.mdx' --ignore node_modules --ignore .astro",
+    "lint:markdown:fix": "markdownlint '**/*.md' '**/*.mdx' --ignore node_modules --ignore .astro --fix",
     "lint:eslint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
     "lint:eslint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
     "lint:prettier": "prettier --check .",
@@ -22,10 +22,8 @@
     "postinstall": "node scripts/fix-starlight-llms-txt.js"
   },
   "dependencies": {
-    "@astrojs/markdoc": "^0.15.10",
     "@astrojs/sitemap": "^3.6.0",
     "@astrojs/starlight": "^0.37.1",
-    "@astrojs/starlight-markdoc": "^0.5.1",
     "@expressive-code/core": "0.41.5",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",

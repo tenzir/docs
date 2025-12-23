@@ -4,8 +4,8 @@ for Tenzir (https://tenzir.com).
 
 ## Project Architecture
 
-- Content: `/src/content/docs/` contains documentation in `.md`, `.mdx`, and
-  `.mdoc` (Markdoc) formats.
+- Content: `/src/content/docs/` contains documentation in `.md` and `.mdx`
+  formats.
 - Components: Astro components in `/src/components/`, reusable content partials
   in `/src/partials/`.
 - Static Assets: Images in `/src/assets/` (processed) or `/public/` (served

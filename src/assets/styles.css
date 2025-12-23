@@ -258,15 +258,17 @@ html[data-theme="dark"] {
   --sl-text-h4: var(--tnz-text-xl);
   --sl-text-h5: var(--tnz-text-lg);
 
-  border: 1px solid var(--tnz-neutral-600);
+  border: 1px solid var(--tnz-neutral-700);
   border-radius: var(--tnz-radius);
   padding: clamp(var(--tnz-space-4), calc(0.125rem + 1.5vw), 2.5rem);
   background-color: var(--tnz-neutral-800);
-  transition: all var(--tnz-transition-base);
+  transition: border-color var(--tnz-transition-base);
   margin-bottom: var(--tnz-space-4);
 }
 
-/* Card hover styles defined in theme-specific rules below */
+.sl-markdown-content .card:hover {
+  border-color: var(--tnz-neutral-500);
+}
 
 /* Card grid layout - ensure consistent spacing */
 .sl-markdown-content .card-grid {
@@ -277,7 +279,8 @@ html[data-theme="dark"] {
 }
 
 /* Ensure cards in grid have consistent height */
-.sl-markdown-content .card-grid > .card {
+.sl-markdown-content .card-grid > .card,
+.sl-markdown-content .card-grid > .link-card {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -293,7 +296,8 @@ html[data-theme="dark"] {
     transform: translateY(var(--stagger-height));
   }
 
-  .sl-markdown-content .card-grid.stagger > .card:nth-child(2n):hover {
+  .sl-markdown-content .card-grid.stagger > .card:nth-child(2n):hover,
+  .sl-markdown-content .card-grid.stagger > .link-card:nth-child(2n):hover {
     transform: translateY(var(--stagger-height));
   }
 }
@@ -357,17 +361,11 @@ html[data-theme="dark"] {
 /* Light mode adjustments for cards */
 :root[data-theme="light"] .sl-markdown-content .card {
   background-color: var(--tnz-neutral-50);
-  border-color: var(--tnz-neutral-300);
+  border-color: var(--tnz-neutral-200);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card:hover {
-  background-color: var(--tnz-nav-hover-bg);
-  box-shadow: var(--tnz-shadow-s-light);
-}
-
-:root[data-theme="dark"] .sl-markdown-content .card:hover {
-  background-color: var(--tnz-nav-hover-bg);
-  box-shadow: var(--tnz-shadow-s);
+  border-color: var(--tnz-neutral-400);
 }
 
 :root[data-theme="light"] .sl-markdown-content .card .title {

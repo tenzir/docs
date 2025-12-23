@@ -2,6 +2,8 @@
 title: Plot data with charts
 ---
 
+import { Steps } from '@astrojs/starlight/components';
+
 In this tutorial, you will learn how to **use pipelines to plot data as charts**.
 
 The Tenzir Query Language (TQL) excels at slicing and dicing even the most
@@ -23,14 +25,14 @@ Tenzir supports four types of charts, each with a dedicated operator:
 
 Plotting data in the Explorer involves three steps:
 
-{% steps %}
+<Steps>
 
-1. [Run a pipeline](/guides/usage/basics/run-pipelines) to prepare the
+1. [Run a pipeline](/guides/basic-usage/run-pipelines/) to prepare the
    data.
 2. Add a `chart_*` operator to render the plot.
 3. View the chart below the Editor.
 
-{% /steps %}
+</Steps>
 
 ![Pipeline to Chart](./pipeline-to-chart.svg)
 
@@ -53,7 +55,7 @@ chart_pie label=service, value=count
 
 To make a chart permanent:
 
-{% steps %}
+<Steps>
 
 1. Click the **Dashboard** button.
 
@@ -67,16 +69,16 @@ To make a chart permanent:
 
    ![Chart in Dashboard](./add-chart-to-dashboard-3.png)
 
-{% /steps %}
+</Steps>
 
-🎉 Congratulations! Your chart is now saved and will automatically reload when
+Congratulations! Your chart is now saved and will automatically reload when
 you open the dashboard.
 
 ### Download a chart
 
 Download a chart in the Explorer as follows:
 
-{% steps %}
+<Steps>
 
 1. Click the download button in the top-right corner.
 
@@ -84,11 +86,11 @@ Download a chart in the Explorer as follows:
 
 2. Choose **PNG** or **SVG** to save the chart as an image.
 
-{% /steps %}
+</Steps>
 
 You can also download a chart on a dashboard:
 
-{% steps %}
+<Steps>
 
 1. Click the three-dot menu in the top-right corner of the chart.
 
@@ -98,9 +100,9 @@ You can also download a chart on a dashboard:
 
 3. Choose **PNG** or **SVG** to save the chart as an image.
 
-{% /steps %}
+</Steps>
 
-⬇️ You have now successfully save the chart to your computer. Enjoy.
+You have now successfully save the chart to your computer.
 
 ## Master essential charting techniques
 
@@ -113,7 +115,7 @@ A good use case for bar charts is visualization of counters of categorical
 values, because comparing bar heights is an effective way to gain a relative
 understanding of the data at hand.
 
-{% steps %}
+<Steps>
 
 1. **Shape your data**: Suppose you want to create a bar chart showing the
    outcomes of coin flips. First, generate a few observations:
@@ -145,7 +147,7 @@ understanding of the data at hand.
 
    ![Bar chart](./chart-bar.png)
 
-{% /steps %}
+</Steps>
 
 ##### Group and stack bars
 
@@ -221,12 +223,12 @@ chart_bar x=outcome, y=n, y_log=true
 
 ![Log-scaled bar chart](./chart-bar-log.png)
 
-Now, you can clearly see all the values! 👀
+Now, you can clearly see all the values!
 
-{% aside type="caution" title="Interpreting Log-Scaled Plots" %}
+:::caution[Interpreting Log-Scaled Plots]
 Log scaling removes linearity. Comparing bar heights no longer reflects a simple
 numeric ratio. Stacked values are not additive anymore.
-{% /aside %}
+:::
 
 ### Plot compositions as pie chart
 
@@ -252,7 +254,7 @@ treats `label` and `x` as interchangeable, as well as `value` and `y`. This
 mapping makes intuitive sense when you consider a pie chart as a bar chart
 rendered in a radial coordinate system.
 
-{% aside type="note" title="Bar Charts > Pie Charts" %}
+:::note[Bar Charts > Pie Charts]
 **Use bar charts when you can and pie charts when you must**. Why? Pie charts
 are often considered inferior to bar charts because they rely on human
 perception of angles, which is less accurate than judging lengths, making
@@ -262,14 +264,14 @@ while pie charts become cluttered and confusing with numerous slices. Bar charts
 also allow easy sorting, are more space-efficient, and tend to stay cleaner
 without unnecessary visual distractions like 3D effects. Overall, bar charts
 communicate data more clearly, accurately, and efficiently than pie charts.
-{% /aside %}
+:::
 
 ### Plot metrics as line chart
 
 Line charts come in handy when visualizing data trends over a continuous scale,
 such as time series data.
 
-{% steps %}
+<Steps>
 
 1. **Shape your data**: For our line chart demo, we'll use some internal node
    metrics provided by the [`metrics`](/reference/operators/metrics) operator.
@@ -299,7 +301,7 @@ such as time series data.
 
    ![Line chart](./chart-line.png)
 
-2. **Aggregate to reduce the resolution**: Plotting metrics with a 1-second
+3. **Aggregate to reduce the resolution**: Plotting metrics with a 1-second
    granularity over the course of a full day can make a line chart very noisy.
    In fact, we have a total of 86,400 samples in our plot. This can make a line
    chart quickly illegible. Let's reduce the noise by aggregating the samples
@@ -319,7 +321,7 @@ such as time series data.
    above pipeline](#optimize-plotting-with-inline-expressions) by using
    additional operator arguments.
 
-{% /steps %}
+</Steps>
 
 #### Compare multiple series
 
@@ -389,7 +391,7 @@ event volume over time.
 #### Stack multiple series
 
 Like bar charts, area charts can display **stacked series**. This means that the
-values of the series add up, helping you *compare contributions* from different
+values of the series add up, helping you _compare contributions_ from different
 groups while still highlighting the overall cumulative shape.
 
 Pass `position="stacked" to see the difference`:
@@ -409,13 +411,13 @@ chart_area x=time, y={a: a, b: b}, position="stacked"
 
 Notice the difference in the y-axis interpretation:
 
-- Without stacking, the areas *overlap* each other.
-- With stacking, the areas become *disjoint* and *cumulatively add up* to the
+- Without stacking, the areas _overlap_ each other.
+- With stacking, the areas become _disjoint_ and _cumulatively add up_ to the
   total height.
 
 ## Optimize Plotting with Inline Expressions
 
-While it's intuitive to *first* prepare your data and *then* start thinking
+While it's intuitive to _first_ prepare your data and _then_ start thinking
 about how to parameterize your chart operator, this leaves some opportunities
 for optimization and better results on the table. That's why the `chart_*`
 operators offer additional options for inline filtering, rounding, and
@@ -462,7 +464,7 @@ Here are some important details to remember:
   This avoids needing to specify the ranges twice, and makes sure that the
   resolution is taken into account correctly.
 - Specifying a duration with `resolution` option creates nicer buckets than
-  naïve rounding, as it uses a dynamic floor for the minimum and a ceiling for
+  naive rounding, as it uses a dynamic floor for the minimum and a ceiling for
   the maximum value in the respective bucket. This results in nicer axis ticks
   that align on the bucket boundary, e.g., hourly or daily.
 - The combination of `resolution` with an [aggregation
