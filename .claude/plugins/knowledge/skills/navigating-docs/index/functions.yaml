@@ -1,0 +1,2503 @@
+metadata:
+  docs_root: src/content/docs
+  generated: '2025-12-23T16:55:55.094719Z'
+  source_commit: e2e1aacc
+categories:
+- name: Aggregation
+  description: Aggregation operators and functions
+  functions:
+  - name: all
+    path: reference/functions/all.md
+    summary: Computes the conjunction (AND) of all grouped boolean values.
+    category: Aggregation
+    example: all([true,true,false])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - check
+    - summarize
+    - 'true'
+  - name: any
+    path: reference/functions/any.md
+    summary: Computes the disjunction (OR) of all grouped boolean values.
+    category: Aggregation
+    example: any([true,false,true])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - any
+    - check
+    - summarize
+    - 'true'
+  - name: collect
+    path: reference/functions/collect.md
+    summary: Creates a list of all non-null grouped values, preserving duplicates.
+    category: Aggregation
+    example: collect([1,2,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - collect
+    - list
+    - summarize
+  - name: count
+    path: reference/functions/count.md
+    summary: Counts the events or non-null grouped values.
+    category: Aggregation
+    example: count([1,2,null])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - count
+    - non-null
+    - number
+    - summarize
+  - name: count_distinct
+    path: reference/functions/count_distinct.md
+    summary: Counts all distinct non-null grouped values.
+    category: Aggregation
+    example: count_distinct([1,2,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - count
+    - distinct
+    - summarize
+  - name: count_if
+    path: reference/functions/count_if.md
+    summary: Counts the events or non-null grouped values matching a given predicate.
+    category: Aggregation
+    example: count_if([1,2,null], x => x > 1)
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - count
+    - greater
+    - number
+    - summarize
+  - name: distinct
+    path: reference/functions/distinct.md
+    summary: Creates a sorted list without duplicates of non-null grouped values.
+    category: Aggregation
+    example: distinct([1,2,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - sorting events
+    - aggregating data
+    related: []
+    keywords:
+    - distinct
+    - get
+    - list
+    - summarize
+  - name: entropy
+    path: reference/functions/entropy.md
+    summary: Computes the Shannon entropy of all grouped values.
+    category: Aggregation
+    example: entropy([1,1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - entropy
+    - normalized
+    - summarize
+  - name: first
+    path: reference/functions/first.md
+    summary: Takes the first non-null grouped value.
+    category: Aggregation
+    example: first([null,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - get
+    - non-null
+    - summarize
+  - name: last
+    path: reference/functions/last.md
+    summary: Takes the last non-null grouped value.
+    category: Aggregation
+    example: last([1,2,null])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - get
+    - non-null
+    - summarize
+  - name: max
+    path: reference/functions/max.md
+    summary: Computes the maximum of all grouped values.
+    category: Aggregation
+    example: max([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - find
+    - maximum
+    - summarize
+  - name: mean
+    path: reference/functions/mean.md
+    summary: Computes the mean of all grouped values.
+    category: Aggregation
+    example: mean([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - mean
+    - summarize
+  - name: median
+    path: reference/functions/median.md
+    summary: Computes the approximate median of all grouped values using a t-digest algorithm.
+    category: Aggregation
+    example: median([1,2,3,4])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - median
+    - summarize
+  - name: min
+    path: reference/functions/min.md
+    summary: Computes the minimum of all grouped values.
+    category: Aggregation
+    example: min([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - find
+    - minimum
+    - summarize
+  - name: mode
+    path: reference/functions/mode.md
+    summary: Takes the most common non-null grouped value.
+    category: Aggregation
+    example: mode([1,1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - find
+    - mode
+    - summarize
+  - name: otherwise
+    path: reference/functions/otherwise.md
+    summary: Returns a fallback value if primary is null.
+    category: Aggregation
+    example: x.otherwise(0)
+    use_when:
+    - aggregating or summarizing data
+    related: []
+    keywords:
+    - fallback
+    - key
+    - 'null'
+    - primary
+    - set
+  - name: quantile
+    path: reference/functions/quantile.md
+    summary: Computes the specified quantile of all grouped values.
+    category: Aggregation
+    example: quantile([1,2,3,4], q=0.5)
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - median
+    - quantile
+    - summarize
+  - name: stddev
+    path: reference/functions/stddev.md
+    summary: Computes the standard deviation of all grouped values.
+    category: Aggregation
+    example: stddev([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - deviation
+    - standard
+    - summarize
+  - name: sum
+    path: reference/functions/sum.md
+    summary: Computes the sum of all values.
+    category: Aggregation
+    example: sum([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    related: []
+    keywords:
+    - aggregate
+    - compute
+    - events
+    - group
+    - sum
+    - summarize
+  - name: value_counts
+    path: reference/functions/value_counts.md
+    summary: Returns a list of all grouped values alongside their frequency.
+    category: Aggregation
+    example: value_counts([1,2,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - counts
+    - get
+    - summarize
+  - name: variance
+    path: reference/functions/variance.md
+    summary: Computes the variance of all grouped values.
+    category: Aggregation
+    example: variance([1,2,3])
+    use_when:
+    - aggregating or summarizing data
+    - aggregating data
+    related: []
+    keywords:
+    - compute
+    - summarize
+    - variance
+- name: Bit Operations
+  description: Bit Operations operators and functions
+  functions:
+  - name: bit_and
+    path: reference/functions/bit_and.md
+    summary: Computes the bit-wise AND of its arguments.
+    category: Bit Operations
+    example: bit_and(lhs, rhs)
+    use_when: []
+    related: []
+    keywords:
+    - bit-wise
+    - integers
+    - perform
+  - name: bit_not
+    path: reference/functions/bit_not.md
+    summary: Computes the bit-wise NOT of its argument.
+    category: Bit Operations
+    example: bit_not(x)
+    use_when: []
+    related: []
+    keywords:
+    - bit-wise
+    - integer
+    - perform
+  - name: bit_or
+    path: reference/functions/bit_or.md
+    summary: Computes the bit-wise OR of its arguments.
+    category: Bit Operations
+    example: bit_or(lhs, rhs)
+    use_when: []
+    related: []
+    keywords:
+    - bit-wise
+    - integers
+    - perform
+  - name: bit_xor
+    path: reference/functions/bit_xor.md
+    summary: Computes the bit-wise XOR of its arguments.
+    category: Bit Operations
+    example: bit_xor(lhs, rhs)
+    use_when: []
+    related: []
+    keywords:
+    - bit-wise
+    - integers
+    - perform
+    - xor
+  - name: shift_left
+    path: reference/functions/shift_left.md
+    summary: Performs a bit-wise left shift.
+    category: Bit Operations
+    example: shift_left(lhs, rhs)
+    use_when: []
+    related: []
+    keywords:
+    - bits
+    - left
+    - shift
+  - name: shift_right
+    path: reference/functions/shift_right.md
+    summary: Performs a bit-wise right shift.
+    category: Bit Operations
+    example: shift_right(lhs, rhs)
+    use_when: []
+    related: []
+    keywords:
+    - bits
+    - right
+    - shift
+- name: Decoding
+  description: Decoding operators and functions
+  functions:
+  - name: decode_base58
+    path: reference/functions/decode_base58.md
+    summary: Decodes bytes as Base58.
+    category: Decoding
+    example: decode_base58("JxF12TrwUP45BMd")
+    use_when:
+    - decoding data
+    related: []
+    keywords:
+    - base58
+    - decode
+    - encoded
+    - string
+  - name: decode_base64
+    path: reference/functions/decode_base64.md
+    summary: Decodes bytes as Base64.
+    category: Decoding
+    example: decode_base64("VGVuemly")
+    use_when:
+    - decoding data
+    related: []
+    keywords:
+    - base64
+    - decode
+    - encoded
+    - string
+  - name: decode_hex
+    path: reference/functions/decode_hex.md
+    summary: Decodes bytes from their hexadecimal representation.
+    category: Decoding
+    example: decode_hex("4e6f6E6365")
+    use_when:
+    - decoding data
+    related: []
+    keywords:
+    - blob
+    - decode
+    - hex
+    - mixed-case
+    - string
+  - name: decode_url
+    path: reference/functions/decode_url.md
+    summary: Decodes URL encoded strings.
+    category: Decoding
+    example: decode_url("Hello%20World")
+    use_when:
+    - decoding data
+    related: []
+    keywords:
+    - decode
+    - encoded
+    - string
+    - url
+- name: Encoding
+  description: Encoding operators and functions
+  functions:
+  - name: encode_base58
+    path: reference/functions/encode_base58.md
+    summary: Encodes bytes as Base58.
+    category: Encoding
+    example: encode_base58("Tenzir")
+    use_when:
+    - encoding data
+    related: []
+    keywords:
+    - base58
+    - encode
+    - string
+  - name: encode_base64
+    path: reference/functions/encode_base64.md
+    summary: Encodes bytes as Base64.
+    category: Encoding
+    example: encode_base64("Tenzir")
+    use_when:
+    - encoding data
+    related: []
+    keywords:
+    - base64
+    - encode
+    - string
+  - name: encode_hex
+    path: reference/functions/encode_hex.md
+    summary: Encodes bytes into their hexadecimal representation.
+    category: Encoding
+    example: encode_hex("Tenzir")
+    use_when:
+    - encoding data
+    related: []
+    keywords:
+    - encode
+    - hex
+    - string
+  - name: encode_url
+    path: reference/functions/encode_url.md
+    summary: Encodes strings using URL encoding.
+    category: Encoding
+    example: encode_url("Hello World")
+    use_when:
+    - encoding data
+    related: []
+    keywords:
+    - encode
+    - encoded
+    - string
+    - url
+- name: Hashing
+  description: Hashing operators and functions
+  functions:
+  - name: hash_md5
+    path: reference/functions/hash_md5.md
+    summary: Computes an MD5 hash digest.
+    category: Hashing
+    example: hash_md5("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - md5
+    - string
+  - name: hash_sha1
+    path: reference/functions/hash_sha1.md
+    summary: Computes a SHA-1 hash digest.
+    category: Hashing
+    example: hash_sha1("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha-1
+    - string
+  - name: hash_sha224
+    path: reference/functions/hash_sha224.md
+    summary: Computes a SHA-224 hash digest.
+    category: Hashing
+    example: hash_sha224("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha-224
+    - string
+  - name: hash_sha256
+    path: reference/functions/hash_sha256.md
+    summary: Computes a SHA-256 hash digest.
+    category: Hashing
+    example: hash_sha256("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha-256
+    - string
+  - name: hash_sha384
+    path: reference/functions/hash_sha384.md
+    summary: Computes a SHA-384 hash digest.
+    category: Hashing
+    example: hash_sha384("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha-384
+    - string
+  - name: hash_sha3_224
+    path: reference/functions/hash_sha3_224.md
+    summary: Computes a SHA3-224 hash digest.
+    category: Hashing
+    example: hash_sha3_224("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha3-224
+    - string
+  - name: hash_sha3_256
+    path: reference/functions/hash_sha3_256.md
+    summary: Computes a SHA3-256 hash digest.
+    category: Hashing
+    example: hash_sha3_256("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha3-256
+    - string
+  - name: hash_sha3_384
+    path: reference/functions/hash_sha3_384.md
+    summary: Computes a SHA3-384 hash digest.
+    category: Hashing
+    example: hash_sha3_384("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha3-384
+    - string
+  - name: hash_sha3_512
+    path: reference/functions/hash_sha3_512.md
+    summary: Computes a SHA3-512 hash digest.
+    category: Hashing
+    example: hash_sha3_512("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha3-512
+    - string
+  - name: hash_sha512
+    path: reference/functions/hash_sha512.md
+    summary: Computes a SHA-512 hash digest.
+    category: Hashing
+    example: hash_sha512("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - sha-512
+    - string
+  - name: hash_xxh3
+    path: reference/functions/hash_xxh3.md
+    summary: Computes an XXH3 hash digest.
+    category: Hashing
+    example: hash_xxh3("foo")
+    use_when: []
+    related: []
+    keywords:
+    - compute
+    - digest
+    - string
+    - xxh3
+- name: IP
+  description: IP operators and functions
+  functions:
+  - name: ip_category
+    path: reference/functions/ip_category.md
+    summary: Returns the type classification of an IP address.
+    category: IP
+    example: ip_category(8.8.8.8)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - address
+    - get
+    - types
+  - name: is_global
+    path: reference/functions/is_global.md
+    summary: Checks whether an IP address is a global address.
+    category: IP
+    example: is_global(8.8.8.8)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - global
+  - name: is_link_local
+    path: reference/functions/is_link_local.md
+    summary: Checks whether an IP address is a link-local address.
+    category: IP
+    example: is_link_local(169.254.1.1)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - link-local
+  - name: is_loopback
+    path: reference/functions/is_loopback.md
+    summary: Checks whether an IP address is a loopback address.
+    category: IP
+    example: is_loopback(127.0.0.1)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - loopback
+  - name: is_multicast
+    path: reference/functions/is_multicast.md
+    summary: Checks whether an IP address is a multicast address.
+    category: IP
+    example: is_multicast(224.0.0.1)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - multicast
+  - name: is_private
+    path: reference/functions/is_private.md
+    summary: Checks whether an IP address is a private address.
+    category: IP
+    example: is_private(192.168.1.1)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - private
+  - name: is_v4
+    path: reference/functions/is_v4.md
+    summary: Checks whether an IP address has version number 4.
+    category: IP
+    example: is_v4(1.2.3.4)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - ipv4
+  - name: is_v6
+    path: reference/functions/is_v6.md
+    summary: Checks whether an IP address has version number 6.
+    category: IP
+    example: is_v6(::1)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - check
+    - ipv6
+- name: IP, Subnet
+  description: IP, Subnet operators and functions
+  functions:
+  - name: network
+    path: reference/functions/network.md
+    summary: Retrieves the network address of a subnet.
+    category: IP, Subnet
+    example: 10.0.0.0/8.network()
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - address
+    - get
+    - network
+    - select
+    - subnet
+- name: List
+  description: List operators and functions
+  functions:
+  - name: add
+    path: reference/functions/add.md
+    summary: Adds an element into a list if it doesn't already exist (set-insertion).
+    category: List
+    example: xs.add(y)
+    use_when:
+    - loading data
+    related: []
+    keywords:
+    - add
+    - element
+    - empty
+    - existing
+    - list
+    - try
+  - name: append
+    path: reference/functions/append.md
+    summary: Inserts an element at the back of a list.
+    category: List
+    example: xs.append(y)
+    use_when: []
+    related: []
+    keywords:
+    - append
+    - list
+    - number
+  - name: concatenate
+    path: reference/functions/concatenate.md
+    summary: Merges two lists.
+    category: List
+    example: concatenate(xs, ys)
+    use_when:
+    - joining data sources
+    related: []
+    keywords:
+    - concatenate
+    - lists
+    - merge
+    - two
+  - name: length
+    path: reference/functions/length.md
+    summary: Retrieves the length of a list.
+    category: List
+    example: '[1,2,3].length()'
+    use_when: []
+    related: []
+    keywords:
+    - get
+    - length
+    - list
+  - name: map
+    path: reference/functions/map.md
+    summary: Maps each list element to an expression.
+    category: List
+    example: xs.map(x => x + 3)
+    use_when: []
+    related: []
+    keywords:
+    - check
+    - elements
+    - group
+    - incompatible
+    - inside
+    - list
+    - members
+    - 'null'
+    - predicate
+    - record
+    - reshape
+    - types
+  - name: prepend
+    path: reference/functions/prepend.md
+    summary: Inserts an element at the start of a list.
+    category: List
+    example: xs.prepend(y)
+    use_when: []
+    related: []
+    keywords:
+    - list
+    - number
+    - prepend
+  - name: remove
+    path: reference/functions/remove.md
+    summary: Removes all occurrences of an element from a list.
+    category: List
+    example: xs.remove(y)
+    use_when: []
+    related: []
+    keywords:
+    - element
+    - list
+    - non-existent
+    - remove
+    - strings
+  - name: where
+    path: reference/functions/where.md
+    summary: Filters list elements based on a predicate.
+    category: List
+    example: xs.where(x => x > 5)
+    use_when:
+    - filtering events by condition
+    - filtering events
+    related: []
+    keywords:
+    - elements
+    - greater
+    - keep
+  - name: zip
+    path: reference/functions/zip.md
+    summary: Combines two lists into a list of pairs.
+    category: List
+    example: zip(xs, ys)
+    use_when:
+    - joining data sources
+    related: []
+    keywords:
+    - combine
+    - lists
+    - select
+    - two
+- name: List, Record
+  description: List, Record operators and functions
+  functions:
+  - name: get
+    path: reference/functions/get.md
+    summary: Gets a field from a record or an element from a list
+    category: List, Record
+    example: xs.get(index, fallback)
+    use_when: []
+    related: []
+    keywords:
+    - access
+    - element
+    - fallback
+    - field
+    - get
+    - list
+    - record
+    - select
+  - name: sort
+    path: reference/functions/sort.md
+    summary: Sorts lists and record fields.
+    category: List, Record
+    example: xs.sort()
+    use_when:
+    - ordering events
+    - sorting events
+    related: []
+    keywords:
+    - field
+    - list
+    - names
+    - record
+    - sort
+- name: Math
+  description: Mathematical functions and operations
+  functions:
+  - name: abs
+    path: reference/functions/abs.md
+    summary: Returns the absolute value.
+    category: Math
+    example: abs(-42)
+    use_when:
+    - performing calculations
+    related: []
+    keywords: []
+  - name: ceil
+    path: reference/functions/ceil.md
+    summary: Computes the ceiling of a number or a time/duration with a specified unit.
+    category: Math
+    example: ceil(4.2)
+    use_when:
+    - performing calculations
+    related: []
+    keywords:
+    - ceiling
+    - duration
+    - integers
+    - round
+    - take
+    - time
+    - unit
+  - name: floor
+    path: reference/functions/floor.md
+    summary: Computes the floor of a number or a time/duration with a specified unit.
+    category: Math
+    example: floor(4.8)
+    use_when:
+    - performing calculations
+    related: []
+    keywords:
+    - down
+    - duration
+    - floor
+    - integers
+    - round
+    - take
+    - time
+    - unit
+  - name: round
+    path: reference/functions/round.md
+    summary: Rounds a number or a time/duration with a specified unit.
+    category: Math
+    example: round(4.6)
+    use_when:
+    - performing calculations
+    related: []
+    keywords:
+    - duration
+    - integers
+    - round
+    - time
+  - name: sqrt
+    path: reference/functions/sqrt.md
+    summary: Computes the square root of a number.
+    category: Math
+    example: sqrt(49)
+    use_when:
+    - performing calculations
+    related: []
+    keywords:
+    - compute
+    - fail
+    - integer
+    - negative
+    - number
+    - root
+    - square
+- name: Networking
+  description: Networking operators and functions
+  functions:
+  - name: community_id
+    path: reference/functions/community_id.md
+    summary: Computes the Community ID for a network connection/flow.
+    category: Networking
+    example: community_id(src_ip=1.2.3.4, dst_ip=4.5.6.7, proto="tcp")
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - 5-tuple
+    - community
+    - compute
+    - flow
+    - host
+    - pair
+  - name: decapsulate
+    path: reference/functions/decapsulate.md
+    summary: Decapsulates packet data at link, network, and transport layer.
+    category: Networking
+    example: decapsulate(this)
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - decapsulate
+    - file
+    - packets
+    - parse
+    - pcap
+    - tags
+    - vlan
+  - name: encrypt_cryptopan
+    path: reference/functions/encrypt_cryptopan.md
+    summary: Encrypts an IP address via Crypto-PAn.
+    category: Networking
+    example: encrypt_cryptopan(1.2.3.4)
+    use_when:
+    - encrypting data
+    - network data
+    related: []
+    keywords:
+    - address
+    - encrypt
+    - fields
+- name: OCSF
+  description: OCSF operators and functions
+  functions:
+  - name: ocsf::category_name
+    path: reference/functions/ocsf/category_name.md
+    summary: Returns the category_name for a given category_uid.
+    category: OCSF
+    example: ocsf::category_name(2)
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - category_name
+    - category_uid
+  - name: ocsf::category_uid
+    path: reference/functions/ocsf/category_uid.md
+    summary: Returns the category_uid for a given category_name.
+    category: OCSF
+    example: ocsf::category_uid("Findings")
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - category_name
+    - category_uid
+  - name: ocsf::class_name
+    path: reference/functions/ocsf/class_name.md
+    summary: Returns the class_name for a given class_uid.
+    category: OCSF
+    example: ocsf::class_name(4003)
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - class_name
+    - class_uid
+  - name: ocsf::class_uid
+    path: reference/functions/ocsf/class_uid.md
+    summary: Returns the class_uid for a given class_name.
+    category: OCSF
+    example: ocsf::class_uid("DNS Activity")
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - class_name
+    - class_uid
+  - name: ocsf::type_name
+    path: reference/functions/ocsf/type_name.md
+    summary: Returns the type_name for a given type_uid.
+    category: OCSF
+    example: ocsf::type_name(400704)
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - type_name
+    - type_uid
+  - name: ocsf::type_uid
+    path: reference/functions/ocsf/type_uid.md
+    summary: Returns the type_uid for a given type_name.
+    category: OCSF
+    example: 'ocsf::type_uid("SSH Activity: Fail")'
+    use_when:
+    - mapping to OCSF schema
+    related: []
+    keywords:
+    - type_name
+    - type_uid
+- name: Parsing
+  description: Parsing operators and functions
+  functions:
+  - name: parse_cef
+    path: reference/functions/parse_cef.mdx
+    summary: Parses a string as a CEF message
+    category: Parsing
+    example: string.parse_cef()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - parsing log formats
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_csv
+    path: reference/functions/parse_csv.mdx
+    summary: Parses a string as CSV (Comma-Separated Values).
+    category: Parsing
+    example: string.parse_csv(header=["a","b"])
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - working with structured formats
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_grok
+    path: reference/functions/parse_grok.mdx
+    summary: Parses a string according to a grok pattern.
+    category: Parsing
+    example: string.parse_grok("%{IP:client} …")
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_json
+    path: reference/functions/parse_json.mdx
+    summary: Parses a string as a JSON value.
+    category: Parsing
+    example: string.parse_json()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - working with structured formats
+    related: []
+    keywords:
+    - import
+    - json
+    - list
+    - parse
+    - record
+  - name: parse_kv
+    path: reference/functions/parse_kv.mdx
+    summary: Parses a string as key-value pairs.
+    category: Parsing
+    example: string.parse_kv()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    related: []
+    keywords:
+    - comma-separated
+    - fields
+    - group
+    - import
+    - key-value
+    - pairs
+    - parse
+    - quoted
+    - split
+    - without
+  - name: parse_leef
+    path: reference/functions/parse_leef.mdx
+    summary: Parses a string as a LEEF message
+    category: Parsing
+    example: string.parse_leef()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - parsing log formats
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_ssv
+    path: reference/functions/parse_ssv.mdx
+    summary: Parses a string as space separated values.
+    category: Parsing
+    example: string.parse_ssv(header=["a","b"])
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_syslog
+    path: reference/functions/parse_syslog.mdx
+    summary: Parses a string as a Syslog message.
+    category: Parsing
+    example: string.parse_syslog()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - parsing log formats
+    related: []
+    keywords:
+    - import
+    - parse
+    - rfc5424
+    - string
+    - syslog
+  - name: parse_tsv
+    path: reference/functions/parse_tsv.mdx
+    summary: Parses a string as tab separated values.
+    category: Parsing
+    example: string.parse_tsv(header=["a","b"])
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    related: []
+    keywords:
+    - import
+    - parse
+  - name: parse_xsv
+    path: reference/functions/parse_xsv.mdx
+    summary: Parses a string as delimiter separated values.
+    category: Parsing
+    example: string.parse_xsv(",", ";", "", header=["a","b"])
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    related: []
+    keywords:
+    - import
+  - name: parse_yaml
+    path: reference/functions/parse_yaml.mdx
+    summary: Parses a string as a YAML value.
+    category: Parsing
+    example: string.parse_yaml()
+    use_when:
+    - parsing data formats
+    - parsing structured data
+    - working with structured formats
+    related: []
+    keywords:
+    - containing
+    - import
+    - list
+    - map
+    - parse
+    - yaml
+- name: Printing
+  description: Printing operators and functions
+  functions:
+  - name: print_cef
+    path: reference/functions/print_cef.md
+    summary: Prints records as Common Event Format (CEF) messages
+    category: Printing
+    example: extension.print_cef(cef_version="0", device_vendor="Tenzir", device_product="Tenzir Node",
+      device_version="5.5.0", signature_id=id, name="description", severity="7")
+    use_when:
+    - outputting formatted data
+    - parsing log formats
+    related: []
+    keywords:
+    - cef
+    - message
+    - nested
+    - read
+    - select
+    - syslog
+    - upgrade
+    - write
+  - name: print_csv
+    path: reference/functions/print_csv.mdx
+    summary: Prints a record as a comma-separated string of values.
+    category: Printing
+    example: record.print_csv()
+    use_when:
+    - outputting formatted data
+    related: []
+    keywords:
+    - import
+  - name: print_json
+    path: reference/functions/print_json.mdx
+    summary: Transforms a value into a JSON string.
+    category: Printing
+    example: record.print_json()
+    use_when:
+    - outputting formatted data
+    - converting between formats
+    - working with structured formats
+    related: []
+    keywords:
+    - fields
+    - import
+    - 'null'
+    - print
+    - without
+  - name: print_kv
+    path: reference/functions/print_kv.md
+    summary: Prints records in a key-value format.
+    category: Printing
+    example: record.print_kv()
+    use_when:
+    - outputting formatted data
+    related: []
+    keywords:
+    - format
+    - join
+    - key-value
+    - pair
+    - record
+  - name: print_leef
+    path: reference/functions/print_leef.md
+    summary: Prints records as LEEF messages
+    category: Printing
+    example: attributes.print_leef(vendor="Tenzir",product_name="Tenzir Node", product_name="5.5.0",event_class_id=id)
+    use_when:
+    - outputting formatted data
+    - parsing log formats
+    related: []
+    keywords:
+    - leef
+    - message
+    - nested
+    - reformat
+    - select
+    - write
+  - name: print_ndjson
+    path: reference/functions/print_ndjson.mdx
+    summary: Transforms a value into a single-line JSON string.
+    category: Printing
+    example: record.print_ndjson()
+    use_when:
+    - outputting formatted data
+    - converting between formats
+    - working with structured formats
+    related: []
+    keywords:
+    - fields
+    - import
+    - 'null'
+    - print
+    - without
+  - name: print_ssv
+    path: reference/functions/print_ssv.mdx
+    summary: Prints a record as a space-separated string of values.
+    category: Printing
+    example: record.print_ssv()
+    use_when:
+    - outputting formatted data
+    related: []
+    keywords:
+    - import
+    - print
+    - record
+    - space
+  - name: print_tsv
+    path: reference/functions/print_tsv.mdx
+    summary: Prints a record as a tab-separated string of values.
+    category: Printing
+    example: record.print_tsv()
+    use_when:
+    - outputting formatted data
+    related: []
+    keywords:
+    - import
+  - name: print_xsv
+    path: reference/functions/print_xsv.md
+    summary: Prints a record as a delimited sequence of values.
+    category: Printing
+    example: record.print_tsv()
+    use_when:
+    - outputting formatted data
+    related: []
+    keywords: []
+  - name: print_yaml
+    path: reference/functions/print_yaml.md
+    summary: Prints a value as a YAML document.
+    category: Printing
+    example: record.print_yaml()
+    use_when:
+    - outputting formatted data
+    - working with structured formats
+    related: []
+    keywords: []
+- name: Record
+  description: Record operators and functions
+  functions:
+  - name: has
+    path: reference/functions/has.md
+    summary: Checks whether a record has a specified field.
+    category: Record
+    example: record.has("field")
+    use_when: []
+    related: []
+    keywords:
+    - check
+    - field
+    - record
+    - specific
+  - name: keys
+    path: reference/functions/keys.md
+    summary: Retrieves a list of field names from a record.
+    category: Record
+    example: record.keys()
+    use_when: []
+    related: []
+    keywords:
+    - access
+    - available
+    - distribution
+    - dynamically
+    - field
+    - fields
+    - get
+    - keys
+    - names
+    - record
+    - select
+    - sort
+    - summarize
+  - name: merge
+    path: reference/functions/merge.md
+    summary: Combines two records into a single record by merging their fields.
+    category: Record
+    example: merge(foo, bar)
+    use_when:
+    - joining data sources
+    related: []
+    keywords:
+    - basic
+    - fields
+    - handling
+    - merge
+    - merging
+    - 'null'
+    - overlapping
+    - record
+    - select
+- name: Runtime
+  description: Runtime operators and functions
+  functions:
+  - name: config
+    path: reference/functions/config.md
+    summary: Reads Tenzir's configuration file.
+    category: Runtime
+    example: config()
+    use_when:
+    - working with timestamps
+    - loading data
+    related: []
+    keywords:
+    - config
+    - file
+    - mapping
+    - name
+    - provide
+    - select
+  - name: env
+    path: reference/functions/env.md
+    summary: Reads an environment variable.
+    category: Runtime
+    example: env("PATH")
+    use_when:
+    - working with timestamps
+    - loading data
+    related: []
+    keywords:
+    - environment
+    - read
+    - variable
+  - name: secret
+    path: reference/functions/secret.md
+    summary: Use the value of a secret.
+    category: Runtime
+    example: secret("KEY")
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - connect
+    - legacy
+    - model
+    - operator
+    - rendered
+    - secrets
+- name: String/Filesystem
+  description: String/Filesystem operators and functions
+  functions:
+  - name: file_contents
+    path: reference/functions/file_contents.md
+    summary: Reads a file's contents.
+    category: String/Filesystem
+    example: file_contents("/path/to/file")
+    use_when:
+    - manipulating text
+    - loading data
+    related: []
+    keywords:
+    - read
+  - name: file_name
+    path: reference/functions/file_name.md
+    summary: Extracts the file name from a file path.
+    category: String/Filesystem
+    example: file_name("/path/to/log.json")
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - extract
+    - file
+    - name
+    - path
+  - name: parent_dir
+    path: reference/functions/parent_dir.md
+    summary: Extracts the parent directory from a file path.
+    category: String/Filesystem
+    example: parent_dir("/path/to/log.json")
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - directory
+    - extract
+    - file
+    - parent
+    - path
+- name: String/Inspection
+  description: String/Inspection operators and functions
+  functions:
+  - name: ends_with
+    path: reference/functions/ends_with.md
+    summary: Checks if a string ends with a specified substring.
+    category: String/Inspection
+    example: '"hello".ends_with("lo")'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - ends
+    - string
+    - substring
+  - name: is_alnum
+    path: reference/functions/is_alnum.md
+    summary: Checks if a string is alphanumeric.
+    category: String/Inspection
+    example: '"hello123".is_alnum()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - alphanumeric
+    - check
+    - string
+  - name: is_alpha
+    path: reference/functions/is_alpha.md
+    summary: Checks if a string contains only alphabetic characters.
+    category: String/Inspection
+    example: '"hello".is_alpha()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - alphabetic
+    - check
+    - string
+  - name: is_lower
+    path: reference/functions/is_lower.md
+    summary: Checks if a string is in lowercase.
+    category: String/Inspection
+    example: '"hello".is_lower()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - lowercase
+    - string
+  - name: is_numeric
+    path: reference/functions/is_numeric.md
+    summary: Checks if a string contains only numeric characters.
+    category: String/Inspection
+    example: '"1234".is_numeric()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - numeric
+    - string
+  - name: is_printable
+    path: reference/functions/is_printable.md
+    summary: Checks if a string contains only printable characters.
+    category: String/Inspection
+    example: '"hello".is_printable()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - printable
+    - string
+  - name: is_title
+    path: reference/functions/is_title.md
+    summary: Checks if a string follows title case.
+    category: String/Inspection
+    example: '"Hello World".is_title()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - case
+    - check
+    - string
+    - title
+  - name: is_upper
+    path: reference/functions/is_upper.md
+    summary: Checks if a string is in uppercase.
+    category: String/Inspection
+    example: '"HELLO".is_upper()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - string
+    - uppercase
+  - name: length_bytes
+    path: reference/functions/length_bytes.md
+    summary: Returns the length of a string in bytes.
+    category: String/Inspection
+    example: '"hello".length_bytes()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - byte
+    - get
+    - length
+    - string
+  - name: length_chars
+    path: reference/functions/length_chars.md
+    summary: Returns the length of a string in characters.
+    category: String/Inspection
+    example: '"hello".length_chars()'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - character
+    - get
+    - length
+    - string
+  - name: match_regex
+    path: reference/functions/match_regex.md
+    summary: Checks if a string partially matches a regular expression.
+    category: String/Inspection
+    example: '"Hi".match_regex("[Hh]i")'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - contains
+    - fully
+    - matches
+    - matching
+    - string
+    - substring
+  - name: slice
+    path: reference/functions/slice.md
+    summary: Slices a string with offsets and strides.
+    category: String/Inspection
+    example: '"Hi".slice(begin=2, stride=4)'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - 1st
+    - 2nd
+    - 3rd
+    - 5th
+    - 8th
+    - character
+    - characters
+    - get
+    - select
+    - string
+    - substring
+  - name: starts_with
+    path: reference/functions/starts_with.md
+    summary: Checks if a string starts with a specified substring.
+    category: String/Inspection
+    example: '"hello".starts_with("he")'
+    use_when:
+    - manipulating text
+    related: []
+    keywords:
+    - check
+    - starts
+    - string
+    - substring
+- name: String/Transformation
+  description: String/Transformation operators and functions
+  functions:
+  - name: capitalize
+    path: reference/functions/capitalize.md
+    summary: Capitalizes the first character of a string.
+    category: String/Transformation
+    example: '"hello".capitalize()'
+    use_when:
+    - transforming or reshaping data
+    - HTTP/API operations
+    related: []
+    keywords:
+    - capitalize
+    - lowercase
+    - string
+  - name: join
+    path: reference/functions/join.md
+    summary: Joins a list of strings into a single string using a separator.
+    category: String/Transformation
+    example: join(["a", "b", "c"], ",")
+    use_when:
+    - transforming or reshaping data
+    - joining data sources
+    related: []
+    keywords:
+    - comma
+    - join
+    - list
+    - split
+    - strings
+  - name: pad_end
+    path: reference/functions/pad_end.md
+    summary: Pads a string at the end to a specified length.
+    category: String/Transformation
+    example: '"hello".pad_end(10)'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - already
+    - character
+    - custom
+    - enough
+    - long
+    - pad
+    - spaces
+    - string
+  - name: pad_start
+    path: reference/functions/pad_start.md
+    summary: Pads a string at the start to a specified length.
+    category: String/Transformation
+    example: '"hello".pad_start(10)'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - already
+    - character
+    - custom
+    - enough
+    - long
+    - pad
+    - spaces
+    - string
+  - name: replace
+    path: reference/functions/replace.md
+    summary: Replaces characters within a string.
+    category: String/Transformation
+    example: '"hello".replace("o", "a")'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - character
+    - limited
+    - number
+    - occurrences
+    - replace
+  - name: replace_regex
+    path: reference/functions/replace_regex.md
+    summary: Replaces characters within a string based on a regular expression.
+    category: String/Transformation
+    example: '"hello".replace("l+o", "y")'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - expression
+    - limited
+    - matches
+    - number
+    - regular
+    - replace
+  - name: reverse
+    path: reference/functions/reverse.md
+    summary: Reverses the characters of a string.
+    category: String/Transformation
+    example: '"hello".reverse()'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - reverse
+    - string
+  - name: split
+    path: reference/functions/split.md
+    summary: Splits a string into substrings.
+    category: String/Transformation
+    example: split("a,b,c", ",")
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - delimiter
+    - join
+    - limit
+    - number
+    - split
+    - splits
+    - string
+  - name: split_regex
+    path: reference/functions/split_regex.md
+    summary: Splits a string into substrings with a regex.
+    category: String/Transformation
+    example: split_regex("a1b2c", r"\d")
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - join
+    - limit
+    - number
+    - pattern
+    - regex
+    - split
+    - splits
+    - string
+  - name: to_lower
+    path: reference/functions/to_lower.md
+    summary: Converts a string to lowercase.
+    category: String/Transformation
+    example: '"HELLO".to_lower()'
+    use_when:
+    - transforming or reshaping data
+    - converting between formats
+    related: []
+    keywords:
+    - convert
+    - lowercase
+    - string
+  - name: to_title
+    path: reference/functions/to_title.md
+    summary: Converts a string to title case.
+    category: String/Transformation
+    example: '"hello world".to_title()'
+    use_when:
+    - transforming or reshaping data
+    - converting between formats
+    related: []
+    keywords:
+    - case
+    - convert
+    - string
+    - title
+  - name: to_upper
+    path: reference/functions/to_upper.md
+    summary: Converts a string to uppercase.
+    category: String/Transformation
+    example: '"hello".to_upper()'
+    use_when:
+    - transforming or reshaping data
+    - converting between formats
+    related: []
+    keywords:
+    - convert
+    - string
+    - uppercase
+  - name: trim
+    path: reference/functions/trim.md
+    summary: Trims whitespace or specified characters from both ends of a string.
+    category: String/Transformation
+    example: '" hello ".trim()'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - characters
+    - ends
+    - multiple
+    - specific
+    - trim
+    - whitespace
+  - name: trim_end
+    path: reference/functions/trim_end.md
+    summary: Trims whitespace or specified characters from the end of a string.
+    category: String/Transformation
+    example: '"hello ".trim_end()'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - characters
+    - end
+    - multiple
+    - specific
+    - trim
+    - whitespace
+  - name: trim_start
+    path: reference/functions/trim_start.md
+    summary: Trims whitespace or specified characters from the start of a string.
+    category: String/Transformation
+    example: '" hello".trim_start()'
+    use_when:
+    - transforming or reshaping data
+    related: []
+    keywords:
+    - characters
+    - multiple
+    - specific
+    - start
+    - trim
+    - whitespace
+- name: Time & Date
+  description: Time & Date operators and functions
+  functions:
+  - name: count_days
+    path: reference/functions/count_days.mdx
+    summary: Counts the number of days in a duration.
+    category: Time & Date
+    example: count_days(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - days
+    - import
+  - name: count_hours
+    path: reference/functions/count_hours.mdx
+    summary: Counts the number of hours in a duration.
+    category: Time & Date
+    example: count_hours(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - hours
+    - import
+  - name: count_microseconds
+    path: reference/functions/count_microseconds.mdx
+    summary: Counts the number of microseconds in a duration.
+    category: Time & Date
+    example: count_microseconds(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - microseconds
+  - name: count_milliseconds
+    path: reference/functions/count_milliseconds.mdx
+    summary: Counts the number of milliseconds in a duration.
+    category: Time & Date
+    example: count_milliseconds(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - milliseconds
+  - name: count_minutes
+    path: reference/functions/count_minutes.mdx
+    summary: Counts the number of minutes in a duration.
+    category: Time & Date
+    example: count_minutes(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - minutes
+  - name: count_months
+    path: reference/functions/count_months.mdx
+    summary: Counts the number of months in a duration.
+    category: Time & Date
+    example: count_months(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - months
+  - name: count_nanoseconds
+    path: reference/functions/count_nanoseconds.mdx
+    summary: Counts the number of nanoseconds in a duration.
+    category: Time & Date
+    example: count_nanoseconds(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - nanoseconds
+  - name: count_seconds
+    path: reference/functions/count_seconds.mdx
+    summary: Counts the number of seconds in a duration.
+    category: Time & Date
+    example: count_seconds(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - seconds
+  - name: count_weeks
+    path: reference/functions/count_weeks.mdx
+    summary: Counts the number of weeks in a duration.
+    category: Time & Date
+    example: count_weeks(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - weeks
+  - name: count_years
+    path: reference/functions/count_years.mdx
+    summary: Counts the number of years in a duration.
+    category: Time & Date
+    example: count_years(100d)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - import
+    - years
+  - name: day
+    path: reference/functions/day.md
+    summary: Extracts the day component from a timestamp.
+    category: Time & Date
+    example: ts.day()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - day
+    - extract
+    - timestamp
+  - name: days
+    path: reference/functions/days.mdx
+    summary: Converts a number to equivalent days.
+    category: Time & Date
+    example: days(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: format_time
+    path: reference/functions/format_time.md
+    summary: Formats a time into a string that follows a specific format.
+    category: Time & Date
+    example: ts.format_time("%d/ %m/%Y")
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - format
+    - timestamp
+  - name: from_epoch
+    path: reference/functions/from_epoch.md
+    summary: Interprets a duration as Unix time.
+    category: Time & Date
+    example: from_epoch(time_ms * 1ms)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - convert
+    - duration
+    - integral
+    - interpret
+    - time
+    - unix
+  - name: hour
+    path: reference/functions/hour.md
+    summary: Extracts the hour component from a timestamp.
+    category: Time & Date
+    example: ts.hour()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - extract
+    - hour
+    - timestamp
+  - name: hours
+    path: reference/functions/hours.mdx
+    summary: Converts a number to equivalent hours.
+    category: Time & Date
+    example: hours(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: microseconds
+    path: reference/functions/microseconds.mdx
+    summary: Converts a number to equivalent microseconds.
+    category: Time & Date
+    example: microseconds(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: milliseconds
+    path: reference/functions/milliseconds.mdx
+    summary: Converts a number to equivalent milliseconds.
+    category: Time & Date
+    example: milliseconds(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: minute
+    path: reference/functions/minute.md
+    summary: Extracts the minute component from a timestamp.
+    category: Time & Date
+    example: ts.minute()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - extract
+    - minute
+    - timestamp
+  - name: minutes
+    path: reference/functions/minutes.mdx
+    summary: Converts a number to equivalent minutes.
+    category: Time & Date
+    example: minutes(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: month
+    path: reference/functions/month.md
+    summary: Extracts the month component from a timestamp.
+    category: Time & Date
+    example: ts.month()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - extract
+    - month
+    - timestamp
+  - name: months
+    path: reference/functions/months.mdx
+    summary: Converts a number to equivalent months.
+    category: Time & Date
+    example: months(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: nanoseconds
+    path: reference/functions/nanoseconds.mdx
+    summary: Converts a number to equivalent nanoseconds.
+    category: Time & Date
+    example: nanoseconds(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: now
+    path: reference/functions/now.md
+    summary: Gets the current wallclock time.
+    category: Time & Date
+    example: now()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - compute
+    - current
+    - field
+    - get
+    - select
+    - subscribe
+    - time
+    - utc
+  - name: parse_time
+    path: reference/functions/parse_time.md
+    summary: Parses a time from a string that follows a specific format.
+    category: Time & Date
+    example: '"10/11/2012".parse_time("%d/%m/%Y")'
+    use_when:
+    - working with timestamps
+    - parsing structured data
+    related: []
+    keywords:
+    - parse
+    - timestamp
+  - name: second
+    path: reference/functions/second.md
+    summary: Extracts the second component from a timestamp with subsecond precision.
+    category: Time & Date
+    example: ts.second()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - component
+    - extract
+    - full
+    - precision
+    - second
+    - subsecond
+    - timestamp
+    - without
+  - name: seconds
+    path: reference/functions/seconds.mdx
+    summary: Converts a number to equivalent seconds.
+    category: Time & Date
+    example: seconds(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: since_epoch
+    path: reference/functions/since_epoch.md
+    summary: Interprets a time value as duration since the Unix epoch.
+    category: Time & Date
+    example: since_epoch(2021-02-24)
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - date
+    - given
+    - retrive
+    - time
+    - unix
+  - name: weeks
+    path: reference/functions/weeks.mdx
+    summary: Converts a number to equivalent weeks.
+    category: Time & Date
+    example: weeks(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+  - name: year
+    path: reference/functions/year.md
+    summary: Extracts the year component from a timestamp.
+    category: Time & Date
+    example: ts.year()
+    use_when:
+    - working with timestamps
+    related: []
+    keywords:
+    - extract
+    - timestamp
+    - year
+  - name: years
+    path: reference/functions/years.mdx
+    summary: Converts a number to equivalent years.
+    category: Time & Date
+    example: years(100)
+    use_when:
+    - working with timestamps
+    - converting between formats
+    related: []
+    keywords:
+    - import
+- name: Type System/Conversion
+  description: Type System/Conversion operators and functions
+  functions:
+  - name: duration
+    path: reference/functions/duration.md
+    summary: Casts an expression to a duration value.
+    category: Type System/Conversion
+    example: duration("1.34w")
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - duration
+    - string
+  - name: float
+    path: reference/functions/float.md
+    summary: Casts an expression to a float.
+    category: Type System/Conversion
+    example: float(42)
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - float
+    - integer
+    - string
+  - name: int
+    path: reference/functions/int.md
+    summary: Casts an expression to an integer.
+    category: Type System/Conversion
+    example: int(-4.2)
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - convert
+    - floating-point
+    - hexadecimal
+    - integer
+    - number
+    - parse
+    - string
+  - name: ip
+    path: reference/functions/ip.md
+    summary: Casts an expression to an IP address.
+    category: Type System/Conversion
+    example: ip("1.2.3.4")
+    use_when:
+    - network data
+    related: []
+    keywords:
+    - address
+    - cast
+    - string
+  - name: string
+    path: reference/functions/string.md
+    summary: Casts an expression to a string.
+    category: Type System/Conversion
+    example: string(1.2.3.4)
+    use_when: []
+    related: []
+    keywords:
+    - address
+    - cast
+    - string
+  - name: subnet
+    path: reference/functions/subnet.md
+    summary: Casts an expression to a subnet value.
+    category: Type System/Conversion
+    example: subnet("1.2.3.4/16")
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - string
+    - subnet
+  - name: time
+    path: reference/functions/time.md
+    summary: Casts an expression to a time value.
+    category: Type System/Conversion
+    example: time("2020-03-15")
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - string
+    - time
+  - name: uint
+    path: reference/functions/uint.md
+    summary: Casts an expression to an unsigned integer.
+    category: Type System/Conversion
+    example: uint(4.2)
+    use_when: []
+    related: []
+    keywords:
+    - cast
+    - convert
+    - floating-point
+    - hexadecimal
+    - integer
+    - number
+    - parse
+    - unsigned
+- name: Type System/Introspection
+  description: Type System/Introspection operators and functions
+  functions:
+  - name: type_id
+    path: reference/functions/type_id.md
+    summary: Retrieves the type id of an expression.
+    category: Type System/Introspection
+    example: type_id(1 + 3.2)
+    use_when: []
+    related: []
+    keywords:
+    - expression
+    - numeric
+    - retrieve
+    - type
+  - name: type_of
+    path: reference/functions/type_of.md
+    summary: Retrieves the type definition of an expression.
+    category: Type System/Introspection
+    example: type_of(this)
+    use_when: []
+    related: []
+    keywords:
+    - definition
+    - retrieve
+    - schema
+    - type
+- name: Type System/Transposition
+  description: Type System/Transposition operators and functions
+  functions:
+  - name: flatten
+    path: reference/functions/flatten.md
+    summary: Flattens nested data.
+    category: Type System/Transposition
+    example: flatten(this)
+    use_when:
+    - flattening nested structures
+    related: []
+    keywords:
+    - becomes
+    - character
+    - dot
+    - fields
+    - flatten
+    - join
+    - merge
+  - name: unflatten
+    path: reference/functions/unflatten.md
+    summary: Unflattens nested data.
+    category: Type System/Transposition
+    example: unflatten(this)
+    use_when:
+    - creating nested structures
+    related: []
+    keywords:
+    - character
+    - dot
+    - fields
+    - unflatten
+- name: Utility
+  description: Utility operators and functions
+  functions:
+  - name: contains
+    path: reference/functions/contains.md
+    summary: Searches for a value within data structures recursively.
+    category: Utility
+    example: this.contains("value")
+    use_when: []
+    related: []
+    keywords:
+    - compatibility
+    - containment
+    - deeply
+    - lists
+    - nested
+    - numeric
+    - records
+    - search
+    - strings
+    - structures
+    - subnet
+    - substring
+    - type
+    - within
+  - name: contains_null
+    path: reference/functions/contains_null.md
+    summary: Checks whether the input contains any null values.
+    category: Utility
+    example: '{x: 1, y: null}.contains_null() == true'
+    use_when: []
+    related: []
+    keywords:
+    - check
+    - list
+    - 'null'
+    - record
+  - name: is_empty
+    path: reference/functions/is_empty.md
+    summary: Checks whether a value is empty.
+    category: Utility
+    example: '"".is_empty()'
+    use_when: []
+    related: []
+    keywords:
+    - check
+    - empty
+    - handling
+    - list
+    - 'null'
+    - record
+    - string
+  - name: random
+    path: reference/functions/random.md
+    summary: Generates a random number in _[0,1]_.
+    category: Utility
+    example: random()
+    use_when: []
+    related: []
+    keywords:
+    - generate
+    - number
+    - random
+  - name: uuid
+    path: reference/functions/uuid.md
+    summary: Generates a Universally Unique Identifier (UUID) string.
+    category: Utility
+    example: uuid()
+    use_when: []
+    related: []
+    keywords:
+    - generate
+    - nil
+    - random
+    - uuid
+    - version
