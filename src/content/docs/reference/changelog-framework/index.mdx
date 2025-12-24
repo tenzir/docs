@@ -65,6 +65,11 @@ the helper functions from `tenzir_changelog.cli` directly.
 - **Export style** – Controls whether release notes use a detailed card layout
   or a compact bullet-list layout. Set `export_style: compact` in configuration
   to prefer the bullet-list format without passing `--compact` each time.
+- **Explicit links** – Controls whether @mentions and #PR references render as
+  explicit Markdown links. Set `explicit_links: true` to produce portable output
+  for documentation sites or Markdown renderers that don't auto-link GitHub
+  references. CLI flags `--explicit-links/--no-explicit-links` override this
+  setting.
 - **Components** – You may constrain the optional `component` field on entries
   by declaring allowed labels in configuration. Use a dict mapping component
   names to descriptions. Component filters apply to the CLI table, exports, and
@@ -396,16 +401,17 @@ precedence when both exist.
 
 Configuration fields:
 
-| Field          | Description                                                        |
-| -------------- | ------------------------------------------------------------------ |
-| `id`           | Canonical project slug written into entry frontmatter (required)   |
-| `name`         | Human-friendly label surfaced in release titles and CLI output     |
-| `description`  | Optional project description included in release manifests         |
-| `repository`   | GitHub slug (e.g., `owner/repo`) required by `release publish`     |
-| `export_style` | Default layout: `compact` (bullet-list) or omit for detailed cards |
-| `components`   | Optional dict mapping component names to descriptions              |
-| `modules`      | Optional glob pattern for discovering nested changelog projects    |
-| `release`      | Release settings block (see below)                                 |
+| Field            | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| `id`             | Canonical project slug written into entry frontmatter (required)         |
+| `name`           | Human-friendly label surfaced in release titles and CLI output           |
+| `description`    | Optional project description included in release manifests               |
+| `repository`     | GitHub slug (e.g., `owner/repo`) required by `release publish`           |
+| `export_style`   | Default layout: `compact` (bullet-list) or omit for detailed cards       |
+| `explicit_links` | Render @mentions and #PR references as explicit Markdown links (boolean) |
+| `components`     | Optional dict mapping component names to descriptions                    |
+| `modules`        | Optional glob pattern for discovering nested changelog projects          |
+| `release`        | Release settings block (see below)                                       |
 
 Example:
 
@@ -415,6 +421,7 @@ name: Tenzir Core
 description: Core pipeline engine
 repository: tenzir/tenzir
 export_style: compact
+explicit_links: true
 components:
   cli: Command-line interface and user commands
   engine: Core pipeline engine internals
