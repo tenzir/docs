@@ -11,69 +11,58 @@ standard input, standard output, and standard error.
 When `~` is the first character in the file path, the operator substitutes it
 with the `$HOME` environment variable.
 
-:::tip[URL Support]
-The URL scheme `file://` dispatches to
-[`load_file`](/reference/operators/load_file) and
-[`save_file`](/reference/operators/save_file) for seamless URL-style use via
-[`from`](/reference/operators/from) and
-[`to`](/reference/operators/to).
-:::
+Use [`from_file`](/reference/operators/from_file) to read files with glob
+patterns, automatic format detection, and file monitoring. For writing, use
+[`save_file`](/reference/operators/save_file) with a print operator.
 
 ## Examples
 
 ### Read a file
 
-Read from a file and parse it in the format applied by the file extension:
+Read from a file and parse it in the format implied by the file extension:
 
 ```tql
-from "/tmp/file.json"
+from_file "/tmp/file.json"
 ```
 
-The [`from`](/reference/operators/from) operator automatically decompresses the
-file, if the suffix list contains a [supported compression
-algorithm](/reference/operators/from#compression):
+The operator automatically decompresses the file when the suffix list contains a
+supported compression algorithm:
 
 ```tql
-from "/tmp/file.json.gz"
+from_file "/tmp/file.json.gz"
 ```
 
-Some operators perform better when the entire file arrives as a single block of
-bytes, such as the [`yara`](/reference/operators/yara) operator. In this
-case, passing `mmap=true` runs more efficiently:
+### Read multiple files with a glob pattern
 
 ```tql
-from "/sandbox/malware.gz", mmap=true {
-  decompress "gzip"
-  yara "rule.yaml"
-}
+from_file "/var/log/*.json"
 ```
 
-### Follow a file
+### Watch a directory for new files
 
-A pipeline typically completes once it reads the end of a file. Pass
-`follow=true` to disable this behavior and instead wait for new data written to
-it. This is similar to running `tail -f` on a file.
+Use `watch=true` to continuously monitor for new files:
 
-```
-from "/tmp/never-ending-stream.ndjson", follow=true
+```tql
+from_file "/var/log/app/*.json", watch=true
 ```
 
 ### Write a file
 
-Write to a file in the format implied by the file extension:
+Write to a file in a specific format:
 
 ```tql
 version
-to "/tmp/tenzir-version.json"
+print_json
+save_file "/tmp/tenzir-version.json"
 ```
 
-The [`to`](/reference/operators/to) operator automatically compresses the
-file, if the suffix list contains a [supported compression
-algorithm](/reference/operators/to#compression):
+With compression:
 
 ```tql
 version
-to "/tmp/tenzir-version.json.bz2"
+print_json
+compress_bzip2
+save_file "/tmp/tenzir-version.json.bz2"
 ```
 
 ### Append to a file
@@ -83,7 +72,8 @@ as option:
 
 ```tql
 from {x: 42}
-to "/tmp/event.csv", append=true
+print_csv
+save_file "/tmp/event.csv", append=true
 ```
 
 ### Read/write a Unix domain socket
@@ -91,16 +81,15 @@ to "/tmp/event.csv", append=true
 Pass `uds=true` to signal that the file is a Unix domain socket:
 
 ```tql
-to "/tmp/socket", uds=true {
-  write_ndjson
-}
+print_ndjson
+save_file "/tmp/socket", uds=true
 ```
 
-When reading from a Unix domain socket, Tenzir automatically figures out whether
-the file is regular or a socket:
+When reading from a Unix domain socket, use
+[`from_file`](/reference/operators/from_file) with a parsing pipeline:
 
 ```tql
-from "/tmp/socket" {
+from_file "/tmp/socket" {
   read_ndjson
 }
 ```

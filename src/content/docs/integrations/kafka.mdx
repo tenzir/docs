@@ -12,37 +12,36 @@ Internally, we use Confluent's official
 [librdkafka](https://github.com/confluentinc/librdkafka) library, which gives us
 full control in passing options.
 
-:::tip[URL Support]
-The URL scheme `kafka://` dispatches to
-[`load_kafka`](/reference/operators/load_kafka) and
-[`save_kafka`](/reference/operators/save_kafka) for seamless URL-style use via
-[`from`](/reference/operators/from) and [`to`](/reference/operators/to).
-:::
-
 ## Examples
 
-### Send events to a Kafka topic
-
-```tql
-from {
-  x: 42,
-  y: "foo",
-}
-to "kafka://topic" {
-  write_ndjson
-}
-```
+Use [`from_kafka`](/reference/operators/from_kafka) and
+[`to_kafka`](/reference/operators/to_kafka) to receive and send messages.
 
 ### Subscribe to a topic
 
 The `offset` option controls where to start reading:
 
 ```tql
-from "kafka://topic", offset="beginning" {
-  read_ndjson
-}
+from_kafka "topic", offset="beginning"
+this = message.parse_json()
 ```
 
-Other values are `"end"` to read at the last offset, `"stored"` to read at the
-stored offset, a positive integer representing an absolute offset, or a negative
-integer representing a relative offset counting from the end.
+Additional offset values are `"end"` to read at the last offset, `"stored"` to
+read at the stored offset, a positive integer representing an absolute offset,
+or a negative integer representing a relative offset counting from the end.
+
+### Send events to a Kafka topic
+
+Send a static record as JSON to a Kafka topic:
+
+```tql
+from {
+  x: 42,
+  y: "foo",
+}
+to_kafka "topic"
+```
+
+You can control the message encoding with the `mesage` argument in
+[`to_kafka`](/reference/operators/to_kafka) that defaults to
+`this.print_json()`.
