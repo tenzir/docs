@@ -1508,6 +1508,7 @@ description: "A chronological view of all changes across all Tenzir projects."
 sidebar:
   hidden: true
 topic: changelog-timeline
+tableOfContents: false
 ---
 
 import UnifiedTimeline from "@components/UnifiedTimeline.astro";
