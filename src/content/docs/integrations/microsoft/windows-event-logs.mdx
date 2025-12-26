@@ -253,9 +253,8 @@ configuration to publish to the `nxlog` topic:
 Then use our [Kafka integration](/integrations/kafka) to read from the topic:
 
 ```tql
-from "kafka://nxlog" {
-  read_json
-}
+from_kafka "nxlog"
+this = message.parse_json()
 import
 ```
 
@@ -589,7 +588,7 @@ Accept the logs sent with the configuration above into Tenzir via
 [TCP](/integrations/tcp):
 
 ```tql
-from "tcp://10.0.0.1:1514" {
+load_tcp "10.0.0.1:1514" {
   read_json
 }
 publish "wec"

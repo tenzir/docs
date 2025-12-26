@@ -21,30 +21,26 @@ Together, these building blocks enable round-trip Syslog processing.
 
 ### Create a Syslog Server
 
-To receive Syslog messages on a UDP socket, use `from` with
+To receive Syslog messages on a UDP socket, use
+[`from_udp`](/reference/operators/from_udp):
+
+```tql
+from_udp "0.0.0.0:514"
+this = data.parse_syslog()
+publish "syslog"
+```
+
+To use TCP instead of UDP, use [`load_tcp`](/reference/operators/load_tcp) with
 [`read_syslog`](/reference/operators/read_syslog):
 
 ```tql
-from "udp://0.0.0.0:514", insert_newlines=true {
+load_tcp "0.0.0.0:514" {
   read_syslog
 }
 publish "syslog"
 ```
 
-To use TCP instead of UDP, change the scheme and omit the `insert_newlines`
-option:
-
-```tql
-from "tcp://0.0.0.0:514" {
-  read_syslog
-}
-publish "syslog"
-```
-
-:::note[One pipeline per accepted connection]
-For TCP, the pipeline inside `from` executes _for each accepted
-connection_.
-:::
+The pipeline inside `load_tcp` executes _for each accepted connection_.
 
 ### Parsing CEF, LEEF, or JSON Payloads
 
@@ -75,8 +71,9 @@ Note that the `content` field is just a big string. Parse it with
 [`parse_cef`](/reference/functions/parse_cef):
 
 ```tql
-load_file "/tmp/sample.syslog"
-read_syslog
+from_file "/tmp/sample.syslog" {
+  read_syslog
+}
 content = content.parse_cef()
 ```
 
