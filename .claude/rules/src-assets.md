@@ -2,4 +2,4 @@
 paths: src/assets/**/*
 ---
 
-Load the `brand:styling-tenzir-ui` skill.
+Immediately invoke the `brand:styling-tenzir-ui` skill.
