@@ -2,7 +2,7 @@
 paths: src/content/docs/**/*
 ---
 
-Immediately invoke the follwing skills:
+Immediately invoke these skills:
 
 - `docs:authoring`
-- `writing:technical-writing`
+- `prose:technical-writing`

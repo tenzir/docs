@@ -14,39 +14,12 @@ for Tenzir (https://tenzir.com).
 - Styling: Custom CSS in `/src/styles/`
 - Sidebar: manually managed in `/src/sidebar.ts`. Add new pages here.
 
-## Content Patterns
+## Content Authoring
 
-### Frontmatter
+When writing or editing documentation content, invoke the `docs:authoring` skill
+for Diátaxis framework guidance, file format details, and writing style.
 
-Standard pages use `title` and optionally `description`:
-
-```yaml
----
-title: Page Title
-description: Optional description
----
-```
-
-Reference pages (functions, operators) include `category` and `example`:
-
-```yaml
----
-title: abs
-category: Math
-example: 'abs(-42)'
----
-```
-
-### Code Blocks
-
-Use `tql` as the language identifier for Tenzir Query Language:
-
-```tql
-from {x: 42}
-where x > 0
-```
-
-### Partials
+## Partials
 
 Import reusable content from `/src/partials/`:
 
