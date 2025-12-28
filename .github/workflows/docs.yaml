@@ -17,8 +17,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  generate:
+    name: Generate
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prod
+
+      - name: Generate changelog
+        run: pnpm generate:changelog
+
+      - name: Generate docs map
+        run: pnpm generate:docs-map
+
+      - name: Upload generated content
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-content
+          path: |
+            src/content/docs/changelog/
+            src/sidebar-changelog.generated.ts
+            src/unified-timeline-data.generated.ts
+            public/tenzir_docs_map.md
+
   build:
     name: Build
+    needs: generate
+    if: always() && (needs.generate.result == 'success' || needs.generate.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -42,10 +82,11 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Sync external content
+      - name: Download generated content
         if: github.event_name != 'pull_request'
-        run: |
-          pnpm sync:changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: generated-content
 
       - name: Setup GitHub Pages
         id: pages

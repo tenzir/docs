@@ -2,7 +2,6 @@
 /* eslint-disable no-console */
 import fs from "fs/promises";
 import path from "path";
-import { pathToFileURL } from "url";
 
 const DOCS_DIR = "src/content/docs";
 const OUTPUT_FILE = "public/tenzir_docs_map.md";
@@ -75,7 +74,7 @@ async function resolveDocPath(docPath, docsRoot) {
         const { title, content: body } = parseFrontmatter(content);
 
         const isReferenceOnly = REFERENCE_ONLY_PATHS.some((p) =>
-          docPath.startsWith(p)
+          docPath.startsWith(p),
         );
         const headings = isReferenceOnly ? [] : extractHeadings(body);
 
@@ -203,7 +202,7 @@ async function walkDirectory(dir, basePath, docsRoot) {
       const subDocs = await walkDirectory(
         path.join(dir, entry.name),
         `${basePath}/${entry.name}`,
-        docsRoot
+        docsRoot,
       );
       docs.push(...subDocs);
     } else if (entry.name.endsWith(".md") || entry.name.endsWith(".mdx")) {
@@ -233,7 +232,7 @@ async function generateDocsMap() {
   // Read the file and extract the exports
   const sidebarContent = await fs.readFile(
     path.join(process.cwd(), "src/sidebar.ts"),
-    "utf-8"
+    "utf-8",
   );
 
   // Parse the sidebar exports (simplified - works for this structure)
@@ -243,13 +242,13 @@ async function generateDocsMap() {
     explanations: await extractAndProcess(
       "explanations",
       sidebarContent,
-      docsRoot
+      docsRoot,
     ),
     reference: await extractAndProcess("reference", sidebarContent, docsRoot),
     integrations: await extractAndProcess(
       "integrations",
       sidebarContent,
-      docsRoot
+      docsRoot,
     ),
   };
 
@@ -260,12 +259,12 @@ async function generateDocsMap() {
   const operators = await walkDirectory(
     operatorsDir,
     "reference/operators",
-    docsRoot
+    docsRoot,
   );
   const functions = await walkDirectory(
     functionsDir,
     "reference/functions",
-    docsRoot
+    docsRoot,
   );
 
   // Sort alphabetically
@@ -345,7 +344,7 @@ async function extractAndProcess(name, content, docsRoot) {
   // Find the export for this section
   const exportRegex = new RegExp(
     `export const ${name} = \\[([\\s\\S]*?)\\];(?=\\s*(?:export|$))`,
-    "m"
+    "m",
   );
   const match = content.match(exportRegex);
 

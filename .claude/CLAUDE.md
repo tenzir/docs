@@ -42,8 +42,10 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
 Some content is auto-generated and excluded from linting:
 
-- **Changelog**: Run `pnpm sync:changelog` to fetch from `tenzir/news` repo.
+- **Changelog**: Run `pnpm generate:changelog` to fetch from `tenzir/news` repo.
   Generated files: `src/content/docs/changelog/`, `src/sidebar-changelog.ts`.
+- **Docs Map**: Run `pnpm generate:docs-map` to create the documentation map.
+  Generated file: `public/tenzir_docs_map.md`.
 
 ### Linting
 
