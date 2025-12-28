@@ -4,7 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 
 const DOCS_DIR = "src/content/docs";
-const OUTPUT_FILE = "public/tenzir_docs_map.md";
+const OUTPUT_FILE = "public/sitemap.md";
 const BASE_URL = "https://docs.tenzir.com";
 
 // Reference subcategories that should only show links (no H2s)
