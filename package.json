@@ -18,7 +18,8 @@
     "lint:prettier": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
     "build:linkcheck": "CHECK_LINKS=true pnpm build",
-    "build:full": "CHECK_LINKS=true LLMS_TXT=true pnpm build",
+    "build:full": "pnpm generate:docs-map && CHECK_LINKS=true LLMS_TXT=true pnpm build",
+    "generate:docs-map": "node scripts/generate-docs-map.mjs",
     "lint:fix": "pnpm run lint:markdown:fix && pnpm run lint:eslint:fix && pnpm run lint:prettier:fix",
     "postinstall": "node scripts/fix-starlight-llms-txt.js"
   },
