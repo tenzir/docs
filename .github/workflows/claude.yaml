@@ -8,30 +8,6 @@ on:
 
 jobs:
   claude:
-    if: |
-      contains(github.event.comment.body, '@claude')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      issues: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # Keep in sync with .claude/settings.json
-          plugin_marketplaces: |
-            https://github.com/tenzir/claude-plugins.git
-          plugins: |
-            brand@tenzir
-            docs@tenzir
-            formatter@tenzir
-            git@tenzir
-            ocsf@tenzir
-            prose@tenzir
-            tql@tenzir
+    uses: tenzir/claude-plugins/.github/workflows/claude.yaml@main
+    secrets:
+      claude_code_oauth_token: ${{ secrets.ANTHROPIC_CLAUDE_CODE_OAUTH_TOKEN }}
