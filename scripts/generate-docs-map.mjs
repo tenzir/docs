@@ -8,7 +8,11 @@ const OUTPUT_FILE = "public/sitemap.md";
 const BASE_URL = "https://docs.tenzir.com";
 
 // Reference subcategories that should only show links (no H2s)
-const REFERENCE_ONLY_PATHS = ["reference/operators", "reference/functions"];
+const REFERENCE_ONLY_PATHS = [
+  "reference/operators",
+  "reference/functions",
+  "reference/claude-plugins",
+];
 
 /**
  * Parse frontmatter from markdown content.
@@ -252,9 +256,10 @@ async function generateDocsMap() {
     ),
   };
 
-  // Add operators and functions by walking directories
+  // Add operators, functions, and claude-plugins by walking directories
   const operatorsDir = path.join(docsRoot, "reference/operators");
   const functionsDir = path.join(docsRoot, "reference/functions");
+  const claudePluginsDir = path.join(docsRoot, "reference/claude-plugins");
 
   const operators = await walkDirectory(
     operatorsDir,
@@ -266,10 +271,16 @@ async function generateDocsMap() {
     "reference/functions",
     docsRoot,
   );
+  const claudePlugins = await walkDirectory(
+    claudePluginsDir,
+    "reference/claude-plugins",
+    docsRoot,
+  );
 
   // Sort alphabetically
   operators.sort((a, b) => a.title.localeCompare(b.title));
   functions.sort((a, b) => a.title.localeCompare(b.title));
+  claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
 
   // Insert into reference section
   if (operators.length > 0) {
@@ -285,6 +296,23 @@ async function generateDocsMap() {
       label: "Functions",
       items: functions,
     });
+  }
+  if (claudePlugins.length > 0) {
+    // Find and replace the Claude Marketplace entry with expanded version
+    const marketplaceIdx = sections.reference.findIndex(
+      (item) => item.path === "reference/claude-plugins",
+    );
+    if (marketplaceIdx !== -1) {
+      sections.reference.splice(marketplaceIdx, 1, {
+        label: "Claude Marketplace",
+        items: claudePlugins,
+      });
+    } else {
+      sections.reference.push({
+        label: "Claude Marketplace",
+        items: claudePlugins,
+      });
+    }
   }
 
   // Generate output
