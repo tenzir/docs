@@ -936,6 +936,7 @@ title: "${year}"
 sidebar:
   label: "${year}"
 topic: changelog-timeline
+tableOfContents: false
 ---
 
 import Timeline from '@components/Timeline.astro';
