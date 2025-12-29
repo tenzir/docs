@@ -133,9 +133,25 @@ async function processSidebarItem(item, docsRoot) {
           }
         }
       }
+
+      // Check if first item is an index/overview page (parent path of other items)
+      let indexLink = null;
+      let items = docs;
+      if (docs.length > 1 && docs[0].path) {
+        const firstPath = docs[0].path;
+        const isIndexPage = docs
+          .slice(1)
+          .some((d) => d.path && d.path.startsWith(firstPath + "/"));
+        if (isIndexPage) {
+          indexLink = `${BASE_URL}/${firstPath}.md`;
+          items = docs.slice(1); // Remove index page from items
+        }
+      }
+
       return {
         label: item.label,
-        items: docs,
+        link: indexLink,
+        items,
       };
     }
   }
@@ -173,7 +189,11 @@ function formatSection(item, level = 3) {
   const headingPrefix = "#".repeat(level);
 
   if (item.label && item.items) {
-    output += `${headingPrefix} ${item.label}\n\n`;
+    if (item.link) {
+      output += `${headingPrefix} [${item.label}](${item.link})\n\n`;
+    } else {
+      output += `${headingPrefix} ${item.label}\n\n`;
+    }
     for (const subItem of item.items) {
       if (subItem.label && subItem.items) {
         // Nested group
@@ -282,10 +302,11 @@ async function generateDocsMap() {
   functions.sort((a, b) => a.title.localeCompare(b.title));
   claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
 
-  // Insert into reference section
+  // Insert into reference section (with links to index pages)
   if (operators.length > 0) {
     sections.reference.unshift({
       label: "Operators",
+      link: `${BASE_URL}/reference/operators.md`,
       items: operators,
     });
   }
@@ -294,6 +315,7 @@ async function generateDocsMap() {
     const insertIdx = operators.length > 0 ? 1 : 0;
     sections.reference.splice(insertIdx, 0, {
       label: "Functions",
+      link: `${BASE_URL}/reference/functions.md`,
       items: functions,
     });
   }
@@ -305,11 +327,13 @@ async function generateDocsMap() {
     if (marketplaceIdx !== -1) {
       sections.reference.splice(marketplaceIdx, 1, {
         label: "Claude Marketplace",
+        link: `${BASE_URL}/reference/claude-plugins.md`,
         items: claudePlugins,
       });
     } else {
       sections.reference.push({
         label: "Claude Marketplace",
+        link: `${BASE_URL}/reference/claude-plugins.md`,
         items: claudePlugins,
       });
     }
@@ -330,7 +354,8 @@ async function generateDocsMap() {
     if (!items || items.length === 0) continue;
 
     const title = name.charAt(0).toUpperCase() + name.slice(1);
-    output += `## ${title}\n\n`;
+    const sectionIndexUrl = `${BASE_URL}/${name}.md`;
+    output += `## [${title}](${sectionIndexUrl})\n\n`;
 
     let hasOutputItems = false;
     for (const item of items) {
