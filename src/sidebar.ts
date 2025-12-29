@@ -220,6 +220,10 @@ export const reference = [
     label: "Changelog Framework",
     link: "reference/changelog-framework",
   },
+  {
+    label: "Claude Marketplace",
+    link: "reference/claude-plugins",
+  },
 ];
 
 export const integrations = [

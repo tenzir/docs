@@ -50,6 +50,10 @@ jobs:
         if: github.event_name != 'pull_request'
         run: pnpm generate:docs-map
 
+      - name: Generate Claude plugins
+        if: github.event_name != 'pull_request'
+        run: pnpm generate:claude-plugins
+
       - name: Setup GitHub Pages
         id: pages
         uses: actions/configure-pages@v5

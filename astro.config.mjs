@@ -187,6 +187,7 @@ export default defineConfig({
               "/reference/platform/api/**/*",
               "/reference/functions/**/*",
               "/reference/operators/**/*",
+              "/reference/claude-plugins/**/*",
             ],
             // Changelog root topic (for the landing page)
             changelog: ["/changelog"],
