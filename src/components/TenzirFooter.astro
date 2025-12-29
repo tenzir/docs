@@ -107,23 +107,33 @@ const legalLinks = [
 
 <style>
   .tenzir-footer {
-    background-color: var(--tnz-neutral-800);
-    border-top: 1px solid var(--tnz-neutral-700);
+    background-color: var(--sl-color-bg);
     padding: var(--tnz-space-12) 0 var(--tnz-space-6);
     width: 100%;
     position: relative;
     z-index: 10;
   }
 
-  :root[data-theme='light'] .tenzir-footer {
-    background-color: var(--tnz-neutral-50);
-    border-top-color: var(--tnz-neutral-200);
-  }
-
   .footer-content {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 var(--tnz-space-8);
+    padding-top: var(--tnz-space-10);
+    position: relative;
+  }
+
+  .footer-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: var(--tnz-space-8);
+    right: var(--tnz-space-8);
+    height: 1px;
+    background-color: var(--tnz-neutral-700);
+  }
+
+  :root[data-theme='light'] .footer-content::before {
+    background-color: var(--tnz-neutral-200);
   }
 
   .footer-sections {
