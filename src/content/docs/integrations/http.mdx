@@ -22,7 +22,7 @@ In both cases, you can only provide static header data.
 Use [`from_http`](/reference/operators/from_http) to perform HTTP requests or
 run an HTTP server. This operator automatically infers the format from the
 `Content-Type` header, defaulting to JSON. For sending, use
-[`save_http`](/reference/operators/save_http) with a print operator.
+[`save_http`](/reference/operators/save_http) with a write operator.
 
 ## Examples
 
@@ -45,6 +45,6 @@ from {
   x: 42,
   y: "foo",
 }
-print_json
+write_json
 save_http "http://example.com:8888/api", method="POST"
 ```
