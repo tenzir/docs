@@ -12,28 +12,23 @@ writing to and reading from UDP sockets, both in server (listening) and client
 
 Use the IP address `0.0.0.0` to listen on all available network interfaces.
 
-:::tip[URL Support]
-The URL scheme `udp://` dispatches to
-[`load_udp`](/reference/operators/load_udp) and
-[`save_udp`](/reference/operators/save_udp) for seamless URL-style use via
-[`from`](/reference/operators/from) and [`to`](/reference/operators/to).
-:::
-
 ## Examples
 
-### Accept Syslog messages over UDP
+Use [`from_udp`](/reference/operators/from_udp) to receive UDP datagrams as
+structured events containing message data and peer information. For sending, use
+[`save_udp`](/reference/operators/save_udp) with a write operator.
+
+### Receive syslog messages over UDP
 
 ```tql
-from "udp://127.0.0.1:541", insert_newlines=true {
-  read_syslog
-}
+from_udp "0.0.0.0:514"
+this = data.parse_syslog()
 ```
 
 ### Send events to a UDP socket
 
 ```tql
 from {message: "Tenzir"}
-to "udp://1.2.3.4:8080" {
-  write_ndjson
-}
+write_ndjson
+save_udp "1.2.3.4:8080"
 ```

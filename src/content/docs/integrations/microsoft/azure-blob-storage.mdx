@@ -8,29 +8,30 @@ to read and write files.
 
 ![Azure Blob Storage](azure-blob-storage.svg)
 
-:::tip[URL Support]
-The URL scheme `abfs[s]://` dispatches to
-[`load_azure_blob_storage`](/reference/operators/load_azure_blob_storage) and
-[`save_azure_blob_storage`](/reference/operators/save_azure_blob_storage)
-for seamless URL-style use via [`from`](/reference/operators/from)
-and [`to`](/reference/operators/to).
-:::
-
 ## Examples
+
+Use [`from_azure_blob_storage`](/reference/operators/from_azure_blob_storage) to
+read files from Azure Blob Storage. It supports glob patterns and automatic
+format detection. For writing, use
+[`save_azure_blob_storage`](/reference/operators/save_azure_blob_storage) with a
+print operator.
+
+### Read events from a file in a container
+
+```tql
+from_azure_blob_storage "abfs://container/path/to/file.json"
+```
+
+### Read all JSON files from a container
+
+```tql
+from_azure_blob_storage "abfs://container/logs/**.json"
+```
 
 ### Write an event to a file in a container
 
 ```tql
 from {foo: 42}
-to "abfss://user@container/path/to/file.json"
-```
-
-### Read events from a file in a container
-
-```tql
-from "abfss://user@container/path/to/file.json"
-```
-
-```tql
-{foo: 42}
+print_json
+save_azure_blob_storage "abfs://container/path/to/file.json"
 ```

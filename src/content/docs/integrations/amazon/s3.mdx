@@ -8,34 +8,34 @@ files.
 
 ![S3](s3.svg)
 
-:::tip[URL Support]
-The URL scheme `s3://` dispatches to
-[`load_s3`](/reference/operators/load_s3) and
-[`save_s3`](/reference/operators/save_s3) for seamless URL-style use via
-[`from`](/reference/operators/from) and
-[`to`](/reference/operators/to).
-:::
+Use [`from_s3`](/reference/operators/from_s3) to read files from S3. It supports
+glob patterns, automatic format detection, and IAM role assumption. For writing,
+use [`save_s3`](/reference/operators/save_s3) with a print operator.
 
 ## Configuration
 
-Follow the [standard configuration instructions](/integrations/amazon) to authenticate with your
-AWS credentials.
+Follow the [standard configuration instructions](/integrations/amazon) to
+authenticate with your AWS credentials.
 
 ## Examples
+
+### Read from an S3 bucket
+
+```tql
+from_s3 "s3://my-bucket/path/to/file.json.gz"
+```
+
+### Read all JSON files from an S3 bucket
+
+```tql
+from_s3 "s3://my-bucket/logs/**.json"
+```
 
 ### Write to an S3 bucket
 
 ```tql
 from {foo: 42}
-to "s3://my-bucket/path/to/file.json.gz"
-```
-
-### Read from an S3 bucket
-
-```tql
-from "s3://my-bucket/path/to/file.json.gz"
-```
-
-```tql
-{foo: 42}
+print_json
+compress_gzip
+save_s3 "s3://my-bucket/path/to/file.json.gz"
 ```

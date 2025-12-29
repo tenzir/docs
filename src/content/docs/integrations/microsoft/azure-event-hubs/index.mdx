@@ -62,29 +62,29 @@ Use the pipeline below and replace the three placeholders in angle brackets:
   5. Primary connection string
 
 ```tql
-from "kafka://<topic>", options = {
+let $options = {
   "bootstrap.servers": "<namespace>.servicebus.windows.net:9093",
   "security.protocol": "SASL_SSL",
   "sasl.mechanism": "PLAIN",
   "sasl.username": "$ConnectionString",
-  "sasl.password": "<connection-string>"
-} {
-  read_json
+  "sasl.password": "<connection-string>",
 }
+from_kafka "<topic>", options=$options
+this = message.parse_json()
 ```
 
 After substitution, your pipeline looks like this:
 
 ```tql
-from "kafka://tenzir-event-hub", options = {
+let $options = {
   "bootstrap.servers": "tenzir-event-hub.servicebus.windows.net:9093",
   "security.protocol": "SASL_SSL",
   "sasl.mechanism": "PLAIN",
   "sasl.username": "$ConnectionString",
-  "sasl.password": "Endpoint=sb://tenzir-event-hub.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SECRET123456"
-} {
-  read_json
+  "sasl.password": "Endpoint=sb://tenzir-event-hub.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SECRET123456",
 }
+from_kafka "tenzir-event-hub", options=$options
+this = message.parse_json()
 ```
 
 The events you receive will vary depending on the source service. For example,
