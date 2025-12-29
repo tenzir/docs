@@ -1419,8 +1419,8 @@ async function syncChangelog(newsRepoPath) {
         })
         .join("\n\n");
 
-      // Add parent project card(s) before modules (full width, outside grid)
-      // Shows latest release and/or unreleased if present
+      // Add parent project card before modules (full width, outside grid)
+      // Shows latest release, or unreleased if no releases exist yet
       let prefixCards = "";
       const latestParentRelease = releases.find((r) => !r.isUnreleased);
       const parentUnreleased = releases.find((r) => r.isUnreleased);
@@ -1436,9 +1436,8 @@ async function syncChangelog(newsRepoPath) {
   icon="${projectIcon}"${colorAttr}
   meta="${latestParentRelease.version}"
 />\n\n`;
-      }
-
-      if (parentUnreleased) {
+      } else if (parentUnreleased) {
+        // Only show unreleased card if there are no releases yet
         prefixCards += `<LinkCard
   title="${project.name}"
   description="Upcoming changes not yet published in a release."
