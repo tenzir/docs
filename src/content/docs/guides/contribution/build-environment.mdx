@@ -32,14 +32,27 @@ use_flake2
 ```
 
 The `tenzir/tenzir` repository comes with a set of CMake configure and build
-presets that can be used in this environment:
+presets that can be used in this environment. List available presets with:
+
+```sh
+cmake --list-presets
+```
+
+Common presets for development:
 
 - `nix-clang-debug`
-- `nix-clang-redeb`
+- `nix-clang-relwithdebinfo`
 - `nix-clang-release`
 - `nix-gcc-debug`
-- `nix-gcc-redeb`
+- `nix-gcc-relwithdebinfo`
 - `nix-gcc-release`
+
+Configure and build using a preset:
+
+```sh
+cmake --preset nix-clang-debug
+cmake --build --preset nix-clang-debug
+```
 
 :::note
 This build environment is currently only tested on Linux.
@@ -56,6 +69,9 @@ nix develop .#tenzir-static
 
 The CMake presets for that mode are:
 
+- `nix-clang-static-debug`
+- `nix-clang-static-relwithdebinfo`
+- `nix-clang-static-release`
 - `nix-gcc-static-debug`
-- `nix-gcc-static-redeb`
+- `nix-gcc-static-relwithdebinfo`
 - `nix-gcc-static-release`
