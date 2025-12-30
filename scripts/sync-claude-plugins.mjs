@@ -264,10 +264,6 @@ function generateLandingPage(plugins) {
     )
     .join("\n\n");
 
-  const enabledPlugins = plugins
-    .map((p) => `    "${p.name}@tenzir": true`)
-    .join(",\n");
-
   return `---
 title: Claude Marketplace
 description: Tenzir plugins for Claude Code that enhance AI-assisted development workflows.
