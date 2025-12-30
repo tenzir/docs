@@ -1241,6 +1241,11 @@ starlight-toc a[aria-current="true"]::before {
   border-radius: 1px;
 }
 
+/* Fix active indicator positioning for nested TOC items (h3, h4, etc.) */
+starlight-toc ul ul a[aria-current="true"]::before {
+  left: calc(-1 * (2 * var(--tnz-space-3) + var(--tnz-space-1) + 1px));
+}
+
 /* Light mode TOC */
 :root[data-theme="light"] starlight-toc a {
   color: var(--tnz-neutral-500);
