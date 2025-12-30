@@ -24,33 +24,33 @@ period.
 Each mode uses a mathematical function that converts the event count into a
 sampling rate. For example, if you received 1,000 events in the previous period:
 
-| Mode      | Calculation     | Rate | Events kept (approx) |
-| --------- | --------------- | ---- | -------------------- |
-| `"ln"`    | ln(1000) = 7    | 1:7  | 143 of 1000          |
-| `"log2"`  | log2(1000) = 10 | 1:10 | 100 of 1000          |
-| `"log10"` | log10(1000) = 3 | 1:3  | 333 of 1000          |
-| `"sqrt"`  | sqrt(1000) = 32 | 1:32 | 31 of 1000           |
+| Mode      | Calculation      | Rate | Events kept (approx) |
+| --------- | ---------------- | ---- | -------------------- |
+| `"log10"` | log10(1,000) = 3 | 1:3  | 333 of 1,000         |
+| `"ln"`    | ln(1,000) = 7    | 1:7  | 143 of 1,000         |
+| `"log2"`  | log2(1,000) = 10 | 1:10 | 100 of 1,000         |
+| `"sqrt"`  | sqrt(1,000) = 32 | 1:32 | 31 of 1,000          |
 
 At higher volumes, the differences become more pronounced. With 1,000,000 events:
 
-| Mode      | Calculation          | Rate   | Events kept (approx) |
-| --------- | -------------------- | ------ | -------------------- |
-| `"ln"`    | ln(1000000) = 14     | 1:14   | 71,429               |
-| `"log2"`  | log2(1000000) = 20   | 1:20   | 50,000               |
-| `"log10"` | log10(1000000) = 6   | 1:6    | 166,667              |
-| `"sqrt"`  | sqrt(1000000) = 1000 | 1:1000 | 1,000                |
+| Mode      | Calculation            | Rate    | Events kept (approx) |
+| --------- | ---------------------- | ------- | -------------------- |
+| `"log10"` | log10(1,000,000) = 6   | 1:6     | 166,667              |
+| `"ln"`    | ln(1,000,000) = 14     | 1:14    | 71,429               |
+| `"log2"`  | log2(1,000,000) = 20   | 1:20    | 50,000               |
+| `"sqrt"`  | sqrt(1,000,000) = 1000 | 1:1,000 | 1,000                |
 
 ### When to use each mode
 
-- **`"ln"`**: A balanced default for most use cases. Provides reasonable
-  sampling without being too aggressive.
-- **`"log2"`**: Use when you want slightly more aggressive downsampling than
-  `"ln"` but still gradual scaling.
-- **`"log10"`**: Use when you want to keep more data even at high volumes. The
+- `"log10"`: Use when you want to keep more data even at high volumes. The
   sampling rate increases slowly, so you retain a larger proportion of events.
-- **`"sqrt"`**: Use for high-volume streams where you need aggressive
-  downsampling. The rate scales fastest with event count, keeping storage and
-  processing costs low.
+- `"ln"`: A balanced default for most use cases. Provides reasonable sampling
+  without being too aggressive.
+- `"log2"`: Use when you want slightly more aggressive downsampling than `"ln"`
+  but still gradual scaling.
+- `"sqrt"`: Use for high-volume streams where you need aggressive downsampling.
+  The rate scales fastest with event count, keeping storage and processing costs
+  low.
 
 ### `period: duration (optional)`
 
@@ -69,12 +69,12 @@ period.
 
 The available modes are:
 
-| Mode      | Function          | Sampling behavior                         |
-| --------- | ----------------- | ----------------------------------------- |
-| `"ln"`    | Natural logarithm | Moderate sampling, grows slowly           |
-| `"log2"`  | Base-2 logarithm  | Slightly more aggressive than `ln`        |
-| `"log10"` | Base-10 logarithm | Conservative sampling, keeps most data    |
-| `"sqrt"`  | Square root       | Most aggressive, grows faster than others |
+| Mode      | Function          | Sampling behavior                    |
+| --------- | ----------------- | ------------------------------------ |
+| `"log10"` | Base-10 logarithm | Conservative, keeps most data        |
+| `"ln"`    | Natural logarithm | Moderate sampling (default)          |
+| `"log2"`  | Base-2 logarithm  | Slightly more aggressive than `"ln"` |
+| `"sqrt"`  | Square root       | Most aggressive, keeps least data    |
 
 The default is `"ln"`.
 
