@@ -12,6 +12,9 @@ html {
 
 /* Map Tenzir design system to Starlight variables */
 :root {
+  /* Sidebar width - reduced from default 18.75rem (300px) */
+  --sl-sidebar-width: 16rem;
+
   /* Typography */
   --sl-font: var(--tnz-font-sans);
   --sl-font-mono: var(--tnz-font-mono);
@@ -37,6 +40,10 @@ html {
 
 /* Dark mode (default) colors and backgrounds */
 :root {
+  /* Navigation semantic tokens */
+  --tnz-nav-link: var(--tnz-neutral-300);
+  --tnz-nav-link-hover: var(--tnz-neutral-100);
+  --tnz-nav-link-active: var(--tnz-neutral-100);
   --sl-color-accent-low: color-mix(
     in srgb,
     var(--tnz-primary-600) 25%,
@@ -65,6 +72,11 @@ html {
 
 /* Light mode overrides */
 :root[data-theme="light"] {
+  /* Navigation semantic tokens */
+  --tnz-nav-link: var(--tnz-neutral-600);
+  --tnz-nav-link-hover: var(--tnz-neutral-800);
+  --tnz-nav-link-active: var(--tnz-neutral-800);
+
   --sl-color-accent-low: var(--tnz-primary-300);
   --sl-color-accent: var(--tnz-primary-500);
   --sl-color-accent-high: var(--tnz-primary-600);
@@ -815,6 +827,22 @@ main {
   transition: color var(--tnz-transition-base);
 }
 
+.sidebar-content a:not([aria-current="page"]) {
+  color: var(--tnz-nav-link);
+}
+
+.sidebar-content a:not([aria-current="page"]):hover,
+.sidebar-content a:not([aria-current="page"]):focus-visible {
+  color: var(--tnz-nav-link-hover);
+}
+
+/* Override Starlight's large class to match topic navigation size */
+.sidebar-content .large {
+  font-size: var(--tnz-text-sm) !important;
+  font-weight: var(--tnz-font-medium) !important;
+  line-height: var(--tnz-leading-sm) !important;
+}
+
 /* Override Starlight's active page styling - use transparent bg with left border */
 .sidebar-content a[aria-current="page"],
 .sidebar-content a[aria-current="page"]:hover {
@@ -822,13 +850,8 @@ main {
   border-inline-start: 2px solid var(--tnz-primary-500) !important;
   padding-inline-start: calc(0.5rem - 2px) !important;
   font-weight: var(--tnz-font-medium) !important;
-  color: var(--sl-color-white) !important;
+  color: var(--tnz-nav-link-active) !important;
   border-radius: 0 !important;
-}
-
-:root[data-theme="light"] .sidebar-content a[aria-current="page"],
-:root[data-theme="light"] .sidebar-content a[aria-current="page"]:hover {
-  color: var(--tnz-neutral-800) !important;
 }
 
 .sidebar-content {
