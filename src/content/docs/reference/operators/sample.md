@@ -73,7 +73,7 @@ The available modes are:
 | --------- | ----------------- | ----------------------------------------- |
 | `"ln"`    | Natural logarithm | Moderate sampling, grows slowly           |
 | `"log2"`  | Base-2 logarithm  | Slightly more aggressive than `ln`        |
-| `"log10"` | Base-10 logarithm | Aggressive sampling, grows very slowly    |
+| `"log10"` | Base-10 logarithm | Conservative sampling, keeps most data    |
 | `"sqrt"`  | Square root       | Most aggressive, grows faster than others |
 
 The default is `"ln"`.
