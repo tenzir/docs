@@ -135,11 +135,11 @@ becomes 1:100, keeping only about 100 events.
 
 ### Retain more data with conservative sampling
 
-For security-critical logs where you want to keep more events even at high
+For verbose application logs where you want broader coverage even at high
 volumes, use `log10` mode:
 
 ```tql
-subscribe "auth-events"
+subscribe "app-logs"
 sample 30s, mode="log10"
 ```
 
