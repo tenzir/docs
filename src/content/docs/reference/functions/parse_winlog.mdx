@@ -97,12 +97,12 @@ Fields that are not present in the input XML are omitted from the output.
 
 ### Parse a Windows Security event
 
-This example uses a real [Event 4688](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4688) (process creation) from Microsoft's Security Auditing documentation:
+This example uses a real [Event 4688](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4688)
+(process creation) from Microsoft's Security Auditing documentation:
 
 ```tql
 from {
-  xml: '''
-<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  xml: r#"<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
   <System>
     <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-A5BA-3E3B0328C30D}" />
     <EventID>4688</EventID>
@@ -136,39 +136,37 @@ from {
     <Data Name="ParentProcessName">C:\Windows\explorer.exe</Data>
     <Data Name="MandatoryLabel">S-1-16-8192</Data>
   </EventData>
-</Event>
-'''
+</Event>"#
 }
 output = xml.parse_winlog()
 ```
 
 ```tql
 {
-  xml: "...",
   output: {
     System: {
-      Provider: {
-        Name: "Microsoft-Windows-Security-Auditing",
-        Guid: "{54849625-5478-4994-A5BA-3E3B0328C30D}",
-      },
-      EventID: "4688",
-      Version: "2",
-      Level: "0",
-      Task: "13312",
-      Opcode: "0",
-      Keywords: "0x8020000000000000",
-      TimeCreated: {
-        SystemTime: "2015-11-12T02:24:52.377352500Z",
-      },
-      EventRecordID: "2814",
+      Channel: "Security",
+      Computer: "WIN-GG82ULGC9GO.contoso.local",
       Correlation: null,
+      EventID: "4688",
+      EventRecordID: "2814",
       Execution: {
         ProcessID: "4",
         ThreadID: "400",
       },
-      Channel: "Security",
-      Computer: "WIN-GG82ULGC9GO.contoso.local",
+      Keywords: "0x8020000000000000",
+      Level: "0",
+      Opcode: "0",
+      Provider: {
+        Name: "Microsoft-Windows-Security-Auditing",
+        Guid: "{54849625-5478-4994-A5BA-3E3B0328C30D}",
+      },
       Security: null,
+      Task: "13312",
+      TimeCreated: {
+        SystemTime: "2015-11-12T02:24:52.377352500Z",
+      },
+      Version: "2",
     },
     EventData: {
       SubjectUserSid: "S-1-5-18",
@@ -191,12 +189,14 @@ output = xml.parse_winlog()
 }
 ```
 
-### Parse events with RenderingInfo
+### Parse events with unnamed Data elements
+
+When `EventData` contains unnamed `<Data>` elements (without `Name` attributes),
+the output is a list instead of a record:
 
 ```tql
 from {
-  xml: '''
-<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  xml: r#"<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
   <System>
     <Provider Name="Application"/>
     <EventID>1000</EventID>
@@ -209,37 +209,31 @@ from {
     <Data>MyApp.exe</Data>
     <Data>1.0.0.0</Data>
   </EventData>
-  <RenderingInfo>
-    <Message>Application MyApp.exe crashed</Message>
-    <Level>Error</Level>
-  </RenderingInfo>
-</Event>
-'''
+</Event>"#
 }
 output = xml.parse_winlog()
+drop xml
 ```
 
 ```tql
 {
-  xml: "...",
   output: {
     System: {
+      Channel: "Application",
+      Computer: "SERVER1",
+      EventID: "1000",
+      Level: "2",
       Provider: {
         Name: "Application",
       },
-      EventID: 1000,
-      Level: 2,
       TimeCreated: {
-        SystemTime: 2024-01-15T09:00:00.000Z,
+        SystemTime: "2024-01-15T09:00:00.000Z",
       },
-      Channel: "Application",
-      Computer: "SERVER1",
     },
-    EventData: ["MyApp.exe", "1.0.0.0"],
-    RenderingInfo: {
-      Message: "Application MyApp.exe crashed",
-      Level: "Error",
-    },
+    EventData: [
+      "MyApp.exe",
+      "1.0.0.0",
+    ],
   },
 }
 ```
@@ -250,10 +244,10 @@ output = xml.parse_winlog()
 // Read forwarded Windows events from a file
 load_file "windows_events.xml"
 read_lines
-where @value != ""
-output = @value.parse_winlog()
+where line != ""
+output = line.parse_winlog()
 // Filter for logon events
-where output.System.EventID == 4624
+where output.System.EventID == "4624"
 ```
 
 ## See Also
