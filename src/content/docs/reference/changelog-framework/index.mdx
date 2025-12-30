@@ -409,6 +409,8 @@ Configuration fields:
 | `repository`     | GitHub slug (e.g., `owner/repo`) required by `release publish`           |
 | `export_style`   | Default layout: `compact` (bullet-list) or omit for detailed cards       |
 | `explicit_links` | Render @mentions and #PR references as explicit Markdown links (boolean) |
+| `omit_pr`        | Suppress PR numbers in entries (boolean, default `false`)                |
+| `omit_author`    | Suppress author attribution in entries (boolean, default `false`)        |
 | `components`     | Optional dict mapping component names to descriptions                    |
 | `modules`        | Optional glob pattern for discovering nested changelog projects          |
 | `release`        | Release settings block (see below)                                       |
@@ -435,6 +437,12 @@ The `release` block supports:
 | Field            | Default             | Description                                       |
 | ---------------- | ------------------- | ------------------------------------------------- |
 | `commit_message` | `Release {version}` | Template for `--commit` flag; `{version}` expands |
+
+The `omit_pr` and `omit_author` options suppress PR numbers and author
+attribution in generated entries. When enabled, the CLI skips auto-detection and
+ignores any `--pr`, `--author`, or `--co-author` flags (with a warning). Use
+these options for projects that don't use GitHub pull requests or prefer
+anonymous changelog entries.
 
 The first invocation of `tenzir-changelog add` scaffolds a `changelog/`
 subdirectory with `config.yaml`, inferring defaults from the parent directory
