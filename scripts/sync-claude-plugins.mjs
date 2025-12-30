@@ -274,7 +274,7 @@ description: Tenzir plugins for Claude Code that enhance AI-assisted development
 ---
 
 import LinkCard from '@components/LinkCard.astro';
-import { CardGrid, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import { CardGrid } from '@astrojs/starlight/components';
 
 The [Tenzir Claude Marketplace](https://github.com/tenzir/claude-plugins) provides
 plugins with specialized knowledge and workflows for Tenzir development.
@@ -283,54 +283,6 @@ plugins with specialized knowledge and workflows for Tenzir development.
 agent with custom slash commands, skills, agents, and hooks.
 [Marketplaces](https://docs.claude.ai/en/docs/claude-code/plugin-marketplaces)
 bundle Claude plugins for easy distribution.
-
-## Installation
-
-Add the Tenzir marketplace to Claude Code and install plugins:
-
-<Tabs>
-<TabItem label="Interactive">
-<Steps>
-1. Run \`/plugin\` in Claude Code <kbd>Enter</kbd>
-2. Go to **Marketplaces** <kbd>Tab</kbd>
-3. Select **+ Add Marketplace** <kbd>Enter</kbd>
-4. Type \`tenzir/claude-plugins\` <kbd>Enter</kbd>
-</Steps>
-</TabItem>
-<TabItem label="Shell">
-\`\`\`bash
-# Install to user scope (default)
-claude plugin install tql@tenzir
-
-# Install to project scope (shared with team)
-claude plugin install tql@tenzir --scope project
-
-# Install to local scope (gitignored)
-claude plugin install tql@tenzir --scope local
-\`\`\`
-</TabItem>
-<TabItem label="Settings">
-Add to \`.claude/settings.json\`:
-
-\`\`\`json
-{
-  "extraKnownMarketplaces": {
-    "tenzir": {
-      "source": {
-        "source": "github",
-        "repo": "tenzir/claude-plugins"
-      }
-    }
-  },
-  "enabledPlugins": {
-${enabledPlugins}
-  }
-}
-\`\`\`
-</TabItem>
-</Tabs>
-
-## Available Plugins
 
 <CardGrid>
 ${cards}
@@ -362,16 +314,10 @@ title: ${plugin.displayName}
 description: "${plugin.description}"
 ---
 
-import { CardGrid } from '@astrojs/starlight/components';
+import { CardGrid, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 import LinkCard from '@components/LinkCard.astro';
 
 ${plugin.description}
-
-## Installation
-
-\`\`\`
-/plugin install ${plugin.name}@tenzir
-\`\`\`
 `;
 
   // Add features section if available
@@ -382,6 +328,58 @@ ${plugin.description}
 ${readme.features}
 `;
   }
+
+  // Add installation section
+  content += `
+## Installation
+
+<Tabs>
+<TabItem label="Interactive" icon="laptop">
+Use the plugin manager UI in Claude Code.
+
+<Steps>
+1. Run \`/plugin\` in Claude Code <kbd>Enter</kbd>
+2. Go to **Marketplaces** <kbd>Tab</kbd>
+3. Select **+ Add Marketplace** <kbd>Enter</kbd>
+4. Type \`tenzir/claude-plugins\` <kbd>Enter</kbd>
+5. Install **${plugin.name}** from the plugin list
+</Steps>
+</TabItem>
+<TabItem label="Shell" icon="seti:shell">
+Run the CLI command with your preferred scope.
+
+\`\`\`bash
+# Install to user scope (default)
+claude plugin install ${plugin.name}@tenzir
+
+# Install to project scope (shared with team)
+claude plugin install ${plugin.name}@tenzir --scope project
+
+# Install to local scope (gitignored)
+claude plugin install ${plugin.name}@tenzir --scope local
+\`\`\`
+</TabItem>
+<TabItem label="Settings" icon="setting">
+Add the marketplace and plugin to your settings file.
+
+\`\`\`json title=".claude/settings.json"
+{
+  "extraKnownMarketplaces": {
+    "tenzir": {
+      "source": {
+        "source": "github",
+        "repo": "tenzir/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "${plugin.name}@tenzir": true
+  }
+}
+\`\`\`
+</TabItem>
+</Tabs>
+`;
 
   // Add capabilities table if any exist
   if (hasCapabilities) {

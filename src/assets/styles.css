@@ -1776,7 +1776,7 @@ starlight-tabs [role="tab"] {
 }
 
 /* Tab text container - 6px/8px padding, 5px radius for hover bg */
-starlight-tabs [role="tab"] > * {
+starlight-tabs [role="tab"] > *:not(svg) {
   display: flex;
   align-items: center;
   gap: var(--tnz-space-1); /* 4px */
@@ -1813,7 +1813,7 @@ starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
   color: var(--tnz-neutral-200) !important;
 }
 
-starlight-tabs [role="tab"]:hover > * {
+starlight-tabs [role="tab"]:hover > *:not(svg) {
   background-color: var(--tnz-neutral-700);
 }
 
@@ -1822,7 +1822,7 @@ starlight-tabs [role="tab"]:focus-visible {
   outline: none;
 }
 
-starlight-tabs [role="tab"]:focus-visible > * {
+starlight-tabs [role="tab"]:focus-visible > *:not(svg) {
   outline: 2px solid var(--tnz-primary-500);
   outline-offset: 2px;
 }
@@ -1837,7 +1837,7 @@ starlight-tabs [role="tab"][aria-selected="true"]::after {
 }
 
 /* Active overrides hover */
-starlight-tabs [role="tab"][aria-selected="true"]:hover > * {
+starlight-tabs [role="tab"][aria-selected="true"]:hover > *:not(svg) {
   background-color: transparent;
 }
 
@@ -1870,7 +1870,7 @@ starlight-tabs [role="tabpanel"] {
   color: var(--tnz-neutral-700) !important;
 }
 
-:root[data-theme="light"] starlight-tabs [role="tab"]:hover > * {
+:root[data-theme="light"] starlight-tabs [role="tab"]:hover > *:not(svg) {
   background-color: var(--tnz-neutral-100);
 }
 
@@ -1887,7 +1887,7 @@ starlight-tabs [role="tabpanel"] {
 :root[data-theme="light"]
   starlight-tabs
   [role="tab"][aria-selected="true"]:hover
-  > * {
+  > *:not(svg) {
   background-color: transparent;
 }
 
