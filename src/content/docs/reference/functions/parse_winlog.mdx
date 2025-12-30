@@ -1,0 +1,233 @@
+---
+title: parse_winlog
+category: Parsing
+example: 'string.parse_winlog()'
+---
+
+Parses a string as a Windows Event Log XML record.
+
+```tql
+parse_winlog(input:string, [schema=string, selector=string,
+             schema_only=bool, raw=bool, unflatten_separator=string]) -> record
+```
+
+## Description
+
+The `parse_winlog` function parses a string containing Windows Event Log XML and
+converts it into a structured record. This function is optimized for the
+[Windows XML Event Log format](https://learn.microsoft.com/en-us/windows/win32/wes/eventschema-schema)
+and preserves the original XML element names.
+
+The function handles the following Windows Event XML sections:
+
+- **System** — Core event metadata (Provider, EventID, Level, TimeCreated, etc.)
+- **EventData** — Event-specific data with named fields
+- **UserData** — Alternative event data section (provider-defined)
+- **RenderingInfo** — Human-readable rendered strings
+
+### `input: string`
+
+The Windows Event Log XML string to parse. This is typically the XML output from
+`wevtutil`, forwarded Windows events, or exported `.evtx` files converted to XML.
+
+import ParsingOptions from '@partials/functions/ParsingOptions.mdx';
+
+<ParsingOptions />
+
+## Output Schema
+
+The output record preserves the Windows Event XML structure:
+
+```tql
+{
+  System: {
+    Provider: {
+      Name: string,
+      Guid: string,
+      EventSourceName: string,
+    },
+    EventID: int,
+    Version: int,
+    Level: int,
+    Task: int,
+    Opcode: int,
+    Keywords: string,
+    TimeCreated: {
+      SystemTime: time,
+    },
+    EventRecordID: int,
+    Correlation: {
+      ActivityID: string,
+      RelatedActivityID: string,
+    },
+    Execution: {
+      ProcessID: int,
+      ThreadID: int,
+    },
+    Channel: string,
+    Computer: string,
+    Security: {
+      UserID: string,
+    },
+  },
+  EventData: {
+    // Named fields from <Data Name="..."> elements
+  },
+  UserData: {
+    // Provider-defined data structure
+  },
+  RenderingInfo: {
+    Message: string,
+    Level: string,
+    Task: string,
+    Opcode: string,
+    Keywords: [string],
+    Channel: string,
+    Provider: string,
+  },
+}
+```
+
+Fields that are not present in the input XML are omitted from the output.
+
+## Examples
+
+### Parse a Windows Security event
+
+```tql
+from {
+  xml: '''
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-A5BA-3E3B0328C30D}"/>
+    <EventID>4624</EventID>
+    <Version>2</Version>
+    <Level>0</Level>
+    <Task>12544</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2024-01-15T10:30:00.000Z"/>
+    <EventRecordID>12345</EventRecordID>
+    <Execution ProcessID="500" ThreadID="520"/>
+    <Channel>Security</Channel>
+    <Computer>WORKSTATION1</Computer>
+    <Security/>
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-18</Data>
+    <Data Name="SubjectUserName">SYSTEM</Data>
+    <Data Name="LogonType">3</Data>
+    <Data Name="TargetUserName">admin</Data>
+  </EventData>
+</Event>
+'''
+}
+output = xml.parse_winlog()
+```
+
+```tql
+{
+  xml: "...",
+  output: {
+    System: {
+      Provider: {
+        Name: "Microsoft-Windows-Security-Auditing",
+        Guid: "{54849625-5478-4994-A5BA-3E3B0328C30D}",
+      },
+      EventID: 4624,
+      Version: 2,
+      Level: 0,
+      Task: 12544,
+      Opcode: 0,
+      Keywords: "0x8020000000000000",
+      TimeCreated: {
+        SystemTime: 2024-01-15T10:30:00.000Z,
+      },
+      EventRecordID: 12345,
+      Execution: {
+        ProcessID: 500,
+        ThreadID: 520,
+      },
+      Channel: "Security",
+      Computer: "WORKSTATION1",
+    },
+    EventData: {
+      SubjectUserSid: "S-1-5-18",
+      SubjectUserName: "SYSTEM",
+      LogonType: 3,
+      TargetUserName: "admin",
+    },
+  },
+}
+```
+
+### Parse events with RenderingInfo
+
+```tql
+from {
+  xml: '''
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Application"/>
+    <EventID>1000</EventID>
+    <Level>2</Level>
+    <TimeCreated SystemTime="2024-01-15T09:00:00.000Z"/>
+    <Channel>Application</Channel>
+    <Computer>SERVER1</Computer>
+  </System>
+  <EventData>
+    <Data>MyApp.exe</Data>
+    <Data>1.0.0.0</Data>
+  </EventData>
+  <RenderingInfo>
+    <Message>Application MyApp.exe crashed</Message>
+    <Level>Error</Level>
+  </RenderingInfo>
+</Event>
+'''
+}
+output = xml.parse_winlog()
+```
+
+```tql
+{
+  xml: "...",
+  output: {
+    System: {
+      Provider: {
+        Name: "Application",
+      },
+      EventID: 1000,
+      Level: 2,
+      TimeCreated: {
+        SystemTime: 2024-01-15T09:00:00.000Z,
+      },
+      Channel: "Application",
+      Computer: "SERVER1",
+    },
+    EventData: ["MyApp.exe", "1.0.0.0"],
+    RenderingInfo: {
+      Message: "Application MyApp.exe crashed",
+      Level: "Error",
+    },
+  },
+}
+```
+
+### Process forwarded Windows events
+
+```tql
+// Read forwarded Windows events from a file
+load_file "windows_events.xml"
+read_lines
+where @value != ""
+output = @value.parse_winlog()
+// Filter for logon events
+where output.System.EventID == 4624
+```
+
+## See Also
+
+[`parse_xml`](/reference/functions/parse_xml),
+[`parse_syslog`](/reference/functions/parse_syslog),
+[Windows Event Logs](/integrations/microsoft/windows-event-logs)

@@ -1,0 +1,191 @@
+---
+title: parse_xml
+category: Parsing
+example: 'string.parse_xml(xpath="//element")'
+---
+
+Parses a string as XML and extracts elements matching an XPath expression.
+
+```tql
+parse_xml(input:string, [xpath=string, attr_prefix=string, text_key=string,
+          force_list=list, max_depth=int, namespaces=string, schema=string,
+          selector=string, schema_only=bool, raw=bool,
+          unflatten_separator=string]) -> any
+```
+
+## Description
+
+The `parse_xml` function parses a string as XML and converts matching elements
+into records. Elements are selected using an XPath expression, and the function
+returns a list when multiple elements match.
+
+### `input: string`
+
+The XML string to parse.
+
+### `xpath = string (optional)`
+
+An XPath expression that selects which elements to convert to records.
+
+Defaults to `"/*"`, which selects all immediate children of the root element.
+
+Common XPath patterns:
+
+- `"//book"` — selects all `<book>` elements anywhere in the document
+- `"/catalog/book"` — selects `<book>` elements that are direct children of `<catalog>`
+- `"//book[@category='fiction']"` — selects `<book>` elements with a specific attribute
+
+### `attr_prefix = string (optional)`
+
+A prefix added to attribute names when converting to record fields.
+
+Defaults to `"@"`.
+
+For example, `<book id="1">` becomes `{"@id": "1", ...}` with the default prefix.
+Set to `""` to omit the prefix entirely.
+
+### `text_key = string (optional)`
+
+The key used for element text content when the element also has attributes or
+child elements.
+
+Defaults to `"#text"`.
+
+For example, `<item type="A">value</item>` becomes `{"@type": "A", "#text": "value"}`.
+
+### `force_list = list (optional)`
+
+A list of element names that should always be converted to arrays, even when
+only a single element is present.
+
+Defaults to `[]`.
+
+This is useful when the schema expects a list but the XML sometimes contains
+only one element.
+
+### `max_depth = int (optional)`
+
+The maximum nesting depth to parse.
+
+Defaults to `10`.
+
+Elements nested deeper than this limit are converted to their string
+representation.
+
+### `namespaces = string (optional)`
+
+Controls how XML namespace prefixes are handled.
+
+Defaults to `"strip"`.
+
+- `"strip"` — removes namespace prefixes from element and attribute names
+- `"keep"` — preserves namespace prefixes in names
+
+import ParsingOptions from '@partials/functions/ParsingOptions.mdx';
+
+<ParsingOptions />
+
+## Examples
+
+### Parse a simple XML document
+
+```tql
+from {
+  xml: '<catalog><book id="1"><title>XML Guide</title><author>Jane</author></book></catalog>'
+}
+output = xml.parse_xml(xpath="//book")
+```
+
+```tql
+{
+  xml: "<catalog><book id=\"1\"><title>XML Guide</title><author>Jane</author></book></catalog>",
+  output: [
+    {
+      "@id": "1",
+      title: "XML Guide",
+      author: "Jane",
+    },
+  ],
+}
+```
+
+### Extract multiple elements
+
+```tql
+from {
+  xml: '<items><item>A</item><item>B</item><item>C</item></items>'
+}
+output = xml.parse_xml(xpath="//item")
+```
+
+```tql
+{
+  xml: "<items><item>A</item><item>B</item><item>C</item></items>",
+  output: ["A", "B", "C"],
+}
+```
+
+### Handle attributes and text content
+
+```tql
+from {
+  xml: '<product price="19.99" currency="USD">Widget</product>'
+}
+output = xml.parse_xml(xpath="/product")
+```
+
+```tql
+{
+  xml: "<product price=\"19.99\" currency=\"USD\">Widget</product>",
+  output: [
+    {
+      "@price": "19.99",
+      "@currency": "USD",
+      "#text": "Widget",
+    },
+  ],
+}
+```
+
+### Strip namespace prefixes
+
+```tql
+from {
+  xml: '<ns:root xmlns:ns="http://example.com"><ns:item>value</ns:item></ns:root>'
+}
+output = xml.parse_xml(xpath="//item", namespaces="strip")
+```
+
+```tql
+{
+  xml: "<ns:root xmlns:ns=\"http://example.com\"><ns:item>value</ns:item></ns:root>",
+  output: ["value"],
+}
+```
+
+### Force elements to be lists
+
+```tql
+from {
+  xml: '<order><item>Widget</item></order>'
+}
+output = xml.parse_xml(xpath="/order", force_list=["item"])
+```
+
+```tql
+{
+  xml: "<order><item>Widget</item></order>",
+  output: [
+    {
+      item: ["Widget"],
+    },
+  ],
+}
+```
+
+## See Also
+
+[`parse_winlog`](/reference/functions/parse_winlog),
+[`parse_json`](/reference/functions/parse_json),
+[`parse_yaml`](/reference/functions/parse_yaml),
+[Windows Event Logs](/integrations/microsoft/windows-event-logs)
