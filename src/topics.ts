@@ -1,21 +1,42 @@
-import {
-  guides,
-  tutorials,
-  explanations,
-  reference,
-  integrations,
-} from "./sidebar";
+import type { StarlightUserConfig } from "@astrojs/starlight/types";
+import { parse } from "yaml";
+import * as sidebars from "./sidebar";
+import configYaml from "./topics.yaml?raw";
 
-// Use import.meta.glob to gracefully handle missing generated file
-// Returns empty object if file doesn't exist, avoiding build errors
+// ============================================================================
+// Types
+// ============================================================================
+
+type SidebarItems = NonNullable<StarlightUserConfig["sidebar"]>;
+
+interface TopicConfig {
+  icon: string;
+  link?: string;
+  sidebar?: keyof typeof sidebars;
+  paths?: string[];
+  children?: Record<string, TopicConfig>;
+}
+
+interface Topic {
+  label: string;
+  id: string;
+  link: string;
+  icon: string;
+  items: SidebarItems;
+}
+
+// ============================================================================
+// Load YAML Configuration
+// ============================================================================
+
+const config = parse(configYaml) as Record<string, TopicConfig>;
+
+// ============================================================================
+// Changelog Integration (from generated file)
+// ============================================================================
+
 const modules = import.meta.glob<{
-  changelogTopics: {
-    label: string;
-    id: string;
-    link: string;
-    icon: string;
-    items: unknown[];
-  }[];
+  changelogTopics: Topic[];
   changelogTopicParents: Record<string, string>;
   changelogTopicPaths: Record<string, string[]>;
 }>("./sidebar-changelog.generated.ts", { eager: true });
@@ -25,59 +46,80 @@ const changelogTopics = generated?.changelogTopics ?? [];
 const changelogTopicParents = generated?.changelogTopicParents ?? {};
 const changelogTopicPaths = generated?.changelogTopicPaths ?? {};
 
-export { changelogTopicPaths };
+// ============================================================================
+// Process Configuration
+// ============================================================================
 
-// Icons for main topics (changelog icons come from generated file)
-const icons: Record<string, string> = {
-  Docs: "open-book",
-  Integrations: "puzzle",
-  Guides: "right-arrow",
-  Tutorials: "rocket",
-  Explanations: "information",
-  Reference: "list-format",
-  Changelog: "pen",
-};
+interface ProcessedConfig {
+  topics: Topic[];
+  parents: Record<string, string | null>;
+  dropdowns: Set<string>;
+  paths: Record<string, string[]>;
+}
 
-// Helper to create topic definitions
-const topic = (label: string, link: string, items: unknown[] = []) => ({
-  label,
-  id: link || label.toLowerCase(),
-  link,
-  icon: icons[label] || "document",
-  items,
-});
+function processConfig(
+  tree: Record<string, TopicConfig>,
+  parent: string | null = null,
+): ProcessedConfig {
+  const topics: Topic[] = [];
+  const childTopics: Topic[] = [];
+  const parents: Record<string, string | null> = {};
+  const dropdowns = new Set<string>();
+  const paths: Record<string, string[]> = {};
 
-export const topics = [
-  // Root topics
-  topic("Docs", ""),
-  topic("Integrations", "integrations", integrations),
-  // Docs children
-  topic("Guides", "guides", guides),
-  topic("Tutorials", "tutorials", tutorials),
-  topic("Explanations", "explanations", explanations),
-  topic("Reference", "reference", reference),
-  // Changelog root
-  topic("Changelog", "changelog"),
-  // Changelog children (generated with icons from changelog-projects.json)
-  ...changelogTopics,
-];
+  for (const [label, def] of Object.entries(tree)) {
+    // Use || for id (empty string falls back to label), ?? for link (empty string is valid)
+    const id = def.link || label.toLowerCase();
+    const link = def.link ?? label.toLowerCase();
 
-// Topic hierarchy - null means root topic
-export const topicParents: Record<string, string | null> = {
-  Docs: null,
-  Integrations: null,
-  Changelog: null,
-  Guides: "Docs",
-  Tutorials: "Docs",
-  Explanations: "Docs",
-  Reference: "Docs",
-  ...changelogTopicParents,
-};
+    // Resolve sidebar reference to actual items
+    const items: SidebarItems = def.sidebar ? sidebars[def.sidebar] : [];
 
-// Root topics that use dropdown instead of unrolled list
-export const dropdownTopics = new Set(["Changelog"]);
+    topics.push({ label, id, link, icon: def.icon, items });
+    parents[label] = parent;
 
-export function rootTopics(): typeof topics {
+    // Add path patterns from YAML config
+    if (def.paths) {
+      paths[id] = def.paths;
+    }
+
+    // Process children - collect separately to maintain correct order
+    if (def.children) {
+      const child = processConfig(def.children, label);
+      childTopics.push(...child.topics);
+      Object.assign(parents, child.parents);
+      child.dropdowns.forEach((d) => dropdowns.add(d));
+      Object.assign(paths, child.paths);
+    }
+  }
+
+  // Add child topics after all root-level topics (matches original order)
+  topics.push(...childTopics);
+
+  return { topics, parents, dropdowns, paths };
+}
+
+// Process the static configuration
+const processed = processConfig(config);
+
+// Merge changelog topics and their path patterns
+processed.topics.push(...changelogTopics);
+Object.assign(processed.parents, changelogTopicParents);
+Object.assign(processed.paths, changelogTopicPaths);
+
+// Changelog uses dropdown because it has generated children
+processed.dropdowns.add("Changelog");
+
+// ============================================================================
+// Exports
+// ============================================================================
+
+export const topics = processed.topics;
+export const topicPaths = processed.paths;
+export const topicParents = processed.parents;
+export const dropdownTopics = processed.dropdowns;
+
+export function rootTopics(): Topic[] {
   return topics.filter((t) => topicParents[t.label] === null);
 }
 

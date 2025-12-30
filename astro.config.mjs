@@ -8,7 +8,7 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
-import { topics, changelogTopicPaths } from "./src/topics";
+import { topics, topicPaths } from "./src/topics";
 import { bundledLanguages } from "shiki";
 import inlineSVGs from "./src/utils/inline-svgs.mjs";
 import { generateRedirects } from "./src/utils/redirects.mjs";
@@ -178,23 +178,7 @@ export default defineConfig({
             },
           },
         ]),
-        starlightSidebarTopics(topics, {
-          topics: {
-            reference: [
-              "/reference/node/api",
-              "/reference/node/api/**/*",
-              "/reference/platform/api",
-              "/reference/platform/api/**/*",
-              "/reference/functions/**/*",
-              "/reference/operators/**/*",
-              "/reference/claude-plugins/**/*",
-            ],
-            // Changelog root topic (for the landing page)
-            changelog: ["/changelog"],
-            // Changelog project and timeline topics (auto-generated)
-            ...changelogTopicPaths,
-          },
-        }),
+        starlightSidebarTopics(topics, { topics: topicPaths }),
       ],
     }),
     inlineSVGs(),

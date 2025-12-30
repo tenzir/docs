@@ -10,24 +10,38 @@ const { topics: sidebarTopics } = Astro.locals.starlightSidebarTopics;
 
 // Find the current topic
 const currentTopic = sidebarTopics.find((topic) => topic.isCurrent);
-if (!currentTopic) {
-  console.warn('No current topic found — skipping topic-specific rendering');
-}
 
 // Build navbar topics: always show the root topics
 const navbarTopics = rootTopics();
 
+// Get the current page path for fallback matching (e.g., "/changelog" or "/integrations/kafka")
+const currentPath = Astro.url.pathname.replace(/\/$/, '');
+
 // Determine if a given topic is "current" or an ancestor of the current one
-function isTopicCurrentOrAncestor(label) {
-  if (!currentTopic) return false;
-  if (label === currentTopic.label) return true;
-  let cursor = currentTopic.label;
-  while (cursor) {
-    const parent = topicParents[cursor];
-    if (parent === label) return true;
-    cursor = parent;
+function isTopicCurrentOrAncestor(label: string): boolean {
+  // If we have a current topic from sidebar topics, use hierarchy matching
+  if (currentTopic) {
+    if (label === currentTopic.label) return true;
+    let cursor = currentTopic.label;
+    while (cursor) {
+      const parent = topicParents[cursor];
+      if (parent === label) return true;
+      cursor = parent;
+    }
+    return false;
   }
-  return false;
+
+  // Fallback: match by URL path prefix (for splash pages without sidebar topics)
+  const topic = navbarTopics.find((t) => t.label === label);
+  if (!topic) return false;
+
+  // Handle root path
+  if (topic.link === '/' || topic.link === '') {
+    return currentPath === '' || currentPath === '/';
+  }
+
+  const topicPath = `/${topic.link}`;
+  return currentPath === topicPath || currentPath.startsWith(`${topicPath}/`);
 }
 ---
 

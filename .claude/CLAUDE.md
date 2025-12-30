@@ -13,6 +13,7 @@ for Tenzir (https://tenzir.com).
 - Configuration: `/astro.config.mjs`
 - Styling: Custom CSS in `/src/styles/`
 - Sidebar: manually managed in `/src/sidebar.ts`. Add new pages here.
+- Topics: `/src/topics.yaml` defines the navigation topic hierarchy.
 
 ## Content Authoring
 
