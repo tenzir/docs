@@ -504,6 +504,21 @@ TCP connection.
 }
 ```
 
+### `tenzir.metrics.throttle`
+
+Contains metrics for the `throttle` operator, emitted once every second.
+
+```tql
+{
+  pipeline_id: string, // The ID of the pipeline where the associated operator is from.
+  run: uint64, // The number of the run, starting at 1 for the first run.
+  hidden: bool, // Indicates whether the corresponding pipeline is hidden from the list of managed pipelines.
+  timestamp: time, // The time at which this metric was recorded.
+  operator_id: uint64, // The ID of the `throttle` operator in the pipeline.
+  dropped_events: int64, // The number of events dropped since the last metric.
+}
+```
+
 ## Examples
 
 ### Sort pipelines by total ingress in bytes
