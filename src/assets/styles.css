@@ -852,6 +852,15 @@ main {
   border-radius: 0 !important;
 }
 
+/* Fix active indicator positioning for nested sidebar items - pull border to align with gray line */
+.sidebar-content ul ul a[aria-current="page"],
+.sidebar-content ul ul a[aria-current="page"]:hover {
+  margin-inline-start: calc(-1 * var(--sl-sidebar-item-padding-inline) - 1.5px);
+  padding-inline-start: calc(
+    var(--sl-sidebar-item-padding-inline) + 0.5rem - 0.5px
+  ) !important;
+}
+
 .sidebar-content {
   background-color: var(--sl-color-bg-sidebar) !important;
 }
@@ -1231,7 +1240,7 @@ starlight-toc a[aria-current="true"] {
 starlight-toc a[aria-current="true"]::before {
   content: "";
   position: absolute;
-  left: calc(-1 * var(--tnz-space-3) - 1px);
+  left: calc(-1 * var(--tnz-space-3) - 1.5px);
   top: 0;
   bottom: 0;
   width: 2px;
@@ -1241,7 +1250,7 @@ starlight-toc a[aria-current="true"]::before {
 
 /* Fix active indicator positioning for nested TOC items (h3, h4, etc.) */
 starlight-toc ul ul a[aria-current="true"]::before {
-  left: calc(-1 * (2 * var(--tnz-space-3) + var(--tnz-space-1) + 1px));
+  left: calc(-1 * (2 * var(--tnz-space-3) + var(--tnz-space-1) + 1.5px));
 }
 
 /* Light mode TOC */
