@@ -1019,7 +1019,7 @@ function generateSidebarFile(
       label: "Timeline",
       id: "changelog-timeline",
       link: "changelog/timeline",
-      icon: "open-book",
+      icon: "seti:clock",
       items: timelineYears.map((year) => `changelog/timeline/${year}`),
     };
     topics.unshift(timelineTopic); // Add at the beginning
@@ -1550,12 +1550,20 @@ template: splash
 ---
 
 import LinkCard from '@components/LinkCard.astro';
+import { LinkButton } from '@astrojs/starlight/components';
 
-Welcome to the Tenzir changelog hub. Here you can find release notes,
-feature updates, and behind-the-scenes improvements across our projects.
-You can also [view all changes chronologically](/changelog/timeline/${latestTimelineYear}).
+Welcome to the Tenzir changelog hub. Here you can find release notes, feature
+updates, and behind-the-scenes improvements across our projects.
+
+<LinkButton href="/changelog/timeline/${latestTimelineYear}" icon="right-arrow" variant="secondary">
+  View all changes chronologically
+</LinkButton>
+
+<div class="card-grid" style="margin-top: var(--tnz-space-6);">
 
 ${projectCards}
+
+</div>
 
 ---
 
