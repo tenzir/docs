@@ -80,4 +80,5 @@ x = x.format_time("%d.%m.%Y")
 
 ## See Also
 
-[`parse_time`](/reference/functions/parse_time)
+[`parse_time`](/reference/functions/parse_time),
+[`time`](/reference/functions/time)

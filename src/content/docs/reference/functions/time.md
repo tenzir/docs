@@ -28,10 +28,13 @@ from {x: time("2020-03-15")}
 
 ## See Also
 
+[`format_time`](/reference/functions/format_time),
+[`parse_time`](/reference/functions/parse_time)
+
+[`duration`](/reference/functions/duration),
+[`float`](/reference/functions/float),
+[`int`](/reference/functions/int),
 [`ip`](/reference/functions/ip),
 [`string`](/reference/functions/string),
 [`subnet`](/reference/functions/subnet),
-[`uint`](/reference/functions/uint),
-[duration](/reference/functions/duration),
-[float](/reference/functions/float),
-[int](/reference/functions/int)
+[`uint`](/reference/functions/uint)
