@@ -53,27 +53,70 @@ today = current_time.round(1d)
 
 ## Parse time from strings
 
-Convert string representations to proper timestamps with [`parse_time()`](/reference/functions/parse_time):
+TQL offers two functions for parsing timestamps from strings:
+[`time()`](/reference/functions/time) for automatic format detection and
+[`parse_time()`](/reference/functions/parse_time) for custom formats.
+
+### Automatic parsing with `time()`
+
+The [`time()`](/reference/functions/time) function automatically recognizes many
+common timestamp formats:
 
 ```tql
 from {
-  iso: "2024-01-15T10:30:45",
-  custom: "15/Jan/2024:10:30:45",
-  unix: "1705316445"
+  iso_date: "2024-01-15",
+  iso_datetime: "2024-01-15T10:30:45",
+  with_timezone: "2024-01-15T10:30:45+02:00",
+  unix_epoch: "@1705316445",
 }
-iso_time = iso.parse_time("%Y-%m-%dT%H:%M:%S")
-custom_time = custom.parse_time("%d/%b/%Y:%H:%M:%S")
-unix_time = unix.int().seconds().from_epoch()
+iso_date = iso_date.time()
+iso_datetime = iso_datetime.time()
+with_timezone = with_timezone.time()
+unix_epoch = unix_epoch.time()
 ```
 
 ```tql
 {
-  iso: "2024-01-15T10:30:45",
-  custom: "15/Jan/2024:10:30:45",
-  unix: "1705316445",
-  iso_time: 2024-01-15T10:30:45Z,
-  custom_time: 2024-01-15T10:30:45Z,
-  unix_time: 2024-01-15T11:00:45Z
+  iso_date: 2024-01-15T00:00:00Z,
+  iso_datetime: 2024-01-15T10:30:45Z,
+  with_timezone: 2024-01-15T08:30:45Z,
+  unix_epoch: 2024-01-15T11:00:45Z,
+}
+```
+
+The [`time()`](/reference/functions/time) function also supports relative time
+expressions:
+
+```tql
+from {
+  now: time("now"),
+  one_hour_ago: time("1h ago"),
+  in_two_days: time("in 2d"),
+  relative: time("now - 30min"),
+}
+```
+
+### Custom formats with `parse_time()`
+
+For timestamps in non-standard formats, use
+[`parse_time()`](/reference/functions/parse_time) with an explicit format
+string:
+
+```tql
+from {
+  apache: "15/Jan/2024:10:30:45",
+  us_date: "01/15/2024 10:30:45",
+}
+apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S")
+us_time = us_date.parse_time("%m/%d/%Y %H:%M:%S")
+```
+
+```tql
+{
+  apache: "15/Jan/2024:10:30:45",
+  us_date: "01/15/2024 10:30:45",
+  apache_time: 2024-01-15T10:30:45Z,
+  us_time: 2024-01-15T10:30:45Z,
 }
 ```
 
@@ -87,6 +130,14 @@ Common format specifiers:
 - `%S` - Second (00-59)
 - `%b` - Month name (Jan, Feb, etc.)
 - `%a` - Weekday name (Mon, Tue, etc.)
+
+### When to use which
+
+- **[`time()`](/reference/functions/time)**: Use for ISO 8601 timestamps, Unix
+  epochs (with `@` prefix), or relative time expressions. No format string
+  needed.
+- **[`parse_time()`](/reference/functions/parse_time)**: Use for custom formats
+  like Apache logs, US date formats, or any non-standard timestamp layout.
 
 ## Format time to strings
 
@@ -330,7 +381,36 @@ to_5min = precise_time.round(5min)
 
 ## Convert Unix timestamps
 
-Work with Unix epoch timestamps using [`from_epoch()`](/reference/functions/from_epoch) and [`since_epoch()`](/reference/functions/since_epoch):
+Unix timestamps represent time as seconds (or fractions) since January 1, 1970.
+TQL supports both parsing and generating Unix timestamps.
+
+### Parse Unix timestamps
+
+For string inputs, use [`time()`](/reference/functions/time) with the `@`
+prefix:
+
+```tql
+from {
+  unix_str: "@1705316445",
+  unix_fractional: "@1705316445.123456",
+}
+parsed = unix_str.time()
+parsed_fractional = unix_fractional.time()
+```
+
+```tql
+{
+  unix_str: "@1705316445",
+  unix_fractional: "@1705316445.123456",
+  parsed: 2024-01-15T11:00:45Z,
+  parsed_fractional: 2024-01-15T11:00:45.123456Z,
+}
+```
+
+### Convert numeric timestamps
+
+For numeric inputs, use [`from_epoch()`](/reference/functions/from_epoch) with
+the appropriate time unit:
 
 ```tql
 from {
@@ -341,7 +421,6 @@ from {
 from_seconds = unix_seconds.seconds().from_epoch()
 from_millis = unix_millis.milliseconds().from_epoch()
 from_micros = unix_micros.microseconds().from_epoch()
-back_to_unix = from_seconds.since_epoch().count_seconds()
 ```
 
 ```tql
@@ -352,7 +431,25 @@ back_to_unix = from_seconds.since_epoch().count_seconds()
   from_seconds: 2024-01-15T11:00:45Z,
   from_millis: 2024-01-15T11:00:45.123Z,
   from_micros: 2024-01-15T11:00:45.123456Z,
-  back_to_unix: 1705316445.0
+}
+```
+
+### Convert back to Unix timestamp
+
+Use [`since_epoch()`](/reference/functions/since_epoch) to get the duration
+since the Unix epoch:
+
+```tql
+from {timestamp: 2024-01-15T11:00:45Z}
+unix_seconds = timestamp.since_epoch().count_seconds()
+unix_millis = timestamp.since_epoch().count_milliseconds()
+```
+
+```tql
+{
+  timestamp: 2024-01-15T11:00:45Z,
+  unix_seconds: 1705316445.0,
+  unix_millis: 1705316445000.0,
 }
 ```
 
@@ -426,10 +523,14 @@ human_readable = f"{days_old.round()} days ago"
 
 ```tql
 from {
+  iso: "2024-01-15T10:30:45Z",
   apache: "15/Jan/2024:10:30:45 +0000",
   nginx: "2024/01/15 10:30:45",
   syslog: "Jan 15 10:30:45"
 }
+// ISO 8601 works with time() directly
+iso_time = iso.time()
+// Custom formats need parse_time()
 apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S %z")
 nginx_time = nginx.parse_time("%Y/%m/%d %H:%M:%S")
 // For syslog, we need to add the year
@@ -438,9 +539,11 @@ syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
 
 ```tql
 {
+  iso: "2024-01-15T10:30:45Z",
   apache: "15/Jan/2024:10:30:45 +0000",
   nginx: "2024/01/15 10:30:45",
   syslog: "Jan 15 10:30:45",
+  iso_time: 2024-01-15T10:30:45Z,
   apache_time: 2024-01-15T10:30:45Z,
   nginx_time: 2024-01-15T10:30:45Z,
   syslog_time: 2024-01-15T10:30:45Z,
