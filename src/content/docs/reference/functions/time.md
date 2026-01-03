@@ -18,19 +18,52 @@ format string.
 
 ### Supported formats
 
-The function accepts the following input formats:
+The function accepts timestamps in the following formats:
 
-| Format              | Example                                             |
-| :------------------ | :-------------------------------------------------- |
-| ISO 8601 date       | `2024-01-15`                                        |
-| ISO 8601 datetime   | `2024-01-15T10:30:45`                               |
-| Datetime with space | `2024-01-15 10:30:45`                               |
-| Fractional seconds  | `2024-01-15T10:30:45.123456`                        |
-| With timezone       | `2024-01-15T10:30:45Z`, `2024-01-15T10:30:45+02:00` |
-| Unix timestamp      | `@1705316445`, `@1705316445.123`                    |
-| Current time        | `now`                                               |
-| Relative future     | `now + 1h`, `in 2h`                                 |
-| Relative past       | `now - 30min`, `5min ago`                           |
+#### ISO 8601 timestamps
+
+The general form is `YYYY-MM-DD`, optionally followed by a time component:
+
+| Component        | Format                    | Example                      |
+| :--------------- | :------------------------ | :--------------------------- |
+| Date             | `YYYY-MM-DD`              | `2024-01-15`                 |
+| Year and month   | `YYYY-MM`                 | `2024-01`                    |
+| Date and hour    | `YYYY-MM-DD⊔HH`           | `2024-01-15T10`              |
+| Date and minutes | `YYYY-MM-DD⊔HH:MM`        | `2024-01-15T10:30`           |
+| Full datetime    | `YYYY-MM-DD⊔HH:MM:SS`     | `2024-01-15T10:30:45`        |
+| With fractions   | `YYYY-MM-DD⊔HH:MM:SS.fff` | `2024-01-15T10:30:45.123456` |
+| With timezone    | `YYYY-MM-DD⊔HH:MM:SS⊔TZ`  | `2024-01-15T10:30:45+02:00`  |
+
+The date-time separator `⊔` can be `T`, a space, or `+`. Missing time components
+default to zero.
+
+#### Timezone offsets
+
+Timestamps can end with a timezone offset:
+
+| Format     | Example            |
+| :--------- | :----------------- |
+| UTC        | `Z`                |
+| With colon | `+02:00`, `-05:30` |
+| Without    | `+0200`, `-0530`   |
+| Hour only  | `+02`, `-05`       |
+
+#### Unix timestamps
+
+Prefix a Unix epoch value with `@`:
+
+| Format     | Example           |
+| :--------- | :---------------- |
+| Seconds    | `@1705316445`     |
+| Fractional | `@1705316445.123` |
+
+#### Relative time expressions
+
+| Format        | Example                   |
+| :------------ | :------------------------ |
+| Current time  | `now`                     |
+| Future offset | `now + 1h`, `in 2d`       |
+| Past offset   | `now - 30min`, `5min ago` |
 
 For timestamps in non-standard formats, use
 [`parse_time`](/reference/functions/parse_time) with an explicit format string.
@@ -57,21 +90,43 @@ from {
 }
 ```
 
+### Parse partial timestamps
+
+Missing components default to their minimum value:
+
+```tql
+from {
+  year_month: time("2024-01"),
+  date_hour: time("2024-01-15T10"),
+  date_minute: time("2024-01-15T10:30"),
+}
+```
+
+```tql
+{
+  year_month: 2024-01-01T00:00:00Z,
+  date_hour: 2024-01-15T10:00:00Z,
+  date_minute: 2024-01-15T10:30:00Z,
+}
+```
+
 ### Parse timestamps with timezones
 
 ```tql
 from {
   utc: time("2024-01-15T10:30:45Z"),
-  positive_offset: time("2024-01-15T10:30:45+02:00"),
-  negative_offset: time("2024-01-15T10:30:45-05:00"),
+  with_colon: time("2024-01-15T10:30:45+02:00"),
+  without_colon: time("2024-01-15T10:30:45+0200"),
+  hour_only: time("2024-01-15T10:30:45-05"),
 }
 ```
 
 ```tql
 {
   utc: 2024-01-15T10:30:45Z,
-  positive_offset: 2024-01-15T08:30:45Z,
-  negative_offset: 2024-01-15T15:30:45Z,
+  with_colon: 2024-01-15T08:30:45Z,
+  without_colon: 2024-01-15T08:30:45Z,
+  hour_only: 2024-01-15T15:30:45Z,
 }
 ```
 
