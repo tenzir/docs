@@ -39,6 +39,6 @@ from {x: ip("1.2.3.4")}
 [`ip_category`](/reference/functions/ip_category),
 [`time`](/reference/functions/time),
 [`uint`](/reference/functions/uint),
-[float](/reference/functions/float),
-[int](/reference/functions/int),
-[string](/reference/functions/string)
+[`float`](/reference/functions/float),
+[`int`](/reference/functions/int),
+[`string`](/reference/functions/string)

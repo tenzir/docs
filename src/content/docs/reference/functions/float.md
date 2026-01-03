@@ -43,4 +43,4 @@ from {x: float("4.2")}
 [`subnet`](/reference/functions/subnet),
 [`time`](/reference/functions/time),
 [`uint`](/reference/functions/uint),
-[int](/reference/functions/int)
+[`int`](/reference/functions/int)

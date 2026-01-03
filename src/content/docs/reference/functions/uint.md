@@ -55,6 +55,6 @@ from {x: uint("0x42", base=16)}
 [`ip`](/reference/functions/ip),
 [`subnet`](/reference/functions/subnet),
 [`time`](/reference/functions/time),
-[float](/reference/functions/float),
-[int](/reference/functions/int),
-[string](/reference/functions/string)
+[`float`](/reference/functions/float),
+[`int`](/reference/functions/int),
+[`string`](/reference/functions/string)

@@ -31,7 +31,7 @@ Multiple `y` values and their labels can be specified by using the record
 syntax: `{name: value, ...}`.
 
 For example, `y = {"Avg. Load": mean(load)}` calculates the
-[mean](/reference/functions/mean) of the `load` field and labels it as `Avg. Load`.
+[`mean`](/reference/functions/mean) of the `load` field and labels it as `Avg. Load`.
 
 ### `x_min = any (optional)`
 

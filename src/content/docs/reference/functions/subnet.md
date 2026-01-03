@@ -44,5 +44,5 @@ from {x: subnet("1.2.3.4/16")}
 [`ip_category`](/reference/functions/ip_category),
 [`time`](/reference/functions/time),
 [`uint`](/reference/functions/uint),
-[float](/reference/functions/float),
-[string](/reference/functions/string)
+[`float`](/reference/functions/float),
+[`string`](/reference/functions/string)

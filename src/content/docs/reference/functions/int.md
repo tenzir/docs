@@ -66,5 +66,5 @@ from {x: int("0x42", base=16)}
 [`subnet`](/reference/functions/subnet),
 [`time`](/reference/functions/time),
 [`uint`](/reference/functions/uint),
-[float](/reference/functions/float),
-[string](/reference/functions/string)
+[`float`](/reference/functions/float),
+[`string`](/reference/functions/string)
