@@ -8,6 +8,7 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
+import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
 import { topics, topicPaths } from "./src/topics";
 import { bundledLanguages } from "shiki";
 import inlineSVGs from "./src/utils/inline-svgs.mjs";
@@ -148,6 +149,16 @@ export default defineConfig({
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
                 //errorOnLocalLinks: false,
+                // Validate See Also component links (Op, Fn, Guide, Tutorial,
+                // Explanation). The remark-see-also-links plugin extracts the
+                // slot content and adds it as a data-href attribute.
+                components: [
+                  ["Op", "data-href"],
+                  ["Fn", "data-href"],
+                  ["Guide", "data-href"],
+                  ["Tutorial", "data-href"],
+                  ["Explanation", "data-href"],
+                ],
                 exclude: [
                   // Legacy API path that redirects to correct locations
                   "/api/",
@@ -202,6 +213,7 @@ export default defineConfig({
       },
       langs: [...Object.keys(bundledLanguages)],
     },
+    remarkPlugins: [remarkSeeAlsoLinks],
     rehypePlugins: [
       [
         rehypeExternalLinks,
