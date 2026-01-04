@@ -454,9 +454,13 @@ async function syncClaudePlugins(repoPath) {
 
   const warnings = [];
 
+  const isTTY = process.stdout.isTTY;
+
   // Process each plugin
   for (const plugin of plugins) {
-    console.log(`  ${plugin.name}: processing...`);
+    if (isTTY) {
+      process.stdout.write(`  ${plugin.id}: processing...`);
+    }
 
     const readme = await parseReadme(plugin.path);
     const capabilities = await scanCapabilities(plugin.path);
@@ -499,9 +503,13 @@ async function syncClaudePlugins(repoPath) {
       .filter(Boolean)
       .join(", ");
 
-    console.log(
-      `  ${plugin.displayName}: v${plugin.version} (${capSummary || "no capabilities"})`,
-    );
+    const result = `  ${plugin.displayName}: v${plugin.version} (${capSummary || "no capabilities"})`;
+    if (isTTY) {
+      // Clear line and print result (using \r to return to start, then overwrite)
+      process.stdout.write(`\r${result.padEnd(60)}\n`);
+    } else {
+      console.log(result);
+    }
   }
 
   // Generate landing page
