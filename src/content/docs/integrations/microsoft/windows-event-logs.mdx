@@ -607,8 +607,8 @@ and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.
 ```tql
 load_file "windows_events.xml"
 read_lines
-where @value != ""
-event = @value.parse_winlog()
+where line != ""
+event = line.parse_winlog()
 ```
 
 ### Filter for specific event IDs
@@ -620,8 +620,8 @@ events (Event ID 4624) and failed logon attempts (Event ID 4625):
 load_tcp "10.0.0.1:1514" {
   read_lines
 }
-where @value != ""
-event = @value.parse_winlog()
+where line != ""
+event = line.parse_winlog()
 where event.System.EventID in [4624, 4625]
 ```
 
@@ -634,8 +634,8 @@ event, extract the relevant information:
 load_tcp "10.0.0.1:1514" {
   read_lines
 }
-where @value != ""
-event = @value.parse_winlog()
+where line != ""
+event = line.parse_winlog()
 where event.System.EventID == 4624
 select
   timestamp = event.System.TimeCreated.SystemTime,
