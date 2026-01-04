@@ -1,0 +1,51 @@
+---
+title: decode_hex
+category: Decoding
+example: 'decode_hex("4e6f6E6365")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Decodes bytes from their hexadecimal representation.
+
+```tql
+decode_hex(bytes: blob|string) -> blob
+```
+
+## Description
+
+Decodes bytes from their hexadecimal representation.
+
+### `bytes: blob|string`
+
+The value to decode.
+
+## Examples
+
+### Decode a blob from hex
+
+```tql
+from {bytes: "54656E7A6972"}
+decoded = bytes.decode_hex()
+```
+
+```tql
+{bytes: "54656E7A6972", decoded: "Tenzir"}
+```
+
+### Decode a mixed-case hex string
+
+```tql
+from {bytes: "4e6f6E6365"}
+decoded = bytes.decode_hex()
+```
+
+```tql
+{bytes: "4e6f6E6365", decoded: "Nonce"}
+```
+
+## See Also
+
+- <Fn>encode_hex</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

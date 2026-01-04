@@ -1,0 +1,53 @@
+---
+title: context::erase
+category: Contexts
+example: 'context::erase "ctx", key=x'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Removes entries from a context.
+
+```tql
+context::erase name:string, key=any
+```
+
+## Description
+
+The `context::erase` operator removes data from a context.
+
+Use the `key` argument to specify the field in the input that should be
+deleted from the context.
+
+### `name: string`
+
+The name of the context to remove entries from.
+
+### `key = any`
+
+The field that represents the enrichment key in the data.
+
+## Examples
+
+### Delete entries from a context
+
+```
+from {network: 10.0.0.1/16}
+context::erase "network-classification", key=network
+```
+
+## See Also
+
+- <Op>context::create_bloom_filter</Op>
+- <Op>context::create_geoip</Op>
+- <Op>context::create_lookup_table</Op>
+- <Op>context::enrich</Op>
+- <Op>context::inspect</Op>
+- <Op>context::list</Op>
+- <Op>context::load</Op>
+- <Op>context::remove</Op>
+- <Op>context::reset</Op>
+- <Op>context::save</Op>
+- <Op>context::update</Op>
+- <Guide>enrichment/work-with-lookup-tables</Guide>

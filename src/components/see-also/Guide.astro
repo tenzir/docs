@@ -1,0 +1,17 @@
+---
+import CompassIcon from '../icons/CompassIcon.astro';
+
+const path = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const href = `/guides/${path}`;
+// Convert path to title: "data-shaping/aggregate-and-summarize" -> "Aggregate and summarize"
+const title = path
+  .split('/')
+  .pop()!
+  .split('-')
+  .map((word, i) => i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)
+  .join(' ');
+---
+
+<span class="inline-icon-wrapper" data-tooltip="Guide"><CompassIcon class="inline-icon" /></span><a href={href}>{title}</a>

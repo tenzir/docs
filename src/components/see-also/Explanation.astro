@@ -1,0 +1,17 @@
+---
+import SparkleIcon from '../icons/SparkleIcon.astro';
+
+const path = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const href = `/explanations/${path}`;
+// Convert path to title: "language/operators" -> "Operators"
+const title = path
+  .split('/')
+  .pop()!
+  .split('-')
+  .map((word, i) => i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)
+  .join(' ');
+---
+
+<span class="inline-icon-wrapper" data-tooltip="Explanation"><SparkleIcon class="inline-icon" /></span><a href={href}>{title}</a>

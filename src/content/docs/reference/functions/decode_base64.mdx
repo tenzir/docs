@@ -1,0 +1,40 @@
+---
+title: decode_base64
+category: Decoding
+example: 'decode_base64("VGVuemly")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Decodes bytes as Base64.
+
+```tql
+decode_base64(bytes: blob|string) -> blob
+```
+
+## Description
+
+Decodes bytes as Base64.
+
+### `bytes: blob|string`
+
+The value to decode as Base64.
+
+## Examples
+
+### Decode a Base64 encoded string
+
+```tql
+from {bytes: "VGVuemly"}
+decoded = bytes.decode_base64()
+```
+
+```tql
+{bytes: "VGVuemly", decoded: "Tenzir"}
+```
+
+## See Also
+
+- <Fn>encode_base64</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

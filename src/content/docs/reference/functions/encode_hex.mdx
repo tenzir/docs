@@ -1,0 +1,40 @@
+---
+title: encode_hex
+category: Encoding
+example: 'encode_hex("Tenzir")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Encodes bytes into their hexadecimal representation.
+
+```tql
+encode_hex(bytes: blob|string) -> string
+```
+
+## Description
+
+Encodes bytes into their hexadecimal representation.
+
+### `bytes: blob|string`
+
+The value to encode.
+
+## Examples
+
+### Encode a string to hex
+
+```tql
+from {bytes: "Tenzir"}
+encoded = bytes.encode_hex()
+```
+
+```tql
+{bytes: "Tenzir", encoded: "54656E7A6972"}
+```
+
+## See Also
+
+- <Fn>decode_hex</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

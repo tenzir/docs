@@ -1,0 +1,69 @@
+---
+title: pipeline::list
+category: Pipelines
+example: "pipeline::list"
+---
+
+import Op from '@components/see-also/Op.astro';
+
+Shows managed pipelines.
+
+```tql
+pipeline::list
+```
+
+## Description
+
+The `pipeline::list` operator returns the list of all managed pipelines. Managed
+pipelines are pipelines created through the [`/pipeline`
+API](/reference/node/api), which includes all pipelines run through the Tenzir
+Platform.
+
+## Examples
+
+### Count pipelines per state
+
+```tql
+pipeline::list
+top state
+```
+
+```tql
+{
+  "state": "running",
+  "count": 31
+}
+{
+  "state": "failed",
+  "count": 4
+}
+{
+  "state": "stopped",
+  "count": 2
+}
+```
+
+### Show pipelines per package
+
+```tql
+pipeline::list
+summarize package, names=collect(name)
+```
+
+```tql
+{
+  "package": "suricata-ocsf",
+  "names": [
+    "Suricata Flow to OCSF Network Activity",
+    "Suricata DNS to OCSF DNS Activity",
+    "Suricata SMB to OCSF SMB Activity",
+    // …
+  ]
+}
+```
+
+## See Also
+
+- <Op>package::list</Op>
+- <Op>pipeline::detach</Op>
+- <Op>pipeline::run</Op>

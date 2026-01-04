@@ -1,0 +1,53 @@
+---
+title: is_loopback
+category: IP
+example: 'is_loopback(127.0.0.1)'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+
+Checks whether an IP address is a loopback address.
+
+```tql
+is_loopback(x:ip) -> bool
+```
+
+## Description
+
+The `is_loopback` function checks whether a given IP address `x` is a loopback
+address.
+
+For IPv4, loopback addresses are in the range 127.0.0.0 to 127.255.255.255
+(127.0.0.0/8).
+
+For IPv6, the loopback address is ::1.
+
+## Examples
+
+### Check if an IP is loopback
+
+```tql
+from {
+  ipv4_loopback: 127.0.0.1.is_loopback(),
+  ipv6_loopback: ::1.is_loopback(),
+  not_loopback: 8.8.8.8.is_loopback(),
+}
+```
+
+```tql
+{
+  ipv4_loopback: true,
+  ipv6_loopback: true,
+  not_loopback: false,
+}
+```
+
+## See Also
+
+- <Fn>ip_category</Fn>
+- <Fn>is_global</Fn>
+- <Fn>is_link_local</Fn>
+- <Fn>is_multicast</Fn>
+- <Fn>is_private</Fn>
+- <Fn>is_v4</Fn>
+- <Fn>is_v6</Fn>

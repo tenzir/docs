@@ -1,0 +1,40 @@
+---
+title: encode_base64
+category: Encoding
+example: 'encode_base64("Tenzir")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Encodes bytes as Base64.
+
+```tql
+encode_base64(bytes: blob|string) -> string
+```
+
+## Description
+
+Encodes bytes as Base64.
+
+### `bytes: blob|string`
+
+The value to encode as Base64.
+
+## Examples
+
+### Encode a string as Base64
+
+```tql
+from {bytes: "Tenzir"}
+encoded = bytes.encode_base64()
+```
+
+```tql
+{bytes: "Tenzir", encoded: "VGVuemly"}
+```
+
+## See Also
+
+- <Fn>decode_base64</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

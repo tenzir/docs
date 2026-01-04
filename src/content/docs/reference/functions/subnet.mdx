@@ -1,0 +1,50 @@
+---
+title: subnet
+category: Type System/Conversion
+example: 'subnet("1.2.3.4/16")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+
+Casts an expression to a subnet value.
+
+```tql
+subnet(x:string) -> subnet
+```
+
+## Description
+
+The `subnet` function casts an expression to a subnet.
+
+### `x: string`
+
+The string expression to cast.
+
+## Examples
+
+### Cast a string to a subnet
+
+```tql
+from {x: subnet("1.2.3.4/16")}
+```
+
+```tql
+{x: 1.2.0.0/16}
+```
+
+## See Also
+
+- <Fn>float</Fn>
+- <Fn>int</Fn>
+- <Fn>ip</Fn>
+- <Fn>ip_category</Fn>
+- <Fn>is_global</Fn>
+- <Fn>is_link_local</Fn>
+- <Fn>is_loopback</Fn>
+- <Fn>is_multicast</Fn>
+- <Fn>is_private</Fn>
+- <Fn>is_v4</Fn>
+- <Fn>is_v6</Fn>
+- <Fn>string</Fn>
+- <Fn>time</Fn>
+- <Fn>uint</Fn>

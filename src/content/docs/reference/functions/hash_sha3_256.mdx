@@ -1,0 +1,45 @@
+---
+title: hash_sha3_256
+category: Hashing
+example: 'hash_sha3_256("foo")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Computes a SHA3-256 hash digest.
+
+```tql
+hash_sha3_256(x:any, [seed=string]) -> string
+```
+
+## Description
+
+The `hash_sha3_256` function calculates a SHA3-256 hash digest for the given
+value `x`.
+
+## Examples
+
+### Compute a SHA3-256 digest of a string
+
+```tql
+from {x: hash_sha3_256("foo")}
+```
+
+```tql
+{x: "76d3bc41c9f588f7fcd0d5bf4718f8f84b1c41b20882703100b9eb9413807c01"}
+```
+
+## See Also
+
+- <Fn>hash_md5</Fn>
+- <Fn>hash_sha1</Fn>
+- <Fn>hash_sha224</Fn>
+- <Fn>hash_sha256</Fn>
+- <Fn>hash_sha384</Fn>
+- <Fn>hash_sha512</Fn>
+- <Fn>hash_sha3_224</Fn>
+- <Fn>hash_sha3_384</Fn>
+- <Fn>hash_sha3_512</Fn>
+- <Fn>hash_xxh3</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

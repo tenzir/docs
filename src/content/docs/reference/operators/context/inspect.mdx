@@ -1,0 +1,60 @@
+---
+title: context::inspect
+category: Contexts
+example: 'context::inspect "ctx"'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Resets a context.
+
+```tql
+context::inspect name:string
+```
+
+## Description
+
+The `context::inspect` operator shows details about a specified context.
+
+### `name: string`
+
+The name of the context to inspect.
+
+## Examples
+
+### Inspect a context
+
+Add data to the lookup table:
+
+```tql
+from {x:1, y:"a"},
+     {x:2, y:"b"}
+context::update "ctx", key=x, value=y
+```
+
+Retrieve the lookup table contents:
+
+```tql
+context::inspect "ctx"
+```
+
+```tql
+{key: 2, value: "b"}
+{key: 1, value: "a"}
+```
+
+## See Also
+
+- <Op>context::create_bloom_filter</Op>
+- <Op>context::create_geoip</Op>
+- <Op>context::create_lookup_table</Op>
+- <Op>context::enrich</Op>
+- <Op>context::erase</Op>
+- <Op>context::list</Op>
+- <Op>context::load</Op>
+- <Op>context::remove</Op>
+- <Op>context::reset</Op>
+- <Op>context::save</Op>
+- <Op>context::update</Op>
+- <Guide>enrichment/work-with-lookup-tables</Guide>

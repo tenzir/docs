@@ -1,10 +1,26 @@
 ---
-import { Badge, Icon } from '@astrojs/starlight/components';
+import { Badge } from '@astrojs/starlight/components';
 import Default from '@astrojs/starlight/components/Sidebar.astro';
 
 import { topicParents, childTopics, dropdownTopics } from '../topics.ts';
 import TopicDropdown from './TopicDropdown.astro';
 import changelogProjects from '../changelog-projects.json';
+
+import CompassIcon from './icons/CompassIcon.astro';
+import GraduationCapIcon from './icons/GraduationCapIcon.astro';
+import SparkleIcon from './icons/SparkleIcon.astro';
+import BookIcon from './icons/BookIcon.astro';
+import CodeIcon from './icons/CodeIcon.astro';
+import FnIcon from './icons/FnIcon.astro';
+
+const iconComponents: Record<string, any> = {
+  'compass': CompassIcon,
+  'graduation-cap': GraduationCapIcon,
+  'sparkle': SparkleIcon,
+  'book': BookIcon,
+  'code': CodeIcon,
+  'fn': FnIcon,
+};
 
 const { topics } = Astro.locals.starlightSidebarTopics;
 
@@ -55,27 +71,31 @@ const dropdownItems = useDropdown
 ) : sidebarTopics.length > 0 && (
   <ul class="starlight-sidebar-topics">
     {
-      sidebarTopics.map((topic) => (
-        <li>
-          <a href={topic.link} class:list={{ 'starlight-sidebar-topics-current': topic.isCurrent }}>
-            {topic.icon && (
-              <div class="starlight-sidebar-topics-icon" data-color={getTopicColor(topic.link)}>
-                <Icon name={topic.icon} />
-              </div>
-            )}
-            <div>
-              {topic.label}
-              {topic.badge && (
-                <Badge
-                  class="starlight-sidebar-topics-badge"
-                  text={topic.badge.text}
-                  variant={topic.badge.variant}
-                />
+      sidebarTopics.map((topic) => {
+        const iconName = typeof topic.icon === 'string' ? topic.icon : topic.icon?.name;
+        const IconComponent = iconName ? iconComponents[iconName] : null;
+        return (
+          <li>
+            <a href={topic.link} class:list={{ 'starlight-sidebar-topics-current': topic.isCurrent }}>
+              {IconComponent && (
+                <div class="starlight-sidebar-topics-icon" data-color={getTopicColor(topic.link)}>
+                  <IconComponent />
+                </div>
               )}
-            </div>
-          </a>
-        </li>
-      ))
+              <div>
+                {topic.label}
+                {topic.badge && (
+                  <Badge
+                    class="starlight-sidebar-topics-badge"
+                    text={topic.badge.text}
+                    variant={topic.badge.variant}
+                  />
+                )}
+              </div>
+            </a>
+          </li>
+        );
+      })
     }
   </ul>
 )}

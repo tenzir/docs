@@ -1,0 +1,54 @@
+---
+title: compress_brotli
+category: Encode & Decode
+example: 'compress_brotli, level=10'
+---
+
+import Op from '@components/see-also/Op.astro';
+
+Compresses a stream of bytes using Brotli compression.
+
+```tql
+compress_brotli [level=int, window_bits=int]
+```
+
+## Description
+
+The `compress_brotli` operator compresses bytes in a pipeline incrementally.
+
+### `level = int (optional)`
+
+The compression level to use. The supported values depend on the codec used. If
+omitted, the default level for the codec is used.
+
+### `window_bits = int (optional)`
+
+A number representing the encoder window bits.
+
+## Examples
+
+### Export all events in a Brotli-compressed NDJSON file
+
+```tql
+export
+write_ndjson
+compress_brotli
+save_file "/tmp/backup.json.bt"
+```
+
+### Recompress a Brotli-compressed file at a different compression level
+
+```tql
+load_file "in.brotli"
+decompress_brotli
+compress_brotli level=18
+save_file "out.brotli"
+```
+
+## See Also
+
+- <Op>compress_bz2</Op>
+- <Op>compress_gzip</Op>
+- <Op>compress_lz4</Op>
+- <Op>compress_zstd</Op>
+- <Op>decompress_brotli</Op>

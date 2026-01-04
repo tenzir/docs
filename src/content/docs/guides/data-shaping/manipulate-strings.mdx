@@ -374,7 +374,7 @@ decoded_blob = hex_string.decode_hex()
 {
   data: "Hello",
   hex_string: "48656c6c6f",
-  hex: "48656c6c6f",
+  hex: "48656C6C6F",
   decoded: b"Hello",
   decoded_blob: b"Hello",
 }
@@ -482,7 +482,7 @@ from {
 }
 user_id = log.split("User ID: ")[1].split(" ")[0]
 valid_id = user_id.match_regex("^[A-Z]{3}-\\d{3}-[A-Z]{3}$")
-api_version = url.split("/")[4]
+api_version = url.split("/")[3]
 user_num = url.split("/").last()
 ```
 
@@ -493,7 +493,7 @@ user_num = url.split("/").last()
   user_id: "ABC-123-XYZ",
   valid_id: true,
   api_version: "v2",
-  user_num: "42"
+  user_num: "42",
 }
 ```
 
@@ -530,32 +530,36 @@ Create checksums and identifiers using hash functions:
 ### Common hash algorithms
 
 ```tql
-from {
-  data: "Hello, World!",
-  secret: "my-api-key-123"
-}
+from {data: "Hello, World!"}
 md5 = data.hash_md5()
 sha1 = data.hash_sha1()
-sha224 = data.hash_sha224()
 sha256 = data.hash_sha256()
-sha384 = data.hash_sha384()
-sha512 = data.hash_sha512()
 xxh3 = data.hash_xxh3()
 ```
 
 ```tql
 {
   data: "Hello, World!",
-  secret: "my-api-key-123",
   md5: "65a8e27d8879283831b664bd8b7f0ad4",
   sha1: "0a0a9f2a6772942557ab5355d76af442f8f65e01",
-  sha224: "72a23dfa411ba6fde01dbfabf3b00a709c93ebf273dc29e2d8b261ff",
   sha256: "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f",
-  sha384: "5485cc9b3365b4305dfb4e8337e0a598a574f8242bf17289e0dd6c20a3cd44a089de16ab4ab308f63e44b1170eb5f515",
-  sha512: "374d794a95cdcfd8b35993185fef9ba368f160d8daf432d08ba9f1ed1e5abe6cc69291e0fa2fe0006a52570ef18c19def4e617c33ce52ef0a6e5fbe318cb0387",
-  xxh3: "c7269dc5f8602ca5",
+  xxh3: "60415d5f616602aa",
 }
 ```
+
+Hash functions:
+
+- [`hash_md5()`](/reference/functions/hash_md5) - MD5 digest (128-bit)
+- [`hash_sha1()`](/reference/functions/hash_sha1) - SHA-1 digest (160-bit)
+- [`hash_sha224()`](/reference/functions/hash_sha224) - SHA-224 digest
+- [`hash_sha256()`](/reference/functions/hash_sha256) - SHA-256 digest
+- [`hash_sha384()`](/reference/functions/hash_sha384) - SHA-384 digest
+- [`hash_sha512()`](/reference/functions/hash_sha512) - SHA-512 digest
+- [`hash_sha3_224()`](/reference/functions/hash_sha3_224) - SHA3-224 digest
+- [`hash_sha3_256()`](/reference/functions/hash_sha3_256) - SHA3-256 digest
+- [`hash_sha3_384()`](/reference/functions/hash_sha3_384) - SHA3-384 digest
+- [`hash_sha3_512()`](/reference/functions/hash_sha3_512) - SHA3-512 digest
+- [`hash_xxh3()`](/reference/functions/hash_xxh3) - XXH3 digest (fast, 64-bit)
 
 ### Create unique identifiers
 

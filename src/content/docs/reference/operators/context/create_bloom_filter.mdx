@@ -1,0 +1,75 @@
+---
+title: context::create_bloom_filter
+category: Contexts
+example: 'context::create_bloom_filter "ctx", capacity=1Mi, fp_probability=0.01'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Explanation from '@components/see-also/Explanation.astro';
+
+Creates a Bloom filter context.
+
+```tql
+context::create_bloom_filter name:string, capacity=int, fp_probability=float
+```
+
+## Description
+
+The `context::create_bloom_filter` operator constructs a new context of type
+[Bloom filter](/explanations/enrichment#bloom-filter).
+
+To find suitable values for the capacity and false-positive probability, consult
+Thomas Hurst's [Bloom Filter Calculator](https://hur.st/bloomfilter/). The
+parameter `n` corresponds to `capacity` and `p` to `fp_probability`.
+
+You can also create a Bloom filter context as code by adding it to
+`tenzir.contexts` in your `tenzir.yaml`:
+
+```yaml title="<prefix>/etc/tenzir/tenzir.yaml"
+tenzir:
+  contexts:
+    my-iocs:
+      type: bloom-filter
+      arguments:
+        capacity: 1B
+        fp-probability: 0.001
+```
+
+Making changes to `arguments` of an already created context has no effect.
+
+### `name: string`
+
+The name of the new Bloom filter.
+
+### `capacity = uint`
+
+The maximum number of items in the filter that maintain the false positive
+probability. Adding more elements does not yield an error, but lookups will
+more likely return false positives.
+
+### `fp_probability = float`
+
+The false-positive probability of the Bloom filter.
+
+## Examples
+
+### Create a new Bloom filter context
+
+```tql
+context::create_bloom_filter "ctx", capacity=1B, fp_probability=0.001
+```
+
+## See Also
+
+- <Op>context::create_geoip</Op>
+- <Op>context::create_lookup_table</Op>
+- <Op>context::enrich</Op>
+- <Op>context::erase</Op>
+- <Op>context::inspect</Op>
+- <Op>context::list</Op>
+- <Op>context::load</Op>
+- <Op>context::remove</Op>
+- <Op>context::reset</Op>
+- <Op>context::save</Op>
+- <Op>context::update</Op>
+- <Explanation>enrichment</Explanation>

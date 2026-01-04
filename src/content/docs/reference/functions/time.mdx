@@ -1,0 +1,190 @@
+---
+title: time
+category: Type System/Conversion
+example: 'time("2020-03-15")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Casts an expression to a time value.
+
+```tql
+time(x:any) -> time
+```
+
+## Description
+
+The `time` function parses the given string `x` to a time value. It
+automatically recognizes many common timestamp formats without requiring a
+format string.
+
+### Supported formats
+
+The function accepts timestamps in the following formats:
+
+#### ISO 8601 timestamps
+
+The general form is `YYYY-MM-DD`, optionally followed by a time component:
+
+| Component        | Format                    | Example                      |
+| :--------------- | :------------------------ | :--------------------------- |
+| Date             | `YYYY-MM-DD`              | `2024-01-15`                 |
+| Year and month   | `YYYY-MM`                 | `2024-01`                    |
+| Date and hour    | `YYYY-MM-DD⊔HH`           | `2024-01-15T10`              |
+| Date and minutes | `YYYY-MM-DD⊔HH:MM`        | `2024-01-15T10:30`           |
+| Full datetime    | `YYYY-MM-DD⊔HH:MM:SS`     | `2024-01-15T10:30:45`        |
+| With fractions   | `YYYY-MM-DD⊔HH:MM:SS.fff` | `2024-01-15T10:30:45.123456` |
+| With timezone    | `YYYY-MM-DD⊔HH:MM:SS⊔TZ`  | `2024-01-15T10:30:45+02:00`  |
+
+The date-time separator `⊔` can be `T`, a space, or `+`. Missing time components
+default to zero.
+
+#### Timezone offsets
+
+Timestamps can end with a timezone offset:
+
+| Format     | Example            |
+| :--------- | :----------------- |
+| UTC        | `Z`                |
+| With colon | `+02:00`, `-05:30` |
+| Without    | `+0200`, `-0530`   |
+| Hour only  | `+02`, `-05`       |
+
+#### Unix timestamps
+
+Prefix a Unix epoch value with `@`:
+
+| Format     | Example           |
+| :--------- | :---------------- |
+| Seconds    | `@1705316445`     |
+| Fractional | `@1705316445.123` |
+
+#### Relative time expressions
+
+| Format        | Example                   |
+| :------------ | :------------------------ |
+| Current time  | `now`                     |
+| Future offset | `now + 1h`, `in 2d`       |
+| Past offset   | `now - 30min`, `5min ago` |
+
+For timestamps in non-standard formats, use
+[`parse_time`](/reference/functions/parse_time) with an explicit format string.
+
+## Examples
+
+### Parse ISO 8601 timestamps
+
+```tql
+from {
+  date_only: time("2024-01-15"),
+  with_time: time("2024-01-15T10:30:45"),
+  with_space: time("2024-01-15 10:30:45"),
+  fractional: time("2024-01-15T10:30:45.123456"),
+}
+```
+
+```tql
+{
+  date_only: 2024-01-15T00:00:00Z,
+  with_time: 2024-01-15T10:30:45Z,
+  with_space: 2024-01-15T10:30:45Z,
+  fractional: 2024-01-15T10:30:45.123456Z,
+}
+```
+
+### Parse partial timestamps
+
+Missing components default to their minimum value:
+
+```tql
+from {
+  year_month: time("2024-01"),
+  date_hour: time("2024-01-15T10"),
+  date_minute: time("2024-01-15T10:30"),
+}
+```
+
+```tql
+{
+  year_month: 2024-01-01T00:00:00Z,
+  date_hour: 2024-01-15T10:00:00Z,
+  date_minute: 2024-01-15T10:30:00Z,
+}
+```
+
+### Parse timestamps with timezones
+
+```tql
+from {
+  utc: time("2024-01-15T10:30:45Z"),
+  with_colon: time("2024-01-15T10:30:45+02:00"),
+  without_colon: time("2024-01-15T10:30:45+0200"),
+  hour_only: time("2024-01-15T10:30:45-05"),
+}
+```
+
+```tql
+{
+  utc: 2024-01-15T10:30:45Z,
+  with_colon: 2024-01-15T08:30:45Z,
+  without_colon: 2024-01-15T08:30:45Z,
+  hour_only: 2024-01-15T15:30:45Z,
+}
+```
+
+### Parse Unix timestamps
+
+Prefix Unix timestamps with `@`:
+
+```tql
+from {
+  unix_seconds: time("@1705316445"),
+  unix_fractional: time("@1705316445.123456"),
+}
+```
+
+```tql
+{
+  unix_seconds: 2024-01-15T11:00:45Z,
+  unix_fractional: 2024-01-15T11:00:45.123456Z,
+}
+```
+
+### Use relative time expressions
+
+```tql
+from {
+  current: time("now"),
+  future: time("now + 2h"),
+  past: time("now - 30min"),
+  in_future: time("in 1d"),
+  in_past: time("5min ago"),
+}
+```
+
+### Parse timestamps in a pipeline
+
+```tql
+from {timestamp: "2024-01-15T10:30:45Z"}
+timestamp = timestamp.time()
+```
+
+```tql
+{
+  timestamp: 2024-01-15T10:30:45Z,
+}
+```
+
+## See Also
+
+- <Fn>format_time</Fn>
+- <Fn>parse_time</Fn>
+- <Fn>duration</Fn>
+- <Fn>float</Fn>
+- <Fn>int</Fn>
+- <Fn>ip</Fn>
+- <Fn>string</Fn>
+- <Fn>subnet</Fn>
+- <Fn>uint</Fn>
+- <Guide>data-shaping/work-with-time</Guide>

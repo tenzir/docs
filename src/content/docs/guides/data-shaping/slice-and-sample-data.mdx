@@ -10,11 +10,11 @@ data, and control event ordering using TQL operators.
 
 The operators in this guide work on entire event streams:
 
-- **[head](/reference/operators/head)** and **[tail](/reference/operators/tail)** - Get events from the beginning or end
-- **[slice](/reference/operators/slice)** - Extract a specific range of events
-- **[taste](/reference/operators/taste)** - Sample events by schema
-- **[reverse](/reference/operators/reverse)** - Invert the order of events
-- **[sample](/reference/operators/sample)** - Randomly sample events
+- [`head`](/reference/operators/head) and [`tail`](/reference/operators/tail) - Get events from the beginning or end
+- [`slice`](/reference/operators/slice) - Extract a specific range of events
+- [`taste`](/reference/operators/taste) - Sample events by schema
+- [`reverse`](/reference/operators/reverse) - Invert the order of events
+- [`sample`](/reference/operators/sample) - Randomly sample events
 
 These operators maintain state between events, unlike functions that work on
 individual values.
@@ -259,17 +259,10 @@ head 2
 
 ## Best practices
 
-1. **Prefer [`head`](/reference/operators/head) over [`tail`](/reference/operators/tail)**: [`head`](/reference/operators/head) stops processing once it has enough
-   events, while [`tail`](/reference/operators/tail) must process everything.
-
-2. **Use [`taste`](/reference/operators/taste) for exploration**: When working with unfamiliar data, [`taste`](/reference/operators/taste)
-   quickly shows you the different schemas present.
-
-3. **Be mindful of memory**: Operators like [`tail`](/reference/operators/tail) and [`reverse`](/reference/operators/reverse) buffer all
-   input, which can consume significant memory for large streams.
-
-4. **Combine with filters**: Use [`where`](/reference/operators/where) before slicing operators to reduce the
-   amount of data processed.
+1. **Prefer `head` over `tail`**: [`head`](/reference/operators/head) stops processing once it has enough events, while [`tail`](/reference/operators/tail) must process everything.
+2. **Use `taste` for exploration**: When working with unfamiliar data, [`taste`](/reference/operators/taste) quickly shows you the different schemas present.
+3. **Be mindful of memory**: Operators like [`tail`](/reference/operators/tail) and [`reverse`](/reference/operators/reverse) buffer all input, which can consume significant memory for large streams.
+4. **Combine with filters**: Use [`where`](/reference/operators/where) before slicing operators to reduce the amount of data processed.
 
 ## Related guides
 

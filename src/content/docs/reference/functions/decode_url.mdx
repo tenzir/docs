@@ -1,0 +1,44 @@
+---
+title: decode_url
+category: Decoding
+example: 'decode_url("Hello%20World")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Decodes URL encoded strings.
+
+```tql
+decode_url(string: blob|string) -> blob
+```
+
+## Description
+
+Decodes URL encoded strings or blobs, converting percent-encoded sequences back
+to their original characters.
+
+### `string: blob|string`
+
+The URL encoded string to decode.
+
+## Examples
+
+### Decode a URL encoded string
+
+```tql
+from {input: "Hello%20World%20%26%20Special%2FChars%3F"}
+decoded = input.decode_url()
+```
+
+```tql
+{
+  input: "Hello%20World%20%26%20Special%2FChars%3F",
+  decoded: "Hello World & Special/Chars?",
+}
+```
+
+## See Also
+
+- <Fn>encode_url</Fn>
+- <Guide>data-shaping/manipulate-strings</Guide>

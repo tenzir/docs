@@ -1,0 +1,35 @@
+---
+title: fields
+category: Node/Storage Engine
+example: 'fields'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Retrieves all fields stored at a node.
+
+```tql
+fields
+```
+
+## Description
+
+The `fields` operator shows a list of all fields stored at a node across all
+available schemas.
+
+## Examples
+
+### Get the top-5 most frequently used fields across schemas
+
+```tql
+fields
+summarize field, count=count_distinct(schema), schemas=distinct(schema)
+sort -count
+head 5
+```
+
+## See Also
+
+- <Op>schemas</Op>
+- <Guide>edge-storage/show-available-schemas</Guide>

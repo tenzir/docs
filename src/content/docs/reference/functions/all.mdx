@@ -1,0 +1,41 @@
+---
+title: all
+category: Aggregation
+example: 'all([true,true,false])'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+Computes the conjunction (AND) of all grouped boolean values.
+
+```tql
+all(xs:list) -> bool
+```
+
+## Description
+
+The `all` function returns `true` if all values in `xs` are `true` and `false`
+otherwise.
+
+### `xs: list`
+
+A list of boolean values.
+
+## Examples
+
+### Check if all values are true
+
+```tql
+from {x: true}, {x: true}, {x: false}
+summarize result=all(x)
+```
+
+```tql
+{result: false}
+```
+
+## See Also
+
+- <Fn>any</Fn>
+- <Guide>data-shaping/aggregate-and-summarize</Guide>
