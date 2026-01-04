@@ -45,6 +45,11 @@ Some content is auto-generated and excluded from linting:
 
 - **Changelog**: Run `pnpm generate:changelog` to fetch from `tenzir/news` repo.
   Generated files: `src/content/docs/changelog/`, `src/sidebar-changelog.ts`.
+  The stub file `src/content/docs/changelog/index.mdx` is tracked but should not
+  show as modified locally. Run this once after cloning:
+  ```bash
+  git update-index --skip-worktree src/content/docs/changelog/index.mdx
+  ```
 - **Docs Map**: Run `pnpm generate:docs-map` to create the documentation map.
   Generated file: `public/sitemap.md`.
 
