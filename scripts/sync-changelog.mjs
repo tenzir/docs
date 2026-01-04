@@ -966,10 +966,7 @@ const FEED_AUTHOR = {
  */
 function escapeHtml(str) {
   if (!str) return "";
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 // Remark processor for converting markdown to HTML (sanitized for feeds)
@@ -1462,7 +1459,8 @@ function generateIndexContent(
   const starlightComponents = [];
 
   // Use LinkCard for GitHub + RSS cards when we have a repository
-  const useResourceCards = repository && (timelineEntries?.length > 0 || useCardGrid);
+  const useResourceCards =
+    repository && (timelineEntries?.length > 0 || useCardGrid);
 
   if (useCardGrid || useResourceCards) {
     importLines.push(`import LinkCard from '@components/LinkCard.astro';`);
@@ -1927,7 +1925,9 @@ our [Discord](https://tenzir.com/discord).
     moduleVersions,
     feedsDir,
   );
-  console.log(`  feeds: ${generatedFeeds.length} (${generatedFeeds.join(", ")})`);
+  console.log(
+    `  feeds: ${generatedFeeds.length} (${generatedFeeds.join(", ")})`,
+  );
 
   console.log(
     `\nGenerated ${totalPages} pages, ${unifiedEntries.length} timeline entries`,
