@@ -50,6 +50,15 @@ export default defineConfig({
               },
             ]
           : []),
+        {
+          tag: "link",
+          attrs: {
+            rel: "alternate",
+            type: "application/atom+xml",
+            title: "Tenzir Changelog",
+            href: "/changelog/feed.xml",
+          },
+        },
       ],
       social: [
         {

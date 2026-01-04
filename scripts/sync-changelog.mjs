@@ -6,6 +6,9 @@ import fsSync from "fs";
 import path from "path";
 import { execSync } from "child_process";
 import { createRequire } from "module";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
+import { Feed } from "feed";
 
 // Load shared project config (icons defined once, used by both sync and topics.ts)
 const require = createRequire(import.meta.url);
@@ -947,6 +950,312 @@ All changes across Tenzir projects released in ${year}.
 `;
 }
 
+// =============================================================================
+// Atom Feed Generation
+// =============================================================================
+
+const SITE_URL = "https://docs.tenzir.com";
+
+const FEED_AUTHOR = {
+  name: "Tenzir",
+  link: "https://tenzir.com",
+};
+
+/**
+ * Escape special HTML characters.
+ */
+function escapeHtml(str) {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// Remark processor for converting markdown to HTML (sanitized for feeds)
+const remarkProcessor = remark().use(remarkHtml, { sanitize: true });
+
+/**
+ * Convert markdown to HTML for feed content using remark.
+ */
+function markdownToHtml(md) {
+  if (!md) return "";
+  const result = remarkProcessor.processSync(md);
+  return String(result).trim();
+}
+
+/**
+ * Generate HTML content for a single release entry.
+ */
+function generateEntryHtml(release) {
+  let html = "";
+
+  // Intro paragraph
+  if (release.intro) {
+    html += markdownToHtml(release.intro) + "\n";
+  }
+
+  // Group entries by type
+  if (release.entries && release.entries.length > 0) {
+    const grouped = {};
+    for (const entry of release.entries) {
+      const type = entry.type || "change";
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push(entry);
+    }
+
+    // Sort by configured order
+    const sortedTypes = Object.keys(grouped).sort((a, b) => {
+      const orderA = entryTypeConfig[a]?.order ?? 99;
+      const orderB = entryTypeConfig[b]?.order ?? 99;
+      return orderA - orderB;
+    });
+
+    for (const type of sortedTypes) {
+      const config = entryTypeConfig[type] || { heading: "Other" };
+      html += `\n<h2>${config.heading}</h2>\n`;
+
+      for (const entry of grouped[type]) {
+        html += `\n<h3>${escapeHtml(entry.title)}</h3>\n`;
+
+        // Metadata line
+        const metaParts = [];
+        if (entry.created) {
+          metaParts.push(formatDate(entry.created));
+        }
+        if (entry.authors && entry.authors.length > 0) {
+          const authors = entry.authors
+            .map((a) => {
+              if (typeof a === "string" && a.startsWith("[")) {
+                // Parse markdown link: [@handle](url)
+                const match = a.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                if (match) return `<a href="${match[2]}">${match[1]}</a>`;
+              }
+              const handle = typeof a === "string" ? a : a.handle || a.name;
+              const url = typeof a === "object" ? a.url : null;
+              const display = handle.includes(" ") ? handle : `@${handle}`;
+              return url ? `<a href="${url}">${display}</a>` : display;
+            })
+            .join(", ");
+          metaParts.push(authors);
+        }
+        if (entry.prs && entry.prs.length > 0) {
+          const prs = entry.prs
+            .map((pr) => {
+              if (typeof pr === "string" && pr.startsWith("[")) {
+                const match = pr.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                if (match) return `<a href="${match[2]}">${match[1]}</a>`;
+              }
+              if (typeof pr === "object") {
+                return pr.url
+                  ? `<a href="${pr.url}">#${pr.number}</a>`
+                  : `#${pr.number}`;
+              }
+              return `#${pr}`;
+            })
+            .join(", ");
+          metaParts.push(prs);
+        }
+        if (metaParts.length > 0) {
+          html += `<p><small>${metaParts.join(" · ")}</small></p>\n`;
+        }
+
+        // Entry body
+        if (entry.body) {
+          html += markdownToHtml(entry.body) + "\n";
+        }
+      }
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Generate Atom feed XML for a project.
+ * @param {object} project - Project object
+ * @param {Array} releases - Release objects (newest first)
+ * @param {object} options - Optional settings
+ * @param {number} [options.limit=20] - Maximum entries in feed
+ */
+function generateAtomFeed(project, releases, { limit = 20 } = {}) {
+  const releasedOnly = releases.filter((r) => !r.isUnreleased);
+  const feedReleases = releasedOnly.slice(0, limit);
+
+  if (feedReleases.length === 0) return null;
+
+  const projectPath = `changelog/${project.id}`;
+  const feedUrl = `${SITE_URL}/${projectPath}.xml`;
+  const siteUrl = `${SITE_URL}/${projectPath}`;
+
+  const feed = new Feed({
+    title: `${project.name} Changelog`,
+    description: `Release notes and changelog for ${project.name}`,
+    id: siteUrl,
+    link: siteUrl,
+    language: "en",
+    favicon: `${SITE_URL}/favicon.svg`,
+    updated: new Date(feedReleases[0].created),
+    generator: "Tenzir Changelog",
+    feedLinks: {
+      atom: feedUrl,
+    },
+    author: FEED_AUTHOR,
+  });
+
+  for (const release of feedReleases) {
+    const entryUrl = `${SITE_URL}/changelog/${project.id}/${release.slug}`;
+
+    feed.addItem({
+      title: `${project.name} ${release.version}`,
+      id: entryUrl,
+      link: entryUrl,
+      description: stripIntroLinks(release.intro || ""),
+      content: generateEntryHtml(release),
+      date: new Date(release.created),
+      published: new Date(release.created),
+    });
+  }
+
+  return feed.atom1();
+}
+
+/**
+ * Generate unified Atom feed across all projects.
+ */
+function generateUnifiedAtomFeed(
+  projects,
+  projectVersions,
+  moduleVersions,
+  { limit = 50 } = {},
+) {
+  // Collect all released entries with dates
+  const allEntries = [];
+
+  for (const project of projects) {
+    const releases = projectVersions[project.id] || [];
+
+    for (const release of releases) {
+      if (release.isUnreleased) continue;
+      allEntries.push({
+        project,
+        release,
+        path: `changelog/${project.id}/${release.slug}`,
+        sortDate: new Date(release.created),
+      });
+    }
+
+    // Include module releases
+    if (project.modules) {
+      for (const mod of project.modules) {
+        const modReleases = moduleVersions[`${project.id}/${mod.id}`] || [];
+        for (const release of modReleases) {
+          if (release.isUnreleased) continue;
+          allEntries.push({
+            project: { ...mod, parentName: project.name },
+            release,
+            path: `changelog/${project.id}/${mod.id}/${release.slug}`,
+            sortDate: new Date(release.created),
+          });
+        }
+      }
+    }
+  }
+
+  // Sort by date (newest first) and limit
+  allEntries.sort((a, b) => b.sortDate - a.sortDate);
+  const feedEntries = allEntries.slice(0, limit);
+
+  if (feedEntries.length === 0) return null;
+
+  const feedUrl = `${SITE_URL}/changelog/feed.xml`;
+  const siteUrl = `${SITE_URL}/changelog`;
+
+  const feed = new Feed({
+    title: "Tenzir Changelog",
+    description: "Release notes across all Tenzir projects",
+    id: siteUrl,
+    link: siteUrl,
+    language: "en",
+    favicon: `${SITE_URL}/favicon.svg`,
+    updated: feedEntries[0].sortDate,
+    generator: "Tenzir Changelog",
+    feedLinks: {
+      atom: feedUrl,
+    },
+    author: FEED_AUTHOR,
+  });
+
+  for (const entry of feedEntries) {
+    const { project, release, path } = entry;
+    const entryUrl = `${SITE_URL}/${path}`;
+
+    // Title includes parent name for modules
+    const titlePrefix = project.parentName
+      ? `${project.parentName}: ${project.name}`
+      : project.name;
+
+    // Category for project identification
+    const categoryLabel = project.parentName
+      ? `${project.parentName}: ${project.name}`
+      : project.name;
+
+    feed.addItem({
+      title: `${titlePrefix} ${release.version}`,
+      id: entryUrl,
+      link: entryUrl,
+      description: stripIntroLinks(release.intro || ""),
+      content: generateEntryHtml(release),
+      date: new Date(release.created),
+      published: new Date(release.created),
+      category: [{ name: categoryLabel }],
+    });
+  }
+
+  return feed.atom1();
+}
+
+/**
+ * Generate and write all Atom feeds.
+ */
+async function generateFeeds(
+  projects,
+  projectVersions,
+  moduleVersions,
+  outputDir,
+) {
+  await fs.mkdir(outputDir, { recursive: true });
+  const generated = [];
+
+  // Per-project feeds
+  for (const project of projects) {
+    const releases = projectVersions[project.id] || [];
+    const feed = generateAtomFeed(project, releases);
+    if (feed) {
+      const filename = `${project.id}.xml`;
+      await fs.writeFile(path.join(outputDir, filename), feed);
+      generated.push(filename);
+    }
+  }
+
+  // Unified feed
+  const unifiedFeed = generateUnifiedAtomFeed(
+    projects,
+    projectVersions,
+    moduleVersions,
+  );
+  if (unifiedFeed) {
+    await fs.writeFile(path.join(outputDir, "feed.xml"), unifiedFeed);
+    generated.push("feed.xml");
+  }
+
+  return generated;
+}
+
+// =============================================================================
+// Sidebar Generation
+// =============================================================================
+
 /**
  * Generate TypeScript sidebar file content with topics.
  * Icons come from changelog-projects.json.
@@ -1130,7 +1439,8 @@ function generateTimelineEntries(releases, basePath) {
  * @param {string} [options.cardContent] - Card content for CardGrid mode
  * @param {string} [options.prefixContent] - Content to render before the CardGrid (full width)
  * @param {Array} [options.timelineEntries] - Timeline entries for release list
- * @param {string} [options.repository] - GitHub repository URL for the button
+ * @param {string} [options.repository] - GitHub repository path (e.g., "tenzir/tenzir")
+ * @param {string} [options.feedUrl] - RSS feed URL for the project
  */
 function generateIndexContent(
   name,
@@ -1142,6 +1452,7 @@ function generateIndexContent(
     prefixContent,
     timelineEntries,
     repository,
+    feedUrl,
   } = {},
 ) {
   const topicLine = topicId ? `\ntopic: ${topicId}` : "";
@@ -1150,12 +1461,12 @@ function generateIndexContent(
   const importLines = [];
   const starlightComponents = [];
 
-  if (useCardGrid) {
+  // Use LinkCard for GitHub + RSS cards when we have a repository
+  const useResourceCards = repository && (timelineEntries?.length > 0 || useCardGrid);
+
+  if (useCardGrid || useResourceCards) {
     importLines.push(`import LinkCard from '@components/LinkCard.astro';`);
     starlightComponents.push("CardGrid");
-  }
-  if (repository) {
-    starlightComponents.push("LinkButton");
   }
   if (timelineEntries && timelineEntries.length > 0) {
     importLines.push(`import Timeline from '@components/Timeline.astro';`);
@@ -1170,34 +1481,42 @@ function generateIndexContent(
   // Build body content
   let body = "";
 
-  // Header with description and optional GitHub button
+  // Description paragraph
   if (description) {
-    if (repository) {
-      const repoUrl = repository.startsWith("http")
-        ? repository
-        : `https://github.com/${repository}`;
-      body += `<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--tnz-space-4); margin-bottom: var(--tnz-space-6);">
-  <p style="margin: 0;">${description}</p>
-  <LinkButton href="${repoUrl}" icon="github" variant="secondary" style="flex-shrink: 0;">GitHub</LinkButton>
-</div>\n\n`;
-    } else {
-      body += description + "\n\n";
-    }
+    body += `<p style="margin-bottom: var(--tnz-space-4);">${description}</p>\n\n`;
   }
 
-  // Prefix content (e.g., unreleased card before module grid)
-  if (prefixContent) {
-    body += prefixContent;
+  // GitHub + RSS Feed cards
+  if (useResourceCards) {
+    const repoUrl = repository.startsWith("http")
+      ? repository
+      : `https://github.com/${repository}/releases`;
+    body += `<CardGrid>\n`;
+    body += `  <LinkCard title="GitHub" href="${repoUrl}" icon="github" description="Download releases and artifacts" />\n`;
+    if (feedUrl) {
+      body += `  <LinkCard title="RSS Feed" href="${feedUrl}" icon="rss" description="Subscribe to release updates" />\n`;
+    }
+    body += `</CardGrid>\n\n`;
   }
 
   // Main content: either CardGrid or Timeline
   if (useCardGrid && cardContent) {
+    // Add section heading before releases
+    body += `## Releases\n\n`;
+    // Prefix content (e.g., root project card before module grid)
+    if (prefixContent) {
+      body += prefixContent;
+    }
     body += `<CardGrid>\n${cardContent}\n</CardGrid>`;
   } else if (timelineEntries && timelineEntries.length > 0) {
+    // Add section heading before timeline
+    body += `## Releases\n\n`;
     // Generate Timeline component with entries
     const entriesJson = JSON.stringify(timelineEntries, null, 2);
     body += `<Timeline entries={${entriesJson}} />`;
-  } else if (!prefixContent) {
+  } else if (prefixContent) {
+    body += prefixContent;
+  } else {
     body += "No releases available yet.";
   }
 
@@ -1453,6 +1772,7 @@ async function syncChangelog(newsRepoPath) {
           cardContent: moduleCardsList,
           prefixContent: prefixCards || undefined,
           repository: changelogProjects[project.id]?.repository,
+          feedUrl: `/changelog/${project.id}.xml`,
         },
       );
       await fs.writeFile(indexPath, indexContent);
@@ -1468,6 +1788,7 @@ async function syncChangelog(newsRepoPath) {
         {
           timelineEntries,
           repository: changelogProjects[project.id]?.repository,
+          feedUrl: `/changelog/${project.id}.xml`,
         },
       );
       await fs.writeFile(indexPath, indexContent);
@@ -1512,9 +1833,18 @@ tableOfContents: false
 ---
 
 import UnifiedTimeline from "@components/UnifiedTimeline.astro";
+import LinkCard from "@components/LinkCard.astro";
+import { CardGrid } from "@astrojs/starlight/components";
 
 Browse all release updates across Tenzir projects in reverse-chronological
 order. Use the toggle to include unreleased changes that are in development.
+
+<CardGrid>
+  <LinkCard title="GitHub" href="https://github.com/tenzir" icon="github" description="Tenzir open source projects" />
+  <LinkCard title="RSS Feed" href="/changelog/feed.xml" icon="rss" description="Subscribe to all release updates" />
+</CardGrid>
+
+## Releases
 
 <UnifiedTimeline />
 `;
@@ -1555,9 +1885,14 @@ import { LinkButton } from '@astrojs/starlight/components';
 Welcome to the Tenzir changelog hub. Here you can find release notes, feature
 updates, and behind-the-scenes improvements across our projects.
 
-<LinkButton href="/changelog/timeline/${latestTimelineYear}" icon="right-arrow" variant="secondary">
-  View all changes chronologically
-</LinkButton>
+<div style="display: flex; gap: var(--tnz-space-2); flex-wrap: wrap;">
+  <LinkButton href="/changelog/timeline/${latestTimelineYear}" icon="right-arrow" variant="secondary">
+    View all changes chronologically
+  </LinkButton>
+  <LinkButton href="/changelog/feed.xml" icon="rss" variant="secondary">
+    RSS Feed
+  </LinkButton>
+</div>
 
 <div class="card-grid" style="margin-top: var(--tnz-space-6);">
 
@@ -1583,6 +1918,16 @@ our [Discord](https://tenzir.com/discord).
     timelineYears,
   );
   await fs.writeFile(sidebarFilePath, sidebarContent);
+
+  // Generate Atom feeds
+  const feedsDir = path.join(docsRoot, "public/changelog");
+  const generatedFeeds = await generateFeeds(
+    projects,
+    projectVersions,
+    moduleVersions,
+    feedsDir,
+  );
+  console.log(`  feeds: ${generatedFeeds.length} (${generatedFeeds.join(", ")})`);
 
   console.log(
     `\nGenerated ${totalPages} pages, ${unifiedEntries.length} timeline entries`,
