@@ -1,0 +1,17 @@
+---
+import PlugIcon from '../icons/PlugIcon.astro';
+
+const path = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const href = `/integrations/${path}`;
+// Convert path to title: "microsoft/windows-event-logs" -> "Windows event logs"
+const title = path
+  .split('/')
+  .pop()!
+  .split('-')
+  .map((word, i) => i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word)
+  .join(' ');
+---
+
+<span class="inline-icon-wrapper" data-tooltip="Integration"><PlugIcon class="inline-icon" /></span><a href={href}>{title}</a>
