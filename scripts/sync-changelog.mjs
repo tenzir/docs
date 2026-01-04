@@ -1889,7 +1889,7 @@ updates, and behind-the-scenes improvements across our projects.
   <LinkButton href="/changelog/timeline/${latestTimelineYear}" icon="right-arrow" variant="secondary">
     View all changes chronologically
   </LinkButton>
-  <LinkButton href="/changelog/feed.xml" icon="rss" variant="secondary">
+  <LinkButton href="/changelog/feed.xml" icon="rss" variant="minimal">
     RSS Feed
   </LinkButton>
 </div>
