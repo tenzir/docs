@@ -8,7 +8,7 @@ This feature is currently only available on the command line using the
 you can also use it from the app.
 :::
 
-Tenzir provdides several features to transform historical data at a node.
+Tenzir provides several features to transform historical data at a node.
 
 ## Delete old data when reaching storage quota
 
@@ -142,30 +142,32 @@ plugins:
         - after: 2 days
           name: uri_scrubbing
           pipeline: |
-            replace net.url="xxx"
+            net.url = "xxx"
           types:
             - zeek.http
             - suricata.http
         - after: 7 days
           name: flow_reduction
           pipeline: |
-            summarize
+            timestamp = timestamp.floor(10min)
+            summarize \
+              timestamp,
+              src_ip,
+              dest_ip,
               pkts_toserver=sum(flow.pkts_toserver),
               pkts_toclient=sum(flow.pkts_toclient),
               bytes_toserver=sum(flow.bytes_toserver),
               bytes_toclient=sum(flow.bytes_toclient),
               start=min(flow.start),
               end=max(flow.end)
-            by
-              timestamp,
-              src_ip,
-              dest_ip
-            resolution
-              10 mins
           preserve-input: true
           types:
             - suricata.flow
 ```
+
+This compaction rule works based on the import time of events. If we want to
+compact based on timestamps stored in the event instead, we can add an
+additional `field: timestamp` specifier to the rule above.
 
 ## Trigger a compaction cycle manually
 
