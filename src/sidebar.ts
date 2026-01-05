@@ -134,7 +134,6 @@ export const guides = [
       "guides/contribution/code-of-conduct",
       "guides/contribution/workflow",
       "guides/contribution/coding-style",
-      "guides/contribution/build-environment",
       "guides/contribution/documentation",
       "guides/contribution/security",
     ],
