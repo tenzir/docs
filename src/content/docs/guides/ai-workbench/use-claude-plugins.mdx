@@ -1,0 +1,237 @@
+---
+title: Use Claude plugins
+description: Enhance Claude Code with TQL, OCSF, and documentation plugins
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Claude Code supports [plugins](https://docs.claude.ai/en/docs/claude-code/plugins)
+that extend the agent with specialized skills, subagents, and hooks. The
+[Tenzir Claude Marketplace](/reference/claude-plugins) provides plugins tailored
+for Tenzir workflows.
+
+This guide covers three user-focused plugins:
+
+| Plugin | Description                                      | Reference                                 |
+| ------ | ------------------------------------------------ | ----------------------------------------- |
+| TQL    | Write pipelines with live documentation lookups  | [Install](/reference/claude-plugins/tql)  |
+| OCSF   | Navigate the Open Cybersecurity Schema Framework | [Install](/reference/claude-plugins/ocsf) |
+| Docs   | Query Tenzir documentation interactively         | [Install](/reference/claude-plugins/docs) |
+
+## TQL plugin
+
+The TQL plugin helps you write data pipelines with expert guidance. It
+auto-activates when you work with TQL code and spawns a documentation subagent
+for real-time operator lookups.
+
+### What it does
+
+- Loads TQL language fundamentals (types, expressions, operators)
+- Follows idiomatic patterns from the [Learn idiomatic TQL](/tutorials/learn-idiomatic-tql) tutorial
+- Spawns `docs:reader` to look up operators and functions on demand
+
+### Example prompts
+
+<details>
+<summary>Read Zeek logs, enrich with GeoIP, publish to Kafka</summary>
+
+**Prompt:**
+
+```
+Read Zeek connection logs from a file called conn.log, enrich source IPs
+with GeoIP data, and publish to Kafka topic "enriched-connections".
+```
+
+**Response:**
+
+First, create a GeoIP context (one-time setup):
+
+```tql
+context::create_geoip "geoip", db_path="GeoLite2-City.mmdb"
+```
+
+Then run the pipeline:
+
+```tql
+load_file "conn.log"
+read_zeek_tsv
+context::enrich "geoip", key=id.orig_h, into=src_geo
+to_kafka "enriched-connections"
+```
+
+**Explanation:**
+
+1. `load_file "conn.log"` - Reads raw bytes from the Zeek connection log file
+2. `read_zeek_tsv` - Parses the Zeek TSV format with `#fields` header
+3. `context::enrich "geoip", key=id.orig_h, into=src_geo` - Enriches the source
+   IP with geographic data (country, city, coordinates)
+4. `to_kafka "enriched-connections"` - Publishes each event as JSON to Kafka
+
+**Enriching both endpoints:**
+
+```tql
+load_file "conn.log"
+read_zeek_tsv
+context::enrich "geoip", key=id.orig_h, into=src_geo
+context::enrich "geoip", key=id.resp_h, into=dst_geo
+to_kafka "enriched-connections"
+```
+
+</details>
+
+## OCSF plugin
+
+The OCSF plugin provides reference documentation for the [Open Cybersecurity
+Schema Framework](https://schema.ocsf.io). Use it when mapping security logs to
+standardized event classes.
+
+### What it does
+
+- Navigates OCSF event classes, objects, attributes, and profiles
+- Covers multiple OCSF versions
+- Provides a dedicated `@ocsf:guide` subagent for schema questions
+
+### Using the subagent
+
+Delegate OCSF questions directly to the guide using the `@ocsf:guide` mention:
+
+<details>
+<summary>What class for firewall block events?</summary>
+
+**Prompt:**
+
+```
+@ocsf:guide What OCSF class should I use for firewall block events? Include
+the required fields and show an example of how the mapped event should look.
+```
+
+**Response:**
+
+For firewall block events, use the **Network Activity class (4001)**.
+
+The specific action would be recorded in the `action` field to indicate a
+block/deny action, and the result should show the connection was denied.
+
+**Required fields:**
+
+- `time` - When the event occurred
+- `class_uid` - Must be `4001` for Network Activity
+- `category_uid` - Must be `4` for Network Activity
+- `severity_id` - Severity level (1-6)
+- `src_endpoint` - Source network endpoint (IP, port)
+- `dst_endpoint` - Destination network endpoint (IP, port)
+- `action` / `action_id` - Action taken (allow, deny, drop)
+
+**Example mapped event:**
+
+```json
+{
+  "time": 1704413400000,
+  "class_uid": 4001,
+  "category_uid": 4,
+  "severity_id": 3,
+  "action_id": 2,
+  "action": "Deny",
+  "metadata": {
+    "product": {
+      "name": "FortiGate",
+      "vendor_name": "Fortinet"
+    },
+    "version": "7.2.0"
+  },
+  "src_endpoint": {
+    "ip": "192.168.1.100",
+    "port": 54321
+  },
+  "dst_endpoint": {
+    "ip": "203.0.113.45",
+    "port": 443
+  }
+}
+```
+
+</details>
+
+The subagent returns focused answers without searching the broader codebase.
+
+## Docs plugin
+
+The Docs plugin helps you navigate Tenzir documentation. Its `docs:reader`
+subagent answers questions about operators, functions, and platform features.
+
+### What it does
+
+- Answers questions by browsing live documentation
+- Provides accurate operator and function references
+- Works alongside the TQL plugin for code generation
+
+### Using the subagent
+
+Query documentation directly using the `@docs:reader` mention:
+
+<details>
+<summary>How do lookup tables work?</summary>
+
+**Prompt:**
+
+```
+@docs:reader How do lookup tables work? Show me the syntax and an example
+of enriching events with a lookup table.
+```
+
+**Response:**
+
+Lookup tables are contexts that store reference data for enriching events.
+
+**Create a lookup table:**
+
+```tql
+context::create_lookup_table "user_roles"
+```
+
+**Populate it with data:**
+
+```tql
+from {user_id: 1001, role: "admin", department: "IT"},
+     {user_id: 1002, role: "analyst", department: "Security"}
+context::update "user_roles", key=user_id
+```
+
+**Enrich events:**
+
+```tql
+from {user_id: 1002, action: "login", timestamp: 2024-01-15T10:30:00}
+context::enrich "user_roles", key=user_id
+```
+
+**Result:**
+
+```json
+{
+  "user_id": 1002,
+  "action": "login",
+  "timestamp": "2024-01-15T10:30:00",
+  "user_roles": {
+    "user_id": 1002,
+    "role": "analyst",
+    "department": "Security"
+  }
+}
+```
+
+Lookup tables also support longest-prefix matching for subnet keys, which is
+useful for network inventory enrichment.
+
+</details>
+
+### When to use it
+
+- **Learning operators**: Ask about unfamiliar operators before using them
+- **Checking syntax**: Verify function signatures and options
+- **Finding examples**: Request usage examples from documentation
+
+## Next steps
+
+- [Generate a parser](/guides/ai-workbench/generate-a-parser) with the MCP server
+- [Generate an OCSF mapping](/guides/ai-workbench/generate-an-ocsf-mapping) for normalized output
+- Browse the [Claude Marketplace reference](/reference/claude-plugins) for all available plugins
