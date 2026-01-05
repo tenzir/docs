@@ -119,7 +119,7 @@ cmake --preset nix-clang-release
 cmake --build --preset nix-clang-release
 ```
 
-For faster builds, configure the Tenzir binary cache:
+For pre-built dependencies, configure the Tenzir binary cache:
 
 ```sh
 nix run nixpkgs#cachix -- use tenzir
@@ -131,12 +131,10 @@ this doesn't support incremental builds.
 To build static binaries on Linux:
 
 ```sh
-nix develop
-cmake --preset nix-clang-static-release
-cmake --build --preset nix-clang-static-release
+nix develop .#tenzir-static.unchecked
+cmake --preset nix-static-release
+cmake --build --preset nix-static-release
 ```
-
-Alternatively, use the helper script `nix/static-binary.sh`.
 
 ## Dependencies
 
