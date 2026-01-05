@@ -37,6 +37,7 @@ and `select`, update each operator's reference page:
 | Guide        | `<Guide>`       | `category/guide-slug`       |
 | Tutorial     | `<Tutorial>`    | `tutorial-slug`             |
 | Explanation  | `<Explanation>` | `category/explanation-slug` |
+| Integration  | `<Integration>` | `vendor/integration-slug`   |
 
 ## Required Imports
 
@@ -46,6 +47,7 @@ Ensure the reference page imports the component:
 import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 import Explanation from '@components/see-also/Explanation.astro';
+import Integration from '@components/see-also/Integration.astro';
 ```
 
 ## Ordering
@@ -57,3 +59,4 @@ In See Also sections, maintain this order:
 3. Guides (`<Guide>`)
 4. Tutorials (`<Tutorial>`)
 5. Explanations (`<Explanation>`)
+6. Integrations (`<Integration>`)

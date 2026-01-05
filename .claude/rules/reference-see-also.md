@@ -17,6 +17,7 @@ import Fn from '@components/see-also/Fn.astro';
 import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 import Explanation from '@components/see-also/Explanation.astro';
+import Integration from '@components/see-also/Integration.astro';
 ```
 
 ## See Also Format
@@ -28,6 +29,7 @@ Use a bullet list with one component per line, in this order:
 3. Guides (`<Guide>`)
 4. Tutorials (`<Tutorial>`)
 5. Explanations (`<Explanation>`)
+6. Integrations (`<Integration>`)
 
 ```mdx
 ## See Also
@@ -37,6 +39,7 @@ Use a bullet list with one component per line, in this order:
 - <Guide>category/guide-slug</Guide>
 - <Tutorial>tutorial-slug</Tutorial>
 - <Explanation>category/explanation-slug</Explanation>
+- <Integration>vendor/integration-slug</Integration>
 ```
 
 ## Component Usage
@@ -48,6 +51,7 @@ Use a bullet list with one component per line, in this order:
 | `<Guide>`       | Link to guide              | `<Guide>data-shaping/filter-and-select-data</Guide>` |
 | `<Tutorial>`    | Link to tutorial           | `<Tutorial>learn-idiomatic-tql</Tutorial>`           |
 | `<Explanation>` | Link to explanation        | `<Explanation>language/operators</Explanation>`      |
+| `<Integration>` | Link to integration        | `<Integration>kafka</Integration>`                   |
 
 ## Finding Relevant Cross-References
 
