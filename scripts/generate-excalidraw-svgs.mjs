@@ -123,9 +123,18 @@ const CONTENT_DIR = path.join(ROOT_DIR, "src/content");
  */
 async function findExcalidrawFiles(dir) {
   const results = [];
-  for await (const file of fs.glob("**/*.excalidraw", { cwd: dir })) {
-    results.push(path.join(dir, file));
+  async function walk(currentDir) {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+      } else if (entry.name.endsWith(".excalidraw")) {
+        results.push(fullPath);
+      }
+    }
   }
+  await walk(dir);
   return results;
 }
 
