@@ -1,0 +1,73 @@
+---
+title: parallel
+category: Flow Control
+example: 'parallel 4 { parsed = data.parse_json() }'
+---
+
+import Op from '@components/see-also/Op.astro';
+
+Runs a subpipeline across multiple parallel workers.
+
+```tql
+parallel jobs:int { … }
+```
+
+## Description
+
+The `parallel` operator distributes incoming events across multiple parallel
+instances of a subpipeline. Each event is processed by exactly one worker.
+
+Use this operator to parallelize CPU-intensive transformations or I/O-bound
+operations that would otherwise bottleneck on a single thread.
+
+This operator may reorder the event stream since workers process events
+concurrently.
+
+:::caution[Expert Operator]
+The `parallel` operator is a building block for performance optimization. Use it
+when you have identified a specific bottleneck that benefits from
+parallelization. Not all operations scale linearly with parallelism.
+:::
+
+### `jobs: int`
+
+The number of parallel workers to spawn. Must be greater than zero.
+
+### `{ … }`
+
+The subpipeline to run in parallel. The subpipeline receives events as input and
+may either:
+
+- Produce events as output (transformation)
+- End with a sink (void output)
+
+The subpipeline must not produce bytes as output.
+
+## Examples
+
+### Parse JSON in parallel
+
+Parse raw JSON strings across multiple workers:
+
+```tql
+subscribe "raw"
+parallel 4 {
+  parsed = data.parse_json()
+}
+```
+
+### Make parallel HTTP requests
+
+Send events to Google SecOps with 4 concurrent connections:
+
+```tql
+subscribe "events"
+parallel 4 {
+  to_google_secops customer_id="…", private_key=secret("secops_key"),
+                   client_email="…", log_type="…", log_text=raw
+}
+```
+
+## See Also
+
+- <Op>load_balance</Op>
