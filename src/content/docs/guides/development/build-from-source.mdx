@@ -110,8 +110,8 @@ docker build -t tenzir/tenzir-dev --target development .
 
 ## Nix
 
-We use [Nix](https://nixos.org) for reproducible builds on Linux. The flake
-provides all [dependencies](#dependencies):
+We use [Nix](https://nixos.org) for reproducible builds on Linux and macOS. The
+flake provides all [dependencies](#dependencies):
 
 ```sh
 nix develop
@@ -119,22 +119,24 @@ cmake --preset nix-clang-release
 cmake --build --preset nix-clang-release
 ```
 
-You can also delegate the entire build to Nix with `nix build`, but this doesn't
-support incremental builds.
-
-For automatic shell setup via [direnv](https://direnv.net), create `.envrc`:
-
-```
-use flake
-```
-
-To build static binaries, use the static environment and presets:
+For faster builds, configure the Tenzir binary cache:
 
 ```sh
-nix develop .#tenzir-static
+nix run nixpkgs#cachix -- use tenzir
+```
+
+You can also delegate the entire build to Nix with `nix build .#tenzir-de`, but
+this doesn't support incremental builds.
+
+To build static binaries on Linux:
+
+```sh
+nix develop
 cmake --preset nix-clang-static-release
 cmake --build --preset nix-clang-static-release
 ```
+
+Alternatively, use the helper script `nix/static-binary.sh`.
 
 ## Dependencies
 
