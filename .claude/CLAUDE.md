@@ -24,6 +24,12 @@ For comprehensive contributor documentation including local development setup,
 image optimization, and diagram workflows, see
 [Documentation Guide](/guides/contribution/documentation).
 
+### Headings and Titles
+
+Use **sentence case** for all headings and page titles. Capitalize only the
+first word, the first word after a colon, and proper nouns (product names,
+acronyms like OCSF or MCP).
+
 ## Partials
 
 Import reusable content from `/src/partials/`:
