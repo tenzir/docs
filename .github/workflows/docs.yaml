@@ -54,6 +54,9 @@ jobs:
         if: github.event_name != 'pull_request'
         run: pnpm generate:claude-plugins
 
+      - name: Generate Excalidraw SVGs
+        run: pnpm generate:excalidraw
+
       - name: Setup GitHub Pages
         id: pages
         uses: actions/configure-pages@v5
