@@ -9,9 +9,9 @@ import starlightOpenAPI from "starlight-openapi";
 import starlightLlmsTxt from "starlight-llms-txt";
 import rehypeExternalLinks from "rehype-external-links";
 import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
+import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
 import { topics, topicPaths } from "./src/topics";
 import { bundledLanguages } from "shiki";
-import inlineSVGs from "./src/utils/inline-svgs.mjs";
 import { generateRedirects } from "./src/utils/redirects.mjs";
 import {
   nodeAPISidebarGroup,
@@ -201,7 +201,6 @@ export default defineConfig({
         starlightSidebarTopics(topics, { topics: topicPaths }),
       ],
     }),
-    inlineSVGs(),
   ],
   markdown: {
     shikiConfig: {
@@ -213,7 +212,7 @@ export default defineConfig({
       },
       langs: [...Object.keys(bundledLanguages)],
     },
-    remarkPlugins: [remarkSeeAlsoLinks],
+    remarkPlugins: [remarkExcalidrawLinks, remarkSeeAlsoLinks],
     rehypePlugins: [
       [
         rehypeExternalLinks,
@@ -221,8 +220,8 @@ export default defineConfig({
       ],
     ],
   },
-  // Disable built-in image optimization. We need this so that our SVG hoisting
-  // works.
+  // Disable built-in image optimization for SVGs to preserve their content
+  // for inline SVG rendering (dark mode CSS support).
   image: {
     service: passthroughImageService(),
   },

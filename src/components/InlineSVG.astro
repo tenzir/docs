@@ -1,0 +1,31 @@
+---
+/**
+ * Inline SVG component that reads an SVG file and embeds it directly in HTML.
+ *
+ * This enables CSS dark mode styling since the SVG elements are in the DOM.
+ *
+ * Usage:
+ *   import InlineSVG from '@components/InlineSVG.astro';
+ *   <InlineSVG src={import("./diagram.svg?raw")} alt="Diagram description" />
+ */
+import { injectSvgAttrs } from "../utils/html";
+
+interface Props {
+  /** SVG content passed via dynamic import with ?raw query */
+  src: Promise<{ default: string }>;
+  /** Alt text for accessibility */
+  alt: string;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const { src, alt, class: className } = Astro.props;
+
+// Resolve the import promise to get the raw SVG string
+const svgModule = await src;
+const classes = ["inline-svg", className].filter(Boolean).join(" ");
+const svgContent = injectSvgAttrs(svgModule.default, classes, alt);
+---
+
+{/* eslint-disable-next-line astro/no-set-html-directive -- Safe: SVG from trusted source files */}
+<Fragment set:html={svgContent} />

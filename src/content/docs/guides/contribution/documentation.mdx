@@ -10,14 +10,15 @@ https://github.com/tenzir/docs. We use [Astro](https://astro.build) with
 
 ### Essential Commands
 
-| Command                   | Action                                                            |
-| :------------------------ | :---------------------------------------------------------------- |
-| `pnpm install`            | Install dependencies                                              |
-| `pnpm dev`                | Start local dev server at `localhost:4321`                        |
-| `pnpm build`              | Build production site to `./dist/`                                |
-| `pnpm preview`            | Preview build locally before deploying                            |
-| `pnpm generate:changelog` | Sync changelog from [tenzir/news](https://github.com/tenzir/news) |
-| `pnpm generate:docs-map`  | Generate documentation map for AI agents                          |
+| Command                    | Action                                                            |
+| :------------------------- | :---------------------------------------------------------------- |
+| `pnpm install`             | Install dependencies                                              |
+| `pnpm dev`                 | Start local dev server at `localhost:4321`                        |
+| `pnpm build`               | Build production site to `./dist/`                                |
+| `pnpm preview`             | Preview build locally before deploying                            |
+| `pnpm generate:changelog`  | Sync changelog from [tenzir/news](https://github.com/tenzir/news) |
+| `pnpm generate:docs-map`   | Generate documentation map for AI agents                          |
+| `pnpm generate:excalidraw` | Convert `.excalidraw` diagrams to SVG                             |
 
 ### Development Commands
 
@@ -176,9 +177,40 @@ optimized structure.
 We use [Excalidraw](https://excalidraw.com) as primary tool to create sketches
 of architectural diagrams.
 
-When exporting Excalidraw scenes, always **use light mode** and **choose SVG**
-as export format, as we have some CSS magic in place that automatically inverts
-colors SVGs so that they also look nicely when using dark mode.
+### Creating New Diagrams
+
+For new diagrams, save the `.excalidraw` source file directly in the content
+directory alongside your markdown:
+
+1. Create your diagram in Excalidraw (use light mode)
+2. Save as `diagram-name.excalidraw` in the same directory as your markdown file
+3. Reference it in markdown: `![Alt text](diagram-name.excalidraw)`
+4. Run `pnpm generate:excalidraw` to generate the SVG
+
+The build process converts `.excalidraw` files to `.excalidraw.svg` and inlines
+them directly into the HTML. This enables automatic dark mode support via CSS.
+
+Generated `.excalidraw.svg` files are gitignored—only the `.excalidraw` source
+files are tracked.
+
+:::caution[Don't commit exported SVGs]
+Always commit `.excalidraw` source files, not exported SVGs. Source files are
+editable, diffable, and the build generates optimized SVGs automatically.
+:::
+
+:::tip[AI-assisted diagramming]
+Our [Excalidraw Claude plugin](https://github.com/tenzir/claude-plugins/tree/main/plugins/excalidraw)
+enables Claude to create and edit `.excalidraw` files directly. This is useful
+for generating diagrams from descriptions or making quick edits without leaving
+your editor.
+:::
+
+### Editing Existing SVGs
+
+Some older diagrams exist only as exported SVGs. When exporting Excalidraw
+scenes manually, always **use light mode** and **choose SVG** as export format,
+as we have CSS in place that automatically inverts colors so diagrams look nice
+in dark mode.
 
 Tenzir developers have access to our Excalidraw [Documentation
 collection](https://app.excalidraw.com/o/6dBWEFf9h1l/9RErQkL9e2v). For everyone

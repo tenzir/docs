@@ -20,6 +20,10 @@ for Tenzir (https://tenzir.com).
 When writing or editing documentation content, invoke the `docs:authoring` skill
 for Diátaxis framework guidance, file format details, and writing style.
 
+For comprehensive contributor documentation including local development setup,
+image optimization, and diagram workflows, see
+[Documentation Guide](/guides/contribution/documentation).
+
 ## Partials
 
 Import reusable content from `/src/partials/`:
@@ -52,6 +56,10 @@ Some content is auto-generated and excluded from linting:
   ```
 - **Docs Map**: Run `pnpm generate:docs-map` to create the documentation map.
   Generated file: `public/sitemap.md`.
+- **Excalidraw Diagrams**: Run `pnpm generate:excalidraw` to convert `.excalidraw`
+  source files to SVG. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
+  The remark plugin inlines the corresponding `foo.excalidraw.svg` directly into
+  HTML for CSS dark mode support. Generated SVGs are gitignored.
 
 ### Linting
 

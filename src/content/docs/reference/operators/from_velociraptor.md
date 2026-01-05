@@ -16,7 +16,7 @@ from_velociraptor [request_name=string, org_id=string, max_rows=int,
 The `from_velociraptor` input operator provides a request-response interface to
 a [Velociraptor](https://docs.velociraptor.app) server:
 
-![Velociraptor](velociraptor.excalidraw.svg)
+![Velociraptor](velociraptor.svg)
 
 The pipeline operator is the client and it establishes a connection to a
 Velociraptor server. The client request contains a query written in the

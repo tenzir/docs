@@ -15,7 +15,7 @@ yara rule:list<string>, [blockwise=bool, compiled_rules=bool, fast_scan=bool]
 The `yara` operator applies [YARA](https://virustotal.github.io/yara/) rules to
 an input of bytes, emitting rule context upon a match.
 
-![YARA Operator](yara-operator.excalidraw.svg)
+![YARA Operator](yara-operator.svg)
 
 We modeled the operator after the official [`yara` command-line
 utility](https://yara.readthedocs.io/en/stable/commandline.html) to enable a
