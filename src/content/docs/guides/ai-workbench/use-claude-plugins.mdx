@@ -1,0 +1,297 @@
+---
+title: Use Claude plugins
+description: Enhance Claude Code with TQL, OCSF, and documentation plugins
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Claude Code supports [plugins](https://docs.claude.ai/en/docs/claude-code/plugins)
+that extend the agent with specialized skills, subagents, and hooks. The
+[Tenzir Claude Marketplace](/reference/claude-plugins) provides plugins tailored
+for Tenzir workflows.
+
+## Plugins
+
+This guide covers three user-focused plugins:
+
+- [TQL](/reference/claude-plugins/tql): Write pipelines and build parser packages
+- [OCSF](/reference/claude-plugins/ocsf): Navigate the Open Cybersecurity Schema Framework
+- [Docs](/reference/claude-plugins/docs): Query Tenzir documentation interactively
+
+### TQL plugin
+
+The TQL plugin helps you write data pipelines with expert guidance. Its
+`tql:writing-programs` skill activates when you work with TQL code, loading
+language fundamentals and idiomatic patterns from the [Learn idiomatic
+TQL](/tutorials/learn-idiomatic-tql) tutorial. The model can spawn the
+`docs:reader` subagent for real-time operator lookups. The plugin also provides
+[`/tql:make_parser`](/guides/ai-workbench/generate-a-parser) and
+[`/tql:make_ocsf_mapping`](/guides/ai-workbench/generate-an-ocsf-mapping) slash
+commands for guided package creation workflows.
+
+<Tabs>
+<TabItem label="Prompt" icon="pencil">
+
+```
+Write a TQL pipeline that reads Zeek TSV logs from a TCP socket, extracts the
+connection 4-tuple, log ID, inbound/outbound bytes, and then sends the data to
+the kafka topic "flows".
+```
+
+</TabItem>
+<TabItem label="Response" icon="document">
+
+Based on the documentation, here's the TQL pipeline:
+
+```tql
+load_tcp "0.0.0.0:9999" {
+  read_zeek_tsv
+}
+select \
+  uid,
+  src_ip=id.orig_h,
+  src_port=id.orig_p,
+  dst_ip=id.resp_h,
+  dst_port=id.resp_p,
+  orig_bytes,
+  resp_bytes,
+to_kafka "flows"
+```
+
+**Explanation**
+
+| Operator                  | Purpose                                                              |
+| ------------------------- | -------------------------------------------------------------------- |
+| `load_tcp "0.0.0.0:9999"` | Listens on TCP port 9999 for incoming connections                    |
+| `{ read_zeek_tsv }`       | Per-connection pipeline that parses Zeek's tab-separated format      |
+| `select`                  | Extracts only the requested fields, renaming the 4-tuple for clarity |
+| `to_kafka "flows"`        | Publishes each event as JSON to the Kafka topic "flows"              |
+
+**Field mapping**
+
+For Zeek conn.log, the connection 4-tuple uses `id.*` fields:
+
+- `id.orig_h` / `id.orig_p` — source IP and port
+- `id.resp_h` / `id.resp_p` — destination IP and port
+- `uid` — unique connection identifier
+- `orig_bytes` / `resp_bytes` — bytes sent by originator and responder
+
+If you need to configure Kafka broker settings, add the `options` parameter:
+
+```tql
+to_kafka "flows", options={
+  "bootstrap.servers": "kafka.example.com:9092",
+}
+```
+
+</TabItem>
+</Tabs>
+
+### OCSF plugin
+
+The OCSF plugin provides reference documentation for the [Open Cybersecurity
+Schema Framework](https://schema.ocsf.io), covering event classes, objects,
+attributes, and profiles across multiple OCSF versions. Use it when mapping
+security logs to standardized event classes. The model can spawn the
+`ocsf:guide` subagent for schema questions.
+
+<Tabs>
+<TabItem label="Prompt" icon="pencil">
+
+```
+What OCSF class for firewall blocks?
+```
+
+</TabItem>
+<TabItem label="Response" icon="document">
+
+For firewall blocks, use **Network Activity** (`class_uid`: **4001**).
+
+This class reports network connection and traffic activity, including firewall
+blocks. Key attributes for firewall events:
+
+- `action_id` (recommended): Specifies the action taken (e.g., allow, block,
+  deny)
+- `disposition_id` (recommended): Indicates the outcome (allowed, blocked, etc.)
+- `firewall_rule` (optional): The firewall rule object that triggered the action
+- `src_endpoint` / `dst_endpoint` (recommended): Source and destination network
+  endpoints
+- `connection_info` (recommended): Connection details (protocol, ports, etc.)
+
+**Example use case**: When a firewall blocks a connection attempt, create a
+Network Activity event with:
+
+- `class_uid` = 4001
+- `activity_id` = appropriate network activity type
+- `action_id` = block/deny
+- `firewall_rule` = details of the rule that triggered the block
+
+This is the standard OCSF approach rather than having a separate "Firewall
+Activity" class—firewall actions are modeled as network activities with
+firewall-specific context.
+
+</TabItem>
+</Tabs>
+
+<Tabs>
+<TabItem label="Prompt" icon="pencil">
+
+```
+When do I use is_alert?
+```
+
+</TabItem>
+<TabItem label="Response" icon="document">
+
+Use `is_alert = true` to signal that an event requires immediate attention by
+consumers (SIEM, stream processors, analysts, ticketing systems).
+
+**When to use `is_alert`**
+
+1. **Security Control Profile Events**: Set `is_alert = true` when a security
+   control (IDS/IPS, firewall, antimalware, DLP, access control) detects
+   something requiring attention:
+   - ✅ Firewall blocked connection due to rule violation
+   - ✅ Antimalware detected and quarantined malware
+   - ✅ DLP agent blocked file access due to policy
+   - ✅ IPS detected and blocked attack pattern
+
+   Example: A firewall blocks malicious traffic → Network Activity event with
+   Security Control profile, `is_alert = true`, appropriate severity
+
+2. **Detection Finding - Create Activity**: Set `is_alert = true` when creating
+   a Detection Finding that represents an alertable detection:
+   - ✅ UEBA system detects anomalous behavior → `activity_id = 1` (Create),
+     `is_alert = true`
+   - ✅ EDR creates detection of malicious process → `activity_id = 1` (Create),
+     `is_alert = true`
+   - ❌ Updating or closing existing finding → `activity_id = 2/3`,
+     `is_alert = false` or omit
+
+3. **Combined: Security Control + Detection Finding**: When analysis happens at
+   an enforcement point (e.g., EDR agent that both detects AND blocks), apply
+   Security Control profile to Detection Finding with `is_alert = true`.
+
+**Key distinction**
+
+- **Security Control**: Real-time monitoring/enforcement of single activities
+  (block, allow, quarantine)
+- **Detection Finding**: Analysis-based detections with lifecycle (create,
+  update, close), often consuming multiple events
+
+**Availability**
+
+As of OCSF 1.4+, `is_alert` is only available in:
+
+- Detection Finding (class 2004)
+- Data Security Finding (class 2006)
+- Security Control profile (can augment many classes)
+
+</TabItem>
+</Tabs>
+
+### Docs plugin
+
+The Docs plugin helps you navigate Tenzir documentation by browsing live
+content. The model can spawn the `docs:reader` subagent to answer questions
+about operators, functions, and platform features. It works alongside the TQL
+plugin for code generation.
+
+<Tabs>
+<TabItem label="Prompt" icon="pencil">
+
+```
+@docs:reader How do lookup tables work in TQL?
+```
+
+</TabItem>
+<TabItem label="Response" icon="document">
+
+Lookup tables are **hash tables that associate contextual information with
+enrichment keys**. They let you enrich events with external data by performing
+lookups based on one or more fields.
+
+**Core Syntax**
+
+Create a lookup table:
+
+```tql
+context::create_lookup_table "table_name"
+```
+
+Populate it with data:
+
+```tql
+from {key_field: value, metadata_field: data}
+context::update "table_name", key=key_field
+```
+
+Enrich events by looking up values:
+
+```tql
+from source
+context::enrich "table_name", key=lookup_field
+```
+
+View table contents:
+
+```tql
+context::inspect "table_name"
+```
+
+**Example: Enriching events with user roles**
+
+1. Create the lookup table:
+
+   ```tql
+   context::create_lookup_table "user_roles"
+   ```
+
+2. Add user data:
+
+   ```tql
+   from {user_id: 1001, role: "admin", department: "security"}
+   context::update "user_roles", key=user_id
+   ```
+
+3. Enrich incoming events:
+
+   ```tql
+   from {user_id: 1001, action: "login", timestamp: now()}
+   context::enrich "user_roles", key=user_id
+   ```
+
+This adds the matched user's `role` and `department` fields to each event based
+on `user_id`.
+
+**Advanced features**
+
+Compound keys - look up using multiple fields:
+
+```tql
+context::enrich "threat_intel", key={domain: dest_domain, port: dest_port}
+```
+
+Store results in a specific field:
+
+```tql
+context::enrich "subnets", key=src_ip, into=src_metadata
+```
+
+Network/subnet matching - supports longest-prefix matching for IP/subnet keys
+(e.g., `10.0.0.0/24` vs `10.0.0.0/22`).
+
+Entry expiration:
+
+```tql
+context::update "active_threats", key=indicator, create_timeout=7d, write_timeout=72h
+```
+
+</TabItem>
+</Tabs>
+
+## Next steps
+
+- [Generate a parser](/guides/ai-workbench/generate-a-parser) using MCP or the TQL plugin
+- [Generate an OCSF mapping](/guides/ai-workbench/generate-an-ocsf-mapping) using MCP or the TQL plugin
+- Browse the [Claude Marketplace reference](/reference/claude-plugins) for all available plugins

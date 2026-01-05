@@ -40,8 +40,10 @@ export const guides = [
     label: "AI Workbench",
     collapsed: true,
     items: [
+      { label: "Overview", link: "guides/ai-workbench" },
       "guides/ai-workbench/install-mcp-server",
       "guides/ai-workbench/configure-your-agent",
+      "guides/ai-workbench/use-claude-plugins",
       "guides/ai-workbench/generate-a-parser",
       "guides/ai-workbench/generate-an-ocsf-mapping",
     ],
