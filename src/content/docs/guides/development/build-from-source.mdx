@@ -4,22 +4,139 @@ title: Build from source
 
 import LinkCard from '@components/LinkCard.astro';
 
-Tenzir uses [CMake](https://cmake.org) as build system. Aside from a modern
-C++23 compiler, you need to ensure availability of the dependencies in the table
-below.
+Tenzir uses [CMake](https://cmake.org) as build system with a C++23 compiler.
+
+## Manual
+
+### Compile
+
+Clone the repository:
+
+```sh
+git clone --recursive https://github.com/tenzir/tenzir
+cd tenzir
+```
+
+Ensure all [dependencies](#dependencies) are available, then configure and
+build using a preset:
+
+```sh
+cmake --list-presets          # discover available presets
+cmake --preset <preset-name>
+cmake --build --preset <preset-name>
+```
+
+For example, to build a release on macOS:
+
+```sh
+cmake --preset macos-clang-release
+cmake --build --preset macos-clang-release
+```
+
+For custom configurations without presets:
+
+```sh
+cmake -B build -G Ninja
+cmake --build build
+```
+
+:::note
+CMake defaults to a `Debug` build. When performance matters, use
+`-DCMAKE_BUILD_TYPE=Release`.
+:::
+
+### Test
+
+Run unit tests via CTest:
+
+```sh
+ctest --test-dir build
+```
+
+Run integration tests via [tenzir-test](https://github.com/tenzir/tenzir-test):
+
+```sh
+cd test
+uvx tenzir-test
+```
+
+### Install
+
+Install Tenzir system-wide:
+
+```sh
+cmake --install build
+```
+
+Options:
+
+- `--prefix /path/to/prefix` — custom install location
+- `--strip` — remove debug symbols
+- `--component Runtime` — install only runtime files, not development headers
+
+### Clean
+
+Delete the build tree to start fresh:
+
+```sh
+rm -rf build
+```
+
+This avoids configuration glitches when switching build types.
+
+## Docker
+
+The [Dockerfile](https://github.com/tenzir/tenzir/blob/main/Dockerfile) provides
+multiple build targets.
+
+Build the default image:
+
+```sh
+docker build -t tenzir/tenzir .
+```
+
+Build the node image (runs `tenzir-node` as entrypoint):
+
+```sh
+docker build -t tenzir/tenzir-node --target tenzir-node .
+```
+
+Build the development image with all build-time dependencies for creating custom
+plugins:
+
+```sh
+docker build -t tenzir/tenzir-dev --target development .
+```
+
+## Nix
+
+We use [Nix](https://nixos.org) for reproducible builds on Linux. The flake
+provides all [dependencies](#dependencies):
+
+```sh
+nix develop
+cmake --preset nix-clang-release
+cmake --build --preset nix-clang-release
+```
+
+You can also delegate the entire build to Nix with `nix build`, but this doesn't
+support incremental builds.
+
+For automatic shell setup via [direnv](https://direnv.net), create `.envrc`:
+
+```
+use flake
+```
+
+To build static binaries, use the static environment and presets:
+
+```sh
+nix develop .#tenzir-static
+cmake --preset nix-clang-static-release
+cmake --build --preset nix-clang-static-release
+```
 
 ## Dependencies
-
-Every [release](https://github.com/tenzir/tenzir/releases) of Tenzir includes an
-[SBOM](https://en.wikipedia.org/wiki/Software_bill_of_materials) in
-[SPDX](https://spdx.dev) format that lists all dependencies and their versions.
-
-<LinkCard
-  title="Latest SBOM"
-  href="https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json"
-  description="Download the Software Bill of Materials in SPDX format"
-  icon="document"
-/>
 
 | Required |                           Dependency                           |    Version     | Description                                                                                                                                                      |
 | :------: | :------------------------------------------------------------: | :------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -30,7 +147,7 @@ Every [release](https://github.com/tenzir/tenzir/releases) of Tenzir includes an
 |    ✓     |      [FlatBuffers](https://google.github.io/flatbuffers/)      |    >= 2.0.8    | Memory-efficient cross-platform serialization library.                                                                                                           |
 |    ✓     |                 [Boost](https://www.boost.org)                 |   >= 1.83.0    | Required as a general utility library.                                                                                                                           |
 |    ✓     |            [Apache Arrow](https://arrow.apache.org)            |   >= 18.0.0    | Required for in-memory data representation. Must be built with Compute, Filesystem, S3, Zstd and Parquet enabled. For the `gcs` plugin, GCS needs to be enabled. |
-|    ✓     |              [re2](https://github.com/google/re2)              |                | Required for regular expressione evaluation.                                                                                                                     |
+|    ✓     |              [re2](https://github.com/google/re2)              |                | Required for regular expression evaluation.                                                                                                                      |
 |    ✓     |         [yaml-cpp](https://github.com/jbeder/yaml-cpp)         |    >= 0.6.2    | Required for reading YAML configuration files.                                                                                                                   |
 |    ✓     |        [simdjson](https://github.com/simdjson/simdjson)        |    >= 4.0.0    | Required for high-performance JSON parsing. (Bundled as submodule.)                                                                                              |
 |    ✓     |           [spdlog](https://github.com/gabime/spdlog)           |     >= 1.5     | Required for logging.                                                                                                                                            |
@@ -58,221 +175,18 @@ Every [release](https://github.com/tenzir/tenzir/releases) of Tenzir includes an
 |          |            [bats](https://bats-core.readthedocs.io)            |    >= 1.8.0    | Required to run the integration tests.                                                                                                                           |
 |          |             [uv](https://github.com/astral-sh/uv)              |    >= 0.7.2    | Required to run the python operator.                                                                                                                             |
 
-The minimum specified versions reflect those versions that we use in CI and
-manual testing. Older versions may still work in select cases.
+The minimum specified versions reflect those used in CI and manual testing.
+Older versions may still work.
 
-## Nix Development Environment
+### SBOM
 
-We use [Nix](https://nixos.org) for reproducible Tenzir Node builds. Nix
-provides a flake to setup an environment with all dependencies. You can also
-delegate the entire build process to Nix by invoking `nix build`, but be aware
-that this method does not support incremental builds.
+Every [release](https://github.com/tenzir/tenzir/releases) includes an
+[SBOM](https://en.wikipedia.org/wiki/Software_bill_of_materials) in
+[SPDX](https://spdx.dev) format listing all dependencies and their versions:
 
-Fetch the dependencies for a dynamic build by running `nix develop` from the
-topmost directory in the `tenzir/tenzir` source tree.
-
-You can automatically add the dependencies to your shell environment when
-you cd into the source directory via [direnv](https://direnv.net). Create an
-`.envrc` with the content:
-
-```
-use flake
-```
-
-If you want to silence the messages about binary caches you can use a variation
-of `.envrc` that invokes `nix` with a lower verbosity setting:
-
-```sh
-use_flake2() {
-  watch_file flake.nix
-  watch_file flake.lock
-  mkdir -p "$(direnv_layout_dir)"
-  eval "$(nix --quiet --quiet print-dev-env --profile "$(direnv_layout_dir)/flake-profile" "$@")"
-}
-
-use_flake2
-```
-
-The `tenzir/tenzir` repository comes with a set of CMake configure and build
-presets that can be used in this environment. List available presets with:
-
-```sh
-cmake --list-presets
-```
-
-Common presets for development:
-
-- `nix-clang-debug`
-- `nix-clang-relwithdebinfo`
-- `nix-clang-release`
-- `nix-gcc-debug`
-- `nix-gcc-relwithdebinfo`
-- `nix-gcc-release`
-
-Configure and build using a preset:
-
-```sh
-cmake --preset nix-clang-debug
-cmake --build --preset nix-clang-debug
-```
-
-:::note
-This Nix build environment is currently only tested on Linux.
-:::
-
-### Static Binaries
-
-Static binaries require that the dependencies were built in static mode as
-well. That means you need to use a different environment; you can enter it with:
-
-```sh
-nix develop .#tenzir-static
-```
-
-The CMake presets for that mode are:
-
-- `nix-clang-static-debug`
-- `nix-clang-static-relwithdebinfo`
-- `nix-clang-static-release`
-- `nix-gcc-static-debug`
-- `nix-gcc-static-relwithdebinfo`
-- `nix-gcc-static-release`
-
-:::tip[macOS]
-On macOS, we recommend using Clang from the Homebrew `llvm@20`
-package with the following settings:
-
-```sh
-export LLVM_PREFIX="$(brew --prefix llvm@20)"
-export PATH="${LLVM_PREFIX}/bin:${PATH}"
-export CC="${LLVM_PREFIX}/bin/clang"
-export CXX="${LLVM_PREFIX}/bin/clang++"
-export LDFLAGS="-Wl,-rpath,${LLVM_PREFIX} ${LDFLAGS}"
-export CPPFLAGS="-isystem ${LLVM_PREFIX}/include ${CPPFLAGS}"
-export CXXFLAGS="-isystem ${LLVM_PREFIX}/include/c++/v1 ${CXXFLAGS}"
-```
-
-Installing via CMake on macOS configures a [launchd](https://www.launchd.info)
-agent to `~/Library/LaunchAgents/com.tenzir.tenzir.plist`. Use `launchctl` to
-spawn a node at login:
-
-```sh
-# To unload the agent, replace 'load' with 'unload'.
-launchctl load -w ~/Library/LaunchAgents/com.tenzir.tenzir.plist
-```
-
-:::
-
-## Compile
-
-Building Tenzir involves the following steps:
-
-Clone the repository recursively:
-
-```sh
-git clone https://github.com/tenzir/tenzir
-cd tenzir
-git submodule update --init --recursive -- libtenzir plugins
-```
-
-### Quick start with presets
-
-The repository includes CMake presets that combine configuration options into
-curated build flavors. Start by discovering the available presets:
-
-```sh
-cmake --list-presets
-```
-
-This shows presets for different compilers (Clang, GCC), build types (`Debug`,
-`Release`, `RelWithDebInfo`), and environments (Nix, macOS). Pick a preset matching
-your setup and configure the build:
-
-```sh
-cmake --preset <preset-name>
-```
-
-For example, to set up a release build on macOS:
-
-```sh
-cmake --preset macos-clang-release
-cmake --build --preset macos-clang-release
-```
-
-### Manual configuration
-
-For custom configurations without presets, invoke CMake directly:
-
-```sh
-cmake -B build
-# CMake defaults to a "Debug" build. When performance matters, use "Release"
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-```
-
-For faster builds, we recommend passing `-G Ninja` to `cmake`.
-
-Optionally, you can use the CMake TUI to visually configure the build:
-
-```sh
-ccmake build
-```
-
-Build the executable:
-
-```sh
-cmake --build build --target all
-```
-
-## Test
-
-After you have built the executable, run the unit and integration tests to
-verify that your build works as expected.
-
-### Run unit tests
-
-Run component-level unit tests via CTest:
-
-```sh
-ctest --test-dir build
-```
-
-### Run integration tests
-
-Run end-to-end integration tests via
-[tenzir-test](https://github.com/tenzir/tenzir-test):
-
-```sh
-cd test
-uvx tenzir-test
-```
-
-## Install
-
-Install Tenzir system-wide:
-
-```sh
-cmake --install build
-```
-
-If you prefer to install into a custom install prefix, install with
-`--prefix /path/to/install/prefix`.
-
-To remove debug symbols from the installed binaries and libraries, pass
-`--strip`.
-
-To install only files relevant for running Tenzir and not for plugin development
-pass `--component Runtime`.
-
-## Clean
-
-In case you want to make changes to your build environment, we recommend
-deleting the build tree entirely:
-
-```sh
-rm -rf build
-```
-
-This avoids subtle configuration glitches of transitive dependencies. For
-example, CMake doesn't disable assertions when switching from a `Debug` to a
-`Release` build, but would do so when starting with a fresh build of type
-`Release`.
+<LinkCard
+  title="Latest SBOM"
+  href="https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json"
+  description="Download the Software Bill of Materials in SPDX format"
+  icon="document"
+/>
