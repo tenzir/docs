@@ -1,0 +1,147 @@
+---
+title: Overview
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+The Tenzir package includes two binaries:
+
+- **`tenzir`**: Execute a single pipeline from the command line
+- **`tenzir-node`**: Run a persistent node for continuous pipeline execution
+
+These binaries run pipelines on your machine. To manage pipelines through a web
+interface, [create an account](/guides/installation/create-account) and use the
+[platform](https://app.tenzir.com). See the [architecture
+overview](/explanations/architecture) to learn how they fit together.
+
+Choose the installation method that fits your use case.
+
+## uvx
+
+Run pipelines instantly without installation:
+
+```sh
+uvx tenzir 'from {x: 42}'
+```
+
+Works on macOS (Apple Silicon) and Linux (ARM/AMD).
+
+:::note[Running the latest version]
+The `@latest` suffix ensures you always get the most recent Tenzir release from
+PyPI. We recommend using `uvx tenzir@latest` to stay up to date. If startup time
+is a concern, omit `@latest` and manually refresh the cache with
+`uvx tenzir@latest` when you want updates.
+:::
+
+## curl installer
+
+Run the installer and follow the instructions to download the binaries, and
+optionally start a node:
+
+```sh
+curl https://get.tenzir.app | sh
+```
+
+The installer script asks for confirmation before performing the installation.
+It uses the package manager of your Linux distribution to install the Tenzir
+package. This typically also creates a [systemd](https://systemd.io) unit and
+starts the node automatically.
+
+## Linux
+
+<Tabs>
+<TabItem value="debian" label="Debian" icon="linux">
+
+Download the latest [Debian package][tenzir-debian-package] and install it via
+`dpkg`:
+
+```sh
+dpkg -i tenzir-static-amd64-linux.deb
+```
+
+You can uninstall the Tenzir package via `apt-get remove tenzir`. Use `purge`
+instead of `remove` if you also want to delete the state directory and leave no
+trace.
+
+[tenzir-debian-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.deb
+
+</TabItem>
+<TabItem value="rpm" label="RPM-based" icon="linux">
+
+Download the latest [RPM package][tenzir-rpm-package] and install it via `rpm`:
+
+```sh
+rpm -i tenzir-static-amd64-linux.rpm
+```
+
+[tenzir-rpm-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.rpm
+
+</TabItem>
+<TabItem value="nix" label="Nix" icon="nix">
+
+Run Tenzir ad-hoc without installing:
+
+```sh
+nix run github:tenzir/tenzir/latest
+```
+
+Or enter a shell with Tenzir available:
+
+```sh
+nix shell github:tenzir/tenzir/latest -c tenzir 'from {x: 42}'
+```
+
+Install a Tenzir Node by adding `github:tenzir/tenzir/latest` to your flake
+inputs, or use your preferred method to include third-party modules on classic
+NixOS.
+
+:::note[Pre-built only!]
+The default attributes of the flake contain some closed source plugins and will
+fail to download locally. The flake is only for public consumption together with
+the [Tenzir cachix cache](https://tenzir.cachix.org).
+:::
+
+</TabItem>
+<TabItem value="docker" label="Docker" icon="seti:docker">
+
+Run pipelines in a container without installing anything locally:
+
+```sh
+docker run --rm -it tenzir/tenzir 'from {x: 42}'
+```
+
+</TabItem>
+<TabItem value="tarball" label="Tarball" icon="seti:folder">
+
+Download a tarball with our [static binary][tenzir-tarball] for all Linux
+distributions and unpack it into `/opt/tenzir`:
+
+```sh
+tar xzf tenzir-static-x86_64-linux.tar.gz -C /
+```
+
+[tenzir-tarball]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-x86_64-linux.tar.gz
+
+We also offer prebuilt statically linked binaries for every Git commit to the
+`main` branch:
+
+```sh
+curl -O https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
+```
+
+</TabItem>
+</Tabs>
+
+## Build from source
+
+You can also [build from source](/guides/development/build-from-source). Note
+that this excludes proprietary plugins that ship with our prebuilt packages.
+
+## Next steps
+
+- [Run pipelines](/guides/basic-usage/run-pipelines): Execute TQL pipelines from
+  the CLI
+- [Deploy a node](/guides/node-setup/deploy-a-node): Run a persistent node for
+  continuous operation
+- [Configuration](/explanations/configuration): Learn how to configure Tenzir
+  with files and environment variables

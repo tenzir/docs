@@ -14,7 +14,7 @@ get started.
 After [provisioning a node](/guides/node-setup/provision-a-node), proceed as
 follows:
 
-import { Steps, LinkButton } from "@astrojs/starlight/components";
+import { Steps, LinkButton, Tabs, TabItem } from "@astrojs/starlight/components";
 
 <Steps>
 
@@ -62,11 +62,12 @@ Note that we `pull` first so that the subsequent downtime between `down` and
 
 ## Linux
 
-We offer a static binary package on various Linux distributions.
+For native Linux deployments, first [install
+Tenzir](/guides/installation) to get the `tenzir-node` binary.
 
-### Install a node
+### Deploy with the curl installer
 
-Second, choose the Linux tab and proceed as follows:
+The curl installer both installs Tenzir and starts a node as a systemd service:
 
 <Steps>
 
@@ -93,87 +94,8 @@ Second, choose the Linux tab and proceed as follows:
 </Steps>
 
 The installer script asks for confirmation before performing the installation.
-If you prefer a manual installation you can also perform the installer steps
-yourself. See the [configuration files
-documentation](/explanations/configuration) for details on how the node loads
-config files at startup.
-
-import { Tabs, TabItem } from "@astrojs/starlight/components";
-
-<Tabs>
-<TabItem value="debian" label="Debian">
-
-Download the latest [Debian package][tenzir-debian-package] and install it via
-`dpkg`:
-
-```bash
-dpkg -i tenzir-static-amd64-linux.deb
-```
-
-You can uninstall the Tenzir package via `apt-get remove tenzir`. Use `purge`
-instead of `remove` if you also want to delete the state directory and leave no
-trace.
-
-[tenzir-debian-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.deb
-
-</TabItem>
-<TabItem value="rpm_based" label="RPM-based (RedHat, OpenSUSE, Fedora)">
-
-Download the latest [RPM package][tenzir-rpm-package] and install it via
-`rpm`:
-
-```bash
-rpm -i tenzir-static-amd64-linux.rpm
-```
-
-[tenzir-rpm-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.rpm
-
-</TabItem>
-<TabItem value="nix" label="Nix" icon="nix">
-
-Use our `flake.nix` to run an ad-hoc `tenzir` pipeline:
-
-```bash
-nix run github:tenzir/tenzir/latest
-```
-
-Or run a node without installing:
-
-```bash
-nix shell github:tenzir/tenzir/latest -c tenzir-node
-```
-
-Install a Tenzir Node by adding `github:tenzir/tenzir/latest` to your flake
-inputs, or use your preferred method to include third-party modules on classic
-NixOS.
-
-:::note[Pre-built only!]
-The default attributes of the flake contain some closed source plugins and will
-fail to download locally. The flake is only for public consumption together with
-the [Tenzir cachix cache](https://tenzir.cachix.org).
-:::
-
-</TabItem>
-<TabItem value="any" label="Any" icon="linux">
-
-Download a tarball with our [static binary][tenzir-tarball] for all Linux
-distributions and unpack it into `/opt/tenzir`:
-
-```bash
-tar xzf tenzir-static-x86_64-linux.tar.gz -C /
-```
-
-[tenzir-tarball]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-x86_64-linux.tar.gz
-
-We also offer prebuilt statically linked binaries for every Git commit to the
-`main` branch.
-
-```bash
-curl -O https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
-```
-
-</TabItem>
-</Tabs>
+See the [configuration documentation](/explanations/configuration) for details
+on how the node loads config files at startup.
 
 ### Start a node manually
 

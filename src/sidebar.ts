@@ -5,7 +5,11 @@ import {
 
 export const guides = [
   "guides/quickstart",
-  "guides/account-creation",
+  {
+    label: "Installation",
+    collapsed: true,
+    items: ["guides/installation", "guides/installation/create-account"],
+  },
   {
     label: "Node Setup",
     collapsed: true,
