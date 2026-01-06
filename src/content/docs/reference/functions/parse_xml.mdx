@@ -11,8 +11,8 @@ Parses a string as XML and extracts elements matching an XPath expression.
 
 ```tql
 parse_xml(input:string, [xpath=string, attr_prefix=string, text_key=string,
-          force_list=list, max_depth=int, namespaces=string, schema=string,
-          selector=string, schema_only=bool, raw=bool,
+          key_attr=string, force_list=list, max_depth=int, namespaces=string,
+          schema=string, selector=string, schema_only=bool, raw=bool,
           unflatten_separator=string]) -> any
 ```
 
@@ -58,6 +58,33 @@ child elements.
 Defaults to `"#text"`.
 
 For example, `<item type="A">value</item>` becomes `{"@type": "A", "#text": "value"}`.
+
+### `key_attr = string (optional)`
+
+When set, elements with this attribute use the attribute's value as the field
+name instead of the element tag name.
+
+This transforms attribute-keyed XML patterns like:
+
+```xml
+<KEY name="QID">10001</KEY>
+<KEY name="TITLE">SQL Injection</KEY>
+```
+
+Into a flat record:
+
+```tql
+{QID: "10001", TITLE: "SQL Injection"}
+```
+
+Without `key_attr`, the same XML would produce:
+
+```tql
+{KEY: [{"@name": "QID", "#text": "10001"}, {"@name": "TITLE", "#text": "SQL Injection"}]}
+```
+
+This option is useful for formats like Qualys vulnerability reports where data
+is stored in generic elements with name attributes.
 
 ### `force_list = list (optional)`
 
@@ -225,6 +252,29 @@ select first, last, type_a
       "#text": "second",
     },
   ],
+}
+```
+
+### Transform attribute-keyed elements to records
+
+Some XML formats store data in generic elements with name attributes. Use
+`key_attr` to convert these into flat records:
+
+```tql
+from {
+  xml: '<record><KEY name="id">123</KEY><KEY name="type">alert</KEY><KEY name="severity">high</KEY></record>'
+}
+output = xml.parse_xml(xpath="/record", key_attr="name")
+```
+
+```tql
+{
+  xml: "<record><KEY name=\"id\">123</KEY><KEY name=\"type\">alert</KEY><KEY name=\"severity\">high</KEY></record>",
+  output: {
+    id: "123",
+    severity: "high",
+    type: "alert",
+  },
 }
 ```
 
