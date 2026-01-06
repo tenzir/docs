@@ -39,6 +39,18 @@ head 42
 sort abs(x)
 ```
 
+### Line continuation
+
+TQL uses newlines to separate statements. When spreading operator arguments
+across multiple lines, you must signal continuation using one of these methods:
+
+1. **Trailing comma**: A comma at the end of a line signals more arguments follow
+2. **Backslash**: A `\` at line end explicitly continues to the next line
+3. **Delimiters**: Inside `()`, `[]`, or `{}`, newlines are allowed freely
+
+A newline immediately after an operator name ends the statement, so `select`
+followed by a newline is a complete (albeit invalid) statement.
+
 Operators read, transform, and write data:
 
 ```tql

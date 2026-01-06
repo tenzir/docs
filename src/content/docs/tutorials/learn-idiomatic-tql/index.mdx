@@ -148,6 +148,48 @@ Trailing commas are only allowed in contexts with parentheses ('()'), brackets
 ('[]'), or braces ('{}').
 :::
 
+### Line continuation in operator arguments
+
+When writing operators with multiple arguments across lines, you must explicitly
+signal that the statement continues. This is a common source of errors.
+
+✅ Trailing comma signals continuation:
+
+```tql
+select uid,
+       src,
+       dst
+```
+
+✅ Backslash for explicit continuation:
+
+```tql
+select \
+  uid,
+  src,
+  dst
+```
+
+❌ Invalid - newline ends the statement:
+
+```tql
+select
+  uid,
+  src,
+  dst
+```
+
+The rule is simple: **a newline after an operator name (with no arguments) ends
+the statement**. Either put the first argument on the same line (with a trailing
+comma) or use a backslash to continue.
+
+:::tip[Quick rule]
+
+- First argument on same line with trailing comma: `select uid,`
+- Or use backslash: `select \`
+- Inside `()`, `[]`, `{}`: newlines are free
+  :::
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
