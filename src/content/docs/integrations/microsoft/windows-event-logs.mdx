@@ -606,9 +606,9 @@ and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.
 
 ```tql
 from_file "windows_events.xml" {
-  read_lines
+  read_delimited "</Event>", include_separator=true
 }
-event = line.parse_winlog()
+event = data.parse_winlog()
 ```
 
 ### Filter for specific event IDs
@@ -618,9 +618,9 @@ events (Event ID 4624) and failed logon attempts (Event ID 4625):
 
 ```tql
 load_tcp "10.0.0.1:1514" {
-  read_lines
+  read_delimited "</Event>", include_separator=true
 }
-event = line.parse_winlog()
+event = data.parse_winlog()
 where event.System.EventID in [4624, 4625]
 ```
 
@@ -631,9 +631,9 @@ event, extract the relevant information:
 
 ```tql
 load_tcp "10.0.0.1:1514" {
-  read_lines
+  read_delimited "</Event>", include_separator=true
 }
-event = line.parse_winlog()
+event = data.parse_winlog()
 where event.System.EventID == 4624
 select \
   timestamp = event.System.TimeCreated.SystemTime,

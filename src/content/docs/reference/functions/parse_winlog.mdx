@@ -241,16 +241,15 @@ drop xml
 }
 ```
 
-### Process forwarded Windows events
+### Parse a Windows event from a file
 
 ```tql
-// Read forwarded Windows events from a file
-load_file "windows_events.xml"
-read_lines
-where line != ""
-output = line.parse_winlog()
+from_file "windows_events.xml" {
+  read_all
+}
+event = data.parse_winlog()
 // Filter for logon events
-where output.System.EventID == "4624"
+where event.System.EventID == "4624"
 ```
 
 ## See Also
