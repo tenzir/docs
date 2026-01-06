@@ -36,7 +36,10 @@ Common XPath patterns:
 
 - `"//book"` — selects all `<book>` elements anywhere in the document
 - `"/catalog/book"` — selects `<book>` elements that are direct children of `<catalog>`
-- `"//book[@category='fiction']"` — selects `<book>` elements with a specific attribute
+- `"//book[1]"` — selects the first `<book>` element
+- `"//book[last()]"` — selects the last `<book>` element
+- `"//book[@category]"` — selects `<book>` elements that have a `category` attribute
+- `"//book[@category='fiction']"` — selects `<book>` elements with a specific attribute value
 
 ### `attr_prefix = string (optional)`
 
@@ -181,6 +184,45 @@ output = xml.parse_xml(xpath="/order", force_list=["item"])
   output: [
     {
       item: ["Widget"],
+    },
+  ],
+}
+```
+
+### Use XPath predicates to filter elements
+
+```tql
+from {
+  xml: '<items><item id="1" type="a">first</item><item id="2" type="a">second</item><item id="3" type="b">third</item></items>'
+}
+first = xml.parse_xml(xpath="//item[1]")
+last = xml.parse_xml(xpath="//item[last()]")
+type_a = xml.parse_xml(xpath="//item[@type='a']")
+select first, last, type_a
+```
+
+```tql
+{
+  first: {
+    "@id": "1",
+    "@type": "a",
+    "#text": "first",
+  },
+  last: {
+    "@id": "3",
+    "@type": "b",
+    "#text": "third",
+  },
+  type_a: [
+    {
+      "@id": "1",
+      "@type": "a",
+      "#text": "first",
+    },
+    {
+      "@id": "2",
+      "@type": "a",
+      "#text": "second",
     },
   ],
 }
