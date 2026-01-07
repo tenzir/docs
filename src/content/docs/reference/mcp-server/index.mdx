@@ -33,6 +33,44 @@ Once you install and register the server with your MCP-aware client (for
 example Claude Code, Codex, Cursor, or a custom harness), these tools become
 available automatically.
 
+## Configuration
+
+For native installations, the MCP server needs access to a Tenzir binary to
+execute pipelines. The server auto-detects the binary in this order:
+
+1. **`TENZIR_BINARY` environment variable**: Use this to specify a custom path
+   or command.
+2. **Local `tenzir` installation**: If `tenzir` is in your `PATH`, the server
+   uses it directly.
+3. **`uvx tenzir`**: If [uv](https://docs.astral.sh/uv/) is available, the
+   server runs Tenzir through `uvx`.
+
+If none of these options are available, the server reports an error with
+installation instructions.
+
+**Example**: To use a specific Tenzir binary, set the environment variable in
+your MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "tenzir": {
+      "command": "uvx",
+      "args": ["tenzir-mcp@latest"],
+      "env": {
+        "TENZIR_BINARY": "/opt/tenzir/bin/tenzir"
+      }
+    }
+  }
+}
+```
+
+:::note[Docker installations]
+When using the Docker image, Tenzir is bundled in the container and the
+`TENZIR_BINARY` environment variable is preconfigured. You don't need to set
+anything manually.
+:::
+
 ## Tool Catalogue
 
 The MCP server provides tools organized into categories for execution,
