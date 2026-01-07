@@ -91,13 +91,13 @@ also delete the state directory.
 Run Tenzir ad-hoc without installing:
 
 ```sh
-nix run github:tenzir/tenzir/latest
+nix --accept-flake-config run github:tenzir/tenzir/latest 'from {x: 42}'
 ```
 
 Or enter a shell with Tenzir available:
 
 ```sh
-nix shell github:tenzir/tenzir/latest -c tenzir 'from {x: 42}'
+nix --accept-flake-config shell github:tenzir/tenzir/latest -c $SHELL
 ```
 
 Install a Tenzir Node by adding `github:tenzir/tenzir/latest` to your flake
