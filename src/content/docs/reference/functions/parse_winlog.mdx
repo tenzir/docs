@@ -41,7 +41,11 @@ import ParsingOptions from '@partials/functions/ParsingOptions.mdx';
 
 ## Output Schema
 
-The output record preserves the Windows Event XML structure:
+The output record preserves the Windows Event XML structure. Fields that are not
+present in the input XML are omitted from the output.
+
+<details>
+<summary>Show full schema</summary>
 
 ```tql
 {
@@ -94,7 +98,7 @@ The output record preserves the Windows Event XML structure:
 }
 ```
 
-Fields that are not present in the input XML are omitted from the output.
+</details>
 
 ## Examples
 
@@ -151,25 +155,25 @@ output = xml.parse_winlog()
       Channel: "Security",
       Computer: "WIN-GG82ULGC9GO.contoso.local",
       Correlation: null,
-      EventID: "4688",
-      EventRecordID: "2814",
+      EventID: 4688,
+      EventRecordID: 2814,
       Execution: {
-        ProcessID: "4",
-        ThreadID: "400",
+        ProcessID: 4,
+        ThreadID: 400,
       },
       Keywords: "0x8020000000000000",
-      Level: "0",
-      Opcode: "0",
+      Level: 0,
+      Opcode: 0,
       Provider: {
         Name: "Microsoft-Windows-Security-Auditing",
         Guid: "{54849625-5478-4994-A5BA-3E3B0328C30D}",
       },
       Security: null,
-      Task: "13312",
+      Task: 13312,
       TimeCreated: {
-        SystemTime: "2015-11-12T02:24:52.377352500Z",
+        SystemTime: 2015-11-12T02:24:52.377352500Z,
       },
-      Version: "2",
+      Version: 2,
     },
     EventData: {
       SubjectUserSid: "S-1-5-18",
@@ -224,13 +228,13 @@ drop xml
     System: {
       Channel: "Application",
       Computer: "SERVER1",
-      EventID: "1000",
-      Level: "2",
+      EventID: 1000,
+      Level: 2,
       Provider: {
         Name: "Application",
       },
       TimeCreated: {
-        SystemTime: "2024-01-15T09:00:00.000Z",
+        SystemTime: 2024-01-15T09:00:00.000Z,
       },
     },
     EventData: [
@@ -249,7 +253,7 @@ from_file "windows_events.xml" {
 }
 event = data.parse_winlog()
 // Filter for logon events
-where event.System.EventID == "4624"
+where event.System.EventID == 4624
 ```
 
 ## See Also
