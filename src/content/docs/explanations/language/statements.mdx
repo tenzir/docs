@@ -39,18 +39,6 @@ head 42
 sort abs(x)
 ```
 
-### Line continuation
-
-TQL uses newlines to separate statements. When spreading operator arguments
-across multiple lines, you must signal continuation using one of these methods:
-
-1. **Trailing comma**: A comma at the end of a line signals more arguments follow
-2. **Backslash**: A `\` at line end explicitly continues to the next line
-3. **Delimiters**: Inside `()`, `[]`, or `{}`, newlines are allowed freely
-
-A newline immediately after an operator name ends the statement, so `select`
-followed by a newline is a complete (albeit invalid) statement.
-
 Operators read, transform, and write data:
 
 ```tql
@@ -119,6 +107,19 @@ break it down as well:
    transformation operator that turns events to YAML foramt.
 5. [`save_zmq`](/reference/operators/save_zmq): A bytes-to-void output
    operator that writes bytes to a ZeroMQ socket.
+
+### Line continuation
+
+TQL uses newlines to separate statements. When spreading operator arguments
+across multiple lines, you must signal continuation using one of these methods:
+
+1. **Trailing comma**: A comma at the end of a line signals more arguments follow
+2. **Backslash**: A `\` at line end explicitly continues to the next line
+3. **Delimiters**: Inside `()`, `[]`, or `{}` (records only), newlines are
+   allowed freely
+
+A newline immediately after an operator name ends the statement. For example,
+`drop` followed by a newline is a complete statement that drops all fields.
 
 ## Assignment
 
