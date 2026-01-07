@@ -53,11 +53,11 @@ starts the node automatically.
 
 <Steps>
 
-1. Download the latest [Debian package][tenzir-debian-package].
+1. Download the latest [Debian package][tenzir-debian-package-amd64] ([arm64 version][tenzir-debian-package-arm64]).
 
 2. Install it via `dpkg`:
    ```sh
-   dpkg -i tenzir-static-amd64-linux.deb
+   dpkg -i tenzir_latest_arm64.deb
    ```
 
 </Steps>
@@ -65,23 +65,25 @@ starts the node automatically.
 To uninstall, run `apt-get remove tenzir`. Use `purge` instead of `remove` to
 also delete the state directory.
 
-[tenzir-debian-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.deb
+[tenzir-debian-package-amd64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/debian/tenzir_latest_amd64.deb
+[tenzir-debian-package-arm64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/debian/tenzir_latest_arm64.deb
 
 </TabItem>
 <TabItem value="rpm" label="RPM-based" icon="linux">
 
 <Steps>
 
-1. Download the latest [RPM package][tenzir-rpm-package].
+1. Download the latest [RPM package][tenzir-rpm-package] ([aarch64 version][tenzir-rpm-package-aarch64]).
 
 2. Install it via `rpm`:
    ```sh
-   rpm -i tenzir-static-amd64-linux.rpm
+   rpm -i tenzir-latest-x86_64-linux-static.rpm
    ```
 
 </Steps>
 
-[tenzir-rpm-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.rpm
+[tenzir-rpm-package-amd64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/rpm/tenzir-latest-x86_64-linux-static.rpm
+[tenzir-rpm-package-aarch64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/rpm/tenzir-latest-aarch64-linux-static.rpm
 
 </TabItem>
 <TabItem value="nix" label="Nix" icon="nix">
@@ -126,16 +128,18 @@ docker run --rm -it tenzir/tenzir 'from {x: 42}'
 
 2. Unpack it into `/opt/tenzir`:
    ```sh
-   tar xzf tenzir-static-x86_64-linux.tar.gz -C /
+   tar xzf tenzir-latest-x86_64-linux-static.tar.gz -C /
    ```
 
 </Steps>
 
-[tenzir-tarball]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-x86_64-linux.tar.gz
+[tenzir-tarball-amd64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-latest-x86_64-linux-static.tar.gz
+[tenzir-tarball-aarch64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-latest-aarch64-linux-static.tar.gz
 
-We also offer [prebuilt binaries for every commit to `main`][tenzir-tarball-main].
+We also offer [prebuilt binaries for every commit to `main`][tenzir-tarball-main] ([aarch64 version][tenzir-tarball-main-aarch64]).
 
-[tenzir-tarball-main]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
+[tenzir-tarball-main-amd64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-main-x86_64-linux-static.tar.gz
+[tenzir-tarball-main-aarch64]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-main-aarch64-linux-static.tar.gz
 
 </TabItem>
 </Tabs>
