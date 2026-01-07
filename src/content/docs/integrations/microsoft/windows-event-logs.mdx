@@ -606,9 +606,9 @@ and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.
 
 ```tql
 from_file "windows_events.xml" {
-  read_delimited "</Event>", include_separator=true
+  read_delimited "</Event>\n", include_separator=true
 }
-event = data.parse_winlog()
+this = data.parse_winlog()
 ```
 
 ### Filter for specific event IDs
@@ -618,10 +618,10 @@ events (Event ID 4624) and failed logon attempts (Event ID 4625):
 
 ```tql
 load_tcp "10.0.0.1:1514" {
-  read_delimited "</Event>", include_separator=true
+  read_delimited "</Event>\n", include_separator=true
 }
-event = data.parse_winlog()
-where event.System.EventID in [4624, 4625]
+this = data.parse_winlog()
+where System.EventID in [4624, 4625]
 ```
 
 ### Extract EventData fields
@@ -631,16 +631,16 @@ event, extract the relevant information:
 
 ```tql
 load_tcp "10.0.0.1:1514" {
-  read_delimited "</Event>", include_separator=true
+  read_delimited "</Event>\n", include_separator=true
 }
-event = data.parse_winlog()
-where event.System.EventID == 4624
+this = data.parse_winlog()
+where System.EventID == 4624
 select \
-  timestamp = event.System.TimeCreated.SystemTime,
-  computer = event.System.Computer,
-  logon_type = event.EventData.LogonType,
-  target_user = event.EventData.TargetUserName,
-  source_ip = event.EventData.IpAddress
+  timestamp = System.TimeCreated.SystemTime,
+  computer = System.Computer,
+  logon_type = EventData.LogonType,
+  target_user = EventData.TargetUserName,
+  source_ip = EventData.IpAddress
 ```
 
 ## Increase visibility with Sysmon

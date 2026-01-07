@@ -249,11 +249,10 @@ drop xml
 
 ```tql
 from_file "windows_events.xml" {
-  read_all
+  read_delimited "</Event>\n", include_separator=true
 }
-event = data.parse_winlog()
-// Filter for logon events
-where event.System.EventID == 4624
+this = data.parse_winlog()
+where System.EventID in [4624, 4625]
 ```
 
 ## See Also
