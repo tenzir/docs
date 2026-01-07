@@ -594,6 +594,55 @@ load_tcp "10.0.0.1:1514" {
 publish "wec"
 ```
 
+## Parse Windows Event Log XML
+
+When receiving Windows Event Log data in its native XML format, use
+[`parse_winlog`](/reference/functions/parse_winlog) to convert the XML into
+structured records. This function is optimized for the [Windows XML Event Log
+format](https://learn.microsoft.com/en-us/windows/win32/wes/eventschema-schema)
+and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.
+
+### Parse XML events from a file
+
+```tql
+from_file "windows_events.xml" {
+  read_delimited "</Event>\n", include_separator=true
+}
+this = data.parse_winlog()
+```
+
+### Filter for specific event IDs
+
+Security monitoring often focuses on specific event types. Filter for logon
+events (Event ID 4624) and failed logon attempts (Event ID 4625):
+
+```tql
+load_tcp "10.0.0.1:1514" {
+  read_delimited "</Event>\n", include_separator=true
+}
+this = data.parse_winlog()
+where System.EventID in [4624, 4625]
+```
+
+### Extract EventData fields
+
+The `EventData` section contains event-specific fields. For a successful logon
+event, extract the relevant information:
+
+```tql
+load_tcp "10.0.0.1:1514" {
+  read_delimited "</Event>\n", include_separator=true
+}
+this = data.parse_winlog()
+where System.EventID == 4624
+select \
+  timestamp = System.TimeCreated.SystemTime,
+  computer = System.Computer,
+  logon_type = EventData.LogonType,
+  target_user = EventData.TargetUserName,
+  source_ip = EventData.IpAddress
+```
+
 ## Increase visibility with Sysmon
 
 [Sysmon](https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon) (System
