@@ -2,7 +2,7 @@
 title: Overview
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Tabs, TabItem } from '@astrojs/starlight/components';
 
 The Tenzir package includes two binaries:
 
@@ -14,6 +14,10 @@ interface, [create an account](/guides/installation/create-account) and use the
 [platform](https://app.tenzir.com). See the [architecture
 overview](/explanations/architecture) to learn how they fit together.
 
+:::tip[Supported Platforms]
+Tenzir runs on **macOS** (Apple Silicon) and **Linux** (x86_64, ARM64).
+:::
+
 Choose the installation method that fits your use case.
 
 ## uvx
@@ -24,14 +28,9 @@ Run pipelines instantly without installation:
 uvx tenzir 'from {x: 42}'
 ```
 
-Works on macOS (Apple Silicon) and Linux (ARM/AMD).
-
-:::note[Running the latest version]
-The `@latest` suffix ensures you always get the most recent Tenzir release from
-PyPI. We recommend using `uvx tenzir@latest` to stay up to date. If startup time
-is a concern, omit `@latest` and manually refresh the cache with
-`uvx tenzir@latest` when you want updates.
-:::
+Use `uvx tenzir@latest` to ensure you always get the most recent release. If
+startup time is a concern, omit `@latest` and manually refresh the cache when
+you want updates.
 
 ## curl installer
 
@@ -47,32 +46,40 @@ It uses the package manager of your Linux distribution to install the Tenzir
 package. This typically also creates a [systemd](https://systemd.io) unit and
 starts the node automatically.
 
-## Linux
+## Packages
 
 <Tabs>
 <TabItem value="debian" label="Debian" icon="linux">
 
-Download the latest [Debian package][tenzir-debian-package] and install it via
-`dpkg`:
+<Steps>
 
-```sh
-dpkg -i tenzir-static-amd64-linux.deb
-```
+1. Download the latest [Debian package][tenzir-debian-package].
 
-You can uninstall the Tenzir package via `apt-get remove tenzir`. Use `purge`
-instead of `remove` if you also want to delete the state directory and leave no
-trace.
+2. Install it via `dpkg`:
+   ```sh
+   dpkg -i tenzir-static-amd64-linux.deb
+   ```
+
+</Steps>
+
+To uninstall, run `apt-get remove tenzir`. Use `purge` instead of `remove` to
+also delete the state directory.
 
 [tenzir-debian-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.deb
 
 </TabItem>
 <TabItem value="rpm" label="RPM-based" icon="linux">
 
-Download the latest [RPM package][tenzir-rpm-package] and install it via `rpm`:
+<Steps>
 
-```sh
-rpm -i tenzir-static-amd64-linux.rpm
-```
+1. Download the latest [RPM package][tenzir-rpm-package].
+
+2. Install it via `rpm`:
+   ```sh
+   rpm -i tenzir-static-amd64-linux.rpm
+   ```
+
+</Steps>
 
 [tenzir-rpm-package]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-amd64-linux.rpm
 
@@ -113,21 +120,22 @@ docker run --rm -it tenzir/tenzir 'from {x: 42}'
 </TabItem>
 <TabItem value="tarball" label="Tarball" icon="seti:folder">
 
-Download a tarball with our [static binary][tenzir-tarball] for all Linux
-distributions and unpack it into `/opt/tenzir`:
+<Steps>
 
-```sh
-tar xzf tenzir-static-x86_64-linux.tar.gz -C /
-```
+1. Download the [static binary tarball][tenzir-tarball].
+
+2. Unpack it into `/opt/tenzir`:
+   ```sh
+   tar xzf tenzir-static-x86_64-linux.tar.gz -C /
+   ```
+
+</Steps>
 
 [tenzir-tarball]: https://github.com/tenzir/tenzir/releases/latest/download/tenzir-static-x86_64-linux.tar.gz
 
-We also offer prebuilt statically linked binaries for every Git commit to the
-`main` branch:
+We also offer [prebuilt binaries for every commit to `main`][tenzir-tarball-main].
 
-```sh
-curl -O https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
-```
+[tenzir-tarball-main]: https://storage.googleapis.com/tenzir-dist-public/packages/main/tarball/tenzir-static-main.gz
 
 </TabItem>
 </Tabs>
