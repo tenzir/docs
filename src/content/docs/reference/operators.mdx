@@ -215,6 +215,10 @@ operators:
     description: 'Routes the data to one of multiple subpipelines.'
     example: 'load_balance $over { publish $over }'
     path: 'reference/operators/load_balance'
+  - name: 'parallel'
+    description: 'Runs a subpipeline across multiple parallel workers.'
+    example: 'parallel 4 { parsed = data.parse_json() }'
+    path: 'reference/operators/parallel'
   - name: 'pass'
     description: 'Does nothing with the input.'
     example: 'pass'
@@ -1290,6 +1294,14 @@ fork { to "copy.json" }
 
 ```tql
 load_balance $over { publish $over }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="parallel" description="Runs a subpipeline across multiple parallel workers." href="/reference/operators/parallel">
+
+```tql
+parallel 4 { parsed = data.parse_json() }
 ```
 
 </ReferenceCard>
