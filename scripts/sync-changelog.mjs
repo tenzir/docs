@@ -323,7 +323,7 @@ async function discoverModules(newsRepoPath, projectDir, modulesGlob) {
 }
 
 /**
- * Read unreleased changelog entries for a project using tenzir-changelog CLI.
+ * Read unreleased changelog entries for a project using tenzir-ship CLI.
  * @param {string} newsRepoPath - Base path to news repo
  * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
  */
@@ -342,9 +342,9 @@ async function readUnreleased(newsRepoPath, changelogPath) {
 
     if (mdFiles.length === 0) return null;
 
-    // Run tenzir-changelog to get structured JSON data with explicit links
+    // Run tenzir-ship to get structured JSON data with explicit links
     const jsonOutput = execSync(
-      "uvx tenzir-changelog show --json --explicit-links -",
+      "uvx tenzir-ship show --json --explicit-links -",
       {
         cwd: fullChangelogPath,
         encoding: "utf-8",
@@ -433,7 +433,7 @@ async function readReleases(
         let entryTypes = [];
         try {
           const jsonOutput = execSync(
-            `uvx tenzir-changelog show --json --explicit-links ${version}`,
+            `uvx tenzir-ship show --json --explicit-links ${version}`,
             {
               cwd: fullChangelogPath,
               encoding: "utf-8",

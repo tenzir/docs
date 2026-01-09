@@ -3,7 +3,7 @@ title: Maintain a changelog
 ---
 
 This guide shows you how to use
-[`tenzir-changelog`](/reference/changelog-framework) to manage changelog
+[`tenzir-ship`](/reference/ship-framework) to manage changelog
 entries, create releases, and publish release notes. You'll learn the complete
 workflow from adding your first entry to publishing a release on GitHub.
 
@@ -18,7 +18,7 @@ workflow from adding your first entry to publishing a release on GitHub.
 Create your first changelog entry to scaffold the project:
 
 ```sh
-uvx tenzir-changelog add
+uvx tenzir-ship add
 ```
 
 The wizard will guide you through the process of creating a new changelog entry.
@@ -36,20 +36,20 @@ extra files.
 View the current changelog for your working tree:
 
 ```sh
-uvx tenzir-changelog show
+uvx tenzir-ship show
 ```
 
 The default table lists every entry with row numbers, making it easy to
 reference specific items. Row numbers count backward from the newest entry, so
 `#1` always targets the latest change.
 
-Inspect a card layout with `uvx tenzir-changelog show -c 1` or export a release
-via `uvx tenzir-changelog release notes v0.2.0`.
+Inspect a card layout with `uvx tenzir-ship show --card 1` or export release
+notes with `uvx tenzir-ship show v0.2.0 --release --markdown`.
 
 Add entries as you prepare pull requests:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Introduce pipeline builder" \
   --type feature \
   --pr 101
@@ -63,10 +63,10 @@ auto-detection.
 
 ### Add entries for pull requests
 
-Run `uvx tenzir-changelog add` while preparing pull requests to capture changes:
+Run `uvx tenzir-ship add` while preparing pull requests to capture changes:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Fix authentication timeout" \
   --type bugfix \
   --description "Resolves session expiry issue." \
@@ -82,7 +82,7 @@ Use `--co-author` to credit additional contributors alongside the automatically
 inferred author:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Implement caching layer" \
   --type feature \
   --co-author claude
@@ -93,7 +93,7 @@ contributions. The CLI infers the primary author from environment variables or
 the GitHub CLI, then appends co-authors in the order you specify:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Refactor authentication" \
   --type change \
   --co-author claude \
@@ -105,7 +105,7 @@ You can also combine `--author` with `--co-author` to set the primary author
 explicitly:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Fix race condition" \
   --type bugfix \
   --author alice \
@@ -117,19 +117,19 @@ uvx tenzir-changelog add \
 List all unreleased entries:
 
 ```sh
-uvx tenzir-changelog show
+uvx tenzir-ship show
 ```
 
 Show detailed information for a specific entry:
 
 ```sh
-uvx tenzir-changelog show -c 1
+uvx tenzir-ship show --card 1
 ```
 
 The card view displays detailed metadata and the full entry body:
 
 ```text
-❯ tenzir-changelog show -c 1
+❯ tenzir-ship show --card 1
 ╭─ 🐞 Normalize release note paragraphs ───────────────────────────────────╮
 │ Entry ID:  normalize-release-note-paragraphs                             │
 │ Type:      bugfix                                                        │
@@ -145,7 +145,7 @@ The card view displays detailed metadata and the full entry body:
 Filter by project when working with multiple projects:
 
 ```sh
-uvx tenzir-changelog show --project core
+uvx tenzir-ship show --project core
 ```
 
 ### Validate changelog structure
@@ -153,11 +153,29 @@ uvx tenzir-changelog show --project core
 Run validation checks to catch issues early:
 
 ```sh
-uvx tenzir-changelog validate
+uvx tenzir-ship validate
 ```
 
 The validator reports missing metadata, unused entries, duplicate entry IDs, and
 configuration drift. Add this to CI pipelines to enforce metadata completeness.
+
+### View project statistics
+
+Get an overview of your project's release history and entry distribution:
+
+```sh
+uvx tenzir-ship stats
+```
+
+Single projects show a vertical card layout with sections for project metadata,
+releases, entry types, and status. Multi-module projects display a compact table
+comparing all modules.
+
+Export statistics as JSON for automation:
+
+```sh
+uvx tenzir-ship stats --json
+```
 
 ## Release workflow
 
@@ -166,14 +184,14 @@ configuration drift. Add this to CI pipelines to enforce metadata completeness.
 Preview the release before committing changes:
 
 ```sh
-uvx tenzir-changelog release create v5.4.0
+uvx tenzir-ship release create v5.4.0
 ```
 
 The command shows which entries will be included and performs a dry run. When
 the summary looks good, re-run with `--yes` to commit the changes:
 
 ```sh
-uvx tenzir-changelog release create v5.4.0 --yes
+uvx tenzir-ship release create v5.4.0 --yes
 ```
 
 This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
@@ -182,15 +200,15 @@ This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
 Use version bump shortcuts instead of typing the full version:
 
 ```sh
-uvx tenzir-changelog release create --patch --yes
-uvx tenzir-changelog release create --minor --yes
-uvx tenzir-changelog release create --major --yes
+uvx tenzir-ship release create --patch --yes
+uvx tenzir-ship release create --minor --yes
+uvx tenzir-ship release create --major --yes
 ```
 
 Add an inline intro summary:
 
 ```sh
-uvx tenzir-changelog release create v5.4.0 \
+uvx tenzir-ship release create v5.4.0 \
   --intro "Major stability improvements." \
   --yes
 ```
@@ -198,7 +216,7 @@ uvx tenzir-changelog release create v5.4.0 \
 Alternatively, provide intro content from a file:
 
 ```sh
-uvx tenzir-changelog release create v5.4.0 \
+uvx tenzir-ship release create v5.4.0 \
   --intro-file intro.md \
   --yes
 ```
@@ -208,49 +226,58 @@ command embeds its content in `manifest.yaml` and includes it in `notes.md`.
 
 ### Export release notes
 
-Re-export release notes without modifying files:
+Export release notes for a specific version:
 
 ```sh
-uvx tenzir-changelog release notes v5.4.0
+uvx tenzir-ship show v5.4.0 --release --markdown
 ```
 
 Export as JSON for programmatic use:
 
 ```sh
-uvx tenzir-changelog release notes v5.4.0 -j
+uvx tenzir-ship show v5.4.0 --release --json
 ```
 
 Use compact format for bullet-list layout:
 
 ```sh
-uvx tenzir-changelog release notes v5.4.0 --compact
+uvx tenzir-ship show v5.4.0 --release --compact --markdown
 ```
 
 Preview unreleased entries as if they were already released:
 
 ```sh
-uvx tenzir-changelog release notes unreleased
+uvx tenzir-ship show --release --markdown
 ```
+
+Export all releases in a single invocation for batch processing:
+
+```sh
+uvx tenzir-ship show all --release --json
+```
+
+This exports every release as a JSON array, which is useful for documentation
+sync scripts that need all release data at once.
 
 ### Publish to GitHub
 
 Publish directly from the changelog project using the CLI:
 
 ```sh
-uvx tenzir-changelog release publish v5.4.0 --yes
+uvx tenzir-ship release publish v5.4.0 --yes
 ```
 
 Include tagging and pushing via the CLI:
 
 ```sh
-uvx tenzir-changelog release publish v5.4.0 --tag --yes
+uvx tenzir-ship release publish v5.4.0 --tag --yes
 ```
 
 Draft or prerelease variants:
 
 ```sh
-uvx tenzir-changelog release publish v5.4.0 --draft --yes
-uvx tenzir-changelog release publish v5.4.0 --prerelease --yes
+uvx tenzir-ship release publish v5.4.0 --draft --yes
+uvx tenzir-ship release publish v5.4.0 --prerelease --yes
 ```
 
 :::note[Terminology]
@@ -270,7 +297,7 @@ Initialize a new changelog project from your project root:
 
 ```sh
 cd my-project
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Add pipeline builder" \
   --type feature \
   --description "Introduces the new pipeline builder UI." \
@@ -293,7 +320,7 @@ name: My Project
 Record additional changes with authors and pull request numbers:
 
 ```sh
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Fix ingest crash" \
   --type bugfix \
   --description "Resolves ingest worker crash when tokens expire." \
@@ -301,7 +328,7 @@ uvx tenzir-changelog add \
   --pr 102 \
   --pr 115
 
-uvx tenzir-changelog add \
+uvx tenzir-ship add \
   --title "Improve CLI help" \
   --type change \
   --description "Tweaks command descriptions for clarity." \
@@ -335,13 +362,13 @@ stores a `prs:` list in the generated frontmatter automatically.
 View all entries in table format:
 
 ```sh
-uvx tenzir-changelog show
+uvx tenzir-ship show
 ```
 
 Inspect a detailed card for any entry:
 
 ```sh
-uvx tenzir-changelog show -c 1
+uvx tenzir-ship show --card 1
 ```
 
 ### Prepare release notes
@@ -362,7 +389,7 @@ We cover breaking changes, highlights, upgrades, and fixes below.
 Create the release with the custom intro file:
 
 ```sh
-uvx tenzir-changelog release create v0.1.0 \
+uvx tenzir-ship release create v0.1.0 \
   --intro-file intro.md \
   --yes
 ```
@@ -410,7 +437,7 @@ The tool writes release artifacts under `releases/v0.1.0/`:
 Verify everything is correct:
 
 ```sh
-uvx tenzir-changelog validate
+uvx tenzir-ship validate
 ```
 
 A clean run prints `All changelog files look good!`. You can remove `intro.md`
@@ -421,18 +448,18 @@ now that its content is embedded in the release file.
 Print the release notes:
 
 ```sh
-uvx tenzir-changelog release notes v0.1.0
+uvx tenzir-ship show v0.1.0 --release --markdown
 ```
 
 Export as JSON for programmatic use:
 
 ```sh
-uvx tenzir-changelog release notes v0.1.0 -j
+uvx tenzir-ship show v0.1.0 --release --json
 ```
 
 ## Tips and best practices
 
-- **Automate validation**: Add `uvx tenzir-changelog validate` to CI pipelines
+- **Automate validation**: Add `uvx tenzir-ship validate` to CI pipelines
   to enforce metadata completeness before merging pull requests.
 - **Use PR numbers**: Always include `--pr` when adding entries to link changes
   back to pull requests for traceability.
@@ -447,18 +474,18 @@ uvx tenzir-changelog release notes v0.1.0 -j
 
 ## Troubleshooting
 
-- **Validation failures**: Run `uvx tenzir-changelog validate` to identify
+- **Validation failures**: Run `uvx tenzir-ship validate` to identify
   specific issues. Common problems include missing required fields, duplicate
   entry IDs, or unused entry files.
 - **Component mismatch**: If you configured `components`, ensure entries either
   omit the `component` field or use one of the allowed labels.
 - **Configuration not found**: Ensure `config.yaml` exists in the changelog root
   or `package.yaml` sits next to the `changelog/` directory. Run
-  `uvx tenzir-changelog add` once to scaffold the configuration.
+  `uvx tenzir-ship add` once to scaffold the configuration.
 - **Version bump fails**: Bump flags read the most recent release manifest on
   disk. Create an initial release with an explicit version before using
   `--patch/--minor/--major`.
 
 ## Further reading
 
-- [Changelog framework reference](/reference/changelog-framework)
+- [Ship framework reference](/reference/ship-framework)

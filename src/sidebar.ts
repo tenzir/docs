@@ -220,8 +220,8 @@ export const reference = [
     link: "reference/test-framework",
   },
   {
-    label: "Changelog Framework",
-    link: "reference/changelog-framework",
+    label: "Ship Framework",
+    link: "reference/ship-framework",
   },
   {
     label: "Claude Marketplace",
