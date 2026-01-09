@@ -1,22 +1,22 @@
 ---
-title: Changelog Framework
+title: Ship Framework
 ---
 
-The [`tenzir-changelog`](https://github.com/tenzir/changelog) harness curates
-changelog entries, ships release notes, and assembles the public changelog
-across Tenzir repositories. Use this page as a reference for concepts,
+[`tenzir-ship`](https://github.com/tenzir/ship) helps you ship faster with
+automated release engineering. Manage changelogs, generate release notes, and
+publish GitHub releases. Use this page as a reference for concepts,
 configuration, and CLI details. For step-by-step walkthroughs, see the guide for
 [maintaining a changelog](/guides/package-management/maintain-a-changelog).
 
 ## Install
 
-`tenzir-changelog` ships as a Python package that requires Python 3.12 or later.
+`tenzir-ship` ships as a Python package that requires Python 3.12 or later.
 Install it with [`uv`](https://docs.astral.sh/uv/) (or `pip`) and verify the
 console script:
 
 ```sh
-uv add tenzir-changelog
-uvx tenzir-changelog --help
+uv add tenzir-ship
+uvx tenzir-ship --help
 ```
 
 ## Python API
@@ -26,7 +26,7 @@ Drive the CLI flows from another Python process by importing the
 
 ```python
 from pathlib import Path
-from tenzir_changelog import Changelog
+from tenzir_ship import Changelog
 
 client = Changelog(root=Path("changelog"))
 client.add(
@@ -35,8 +35,11 @@ client.add(
     description="Body text",
     co_authors=["claude"],
 )
+
+# Show entries using scope tokens as identifiers
 client.show(identifiers=["unreleased"], view="markdown", explicit_links=True)
-client.release_notes("v1.0.0", explicit_links=True)
+client.show(identifiers=["v1.0.0"], release_mode=True, view="markdown")
+client.show(identifiers=["released"], release_mode=True, view="json")
 
 # Get the latest version
 version = client.release_version()  # Returns "v1.0.0"
@@ -46,8 +49,8 @@ bare_version = client.release_version(bare=True)  # Returns "1.0.0"
 client.release_publish(create_tag=True, assume_yes=True)
 ```
 
-For advanced scenarios, reuse `tenzir_changelog.create_cli_context` and call
-the helper functions from `tenzir_changelog.cli` directly.
+For advanced scenarios, reuse `tenzir_ship.create_cli_context` and call
+the helper functions from `tenzir_ship.cli` directly.
 
 ## Core concepts
 
@@ -119,7 +122,7 @@ structure may look like:
 Run changelog commands from the project root or the `changelog/` directory:
 
 ```sh
-uvx tenzir-changelog [command] [options]
+uvx tenzir-ship [command] [options]
 ```
 
 All commands accept `--config` to point at an explicit configuration file (YAML
@@ -136,33 +139,87 @@ root or the `changelog/` directory without repeating `--root`.
 Display changelog entries in multiple views.
 
 ```text
-tenzir-changelog show [identifiers...] [options]
+tenzir-ship show [identifiers...] [options]
 ```
 
-| Option                | Description                                                 |
-| --------------------- | ----------------------------------------------------------- |
-| `identifiers`         | Row numbers, entry IDs, release versions, or `-` (optional) |
-| `-c/--card`           | Show detailed cards for matching entries                    |
-| `-m/--markdown`       | Export as Markdown                                          |
-| `-j/--json`           | Export as JSON                                              |
-| `--compact`           | Use compact bullet-list layout                              |
-| `--no-compact`        | Use detailed card layout                                    |
-| `--no-emoji`          | Remove type emoji from output                               |
-| `--explicit-links`    | Render @mentions and PR refs as explicit Markdown links     |
-| `--project <id>`      | Filter to specific project (repeatable)                     |
-| `--component <label>` | Filter to specific component (repeatable)                   |
-| `--banner`            | Display project banner above table output                   |
+| Option                | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `identifiers`         | Row numbers, entry IDs, scope tokens, or versions       |
+| `-c/--card`           | Show detailed cards for matching entries                |
+| `-m/--markdown`       | Export as Markdown                                      |
+| `-j/--json`           | Export as JSON                                          |
+| `--release`           | Display entries grouped by release with full metadata   |
+| `--compact`           | Use compact bullet-list layout                          |
+| `--no-compact`        | Use detailed card layout                                |
+| `--no-emoji`          | Remove type emoji from output                           |
+| `--explicit-links`    | Render @mentions and PR refs as explicit Markdown links |
+| `--project <id>`      | Filter to specific project (repeatable)                 |
+| `--component <label>` | Filter to specific component (repeatable)               |
+| `--banner`            | Display project banner above table output               |
+
+#### Scope tokens
+
+Scope tokens control which entries to display. Pass one as a positional
+argument:
+
+| Token        | Description                                         |
+| ------------ | --------------------------------------------------- |
+| `all`        | All entries (released and unreleased) — the default |
+| `unreleased` | Only unreleased entries                             |
+| `released`   | Only released entries                               |
+| `latest`     | Only entries from the latest release                |
+
+You can combine a scope token with version identifiers (except `all`, which
+must be used alone):
+
+```sh
+# Show a specific release
+tenzir-ship show v1.0.0
+
+# Show only unreleased entries
+tenzir-ship show unreleased
+
+# Show released entries, filtering to specific versions
+tenzir-ship show released v1.0.0 v1.1.0
+```
 
 The table view (default) lists entries with ID, title, type, project, PRs, and
 authors. Row numbers count backward from the newest entry, so `#1` always
 targets the latest change.
+
+Use `--release` to display entries grouped by release with full release
+metadata. This is the recommended mode for exporting release notes:
+
+```sh
+# Export a specific release as Markdown
+tenzir-ship show v1.0.0 --release --markdown
+
+# Preview unreleased entries as release notes
+tenzir-ship show unreleased --release --markdown
+
+# Export all releases as JSON
+tenzir-ship show all --release --json
+
+# Export only released versions (exclude unreleased)
+tenzir-ship show released --release --json
+
+# Show entries from the latest release only
+tenzir-ship show latest --release --markdown
+```
+
+Use `--explicit-links` when rendering Markdown outside of GitHub. By default,
+the output uses `@username` and `#123` references that GitHub auto-links. With
+`--explicit-links`, these become explicit Markdown links like
+`[@username](https://github.com/username)` and
+`[#123](https://github.com/owner/repo/pull/123)`, making the output portable to
+documentation sites, blogs, or other Markdown renderers.
 
 ### add
 
 Create a new changelog entry in `unreleased/`.
 
 ```text
-tenzir-changelog add [options]
+tenzir-ship add [options]
 ```
 
 | Option                 | Description                                  |
@@ -195,7 +252,7 @@ contributions. Duplicates are removed automatically while preserving order.
 Stage a release under `releases/<version>/`.
 
 ```text
-tenzir-changelog release create [version] [options]
+tenzir-ship release create [version] [options]
 ```
 
 | Option                | Description                                                |
@@ -221,7 +278,7 @@ exists, the CLI appends additional unreleased entries.
 Print the latest released version.
 
 ```text
-tenzir-changelog release version [options]
+tenzir-ship release version [options]
 ```
 
 | Option   | Description                      |
@@ -233,47 +290,23 @@ output from other commands:
 
 ```sh
 # Get the latest version
-tenzir-changelog release version
+tenzir-ship release version
 # Output: v1.2.0
 
 # Get version without prefix (for semver tools)
-tenzir-changelog release version --bare
+tenzir-ship release version --bare
 # Output: 1.2.0
 
 # Use in commit messages
-git commit -m "Release $(tenzir-changelog release version)"
+git commit -m "Release $(tenzir-ship release version)"
 ```
-
-### release notes
-
-Re-export release notes without modifying files.
-
-```text
-tenzir-changelog release notes <identifier> [options]
-```
-
-| Option             | Description                                             |
-| ------------------ | ------------------------------------------------------- |
-| `identifier`       | Release version or `-` for unreleased                   |
-| `-m`               | Export as Markdown (default)                            |
-| `-j`               | Export as JSON                                          |
-| `--compact`        | Use bullet-list layout                                  |
-| `--no-emoji`       | Drop type icons                                         |
-| `--explicit-links` | Render @mentions and PR refs as explicit Markdown links |
-
-Use `--explicit-links` when rendering Markdown outside of GitHub. By default,
-the output uses `@username` and `#123` references that GitHub auto-links. With
-`--explicit-links`, these become explicit Markdown links like
-`[@username](https://github.com/username)` and
-`[#123](https://github.com/owner/repo/pull/123)`, making the output portable to
-documentation sites, blogs, or other Markdown renderers.
 
 ### release publish
 
 Publish a release to GitHub via `gh`.
 
 ```text
-tenzir-changelog release publish [version] [options]
+tenzir-ship release publish [version] [options]
 ```
 
 | Option             | Description                                             |
@@ -342,16 +375,16 @@ A full release workflow with commit and tag:
 
 ```sh
 # 1. Create the release (generates manifest.yaml and notes.md)
-tenzir-changelog release create --minor --yes
+tenzir-ship release create --minor --yes
 
 # 2. Review the generated notes
-tenzir-changelog release notes
+tenzir-ship show --release --markdown
 
 # 3. Stage release files
 git add changelog/releases/
 
 # 4. Publish with commit and tag (defaults to latest release)
-tenzir-changelog release publish --commit --tag --yes
+tenzir-ship release publish --commit --tag --yes
 ```
 
 Alternatively, commit manually to customize the message using `release version`:
@@ -359,10 +392,10 @@ Alternatively, commit manually to customize the message using `release version`:
 ```sh
 # 3. Stage and commit with custom message
 git add changelog/releases/
-git commit -m "Release $(tenzir-changelog release version)"
+git commit -m "Release $(tenzir-ship release version)"
 
 # 4. Publish (defaults to latest release)
-tenzir-changelog release publish --tag --yes
+tenzir-ship release publish --tag --yes
 ```
 
 Both workflows are version-agnostic after step 1. The `release publish` command
@@ -374,7 +407,7 @@ Run structural checks across entry files, release manifests, and exported
 documentation.
 
 ```text
-tenzir-changelog validate
+tenzir-ship validate
 ```
 
 The validator reports missing metadata, unused entries, duplicate entry IDs, and
@@ -382,16 +415,46 @@ configuration drift across repositories. When modules are configured, validation
 runs against the parent project and all discovered modules. Issues from modules
 are prefixed with the module ID.
 
-### modules
+### stats
 
-List discovered modules when a `modules` glob pattern is configured.
+Display project and release statistics.
 
 ```text
-tenzir-changelog modules
+tenzir-ship stats [options]
 ```
 
-The command displays a table with module ID, name, relative path, and count of
-unreleased entries. Use this to discover module paths for `--root` operations.
+| Option    | Description                           |
+| --------- | ------------------------------------- |
+| `--table` | Force table view even for one project |
+| `--json`  | Export statistics as JSON             |
+
+The command adapts its display based on the project structure:
+
+- **Single projects**: Vertical card layout with detailed sections for project
+  metadata, releases, entry types, and status
+- **Multi-module projects**: Compact table comparing all modules side by side
+
+Statistics include:
+
+- **Project info**: Name, latest version, age since last release
+- **Releases**: Total count, time span, release cadence (exponentially weighted
+  for recent activity)
+- **Entry types**: Distribution of breaking, feature, change, and bugfix entries
+  with percentages
+- **Entry status**: Total, shipped, and unreleased counts
+
+The release cadence uses exponential weighting to emphasize recent activity. A
+project releasing monthly for the past quarter shows higher cadence than one
+with sporadic releases.
+
+Use `--json` to export structured data for automation:
+
+```sh
+tenzir-ship stats --json
+```
+
+The JSON output includes the project root path, parent project statistics, and
+an array of module statistics when modules are configured.
 
 ## Configuration
 
@@ -444,7 +507,7 @@ ignores any `--pr`, `--author`, or `--co-author` flags (with a warning). Use
 these options for projects that don't use GitHub pull requests or prefer
 anonymous changelog entries.
 
-The first invocation of `tenzir-changelog add` scaffolds a `changelog/`
+The first invocation of `tenzir-ship add` scaffolds a `changelog/`
 subdirectory with `config.yaml`, inferring defaults from the parent directory
 name. When you provide an explicit `--root` flag, the CLI uses that directory
 directly. Projects with `package.yaml` next to `changelog/` reuse the package
@@ -629,10 +692,10 @@ each entry belongs to:
 
 ```sh
 # Show all entries (parent + modules)
-tenzir-changelog show
+tenzir-ship show
 
 # Show only parent entries
-tenzir-changelog show --project parent
+tenzir-ship show --project parent
 ```
 
 ### Aggregated release summaries
@@ -662,7 +725,7 @@ The release manifest records each module's version at release time in the
 include entries from module releases newer than the recorded version. This
 prevents duplicate entries across parent releases.
 
-The `release notes` command also renders module summaries when viewing a
+The `show --release` command also renders module summaries when viewing a
 specific release, using the same incremental logic based on the manifest's
 recorded module versions.
 
@@ -673,14 +736,14 @@ specific module:
 
 ```sh
 # Add entry to a module
-tenzir-changelog --root ../packages/amazon_vpc_flow/changelog add --title "Add parser"
+tenzir-ship --root ../packages/amazon_vpc_flow/changelog add --title "Add parser"
 
 # Create a release for a module
-tenzir-changelog --root ../packages/amazon_vpc_flow/changelog release create v1.0.0
+tenzir-ship --root ../packages/amazon_vpc_flow/changelog release create v1.0.0
 ```
 
-The `modules` command lists discovered modules with their paths for convenient
-copy-paste into `--root` flags.
+The `--show-modules` option lists discovered modules with their paths for
+convenient copy-paste into `--root` flags.
 
 ### Independent versioning
 
@@ -694,20 +757,20 @@ standalone GitHub releases can add a `repository` field to their configuration.
 
 ### Validation
 
-When `modules` is configured, `tenzir-changelog validate` checks:
+When `modules` is configured, `tenzir-ship validate` checks:
 
 - Module ID uniqueness across all discovered modules
 - Valid configuration in each module directory
 
 ## Troubleshooting
 
-- **Validation errors** – Run `tenzir-changelog validate` to identify missing
+- **Validation errors** – Run `tenzir-ship validate` to identify missing
   metadata, unused entries, or duplicate IDs.
 - **Component mismatch** – When `components` is configured, ensure every entry
   either omits `component` or uses an allowed label.
 - **Configuration not found** – Ensure `config.yaml` exists in the changelog
   root or `package.yaml` sits next to the `changelog/` directory. Run
-  `tenzir-changelog add` once to scaffold the configuration.
+  `tenzir-ship add` once to scaffold the configuration.
 - **Version bump fails** – Bump flags read the latest release manifest on disk.
   Create an initial release with an explicit version before using
   `--patch/--minor/--major`.
