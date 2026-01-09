@@ -323,28 +323,20 @@ async function discoverModules(newsRepoPath, projectDir, modulesGlob) {
 }
 
 /**
- * Read unreleased changelog entries for a project using tenzir-ship CLI.
+ * Read all releases for a changelog using bulk JSON export.
+ * Uses tenzir-ship's bulk export feature for efficiency.
  * @param {string} newsRepoPath - Base path to news repo
  * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
+ * @param {string} projectName - Name for release titles
  */
-async function readUnreleased(newsRepoPath, changelogPath) {
+async function readAllReleases(newsRepoPath, changelogPath, projectName) {
   const fullChangelogPath = path.join(newsRepoPath, changelogPath);
-  const unreleasedPath = path.join(fullChangelogPath, "unreleased");
+  const releases = [];
 
   try {
-    // Check if unreleased directory exists and has entries
-    const dirEntries = await fs.readdir(unreleasedPath, {
-      withFileTypes: true,
-    });
-    const mdFiles = dirEntries.filter(
-      (e) => e.isFile() && e.name.endsWith(".md"),
-    );
-
-    if (mdFiles.length === 0) return null;
-
-    // Run tenzir-ship to get structured JSON data with explicit links
+    // Bulk export all releases as JSON (includes unreleased)
     const jsonOutput = execSync(
-      "uvx tenzir-ship show --json --explicit-links -",
+      "uvx tenzir-ship show all --release --json --explicit-links",
       {
         cwd: fullChangelogPath,
         encoding: "utf-8",
@@ -352,132 +344,63 @@ async function readUnreleased(newsRepoPath, changelogPath) {
       },
     ).trim();
 
-    if (!jsonOutput) return null;
+    if (!jsonOutput) return releases;
 
-    const changelog = JSON.parse(jsonOutput);
-    if (!changelog.entries || changelog.entries.length === 0) return null;
+    const allReleases = JSON.parse(jsonOutput);
+    if (!Array.isArray(allReleases)) return releases;
 
-    // Extract unique components from all entries
-    const components = [
-      ...new Set(changelog.entries.flatMap((e) => e.components || [])),
-    ];
+    for (const release of allReleases) {
+      const version = release.version;
+      const isUnreleased = version === "Unreleased" || !version;
 
-    // Extract entry types for summary
-    const entryTypes = [...new Set(changelog.entries.map((e) => e.type))];
+      // Extract unique components from all entries
+      const entries = release.entries || [];
+      const components = [
+        ...new Set(entries.flatMap((e) => e.components || [])),
+      ];
+      const entryTypes = [...new Set(entries.map((e) => e.type))];
 
-    return {
-      version: "Unreleased",
-      slug: "unreleased",
-      title: "Unreleased",
-      created: changelog.created || "",
-      intro: changelog.intro || "",
-      entries: changelog.entries, // Store raw entries for MDX generation
-      majorVersion: Infinity, // Sort to top
-      minorVersion: 0,
-      patchVersion: 0,
-      isUnreleased: true,
-      components,
-      entryTypes,
-      entryCount: changelog.entries.length,
-    };
-  } catch {
-    return null;
-  }
-}
+      if (isUnreleased) {
+        // Only include unreleased if there are entries
+        if (entries.length === 0) continue;
 
-/**
- * Read all releases for a changelog.
- * @param {string} newsRepoPath - Base path to news repo
- * @param {string} changelogPath - Path to changelog directory (relative to newsRepoPath)
- * @param {string} projectName - Name for release titles
- * @param {object} options - Optional settings
- * @param {function} [options.onProgress] - Callback for progress updates (current, total)
- */
-async function readReleases(
-  newsRepoPath,
-  changelogPath,
-  projectName,
-  { onProgress } = {},
-) {
-  const releases = [];
-  const fullChangelogPath = path.join(newsRepoPath, changelogPath);
-  const releasesPath = path.join(fullChangelogPath, "releases");
-
-  // Check for unreleased entries first
-  const unreleased = await readUnreleased(newsRepoPath, changelogPath);
-  if (unreleased) {
-    releases.push(unreleased);
-  }
-
-  try {
-    const dirEntries = await fs.readdir(releasesPath, { withFileTypes: true });
-    const directories = dirEntries.filter((e) => e.isDirectory());
-    let processed = 0;
-
-    for (const dirEntry of directories) {
-      const manifestPath = path.join(
-        releasesPath,
-        dirEntry.name,
-        "manifest.yaml",
-      );
-
-      try {
-        const manifestContent = await fs.readFile(manifestPath, "utf-8");
-        const manifest = parseYaml(manifestContent);
-        const version = dirEntry.name;
+        releases.push({
+          version: "Unreleased",
+          slug: "unreleased",
+          title: "Unreleased",
+          created: release.created || "",
+          intro: release.intro || "",
+          entries,
+          majorVersion: Infinity, // Sort to top
+          minorVersion: 0,
+          patchVersion: 0,
+          isUnreleased: true,
+          components,
+          entryTypes,
+          entryCount: entries.length,
+        });
+      } else {
         const parsed = parseVersion(version);
-
-        // Get structured data via JSON export with explicit links
-        let entries = [];
-        let components = [];
-        let entryTypes = [];
-        try {
-          const jsonOutput = execSync(
-            `uvx tenzir-ship show --json --explicit-links ${version}`,
-            {
-              cwd: fullChangelogPath,
-              encoding: "utf-8",
-              stdio: ["pipe", "pipe", "pipe"],
-            },
-          ).trim();
-          const changelog = JSON.parse(jsonOutput);
-          if (changelog.entries) {
-            entries = changelog.entries;
-            components = [
-              ...new Set(changelog.entries.flatMap((e) => e.components || [])),
-            ];
-            entryTypes = [...new Set(changelog.entries.map((e) => e.type))];
-          }
-        } catch {
-          // JSON export may not be available for older releases
-        }
-
         releases.push({
           version,
           slug: versionToSlug(version),
-          title: manifest.title || `${projectName} ${version}`,
-          created: manifest.created || "",
-          intro: manifest.intro || "",
-          entries, // Store raw entries for MDX generation
+          title: release.title || `${projectName} ${version}`,
+          created: release.created || "",
+          intro: release.intro || "",
+          entries,
           majorVersion: parsed.major,
           minorVersion: parsed.minor,
           patchVersion: parsed.patch,
           components,
           entryTypes,
           entryCount: entries.length,
-          modules: manifest.modules || null, // Module versions for parent releases
+          modules: release.modules || null, // Module versions for parent releases
         });
-      } catch {
-        // Skip releases without required files
-      }
-
-      processed++;
-      if (onProgress) {
-        onProgress(processed, directories.length);
       }
     }
-  } catch {
-    // No releases directory
+  } catch (err) {
+    // Fallback: return empty if bulk export fails
+    console.warn(`  Warning: Bulk export failed for ${changelogPath}: ${err.message}`);
   }
 
   // Sort releases by version (newest first, unreleased at top due to Infinity)
@@ -485,6 +408,7 @@ async function readReleases(
 
   return releases;
 }
+
 
 /**
  * Entry type configuration for rendering.
@@ -1597,19 +1521,12 @@ async function syncChangelog(newsRepoPath) {
     // Show project being processed
     writeProgress(`  ${project.id}: reading releases...`);
 
-    // Read parent project releases with progress
+    // Read all releases via bulk export
     const changelogPath = path.join(project.dirName, "changelog");
-    const releases = await readReleases(
+    const releases = await readAllReleases(
       newsRepoPath,
       changelogPath,
       project.name,
-      {
-        onProgress: (current, total) => {
-          writeProgress(
-            `  ${project.id}: reading releases ${current}/${total}`,
-          );
-        },
-      },
     );
     projectVersions[project.id] = releases;
 
@@ -1629,15 +1546,10 @@ async function syncChangelog(newsRepoPath) {
     if (hasModules) {
       for (const mod of project.modules) {
         writeProgress(`    ${mod.id}: reading...`);
-        const moduleReleases = await readReleases(
+        const moduleReleases = await readAllReleases(
           newsRepoPath,
           mod.changelogPath,
           mod.name,
-          {
-            onProgress: (current, total) => {
-              writeProgress(`    ${mod.id}: reading ${current}/${total}`);
-            },
-          },
         );
         moduleVersions[`${project.id}/${mod.id}`] = moduleReleases;
         writeProgress(
