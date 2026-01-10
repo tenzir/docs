@@ -133,3 +133,89 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  bundle:
+    name: Bundle
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: artifact
+
+      - name: Extract artifact
+        run: |
+          mkdir -p dist
+          tar -xf artifact/artifact.tar -C dist
+
+      - name: Fix index.md naming
+        run: |
+          [ -f dist/.md ] && mv dist/.md dist/index.md || true
+
+      - name: Create tarball bundle
+        run: |
+          mkdir -p bundle
+
+          # Copy all .md files preserving structure (except sitemap)
+          rsync -a --include='*/' --include='*.md' --exclude='sitemap.md' --exclude='*' dist/ bundle/
+
+          # Copy sitemap with relative URLs and strip timestamp
+          sed -e 's|https://docs.tenzir.com/||g' -e '/^> Last updated:/d' dist/sitemap.md > bundle/sitemap.md
+
+          # Create tarball
+          tar -czf tenzir-docs.tar.gz -C bundle .
+
+      - name: Generate single-file bundle
+        run: |
+          {
+            echo "# Tenzir Documentation"
+            echo ""
+            echo "> Auto-generated from https://docs.tenzir.com"
+            echo ""
+
+            # Process files by section, demoting headings
+            for section in guides tutorials explanations reference integrations; do
+              if [ -d "bundle/$section" ]; then
+                echo "# ${section^}"
+                echo ""
+                find "bundle/$section" -name '*.md' -type f | sort | while read -r file; do
+                  sed 's/^#/##/' "$file"
+                  echo ""
+                  echo "---"
+                  echo ""
+                done
+              fi
+            done
+          } > tenzir-docs.md
+
+      - name: Delete existing release assets
+        run: |
+          gh release view latest --json assets -q '.assets[].name' 2>/dev/null | while read -r asset; do
+            gh release delete-asset latest "$asset" --yes
+          done || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Tenzir Documentation
+          body: |
+            The complete docs in AI-friendly formats.
+
+            **Downloads:**
+            - 📦 `tenzir-docs.tar.gz` — Structured directory of markdown files
+            - 📄 `tenzir-docs.md` — Single file with proper heading hierarchy
+
+            ---
+            🤖 Built for MCP servers, RAG pipelines, and AI assistants.
+
+            Generated from [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})
+          files: |
+            tenzir-docs.tar.gz
+            tenzir-docs.md
+          make_latest: true
