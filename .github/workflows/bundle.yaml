@@ -1,0 +1,95 @@
+name: Bundle
+
+on:
+  workflow_run:
+    workflows: ["Build & Deploy"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate single-file bundle
+        run: pnpm generate:docs-bundle
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: artifact
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract artifact
+        run: |
+          mkdir -p dist
+          tar -xf artifact/artifact.tar -C dist
+
+      - name: Fix index.md naming
+        run: |
+          [ -f dist/.md ] && mv dist/.md dist/index.md || true
+
+      - name: Create tarball bundle
+        run: |
+          mkdir -p bundle
+
+          # Copy sitemap with relative URLs
+          sed 's|https://docs.tenzir.com/||g' dist/sitemap.md > bundle/sitemap.md
+
+          # Strip timestamp for reproducibility
+          sed -i 's/^> Last updated:.*$//' bundle/sitemap.md
+
+          # Copy all .md files preserving structure
+          rsync -a --include='*/' --include='*.md' --exclude='*' dist/ bundle/
+
+          # Create tarball
+          tar -czf tenzir-docs.tar.gz -C bundle .
+
+      - name: Delete existing assets
+        run: |
+          gh release view latest --json assets -q '.assets[].name' 2>/dev/null | while read -r asset; do
+            gh release delete-asset latest "$asset" --yes
+          done || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Documentation (latest)
+          body: |
+            📚 **Tenzir Documentation Bundle**
+
+            The complete docs in AI-friendly formats.
+
+            **Downloads:**
+            - 📦 `tenzir-docs.tar.gz` — Structured directory of markdown files
+            - 📄 `tenzir-docs.md` — Single file with proper heading hierarchy
+
+            ---
+            🤖 Built for MCP servers, RAG pipelines, and AI assistants.
+
+            Generated from [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})
+          files: |
+            tenzir-docs.tar.gz
+            tenzir-docs.md
+          make_latest: true

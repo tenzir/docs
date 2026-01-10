@@ -7,6 +7,26 @@ const DOCS_DIR = "src/content/docs";
 const OUTPUT_FILE = "public/sitemap.md";
 const BASE_URL = "https://docs.tenzir.com";
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+const mapMode = args.includes("--map");
+const fullMode = args.includes("--full");
+
+if (!mapMode && !fullMode) {
+  console.error("Usage: generate-docs.mjs --map | --full [--output <file>]");
+  console.error("  --map   Generate sitemap with headings only");
+  console.error("  --full  Generate single file with full content");
+  process.exit(1);
+}
+
+const outputIndex = args.indexOf("--output");
+const customOutput =
+  outputIndex !== -1 && args[outputIndex + 1]
+    ? args[outputIndex + 1]
+    : fullMode
+      ? "tenzir-docs.md"
+      : OUTPUT_FILE;
+
 // Reference subcategories that should only show links (no H2s)
 const REFERENCE_ONLY_PATHS = [
   "reference/operators",
@@ -59,6 +79,31 @@ function extractHeadings(content) {
 }
 
 /**
+ * Demote all headings in markdown content by a specified number of levels.
+ * E.g., demoteBy=1 turns # into ##, ## into ###, etc.
+ */
+function demoteHeadings(content, demoteBy) {
+  if (demoteBy <= 0) return content;
+  return content.replace(/^(#{1,6})\s/gm, (match, hashes) => {
+    const newLevel = Math.min(hashes.length + demoteBy, 6);
+    return "#".repeat(newLevel) + " ";
+  });
+}
+
+/**
+ * Format a document's full content for the bundle.
+ */
+function formatDocFull(doc, headingLevel) {
+  let content = doc.body || "";
+  // Demote headings so they fit under the section hierarchy
+  // headingLevel is where this doc's title will be (e.g., 2 for ##)
+  // Body headings should be children of the title, so demote by (headingLevel - 1)
+  // E.g., if title is H2, body H2s become H3s (demote by 1)
+  content = demoteHeadings(content, headingLevel - 1);
+  return content.trim();
+}
+
+/**
  * Resolve a sidebar path to file info.
  */
 async function resolveDocPath(docPath, docsRoot) {
@@ -86,6 +131,7 @@ async function resolveDocPath(docPath, docsRoot) {
           path: docPath,
           title: title || path.basename(docPath),
           headings,
+          body: fullMode ? body : null,
         };
       } catch {
         // Try next variant
@@ -244,13 +290,53 @@ async function walkDirectory(dir, basePath, docsRoot) {
 }
 
 /**
+ * Format a section with full content for bundle mode.
+ */
+function formatSectionFull(item, level = 2) {
+  let output = "";
+  const headingPrefix = "#".repeat(level);
+
+  if (item.label && item.items) {
+    output += `${headingPrefix} ${item.label}\n\n`;
+    for (const subItem of item.items) {
+      if (subItem.label && subItem.items) {
+        // Nested group
+        output += formatSectionFull(subItem, level + 1);
+      } else if (subItem.path) {
+        output += formatDocEntryFull(subItem, level + 1);
+      }
+    }
+  } else if (item.path) {
+    output += formatDocEntryFull(item, level);
+  }
+
+  return output;
+}
+
+/**
+ * Format a document entry with full content for bundle mode.
+ */
+function formatDocEntryFull(doc, level) {
+  const headingPrefix = "#".repeat(level);
+  let entry = `${headingPrefix} ${doc.title}\n\n`;
+
+  if (doc.body) {
+    entry += formatDocFull(doc, level) + "\n\n";
+  }
+
+  return entry;
+}
+
+/**
  * Generate the documentation map.
  */
 async function generateDocsMap() {
   const docsRoot = path.join(process.cwd(), DOCS_DIR);
-  const outputPath = path.join(process.cwd(), OUTPUT_FILE);
+  const outputPath = path.join(process.cwd(), customOutput);
 
-  console.log("Generating docs map...");
+  console.log(
+    `Generating docs ${fullMode ? "bundle" : "map"} to ${customOutput}...`,
+  );
 
   // Read the file and extract the exports
   const sidebarContent = await fs.readFile(
@@ -340,28 +426,58 @@ async function generateDocsMap() {
 
   // Generate output
   const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
-  let output = `# Tenzir Documentation Map
+  let output;
+  let totalDocs = 0;
+
+  if (fullMode) {
+    // Full mode: single file with all content
+    output = `# Tenzir Documentation
+
+> Auto-generated from https://docs.tenzir.com
+>
+> Last updated: ${now}
+
+`;
+
+    for (const [name, items] of Object.entries(sections)) {
+      if (!items || items.length === 0) continue;
+
+      const title = name.charAt(0).toUpperCase() + name.slice(1);
+      output += `# ${title}\n\n`;
+
+      for (const item of items) {
+        if (item.label && item.items) {
+          output += formatSectionFull(item, 2);
+          totalDocs += countDocs(item);
+        } else if (item.path) {
+          output += formatDocEntryFull(item, 2);
+          totalDocs++;
+        }
+      }
+    }
+  } else {
+    // Map mode: sitemap with headings only
+    output = `# Tenzir Documentation Map
 
 > Last updated: ${now}
 
 `;
 
-  let totalDocs = 0;
+    for (const [name, items] of Object.entries(sections)) {
+      if (!items || items.length === 0) continue;
 
-  for (const [name, items] of Object.entries(sections)) {
-    if (!items || items.length === 0) continue;
+      const title = name.charAt(0).toUpperCase() + name.slice(1);
+      const sectionIndexUrl = `${BASE_URL}/${name}.md`;
+      output += `## [${title}](${sectionIndexUrl})\n\n`;
 
-    const title = name.charAt(0).toUpperCase() + name.slice(1);
-    const sectionIndexUrl = `${BASE_URL}/${name}.md`;
-    output += `## [${title}](${sectionIndexUrl})\n\n`;
-
-    for (const item of items) {
-      if (item.label && item.items) {
-        output += formatSection(item);
-        totalDocs += countDocs(item);
-      } else if (item.path) {
-        output += formatDocEntry(item, 3);
-        totalDocs++;
+      for (const item of items) {
+        if (item.label && item.items) {
+          output += formatSection(item);
+          totalDocs += countDocs(item);
+        } else if (item.path) {
+          output += formatDocEntry(item, 3);
+          totalDocs++;
+        }
       }
     }
   }
