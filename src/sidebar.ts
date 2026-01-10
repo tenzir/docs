@@ -48,6 +48,7 @@ export const guides = [
       "guides/ai-workbench/install-mcp-server",
       "guides/ai-workbench/configure-your-agent",
       "guides/ai-workbench/use-claude-plugins",
+      "guides/ai-workbench/use-documentation-skill",
       "guides/ai-workbench/generate-a-parser",
       "guides/ai-workbench/generate-an-ocsf-mapping",
     ],

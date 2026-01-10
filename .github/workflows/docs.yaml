@@ -140,6 +140,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -154,6 +157,14 @@ jobs:
       - name: Fix index.md naming
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Create tarball bundle
         run: |
@@ -191,6 +202,19 @@ jobs:
             done
           } > tenzir-docs.md
 
+      - name: Generate skill
+        run: |
+          pnpm generate:skill
+          tar -czf tenzir-skill.tar.gz -C tenzir .
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Validate skill
+        run: |
+          uv tool install git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref
+          skills-ref validate tenzir
+
       - name: Delete existing release assets
         run: |
           gh release view latest --json assets -q '.assets[].name' 2>/dev/null | while read -r asset; do
@@ -198,6 +222,9 @@ jobs:
           done || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set timestamp
+        run: echo "TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')" >> "$GITHUB_ENV"
 
       - name: Update release
         uses: softprops/action-gh-release@v2
@@ -210,9 +237,11 @@ jobs:
             **Download:**
             - 📦 [`tenzir-docs.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.tar.gz): Structured directory of markdown files
             - 📄 [`tenzir-docs.md`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.md): Single file with proper heading hierarchy
+            - 🤖 [`tenzir-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-skill.tar.gz): [Agent Skill](https://agentskills.io) with progressive disclosure
 
-            *Auto-generated from commit [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})*
+            *Auto-generated on ${{ env.TIMESTAMP }} from commit [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})*
           files: |
             tenzir-docs.tar.gz
             tenzir-docs.md
+            tenzir-skill.tar.gz
           make_latest: true

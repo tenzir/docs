@@ -1,0 +1,107 @@
+---
+title: Use documentation skill
+description: Access Tenzir documentation as an Agent Skill for any compatible AI agent
+---
+
+This guide shows you how to use the Tenzir documentation as an Agent Skill.
+You'll learn how to download the skill artifact, understand its structure, and
+configure it with your AI agent.
+
+## What is an Agent Skill?
+
+[Agent Skills](https://agentskills.io) is an open specification for packaging
+knowledge that AI agents can use. Skills provide structured documentation with
+progressive disclosure, letting agents load a condensed overview first and drill
+into details only when needed.
+
+Tenzir publishes its documentation as an Agent Skill with each release. This
+gives any skill-compatible agent immediate access to deployment guides, TQL
+reference, operator documentation, and integration examples.
+
+### Comparison with other options
+
+| Integration    | Best for                                    | Setup complexity |
+| -------------- | ------------------------------------------- | ---------------- |
+| Agent Skills   | Portable documentation for any agent        | Low              |
+| MCP Server     | Live pipeline execution and tool calling    | Medium           |
+| Claude Plugins | Deep Claude Code integration with workflows | Low              |
+
+Use the Agent Skill when your agent supports the specification but lacks MCP
+support, or when you want documentation without executing pipelines.
+
+## Download the skill
+
+Download `tenzir-skill.tar.gz` from the
+[latest release](https://github.com/tenzir/docs/releases/latest):
+
+```bash
+curl -LO https://github.com/tenzir/docs/releases/latest/download/tenzir-skill.tar.gz
+tar xzf tenzir-skill.tar.gz
+```
+
+This extracts a `tenzir/` directory with the skill contents.
+
+## Skill structure
+
+The skill uses progressive disclosure to optimize context usage:
+
+```
+tenzir/
+├── SKILL.md        # Condensed sitemap with excerpts (~8,500 tokens)
+└── references/     # Full documentation hierarchy
+```
+
+**SKILL.md** contains a navigable overview with:
+
+- Section descriptions (Guides, Tutorials, Explanations, Reference, Integrations)
+- Category headings with brief descriptions
+- Links to full documentation in `references/`
+
+**references/** mirrors the documentation site structure, containing the
+complete content of every page. Your agent can follow links from `SKILL.md` to
+load specific pages as needed.
+
+Every release is validated in CI using
+[skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref)
+to ensure the skill conforms to the Agent Skills specification.
+
+## Configure your agent
+
+Configuration varies by agent. See the
+[Agent Skills integration guide](https://agentskills.io/integrate-skills) for
+detailed instructions on adding skills to different AI agents.
+
+The general approach is:
+
+1. Point your agent to the `tenzir/` directory as a skill source
+2. The agent reads `SKILL.md` first for an overview
+3. When the agent needs details, it follows links into `references/`
+
+### Example: Claude Code custom instructions
+
+Add the skill path to your project's `CLAUDE.md`:
+
+```markdown
+## Available skills
+
+Load the Tenzir documentation skill from `path/to/tenzir/SKILL.md` when
+answering questions about TQL, operators, or Tenzir deployment.
+```
+
+### Example: Generic skill loading
+
+If your agent supports the Agent Skills specification, configure it to load
+from the extracted directory:
+
+```
+skill_path: ./tenzir
+```
+
+## Next steps
+
+- [Install the MCP server](/guides/ai-workbench/install-mcp-server) for live
+  pipeline execution
+- [Use Claude plugins](/guides/ai-workbench/use-claude-plugins) for deep Claude
+  Code integration
+- [Generate a parser](/guides/ai-workbench/generate-a-parser) using AI
+  assistance
