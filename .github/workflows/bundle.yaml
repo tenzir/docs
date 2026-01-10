@@ -51,14 +51,11 @@ jobs:
         run: |
           mkdir -p bundle
 
-          # Copy sitemap with relative URLs
-          sed 's|https://docs.tenzir.com/||g' dist/sitemap.md > bundle/sitemap.md
+          # Copy all .md files preserving structure (except sitemap which we process separately)
+          rsync -a --include='*/' --include='*.md' --exclude='sitemap.md' --exclude='*' dist/ bundle/
 
-          # Strip timestamp for reproducibility
-          sed -i 's/^> Last updated:.*$//' bundle/sitemap.md
-
-          # Copy all .md files preserving structure
-          rsync -a --include='*/' --include='*.md' --exclude='*' dist/ bundle/
+          # Copy sitemap with relative URLs and strip timestamp
+          sed -e 's|https://docs.tenzir.com/||g' -e '/^> Last updated:/d' dist/sitemap.md > bundle/sitemap.md
 
           # Create tarball
           tar -czf tenzir-docs.tar.gz -C bundle .
