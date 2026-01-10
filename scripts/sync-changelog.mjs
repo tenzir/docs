@@ -400,7 +400,9 @@ async function readAllReleases(newsRepoPath, changelogPath, projectName) {
     }
   } catch (err) {
     // Fallback: return empty if bulk export fails
-    console.warn(`  Warning: Bulk export failed for ${changelogPath}: ${err.message}`);
+    console.warn(
+      `  Warning: Bulk export failed for ${changelogPath}: ${err.message}`,
+    );
   }
 
   // Sort releases by version (newest first, unreleased at top due to Infinity)
@@ -408,7 +410,6 @@ async function readAllReleases(newsRepoPath, changelogPath, projectName) {
 
   return releases;
 }
-
 
 /**
  * Entry type configuration for rendering.
