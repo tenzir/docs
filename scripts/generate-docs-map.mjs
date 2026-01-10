@@ -162,19 +162,18 @@ async function processSidebarItem(item, docsRoot) {
 /**
  * Format a document entry as markdown.
  */
-function formatDocEntry(doc) {
+function formatDocEntry(doc, level) {
   const url = `${BASE_URL}/${doc.path}.md`;
-  let entry = `- [${doc.title}](${url})`;
+  const headingPrefix = "#".repeat(level);
+  let entry = `${headingPrefix} [${doc.title}](${url})\n\n`;
 
   if (doc.headings && doc.headings.length > 0) {
-    entry += "\n";
     for (const h2 of doc.headings) {
-      entry += `  - ${h2.text}\n`;
+      entry += `- ${h2.text}\n`;
       for (const h3 of h2.children) {
-        entry += `    - ${h3}\n`;
+        entry += `  - ${h3}\n`;
       }
     }
-  } else {
     entry += "\n";
   }
 
@@ -199,11 +198,11 @@ function formatSection(item, level = 3) {
         // Nested group
         output += formatSection(subItem, level + 1);
       } else if (subItem.path) {
-        output += formatDocEntry(subItem);
+        output += formatDocEntry(subItem, level + 1);
       }
     }
   } else if (item.path) {
-    output += formatDocEntry(item);
+    output += formatDocEntry(item, level);
   }
 
   return output;
@@ -343,7 +342,6 @@ async function generateDocsMap() {
   const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
   let output = `# Tenzir Documentation Map
 
-> Auto-generated from sidebar configuration. Do not edit manually.
 > Last updated: ${now}
 
 `;
@@ -357,22 +355,15 @@ async function generateDocsMap() {
     const sectionIndexUrl = `${BASE_URL}/${name}.md`;
     output += `## [${title}](${sectionIndexUrl})\n\n`;
 
-    let hasOutputItems = false;
     for (const item of items) {
       if (item.label && item.items) {
-        if (hasOutputItems) {
-          output += "\n"; // Add blank line before section if preceded by content
-        }
         output += formatSection(item);
         totalDocs += countDocs(item);
-        hasOutputItems = true;
       } else if (item.path) {
-        output += formatDocEntry(item);
+        output += formatDocEntry(item, 3);
         totalDocs++;
-        hasOutputItems = true;
       }
     }
-    output += "\n";
   }
 
   await fs.writeFile(outputPath, output);
