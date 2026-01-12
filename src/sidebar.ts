@@ -231,10 +231,11 @@ export const reference = [
     collapsed: true,
     items: [
       { label: "Overview", link: "reference/ocsf" },
-      { label: "Classes", link: "reference/ocsf/latest/classes" },
-      { label: "Objects", link: "reference/ocsf/latest/objects" },
-      { label: "Profiles", link: "reference/ocsf/latest/profiles" },
-      { label: "Types", link: "reference/ocsf/latest/types" },
+      // Version links updated by sync-ocsf.mjs
+      { label: "Classes", link: "reference/ocsf/1-8-0-dev/classes" },
+      { label: "Objects", link: "reference/ocsf/1-8-0-dev/objects" },
+      { label: "Profiles", link: "reference/ocsf/1-8-0-dev/profiles" },
+      { label: "Types", link: "reference/ocsf/1-8-0-dev/types" },
       { label: "FAQs", link: "reference/ocsf/faqs" },
       { label: "Articles", link: "reference/ocsf/articles" },
     ],

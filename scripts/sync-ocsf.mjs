@@ -18,6 +18,7 @@ const OCSF_BASE_URL = "https://schema.ocsf.io";
 const DOCS_ROOT = process.cwd();
 const OUTPUT_DIR = path.join(DOCS_ROOT, "src/content/docs/reference/ocsf");
 const REDIRECTS_FILE = path.join(DOCS_ROOT, "src/utils/redirects.mjs");
+const SIDEBAR_FILE = path.join(DOCS_ROOT, "src/sidebar.ts");
 
 // GitHub API for ocsf-docs repository
 const OCSF_DOCS_API = "https://api.github.com/repos/ocsf/ocsf-docs/contents";
@@ -1107,13 +1108,14 @@ ${articles.map((a) => `- [${a.title}](/reference/ocsf/articles/${a.slug})`).join
 }
 
 /**
- * Update redirects.mjs with the latest version redirect.
+ * Update redirects.mjs and sidebar.ts with the latest version.
  */
-async function updateRedirects(latestVersion) {
-  console.log(`Updating redirects with latest version: ${latestVersion}`);
+async function updateVersionReferences(latestVersion) {
+  console.log(`Updating version references to: ${latestVersion}`);
 
   const versionSlug = versionToSlug(latestVersion);
 
+  // Update redirects.mjs
   try {
     let content = await fs.readFile(REDIRECTS_FILE, "utf-8");
 
@@ -1127,6 +1129,22 @@ async function updateRedirects(latestVersion) {
     console.log(`  Updated ${REDIRECTS_FILE}`);
   } catch (err) {
     console.warn(`  Warning: Could not update redirects: ${err.message}`);
+  }
+
+  // Update sidebar.ts
+  try {
+    let content = await fs.readFile(SIDEBAR_FILE, "utf-8");
+
+    // Update OCSF version links in sidebar
+    content = content.replace(
+      /reference\/ocsf\/\d+-\d+-\d+(-dev)?\//g,
+      `reference/ocsf/${versionSlug}/`,
+    );
+
+    await fs.writeFile(SIDEBAR_FILE, content);
+    console.log(`  Updated ${SIDEBAR_FILE}`);
+  } catch (err) {
+    console.warn(`  Warning: Could not update sidebar: ${err.message}`);
   }
 }
 
@@ -1167,10 +1185,10 @@ async function main() {
   // Sync FAQs and articles
   await syncDocs();
 
-  // Update redirects with latest version
+  // Update redirects and sidebar with latest version
   if (generatedVersions.length > 0) {
     const latestVersion = generatedVersions[generatedVersions.length - 1];
-    await updateRedirects(latestVersion);
+    await updateVersionReferences(latestVersion);
   }
 
   // Fix markdown lint issues in generated content
