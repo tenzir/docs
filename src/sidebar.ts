@@ -234,6 +234,7 @@ export const reference = [
       { label: "Classes", link: "reference/ocsf/latest/classes" },
       { label: "Objects", link: "reference/ocsf/latest/objects" },
       { label: "Profiles", link: "reference/ocsf/latest/profiles" },
+      { label: "Types", link: "reference/ocsf/latest/types" },
       { label: "FAQs", link: "reference/ocsf/faqs" },
       { label: "Articles", link: "reference/ocsf/articles" },
     ],

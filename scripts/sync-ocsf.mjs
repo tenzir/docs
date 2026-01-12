@@ -78,7 +78,10 @@ async function fetchAvailableVersions() {
   console.log(`Fetching available versions from ${url}...`);
   const data = await fetchJson(url);
 
-  const versions = data.versions || [];
+  // Extract version strings from version objects
+  const versions = (data.versions || []).map((v) =>
+    typeof v === "string" ? v : v.version,
+  );
 
   // Filter to stable versions only (no dev, alpha, beta, rc)
   const stable = versions.filter(
@@ -258,7 +261,10 @@ function generateClassDoc(className, classData, allObjects, versionSlug) {
       const baseType = attrData.type || "";
       const objType = attrData.object_type;
       const formattedType = formatType(baseType, objType);
-      const desc = attrData.caption || "";
+      // Use full description if available, otherwise fall back to caption
+      const desc = cleanDescription(
+        attrData.description || attrData.caption || "",
+      );
 
       const entry = [attrName, formattedType, desc];
       if (req === "required") {
@@ -371,9 +377,12 @@ function generateObjectDoc(objName, objData, classUsage, versionSlug) {
         ? `\`object\` (\`${objType}\`)`
         : `\`${baseType}\``;
       const req = attrData.requirement || "optional";
-      const desc = attrData.caption || "";
+      // Use full description if available, otherwise fall back to caption
+      const desc = cleanDescription(
+        attrData.description || attrData.caption || "",
+      );
       const descPart = desc ? `: ${desc}` : "";
-      lines.push(`- \`${attrName}\` (${formattedType}, ${req})${descPart}`);
+      lines.push(`- \`${attrName}\` (${formattedType}, *${req}*)${descPart}`);
     }
     lines.push("");
   }
@@ -447,8 +456,11 @@ function generateProfileDoc(profileName, profileData) {
         ? `\`object\` (\`${objType}\`)`
         : `\`${baseType}\``;
       const req = attrData.requirement || "optional";
-      const desc = attrData.caption || "";
-      lines.push(`| \`${attrName}\` | ${formattedType} | ${req} | ${desc} |`);
+      // Use full description if available, otherwise fall back to caption
+      const desc = cleanDescription(
+        attrData.description || attrData.caption || "",
+      );
+      lines.push(`| \`${attrName}\` | ${formattedType} | *${req}* | ${desc} |`);
     }
     lines.push("");
   }
@@ -517,12 +529,14 @@ function generateClassesOverview(version, classes, versionSlug) {
 
   for (const category of sortedCats) {
     lines.push(`## ${category}`, "");
-    for (const [className, , caption, desc] of byCategory[category].sort(
+    for (const [className, uid, caption, desc] of byCategory[category].sort(
       (a, b) => a[1] - b[1],
     )) {
       const filename = className.replace(/\//g, "_");
       const descPart = desc ? `: ${desc}` : "";
-      lines.push(`- [${caption}](${basePath}/classes/${filename})${descPart}`);
+      lines.push(
+        `- [${caption} (${uid})](${basePath}/classes/${filename})${descPart}`,
+      );
     }
     lines.push("");
   }
@@ -745,6 +759,43 @@ function generateProfilesOverview(version, profiles, versionSlug) {
 }
 
 /**
+ * Generate data types overview MDX.
+ */
+function generateTypesOverview(version, types, _versionSlug) {
+  const lines = [];
+
+  lines.push(
+    generateFrontmatter({
+      title: "Types",
+      description: `Complete listing of OCSF ${version} types.`,
+      sidebarLabel: "Types",
+    }),
+  );
+
+  lines.push(
+    "Types define the format and validation rules for attribute values in OCSF.",
+    "",
+  );
+
+  lines.push("| Type | Caption | Base Type | Description |");
+  lines.push("|------|---------|-----------|-------------|");
+
+  for (const typeName of Object.keys(types).sort()) {
+    const typeData = types[typeName];
+    const caption = typeData.caption || typeName;
+    const baseType = typeData.type || "";
+    const baseTypeFormatted = baseType ? `\`${baseType}\`` : "—";
+    const desc = cleanDescription(typeData.description || "");
+    lines.push(
+      `| \`${typeName}\` | ${caption} | ${baseTypeFormatted} | ${desc} |`,
+    );
+  }
+  lines.push("");
+
+  return lines.join("\n");
+}
+
+/**
  * Generate version index MDX.
  */
 function generateVersionIndex(
@@ -752,6 +803,7 @@ function generateVersionIndex(
   classes,
   objects,
   profiles,
+  types,
   versionSlug,
 ) {
   const basePath = `/reference/ocsf/${versionSlug}`;
@@ -785,6 +837,12 @@ function generateVersionIndex(
     "",
   );
 
+  lines.push(`## [Types](${basePath}/types)`, "");
+  lines.push(
+    `Types define the format and validation rules for attribute values. OCSF ${version} defines ${Object.keys(types).length} types.`,
+    "",
+  );
+
   return lines.join("\n");
 }
 
@@ -797,9 +855,10 @@ async function generateVersion(version) {
   const profiles = await fetchProfiles(version);
   const classes = schema.classes || {};
   const objects = schema.objects || {};
+  const types = schema.types || {};
 
   console.log(
-    `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles`,
+    `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles, ${Object.keys(types).length} types`,
   );
 
   // Build class usage map
@@ -811,10 +870,12 @@ async function generateVersion(version) {
   const classesDir = path.join(versionDir, "classes");
   const objectsDir = path.join(versionDir, "objects");
   const profilesDir = path.join(versionDir, "profiles");
+  const typesDir = path.join(versionDir, "types");
 
   await fs.mkdir(classesDir, { recursive: true });
   await fs.mkdir(objectsDir, { recursive: true });
   await fs.mkdir(profilesDir, { recursive: true });
+  await fs.mkdir(typesDir, { recursive: true });
 
   let totalSize = 0;
 
@@ -867,12 +928,17 @@ async function generateVersion(version) {
   await fs.writeFile(path.join(profilesDir, "index.mdx"), profilesOverview);
   totalSize += profilesOverview.length;
 
+  const typesOverview = generateTypesOverview(version, types, versionSlug);
+  await fs.writeFile(path.join(typesDir, "index.mdx"), typesOverview);
+  totalSize += typesOverview.length;
+
   // Generate version index
   const versionIndex = generateVersionIndex(
     version,
     classes,
     objects,
     profiles,
+    types,
     versionSlug,
   );
   await fs.writeFile(path.join(versionDir, "index.mdx"), versionIndex);
