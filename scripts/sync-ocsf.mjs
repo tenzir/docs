@@ -1117,9 +1117,9 @@ async function updateRedirects(latestVersion) {
   try {
     let content = await fs.readFile(REDIRECTS_FILE, "utf-8");
 
-    // Update version slug in both redirect patterns
+    // Update version slug in redirect (handles both stable and -dev versions)
     content = content.replace(
-      /\/reference\/ocsf\/\d+-\d+-\d+/g,
+      /\/reference\/ocsf\/\d+-\d+-\d+(-dev)?/g,
       `/reference/ocsf/${versionSlug}`,
     );
 
