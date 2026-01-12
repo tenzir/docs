@@ -83,23 +83,34 @@ async function fetchAvailableVersions() {
     typeof v === "string" ? v : v.version,
   );
 
-  // Filter to stable versions only (no dev, alpha, beta, rc)
+  // Filter to stable and dev versions (exclude alpha, beta, rc)
   const stable = versions.filter(
     (v) =>
-      !["dev", "alpha", "beta", "rc"].some((tag) =>
-        v.toLowerCase().includes(tag),
-      ),
+      !["alpha", "beta", "rc"].some((tag) => v.toLowerCase().includes(tag)),
   );
 
-  // Sort by semantic version
+  // Sort by semantic version (dev versions sort after their base version)
   stable.sort((a, b) => {
-    const [aMajor, aMinor, aPatch] = a.split(".").map(Number);
-    const [bMajor, bMinor, bPatch] = b.split(".").map(Number);
-    return aMajor - bMajor || aMinor - bMinor || aPatch - bPatch;
+    // Parse version: "1.8.0-dev" -> {major: 1, minor: 8, patch: 0, isDev: true}
+    const parseVersion = (v) => {
+      const isDev = v.includes("-dev");
+      const clean = v.replace(/-dev$/, "");
+      const [major, minor, patch] = clean.split(".").map(Number);
+      return { major, minor, patch, isDev };
+    };
+    const va = parseVersion(a);
+    const vb = parseVersion(b);
+    // Sort by major, minor, patch, then dev versions last
+    return (
+      va.major - vb.major ||
+      va.minor - vb.minor ||
+      va.patch - vb.patch ||
+      (va.isDev === vb.isDev ? 0 : va.isDev ? 1 : -1)
+    );
   });
 
   console.log(
-    `  Found ${stable.length} stable versions: ${stable[0]} to ${stable[stable.length - 1]}`,
+    `  Found ${stable.length} versions: ${stable[0]} to ${stable[stable.length - 1]}`,
   );
   return stable;
 }
