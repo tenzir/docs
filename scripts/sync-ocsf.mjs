@@ -12,7 +12,6 @@
 
 import fs from "fs/promises";
 import path from "path";
-import { execSync } from "child_process";
 
 const OCSF_BASE_URL = "https://schema.ocsf.io";
 const DOCS_ROOT = process.cwd();
@@ -1196,23 +1195,6 @@ async function main() {
     if (latestStable) {
       await updateVersionReferences(latestStable);
     }
-  }
-
-  // Fix markdown lint issues in generated content
-  console.log("\nFixing markdown lint issues...");
-  try {
-    execSync(
-      `pnpm exec markdownlint --fix '${OUTPUT_DIR}/**/*.md' '${OUTPUT_DIR}/**/*.mdx'`,
-      {
-        cwd: DOCS_ROOT,
-        stdio: "pipe",
-      },
-    );
-    console.log("  Done");
-  } catch {
-    // markdownlint returns non-zero even after fixing if unfixable issues remain
-    // This is expected for some edge cases, so we don't fail the whole script
-    console.log("  Applied fixes (some issues may remain)");
   }
 
   console.log(`\nTotal: ${(totalSize / 1024).toFixed(1)} KB of documentation`);
