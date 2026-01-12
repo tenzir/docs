@@ -208,26 +208,30 @@ this = { zeek: this }
 
 // --- OCSF: classification attributes ----------
 
-ocsf.activity_id = 6
+ocsf.category_uid = 4
 ocsf.class_uid = 4001
+ocsf.activity_id = 6
+ocsf.severity_id = 1
 // ...fill out remaining classification attributes.
 
-// --- OCSF: occurence attributes ---------------
+// --- OCSF: occurrence attributes --------------
 
 ocsf.time = move zeek.ts // 👈 remove source field while mapping
 ocsf.duration = move zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
-// ...fill out remaining occurence attributes.
+// ...fill out remaining occurrence attributes; add timezone_offset if known.
 
 // --- OCSF: context attributes -----------------
 
 ocsf.metadata = {
   product: {
     name: "Zeek",
+    vendor_name: "Zeek",
   },
+  profiles: [], // 👈 add profiles as needed, e.g., ["host", "network_proxy"]
   uid: move zeek.uid,
-  version: "1.6.0",
+  version: "1.7.0",
 }
 // ...fill out remaining context attributes.
 
@@ -240,17 +244,26 @@ ocsf.src_endpoint = {
 // ...fill out remaining primary attributes.
 drop zeek.id // 👈 remove source field after mapping
 
+// --- OCSF: profile-specific attributes --------
+
+// Add profile-specific fields here based on metadata.profiles.
+// E.g., for host profile: ocsf.actor.user, ocsf.device, etc.
+// ...
+
 // --- Epilogue ---------------------------------
 
 // (3) Hoist all `ocsf` attributes into the root and declare the remaining fields in
 // `zeek` as `unmapped`.
 this = {...ocsf, unmapped: zeek}
 
-// (4) Assign metadata, such as a name for easier filtering downstream.
-@name = "ocsf.network_activity"
+// (4) Minimize nulls in unmapped data.
+drop_null_fields unmapped
 
-// (5) Populate sibling fields.
+// (5) Populate sibling fields for completeness.
 ocsf::derive
+
+// (6) Assign metadata, such as a name for easier filtering downstream.
+@name = "ocsf.network_activity"
 ```
 
 import { Steps } from "@astrojs/starlight/components";
@@ -274,11 +287,12 @@ Let's unpack this:
    map. This is why it's important to remove the fields from the source as we
    perform the mapping. If you forget to map a field, it simply lands in the
    `unmapped` catch-all record and you can tweak your mapping later.
-4. We give the event a new schema name so that we can easily filter by its shape
-   in further pipelines.
+4. We drop null fields from `unmapped` to keep the output clean.
 5. We keep the mapping terse by only mapping the `*_[u]id` field and relying on
    [`ocsf::derive`](/reference/operators/ocsf/derive) to auto-populate the
    corresponding sibling fields.
+6. We give the event a new schema name so that we can easily filter by its shape
+   in further pipelines.
 
 </Steps>
 

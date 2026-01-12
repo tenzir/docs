@@ -38,9 +38,14 @@ Create a directory named `sslbl` and add the standard package layout:
   - operators/ Reusable building blocks for pipelines
   - pipelines/ Deployable pipelines
   - tests/ Integration tests
+    - inputs/ Sample data for test pipelines
   - package.yaml Manifest: metadata, contexts, and inputs
 
 </FileTree>
+
+The `tests/inputs/` directory holds sample data that the test harness makes
+available via the `TENZIR_INPUTS` environment variable. Reference these files
+from test pipelines using `f"{env("TENZIR_INPUTS")}/filename.txt"`.
 
 ## Add the package manifest
 
@@ -221,27 +226,50 @@ sslbl::tag_threat hash
 ```
 
 ```tql
-{hash: "abc123", threat: {indicator: "abc123", confidence: "Medium", source: "SSLBL"}}
+{
+  hash: "abc123",
+  threat: {
+    indicator: "abc123",
+    confidence: "Medium",
+    source: "SSLBL",
+  },
+}
 ```
 
+Override confidence by passing `confidence` as named argument:
+
 ```tql
-// Override confidence
 from {hash: "abc123"}
 sslbl::tag_threat hash, confidence="High"
 ```
 
 ```tql
-{hash: "abc123", threat: {indicator: "abc123", confidence: "High", source: "SSLBL"}}
+{
+  hash: "abc123",
+  threat: {
+    indicator: "abc123",
+    confidence: "High",
+    source: "SSLBL",
+  },
+}
 ```
 
+Override both by passing `confidence` and `source`:
+
 ```tql
-// Override both options
 from {hash: "abc123"}
 sslbl::tag_threat hash, confidence="High", source="Custom Feed"
 ```
 
 ```tql
-{hash: "abc123", threat: {indicator: "abc123", confidence: "High", source: "Custom Feed"}}
+{
+  hash: "abc123",
+  threat: {
+    indicator: "abc123",
+    confidence: "High",
+    source: "Custom Feed",
+  },
+}
 ```
 
 The `field` type is special—it accepts field selectors like `hash` and
@@ -279,8 +307,20 @@ This ensures your operator handles various inputs correctly
 
 ## Add deployable pipelines
 
+:::tip[Operators vs. Pipelines]
 With our user-defined operators, we get building blocks, but not yet entire
-pipelines.
+pipelines. Packages that only ship operators provide capabilities—they offer
+reusable components that other pipelines can compose. This makes them versatile:
+users decide when and how to use the operators.
+
+Packages that include pipelines execute immediately upon installation. This is
+useful for background tasks like periodic data fetching, but it means the
+package takes action without explicit user invocation.
+
+For maximum flexibility, add `disabled: true` to pipeline frontmatter. This
+ships the pipeline as a template that users must explicitly enable, combining
+the convenience of ready-made pipelines with opt-in execution.
+:::
 
 We now create a pipeline that downloads SSLBL data and updates the context
 periodically so that we always have the latest version of the SSLBL data for
@@ -292,6 +332,14 @@ latest version. So we turn the one-shot download into a continuous data feed
 using the [`every`](/reference/operators/every) operator:
 
 ```tql title="sslbl/pipelines/publish-as-ocsf.tql"
+---
+name: Publish SSLBL as OCSF
+description: >
+  Fetches the SSL blocklist hourly and publishes OCSF Inventory Info
+  events to the `ocsf` topic.
+disabled: true
+---
+
 every 1h {
   sslbl::fetch
 }
@@ -312,6 +360,14 @@ afterwards, we can directly update the lookup table from the plain OSINT
 objects:
 
 ```tql title="sslbl/pipelines/update-lookup-table.tql"
+---
+name: Update SSLBL Lookup Table
+description: >
+  Fetches the SSL blocklist hourly and updates the sslbl lookup table
+  with OCSF OSINT objects keyed by indicator value.
+disabled: true
+---
+
 every 1h {
   sslbl::fetch
 }

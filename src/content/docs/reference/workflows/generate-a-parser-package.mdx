@@ -5,11 +5,11 @@ description: Create a TQL parsing pipeline package from sample log data
 
 Create a Tenzir package that parses raw log data into structured events.
 
-**Prerequisites**: Fetch and read these documentation pages before starting:
+**Prerequisites**: Read these pages before starting:
 
-- `/explanations/packages`
-- `/reference/test-framework`
-- `/guides/testing/write-tests`
+- `/tutorials/write-a-package` - Package structure, operators, testing patterns
+- `/explanations/packages` - Package concepts
+- `/reference/test-framework` - Test framework reference
 
 Execute the phases below in order. Do not skip phases.
 
@@ -35,22 +35,9 @@ Execute the phases below in order. Do not skip phases.
 1. Confirm the package ID with the user (typically vendor name, e.g., `fortinet`,
    `cisco`, `microsoft`). In the instructions below, replace `<pkg>` with the
    chosen package ID.
-2. Create the package directory structure:
-
-   ```
-   <pkg>/
-   ├── package.yaml
-   ├── README.md
-   ├── operators/
-   │   └── parse.tql
-   ├── tests/
-   │   ├── parse.tql
-   │   ├── parse.txt
-   │   └── inputs/
-   │       └── sample.txt
-   └── changelog/
-   ```
-
+2. Create the package directory structure as described in the Write a Package
+   tutorial. Include `operators/parse.tql`, `tests/parse.tql`, and
+   `tests/inputs/sample.txt`.
 3. Create `package.yaml` with the package metadata.
 4. Create the initial `parse` operator in `operators/parse.tql` with just
    `read_lines` as a starting point.
@@ -63,8 +50,7 @@ Execute the phases below in order. Do not skip phases.
    ```
 
 6. Save the sample log data to `tests/inputs/sample.txt`.
-7. Create the initial baseline:
-   -`uvx tenzir-test --root <pkg> -u --summary`
+7. Create the initial baseline: `uvx tenzir-test --root <pkg> -u --summary`
 
 **Completion**: State "Phase 2 complete" before proceeding.
 
@@ -72,41 +58,21 @@ Execute the phases below in order. Do not skip phases.
 
 **Objective**: Refine the parser until all fields are parsed and properly typed.
 
-**Prerequisites**: Fetch and read these documentation pages:
+**Prerequisites**: Read these guides for transformation patterns:
 
-- `/guides/data-shaping/transform-basic-values`
-- `/guides/data-shaping/extract-structured-data-from-text`
-- `/guides/data-shaping/convert-data-formats`
-- `/guides/data-shaping/reshape-complex-data`
+- `/guides/data-shaping/transform-basic-values` - Type conversion, null handling, sentinel values
+- `/guides/data-shaping/extract-structured-data-from-text` - Nested structures, delimited data
+- `/guides/data-shaping/manipulate-strings` - String cleanup, splitting, extraction
 
 Loop until all fields are properly parsed:
 
-1. Make ONE modification to the `parse` operator. Typical actions include:
-   - **Date & time parsing**: Parse timestamps as type `time` or `duration`
-     rather than keeping them as strings; cf. `parse_time` and `time` functions.
-   - **IP addresses**: TQL has first-class IP address types; an `ip` literal
-     has the form `1.2.3.4` (not `"1.2.3.4"`). Ensure all IP addresses are
-     parsed as type `ip` and not as strings.
-   - **Subnets**: TQL has first-class subnet types; a `subnet` literal has
-     the form `10.0.0.0/8`. Ensure all CIDR subnets are parsed as `subnet`.
-   - **Strings**: Clean string artifacts with the `trim` function.
-   - **Lists**: Parse list-like values into values of type `list` (e.g.,
-     comma-separated values surrounded by brackets). TQL lists are typed and
-     require exactly one element type. Default to strings as element type if
-     there is other concrete fitting type.
-   - **Nested structures**: Parse nested structures using `parse_*` functions
-     according to the format of the value.
-   - **Sentinel values**: Use `replace` to normalize sentinel values:
-     ```tql
-     replace what="None", with=null
-     replace what="N/A", with=null
-     replace fieldname, what="NO", with=false
-     ```
-
+1. Make ONE modification to the `parse` operator. Work through these categories:
+   - **Type conversion**: Parse timestamps, IPs, subnets (see `transform-basic-values`)
+   - **Structure extraction**: Parse nested JSON, CSV, key-value pairs (see `extract-structured-data-from-text`)
+   - **Data cleaning**: Normalize sentinel values to null, trim whitespace, extract substrings (see `transform-basic-values` and `manipulate-strings`)
 2. Observe the impact of your change by re-running:
    - `uvx tenzir-test --root <pkg> --summary`
-3. If the diff looks good, update the baseline:
-   -`uvx tenzir-test --root <pkg> -u --summary`
+3. If the diff looks good, update the baseline: `uvx tenzir-test --root <pkg> -u --summary`
 4. Go back to Step 1 and continue with the next modification
 
 **Completion**: State "Phase 3 complete" before proceeding.

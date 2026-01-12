@@ -390,6 +390,43 @@ status = status? else "unknown"
 {name: "charlie", age: 25, status: "unknown"}
 ```
 
+### Normalize sentinel values
+
+Many data sources use string placeholders like `"None"`, `"N/A"`, `"-"`, or
+empty strings to represent missing values. Use
+[`replace`](/reference/operators/replace) to normalize these to actual `null`:
+
+```tql
+from {status: "active", error: "None"},
+     {status: "N/A", error: "timeout"},
+     {status: "-", error: ""}
+replace what="None", with=null
+replace what="N/A", with=null
+replace what="-", with=null
+replace what="", with=null
+```
+
+```tql
+{status: "active", error: null}
+{status: null, error: "timeout"}
+{status: null, error: null}
+```
+
+To normalize a specific field rather than all matching strings, specify the
+field name:
+
+```tql
+from {enabled: "YES", disabled: "NO"}
+replace enabled, what="YES", with=true
+replace enabled, what="NO", with=false
+replace disabled, what="YES", with=true
+replace disabled, what="NO", with=false
+```
+
+```tql
+{enabled: true, disabled: false}
+```
+
 ## Create new values
 
 Generate new values using built-in functions:
