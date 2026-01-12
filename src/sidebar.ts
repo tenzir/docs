@@ -49,8 +49,6 @@ export const guides = [
       "guides/ai-workbench/configure-your-agent",
       "guides/ai-workbench/use-claude-plugins",
       "guides/ai-workbench/use-documentation-skill",
-      "guides/ai-workbench/generate-a-parser",
-      "guides/ai-workbench/generate-an-ocsf-mapping",
     ],
   },
   {
@@ -199,10 +197,6 @@ export const reference = [
     link: "reference/functions",
   },
   {
-    label: "MCP Server",
-    link: "reference/mcp-server",
-  },
-  {
     label: "Node",
     collapsed: true,
     items: ["reference/node/configuration", nodeAPISidebarGroup],
@@ -225,8 +219,21 @@ export const reference = [
     link: "reference/ship-framework",
   },
   {
+    label: "MCP Server",
+    link: "reference/mcp-server",
+  },
+  {
     label: "Claude Marketplace",
     link: "reference/claude-plugins",
+  },
+  {
+    label: "Workflows",
+    collapsed: true,
+    items: [
+      { label: "Overview", link: "reference/workflows" },
+      "reference/workflows/generate-a-parser-package",
+      "reference/workflows/generate-an-ocsf-mapping",
+    ],
   },
 ];
 

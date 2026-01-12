@@ -1,0 +1,165 @@
+---
+title: Generate an OCSF Mapping
+description: Create an OCSF mapping inside a Tenzir package
+---
+
+Add OCSF (Open Cybersecurity Schema Framework) mapping to a parser package.
+
+**Prerequisites**: Fetch and read these documentation pages before starting:
+
+- `/explanations/packages`
+- `/reference/test-framework`
+- `/tutorials/map-data-to-ocsf`
+
+Execute the phases below in order. Do not skip phases.
+
+## Phase 0: Create Parser Package
+
+**Objective**: Ensure a parser package exists before adding OCSF mapping.
+
+**Steps**:
+
+1. Ask the user for the package directory or sample log data
+2. If a parser package exists (has `operators/parse.tql`), note the package
+   directory and identifier, then proceed to Phase 1
+3. If no parser exists, execute the `generate-a-parser-package` workflow first
+
+**Completion**: State "Phase 0 complete" with the package ID.
+
+## Phase 1: OCSF Target Analysis
+
+**Objective**: Identify the appropriate OCSF event class and plan the mapping.
+
+**Steps**:
+
+1. Examine the parsed data schema (from the `parse` operator output) to
+   understand available fields.
+2. Identify the most appropriate OCSF event class based on the data type.
+3. Document which OCSF attribute groups will be populated:
+   - **Classification**: `category_uid`, `class_uid`, `type_uid`, `activity_id`
+   - **Occurrence**: `time`, `timezone_offset`
+   - **Context**: `metadata`, `observables`
+   - **Primary**: Class-specific fields (e.g., `src_endpoint`, `dst_endpoint`)
+4. Identify needed profiles to achieve mapping completeness:
+   - Host
+   - OSINT
+   - Security Control
+   - Network Proxy
+   - etc.
+5. Note any gaps in the source data for populating OCSF fields.
+
+**Completion**: State "Phase 1 complete" before proceeding.
+
+## Phase 2: OCSF Mapping Operator
+
+**Objective**: Create the OCSF mapping operator with proper structure.
+
+Let `<pkg>` be the package ID from Phase 0.
+
+**Steps**:
+
+1. Create a new operator `operators/ocsf/<type>.tql` where `<type>` is the event
+   type (e.g., `proxy`, `flow`, `process`, `auth`)
+
+2. Write TQL code that transforms parsed data into OCSF format. Structure the
+   code with clear section comments. The example below uses placeholders, e.g.,
+   `event` for `<type>`.
+
+   ```tql
+   // --- Preamble ---------------------------------
+
+   this = { event: this}  // 👈 instead of `event`, use the most semantic value
+                          // possible, e.g., `<vendor>` or `<product>`, like
+                          // `zeek`, `fortinet`, `aws`, etc.
+
+   // --- OCSF: Classification ---------------------
+
+   ocsf.category_uid = 4
+   ocsf.class_uid = 4001
+   ocsf.severity_id = 1
+
+   // --- OCSF: Occurrence -------------------------
+
+   ocsf.time = move event.timestamp_field // 👈 also look for start/stop
+                                          // timestamps and populate the
+                                          // adjacent `start_time`, `end_time`,
+                                          // and `duration` fields. Add
+                                          // `timezone_offset` if known.
+
+   // --- OCSF: Context ----------------------------
+
+   ocsf.metadata = {
+     product: {
+       name: "<product>",
+       vendor_name: "<vendor>",
+     },
+     profiles: ["security_control", "<other-profile>"], // 👈 according to
+                                                        // identified profiles
+     uid: move event.unique_event_id,
+     version: "1.7.0",
+   }
+
+   // --- OCSF: Primary ----------------------------
+
+   // Class-specific required and recommended fields
+   // ...
+
+   // --- OCSF: Host Profile -----------------------
+
+   // Map host profile fields
+   // ...
+
+   // --- Epilogue ---------------------------------
+
+   // Hoist all `ocsf` attributes into the root; declare remaining as unmapped
+   this = {...ocsf, unmapped: event}
+
+   // Minimize nulls in unmapped data that is likely variant-encoded later
+   // anyway.
+   drop_null_fields unmapped
+
+   // Populate sibling fields for completeness, e.g., `*_name`.
+   ocsf::derive
+
+   // Assign TQL metadata: schema name with `ocsf.` prefix.
+   @name = "ocsf.network_activity"
+   ```
+
+   Only include profile mapping blocks for the proviles that the target analysis
+   revealed.
+
+3. Create a test file `tests/ocsf/<type>.tql`:
+
+   ```tql
+   from_file f"{env("TENZIR_INPUTS")}/sample.txt" {
+     <pkg>::parse
+   }
+   <pkg>::ocsf::<type>
+   ocsf::cast
+   ```
+
+   The `ocsf::cast` operator validates the output against the OCSF schema and
+   emits warnings on mismatches.
+
+4. Run `uvx tenzir-test --root <pkg> --summary` and iterate until all warnings
+   are gone.
+
+5. Update the baseline with `uvx tenzir-test --root <pkg> -u --summary`
+
+**Completion**: State "Phase 2 complete" before proceeding.
+
+## Phase 3: Summarize
+
+Provide a final summary of the complete parser with OCSF mapping:
+
+- **Package name and structure**: Tree view of the package
+- **Parser functionality**: What the parser extracts from raw logs
+- **Target OCSF class and version**: The selected event class
+- **OCSF attribute groups populated**: Classification, Occurrence, Context,
+  Primary
+- **OCSF profiles used**: List of enabled profiles
+- **Field mapping overview**: Source field → Parsed field → OCSF field
+- **Sample input**: Raw log example
+- **Sample intermediate**: Parsed data example
+- **Sample output**: OCSF event example
+- **Limitations**: Any missing OCSF fields or `unmapped` contents
