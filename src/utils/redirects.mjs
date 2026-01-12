@@ -10,7 +10,7 @@ export function generateRedirects() {
   // OCSF latest version redirect (updated by sync-ocsf.mjs)
   // Use dashes in version to avoid URL issues with dots (1.7.0 -> 1-7-0)
   // Note: Only base redirect works; Astro doesn't support dynamic segments in static redirects
-  const ocsfVersion = "1-8-0-dev";
+  const ocsfVersion = "1-7-0";
   redirects["/reference/ocsf/latest"] = `/reference/ocsf/${ocsfVersion}`;
 
   return redirects;

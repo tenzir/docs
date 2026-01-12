@@ -1185,10 +1185,14 @@ async function main() {
   // Sync FAQs and articles
   await syncDocs();
 
-  // Update redirects and sidebar with latest version
+  // Update redirects and sidebar with latest stable version (not dev)
   if (generatedVersions.length > 0) {
-    const latestVersion = generatedVersions[generatedVersions.length - 1];
-    await updateVersionReferences(latestVersion);
+    const latestStable = [...generatedVersions]
+      .reverse()
+      .find((v) => !v.includes("-dev"));
+    if (latestStable) {
+      await updateVersionReferences(latestStable);
+    }
   }
 
   // Fix markdown lint issues in generated content
