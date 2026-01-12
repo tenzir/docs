@@ -227,6 +227,18 @@ export const reference = [
     link: "reference/claude-plugins",
   },
   {
+    label: "OCSF",
+    collapsed: true,
+    items: [
+      { label: "Overview", link: "reference/ocsf" },
+      { label: "Classes", link: "reference/ocsf/latest/classes" },
+      { label: "Objects", link: "reference/ocsf/latest/objects" },
+      { label: "Profiles", link: "reference/ocsf/latest/profiles" },
+      { label: "FAQs", link: "reference/ocsf/faqs" },
+      { label: "Articles", link: "reference/ocsf/articles" },
+    ],
+  },
+  {
     label: "Workflows",
     collapsed: true,
     items: [
