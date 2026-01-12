@@ -1076,7 +1076,10 @@ ${allQuestions
       articles.push({ slug: baseName, title });
 
       // Remove the H1 title from content (Starlight uses frontmatter title)
-      const contentWithoutTitle = content.replace(/^#\s+.+\n/, "");
+      // Also fix malformed markdown links with double parentheses: [text]((url)) -> [text](url)
+      const contentWithoutTitle = content
+        .replace(/^#\s+.+\n/, "")
+        .replace(/\]\(\(([^)]+)\)\)/g, "]($1)");
 
       const mdx =
         generateFrontmatter({
