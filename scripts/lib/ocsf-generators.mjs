@@ -30,8 +30,13 @@ export function cleanDescription(text) {
       // Convert code tags
       .replace(/<code>/g, "`")
       .replace(/<\/code>/g, "`")
-      // Convert links
-      .replace(/<a[^>]*href=['"]([^'"]+)['"][^>]*>([^<]+)<\/a>/g, "[$2]($1)")
+      // Convert external links (with protocol) to markdown
+      .replace(
+        /<a[^>]*href=['"](https?:\/\/[^'"]+)['"][^>]*>([^<]+)<\/a>/g,
+        "[$2]($1)",
+      )
+      // Strip internal OCSF links (simple identifiers like "file_activity") - keep text only
+      .replace(/<a[^>]*href=['"][^'"]*['"][^>]*>([^<]+)<\/a>/g, "$1")
       // Convert list items to Markdown bullets
       .replace(/<li[^>]*>/g, "\n- ")
       .replace(/<\/li>/g, "")
