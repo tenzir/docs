@@ -13,11 +13,13 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
   /** Array of badge labels to display */
   badges?: string[];
   icon?: StarlightIcon;
+  /** Raw SVG string for custom icons (use with ?raw import) */
+  customIcon?: string;
   /** Color name for the icon (e.g., 'blue', 'green', 'purple') */
   color?: string;
 }
 
-const { title, meta, badges, description, icon, color, href, ...rest } = Astro.props;
+const { title, meta, badges, description, icon, customIcon, color, href, ...rest } = Astro.props;
 
 let renderedDescription: string | undefined;
 if (description) {
@@ -34,6 +36,10 @@ if (description) {
           <Icon name={icon} size="1.5rem" />
         </span>
       )}
+      {customIcon && (
+        // eslint-disable-next-line astro/no-set-html-directive -- trusted SVG from ?raw import
+        <span class="link-card-icon link-card-custom-icon" set:html={customIcon} />
+      )}
       <span class="link-card-title">{title}</span>
       {
         (meta || (badges && badges.length > 0)) && (
@@ -46,6 +52,9 @@ if (description) {
           </span>
         )
       }
+      <span class="link-card-arrow">
+        <Icon name="right-arrow" size="1.25rem" />
+      </span>
     </div>
     {/* eslint-disable-next-line astro/no-set-html-directive -- trusted changelog content */}
     {renderedDescription && <p class="link-card-description" set:html={renderedDescription} />}
@@ -53,22 +62,27 @@ if (description) {
 </div>
 
 <style>
-  /* Card container - dark mode default */
+  /*
+   * Card styling uses Tenzir brand tokens. Keep in sync with Starlight's
+   * LinkCard overrides in src/assets/styles.css (.sl-link-card section).
+   */
   .link-card {
-    border: 1px solid var(--tnz-neutral-700);
+    border: 1px solid var(--tnz-neutral-200);
     border-radius: var(--tnz-radius);
-    background: var(--tnz-neutral-800);
+    background: var(--tnz-neutral-50);
+    box-shadow: var(--tnz-shadow-xs);
     transition: border-color var(--tnz-transition-base);
   }
   .link-card:hover {
+    border-color: var(--tnz-neutral-300);
+  }
+  :root[data-theme='dark'] .link-card {
+    background: var(--tnz-neutral-800);
+    border-color: var(--tnz-neutral-600);
+    box-shadow: var(--tnz-shadow-xs-dark);
+  }
+  :root[data-theme='dark'] .link-card:hover {
     border-color: var(--tnz-neutral-500);
-  }
-  :root[data-theme='light'] .link-card {
-    background: var(--tnz-neutral-50);
-    border-color: var(--tnz-neutral-200);
-  }
-  :root[data-theme='light'] .link-card:hover {
-    border-color: var(--tnz-neutral-400);
   }
 
   /* Link wrapper */
@@ -82,85 +96,51 @@ if (description) {
     text-decoration: none;
   }
 
-  /* Header row: icon + title on left, meta on right */
+  /* Header row: icon + title on left, arrow on right */
   .link-card-header {
     display: flex;
     align-items: center;
     gap: var(--tnz-space-3);
   }
 
-  /* Icon wrapper - vertically centered with title via flexbox */
+  /* Icon wrapper */
   .link-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--tnz-neutral-400);
-  }
-  :root[data-theme='light'] .link-card-icon:not([data-color]) {
     color: var(--tnz-neutral-500);
   }
-
-  /* Colored icons - subtle tint blended into neutral base */
-  .link-card-icon[data-color='blue'] {
-    color: color-mix(in srgb, var(--tnz-primary-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='green'] {
-    color: color-mix(in srgb, var(--tnz-green-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='purple'] {
-    color: color-mix(in srgb, var(--tnz-purple-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='orange'] {
-    color: color-mix(in srgb, var(--tnz-orange-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='lightblue'] {
-    color: color-mix(in srgb, var(--tnz-lightblue-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='pink'] {
-    color: color-mix(in srgb, var(--tnz-pink-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='yellow'] {
-    color: color-mix(in srgb, var(--tnz-yellow-500) 80%, var(--tnz-neutral-400));
-  }
-  .link-card-icon[data-color='red'] {
-    color: color-mix(in srgb, var(--tnz-red-500) 80%, var(--tnz-neutral-400));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='blue'] {
-    color: color-mix(in srgb, var(--tnz-primary-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='green'] {
-    color: color-mix(in srgb, var(--tnz-green-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='purple'] {
-    color: color-mix(in srgb, var(--tnz-purple-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='orange'] {
-    color: color-mix(in srgb, var(--tnz-orange-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='lightblue'] {
-    color: color-mix(in srgb, var(--tnz-lightblue-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='pink'] {
-    color: color-mix(in srgb, var(--tnz-pink-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='yellow'] {
-    color: color-mix(in srgb, var(--tnz-yellow-500) 80%, var(--tnz-neutral-500));
-  }
-  :root[data-theme='light'] .link-card-icon[data-color='red'] {
-    color: color-mix(in srgb, var(--tnz-red-500) 80%, var(--tnz-neutral-500));
+  :root[data-theme='dark'] .link-card-icon:not([data-color]) {
+    color: var(--tnz-neutral-400);
   }
 
-  /* Title - grows to push meta to the right */
+  /* Custom SVG icons */
+  .link-card-custom-icon :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* Colored icons */
+  .link-card-icon[data-color='blue'] { color: var(--tnz-primary-500); }
+  .link-card-icon[data-color='green'] { color: var(--tnz-green-500); }
+  .link-card-icon[data-color='purple'] { color: var(--tnz-purple-500); }
+  .link-card-icon[data-color='orange'] { color: var(--tnz-orange-500); }
+  .link-card-icon[data-color='lightblue'] { color: var(--tnz-lightblue-500); }
+  .link-card-icon[data-color='pink'] { color: var(--tnz-pink-500); }
+  .link-card-icon[data-color='yellow'] { color: var(--tnz-yellow-500); }
+  .link-card-icon[data-color='red'] { color: var(--tnz-red-500); }
+
+  /* Title - grows to push meta/arrow to the right */
   .link-card-title {
     flex-grow: 1;
     font-size: var(--tnz-text-lg);
     font-weight: 600;
     line-height: 1.4;
-    color: var(--tnz-neutral-50);
-  }
-  :root[data-theme='light'] .link-card-title {
     color: var(--tnz-neutral-800);
+  }
+  :root[data-theme='dark'] .link-card-title {
+    color: var(--tnz-neutral-50);
   }
 
   /* Meta group (badges + date) */
@@ -171,36 +151,35 @@ if (description) {
     flex-shrink: 0;
   }
 
-  /* Badge */
+  /* Badge - uses Tenzir badge styling */
   .link-card-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: var(--tnz-control-size-sm);
-    padding: 1px 4px;
+    height: 16px;
+    padding: 0 var(--tnz-space-1);
     border-radius: 3px;
-    border: 1px solid var(--tnz-neutral-600);
-    font-size: 8px;
+    border: 1px solid var(--tnz-neutral-300);
+    font-size: var(--tnz-text-xxs);
     font-weight: 600;
-    line-height: 14px;
-    color: var(--tnz-neutral-400);
+    color: var(--tnz-neutral-500);
     text-transform: uppercase;
     letter-spacing: 0.4px;
   }
-  :root[data-theme='light'] .link-card-badge {
-    border-color: var(--tnz-neutral-300);
-    color: var(--tnz-neutral-500);
+  :root[data-theme='dark'] .link-card-badge {
+    border-color: var(--tnz-neutral-600);
+    color: var(--tnz-neutral-400);
   }
 
   /* Meta text (date/version) */
   .link-card-meta {
     font-size: var(--tnz-text-sm);
     line-height: 1;
-    color: var(--tnz-neutral-400);
+    color: var(--tnz-neutral-500);
     white-space: nowrap;
   }
-  :root[data-theme='light'] .link-card-meta {
-    color: var(--tnz-neutral-500);
+  :root[data-theme='dark'] .link-card-meta {
+    color: var(--tnz-neutral-400);
   }
 
   /* Description */
@@ -208,9 +187,17 @@ if (description) {
     margin: var(--tnz-space-2) 0 0;
     font-size: var(--tnz-text-sm);
     line-height: 1.5;
+    color: var(--tnz-neutral-600);
+  }
+  :root[data-theme='dark'] .link-card-description {
     color: var(--tnz-neutral-400);
   }
-  :root[data-theme='light'] .link-card-description {
-    color: var(--tnz-neutral-600);
+
+  /* Arrow icon - primary color like Starlight's LinkCard */
+  .link-card-arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--tnz-primary-500);
   }
 </style>

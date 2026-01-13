@@ -66,13 +66,15 @@ for (let i = 0; i < segments.length; i++) {
   // Try index page first (e.g., guides/index.mdx for /guides)
   const indexEntry = docsMap.get(`${slug}/index`);
   if (indexEntry) {
-    title = indexEntry.data.title;
+    // Prefer sidebar label for breadcrumbs, fall back to title
+    title = indexEntry.data.sidebar?.label || indexEntry.data.title;
     pageExists = true;
   } else {
     // Try direct page (e.g., guides/quickstart.mdx for /guides/quickstart)
     const directEntry = docsMap.get(slug);
     if (directEntry) {
-      title = directEntry.data.title;
+      // Prefer sidebar label for breadcrumbs, fall back to title
+      title = directEntry.data.sidebar?.label || directEntry.data.title;
       pageExists = true;
     }
   }

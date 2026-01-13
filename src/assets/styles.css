@@ -680,52 +680,54 @@ html[data-theme="dark"] .inline-svg {
   color: var(--tnz-neutral-200) !important;
 }
 
-/* LinkCard component styling (if used in future) */
+/*
+ * LinkCard styling uses Tenzir brand tokens. Keep in sync with custom
+ * LinkCard component in src/components/LinkCard.astro.
+ */
 .sl-markdown-content .sl-link-card {
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid var(--tnz-neutral-200);
   border-radius: var(--tnz-radius);
-  background-color: var(--sl-color-bg-sidebar);
-  transition: all var(--tnz-transition-base);
+  background: var(--tnz-neutral-50);
+  box-shadow: var(--tnz-shadow-xs);
+  transition: border-color var(--tnz-transition-base);
 }
 
 .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-7);
-  box-shadow: var(--tnz-shadow-xs);
+  border-color: var(--tnz-neutral-300);
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card {
+  background: var(--tnz-neutral-800);
+  border-color: var(--tnz-neutral-600);
+  box-shadow: var(--tnz-shadow-xs-dark);
 }
 
 :root[data-theme="dark"] .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-6);
+  border-color: var(--tnz-neutral-500);
 }
 
 .sl-markdown-content .sl-link-card .title {
-  color: var(--sl-color-white);
-  font-weight: 700;
+  color: var(--tnz-neutral-800);
+  font-weight: 600;
   font-size: var(--tnz-text-lg);
 }
 
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card .title {
+  color: var(--tnz-neutral-50);
+}
+
 .sl-markdown-content .sl-link-card .description {
-  color: var(--sl-color-gray-2);
+  color: var(--tnz-neutral-600);
   font-size: var(--tnz-text-sm);
-  line-height: var(--sl-line-height-body);
+  line-height: 1.5;
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card .description {
+  color: var(--tnz-neutral-400);
 }
 
 .sl-markdown-content .sl-link-card .icon {
   color: var(--tnz-primary-500);
-  transition: color var(--tnz-transition-base);
-}
-
-.sl-markdown-content .sl-link-card:hover .icon {
-  color: var(--sl-color-white);
-}
-
-/* Light mode LinkCard adjustments */
-:root[data-theme="light"] .sl-markdown-content .sl-link-card {
-  background-color: var(--sl-color-bg);
-  border-color: var(--sl-color-gray-5);
-}
-
-:root[data-theme="light"] .sl-markdown-content .sl-link-card .title {
-  color: var(--sl-color-text);
 }
 
 /* Search button styling */
@@ -1921,25 +1923,13 @@ starlight-tabs [role="tabpanel"] {
   }
 }
 
-/* LinkCard - Tenzir brand styling overrides */
-.sl-link-card {
-  transition: border-color var(--tnz-transition-base);
-}
-
+/* LinkCard - remove default hover effects */
 .sl-link-card:hover {
-  /* Remove movement - only subtle border change */
   transform: none;
-  border-color: var(--tnz-neutral-500);
 }
 
 .sl-link-card:hover .sl-link-card__title {
-  /* Remove underline on hover */
   text-decoration: none;
-}
-
-/* Light mode */
-:root[data-theme="light"] .sl-link-card:hover {
-  border-color: var(--tnz-neutral-400);
 }
 
 /* Changelog page spacing */
@@ -2071,4 +2061,47 @@ ul:has(> li > .inline-icon-wrapper) .inline-icon-wrapper {
   position: absolute;
   left: 0;
   top: 0.35em;
+}
+
+/* Sidebar AI icon for OCSF and Workflows group headers */
+/* Uses CSS mask with background-color for theme-adaptive coloring */
+.sidebar-content
+  details:has(a[href*="/reference/ocsf"])
+  > summary
+  .group-label
+  .large::after,
+.sidebar-content
+  details:has(a[href*="/reference/workflows"])
+  > summary
+  .group-label
+  .large::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: var(--tnz-space-1-5);
+  vertical-align: -2px;
+  /* Sparkle/AI icon - use mask for theme-adaptive color */
+  background-color: var(--tnz-neutral-500);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z'/%3E%3Cpath d='M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z'/%3E%3Cpath d='M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+
+:root[data-theme="dark"]
+  .sidebar-content
+  details:has(a[href*="/reference/ocsf"])
+  > summary
+  .group-label
+  .large::after,
+:root[data-theme="dark"]
+  .sidebar-content
+  details:has(a[href*="/reference/workflows"])
+  > summary
+  .group-label
+  .large::after {
+  background-color: var(--tnz-neutral-400);
 }
