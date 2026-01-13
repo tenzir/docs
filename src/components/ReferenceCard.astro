@@ -36,12 +36,18 @@ const renderedDescription = renderMarkdown(description);
 </div>
 
 <style>
+  /*
+   * Card styling uses Tenzir brand tokens. Keep in sync with LinkCard
+   * styling in src/components/LinkCard.astro and Starlight's LinkCard
+   * overrides in src/assets/styles.css (.sl-link-card section).
+   */
   .reference-card {
     position: relative;
-    border: 1px solid var(--tnz-neutral-600);
+    border: 1px solid var(--tnz-neutral-200);
     border-radius: var(--tnz-radius);
     padding: var(--tnz-space-4);
-    background: var(--tnz-neutral-800);
+    background: var(--tnz-neutral-50);
+    box-shadow: var(--tnz-shadow-xs);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -49,35 +55,17 @@ const renderedDescription = renderMarkdown(description);
   }
 
   .reference-card:hover {
+    border-color: var(--tnz-neutral-300);
+  }
+
+  :root[data-theme="dark"] .reference-card {
+    background: var(--tnz-neutral-800);
+    border-color: var(--tnz-neutral-600);
+    box-shadow: var(--tnz-shadow-xs-dark);
+  }
+
+  :root[data-theme="dark"] .reference-card:hover {
     border-color: var(--tnz-neutral-500);
-  }
-
-  /* Light mode styles */
-  :root[data-theme="light"] .reference-card {
-    background-color: var(--tnz-neutral-50);
-    border-color: var(--tnz-neutral-250);
-  }
-
-  :root[data-theme="light"] .reference-card:hover {
-    border-color: var(--tnz-neutral-400);
-  }
-
-  :root[data-theme="light"] .reference-card-title {
-    color: var(--tnz-neutral-800);
-  }
-
-  :root[data-theme="light"] .reference-card-description {
-    color: var(--tnz-neutral-600);
-  }
-
-  :root[data-theme="light"] .reference-card-description code {
-    background: var(--tnz-neutral-100);
-    border-color: var(--tnz-neutral-250);
-  }
-
-  :root[data-theme="light"] .reference-card-example pre {
-    background: var(--tnz-neutral-100);
-    border-color: var(--tnz-neutral-250);
   }
 
   .reference-card-title-link {
@@ -110,31 +98,44 @@ const renderedDescription = renderMarkdown(description);
     margin: 0;
     font-size: var(--tnz-text-base);
     font-weight: var(--tnz-font-semibold);
-    color: var(--tnz-neutral-100);
+    color: var(--tnz-neutral-800);
     font-family: var(--tnz-font-mono);
+  }
+
+  :root[data-theme="dark"] .reference-card-title {
+    color: var(--tnz-neutral-100);
   }
 
   .reference-card-description {
     margin: 0 0 var(--tnz-space-3) 0;
-    color: var(--tnz-neutral-400);
+    color: var(--tnz-neutral-600);
     font-size: var(--tnz-text-sm);
     line-height: var(--tnz-leading-sm);
     flex-grow: 1;
   }
 
+  :root[data-theme="dark"] .reference-card-description {
+    color: var(--tnz-neutral-400);
+  }
+
   .reference-card-description code {
-    background: var(--tnz-neutral-700);
-    border: 1px solid var(--tnz-neutral-600);
+    background: var(--tnz-neutral-100);
+    border: 1px solid var(--tnz-neutral-200);
     padding: var(--tnz-space-0-5) var(--tnz-space-1);
     border-radius: var(--tnz-radius-sm);
     font-family: var(--tnz-font-mono);
     font-size: 0.9em;
   }
 
+  :root[data-theme="dark"] .reference-card-description code {
+    background: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-600);
+  }
+
   .reference-card-description a {
     position: relative;
     z-index: 2;
-    color: var(--tnz-primary-400);
+    color: var(--tnz-primary-500);
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color var(--tnz-transition-base);
@@ -142,15 +143,15 @@ const renderedDescription = renderMarkdown(description);
 
   .reference-card-description a:hover {
     text-decoration: none;
-    border-bottom-color: var(--tnz-primary-400);
-  }
-
-  :root[data-theme="light"] .reference-card-description a {
-    color: var(--tnz-primary-500);
-  }
-
-  :root[data-theme="light"] .reference-card-description a:hover {
     border-bottom-color: var(--tnz-primary-500);
+  }
+
+  :root[data-theme="dark"] .reference-card-description a {
+    color: var(--tnz-primary-400);
+  }
+
+  :root[data-theme="dark"] .reference-card-description a:hover {
+    border-bottom-color: var(--tnz-primary-400);
   }
 
   .reference-card-example {
@@ -163,12 +164,17 @@ const renderedDescription = renderMarkdown(description);
   .reference-card-example pre {
     margin: 0;
     padding: var(--tnz-space-2) var(--tnz-space-3);
-    background: var(--tnz-neutral-700);
-    border: 1px solid var(--tnz-neutral-600);
+    background: var(--tnz-neutral-100);
+    border: 1px solid var(--tnz-neutral-200);
     border-radius: var(--tnz-radius-sm);
     font-size: var(--tnz-text-xs);
     overflow-x: auto;
     font-family: var(--tnz-font-mono);
+  }
+
+  :root[data-theme="dark"] .reference-card-example pre {
+    background: var(--tnz-neutral-700);
+    border-color: var(--tnz-neutral-600);
   }
 
   /* Reduced motion support */
