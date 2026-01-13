@@ -2072,3 +2072,42 @@ ul:has(> li > .inline-icon-wrapper) .inline-icon-wrapper {
   left: 0;
   top: 0.35em;
 }
+
+/* Sidebar AI icon for OCSF and Workflows group headers */
+/* Target the group-label span inside summary, add icon via ::after on the .large span */
+.sidebar-content
+  details:has(a[href*="/reference/ocsf"])
+  > summary
+  .group-label
+  .large::after,
+.sidebar-content
+  details:has(a[href*="/reference/workflows"])
+  > summary
+  .group-label
+  .large::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: var(--tnz-space-1-5);
+  vertical-align: -2px;
+  /* Sparkle/AI icon - 4-point star */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2368738d' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z'/%3E%3Cpath d='M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+:root[data-theme="light"]
+  .sidebar-content
+  details:has(a[href*="/reference/ocsf"])
+  > summary
+  .group-label
+  .large::after,
+:root[data-theme="light"]
+  .sidebar-content
+  details:has(a[href*="/reference/workflows"])
+  > summary
+  .group-label
+  .large::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a6478' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5L12 3z'/%3E%3Cpath d='M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z'/%3E%3C/svg%3E");
+}
