@@ -1061,11 +1061,11 @@ title: OCSF
 description: Reference documentation for the Open Cybersecurity Schema Framework (OCSF).
 ---
 
-import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-<Aside type="tip" title="AI-Optimized Documentation">
+:::tip[AI-Optimized Documentation]
 This reference is optimized for AI agents.
-</Aside>
+:::
 
 This reference provides comprehensive documentation for the
 [Open Cybersecurity Schema Framework (OCSF)](https://ocsf.io), an open standard
