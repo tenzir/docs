@@ -14,6 +14,13 @@ export function versionToSlug(version) {
 }
 
 /**
+ * Convert OCSF name to URL-safe slug (win/reg_key -> win_reg_key).
+ */
+export function nameToSlug(name) {
+  return name.replace(/\//g, "_");
+}
+
+/**
  * Clean HTML tags from description text.
  */
 export function cleanDescription(text) {
@@ -50,7 +57,7 @@ export function extractFirstSentence(text) {
 export function formatType(baseType, objType, versionSlug = null) {
   if (objType) {
     if (versionSlug) {
-      return `[\`${objType}\`](/reference/ocsf/${versionSlug}/objects/${objType})`;
+      return `[\`${objType}\`](/reference/ocsf/${versionSlug}/objects/${nameToSlug(objType)})`;
     }
     return `\`${objType}\``;
   }
@@ -84,7 +91,12 @@ export function generateFrontmatter({ title, description, sidebarLabel }) {
 /**
  * Generate class documentation as MDX.
  */
-export function generateClassDoc(className, classData, allObjects, versionSlug) {
+export function generateClassDoc(
+  className,
+  classData,
+  allObjects,
+  versionSlug,
+) {
   const basePath = `/reference/ocsf/${versionSlug}`;
   const lines = [];
 
@@ -370,7 +382,9 @@ export function generateProfileDoc(
   if (usedBy.length > 0) {
     lines.push("## Available In", "");
     for (const className of usedBy) {
-      lines.push(`- [\`${className}\`](${basePath}/classes/${className})`);
+      lines.push(
+        `- [\`${className}\`](${basePath}/classes/${nameToSlug(className)})`,
+      );
     }
     lines.push("");
   }
@@ -782,10 +796,7 @@ export function generateVersionIndex(
   );
 
   // Import LinkButton for navigation
-  lines.push(
-    `import { LinkButton } from '@astrojs/starlight/components';`,
-    "",
-  );
+  lines.push(`import { LinkButton } from '@astrojs/starlight/components';`, "");
 
   lines.push(`Schema reference for OCSF version ${version}.`, "");
 
@@ -984,9 +995,7 @@ export function parseArticle(fileName, content) {
   // Also fix malformed markdown links with double parentheses: [text]((url)) -> [text](url)
   // And escape angle brackets that would be interpreted as JSX tags
   const contentWithoutTitle = escapeAngleBracketsForMdx(
-    content
-      .replace(/^#\s+.+\n/, "")
-      .replace(/\]\(\(([^)]+)\)\)/g, "]($1)"),
+    content.replace(/^#\s+.+\n/, "").replace(/\]\(\(([^)]+)\)\)/g, "]($1)"),
   );
 
   return { slug: baseName, title, content: contentWithoutTitle };

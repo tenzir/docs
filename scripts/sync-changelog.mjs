@@ -1819,7 +1819,9 @@ our [Discord](https://tenzir.com/discord).
 `;
   const landingPath = path.join(changelogContentDir, "index.mdx");
   // Only write if content changed to avoid unnecessary git modifications
-  const existingContent = await fs.readFile(landingPath, "utf8").catch(() => "");
+  const existingContent = await fs
+    .readFile(landingPath, "utf8")
+    .catch(() => "");
   if (existingContent !== landingContent) {
     await fs.writeFile(landingPath, landingContent);
   }
