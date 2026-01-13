@@ -21,18 +21,38 @@ export function nameToSlug(name) {
 }
 
 /**
- * Clean HTML tags from description text.
+ * Clean HTML tags from description text, converting to Markdown.
  */
 export function cleanDescription(text) {
   if (!text) return "";
-  return text
-    .replace(/<code>/g, "`")
-    .replace(/<\/code>/g, "`")
-    .replace(/<br\s*\/?>/g, " ")
-    .replace(/<a[^>]*href=['"]([^'"]+)['"][^>]*>([^<]+)<\/a>/g, "[$2]($1)")
-    .replace(/<[^>]+>/g, "")
-    .replace(/\[\s*([^\]]+?)\s*\]/g, "[$1]") // Normalize whitespace in link text
-    .replace(/[ \t]+$/gm, ""); // Remove trailing whitespace from each line
+  return (
+    text
+      // Convert code tags
+      .replace(/<code>/g, "`")
+      .replace(/<\/code>/g, "`")
+      // Convert links
+      .replace(/<a[^>]*href=['"]([^'"]+)['"][^>]*>([^<]+)<\/a>/g, "[$2]($1)")
+      // Convert list items to Markdown bullets
+      .replace(/<li[^>]*>/g, "\n- ")
+      .replace(/<\/li>/g, "")
+      // Remove list wrapper tags
+      .replace(/<\/?ul[^>]*>/g, "")
+      .replace(/<\/?ol[^>]*>/g, "")
+      // Convert paragraphs to double newlines
+      .replace(/<p[^>]*>/g, "\n\n")
+      .replace(/<\/p>/g, "")
+      // Convert line breaks
+      .replace(/<br\s*\/?>/g, "\n")
+      // Remove remaining HTML tags
+      .replace(/<[^>]+>/g, "")
+      // Normalize whitespace in link text
+      .replace(/\[\s*([^\]]+?)\s*\]/g, "[$1]")
+      // Clean up excessive newlines
+      .replace(/\n{3,}/g, "\n\n")
+      // Remove trailing whitespace from each line
+      .replace(/[ \t]+$/gm, "")
+      .trim()
+  );
 }
 
 /**
@@ -63,6 +83,82 @@ export function formatType(baseType, objType, versionSlug = null) {
     return `\`${objType}\``;
   }
   return `\`${baseType}\``;
+}
+
+/**
+ * Format a single attribute as a definition list entry.
+ * Unified function used across class, object, and profile documentation.
+ *
+ * @param {string} attrName - The attribute name
+ * @param {object} attrData - The attribute data from OCSF API
+ * @param {string} versionSlug - The version slug for links (e.g., "1-7-0")
+ * @param {object} options - Optional formatting options
+ * @param {string} options.basePath - Base path for links (default: computed from versionSlug)
+ * @param {boolean} options.showProfile - Whether to show profile badge (default: true)
+ * @param {boolean} options.useBadge - Whether to use Badge component for profiles (default: false)
+ * @returns {string[]} Array of lines for the attribute entry
+ */
+export function formatAttribute(attrName, attrData, versionSlug, options = {}) {
+  const basePath = options.basePath || `/reference/ocsf/${versionSlug}`;
+  const showProfile = options.showProfile !== false;
+  const showExtension = options.showExtension !== false;
+  const useBadge = options.useBadge || false;
+
+  const lines = [];
+  const req = attrData.requirement || "optional";
+  const baseType = attrData.type || "";
+  const objType = attrData.object_type;
+  const formattedType = formatType(baseType, objType, versionSlug);
+  const desc = cleanDescription(attrData.description || attrData.caption || "");
+  const profile = attrData.profile || "";
+  const extension = attrData.extension || "";
+
+  // Format attribute name with optional profile/extension indicators
+  let badges = "";
+
+  // Profile badge (blue/note)
+  if (showProfile && profile) {
+    const profileSlug = profile.replace(/\//g, "_");
+    if (useBadge) {
+      badges += ` <a href="${basePath}/profiles/${profileSlug}"><Badge text="${profile}" variant="note" size="small" /></a>`;
+    } else {
+      badges += ` *(profile: [\`${profile}\`](${basePath}/profiles/${profileSlug}))*`;
+    }
+  }
+
+  // Extension badge (orange/caution) - always use Badge component
+  if (showExtension && extension) {
+    const extensionSlug = extension.replace(/\//g, "_");
+    badges += ` <a href="${basePath}/extensions/${extensionSlug}"><Badge text="${extension}" variant="caution" size="small" /></a>`;
+  }
+
+  lines.push(`**\`${attrName}\`**${badges}`);
+  lines.push("");
+  lines.push(`- **Type**: ${formattedType}`);
+  lines.push(`- **Requirement**: ${req}`);
+
+  // Add enum values if present
+  const enumValues = attrData.enum || {};
+  if (Object.keys(enumValues).length > 0) {
+    lines.push(`- **Values**:`);
+    for (const [enumId, enumData] of Object.entries(enumValues).sort(
+      (a, b) => Number(a[0]) - Number(b[0]),
+    )) {
+      const enumCaption = enumData.caption || enumId;
+      const enumDesc = enumData.description
+        ? `: ${cleanDescription(enumData.description)}`
+        : "";
+      lines.push(`  - \`${enumId}\` - \`${enumCaption}\`${enumDesc}`);
+    }
+  }
+
+  if (desc) {
+    lines.push("");
+    lines.push(desc);
+  }
+  lines.push("");
+
+  return lines;
 }
 
 /**
@@ -116,6 +212,9 @@ export function generateClassDoc(
     }),
   );
 
+  // Import Badge component for profile indicators
+  lines.push(`import { Badge } from '@astrojs/starlight/components';`, "");
+
   // Description
   if (description) {
     lines.push(description, "");
@@ -136,85 +235,67 @@ export function generateClassDoc(
   }
   lines.push("");
 
-  // Attributes by requirement
+  // Attributes grouped by group (classification, primary, occurrence, context)
   const attributes = classData.attributes || {};
   if (Object.keys(attributes).length > 0) {
-    const required = [];
-    const recommended = [];
-    const optional = [];
-
-    for (const [attrName, attrData] of Object.entries(attributes).sort()) {
-      const req = attrData.requirement || "optional";
-      const baseType = attrData.type || "";
-      const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType, versionSlug);
-      // Use full description if available, otherwise fall back to caption
-      const desc = cleanDescription(
-        attrData.description || attrData.caption || "",
-      );
-
-      const entry = [attrName, formattedType, desc];
-      if (req === "required") {
-        required.push(entry);
-      } else if (req === "recommended") {
-        recommended.push(entry);
-      } else {
-        optional.push(entry);
+    // Group attributes by their group field
+    const byGroup = {};
+    for (const [attrName, attrData] of Object.entries(attributes)) {
+      const group = attrData.group || "context";
+      if (!byGroup[group]) {
+        byGroup[group] = [];
       }
+      byGroup[group].push([attrName, attrData]);
     }
+
+    // Helper to render a group of attributes sorted by requirement then name
+    const renderAttributeGroup = (attrs) => {
+      const sorted = attrs.sort((a, b) => {
+        const reqOrder = { required: 0, recommended: 1, optional: 2 };
+        const reqA = reqOrder[a[1].requirement || "optional"] ?? 2;
+        const reqB = reqOrder[b[1].requirement || "optional"] ?? 2;
+        if (reqA !== reqB) return reqA - reqB;
+        return a[0].localeCompare(b[0]);
+      });
+
+      const result = [];
+      for (const [attrName, attrData] of sorted) {
+        result.push(
+          ...formatAttribute(attrName, attrData, versionSlug, {
+            useBadge: true,
+          }),
+        );
+      }
+      return result;
+    };
 
     lines.push("## Attributes", "");
 
-    if (required.length > 0) {
-      lines.push("### Required", "");
-      lines.push(
-        "| Attribute | Type | Description |",
-        "|-----------|------|-------------|",
-      );
-      for (const [name, type, desc] of required) {
-        lines.push(`| \`${name}\` | ${type} | ${desc} |`);
-      }
-      lines.push("");
+    // Define group order and display names
+    const groupOrder = ["classification", "context", "occurrence", "primary"];
+    const groupNames = {
+      classification: "Classification",
+      primary: "Primary",
+      occurrence: "Occurrence",
+      context: "Context",
+    };
+
+    for (const group of groupOrder) {
+      const groupAttrs = byGroup[group];
+      if (!groupAttrs || groupAttrs.length === 0) continue;
+
+      const displayName = groupNames[group] || group;
+      lines.push(`### ${displayName}`, "");
+      lines.push(...renderAttributeGroup(groupAttrs));
     }
 
-    if (recommended.length > 0) {
-      lines.push("### Recommended", "");
-      lines.push(
-        "| Attribute | Type | Description |",
-        "|-----------|------|-------------|",
-      );
-      for (const [name, type, desc] of recommended) {
-        lines.push(`| \`${name}\` | ${type} | ${desc} |`);
-      }
-      lines.push("");
+    // Render any remaining groups not in the predefined order
+    for (const group of Object.keys(byGroup).sort()) {
+      if (groupOrder.includes(group)) continue;
+      const groupAttrs = byGroup[group];
+      lines.push(`### ${group}`, "");
+      lines.push(...renderAttributeGroup(groupAttrs));
     }
-
-    if (optional.length > 0) {
-      lines.push("### Optional", "");
-      lines.push(
-        "| Attribute | Type | Description |",
-        "|-----------|------|-------------|",
-      );
-      for (const [name, type, desc] of optional) {
-        lines.push(`| \`${name}\` | ${type} | ${desc} |`);
-      }
-      lines.push("");
-    }
-  }
-
-  // Profiles
-  const profiles = classData.profiles || [];
-  if (profiles.length > 0) {
-    lines.push("## Profiles", "");
-    lines.push(
-      profiles
-        .map((p) => {
-          const filename = p.replace(/\//g, "_");
-          return `[\`${p}\`](${basePath}/profiles/${filename})`;
-        })
-        .join(", "),
-      "",
-    );
   }
 
   // Object references
@@ -260,6 +341,9 @@ export function generateObjectDoc(objName, objData, classUsage, versionSlug) {
     }),
   );
 
+  // Import Badge component for extension indicators
+  lines.push(`import { Badge } from '@astrojs/starlight/components';`, "");
+
   // Description
   if (description) {
     lines.push(description, "");
@@ -276,19 +360,22 @@ export function generateObjectDoc(objName, objData, classUsage, versionSlug) {
   if (Object.keys(attributes).length > 0) {
     lines.push("## Attributes", "");
 
-    for (const [attrName, attrData] of Object.entries(attributes).sort()) {
-      const baseType = attrData.type || "";
-      const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType, versionSlug);
-      const req = attrData.requirement || "optional";
-      // Use full description if available, otherwise fall back to caption
-      const desc = cleanDescription(
-        attrData.description || attrData.caption || "",
+    // Sort by requirement then name
+    const sorted = Object.entries(attributes).sort((a, b) => {
+      const reqOrder = { required: 0, recommended: 1, optional: 2 };
+      const reqA = reqOrder[a[1].requirement || "optional"] ?? 2;
+      const reqB = reqOrder[b[1].requirement || "optional"] ?? 2;
+      if (reqA !== reqB) return reqA - reqB;
+      return a[0].localeCompare(b[0]);
+    });
+
+    for (const [attrName, attrData] of sorted) {
+      lines.push(
+        ...formatAttribute(attrName, attrData, versionSlug, {
+          showProfile: false,
+        }),
       );
-      const descPart = desc ? `: ${desc}` : "";
-      lines.push(`- \`${attrName}\` (${formattedType}, *${req}*)${descPart}`);
     }
-    lines.push("");
   }
 
   // Constraints
@@ -359,22 +446,21 @@ export function generateProfileDoc(
   if (Object.keys(attributes).length > 0) {
     lines.push("## Attributes", "");
 
-    for (const [attrName, attrData] of Object.entries(attributes).sort()) {
-      const baseType = attrData.type || "";
-      const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType, versionSlug);
-      const req = attrData.requirement || "optional";
-      const desc = cleanDescription(
-        attrData.description || attrData.caption || "",
-      );
+    // Sort by requirement then name
+    const sorted = Object.entries(attributes).sort((a, b) => {
+      const reqOrder = { required: 0, recommended: 1, optional: 2 };
+      const reqA = reqOrder[a[1].requirement || "optional"] ?? 2;
+      const reqB = reqOrder[b[1].requirement || "optional"] ?? 2;
+      if (reqA !== reqB) return reqA - reqB;
+      return a[0].localeCompare(b[0]);
+    });
 
-      lines.push(`### \`${attrName}\``, "");
-      lines.push(`- **Type**: ${formattedType}`);
-      lines.push(`- **Requirement**: *${req}*`);
-      lines.push("");
-      if (desc) {
-        lines.push(desc, "");
-      }
+    for (const [attrName, attrData] of sorted) {
+      lines.push(
+        ...formatAttribute(attrName, attrData, versionSlug, {
+          showProfile: false,
+        }),
+      );
     }
   }
 
@@ -389,6 +475,141 @@ export function generateProfileDoc(
     }
     lines.push("");
   }
+
+  return lines.join("\n");
+}
+
+// =============================================================================
+// Extension Documentation
+// =============================================================================
+
+/**
+ * Generate extension documentation as MDX.
+ */
+export function generateExtensionDoc(
+  extensionName,
+  extensionData,
+  versionSlug,
+  extensionUsage,
+) {
+  const basePath = `/reference/ocsf/${versionSlug}`;
+  const lines = [];
+
+  const caption = extensionData.caption || extensionName;
+  const description = cleanDescription(extensionData.description || "");
+  const uid = extensionData.uid;
+
+  // Frontmatter
+  lines.push(
+    generateFrontmatter({
+      title: caption,
+      description: extractFirstSentence(extensionData.description),
+    }),
+  );
+
+  // Description
+  if (description) {
+    lines.push(description, "");
+  }
+
+  // Metadata
+  if (uid !== undefined) {
+    lines.push(`- **UID**: \`${uid}\``);
+  }
+  if (extensionData.version) {
+    lines.push(`- **Version**: ${extensionData.version}`);
+  }
+  lines.push("");
+
+  // Classes contributed by this extension
+  const usage = extensionUsage[extensionName] || { classes: [], objects: [] };
+  if (usage.classes.length > 0) {
+    lines.push("## Classes", "");
+    for (const className of usage.classes) {
+      lines.push(
+        `- [\`${className}\`](${basePath}/classes/${nameToSlug(className)})`,
+      );
+    }
+    lines.push("");
+  }
+
+  // Objects contributed by this extension
+  if (usage.objects.length > 0) {
+    lines.push("## Objects", "");
+    for (const objName of usage.objects) {
+      lines.push(
+        `- [\`${objName}\`](${basePath}/objects/${nameToSlug(objName)})`,
+      );
+    }
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+/**
+ * Build extension usage map: extension -> {classes: [], objects: []}.
+ */
+export function buildExtensionUsage(classes, objects, extensions) {
+  const usage = {};
+  for (const extName of Object.keys(extensions)) {
+    usage[extName] = { classes: [], objects: [] };
+  }
+
+  // Find classes belonging to each extension
+  for (const [className, classData] of Object.entries(classes)) {
+    const ext = classData.extension;
+    if (ext && usage[ext]) {
+      usage[ext].classes.push(className);
+    }
+  }
+
+  // Find objects belonging to each extension
+  for (const [objName, objData] of Object.entries(objects)) {
+    const ext = objData.extension;
+    if (ext && usage[ext]) {
+      usage[ext].objects.push(objName);
+    }
+  }
+
+  // Sort arrays
+  for (const extName of Object.keys(usage)) {
+    usage[extName].classes.sort();
+    usage[extName].objects.sort();
+  }
+
+  return usage;
+}
+
+/**
+ * Generate extensions overview MDX.
+ */
+export function generateExtensionsOverview(version, extensions, versionSlug) {
+  const basePath = `/reference/ocsf/${versionSlug}`;
+  const lines = [];
+
+  lines.push(
+    generateFrontmatter({
+      title: "Extensions",
+      description: `Complete listing of OCSF ${version} extensions.`,
+      sidebarLabel: "Extensions",
+    }),
+  );
+
+  lines.push(
+    "Extensions add platform-specific classes, objects, and attributes to the core OCSF schema. They enable detailed representation of OS-specific events and entities.",
+    "",
+  );
+
+  for (const extensionName of Object.keys(extensions).sort()) {
+    const extensionData = extensions[extensionName];
+    const caption = extensionData.caption || extensionName;
+    const desc = extractFirstSentence(extensionData.description);
+    const filename = extensionName.replace(/\//g, "_");
+    const descPart = desc ? `: ${desc}` : "";
+    lines.push(`- [${caption}](${basePath}/extensions/${filename})${descPart}`);
+  }
+  lines.push("");
 
   return lines.join("\n");
 }
@@ -800,6 +1021,7 @@ export function generateVersionIndex(
   classes,
   objects,
   profiles,
+  extensions,
   types,
   versionSlug,
 ) {
@@ -846,6 +1068,16 @@ export function generateVersionIndex(
   );
   lines.push(
     `<LinkButton href="${basePath}/profiles/" icon="right-arrow">Browse profiles</LinkButton>`,
+    "",
+  );
+
+  lines.push(`## Extensions`, "");
+  lines.push(
+    `Extensions add platform-specific classes, objects, and attributes to the core schema. OCSF ${version} includes ${Object.keys(extensions).length} extensions.`,
+    "",
+  );
+  lines.push(
+    `<LinkButton href="${basePath}/extensions/" icon="right-arrow">Browse extensions</LinkButton>`,
     "",
   );
 
@@ -1071,7 +1303,7 @@ export function generateMainIndex(versionStats) {
     .reverse()
     .map(
       (v) =>
-        `| [v${v.version}](/reference/ocsf/${versionToSlug(v.version)}) | ${v.classes} | ${v.objects} | ${v.profiles} | ${v.types} |`,
+        `| [v${v.version}](/reference/ocsf/${versionToSlug(v.version)}) | ${v.classes} | ${v.objects} | ${v.profiles} | ${v.extensions} | ${v.types} |`,
     )
     .join("\n");
 
@@ -1097,7 +1329,7 @@ for normalizing security telemetry across tools and vendors.
 <CardGrid>
   <LinkCard
     title="Schema"
-    description="Classes, objects, and profiles"
+    description="Classes, objects, profiles, and extensions"
     href="/reference/ocsf/${latestSlug}"
     customIcon={ocsfIcon}
   />
@@ -1124,10 +1356,10 @@ for normalizing security telemetry across tools and vendors.
 ## Versions
 
 We publish all OCSF schema versions with full cross-references between classes,
-objects, profiles, and types.
+objects, profiles, extensions, and types.
 
-| Version | Classes | Objects | Profiles | Types |
-| ------- | ------- | ------- | -------- | ----- |
+| Version | Classes | Objects | Profiles | Extensions | Types |
+| ------- | ------- | ------- | -------- | ---------- | ----- |
 ${versionRows}
 
 :::note

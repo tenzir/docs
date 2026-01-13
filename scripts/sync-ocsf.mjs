@@ -18,6 +18,7 @@ import {
   fetchAvailableVersions,
   fetchSchema,
   fetchProfiles,
+  fetchExtensions,
   fetchFaqs,
   fetchArticles,
 } from "./lib/ocsf-client.mjs";
@@ -26,13 +27,16 @@ import {
   versionToSlug,
   buildClassUsage,
   buildProfileUsage,
+  buildExtensionUsage,
   findUncategorizedObjects,
   generateClassDoc,
   generateObjectDoc,
   generateProfileDoc,
+  generateExtensionDoc,
   generateClassesOverview,
   generateObjectsOverview,
   generateProfilesOverview,
+  generateExtensionsOverview,
   generateTypesOverview,
   generateVersionIndex,
   parseFaqContent,
@@ -55,15 +59,16 @@ const INDEX_FILE = path.join(OUTPUT_DIR, "index.mdx");
  * Returns version statistics for the index page.
  */
 async function generateVersion(version) {
-  // Fetch schema and profiles
+  // Fetch schema, profiles, and extensions
   const schema = await fetchSchema(version);
   const profiles = await fetchProfiles(version);
+  const extensions = await fetchExtensions(version);
   const classes = schema.classes || {};
   const objects = schema.objects || {};
   const types = schema.types || {};
 
   console.log(
-    `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles, ${Object.keys(types).length} types`,
+    `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles, ${Object.keys(extensions).length} extensions, ${Object.keys(types).length} types`,
   );
 
   // Log uncategorized objects when DEBUG is set (helps maintain OBJECT_CATEGORY_KEYWORDS)
@@ -77,6 +82,7 @@ async function generateVersion(version) {
   // Build usage maps
   const classUsage = buildClassUsage(classes, objects);
   const profileUsage = buildProfileUsage(classes, profiles);
+  const extensionUsage = buildExtensionUsage(classes, objects, extensions);
 
   // Create version-specific output directories (use dashes for URL compatibility)
   const versionSlug = versionToSlug(version);
@@ -84,11 +90,13 @@ async function generateVersion(version) {
   const classesDir = path.join(versionDir, "classes");
   const objectsDir = path.join(versionDir, "objects");
   const profilesDir = path.join(versionDir, "profiles");
+  const extensionsDir = path.join(versionDir, "extensions");
   const typesDir = path.join(versionDir, "types");
 
   await fs.mkdir(classesDir, { recursive: true });
   await fs.mkdir(objectsDir, { recursive: true });
   await fs.mkdir(profilesDir, { recursive: true });
+  await fs.mkdir(extensionsDir, { recursive: true });
   await fs.mkdir(typesDir, { recursive: true });
 
   let totalSize = 0;
@@ -122,6 +130,19 @@ async function generateVersion(version) {
     totalSize += doc.length;
   }
 
+  // Generate extension docs
+  for (const [extensionName, extensionData] of Object.entries(extensions)) {
+    const filename = extensionName.replace(/\//g, "_") + ".mdx";
+    const doc = generateExtensionDoc(
+      extensionName,
+      extensionData,
+      versionSlug,
+      extensionUsage,
+    );
+    await fs.writeFile(path.join(extensionsDir, filename), doc);
+    totalSize += doc.length;
+  }
+
   // Generate index files for each category
   const classesOverview = generateClassesOverview(
     version,
@@ -147,6 +168,14 @@ async function generateVersion(version) {
   await fs.writeFile(path.join(profilesDir, "index.mdx"), profilesOverview);
   totalSize += profilesOverview.length;
 
+  const extensionsOverview = generateExtensionsOverview(
+    version,
+    extensions,
+    versionSlug,
+  );
+  await fs.writeFile(path.join(extensionsDir, "index.mdx"), extensionsOverview);
+  totalSize += extensionsOverview.length;
+
   const typesOverview = generateTypesOverview(version, types);
   await fs.writeFile(path.join(typesDir, "index.mdx"), typesOverview);
   totalSize += typesOverview.length;
@@ -157,6 +186,7 @@ async function generateVersion(version) {
     classes,
     objects,
     profiles,
+    extensions,
     types,
     versionSlug,
   );
@@ -170,6 +200,7 @@ async function generateVersion(version) {
       classes: Object.keys(classes).length,
       objects: Object.keys(objects).length,
       profiles: Object.keys(profiles).length,
+      extensions: Object.keys(extensions).length,
       types: Object.keys(types).length,
     },
   };
@@ -276,6 +307,7 @@ export const ocsfSidebar = {
     { label: "Classes", link: "reference/ocsf/${versionSlug}/classes" },
     { label: "Objects", link: "reference/ocsf/${versionSlug}/objects" },
     { label: "Profiles", link: "reference/ocsf/${versionSlug}/profiles" },
+    { label: "Extensions", link: "reference/ocsf/${versionSlug}/extensions" },
     { label: "Types", link: "reference/ocsf/${versionSlug}/types" },
     { label: "FAQs", link: "reference/ocsf/faqs" },
     { label: "Articles", link: "reference/ocsf/articles" },

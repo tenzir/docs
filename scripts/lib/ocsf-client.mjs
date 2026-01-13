@@ -126,6 +126,17 @@ export async function fetchProfiles(version) {
 }
 
 /**
+ * Fetch OCSF extensions for a specific version.
+ */
+export async function fetchExtensions(version) {
+  const url = version
+    ? `${OCSF_BASE_URL}/api/${version}/extensions`
+    : `${OCSF_BASE_URL}/api/extensions`;
+  console.log(`Fetching extensions from ${url}...`);
+  return await fetchJson(url);
+}
+
+/**
  * Fetch FAQ files from ocsf-docs repository.
  * Returns array of {name, content} objects.
  */
