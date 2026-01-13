@@ -680,52 +680,53 @@ html[data-theme="dark"] .inline-svg {
   color: var(--tnz-neutral-200) !important;
 }
 
-/* LinkCard component styling (if used in future) */
+/*
+ * LinkCard styling uses Tenzir brand tokens. Keep in sync with custom
+ * LinkCard component in src/components/LinkCard.astro.
+ */
 .sl-markdown-content .sl-link-card {
-  border: 1px solid var(--sl-color-gray-5);
+  border: 1px solid var(--tnz-neutral-200);
   border-radius: var(--tnz-radius);
-  background-color: var(--sl-color-bg-sidebar);
-  transition: all var(--tnz-transition-base);
+  background: var(--tnz-neutral-50);
+  box-shadow: var(--tnz-shadow-xs);
+  transition: border-color var(--tnz-transition-base);
 }
 
 .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-7);
-  box-shadow: var(--tnz-shadow-xs);
+  border-color: var(--tnz-neutral-300);
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card {
+  background: var(--tnz-neutral-700);
+  border-color: var(--tnz-neutral-600);
 }
 
 :root[data-theme="dark"] .sl-markdown-content .sl-link-card:hover {
-  background-color: var(--sl-color-gray-6);
+  border-color: var(--tnz-neutral-500);
 }
 
 .sl-markdown-content .sl-link-card .title {
-  color: var(--sl-color-white);
-  font-weight: 700;
+  color: var(--tnz-neutral-800);
+  font-weight: 600;
   font-size: var(--tnz-text-lg);
 }
 
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card .title {
+  color: var(--tnz-neutral-50);
+}
+
 .sl-markdown-content .sl-link-card .description {
-  color: var(--sl-color-gray-2);
+  color: var(--tnz-neutral-600);
   font-size: var(--tnz-text-sm);
-  line-height: var(--sl-line-height-body);
+  line-height: 1.5;
+}
+
+:root[data-theme="dark"] .sl-markdown-content .sl-link-card .description {
+  color: var(--tnz-neutral-400);
 }
 
 .sl-markdown-content .sl-link-card .icon {
   color: var(--tnz-primary-500);
-  transition: color var(--tnz-transition-base);
-}
-
-.sl-markdown-content .sl-link-card:hover .icon {
-  color: var(--sl-color-white);
-}
-
-/* Light mode LinkCard adjustments */
-:root[data-theme="light"] .sl-markdown-content .sl-link-card {
-  background-color: var(--sl-color-bg);
-  border-color: var(--sl-color-gray-5);
-}
-
-:root[data-theme="light"] .sl-markdown-content .sl-link-card .title {
-  color: var(--sl-color-text);
 }
 
 /* Search button styling */
@@ -1921,25 +1922,13 @@ starlight-tabs [role="tabpanel"] {
   }
 }
 
-/* LinkCard - Tenzir brand styling overrides */
-.sl-link-card {
-  transition: border-color var(--tnz-transition-base);
-}
-
+/* LinkCard - remove default hover effects */
 .sl-link-card:hover {
-  /* Remove movement - only subtle border change */
   transform: none;
-  border-color: var(--tnz-neutral-500);
 }
 
 .sl-link-card:hover .sl-link-card__title {
-  /* Remove underline on hover */
   text-decoration: none;
-}
-
-/* Light mode */
-:root[data-theme="light"] .sl-link-card:hover {
-  border-color: var(--tnz-neutral-400);
 }
 
 /* Changelog page spacing */
