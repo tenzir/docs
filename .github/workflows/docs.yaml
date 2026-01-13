@@ -49,6 +49,7 @@ jobs:
         run: pnpm generate:claude-plugins
 
       - name: Generate OCSF reference
+        if: github.event_name != 'pull_request'
         run: pnpm generate:ocsf:all
 
       - name: Generate docs map
