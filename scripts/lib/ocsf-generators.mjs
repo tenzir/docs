@@ -47,9 +47,12 @@ export function extractFirstSentence(text) {
 /**
  * Format attribute type for display in documentation.
  */
-export function formatType(baseType, objType) {
+export function formatType(baseType, objType, versionSlug = null) {
   if (objType) {
-    return `\`object\` (\`${objType}\`)`;
+    if (versionSlug) {
+      return `[\`${objType}\`](/reference/ocsf/${versionSlug}/objects/${objType})`;
+    }
+    return `\`${objType}\``;
   }
   return `\`${baseType}\``;
 }
@@ -120,21 +123,6 @@ export function generateClassDoc(className, classData, allObjects, versionSlug) 
   }
   lines.push("");
 
-  // Profiles
-  const profiles = classData.profiles || [];
-  if (profiles.length > 0) {
-    lines.push("## Profiles", "");
-    lines.push(
-      profiles
-        .map((p) => {
-          const filename = p.replace(/\//g, "_");
-          return `[\`${p}\`](${basePath}/profiles/${filename})`;
-        })
-        .join(", "),
-      "",
-    );
-  }
-
   // Attributes by requirement
   const attributes = classData.attributes || {};
   if (Object.keys(attributes).length > 0) {
@@ -146,7 +134,7 @@ export function generateClassDoc(className, classData, allObjects, versionSlug) 
       const req = attrData.requirement || "optional";
       const baseType = attrData.type || "";
       const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType);
+      const formattedType = formatType(baseType, objType, versionSlug);
       // Use full description if available, otherwise fall back to caption
       const desc = cleanDescription(
         attrData.description || attrData.caption || "",
@@ -199,6 +187,21 @@ export function generateClassDoc(className, classData, allObjects, versionSlug) 
       }
       lines.push("");
     }
+  }
+
+  // Profiles
+  const profiles = classData.profiles || [];
+  if (profiles.length > 0) {
+    lines.push("## Profiles", "");
+    lines.push(
+      profiles
+        .map((p) => {
+          const filename = p.replace(/\//g, "_");
+          return `[\`${p}\`](${basePath}/profiles/${filename})`;
+        })
+        .join(", "),
+      "",
+    );
   }
 
   // Object references
@@ -263,7 +266,7 @@ export function generateObjectDoc(objName, objData, classUsage, versionSlug) {
     for (const [attrName, attrData] of Object.entries(attributes).sort()) {
       const baseType = attrData.type || "";
       const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType);
+      const formattedType = formatType(baseType, objType, versionSlug);
       const req = attrData.requirement || "optional";
       // Use full description if available, otherwise fall back to caption
       const desc = cleanDescription(
@@ -307,7 +310,13 @@ export function generateObjectDoc(objName, objData, classUsage, versionSlug) {
 /**
  * Generate profile documentation as MDX.
  */
-export function generateProfileDoc(profileName, profileData) {
+export function generateProfileDoc(
+  profileName,
+  profileData,
+  versionSlug,
+  profileUsage,
+) {
+  const basePath = `/reference/ocsf/${versionSlug}`;
   const lines = [];
 
   const caption = profileData.caption || profileName;
@@ -336,21 +345,32 @@ export function generateProfileDoc(profileName, profileData) {
   const attributes = profileData.attributes || {};
   if (Object.keys(attributes).length > 0) {
     lines.push("## Attributes", "");
-    lines.push(
-      "| Attribute | Type | Requirement | Description |",
-      "|-----------|------|-------------|-------------|",
-    );
 
     for (const [attrName, attrData] of Object.entries(attributes).sort()) {
       const baseType = attrData.type || "";
       const objType = attrData.object_type;
-      const formattedType = formatType(baseType, objType);
+      const formattedType = formatType(baseType, objType, versionSlug);
       const req = attrData.requirement || "optional";
-      // Use full description if available, otherwise fall back to caption
       const desc = cleanDescription(
         attrData.description || attrData.caption || "",
       );
-      lines.push(`| \`${attrName}\` | ${formattedType} | *${req}* | ${desc} |`);
+
+      lines.push(`### \`${attrName}\``, "");
+      lines.push(`- **Type**: ${formattedType}`);
+      lines.push(`- **Requirement**: *${req}*`);
+      lines.push("");
+      if (desc) {
+        lines.push(desc, "");
+      }
+    }
+  }
+
+  // Available In classes
+  const usedBy = profileUsage[profileName] || [];
+  if (usedBy.length > 0) {
+    lines.push("## Available In", "");
+    for (const className of usedBy) {
+      lines.push(`- [\`${className}\`](${basePath}/classes/${className})`);
     }
     lines.push("");
   }
@@ -363,12 +383,38 @@ export function generateProfileDoc(profileName, profileData) {
 // =============================================================================
 
 /**
+ * Build profile usage map: profile -> list of classes that use it.
+ */
+export function buildProfileUsage(classes, profiles) {
+  const usage = {};
+  for (const profileName of Object.keys(profiles)) {
+    usage[profileName] = new Set();
+  }
+
+  for (const [className, classData] of Object.entries(classes)) {
+    const classProfiles = classData.profiles || [];
+    for (const profileName of classProfiles) {
+      if (usage[profileName]) {
+        usage[profileName].add(className);
+      }
+    }
+  }
+
+  // Convert Sets to sorted arrays
+  for (const profileName of Object.keys(usage)) {
+    usage[profileName] = [...usage[profileName]].sort();
+  }
+
+  return usage;
+}
+
+/**
  * Build class usage map: object -> list of classes that use it.
  */
 export function buildClassUsage(classes, objects) {
   const usage = {};
   for (const objName of Object.keys(objects)) {
-    usage[objName] = [];
+    usage[objName] = new Set();
   }
 
   for (const [className, classData] of Object.entries(classes)) {
@@ -376,9 +422,14 @@ export function buildClassUsage(classes, objects) {
     for (const attrData of Object.values(attributes)) {
       const objType = attrData.object_type;
       if (objType && usage[objType]) {
-        usage[objType].push(className);
+        usage[objType].add(className);
       }
     }
+  }
+
+  // Convert Sets to sorted arrays
+  for (const objName of Object.keys(usage)) {
+    usage[objName] = [...usage[objName]].sort();
   }
 
   return usage;
@@ -1001,23 +1052,15 @@ title: OCSF
 description: Reference documentation for the Open Cybersecurity Schema Framework (OCSF).
 ---
 
-import { CardGrid, LinkCard } from "@astrojs/starlight/components";
-import ocsfLogo from "../../../../assets/ocsf.svg";
+import { Aside, CardGrid, LinkCard } from "@astrojs/starlight/components";
 
-<img src={ocsfLogo.src} alt="OCSF Logo" width="100" style="float: right; margin-left: 1rem;" />
+<Aside type="tip" title="AI-Optimized Documentation">
+This reference is optimized for AI agents.
+</Aside>
 
 This reference provides comprehensive documentation for the
 [Open Cybersecurity Schema Framework (OCSF)](https://ocsf.io), an open standard
 for normalizing security telemetry across tools and vendors.
-
-:::tip[Why embed the OCSF docs?]
-We publish this OCSF reference within the Tenzir documentation because our format
-is optimized for AI consumption. Every page is available as raw Markdown by
-appending \`.md\` to any URL, and all schema elements are fully cross-referenced
-with navigable links. This makes it easy for language models to understand and
-traverse the OCSF schema programmatically. Download an AI-optimized archive at
-our [release page](https://github.com/tenzir/docs/releases/tag/latest).
-:::
 
 ## Resources
 
@@ -1053,9 +1096,13 @@ objects, profiles, and types.
 | ------- | ------- | ------- | -------- | ----- |
 ${versionRows}
 
-For complete offline processing, download an AI-optimized snapshot of our entire
-documentation at our [GitHub release
+:::note
+This documentation is auto-generated from the official
+[OCSF schema](https://schema.ocsf.io) and
+[ocsf-docs](https://github.com/ocsf/ocsf-docs) repository. Download an
+AI-optimized snapshot at our [GitHub release
 page](https://github.com/tenzir/docs/releases/tag/latest).
+:::
 
 ## Using OCSF with Tenzir
 
@@ -1069,11 +1116,5 @@ pipelines.
 
 See the [OCSF mapping workflow](/reference/workflows/generate-an-ocsf-mapping)
 for guidance on creating custom mappings for your data sources.
-
-:::note
-This documentation is auto-generated from the official
-[OCSF schema](https://schema.ocsf.io) and
-[ocsf-docs](https://github.com/ocsf/ocsf-docs) repository.
-:::
 `;
 }

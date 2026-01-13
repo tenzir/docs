@@ -25,6 +25,7 @@ import {
 import {
   versionToSlug,
   buildClassUsage,
+  buildProfileUsage,
   generateClassDoc,
   generateObjectDoc,
   generateProfileDoc,
@@ -63,8 +64,9 @@ async function generateVersion(version) {
     `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles, ${Object.keys(types).length} types`,
   );
 
-  // Build class usage map
+  // Build usage maps
   const classUsage = buildClassUsage(classes, objects);
+  const profileUsage = buildProfileUsage(classes, profiles);
 
   // Create version-specific output directories (use dashes for URL compatibility)
   const versionSlug = versionToSlug(version);
@@ -100,7 +102,12 @@ async function generateVersion(version) {
   // Generate profile docs
   for (const [profileName, profileData] of Object.entries(profiles)) {
     const filename = profileName.replace(/\//g, "_") + ".mdx";
-    const doc = generateProfileDoc(profileName, profileData);
+    const doc = generateProfileDoc(
+      profileName,
+      profileData,
+      versionSlug,
+      profileUsage,
+    );
     await fs.writeFile(path.join(profilesDir, filename), doc);
     totalSize += doc.length;
   }
