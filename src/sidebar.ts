@@ -2,6 +2,7 @@ import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
 } from "./sidebar-shared-groups.js";
+import { OCSF_VERSION } from "./ocsf-version.mjs";
 
 export const guides = [
   "guides/quickstart",
@@ -231,11 +232,10 @@ export const reference = [
     collapsed: true,
     items: [
       { label: "Overview", link: "reference/ocsf" },
-      // Version links updated by sync-ocsf.mjs
-      { label: "Classes", link: "reference/ocsf/1-7-0/classes" },
-      { label: "Objects", link: "reference/ocsf/1-7-0/objects" },
-      { label: "Profiles", link: "reference/ocsf/1-7-0/profiles" },
-      { label: "Types", link: "reference/ocsf/1-7-0/types" },
+      { label: "Classes", link: `reference/ocsf/${OCSF_VERSION}/classes` },
+      { label: "Objects", link: `reference/ocsf/${OCSF_VERSION}/objects` },
+      { label: "Profiles", link: `reference/ocsf/${OCSF_VERSION}/profiles` },
+      { label: "Types", link: `reference/ocsf/${OCSF_VERSION}/types` },
       { label: "FAQs", link: "reference/ocsf/faqs" },
       { label: "Articles", link: "reference/ocsf/articles" },
     ],
