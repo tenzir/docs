@@ -1080,7 +1080,9 @@ title: OCSF
 description: Reference documentation for the Open Cybersecurity Schema Framework (OCSF).
 ---
 
-import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+import { CardGrid } from "@astrojs/starlight/components";
+import LinkCard from "@components/LinkCard.astro";
+import ocsfIcon from "@assets/ocsf.svg?raw";
 
 :::tip[AI-Optimized Documentation]
 This reference is optimized for AI agents.
@@ -1095,23 +1097,27 @@ for normalizing security telemetry across tools and vendors.
 <CardGrid>
   <LinkCard
     title="Schema"
-    description="Browse event classes, objects, and profiles"
+    description="Classes, objects, and profiles"
     href="/reference/ocsf/${latestSlug}"
+    customIcon={ocsfIcon}
   />
   <LinkCard
     title="FAQs"
     description="Common questions about OCSF"
     href="/reference/ocsf/faqs"
+    customIcon={ocsfIcon}
   />
   <LinkCard
     title="Articles"
     description="In-depth guides and best practices"
     href="/reference/ocsf/articles"
+    customIcon={ocsfIcon}
   />
   <LinkCard
     title="Official OCSF Site"
     description="Learn more at ocsf.io"
     href="https://ocsf.io"
+    customIcon={ocsfIcon}
   />
 </CardGrid>
 
