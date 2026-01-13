@@ -1818,7 +1818,11 @@ check out our [blog](https://tenzir.com/blog) or join the conversation on
 our [Discord](https://tenzir.com/discord).
 `;
   const landingPath = path.join(changelogContentDir, "index.mdx");
-  await fs.writeFile(landingPath, landingContent);
+  // Only write if content changed to avoid unnecessary git modifications
+  const existingContent = await fs.readFile(landingPath, "utf8").catch(() => "");
+  if (existingContent !== landingContent) {
+    await fs.writeFile(landingPath, landingContent);
+  }
 
   // Generate sidebar and topics configuration
   const sidebarFilePath = path.join(srcDir, "sidebar-changelog.generated.ts");
