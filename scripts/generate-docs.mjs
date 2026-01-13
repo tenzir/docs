@@ -424,6 +424,41 @@ async function generateDocsMap() {
     }
   }
 
+  // Add OCSF reference from generated sidebar (if it exists).
+  // We use a simple regex to extract the sidebar object rather than a full
+  // TypeScript parser for simplicity (KISS). This is fragile but sufficient
+  // for our controlled input.
+  const ocsfSidebarPath = path.join(
+    process.cwd(),
+    "src/sidebar-ocsf.generated.ts",
+  );
+  try {
+    const ocsfContent = await fs.readFile(ocsfSidebarPath, "utf-8");
+    const ocsfMatch = ocsfContent.match(
+      /export const ocsfSidebar = (\{[\s\S]*?\});/,
+    );
+    if (ocsfMatch) {
+      const ocsfSidebar = new Function(`return ${ocsfMatch[1]}`)();
+      const ocsfDocs = await processSidebarItem(ocsfSidebar, docsRoot);
+      if (ocsfDocs) {
+        // Insert before Workflows (at the end, before last item)
+        const workflowsIdx = sections.reference.findIndex(
+          (item) => item.label === "Workflows",
+        );
+        if (workflowsIdx !== -1) {
+          sections.reference.splice(workflowsIdx, 0, ocsfDocs);
+        } else {
+          sections.reference.push(ocsfDocs);
+        }
+      }
+    }
+  } catch (error) {
+    // Skip if file doesn't exist (not generated yet), but warn on other errors
+    if (error.code !== "ENOENT") {
+      console.warn(`Warning: Failed to process OCSF sidebar: ${error.message}`);
+    }
+  }
+
   // Generate output
   const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
   let output;
@@ -498,6 +533,33 @@ function countDocs(item) {
 }
 
 /**
+ * Extract imported/declared variable names from sidebar.ts content.
+ */
+function extractSidebarVariables(content) {
+  const variables = new Set();
+  // Named imports: import { foo, bar } from "..."
+  const namedImports = /import\s*\{([^}]+)\}\s*from/g;
+  let match;
+  while ((match = namedImports.exec(content)) !== null) {
+    for (const name of match[1].split(",")) {
+      const trimmed = name.trim().split(/\s+as\s+/).pop().trim();
+      if (trimmed) variables.add(trimmed);
+    }
+  }
+  // Default imports: import foo from "..."
+  const defaultImports = /import\s+(\w+)\s+from/g;
+  while ((match = defaultImports.exec(content)) !== null) {
+    variables.add(match[1]);
+  }
+  // Const declarations: const foo = ...
+  const constDecls = /^const\s+(\w+)\s*=/gm;
+  while ((match = constDecls.exec(content)) !== null) {
+    variables.add(match[1]);
+  }
+  return Array.from(variables);
+}
+
+/**
  * Extract and process a sidebar section.
  */
 async function extractAndProcess(name, content, docsRoot) {
@@ -513,14 +575,13 @@ async function extractAndProcess(name, content, docsRoot) {
     return [];
   }
 
-  // Parse the array content (simplified JS parsing)
   const arrayContent = match[1];
 
-  // Use Function constructor to evaluate (safe since we control the input)
-  // First, we need to handle the imports
+  // Auto-stub all imported/declared variables to avoid ReferenceError
+  const variables = extractSidebarVariables(content);
+  const stubs = variables.map((v) => `const ${v} = null;`).join("\n    ");
   const wrappedCode = `
-    const nodeAPISidebarGroup = { type: "group", label: "API" };
-    const platformAPISidebarGroup = { type: "group", label: "API" };
+    ${stubs}
     return [${arrayContent}];
   `;
 
