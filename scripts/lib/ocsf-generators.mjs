@@ -31,6 +31,7 @@ export function cleanDescription(text) {
     .replace(/<br\s*\/?>/g, " ")
     .replace(/<a[^>]*href=['"]([^'"]+)['"][^>]*>([^<]+)<\/a>/g, "[$2]($1)")
     .replace(/<[^>]+>/g, "")
+    .replace(/\[\s*([^\]]+?)\s*\]/g, "[$1]") // Normalize whitespace in link text
     .replace(/[ \t]+$/gm, ""); // Remove trailing whitespace from each line
 }
 
@@ -504,127 +505,131 @@ export function generateClassesOverview(version, classes, versionSlug) {
 }
 
 /**
- * Categorize objects by naming patterns.
+ * Object category keywords for pattern-based categorization.
  *
- * NOTE: This uses hardcoded keyword matching since OCSF doesn't provide
- * object category metadata in its API. New objects may fall into "Other"
- * until keywords are updated here. To add a new category or improve
- * categorization, update the keyword arrays below.
+ * OCSF doesn't provide object category metadata in its API, so we use
+ * keyword matching on object names. To add a new category or improve
+ * categorization, update the arrays below.
+ *
+ * Run generation with DEBUG=1 to see which objects fall into "Other".
+ */
+const OBJECT_CATEGORY_KEYWORDS = {
+  "Identity & Access": [
+    "account",
+    "actor",
+    "auth",
+    "user",
+    "group",
+    "idp",
+    "ldap",
+    "org",
+    "policy",
+    "session",
+    "sso",
+    "ticket",
+    "trait",
+  ],
+  "Process & System": [
+    "agent",
+    "application",
+    "container",
+    "device",
+    "display",
+    "environment",
+    "image",
+    "kernel",
+    "keyboard",
+    "module",
+    "os",
+    "peripheral",
+    "process",
+    "service",
+    "startup",
+  ],
+  Network: [
+    "autonomous",
+    "dns",
+    "endpoint",
+    "firewall",
+    "http",
+    "load_balancer",
+    "network",
+    "proxy",
+    "tls",
+    "tunnel",
+  ],
+  "File & Data": [
+    "data_class",
+    "data_security",
+    "database",
+    "databucket",
+    "digital_signature",
+    "encryption",
+    "file",
+    "fingerprint",
+    "hassh",
+    "ja4",
+    "package",
+    "sbom",
+    "script",
+    "software",
+  ],
+  "Security & Compliance": [
+    "analytic",
+    "anomaly",
+    "assessment",
+    "attack",
+    "baseline",
+    "campaign",
+    "check",
+    "cis",
+    "compliance",
+    "cve",
+    "cvss",
+    "cwe",
+    "d3f",
+    "finding",
+    "kill_chain",
+    "malware",
+    "mitigation",
+    "osint",
+    "rule",
+    "vulnerability",
+  ],
+  "Cloud & Infrastructure": [
+    "api",
+    "cloud",
+    "function",
+    "job",
+    "managed",
+    "product",
+    "reporter",
+    "request",
+    "resource",
+    "response",
+    "web_resource",
+  ],
+  Observability: [
+    "enrichment",
+    "evidence",
+    "graph",
+    "logger",
+    "metric",
+    "node",
+    "observable",
+    "observation",
+    "occurrence",
+    "span",
+    "trace",
+    "transformation",
+  ],
+};
+
+/**
+ * Categorize an object by its name using keyword matching.
  */
 function categorizeObject(objName) {
   const nameLower = objName.toLowerCase();
-
-  const categoryKeywords = {
-    "Identity & Access": [
-      "account",
-      "actor",
-      "auth",
-      "user",
-      "group",
-      "idp",
-      "ldap",
-      "org",
-      "policy",
-      "session",
-      "sso",
-      "ticket",
-      "trait",
-    ],
-    "Process & System": [
-      "agent",
-      "application",
-      "container",
-      "device",
-      "display",
-      "environment",
-      "image",
-      "kernel",
-      "keyboard",
-      "module",
-      "os",
-      "peripheral",
-      "process",
-      "service",
-      "startup",
-    ],
-    Network: [
-      "autonomous",
-      "dns",
-      "endpoint",
-      "firewall",
-      "http",
-      "load_balancer",
-      "network",
-      "proxy",
-      "tls",
-      "tunnel",
-    ],
-    "File & Data": [
-      "data_class",
-      "data_security",
-      "database",
-      "databucket",
-      "digital_signature",
-      "encryption",
-      "file",
-      "fingerprint",
-      "hassh",
-      "ja4",
-      "package",
-      "sbom",
-      "script",
-      "software",
-    ],
-    "Security & Compliance": [
-      "analytic",
-      "anomaly",
-      "assessment",
-      "attack",
-      "baseline",
-      "campaign",
-      "check",
-      "cis",
-      "compliance",
-      "cve",
-      "cvss",
-      "cwe",
-      "d3f",
-      "finding",
-      "kill_chain",
-      "malware",
-      "mitigation",
-      "osint",
-      "rule",
-      "vulnerability",
-    ],
-    "Cloud & Infrastructure": [
-      "api",
-      "cloud",
-      "function",
-      "job",
-      "managed",
-      "product",
-      "reporter",
-      "request",
-      "resource",
-      "response",
-      "web_resource",
-    ],
-    Observability: [
-      "enrichment",
-      "evidence",
-      "graph",
-      "logger",
-      "metric",
-      "node",
-      "observable",
-      "observation",
-      "occurrence",
-      "span",
-      "trace",
-      "transformation",
-    ],
-  };
 
   // Windows objects get their own category
   if (objName.startsWith("win/")) {
@@ -632,13 +637,27 @@ function categorizeObject(objName) {
   }
 
   // Check each category's keywords
-  for (const [category, keywords] of Object.entries(categoryKeywords)) {
+  for (const [category, keywords] of Object.entries(OBJECT_CATEGORY_KEYWORDS)) {
     if (keywords.some((kw) => nameLower.includes(kw))) {
       return category;
     }
   }
 
   return "Other";
+}
+
+/**
+ * Find objects that don't match any category keywords.
+ * Useful for identifying when OBJECT_CATEGORY_KEYWORDS needs updating.
+ */
+export function findUncategorizedObjects(objects) {
+  const uncategorized = [];
+  for (const objName of Object.keys(objects)) {
+    if (!objName.startsWith("win/") && categorizeObject(objName) === "Other") {
+      uncategorized.push(objName);
+    }
+  }
+  return uncategorized.sort();
 }
 
 /**

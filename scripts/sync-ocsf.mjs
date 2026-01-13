@@ -26,6 +26,7 @@ import {
   versionToSlug,
   buildClassUsage,
   buildProfileUsage,
+  findUncategorizedObjects,
   generateClassDoc,
   generateObjectDoc,
   generateProfileDoc,
@@ -64,6 +65,14 @@ async function generateVersion(version) {
   console.log(
     `  Found ${Object.keys(classes).length} classes, ${Object.keys(objects).length} objects, ${Object.keys(profiles).length} profiles, ${Object.keys(types).length} types`,
   );
+
+  // Log uncategorized objects when DEBUG is set (helps maintain OBJECT_CATEGORY_KEYWORDS)
+  if (process.env.DEBUG) {
+    const uncategorized = findUncategorizedObjects(objects);
+    if (uncategorized.length > 0) {
+      console.log(`  Uncategorized objects: ${uncategorized.join(", ")}`);
+    }
+  }
 
   // Build usage maps
   const classUsage = buildClassUsage(classes, objects);

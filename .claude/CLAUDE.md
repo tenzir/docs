@@ -81,6 +81,10 @@ Some content is auto-generated and excluded from linting:
   source files to SVG. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
   The remark plugin inlines the corresponding `foo.excalidraw.svg` directly into
   HTML for CSS dark mode support. Generated SVGs are gitignored.
+- **OCSF Reference**: Run `pnpm generate:ocsf` for latest version or
+  `pnpm generate:ocsf:all` for all versions. Fetches schema from schema.ocsf.io
+  and articles from ocsf/ocsf-docs. Generated files: `src/content/docs/reference/ocsf/`,
+  `src/sidebar-ocsf.generated.ts`, `src/ocsf-version.mjs`.
 
 ### Linting
 
