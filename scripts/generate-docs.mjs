@@ -542,7 +542,11 @@ function extractSidebarVariables(content) {
   let match;
   while ((match = namedImports.exec(content)) !== null) {
     for (const name of match[1].split(",")) {
-      const trimmed = name.trim().split(/\s+as\s+/).pop().trim();
+      const trimmed = name
+        .trim()
+        .split(/\s+as\s+/)
+        .pop()
+        .trim();
       if (trimmed) variables.add(trimmed);
     }
   }
