@@ -26,7 +26,21 @@ cmake --preset <preset-name>
 cmake --build --preset <preset-name>
 ```
 
-For example, to build a release on macOS:
+Two families of macOS presets exist:
+
+| Preset family   | Toolchain                        | Use case                            |
+| --------------- | -------------------------------- | ----------------------------------- |
+| `macos-clang-*` | Homebrew LLVM with custom libc++ | When you need latest Clang features |
+| `macos-xcode-*` | Apple Clang (Xcode)              | Simpler setup, standard toolchain   |
+
+For example, to build a release on macOS with Xcode:
+
+```sh
+cmake --preset macos-xcode-release
+cmake --build --preset macos-xcode-release
+```
+
+Or with Homebrew LLVM:
 
 ```sh
 cmake --preset macos-clang-release
