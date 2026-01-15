@@ -40,7 +40,9 @@ uvx tenzir-test --help
   sequentially. Declare it with `suite:` in a `test.yaml`; all descendants join
   automatically.
 - **Input** – Data accessed with `TENZIR_INPUTS`; defaults to `<root>/inputs` but
-  you can override it per directory or per test with an `inputs:` setting.
+  you can override it per directory or per test with an `inputs:` setting. The
+  harness also supports inline inputs via `TENZIR_INPUT` for test-specific data
+  files.
 - **Scratch directory** – Ephemeral workspace exposed as `TENZIR_TMP_DIR` during
   each test run.
 - **Artifact / Baseline** – Runner output persisted next to the test; regenerate
@@ -62,6 +64,10 @@ project-root/
     ├── alerts/
     │   ├── sample.tql
     │   └── sample.txt
+    ├── parsing/
+    │   ├── csv.input           # Inline input for this test
+    │   ├── csv.tql
+    │   └── csv.txt
     └── python/
         └── quick-check.py
 ```
@@ -218,6 +224,75 @@ Key rules:
 - Run the directory that defines the suite (for example `tenzir-test tests/http`)
   when you want to focus on it. Selecting an individual member now raises an
   error so every run exercises the full lifecycle and shared fixtures stay in sync.
+
+## Inputs
+
+Tests access input data through the `TENZIR_INPUTS` environment variable. By
+default this points to `<root>/inputs` or `<package>/tests/inputs/` in package
+mode. The harness supports two additional mechanisms for placing inputs closer
+to the tests that use them.
+
+### Inline inputs
+
+Place a `.input` file next to a test to provide test-specific input data. The
+harness exposes the file path via `TENZIR_INPUT` (singular):
+
+```text
+tests/parsing/
+  parse-csv.input      # Input data for this test
+  parse-csv.tql        # Test file
+  parse-csv.txt        # Expected output baseline
+```
+
+Access the inline input in TQL:
+
+```tql
+from_file env("TENZIR_INPUT")
+read_csv
+```
+
+Or in a shell script:
+
+```sh
+cat "$TENZIR_INPUT" | tenzir 'read_csv'
+```
+
+The harness sets `TENZIR_INPUT` only when a matching `.input` file exists. Tests
+can use both `TENZIR_INPUT` and `TENZIR_INPUTS` together when they need a
+test-specific file plus access to shared data.
+
+### Local inputs directories
+
+Place an `inputs/` directory at any level in the test hierarchy to provide
+shared inputs for tests in that subtree. The harness walks up from each test
+directory and uses the nearest `inputs/` directory it finds:
+
+```text
+tests/
+  network/
+    inputs/               # Shared inputs for network tests
+      sample.pcap
+      flows.ndjson
+    tcp/
+      analysis.tql        # env("TENZIR_INPUTS") → ../inputs/
+      analysis.txt
+    udp/
+      stats.tql
+      stats.txt
+inputs/                   # Global inputs (fallback)
+  common.json
+```
+
+Resolution hierarchy for `TENZIR_INPUTS`:
+
+1. `inputs:` override in test frontmatter or `test.yaml` (highest priority)
+2. Nearest `inputs/` directory walking up from the test directory
+3. Package-level `tests/inputs/` directory
+4. Project-level `inputs/` directory (fallback)
+
+When multiple `inputs/` directories exist in the hierarchy, the nearest one
+shadows the others. This keeps the mental model simple: move inputs closer to
+the tests that use them without worrying about inheritance.
 
 ## Run a subset of tests
 
@@ -469,8 +544,11 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 
 - `TENZIR_TEST_ROOT` – Default test root when `--root` is omitted.
 - `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary discovery.
-- `TENZIR_INPUTS` – Preferred data directory. Defaults to the project inputs
-  folder but reflects any `inputs:` override from `test.yaml` or frontmatter.
+- `TENZIR_INPUTS` – Preferred data directory. Defaults to the nearest `inputs/`
+  directory walking up from the test, falling back to the project-level inputs
+  folder. Reflects any `inputs:` override from `test.yaml` or frontmatter.
+- `TENZIR_INPUT` – Path to the inline input file when a `.input` file exists
+  next to the test. Not set otherwise.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
 - `TENZIR_TEST_DEBUG` – Enable debug logging (equivalent to `--debug`).
