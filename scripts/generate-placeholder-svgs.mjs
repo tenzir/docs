@@ -9,7 +9,7 @@
  *   bun run generate:excalidraw:placeholders
  *
  * Creates placeholder SVGs for any .excalidraw files that don't have
- * corresponding .svg files yet. This allows `bun dev` to work before
+ * corresponding .svg files yet. This allows `bun run dev` to work before
  * running the full generation.
  */
 

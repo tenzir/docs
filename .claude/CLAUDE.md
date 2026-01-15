@@ -59,7 +59,7 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
 ### Development Server
 
-- Use `bun dev` to start a development server in the background for live
+- Use `bun run dev` to start a development server in the background for live
   preview during development.
 - Use `bun run build` only when you need to inspect build artifacts. Output goes
   to `/build`.

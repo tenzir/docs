@@ -19,7 +19,7 @@ Want to contribute or run the docs locally?
 
 ```bash
 bun install     # Install dependencies
-bun dev         # Start development server
+bun run dev     # Start development server
 # → Browse to http://localhost:4321
 ```
 
