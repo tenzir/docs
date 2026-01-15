@@ -1,4 +1,18 @@
 #!/usr/bin/env node
+// TEMPORARY WORKAROUND: This script and the following dependencies in
+// package.json can be removed once we upgrade to the official starlight-llms-txt
+// release. When removing, delete these packages from package.json:
+//   - starlight-llms-txt (change to official npm package)
+//   - github-slugger
+//   - hast-util-select
+//   - micromatch
+//   - rehype-parse
+//   - rehype-remark
+//   - remark-gfm
+//   - remark-stringify
+//   - unified
+//   - unist-util-remove
+// Also remove the "postinstall" script from package.json.
 import {
   existsSync,
   symlinkSync,
