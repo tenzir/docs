@@ -1,12 +1,13 @@
 ---
 import CodeIcon from '../icons/CodeIcon.astro';
+import { pathWithBase } from '@utils/base';
 
 const name = Astro.slots.has('default')
   ? (await Astro.slots.render('default')).trim()
   : '';
 // Replace :: with / for namespaced operators (e.g., context::enrich -> context/enrich)
 const path = name.replace(/::/g, '/');
-const href = `/reference/operators/${path}`;
+const href = pathWithBase(`/reference/operators/${path}`);
 ---
 
 <span class="inline-icon-wrapper" data-tooltip="Operator"><CodeIcon class="inline-icon op-icon" /></span><a href={href}><code>{name}</code></a>
