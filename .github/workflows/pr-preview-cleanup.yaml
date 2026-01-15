@@ -46,18 +46,20 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const comment = `🧹 Preview deployment has been cleaned up.`;
+            const url = 'https://tenzir.github.io/docs-previews/${{ github.event.pull_request.number }}';
+            const comment = [
+              '<!-- docs-preview -->',
+              `📦 **Preview** &nbsp;·&nbsp; ~~[View →](${url})~~ &nbsp;·&nbsp; ⚪ Removed`,
+            ].join('\n');
 
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('Preview deployed!')
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('<!-- docs-preview -->')
             );
 
             if (botComment) {
