@@ -43,6 +43,8 @@ jobs:
           # Orphan branch to reset history
           git checkout --orphan fresh
           git add -A
+          echo "preview.docs.tenzir.com" > CNAME
+          git add CNAME
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "Compact: keep only open PR previews" || echo "Nothing to commit"
