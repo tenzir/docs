@@ -70,7 +70,9 @@ jobs:
       - name: Build with Astro
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CHECK_LINKS=true bun run astro build \
+            # Skip link checking for PR previews - the validator doesn't handle
+            # non-root base paths, and main branch builds catch broken links.
+            bun run astro build \
               --site "https://tenzir.github.io" \
               --base "/docs-previews/${{ github.event.pull_request.number }}"
           else
