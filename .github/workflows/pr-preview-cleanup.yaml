@@ -24,6 +24,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
+          set -e
           git clone --depth 1 --branch gh-pages \
             https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git preview-repo
           cd preview-repo
