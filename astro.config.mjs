@@ -112,8 +112,9 @@ export default defineConfig({
                 projectName: "Tenzir",
                 description:
                   "The low-code data pipeline solution for security teams",
-                generatePageMarkdown: true,
-                markdownFilePattern: "replace",
+                perPageMarkdown: {
+                  extensionStrategy: "replace",
+                },
                 customSets: [
                   {
                     label: "Reference",
