@@ -6,10 +6,10 @@
  *
  * Usage:
  *   node scripts/generate-placeholder-svgs.mjs
- *   pnpm generate:excalidraw:placeholders
+ *   bun run generate:excalidraw:placeholders
  *
  * Creates placeholder SVGs for any .excalidraw files that don't have
- * corresponding .svg files yet. This allows `pnpm dev` to work before
+ * corresponding .svg files yet. This allows `bun dev` to work before
  * running the full generation.
  */
 
@@ -30,7 +30,7 @@ const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40
     Excalidraw diagram placeholder
   </text>
   <text x="200" y="120" text-anchor="middle" fill="#868e96" font-family="system-ui, sans-serif" font-size="12">
-    Run: pnpm generate:excalidraw
+    Run: bun run generate:excalidraw
   </text>
 </svg>`;
 

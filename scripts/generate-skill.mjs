@@ -9,7 +9,7 @@
  *   └── references/        # Full documentation hierarchy
  *
  * Requires:
- *   - dist/ directory with sitemap.md (run 'LLMS_TXT=true pnpm build')
+ *   - dist/ directory with sitemap.md (run 'LLMS_TXT=true bun run build')
  */
 
 import fs from "fs";
@@ -282,13 +282,13 @@ const referencesDir = path.join(outputDir, "references");
 // Check prerequisites
 if (!fs.existsSync(distPath)) {
   console.error(`Error: dist/ directory not found`);
-  console.error("Run 'LLMS_TXT=true pnpm build' first.");
+  console.error("Run 'LLMS_TXT=true bun run build' first.");
   process.exit(1);
 }
 
 if (!fs.existsSync(sitemapPath)) {
   console.error(`Error: dist/sitemap.md not found`);
-  console.error("Run 'LLMS_TXT=true pnpm build' first.");
+  console.error("Run 'LLMS_TXT=true bun run build' first.");
   process.exit(1);
 }
 

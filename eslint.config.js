@@ -20,7 +20,7 @@ export default [
       ".env.local",
       ".env.production",
       "tsconfig.tsbuildinfo",
-      "pnpm-lock.yaml",
+      "bun.lock",
       "package-lock.json",
       "yarn.lock",
       "**/*.py",

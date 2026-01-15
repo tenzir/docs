@@ -1,5 +1,13 @@
 #!/usr/bin/env node
-import { existsSync, symlinkSync, unlinkSync, readdirSync } from "fs";
+import {
+  existsSync,
+  symlinkSync,
+  unlinkSync,
+  readdirSync,
+  renameSync,
+  lstatSync,
+  rmSync,
+} from "fs";
 import { join } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -8,15 +16,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, "..");
 
-// Find the actual installation path
 const nodeModules = join(projectRoot, "node_modules");
 const targetPackage = "starlight-llms-txt";
 const targetPath = join(nodeModules, targetPackage);
+const monorepoBackupName = "starlight-llms-txt-monorepo";
+const monorepoBackupPath = join(nodeModules, monorepoBackupName);
 
-// Find the monorepo installation in .pnpm
+// Check if bun installed the monorepo directly (no .pnpm directory)
 const pnpmDir = join(nodeModules, ".pnpm");
+const hasPnpm = existsSync(pnpmDir);
 
-if (existsSync(pnpmDir)) {
+if (hasPnpm) {
+  // pnpm installation - use original logic
   const dirs = readdirSync(pnpmDir);
   const monorepoDir = dirs.find((d) =>
     d.includes("starlight-llms-txt-monorepo"),
@@ -33,7 +44,6 @@ if (existsSync(pnpmDir)) {
     );
 
     if (existsSync(actualPackagePath)) {
-      // Remove existing symlink if it exists
       if (existsSync(targetPath)) {
         try {
           unlinkSync(targetPath);
@@ -42,7 +52,6 @@ if (existsSync(pnpmDir)) {
         }
       }
 
-      // Create correct symlink
       const relativePath = join(
         ".pnpm",
         monorepoDir,
@@ -54,16 +63,11 @@ if (existsSync(pnpmDir)) {
 
       try {
         symlinkSync(relativePath, targetPath, "dir");
-        // Successfully fixed symlink
-
-        // Install dependencies for the fork
         const { execSync } = await import("child_process");
-        // Installing dependencies for fork
         execSync("pnpm install", {
           cwd: actualPackagePath,
           stdio: "inherit",
         });
-        // Dependencies installed successfully
       } catch (error) {
         console.error(
           "Failed to create symlink or install dependencies:",
@@ -71,12 +75,43 @@ if (existsSync(pnpmDir)) {
         );
         process.exit(1);
       }
-    } else {
-      console.warn("starlight-llms-txt package not found in expected location");
     }
-  } else {
-    console.warn("starlight-llms-txt-monorepo not found in node_modules/.pnpm");
   }
 } else {
-  // No .pnpm directory found - skipping symlink fix
+  // bun installation - monorepo is installed directly at targetPath
+  // Check if targetPath is a directory containing the monorepo structure
+  const packagesDir = join(targetPath, "packages", targetPackage);
+
+  if (existsSync(packagesDir) && existsSync(join(packagesDir, "index.ts"))) {
+    // This is a monorepo installation - we need to fix it
+    try {
+      // Check if it's already a symlink (already fixed)
+      const stats = lstatSync(targetPath);
+      if (stats.isSymbolicLink()) {
+        // Already fixed
+        process.exit(0);
+      }
+
+      // Remove backup if it exists from a previous run
+      if (existsSync(monorepoBackupPath)) {
+        rmSync(monorepoBackupPath, { recursive: true, force: true });
+      }
+
+      // Rename the monorepo directory to a backup name
+      renameSync(targetPath, monorepoBackupPath);
+
+      // Create symlink from package name to the actual package inside monorepo
+      const relativePath = join(monorepoBackupName, "packages", targetPackage);
+
+      symlinkSync(relativePath, targetPath, "dir");
+      console.log(`Fixed starlight-llms-txt: symlinked to ${relativePath}`);
+    } catch (error) {
+      console.error(
+        "Failed to fix starlight-llms-txt installation:",
+        error.message,
+      );
+      process.exit(1);
+    }
+  }
+  // If packagesDir doesn't exist, the package is already properly installed
 }
