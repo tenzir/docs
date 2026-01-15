@@ -6,7 +6,7 @@
  *
  * Usage:
  *   node scripts/generate-excalidraw-svgs.mjs
- *   pnpm generate:excalidraw
+ *   bun run generate:excalidraw
  *
  * Converts all .excalidraw files in src/content/ to .svg files.
  * Naming: foo.excalidraw -> foo.svg

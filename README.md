@@ -18,8 +18,8 @@ to provide an exceptional developer experience.
 Want to contribute or run the docs locally?
 
 ```bash
-pnpm install    # Install dependencies
-pnpm dev        # Start development server
+bun install     # Install dependencies
+bun run dev     # Start development server
 # → Browse to http://localhost:4321
 ```
 

@@ -10,25 +10,25 @@ https://github.com/tenzir/docs. We use [Astro](https://astro.build) with
 
 ### Essential Commands
 
-| Command                    | Action                                                            |
-| :------------------------- | :---------------------------------------------------------------- |
-| `pnpm install`             | Install dependencies                                              |
-| `pnpm dev`                 | Start local dev server at `localhost:4321`                        |
-| `pnpm build`               | Build production site to `./dist/`                                |
-| `pnpm preview`             | Preview build locally before deploying                            |
-| `pnpm generate:changelog`  | Sync changelog from [tenzir/news](https://github.com/tenzir/news) |
-| `pnpm generate:docs-map`   | Generate documentation map for AI agents                          |
-| `pnpm generate:excalidraw` | Convert `.excalidraw` diagrams to SVG                             |
+| Command                       | Action                                                            |
+| :---------------------------- | :---------------------------------------------------------------- |
+| `bun install`                 | Install dependencies                                              |
+| `bun run dev`                 | Start local dev server at `localhost:4321`                        |
+| `bun run build`               | Build production site to `./dist/`                                |
+| `bun run preview`             | Preview build locally before deploying                            |
+| `bun run generate:changelog`  | Sync changelog from [tenzir/news](https://github.com/tenzir/news) |
+| `bun run generate:docs-map`   | Generate documentation map for AI agents                          |
+| `bun run generate:excalidraw` | Convert `.excalidraw` diagrams to SVG                             |
 
 ### Development Commands
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `pnpm lint:markdown`   | Lint all Markdown files                          |
-| `pnpm lint:prettier`   | Check code formatting                            |
-| `pnpm build:linkcheck` | Validate all internal and external links         |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+| Command                   | Action                                           |
+| :------------------------ | :----------------------------------------------- |
+| `bun run lint:markdown`   | Lint all Markdown files                          |
+| `bun run lint:prettier`   | Check code formatting                            |
+| `bun run build:linkcheck` | Validate all internal and external links         |
+| `bun run astro ...`       | Run CLI commands like `astro add`, `astro check` |
+| `bun run astro -- --help` | Get help using the Astro CLI                     |
 
 For anything beyond editing Markdown content, check out [Starlight's
 docs](https://starlight.astro.build/) or read [Astro's
@@ -51,13 +51,13 @@ For git workflow, branching strategy, and commit message conventions, see our
 2. **Install dependencies**:
 
    ```bash
-   pnpm install
+   bun install
    ```
 
 3. **Start development server**:
 
    ```bash
-   pnpm dev
+   bun run dev
    ```
 
 4. **View the site**: Browse to `http://localhost:4321/`
@@ -74,10 +74,10 @@ Create and preview a production build:
 
 ```bash
 # Build the site
-pnpm build
+bun run build
 
 # Preview the build
-pnpm preview
+bun run preview
 ```
 
 Then browse to `http://localhost:4321/` to view the production site.
@@ -97,7 +97,7 @@ The documentation includes automated link validation to ensure all internal and 
 Before submitting changes, run link checking locally to catch broken links:
 
 ```bash
-pnpm build:linkcheck
+bun run build:linkcheck
 ```
 
 This will build the site with link validation enabled and report any broken links found.
@@ -185,7 +185,7 @@ directory alongside your markdown:
 1. Create your diagram in Excalidraw (use light mode)
 2. Save as `diagram-name.excalidraw` in the same directory as your markdown file
 3. Reference it in markdown: `![Alt text](diagram-name.excalidraw)`
-4. Run `pnpm generate:excalidraw` to generate the SVG
+4. Run `bun run generate:excalidraw` to generate the SVG
 
 The build process converts `.excalidraw` files to `.excalidraw.svg` and inlines
 them directly into the HTML. This enables automatic dark mode support via CSS.
@@ -273,11 +273,11 @@ Follow these conventions to maintain consistency across all documentation files.
 #### Markdown Content
 
 - Break lines at **80 characters**.
-- When editing Markdown, run `pnpm lint:markdown:fix` and `pnpm
+- When editing Markdown, run `bun run lint:markdown:fix` and `bun run
 lint:prettier:fix` when you're done.
 
 #### Code
 
 - Avoid empty lines within functions.
 - When editing source code (`.js`, `.jsx`, `.ts`, `.tsx`, `.astro` files), run
-  `pnpm lint:eslint:fix` when you're done.
+  `bun run lint:eslint:fix` when you're done.

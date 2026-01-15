@@ -27,36 +27,32 @@ jobs:
           fetch-depth: 0 # needed for checking changes and pushing
           submodules: recursive
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Setup Node.js and pnpm
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: "20"
-          cache: "pnpm"
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
       - name: Generate changelog
-        run: pnpm generate:changelog
+        run: bun run generate:changelog
 
       - name: Generate Claude plugins
-        run: pnpm generate:claude-plugins
+        run: bun run generate:claude-plugins
 
       - name: Generate OCSF reference
         if: github.event_name != 'pull_request'
-        run: pnpm generate:ocsf:all
+        run: bun run generate:ocsf:all
 
       - name: Generate docs map
-        run: pnpm generate:docs-map
+        run: bun run generate:docs-map
 
       - name: Generate Excalidraw SVGs
-        run: pnpm generate:excalidraw
+        run: bun run generate:excalidraw
 
       - name: Setup GitHub Pages
         id: pages
@@ -65,10 +61,10 @@ jobs:
       - name: Build with Astro
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CHECK_LINKS=true pnpm astro build \
+            CHECK_LINKS=true bun run astro build \
               --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
           else
-            CHECK_LINKS=true LLMS_TXT=true pnpm astro build \
+            CHECK_LINKS=true LLMS_TXT=true bun run astro build \
               --site "${{ steps.pages.outputs.origin }}" \
               --base "${{ steps.pages.outputs.base_path }}"
           fi
@@ -162,13 +158,10 @@ jobs:
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: "20"
+          bun-version: latest
 
       - name: Create tarball bundle
         run: |
@@ -208,7 +201,7 @@ jobs:
 
       - name: Generate skill
         run: |
-          pnpm generate:skill
+          bun run generate:skill
           tar -czf tenzir-skill.tar.gz -C tenzir .
 
       - name: Install uv
