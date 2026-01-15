@@ -2,6 +2,7 @@
 import type { Props } from '@astrojs/starlight/props';
 import { getCollection } from 'astro:content';
 import { getSearchWeight } from '../search-weights';
+import { pathWithBase } from '@utils/base';
 
 // PAGE_TITLE_ID is just '_top' in Starlight
 const PAGE_TITLE_ID = '_top';
@@ -11,8 +12,9 @@ const PAGE_TITLE_ID = '_top';
 const allDocs = await getCollection('docs');
 const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 
-// Get the current path segments
-const currentPath = Astro.url.pathname;
+// Get the current path segments, stripping the base path for subdirectory deployments
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+const currentPath = Astro.url.pathname.replace(basePath, '') || '/';
 const segments = currentPath.split('/').filter(Boolean);
 
 // Don't show breadcrumbs on the home page
@@ -55,7 +57,7 @@ const crumbs: BreadcrumbItem[] = [];
 // Build breadcrumbs for each path segment
 for (let i = 0; i < segments.length; i++) {
   const pathSegments = segments.slice(0, i + 1);
-  const href = '/' + pathSegments.join('/');
+  const href = pathWithBase('/' + pathSegments.join('/'));
   const slug = pathSegments.join('/');
   const currentSegment = segments[i];
 
@@ -106,7 +108,7 @@ for (let i = 0; i < segments.length; i++) {
     <nav class="c-breadcrumbs" aria-label="Breadcrumbs">
       <ol class="c-breadcrumbs__crumbs">
         <li class="c-breadcrumbs__crumb">
-          <a href="/" class="c-breadcrumbs__link c-breadcrumbs__link--home" aria-label="Home">
+          <a href={pathWithBase("/")} class="c-breadcrumbs__link c-breadcrumbs__link--home" aria-label="Home">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

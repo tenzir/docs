@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import SparkleIcon from '../icons/SparkleIcon.astro';
+import { pathWithBase } from '@utils/base';
 
 // Build lookup map for page titles
 const allDocs = await getCollection('docs');
@@ -9,7 +10,7 @@ const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 const path = Astro.slots.has('default')
   ? (await Astro.slots.render('default')).trim()
   : '';
-const href = `/explanations/${path}`;
+const href = pathWithBase(`/explanations/${path}`);
 
 // Try to get actual page title, fall back to slug transformation
 const entry = docsMap.get(`explanations/${path}`);

@@ -21,6 +21,15 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Generate app token
+        if: github.event_name == 'pull_request'
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          repositories: docs-previews
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -61,8 +70,11 @@ jobs:
       - name: Build with Astro
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            CHECK_LINKS=true bun run astro build \
-              --site "https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh"
+            # Skip link checking for PR previews - the validator doesn't handle
+            # non-root base paths, and main branch builds catch broken links.
+            bun run astro build \
+              --site "https://tenzir.github.io" \
+              --base "/docs-previews/${{ github.event.pull_request.number }}"
           else
             CHECK_LINKS=true LLMS_TXT=true bun run astro build \
               --site "${{ steps.pages.outputs.origin }}" \
@@ -77,32 +89,36 @@ jobs:
 
       - name: Deploy PR Preview
         if: github.event_name == 'pull_request'
-        run: |
-          # To create a surge.sh token, run `npx durge login` and `npx surge token`.
-          npm install -g surge
-          surge ./dist https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          repository-name: tenzir/docs-previews
+          folder: dist
+          target-folder: ${{ github.event.pull_request.number }}
+          branch: gh-pages
+          clean: false
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const comment = `🚀 **Preview deployed!**
+            const url = 'https://tenzir.github.io/docs-previews/${{ github.event.pull_request.number }}';
+            const comment = [
+              '<!-- docs-preview -->',
+              `📦 **Preview** &nbsp;·&nbsp; [View →](${url}) &nbsp;·&nbsp; 🟢 Live`,
+              '',
+              '<sub>Auto-updates on push</sub>'
+            ].join('\n');
 
-            Visit the preview at: https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh
-
-            This preview will be updated automatically on new commits.`;
-
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('Preview deployed!')
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('<!-- docs-preview -->')
             );
 
             if (botComment) {

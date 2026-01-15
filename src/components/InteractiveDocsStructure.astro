@@ -1,10 +1,13 @@
 ---
+import { pathWithBase } from '@utils/base';
+
 export interface Props {
   imageSrc?: string;
   activeSection?: "tutorials" | "guides" | "explanations" | "reference" | null;
 }
 
 const { imageSrc = "/docs-structure.svg", activeSection = null } = Astro.props;
+const resolvedImageSrc = pathWithBase(imageSrc);
 
 const sections = [
   {
@@ -49,7 +52,7 @@ const getClickableStatus = (section: string) => {
 // Get the appropriate href for each section
 const getHref = (section: string) => {
   if (activeSection === section) return undefined;
-  return `/${section}/`;
+  return pathWithBase(`/${section}/`);
 };
 ---
 
@@ -61,7 +64,7 @@ const getHref = (section: string) => {
     aria-label="Documentation structure"
   >
     <image
-      href={imageSrc}
+      href={resolvedImageSrc}
       x="0"
       y="0"
       width="859.7111327472201"

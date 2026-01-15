@@ -4,32 +4,62 @@ on:
   pull_request:
     types: [closed]
 
+permissions:
+  pull-requests: write
+
 jobs:
   cleanup:
     name: Clean up PR preview
     runs-on: ubuntu-latest
     steps:
-      - name: Remove preview from Surge
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          repositories: docs-previews
+
+      - name: Remove preview from docs-previews repo
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          npm install -g surge
-          surge teardown https://tenzir-docs-preview-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+          set -e
+          git clone --depth 1 --branch gh-pages \
+            https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git preview-repo
+          cd preview-repo
+
+          PREVIEW_DIR="${{ github.event.pull_request.number }}"
+          if [ -d "$PREVIEW_DIR" ]; then
+            rm -rf "$PREVIEW_DIR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Remove preview for PR #${{ github.event.pull_request.number }}"
+            git push
+            echo "Removed preview: $PREVIEW_DIR"
+          else
+            echo "Preview not found: $PREVIEW_DIR"
+          fi
 
       - name: Comment on PR
         uses: actions/github-script@v7
         with:
           script: |
-            const comment = `🧹 Preview deployment has been cleaned up.`;
+            const url = 'https://tenzir.github.io/docs-previews/${{ github.event.pull_request.number }}';
+            const comment = [
+              '<!-- docs-preview -->',
+              `📦 **Preview** &nbsp;·&nbsp; ~~[View →](${url})~~ &nbsp;·&nbsp; ⚪ Removed`,
+            ].join('\n');
 
-            // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('Preview deployed!')
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('<!-- docs-preview -->')
             );
 
             if (botComment) {
@@ -37,13 +67,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: botComment.id,
-                body: comment
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
                 body: comment
               });
             }

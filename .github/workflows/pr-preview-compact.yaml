@@ -1,0 +1,51 @@
+name: Compact Previews
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  compact:
+    name: Compact preview repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          repositories: docs-previews
+
+      - name: Compact previews
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -e
+
+          # Get open PR numbers from docs repo
+          OPEN_PRS=$(gh pr list --repo tenzir/docs --state open --json number --jq '.[].number')
+
+          git clone --branch gh-pages \
+            https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git repo
+          cd repo
+
+          # Remove previews for closed PRs
+          for dir in */; do
+            pr_num="${dir%/}"
+            if [[ "$pr_num" =~ ^[0-9]+$ ]] && ! echo "$OPEN_PRS" | grep -q "^${pr_num}$"; then
+              echo "Removing stale preview: $pr_num"
+              rm -rf "$pr_num"
+            fi
+          done
+
+          # Orphan branch to reset history
+          git checkout --orphan fresh
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Compact: keep only open PR previews" || echo "Nothing to commit"
+          git branch -D gh-pages
+          git branch -m gh-pages
+          git push -f origin gh-pages
