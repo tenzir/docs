@@ -118,7 +118,7 @@ if (hasPnpm) {
       const relativePath = join(monorepoBackupName, "packages", targetPackage);
 
       symlinkSync(relativePath, targetPath, "dir");
-      console.log(`Fixed starlight-llms-txt: symlinked to ${relativePath}`);
+      console.warn(`Fixed starlight-llms-txt: symlinked to ${relativePath}`);
     } catch (error) {
       console.error(
         "Failed to fix starlight-llms-txt installation:",
