@@ -176,12 +176,12 @@ The operator writes files to this volume and deletes them after successful
 Regardless of ingestion method, Tenzir applies optimizations that produce
 query-efficient files:
 
-| Optimization        | Benefit                      | Databricks Feature     |
-| ------------------- | ---------------------------- | ---------------------- |
-| Partition alignment | Perfect partition pruning    | Partition elimination  |
-| Row sorting         | Tight min/max statistics     | Data skipping          |
-| 1GB file targets    | Optimal scan efficiency      | Reduced OPTIMIZE need  |
-| Snappy compression  | Fast reads, good compression | Native Parquet support |
+| Optimization        | Benefit                   | Databricks Feature     |
+| ------------------- | ------------------------- | ---------------------- |
+| Partition alignment | Perfect partition pruning | Partition elimination  |
+| Row sorting         | Tight min/max statistics  | Data skipping          |
+| 1GB file targets    | Optimal scan efficiency   | Reduced OPTIMIZE need  |
+| Zstd compression    | High compression ratio    | Native Parquet support |
 
 These optimizations reduce or eliminate the need for post-write maintenance
 operations like `OPTIMIZE` and `ZORDER`.
@@ -191,8 +191,7 @@ operations like `OPTIMIZE` and `ZORDER`.
 ### Basic ingestion to a bronze table
 
 ```tql
-load_file "/var/log/app/events.json"
-read_json
+from_file "/var/log/app/events.json"
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="analytics",

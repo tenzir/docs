@@ -261,7 +261,7 @@ files in Databricks' recommended size range, reducing metadata overhead and
 the urgency of running `OPTIMIZE` for compaction.
 
 **Efficient encoding**: The operator leverages Apache Arrow's Parquet writer
-with dictionary encoding, run-length encoding, and Snappy compression for
+with dictionary encoding, run-length encoding, and Zstd compression for
 compact, fast-to-read files.
 
 These optimizations are applied regardless of the `method` chosen. For managed
@@ -276,8 +276,7 @@ their optimized layout intact.
 Ingest raw Zeek connection logs into a medallion-architecture data lake:
 
 ```tql
-load_file "/var/log/zeek/conn.log"
-read_zeek_tsv
+from_file "/var/log/zeek/conn.log", read=read_zeek_tsv
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="security",
