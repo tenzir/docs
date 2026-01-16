@@ -107,19 +107,6 @@ scenarios requiring direct storage access.
 
 ## Choosing a Method
 
-```mermaid
-flowchart TD
-    A[Start] --> B{Need full UC governance?}
-    B -->|Yes| C{DBU budget available?}
-    B -->|No| D[external_delta]
-    C -->|Yes| E[delta]
-    C -->|No| F{Can use Iceberg tables?}
-    F -->|Yes| G[iceberg]
-    F -->|No| H[delta with optimized batching]
-```
-
-**Decision factors:**
-
 | Factor                       | delta | iceberg | external_delta |
 | ---------------------------- | ----- | ------- | -------------- |
 | Unity Catalog managed tables | ✅    | ✅      | ❌             |
