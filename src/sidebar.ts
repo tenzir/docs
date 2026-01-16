@@ -301,6 +301,7 @@ export const integrations = [
     label: "Data Tools",
     items: [
       "integrations/clickhouse",
+      "integrations/databricks",
       "integrations/elasticsearch",
       "integrations/graylog",
       "integrations/opensearch",
