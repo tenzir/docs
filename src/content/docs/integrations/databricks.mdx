@@ -22,11 +22,11 @@ ingestion methods optimized for different cost and governance requirements.
 Tenzir supports three methods for writing data to Databricks, each with
 different trade-offs:
 
-| Method           | DBU Cost   | Table Type      | Governance         | Status       |
-| ---------------- | ---------- | --------------- | ------------------ | ------------ |
-| `delta`          | Per-commit | Managed Delta   | Full Unity Catalog | ✅ Available |
-| `iceberg`        | Zero       | Managed Iceberg | Full Unity Catalog | ⏳ Planned   |
-| `external_delta` | Zero       | External Delta  | External table     | ⏳ Planned   |
+| Method           | DBU Cost   | Table Type      | Governance         | Status |
+| ---------------- | ---------- | --------------- | ------------------ | ------ |
+| `delta`          | Per-commit | Managed Delta   | Full Unity Catalog | ✅     |
+| `iceberg`        | Zero       | Managed Iceberg | Full Unity Catalog | ⏳     |
+| `external-delta` | Zero       | External Delta  | External table     | ⏳     |
 
 ### Optimized Parquet Staging (`delta`)
 
@@ -79,7 +79,7 @@ full governance without DBU overhead.
 - Tables created with `USING ICEBERG` clause
 - Service principal with appropriate catalog permissions
 
-### External Delta (`external_delta`) — _Planned_
+### External Delta (`external-delta`) — _Planned_
 
 Writes Delta tables directly to customer-managed cloud storage using the
 [Delta Lake](https://delta.io/) protocol, bypassing Unity Catalog's managed
@@ -108,7 +108,7 @@ scenarios requiring direct storage access.
 
 ## Choosing a Method
 
-| Factor                       | delta | iceberg | external_delta |
+| Factor                       | delta | iceberg | external-delta |
 | ---------------------------- | ----- | ------- | -------------- |
 | Unity Catalog managed tables | ✅    | ✅      | ❌             |
 | Zero DBU ingestion           | ❌    | ✅      | ✅             |
