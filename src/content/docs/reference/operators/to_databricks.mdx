@@ -139,12 +139,12 @@ tables whose partitioning is already defined.
 
 Common patterns:
 
-| Pattern                                | Use Case                                       |
-| -------------------------------------- | ---------------------------------------------- |
-| `[time_bucket("1d", time)]`            | Time-series data with date-range queries       |
-| `[time_bucket("1h", time)]`            | High-volume streams needing hourly granularity |
-| `[time_bucket("1d", time), source]`    | Multi-source ingestion with source filtering   |
-| `[time_bucket("1d", time), class_uid]` | OCSF events filtered by event class            |
+| Pattern                       | Use Case                                       |
+| ----------------------------- | ---------------------------------------------- |
+| `[time.round(1d)]`            | Time-series data with date-range queries       |
+| `[time.round(1h)]`            | High-volume streams needing hourly granularity |
+| `[time.round(1d), source]`    | Multi-source ingestion with source filtering   |
+| `[time.round(1d), class_uid]` | OCSF events filtered by event class            |
 
 Avoid over-partitioning. Each partition should contain at least 1GB of data
 for optimal file sizes and query performance.
@@ -164,7 +164,7 @@ For best results, sort by columns that appear frequently in `WHERE` clauses:
 
 ```tql
 to_databricks ...,
-  partition_by=[time_bucket("1d", time)],
+  partition_by=[time.round(1d)],
   sort_by=[src_ip, dst_ip]
 ```
 
@@ -276,16 +276,19 @@ their optimized layout intact.
 Ingest raw Zeek connection logs into a medallion-architecture data lake:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 from_file "/var/log/zeek/conn.log", read=read_zeek_tsv
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="security",
   schema="bronze",
   table="zeek_conn",
-  client_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[time_bucket("1d", ts)]
+  partition_by=[ts.round(1d)]
 ```
 
 ### Stream OCSF events with partitioning
@@ -293,17 +296,20 @@ to_databricks
 Write normalized security events with OCSF-optimized partitioning:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 subscribe "ocsf"
 to_databricks
   workspace="https://dbc-a1b2c3d4.cloud.databricks.com",
   catalog="prod",
   schema="silver",
   table="security_events",
-  client_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
   staging_volume="tenzir_staging",
-  partition_by=[time_bucket("1d", time), class_uid]
+  partition_by=[time.round(1d), class_uid]
 ```
 
 ### Low-latency ingestion for alerting
@@ -311,14 +317,17 @@ to_databricks
 Minimize data latency for real-time security monitoring:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 subscribe "alerts"
 to_databricks
   workspace="https://1234567890123456.7.gcp.databricks.com",
   catalog="security",
   schema="realtime",
   table="high_priority_alerts",
-  client_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
   flush_interval=1m,
   file_size=256Mi
@@ -329,16 +338,19 @@ to_databricks
 High-volume network telemetry with sorting for common query patterns:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 subscribe "network"
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="analytics",
   schema="silver",
   table="network_flows",
-  client_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[time_bucket("1d", time)],
+  partition_by=[time.round(1d)],
   sort_by=[src_ip, dst_ip, dst_port],
   flush_interval=5m,
   file_size=1Gi
@@ -349,18 +361,21 @@ to_databricks
 Reduce DBU consumption for high-volume archival workloads:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 export
 to_databricks
   workspace="https://dbc-a1b2c3d4-e5f6.cloud.databricks.com",
   catalog="archive",
   schema="compliance",
   table="audit_logs",
-  client_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
   flush_interval=15m,
   file_size=1Gi,
-  partition_by=[time_bucket("1d", time), source_type]
+  partition_by=[time.round(1d), source_type]
 ```
 
 ## See Also
