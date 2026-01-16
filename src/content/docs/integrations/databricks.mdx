@@ -47,10 +47,11 @@ Tenzir → Parquet files → UC Volume → COPY INTO → Managed Delta Table
 **Best for:** Production workloads where Unity Catalog governance is required
 and DBU cost is acceptable.
 
-**Cost model:** Each `COPY INTO` execution consumes DBUs. With Serverless SQL
-Warehouses at ~$0.07/DBU (list price), ingesting 1GB typically costs a few
-cents. Optimize cost by increasing `flush_interval` and `file_size` to reduce
-commit frequency.
+:::tip[Cost model]
+Each `COPY INTO` execution consumes DBUs. With Serverless SQL Warehouses at
+~$0.07/DBU (list price), ingesting 1GB typically costs a few cents. Optimize
+cost by increasing `flush_interval` and `file_size` to reduce commit frequency.
+:::
 
 ### Iceberg REST Catalog (`iceberg`) — _Planned_
 
