@@ -1288,6 +1288,42 @@ ${articles.map((a) => `- [${a.title}](/reference/ocsf/articles/${a.slug})`).join
 }
 
 // =============================================================================
+// Overview/Introduction
+// =============================================================================
+
+/**
+ * Parse overview file into {title, content}.
+ */
+export function parseOverview(content) {
+  // Extract title from first H1 or use default
+  const titleMatch = content.match(/^#\s+(.+)$/m);
+  const title = titleMatch ? titleMatch[1] : "Understanding OCSF";
+
+  // Remove the H1 title from content (Starlight uses frontmatter title)
+  // Use multiline mode to match H1 that may not be at position 0
+  // Also fix malformed markdown links with double parentheses: [text]((url)) -> [text](url)
+  // And escape angle brackets that would be interpreted as JSX tags
+  const contentWithoutTitle = escapeAngleBracketsForMdx(
+    content.replace(/^#\s+.+\n/m, "").replace(/\]\(\(([^)]+)\)\)/g, "]($1)"),
+  );
+
+  return { title, content: contentWithoutTitle };
+}
+
+/**
+ * Generate overview page MDX with title "Introduction".
+ */
+export function generateOverviewPage(overview) {
+  return (
+    generateFrontmatter({
+      title: "Introduction",
+      description:
+        "Comprehensive guide to OCSF concepts including taxonomy, personas, attributes, event classes, categories, profiles, and extensions.",
+    }) + overview.content
+  );
+}
+
+// =============================================================================
 // Main Index Page
 // =============================================================================
 
@@ -1333,6 +1369,12 @@ for normalizing security telemetry across tools and vendors.
 
 <CardGrid>
   <LinkCard
+    title="Introduction"
+    description="Comprehensive guide to OCSF concepts"
+    href="/reference/ocsf/introduction"
+    customIcon={ocsfIcon}
+  />
+  <LinkCard
     title="Schema"
     description="Classes, objects, profiles, and extensions"
     href="/reference/ocsf/${latestSlug}"
@@ -1348,12 +1390,6 @@ for normalizing security telemetry across tools and vendors.
     title="Articles"
     description="In-depth guides and best practices"
     href="/reference/ocsf/articles"
-    customIcon={ocsfIcon}
-  />
-  <LinkCard
-    title="Official OCSF Site"
-    description="Learn more at ocsf.io"
-    href="https://ocsf.io"
     customIcon={ocsfIcon}
   />
 </CardGrid>

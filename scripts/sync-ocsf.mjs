@@ -21,6 +21,7 @@ import {
   fetchExtensions,
   fetchFaqs,
   fetchArticles,
+  fetchOverview,
 } from "./lib/ocsf-client.mjs";
 
 import {
@@ -45,6 +46,8 @@ import {
   parseArticle,
   generateArticlePage,
   generateArticlesIndex,
+  parseOverview,
+  generateOverviewPage,
   generateMainIndex,
 } from "./lib/ocsf-generators.mjs";
 
@@ -261,6 +264,17 @@ async function syncDocs() {
   } catch (err) {
     console.warn(`  Warning: Could not sync articles: ${err.message}`);
   }
+
+  // Sync overview/introduction document
+  try {
+    const overviewFile = await fetchOverview();
+    const overview = parseOverview(overviewFile.content);
+    const mdx = generateOverviewPage(overview);
+    await fs.writeFile(path.join(OUTPUT_DIR, "introduction.mdx"), mdx);
+    console.log("  Synced introduction document");
+  } catch (err) {
+    console.warn(`  Warning: Could not sync introduction: ${err.message}`);
+  }
 }
 
 /**
@@ -304,6 +318,7 @@ export const ocsfSidebar = {
   collapsed: true,
   items: [
     { label: "Overview", link: "reference/ocsf" },
+    { label: "Introduction", link: "reference/ocsf/introduction" },
     { label: "Classes", link: "reference/ocsf/${versionSlug}/classes" },
     { label: "Objects", link: "reference/ocsf/${versionSlug}/objects" },
     { label: "Profiles", link: "reference/ocsf/${versionSlug}/profiles" },

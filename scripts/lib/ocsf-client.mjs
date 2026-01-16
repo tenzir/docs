@@ -179,3 +179,14 @@ export async function fetchArticles() {
   }
   return results;
 }
+
+/**
+ * Fetch the OCSF overview document (understanding-ocsf.md).
+ * Returns {name, content} object.
+ */
+export async function fetchOverview() {
+  const content = await fetchText(
+    `${OCSF_DOCS_RAW}/overview/understanding-ocsf.md`,
+  );
+  return { name: "understanding-ocsf.md", content };
+}
