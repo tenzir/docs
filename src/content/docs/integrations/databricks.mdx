@@ -110,10 +110,9 @@ scenarios requiring direct storage access.
 
 | Factor                       | Managed Delta | Managed Iceberg | External Delta |
 | ---------------------------- | :-----------: | :-------------: | :------------: |
-| Unity Catalog managed tables |      ✅       |       ✅        |       ❌       |
 | Zero DBU ingestion           |      ❌       |       ✅        |       ✅       |
+| Unity Catalog managed tables |      ✅       |       ✅        |       ❌       |
 | Delta table format           |      ✅       |       ❌        |       ✅       |
-| Iceberg table format         |      ❌       |       ✅        |       ❌       |
 | Managed storage              |      ✅       |       ✅        |       ❌       |
 | Full lineage tracking        |      ✅       |       ✅        |    Limited     |
 | Simplest setup               |      ✅       |     Medium      |     Medium     |
@@ -178,15 +177,10 @@ The operator writes files to this volume and deletes them after successful
 Regardless of ingestion method, Tenzir applies optimizations that produce
 query-efficient files:
 
-| Optimization        | Benefit                   | Databricks Feature     |
-| ------------------- | ------------------------- | ---------------------- |
-| Partition alignment | Perfect partition pruning | Partition elimination  |
-| Row sorting         | Tight min/max statistics  | Data skipping          |
-| 1GB file targets    | Optimal scan efficiency   | Reduced OPTIMIZE need  |
-| Zstd compression    | High compression ratio    | Native Parquet support |
-
-These optimizations reduce or eliminate the need for post-write maintenance
-operations like `OPTIMIZE` and `ZORDER`.
+- **One file per partition**: Queries filtering on partition columns skip irrelevant files entirely.
+- **Sorted rows**: Tight min/max statistics enable aggressive data skipping.
+- **1GB file targets**: Optimal size for scan efficiency, reduces need for `OPTIMIZE`.
+- **Zstd compression**: High compression ratio with fast decompression.
 
 ## Examples
 
