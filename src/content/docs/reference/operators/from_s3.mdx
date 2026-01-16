@@ -20,6 +20,11 @@ from_s3 url:string, [anonymous=bool, access_key=string, secret_key=string,
 The `from_s3` operator reads files from Amazon S3, with support for glob
 patterns, automatic format detection, and file monitoring.
 
+When using `remove=true`, the operator also cleans up directory marker objects
+(zero-byte objects with keys ending in `/`) encountered while listing. These
+markers are artifacts from some S3 tools and can accumulate over time. Removing
+them does not affect other files.
+
 By default, authentication is handled by AWS's default credentials provider
 chain, which may read from multiple environment variables and credential files:
 
