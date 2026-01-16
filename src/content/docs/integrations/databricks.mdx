@@ -193,30 +193,36 @@ operations like `OPTIMIZE` and `ZORDER`.
 ### Basic ingestion to a bronze table
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 from_file "/var/log/app/events.json"
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="analytics",
   schema="bronze",
   table="app_events",
-  client_id=<client_id>,
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456"
 ```
 
 ### OCSF security events with partitioning
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 subscribe "ocsf"
 to_databricks
   workspace="https://dbc-a1b2c3d4-e5f6.cloud.databricks.com",
   catalog="security",
   schema="silver",
   table="security_events",
-  client_id=<client_id>,
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[time_bucket("1d", time), class_uid],
+  partition_by=[time.round(1d), class_uid],
   sort_by=[src_endpoint.ip, dst_endpoint.ip]
 ```
 
@@ -225,16 +231,19 @@ to_databricks
 Optimize for cost with larger batches and files:
 
 ```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
 subscribe "netflow"
 to_databricks
   workspace="https://1234567890123456.7.gcp.databricks.com",
   catalog="network",
   schema="bronze",
   table="flows",
-  client_id=<client_id>,
-  client_secret=<client_secret>,
+  client_id=$client_id,
+  client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[time_bucket("1d", time)],
+  partition_by=[time.round(1d)],
   sort_by=[src_ip, dst_ip],
   flush_interval=15m,
   file_size=1Gi
