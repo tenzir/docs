@@ -1,0 +1,282 @@
+---
+title: Databricks
+---
+
+import { Steps } from "@astrojs/starlight/components";
+
+[Databricks](https://www.databricks.com/) is a unified analytics platform built
+on Apache Spark, offering a Lakehouse architecture that combines data lake
+flexibility with data warehouse performance. [Unity
+Catalog](https://docs.databricks.com/en/data-governance/unity-catalog/index.html)
+provides centralized governance for all data assets.
+
+![Databricks](databricks-basic.excalidraw)
+
+Tenzir sends events to Databricks using the
+[`to_databricks`](/reference/operators/to_databricks) operator, with multiple
+ingestion methods optimized for different cost and governance requirements.
+
+## Ingestion Methods
+
+Tenzir supports three methods for writing data to Databricks, each with
+different trade-offs:
+
+| Method           | DBU Cost   | Table Type      | Governance         | Status    |
+| ---------------- | ---------- | --------------- | ------------------ | --------- |
+| `delta`          | Per-commit | Managed Delta   | Full Unity Catalog | Available |
+| `iceberg`        | Zero       | Managed Iceberg | Full Unity Catalog | Planned   |
+| `external_delta` | Zero       | External Delta  | External table     | Planned   |
+
+### Optimized Parquet Staging (`delta`)
+
+The default method stages optimized Parquet files in a Unity Catalog Volume
+and commits them via `COPY INTO` using the SQL Statement API.
+
+```
+Tenzir → Parquet files → UC Volume → COPY INTO → Managed Delta Table
+```
+
+**Characteristics:**
+
+- Requires a SQL Warehouse (Serverless recommended)
+- Consumes DBUs proportional to commit frequency and data volume
+- Produces fully managed tables with complete Unity Catalog governance
+- Automatic schema evolution via `mergeSchema`
+- Idempotent commits (COPY INTO tracks processed files)
+
+**Best for:** Production workloads where Unity Catalog governance is required
+and DBU cost is acceptable.
+
+**Cost model:** Each `COPY INTO` execution consumes DBUs. With Serverless SQL
+Warehouses at ~$0.07/DBU (list price), ingesting 1GB typically costs a few
+cents. Optimize cost by increasing `flush_interval` and `file_size` to reduce
+commit frequency.
+
+### Iceberg REST Catalog (`iceberg`) — _Planned_
+
+Uses the Unity Catalog Iceberg REST API to commit directly to managed Iceberg
+tables without requiring a SQL Warehouse.
+
+```
+Tenzir → GET table metadata → Write Parquet (vended credentials) → POST commit
+```
+
+**Characteristics:**
+
+- Zero DBU cost—only REST API calls
+- Produces managed Iceberg tables with full Unity Catalog governance
+- Requires tables created with Iceberg format
+- Atomic commits via Iceberg's optimistic concurrency
+
+**Best for:** Cost-sensitive workloads that can use Iceberg tables and want
+full governance without DBU overhead.
+
+**Prerequisites:**
+
+- Unity Catalog workspace with Iceberg support enabled
+- Tables created with `USING ICEBERG` clause
+- Service principal with appropriate catalog permissions
+
+### External Delta (`external_delta`) — _Planned_
+
+Writes Delta tables directly to customer-managed cloud storage using the
+[Delta Lake](https://delta.io/) protocol, bypassing Unity Catalog's managed
+storage.
+
+```
+Tenzir → delta-rs → Customer S3/ADLS/GCS → Register as External Table
+```
+
+**Characteristics:**
+
+- Zero DBU cost—writes directly to object storage
+- Full control over storage location, lifecycle, and access
+- Tables registered as external tables in Unity Catalog
+- Reduced governance compared to managed tables (no managed lineage)
+- Customer responsible for storage permissions and lifecycle
+
+**Best for:** Cost-sensitive archival workloads, multi-cloud deployments, or
+scenarios requiring direct storage access.
+
+**Trade-offs:**
+
+- External tables have weaker Unity Catalog integration
+- No automatic storage management
+- Customer manages cloud storage permissions separately
+
+## Choosing a Method
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Need full UC governance?}
+    B -->|Yes| C{DBU budget available?}
+    B -->|No| D[external_delta]
+    C -->|Yes| E[delta]
+    C -->|No| F{Can use Iceberg tables?}
+    F -->|Yes| G[iceberg]
+    F -->|No| H[delta with optimized batching]
+```
+
+**Decision factors:**
+
+| Factor                       | delta | iceberg | external_delta |
+| ---------------------------- | ----- | ------- | -------------- |
+| Unity Catalog managed tables | ✅    | ✅      | ❌             |
+| Zero DBU ingestion           | ❌    | ✅      | ✅             |
+| Delta table format           | ✅    | ❌      | ✅             |
+| Iceberg table format         | ❌    | ✅      | ❌             |
+| Managed storage              | ✅    | ✅      | ❌             |
+| Full lineage tracking        | ✅    | ✅      | Limited        |
+| Simplest setup               | ✅    | Medium  | Medium         |
+
+## Configuration
+
+### Authentication
+
+Tenzir uses OAuth machine-to-machine (M2M) authentication with a Databricks
+service principal.
+
+<Steps>
+
+1. **Create a service principal**
+
+   Navigate to **Account Console → User management → Service principals** and
+   create a new service principal. Note the Application (client) ID.
+
+2. **Generate an OAuth secret**
+
+   In the service principal's **Secrets** tab, generate a new secret. Copy the
+   secret immediately—it's only shown once.
+
+3. **Grant Unity Catalog permissions**
+
+   ```sql
+   -- Catalog access
+   GRANT USE CATALOG ON CATALOG my_catalog TO `my-service-principal`;
+
+   -- Schema access and table creation
+   GRANT USE SCHEMA ON SCHEMA my_catalog.my_schema TO `my-service-principal`;
+   GRANT CREATE TABLE ON SCHEMA my_catalog.my_schema TO `my-service-principal`;
+
+   -- Staging volume access (for delta method)
+   GRANT READ VOLUME, WRITE VOLUME
+     ON VOLUME my_catalog.my_schema.staging
+     TO `my-service-principal`;
+   ```
+
+4. **Configure a SQL Warehouse** _(for `delta` method)_
+
+   Create or identify a SQL Warehouse. Serverless warehouses are recommended
+   for ingestion due to fast startup and automatic scaling. Note the warehouse
+   ID from the connection details.
+
+</Steps>
+
+### Staging Volume Setup
+
+For the `delta` method, create a Unity Catalog Volume to stage Parquet files:
+
+```sql
+CREATE VOLUME IF NOT EXISTS my_catalog.my_schema.tenzir_staging;
+```
+
+The operator writes files to this volume and deletes them after successful
+`COPY INTO` commits.
+
+## Write-Time Optimizations
+
+Regardless of ingestion method, Tenzir applies optimizations that produce
+query-efficient files:
+
+| Optimization        | Benefit                      | Databricks Feature     |
+| ------------------- | ---------------------------- | ---------------------- |
+| Partition alignment | Perfect partition pruning    | Partition elimination  |
+| Row sorting         | Tight min/max statistics     | Data skipping          |
+| 1GB file targets    | Optimal scan efficiency      | Reduced OPTIMIZE need  |
+| Snappy compression  | Fast reads, good compression | Native Parquet support |
+
+These optimizations reduce or eliminate the need for post-write maintenance
+operations like `OPTIMIZE` and `ZORDER`.
+
+## Examples
+
+### Basic ingestion to a bronze table
+
+```tql
+load_file "/var/log/app/events.json"
+read_json
+to_databricks
+  workspace="https://adb-1234567890.azuredatabricks.net",
+  catalog="analytics",
+  schema="bronze",
+  table="app_events",
+  client_id=<client_id>,
+  client_secret=<client_secret>,
+  warehouse_id="abc123def456"
+```
+
+### OCSF security events with partitioning
+
+```tql
+subscribe "ocsf"
+to_databricks
+  workspace="https://adb-1234567890.azuredatabricks.net",
+  catalog="security",
+  schema="silver",
+  table="security_events",
+  client_id=<client_id>,
+  client_secret=<client_secret>,
+  warehouse_id="abc123def456",
+  partition_by=[time_bucket("1d", time), class_uid],
+  sort_by=[src_endpoint.ip, dst_endpoint.ip]
+```
+
+### High-volume network telemetry
+
+Optimize for cost with larger batches and files:
+
+```tql
+subscribe "netflow"
+to_databricks
+  workspace="https://adb-1234567890.azuredatabricks.net",
+  catalog="network",
+  schema="bronze",
+  table="flows",
+  client_id=<client_id>,
+  client_secret=<client_secret>,
+  warehouse_id="abc123def456",
+  partition_by=[time_bucket("1d", time)],
+  sort_by=[src_ip, dst_ip],
+  flush_interval=15m,
+  file_size=1Gi
+```
+
+## Comparison with Other Approaches
+
+### vs. Databricks Autoloader
+
+[Autoloader](https://docs.databricks.com/en/ingestion/auto-loader/index.html)
+monitors cloud storage for new files and incrementally loads them. It requires
+files to already exist in cloud storage, making it a "pull" model.
+
+Tenzir's `to_databricks` is a "push" model—data flows directly from pipelines
+to Databricks without intermediate storage management. Use Autoloader when
+data already lands in cloud storage from other sources.
+
+### vs. Delta Live Tables (DLT)
+
+DLT provides managed ETL pipelines within Databricks. Tenzir complements DLT
+by handling data collection and initial ingestion, while DLT handles
+downstream transformations within the lakehouse.
+
+### vs. Kafka + Databricks Connector
+
+The Kafka connector requires managing Kafka infrastructure. Tenzir can ingest
+directly from sources, eliminating the intermediate message broker for
+simpler architectures.
+
+## See Also
+
+- [`to_databricks`](/reference/operators/to_databricks) operator reference
+- [Databricks Unity Catalog documentation](https://docs.databricks.com/en/data-governance/unity-catalog/index.html)
+- [Delta Lake](https://delta.io/) open-source project
