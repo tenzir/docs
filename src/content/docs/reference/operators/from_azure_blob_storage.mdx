@@ -19,6 +19,11 @@ from_azure_blob_storage url:string, [account_key=string, watch=bool,
 The `from_azure_blob_storage` operator reads files from Azure Blob Storage, with
 support for glob patterns, automatic format detection, and file monitoring.
 
+When using `remove=true`, the operator also cleans up directory marker objects
+(zero-byte blobs with names ending in `/`) encountered while listing. These
+markers are artifacts from some Azure tools and can accumulate over time.
+Removing them does not affect other files.
+
 By default, authentication is handled by the Azure SDK's credential chain which
 may read from multiple environment variables, such as:
 
