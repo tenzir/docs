@@ -369,6 +369,33 @@ The `release publish` command executes the following steps:
    before running the `gh` command. Shows the exact action (`gh release create`
    or `gh release edit`) that will run.
 
+#### Handling failures
+
+When a step fails mid-workflow, the command displays a progress panel showing
+which steps completed and which step failed. This helps you understand exactly
+where the workflow stopped and what manual commands to run for recovery.
+
+```text
+╭──────────────── Release Progress (2/5) ────────────────╮
+│ ✔ git commit -m "Release v1.2.0"                       │
+│ ✔ git tag -a v1.2.0 -m "Release v1.2.0"                │
+│ ✘ git push origin main:main                            │
+│ ○ git push origin v1.2.0                               │
+│ ○ gh release create v1.2.0 --repo owner/repo ...       │
+╰────────────────────────────────────────────────────────╯
+```
+
+The icons indicate step status:
+
+- **✔** (green): Step completed successfully
+- **✘** (red): Step failed
+- **○** (dim): Step not yet executed
+
+In this example, the commit and tag were created locally, but the branch push
+failed—perhaps due to network issues. You can fix the underlying issue and
+retry the push manually, then run `release publish` again to complete the
+remaining steps.
+
 #### Typical workflow
 
 A full release workflow with commit and tag:
