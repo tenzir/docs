@@ -342,9 +342,12 @@ Use the plugin manager UI in Claude Code.
 </Steps>
 </TabItem>
 <TabItem label="Shell" icon="seti:shell">
-Run the CLI command with your preferred scope.
+Add the marketplace (once), then install the plugin with your preferred scope.
 
 \`\`\`bash
+# Add the Tenzir marketplace (only needed once)
+claude plugin marketplace add tenzir/claude-plugins
+
 # Install to user scope (default)
 claude plugin install ${plugin.name}@tenzir
 
