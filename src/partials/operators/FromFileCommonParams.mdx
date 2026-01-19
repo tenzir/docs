@@ -1,0 +1,44 @@
+### `watch = bool (optional)`
+
+In addition to processing all existing files, this option keeps the operator
+running, watching for new files that also match the given URL. Currently, this
+scans the filesystem up to every 10s.
+
+Defaults to `false`.
+
+### `remove = bool (optional)`
+
+Deletes files after they have been read completely.
+
+{props.removeNote && "This also cleans up directory marker objects (zero-byte objects with keys ending in `/`) encountered while globbing. These markers are artifacts from some tools and can accumulate over time, increasing API costs. Removing them does not affect other files."}
+
+Defaults to `false`.
+
+### `rename = string -> string (optional)`
+
+Renames files after they have been read completely. The lambda function receives
+the original path as an argument and must return the new path.
+
+If the target path already exists, the operator will overwrite the file.
+
+The operator automatically creates any intermediate directories required for the
+target path. If the target path ends with a trailing slash (`/`), the original
+filename will be automatically appended to create the final path.
+
+### `path_field = field (optional)`
+
+This makes the operator insert the path to the file where an event originated
+from before emitting it.
+
+By default, paths will not be inserted into the outgoing events.
+
+### `max_age = duration (optional)`
+
+Only process files that were modified within the specified duration from the
+current time. Files older than this duration will be skipped.
+
+### `{ … } (optional)`
+
+Pipeline to use for parsing the file. By default, this pipeline is derived from
+the path of the file, and will not only handle parsing but also decompression if
+applicable.
