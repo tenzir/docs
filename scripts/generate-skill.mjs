@@ -9,7 +9,7 @@
  *   └── references/        # Full documentation hierarchy
  *
  * Requires:
- *   - dist/ directory with sitemap.md (run 'LLMS_TXT=true bun run build')
+ *   - dist/ directory with sitemap.md (run 'bun run build:full')
  */
 
 import fs from "fs";
@@ -81,6 +81,22 @@ function extractSectionName(line) {
 function extractLinkPath(line) {
   const match = line.match(/\]\(([^)]+)\)/);
   return match ? match[1] : null;
+}
+
+function validateMarkdownFilesExist(sitemapPath, distPath) {
+  const sitemap = fs.readFileSync(sitemapPath, "utf-8");
+  const lines = sitemap.split("\n");
+
+  // Extract first page link to check if .md files exist
+  for (const line of lines) {
+    const match = line.match(/\]\((https:\/\/docs\.tenzir\.com\/[^)]+\.md)\)/);
+    if (match) {
+      const relativePath = match[1].replace("https://docs.tenzir.com/", "");
+      const filePath = path.join(distPath, relativePath);
+      return fs.existsSync(filePath);
+    }
+  }
+  return false;
 }
 
 /**
@@ -282,13 +298,20 @@ const referencesDir = path.join(outputDir, "references");
 // Check prerequisites
 if (!fs.existsSync(distPath)) {
   console.error(`Error: dist/ directory not found`);
-  console.error("Run 'LLMS_TXT=true bun run build' first.");
+  console.error("Run 'bun run build:full' first.");
   process.exit(1);
 }
 
 if (!fs.existsSync(sitemapPath)) {
   console.error(`Error: dist/sitemap.md not found`);
-  console.error("Run 'LLMS_TXT=true bun run build' first.");
+  console.error("Run 'bun run build:full' first.");
+  process.exit(1);
+}
+
+// Check that per-page markdown files exist
+if (!validateMarkdownFilesExist(sitemapPath, distPath)) {
+  console.error(`Error: Per-page markdown files not found in dist/`);
+  console.error("Run 'bun run build:full' first to generate them.");
   process.exit(1);
 }
 

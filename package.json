@@ -16,7 +16,6 @@
     "generate:docs-map": "node scripts/generate-docs.mjs --map",
     "generate:docs-bundle": "node scripts/generate-docs.mjs --full",
     "generate:excalidraw": "node scripts/generate-excalidraw-svgs.mjs",
-    "generate:skill": "node scripts/generate-skill.mjs",
     "generate:excalidraw:placeholders": "node scripts/generate-placeholder-svgs.mjs",
     "sync:openapi": "bash scripts/sync-openapi.sh",
     "lint": "bun run lint:markdown && bun run lint:eslint && bun run lint:prettier",
@@ -28,6 +27,7 @@
     "lint:prettier:fix": "prettier --write .",
     "build:linkcheck": "CHECK_LINKS=true bun run build",
     "build:full": "bun run generate && CHECK_LINKS=true LLMS_TXT=true bun run build",
+    "build:skill": "node scripts/generate-skill.mjs",
     "lint:fix": "bun run lint:markdown:fix && bun run lint:eslint:fix && bun run lint:prettier:fix",
     "postinstall": "node scripts/fix-starlight-llms-txt.js"
   },
