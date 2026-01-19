@@ -55,6 +55,10 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 <ParsingOptions />
 ```
 
+Partials are inlined during Markdown processing, so their headings participate
+in the page TOC and automatic anchor links. Only default imports that resolve
+inside `/src/partials/` are inlined; other component imports behave normally.
+
 ## Workflow
 
 ### Development Server
