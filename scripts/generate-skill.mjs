@@ -10,43 +10,24 @@
  *
  * Requires:
  *   - dist/ directory with sitemap.md (run 'bun run build:full')
+ *
+ * The enhanced sitemap.md now contains:
+ *   - YAML frontmatter
+ *   - Section descriptions
+ *   - Page descriptions (first paragraphs)
+ *   - H2/H3 bullet lists (internal structure)
+ *
+ * This script:
+ *   - Rewrites URLs to relative paths (references/)
+ *   - Filters depth per section (Reference stops at level 3)
+ *   - Strips H2/H3 bullet lists (keeps only headings + descriptions)
+ *   - Copies markdown files to references/ for offline access
  */
 
 import fs from "fs";
 import path from "path";
 
 const SKILL_NAME = "tenzir";
-
-const FRONTMATTER = `---
-name: ${SKILL_NAME}
-description: >
-  The complete Tenzir documentation. Covers deployment, configuration,
-  the Tenzir Query Language (TQL), operators, functions, formats,
-  connectors, integrations, and the Tenzir Platform.
-license: CC-BY-4.0
-metadata:
-  author: tenzir
-  docs: https://docs.tenzir.com
----`;
-
-const INTRO = `# Tenzir Documentation
-
-Tenzir is a data pipeline engine for security teams. Run pipelines to collect,
-parse, transform, and route security data. Deploy nodes on-prem or in the cloud,
-and manage them via the Tenzir Platform.`;
-
-const SECTION_DESCRIPTIONS = {
-  Guides: `Practical step-by-step explanations to help you achieve a specific goal.
-Start here when you're trying to get something done.`,
-  Tutorials: `Learning-oriented lessons that take you through a series of steps.
-Start here when you want to get started with Tenzir.`,
-  Explanations: `Big-picture explanations of higher-level concepts.
-Start here to build understanding of a particular topic.`,
-  Reference: `Nitty-gritty technical descriptions of how Tenzir works.
-Start here when you need detailed information about building blocks.`,
-  Integrations: `Turn-key packages and native connectors for security tools.
-Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
-};
 
 // Max heading level to include per section
 // ## = level 2 (section header), ### = level 3, #### = level 4
@@ -78,9 +59,8 @@ function extractSectionName(line) {
   return null;
 }
 
-function extractLinkPath(line) {
-  const match = line.match(/\]\(([^)]+)\)/);
-  return match ? match[1] : null;
+function isBulletLine(line) {
+  return line.startsWith("- ") || line.startsWith("  - ");
 }
 
 function validateMarkdownFilesExist(sitemapPath, distPath) {
@@ -100,149 +80,82 @@ function validateMarkdownFilesExist(sitemapPath, distPath) {
 }
 
 /**
- * Extract the first paragraph from a markdown file.
- * Skips frontmatter, title, and import statements.
+ * Generate SKILL.md from enhanced sitemap.md
+ *
+ * The enhanced sitemap already contains:
+ * - YAML frontmatter
+ * - Intro text
+ * - Section descriptions
+ * - Page descriptions (first paragraphs)
+ * - H2/H3 bullet lists
+ *
+ * This function:
+ * - Rewrites URLs to relative paths
+ * - Filters depth per section
+ * - Strips H2/H3 bullet lists (keeps headings + descriptions)
  */
-function extractDescription(filePath) {
-  if (!fs.existsSync(filePath)) return null;
-
-  const content = fs.readFileSync(filePath, "utf-8");
-  const lines = content.split("\n");
-
-  let inFrontmatter = false;
-  let foundTitle = false;
-  let paragraph = [];
-
-  for (const line of lines) {
-    // Skip frontmatter
-    if (line.trim() === "---") {
-      inFrontmatter = !inFrontmatter;
-      continue;
-    }
-    if (inFrontmatter) continue;
-
-    // Skip import statements
-    if (line.startsWith("import ")) continue;
-
-    // Skip the title (first heading)
-    if (!foundTitle && line.startsWith("# ")) {
-      foundTitle = true;
-      continue;
-    }
-
-    // Skip empty lines before content
-    if (paragraph.length === 0 && line.trim() === "") continue;
-
-    // Skip headings, code blocks, lists, images, components, blockquotes, admonitions
-    if (line.startsWith("#")) break;
-    if (line.startsWith("```")) break;
-    if (line.startsWith("- ") || line.startsWith("* ")) break;
-    if (line.startsWith("![")) break;
-    if (line.startsWith("<")) break;
-    if (line.startsWith(">")) continue; // Skip blockquotes (often frontmatter descriptions)
-    if (line.startsWith(":::")) continue; // Skip admonitions
-    if (line.match(/^\d+\.\s/)) break;
-
-    // End of paragraph
-    if (line.trim() === "" && paragraph.length > 0) break;
-
-    paragraph.push(line.trim());
-  }
-
-  if (paragraph.length === 0) return null;
-
-  // Join the full paragraph
-  let text = paragraph.join(" ");
-
-  // Strip markdown links [text](url) -> text
-  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-
-  // Strip bold/italic
-  text = text.replace(/\*\*([^*]+)\*\*/g, "$1");
-  text = text.replace(/\*([^*]+)\*/g, "$1");
-
-  // Strip inline code
-  text = text.replace(/`([^`]+)`/g, "$1");
-
-  return text.trim() || null;
-}
-
-function generateSkillMd(sitemapPath, distPath) {
+function generateSkillMd(sitemapPath) {
   const sitemap = fs.readFileSync(sitemapPath, "utf-8");
   const lines = sitemap.split("\n");
 
   const output = [];
-  output.push(FRONTMATTER);
-  output.push("");
-  output.push(INTRO);
-
   let currentSection = null;
   let maxDepth = 0;
   let seenSections = new Set();
+  let skipUntilNextHeading = false;
 
   for (const line of lines) {
+    // Skip bullet lists (H2/H3 internal structure)
+    if (isBulletLine(line)) continue;
+
     const level = getHeadingLevel(line);
 
-    if (level === 0) continue;
+    // Handle non-heading lines
+    if (level === 0) {
+      // Skip content following filtered headings
+      if (skipUntilNextHeading) continue;
 
+      // Rewrite URLs in any line
+      output.push(rewriteLink(line));
+      continue;
+    }
+
+    // Reset skip flag when we hit any heading
+    skipUntilNextHeading = false;
+
+    // Level 2: section headers (## Guides, ## Reference, etc.)
     if (level === 2) {
       const sectionName = extractSectionName(line);
 
       if (!sectionName || seenSections.has(sectionName)) continue;
-      if (!SECTION_DESCRIPTIONS[sectionName]) continue;
+      if (!SECTION_MAX_LEVEL[sectionName]) continue;
 
       seenSections.add(sectionName);
       currentSection = sectionName;
-      maxDepth = SECTION_MAX_LEVEL[sectionName] || 3;
+      maxDepth = SECTION_MAX_LEVEL[sectionName];
 
-      // Add blank line before ## section (INTRO already ends with newline for first)
-      output.push("");
       output.push(rewriteLink(line));
-      output.push(SECTION_DESCRIPTIONS[sectionName]);
       continue;
     }
 
     if (!currentSection) continue;
-    if (level > maxDepth) continue;
+
+    // Filter by depth - skip this heading AND its content
+    if (level > maxDepth) {
+      skipUntilNextHeading = true;
+      continue;
+    }
 
     const processedLine = rewriteLink(line);
     if (output.includes(processedLine)) continue;
 
-    // Add blank line before ### headings
-    if (level === 3) {
-      output.push("");
-      output.push(processedLine);
-
-      // Add description for ### headings (categories)
-      const linkPath = extractLinkPath(line);
-      if (linkPath) {
-        // Convert URL to dist path (https://docs.tenzir.com/foo.md -> dist/foo.md)
-        const relativePath = linkPath.replace("https://docs.tenzir.com/", "");
-        const filePath = path.join(distPath, relativePath);
-        const desc = extractDescription(filePath);
-        if (desc) {
-          output.push(desc);
-        }
-      }
-    } else {
-      // For #### headings - add blank line before for readability
-      output.push("");
-      output.push(processedLine);
-
-      // Add brief description (1 sentence) for #### headings
-      const linkPath = extractLinkPath(line);
-      if (linkPath) {
-        const relativePath = linkPath.replace("https://docs.tenzir.com/", "");
-        const filePath = path.join(distPath, relativePath);
-        const desc = extractDescription(filePath);
-        if (desc) {
-          output.push(desc);
-        }
-      }
-    }
+    output.push(processedLine);
   }
 
-  return output.join("\n");
+  // Clean up: remove consecutive blank lines
+  let result = output.join("\n");
+  result = result.replace(/\n{3,}/g, "\n\n");
+  return result;
 }
 
 function copyMarkdownFiles(srcDir, destDir) {
@@ -321,8 +234,8 @@ if (fs.existsSync(outputDir)) {
 }
 fs.mkdirSync(referencesDir, { recursive: true });
 
-// Generate SKILL.md
-const skillMd = generateSkillMd(sitemapPath, distPath);
+// Generate SKILL.md from enhanced sitemap
+const skillMd = generateSkillMd(sitemapPath);
 const skillPath = path.join(outputDir, "SKILL.md");
 fs.writeFileSync(skillPath, skillMd);
 

@@ -13,7 +13,8 @@ const mapMode = args.includes("--map");
 const fullMode = args.includes("--full");
 
 if (!mapMode && !fullMode) {
-  console.error("Usage: generate-docs.mjs --map | --full [--output <file>]");
+  console.error("Error: Requires either --map or --full flag");
+  console.error("Usage: generate-docs.mjs (--map | --full) [--output <file>]");
   console.error("  --map   Generate sitemap with headings only");
   console.error("  --full  Generate single file with full content");
   process.exit(1);
@@ -33,6 +34,100 @@ const REFERENCE_ONLY_PATHS = [
   "reference/functions",
   "reference/claude-plugins",
 ];
+
+const FRONTMATTER = `---
+name: tenzir
+description: >
+  The complete Tenzir documentation. Covers deployment, configuration,
+  the Tenzir Query Language (TQL), operators, functions, formats,
+  connectors, integrations, and the Tenzir Platform.
+license: CC-BY-4.0
+metadata:
+  author: tenzir
+  docs: https://docs.tenzir.com
+---`;
+
+const INTRO = `Tenzir is a data pipeline engine for security teams. Run pipelines to collect,
+parse, transform, and route security data. Deploy nodes on-prem or in the cloud,
+and manage them via the Tenzir Platform.`;
+
+const SECTION_DESCRIPTIONS = {
+  guides: `Practical step-by-step explanations to help you achieve a specific goal.
+Start here when you're trying to get something done.`,
+  tutorials: `Learning-oriented lessons that take you through a series of steps.
+Start here when you want to get started with Tenzir.`,
+  explanations: `Big-picture explanations of higher-level concepts.
+Start here to build understanding of a particular topic.`,
+  reference: `Nitty-gritty technical descriptions of how Tenzir works.
+Start here when you need detailed information about building blocks.`,
+  integrations: `Turn-key packages and native connectors for security tools.
+Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
+};
+
+/**
+ * Extract the first paragraph from markdown content.
+ * Skips frontmatter, title, and import statements.
+ */
+function extractDescription(content) {
+  const lines = content.split("\n");
+
+  let inFrontmatter = false;
+  let foundTitle = false;
+  let paragraph = [];
+
+  for (const line of lines) {
+    // Skip frontmatter
+    if (line.trim() === "---") {
+      inFrontmatter = !inFrontmatter;
+      continue;
+    }
+    if (inFrontmatter) continue;
+
+    // Skip import statements
+    if (line.startsWith("import ")) continue;
+
+    // Skip the title (first heading)
+    if (!foundTitle && line.startsWith("# ")) {
+      foundTitle = true;
+      continue;
+    }
+
+    // Skip empty lines before content
+    if (paragraph.length === 0 && line.trim() === "") continue;
+
+    // Skip headings, code blocks, lists, images, components, blockquotes, admonitions
+    if (line.startsWith("#")) break;
+    if (line.startsWith("```")) break;
+    if (line.startsWith("- ") || line.startsWith("* ")) break;
+    if (line.startsWith("![")) break;
+    if (line.startsWith("<")) break;
+    if (line.startsWith(">")) continue; // Skip blockquotes (often frontmatter descriptions)
+    if (line.startsWith(":::")) continue; // Skip admonitions
+    if (line.match(/^\d+\.\s/)) break;
+
+    // End of paragraph
+    if (line.trim() === "" && paragraph.length > 0) break;
+
+    paragraph.push(line.trim());
+  }
+
+  if (paragraph.length === 0) return null;
+
+  // Join the full paragraph
+  let text = paragraph.join(" ");
+
+  // Strip markdown links [text](url) -> text
+  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+
+  // Strip bold/italic
+  text = text.replace(/\*\*([^*]+)\*\*/g, "$1");
+  text = text.replace(/\*([^*]+)\*/g, "$1");
+
+  // Strip inline code
+  text = text.replace(/`([^`]+)`/g, "$1");
+
+  return text.trim() || null;
+}
 
 /**
  * Parse frontmatter from markdown content.
@@ -127,10 +222,14 @@ async function resolveDocPath(docPath, docsRoot) {
         );
         const headings = isReferenceOnly ? [] : extractHeadings(body);
 
+        // Extract description from first paragraph (for map mode)
+        const description = mapMode ? extractDescription(content) : null;
+
         return {
           path: docPath,
           title: title || path.basename(docPath),
           headings,
+          description,
           body: fullMode ? body : null,
         };
       } catch {
@@ -182,6 +281,7 @@ async function processSidebarItem(item, docsRoot) {
 
       // Check if first item is an index/overview page (parent path of other items)
       let indexLink = null;
+      let indexDescription = null;
       let items = docs;
       if (docs.length > 1 && docs[0].path) {
         const firstPath = docs[0].path;
@@ -190,6 +290,7 @@ async function processSidebarItem(item, docsRoot) {
           .some((d) => d.path && d.path.startsWith(firstPath + "/"));
         if (isIndexPage) {
           indexLink = `${BASE_URL}/${firstPath}.md`;
+          indexDescription = docs[0].description; // Preserve description
           items = docs.slice(1); // Remove index page from items
         }
       }
@@ -197,6 +298,7 @@ async function processSidebarItem(item, docsRoot) {
       return {
         label: item.label,
         link: indexLink,
+        description: indexDescription,
         items,
       };
     }
@@ -212,6 +314,11 @@ function formatDocEntry(doc, level) {
   const url = `${BASE_URL}/${doc.path}.md`;
   const headingPrefix = "#".repeat(level);
   let entry = `${headingPrefix} [${doc.title}](${url})\n\n`;
+
+  // Add first paragraph description (for map mode)
+  if (doc.description) {
+    entry += `${doc.description}\n\n`;
+  }
 
   if (doc.headings && doc.headings.length > 0) {
     for (const h2 of doc.headings) {
@@ -238,6 +345,10 @@ function formatSection(item, level = 3) {
       output += `${headingPrefix} [${item.label}](${item.link})\n\n`;
     } else {
       output += `${headingPrefix} ${item.label}\n\n`;
+    }
+    // Add group description (from index page)
+    if (item.description) {
+      output += `${item.description}\n\n`;
     }
     for (const subItem of item.items) {
       if (subItem.label && subItem.items) {
@@ -387,11 +498,26 @@ async function generateDocsMap() {
   functions.sort((a, b) => a.title.localeCompare(b.title));
   claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
 
+  // Helper to get description from index page
+  async function getIndexDescription(docPath) {
+    if (!mapMode) return null;
+    const doc = await resolveDocPath(docPath, docsRoot);
+    return doc?.description || null;
+  }
+
+  // Remove original Operators/Functions entries from sidebar (will be replaced with expanded versions)
+  sections.reference = sections.reference.filter(
+    (item) =>
+      item.path !== "reference/operators" &&
+      item.path !== "reference/functions",
+  );
+
   // Insert into reference section (with links to index pages)
   if (operators.length > 0) {
     sections.reference.unshift({
       label: "Operators",
       link: `${BASE_URL}/reference/operators.md`,
+      description: await getIndexDescription("reference/operators"),
       items: operators,
     });
   }
@@ -401,6 +527,7 @@ async function generateDocsMap() {
     sections.reference.splice(insertIdx, 0, {
       label: "Functions",
       link: `${BASE_URL}/reference/functions.md`,
+      description: await getIndexDescription("reference/functions"),
       items: functions,
     });
   }
@@ -409,16 +536,21 @@ async function generateDocsMap() {
     const marketplaceIdx = sections.reference.findIndex(
       (item) => item.path === "reference/claude-plugins",
     );
+    const claudeDescription = await getIndexDescription(
+      "reference/claude-plugins",
+    );
     if (marketplaceIdx !== -1) {
       sections.reference.splice(marketplaceIdx, 1, {
         label: "Claude Marketplace",
         link: `${BASE_URL}/reference/claude-plugins.md`,
+        description: claudeDescription,
         items: claudePlugins,
       });
     } else {
       sections.reference.push({
         label: "Claude Marketplace",
         link: `${BASE_URL}/reference/claude-plugins.md`,
+        description: claudeDescription,
         items: claudePlugins,
       });
     }
@@ -492,9 +624,13 @@ async function generateDocsMap() {
     }
   } else {
     // Map mode: sitemap with headings only
-    output = `# Tenzir Documentation Map
+    output = `${FRONTMATTER}
+
+# Tenzir Documentation Map
 
 > Last updated: ${now}
+
+${INTRO}
 
 `;
 
@@ -504,6 +640,11 @@ async function generateDocsMap() {
       const title = name.charAt(0).toUpperCase() + name.slice(1);
       const sectionIndexUrl = `${BASE_URL}/${name}.md`;
       output += `## [${title}](${sectionIndexUrl})\n\n`;
+
+      // Add section description (Diátaxis-style)
+      if (SECTION_DESCRIPTIONS[name]) {
+        output += `${SECTION_DESCRIPTIONS[name]}\n\n`;
+      }
 
       for (const item of items) {
         if (item.label && item.items) {
@@ -602,7 +743,8 @@ async function extractAndProcess(name, content, docsRoot) {
 
     return processed;
   } catch (err) {
-    console.error(`Error parsing ${name}:`, err.message);
+    console.error(`Error parsing ${name}: ${err.message}`);
+    console.error(`Hint: Check that all sidebar imports are defined`);
     return [];
   }
 }
