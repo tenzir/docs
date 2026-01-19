@@ -9,6 +9,10 @@ import { visit } from "unist-util-visit";
 import { VFile } from "vfile";
 import { remarkInlinePartials } from "../src/utils/remark-inline-partials";
 
+// This script verifies that inline partials expand headings, hoist imports,
+// and substitute props so the TOC uses the final heading text. Run it after
+// changes to the partials pipeline or when headings in partials stop appearing.
+
 const rootDir = mkdtempSync(join(tmpdir(), "inline-partials-"));
 const partialsDir = join(rootDir, "partials");
 
