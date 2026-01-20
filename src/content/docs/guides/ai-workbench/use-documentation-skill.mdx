@@ -48,18 +48,21 @@ The skill uses progressive disclosure to optimize context usage:
 ```
 tenzir/
 ├── SKILL.md        # Condensed sitemap with excerpts (~8,500 tokens)
-└── references/     # Full documentation hierarchy
+├── guides/         # Full documentation by category
+├── tutorials/
+├── explanations/
+├── reference/
+└── integrations/
 ```
 
 **SKILL.md** contains a navigable overview with:
 
 - Section descriptions (Guides, Tutorials, Explanations, Reference, Integrations)
 - Category headings with brief descriptions
-- Links to full documentation in `references/`
+- Links to full documentation pages
 
-**references/** mirrors the documentation site structure, containing the
-complete content of every page. Your agent can follow links from `SKILL.md` to
-load specific pages as needed.
+The documentation hierarchy sits alongside `SKILL.md` at the root level. Your
+agent can follow links from `SKILL.md` to load specific pages as needed.
 
 Every release is validated in CI using
 [skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref)
@@ -75,7 +78,7 @@ The general approach is:
 
 1. Point your agent to the `tenzir/` directory as a skill source
 2. The agent reads `SKILL.md` first for an overview
-3. When the agent needs details, it follows links into `references/`
+3. When the agent needs details, it follows relative links to specific pages
 
 ### Example: Claude Code custom instructions
 
