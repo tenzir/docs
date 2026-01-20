@@ -1,23 +1,24 @@
 // @ts-check
-import { defineConfig, passthroughImageService } from "astro/config";
+
+import sitemap from "@astrojs/sitemap";
 
 import starlight from "@astrojs/starlight";
-import sitemap from "@astrojs/sitemap";
-import starlightLinksValidator from "starlight-links-validator";
-import starlightSidebarTopics from "starlight-sidebar-topics";
-import starlightOpenAPI from "starlight-openapi";
-import starlightLlmsTxt from "starlight-llms-txt";
+import { defineConfig, passthroughImageService } from "astro/config";
 import rehypeExternalLinks from "rehype-external-links";
-import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
-import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
-import { remarkInlinePartials } from "./src/utils/remark-inline-partials";
-import { topics, topicPaths } from "./src/topics";
 import { bundledLanguages } from "shiki";
-import { generateRedirects } from "./src/utils/redirects.mjs";
+import starlightLinksValidator from "starlight-links-validator";
+import starlightLlmsTxt from "starlight-llms-txt";
+import starlightOpenAPI from "starlight-openapi";
+import starlightSidebarTopics from "starlight-sidebar-topics";
 import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
 } from "./src/sidebar-shared-groups.ts";
+import { topicPaths, topics } from "./src/topics";
+import { generateRedirects } from "./src/utils/redirects.mjs";
+import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
+import { remarkInlinePartials } from "./src/utils/remark-inline-partials";
+import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
 
 const checkLinks = !!process.env.CHECK_LINKS;
 const llmsTxt = !!process.env.LLMS_TXT;

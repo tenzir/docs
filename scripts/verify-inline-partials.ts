@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { toString } from "mdast-util-to-string";
+import { toString as mdastToString } from "mdast-util-to-string";
 import { remark } from "remark";
 import remarkMdx from "remark-mdx";
 import { visit } from "unist-util-visit";
@@ -80,7 +80,7 @@ try {
 
   const headingTexts: string[] = [];
   visit(transformed, "heading", (node) => {
-    headingTexts.push(toString(node));
+    headingTexts.push(mdastToString(node));
   });
 
   assert(headingTexts.includes("base = string"));

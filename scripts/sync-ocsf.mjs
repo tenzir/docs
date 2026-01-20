@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 
 /**
  * Sync OCSF reference documentation from schema.ocsf.io.
@@ -10,45 +9,45 @@
  *   node sync-ocsf.mjs --version X  # Generate specific version
  */
 
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 import {
-  fetchCurrentVersion,
+  fetchArticles,
   fetchAvailableVersions,
-  fetchSchema,
-  fetchProfiles,
+  fetchCurrentVersion,
   fetchExtensions,
   fetchFaqs,
-  fetchArticles,
   fetchOverview,
+  fetchProfiles,
+  fetchSchema,
 } from "./lib/ocsf-client.mjs";
 
 import {
-  versionToSlug,
   buildClassUsage,
-  buildProfileUsage,
   buildExtensionUsage,
+  buildProfileUsage,
   findUncategorizedObjects,
-  generateClassDoc,
-  generateObjectDoc,
-  generateProfileDoc,
-  generateExtensionDoc,
-  generateClassesOverview,
-  generateObjectsOverview,
-  generateProfilesOverview,
-  generateExtensionsOverview,
-  generateTypesOverview,
-  generateVersionIndex,
-  parseFaqContent,
-  generateFaqPage,
-  generateFaqsIndex,
-  parseArticle,
   generateArticlePage,
   generateArticlesIndex,
-  parseOverview,
-  generateOverviewPage,
+  generateClassDoc,
+  generateClassesOverview,
+  generateExtensionDoc,
+  generateExtensionsOverview,
+  generateFaqPage,
+  generateFaqsIndex,
   generateMainIndex,
+  generateObjectDoc,
+  generateObjectsOverview,
+  generateOverviewPage,
+  generateProfileDoc,
+  generateProfilesOverview,
+  generateTypesOverview,
+  generateVersionIndex,
+  parseArticle,
+  parseFaqContent,
+  parseOverview,
+  versionToSlug,
 } from "./lib/ocsf-generators.mjs";
 
 const DOCS_ROOT = process.cwd();
@@ -106,7 +105,7 @@ async function generateVersion(version) {
 
   // Generate class docs
   for (const [className, classData] of Object.entries(classes)) {
-    const filename = className.replace(/\//g, "_") + ".mdx";
+    const filename = `${className.replace(/\//g, "_")}.mdx`;
     const doc = generateClassDoc(className, classData, objects, versionSlug);
     await fs.writeFile(path.join(classesDir, filename), doc);
     totalSize += doc.length;
@@ -114,7 +113,7 @@ async function generateVersion(version) {
 
   // Generate object docs
   for (const [objName, objData] of Object.entries(objects)) {
-    const filename = objName.replace(/\//g, "_") + ".mdx";
+    const filename = `${objName.replace(/\//g, "_")}.mdx`;
     const doc = generateObjectDoc(objName, objData, classUsage, versionSlug);
     await fs.writeFile(path.join(objectsDir, filename), doc);
     totalSize += doc.length;
@@ -122,7 +121,7 @@ async function generateVersion(version) {
 
   // Generate profile docs
   for (const [profileName, profileData] of Object.entries(profiles)) {
-    const filename = profileName.replace(/\//g, "_") + ".mdx";
+    const filename = `${profileName.replace(/\//g, "_")}.mdx`;
     const doc = generateProfileDoc(
       profileName,
       profileData,
@@ -135,7 +134,7 @@ async function generateVersion(version) {
 
   // Generate extension docs
   for (const [extensionName, extensionData] of Object.entries(extensions)) {
-    const filename = extensionName.replace(/\//g, "_") + ".mdx";
+    const filename = `${extensionName.replace(/\//g, "_")}.mdx`;
     const doc = generateExtensionDoc(
       extensionName,
       extensionData,

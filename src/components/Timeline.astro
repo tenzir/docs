@@ -1,8 +1,8 @@
 ---
 import { Icon } from "@astrojs/starlight/components";
+import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
 
 /**
  * Timeline component for changelog pages.
@@ -83,7 +83,6 @@ const isLastEntry = (index: number) => index === renderedEntries.length - 1;
           <time class="timeline-date">{entry.date}</time>
         </div>
         {entry.renderedDescription && (
-          /* eslint-disable-next-line astro/no-set-html-directive */
           <div class="timeline-description" set:html={entry.renderedDescription} />
         )}
       </a>

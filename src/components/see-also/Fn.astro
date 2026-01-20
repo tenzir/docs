@@ -1,12 +1,12 @@
 ---
-import FnIcon from '../icons/FnIcon.astro';
-import { pathWithBase } from '@utils/base';
+import { pathWithBase } from "@utils/base";
+import FnIcon from "../icons/FnIcon.astro";
 
-const name = Astro.slots.has('default')
-  ? (await Astro.slots.render('default')).trim()
-  : '';
+const name = Astro.slots.has("default")
+  ? (await Astro.slots.render("default")).trim()
+  : "";
 // Replace :: with / for namespaced functions (e.g., ocsf::category_name -> ocsf/category_name)
-const path = name.replace(/::/g, '/');
+const path = name.replace(/::/g, "/");
 const href = pathWithBase(`/reference/functions/${path}`);
 ---
 

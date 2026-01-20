@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 
 /**
  * Generate placeholder SVGs for Excalidraw source files.
@@ -13,10 +12,10 @@
  * running the full generation.
  */
 
-import fs from "fs/promises";
-import fsSync from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fsSync from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,7 +52,7 @@ async function findExcalidrawFiles(dir) {
  * gitignoring all generated SVGs with *.excalidraw.svg
  */
 function getSvgPath(excalidrawPath) {
-  return excalidrawPath + ".svg";
+  return `${excalidrawPath}.svg`;
 }
 
 /**

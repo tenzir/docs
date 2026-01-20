@@ -1,10 +1,6 @@
 ---
-import { pathWithBase } from '@utils/base';
-import {
-  topicParents,
-  rootTopics,
-  childTopics,
-} from '../topics.ts';
+import { pathWithBase } from "@utils/base";
+import { childTopics, rootTopics, topicParents } from "../topics.ts";
 
 const { topics: sidebarTopics } = Astro.locals.starlightSidebarTopics;
 
@@ -15,7 +11,7 @@ const currentTopic = sidebarTopics.find((topic) => topic.isCurrent);
 const navbarTopics = rootTopics();
 
 // Get the current page path for fallback matching (e.g., "/changelog" or "/integrations/kafka")
-const currentPath = Astro.url.pathname.replace(/\/$/, '');
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
 
 // Determine if a given topic is "current" or an ancestor of the current one
 function isTopicCurrentOrAncestor(label: string): boolean {
@@ -36,8 +32,8 @@ function isTopicCurrentOrAncestor(label: string): boolean {
   if (!topic) return false;
 
   // Handle root path
-  if (topic.link === '/' || topic.link === '') {
-    return currentPath === '' || currentPath === '/';
+  if (topic.link === "/" || topic.link === "") {
+    return currentPath === "" || currentPath === "/";
   }
 
   const topicPath = `/${topic.link}`;

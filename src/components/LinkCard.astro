@@ -1,11 +1,11 @@
 ---
-import { Icon } from '@astrojs/starlight/components';
-import { remark } from 'remark';
-import remarkHtml from 'remark-html';
-import type { HTMLAttributes } from 'astro/types';
-import type { StarlightIcon } from '@astrojs/starlight/components/Icons';
+import { Icon } from "@astrojs/starlight/components";
+import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
+import type { HTMLAttributes } from "astro/types";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
 
-interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
+interface Props extends Omit<HTMLAttributes<"a">, "title"> {
   title: string;
   description?: string;
   /** Small text displayed next to title (e.g., date, version) */
@@ -19,12 +19,22 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'title'> {
   color?: string;
 }
 
-const { title, meta, badges, description, icon, customIcon, color, href, ...rest } = Astro.props;
+const {
+  title,
+  meta,
+  badges,
+  description,
+  icon,
+  customIcon,
+  color,
+  href,
+  ...rest
+} = Astro.props;
 
 let renderedDescription: string | undefined;
 if (description) {
   const result = await remark().use(remarkHtml).process(description);
-  renderedDescription = String(result).replace(/^<p>|<\/p>\s*$/g, '');
+  renderedDescription = String(result).replace(/^<p>|<\/p>\s*$/g, "");
 }
 ---
 
@@ -37,7 +47,6 @@ if (description) {
         </span>
       )}
       {customIcon && (
-        // eslint-disable-next-line astro/no-set-html-directive -- trusted SVG from ?raw import
         <span class="link-card-icon link-card-custom-icon" set:html={customIcon} />
       )}
       <span class="link-card-title">{title}</span>
@@ -56,7 +65,6 @@ if (description) {
         <Icon name="right-arrow" size="1.25rem" />
       </span>
     </div>
-    {/* eslint-disable-next-line astro/no-set-html-directive -- trusted changelog content */}
     {renderedDescription && <p class="link-card-description" set:html={renderedDescription} />}
   </a>
 </div>

@@ -1,25 +1,23 @@
 ---
-import { Badge } from '@astrojs/starlight/components';
-import Default from '@astrojs/starlight/components/Sidebar.astro';
-
-import { topicParents, childTopics, dropdownTopics } from '../topics.ts';
-import TopicDropdown from './TopicDropdown.astro';
-import changelogProjects from '../changelog-projects.json';
-
-import CompassIcon from './icons/CompassIcon.astro';
-import GraduationCapIcon from './icons/GraduationCapIcon.astro';
-import SparkleIcon from './icons/SparkleIcon.astro';
-import BookIcon from './icons/BookIcon.astro';
-import CodeIcon from './icons/CodeIcon.astro';
-import FnIcon from './icons/FnIcon.astro';
+import { Badge } from "@astrojs/starlight/components";
+import Default from "@astrojs/starlight/components/Sidebar.astro";
+import changelogProjects from "../changelog-projects.json";
+import { childTopics, dropdownTopics, topicParents } from "../topics.ts";
+import BookIcon from "./icons/BookIcon.astro";
+import CodeIcon from "./icons/CodeIcon.astro";
+import CompassIcon from "./icons/CompassIcon.astro";
+import FnIcon from "./icons/FnIcon.astro";
+import GraduationCapIcon from "./icons/GraduationCapIcon.astro";
+import SparkleIcon from "./icons/SparkleIcon.astro";
+import TopicDropdown from "./TopicDropdown.astro";
 
 const iconComponents: Record<string, any> = {
-  'compass': CompassIcon,
-  'graduation-cap': GraduationCapIcon,
-  'sparkle': SparkleIcon,
-  'book': BookIcon,
-  'code': CodeIcon,
-  'fn': FnIcon,
+  compass: CompassIcon,
+  "graduation-cap": GraduationCapIcon,
+  sparkle: SparkleIcon,
+  book: BookIcon,
+  code: CodeIcon,
+  fn: FnIcon,
 };
 
 const { topics } = Astro.locals.starlightSidebarTopics;
@@ -28,27 +26,28 @@ const { topics } = Astro.locals.starlightSidebarTopics;
 const getTopicColor = (link: string | undefined): string | undefined => {
   if (!link) return undefined;
   // Normalize: remove leading/trailing slashes
-  const normalized = link.replace(/^\/|\/$/g, '');
-  if (!normalized.startsWith('changelog/')) return undefined;
-  const projectId = normalized.slice('changelog/'.length);
+  const normalized = link.replace(/^\/|\/$/g, "");
+  if (!normalized.startsWith("changelog/")) return undefined;
+  const projectId = normalized.slice("changelog/".length);
   return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
 // Find the current topic
 const currentTopic = topics.find((topic) => topic.isCurrent);
 if (!currentTopic) {
-  console.warn('No current topic found — skipping topic-specific rendering');
 }
 
 // If current is a root → show its children
 // If current is a child → show its siblings
-const currentLabel = currentTopic?.label || '';
+const currentLabel = currentTopic?.label || "";
 const parentLabel = topicParents[currentLabel];
 const rootLabel = parentLabel ?? currentLabel;
 
 // Get the list of child topic labels (could be empty)
 const sidebarTopicLabels = childTopics(rootLabel);
-const sidebarTopics = topics.filter((t) => sidebarTopicLabels.includes(t.label));
+const sidebarTopics = topics.filter((t) =>
+  sidebarTopicLabels.includes(t.label),
+);
 
 // Check if this root topic uses a dropdown
 const useDropdown = dropdownTopics.has(rootLabel);

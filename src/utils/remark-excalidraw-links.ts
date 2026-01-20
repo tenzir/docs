@@ -1,9 +1,9 @@
-import type { Root, Image, Html } from "mdast";
+import fs from "node:fs";
+import path from "node:path";
+import type { Html, Image, Root } from "mdast";
 import type { Plugin } from "unified";
-import type { VFile } from "vfile";
 import { visit } from "unist-util-visit";
-import fs from "fs";
-import path from "path";
+import type { VFile } from "vfile";
 import { injectSvgAttrs } from "./html";
 
 /**
@@ -23,8 +23,8 @@ import { injectSvgAttrs } from "./html";
  *
  * Only inlines local/relative SVGs. External URLs are left unchanged.
  */
-export const remarkExcalidrawLinks: Plugin<[], Root> = function () {
-  return (tree, file: VFile) => {
+export const remarkExcalidrawLinks: Plugin<[], Root> =
+  () => (tree, file: VFile) => {
     visit(tree, "image", (node: Image, index, parent) => {
       if (!node.url) return;
 
@@ -41,7 +41,7 @@ export const remarkExcalidrawLinks: Plugin<[], Root> = function () {
 
       // Resolve the SVG path
       // For .excalidraw references, the generated SVG is foo.excalidraw.svg
-      const svgUrl = isExcalidraw ? node.url + ".svg" : node.url;
+      const svgUrl = isExcalidraw ? `${node.url}.svg` : node.url;
 
       // Get the directory of the current markdown file
       const fileDir = file.dirname || path.dirname(file.path || "");
@@ -53,16 +53,9 @@ export const remarkExcalidrawLinks: Plugin<[], Root> = function () {
         if (fs.existsSync(svgPath)) {
           svgContent = fs.readFileSync(svgPath, "utf-8");
         } else if (process.env.NODE_ENV !== "production") {
-          console.warn(
-            `[remark-excalidraw-links] SVG not found: ${svgPath} (referenced from ${file.path})`,
-          );
         }
-      } catch (error) {
+      } catch (_error) {
         if (process.env.NODE_ENV !== "production") {
-          console.warn(
-            `[remark-excalidraw-links] Failed to read SVG: ${svgPath}`,
-            error,
-          );
         }
       }
 
@@ -89,6 +82,5 @@ export const remarkExcalidrawLinks: Plugin<[], Root> = function () {
       // For regular .svg that can't be inlined, leave as-is (img tag)
     });
   };
-};
 
 export default remarkExcalidrawLinks;

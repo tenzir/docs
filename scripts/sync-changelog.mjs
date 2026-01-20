@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 
-import fs from "fs/promises";
-import fsSync from "fs";
-import path from "path";
-import { execSync } from "child_process";
-import { createRequire } from "module";
+import { execSync } from "node:child_process";
+import fsSync from "node:fs";
+import fs from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
+import { Feed } from "feed";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import { Feed } from "feed";
 
 // Load shared project config (icons defined once, used by both sync and topics.ts)
 const require = createRequire(import.meta.url);
@@ -470,7 +469,7 @@ function formatDate(dateStr) {
   if (!dateStr) return "";
   // Handle ISO datetime strings
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -613,7 +612,7 @@ ${imports}
   // Add intro paragraph if available
   let content = "";
   if (release.intro) {
-    content += release.intro + "\n\n";
+    content += `${release.intro}\n\n`;
   }
 
   // Generate content from entries if available, otherwise fall back to notes
@@ -741,7 +740,7 @@ function generateUnifiedTimelineEntries(
 
       let description = stripIntroLinks(release.intro || "");
       if (description.length > 300) {
-        description = description.slice(0, 297) + "...";
+        description = `${description.slice(0, 297)}...`;
       }
 
       entries.push({
@@ -769,7 +768,7 @@ function generateUnifiedTimelineEntries(
 
           let description = stripIntroLinks(release.intro || "");
           if (description.length > 300) {
-            description = description.slice(0, 297) + "...";
+            description = `${description.slice(0, 297)}...`;
           }
 
           entries.push({
@@ -914,7 +913,7 @@ function generateEntryHtml(release) {
 
   // Intro paragraph
   if (release.intro) {
-    html += markdownToHtml(release.intro) + "\n";
+    html += `${markdownToHtml(release.intro)}\n`;
   }
 
   // Group entries by type
@@ -984,7 +983,7 @@ function generateEntryHtml(release) {
 
         // Entry body
         if (entry.body) {
-          html += markdownToHtml(entry.body) + "\n";
+          html += `${markdownToHtml(entry.body)}\n`;
         }
       }
     }
@@ -1254,7 +1253,7 @@ function generateSidebarFile(
       items: timelineYears.map((year) => `changelog/timeline/${year}`),
     };
     topics.unshift(timelineTopic); // Add at the beginning
-    topicParents["Timeline"] = "Changelog";
+    topicParents.Timeline = "Changelog";
   }
 
   // Generate topic path mappings for starlight-sidebar-topics
@@ -1327,7 +1326,7 @@ function generateTimelineEntries(releases, basePath) {
   for (const r of releases) {
     let description = stripIntroLinks(r.intro || "");
     if (description.length > 300) {
-      description = description.slice(0, 297) + "...";
+      description = `${description.slice(0, 297)}...`;
     }
     // Escape quotes and newlines for JSON
     description = description
@@ -1499,7 +1498,7 @@ async function syncChangelog(newsRepoPath) {
 
   // Read all projects and sort by order in changelog-projects.json
   const configOrder = Object.keys(changelogProjects);
-  let projects = await readProjects(newsRepoPath);
+  const projects = await readProjects(newsRepoPath);
   projects.sort((a, b) => {
     const orderA = configOrder.indexOf(a.id);
     const orderB = configOrder.indexOf(b.id);

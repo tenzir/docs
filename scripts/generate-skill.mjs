@@ -24,8 +24,8 @@
  *   - Copies markdown files to references/ for offline access
  */
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 const SKILL_NAME = "tenzir";
 
@@ -101,7 +101,7 @@ function generateSkillMd(sitemapPath) {
   const output = [];
   let currentSection = null;
   let maxDepth = 0;
-  let seenSections = new Set();
+  const seenSections = new Set();
   let skipUntilNextHeading = false;
 
   for (const line of lines) {

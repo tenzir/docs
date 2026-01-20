@@ -13,8 +13,8 @@
 import {
   parseDocument as parseYamlDocument,
   isMap as yamlIsMap,
-  isSeq as yamlIsSeq,
   isScalar as yamlIsScalar,
+  isSeq as yamlIsSeq,
 } from "yaml";
 
 export function highlightYamlFrontmatter(node, context) {

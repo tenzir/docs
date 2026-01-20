@@ -1,24 +1,24 @@
 ---
-import type { Props } from '@astrojs/starlight/props';
-import { getCollection } from 'astro:content';
-import { getSearchWeight } from '../search-weights';
-import { pathWithBase } from '@utils/base';
+import { getCollection } from "astro:content";
+import type { Props } from "@astrojs/starlight/props";
+import { pathWithBase } from "@utils/base";
+import { getSearchWeight } from "../search-weights";
 
 // PAGE_TITLE_ID is just '_top' in Starlight
-const PAGE_TITLE_ID = '_top';
+const PAGE_TITLE_ID = "_top";
 
 // Build a lookup map of all docs entries to avoid getEntry warnings for
 // non-existent pages
-const allDocs = await getCollection('docs');
+const allDocs = await getCollection("docs");
 const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 
 // Get the current path segments, stripping the base path for subdirectory deployments
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
-const currentPath = Astro.url.pathname.replace(basePath, '') || '/';
-const segments = currentPath.split('/').filter(Boolean);
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const currentPath = Astro.url.pathname.replace(basePath, "") || "/";
+const segments = currentPath.split("/").filter(Boolean);
 
 // Don't show breadcrumbs on the home page
-const isHomePage = currentPath === '/' || segments.length === 0;
+const isHomePage = currentPath === "/" || segments.length === 0;
 
 // Get search weight configuration for pagefind metadata
 const { starlightRoute } = Astro.locals;
@@ -29,18 +29,18 @@ const pagefindWeight = weightConfig?.weight;
 // Build h1 attributes
 const h1Attrs: Record<string, any> = {
   id: PAGE_TITLE_ID,
-  'data-pagefind-meta': 'title'
+  "data-pagefind-meta": "title",
 };
 if (pagefindWeight !== undefined) {
-  h1Attrs['data-pagefind-weight'] = pagefindWeight * 100000;
+  h1Attrs["data-pagefind-weight"] = pagefindWeight * 100000;
 }
 
 // Helper to capitalize slug segments as fallback
 function formatSlug(slug: string): string {
   return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 // Build custom crumbs array with page titles
@@ -57,8 +57,8 @@ const crumbs: BreadcrumbItem[] = [];
 // Build breadcrumbs for each path segment
 for (let i = 0; i < segments.length; i++) {
   const pathSegments = segments.slice(0, i + 1);
-  const href = pathWithBase('/' + pathSegments.join('/'));
-  const slug = pathSegments.join('/');
+  const href = pathWithBase(`/${pathSegments.join("/")}`);
+  const slug = pathSegments.join("/");
   const currentSegment = segments[i];
 
   // Try to get the page title from content collection
@@ -86,14 +86,14 @@ for (let i = 0; i < segments.length; i++) {
 
   const crumb: BreadcrumbItem = {
     text,
-    href: pageExists ? href : '#',
+    href: pageExists ? href : "#",
   };
 
   // Add disabled styling for non-existent pages
   if (!pageExists) {
-    crumb.class = 'c-breadcrumbs__link breadcrumb-disabled';
-    crumb.onclick = 'return false;';
-    crumb.tabindex = '-1';
+    crumb.class = "c-breadcrumbs__link breadcrumb-disabled";
+    crumb.onclick = "return false;";
+    crumb.tabindex = "-1";
   }
 
   crumbs.push(crumb);

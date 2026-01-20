@@ -1,6 +1,6 @@
 ---
-import { Icon } from '@astrojs/starlight/components';
-import { pathWithBase } from '@utils/base';
+import { Icon } from "@astrojs/starlight/components";
+import { pathWithBase } from "@utils/base";
 
 const currentYear = new Date().getFullYear();
 
@@ -12,7 +12,11 @@ type FooterLink = {
 
 // Helper function to check if a link is external
 const isExternalLink = (href: string) => {
-  return href.startsWith('http://') || href.startsWith('https://') || href == '/discord';
+  return (
+    href.startsWith("http://") ||
+    href.startsWith("https://") ||
+    href === "/discord"
+  );
 };
 
 // Resolve href with base path for local links
@@ -22,37 +26,48 @@ const resolveHref = (href: string) => {
 
 const footerSections: Record<string, FooterLink[]> = {
   Product: [
-    { text: 'Overview', href: 'https://tenzir.com' },
-    { text: 'Integrations', href: 'https://tenzir.com/integrations' },
+    { text: "Overview", href: "https://tenzir.com" },
+    { text: "Integrations", href: "https://tenzir.com/integrations" },
   ],
   Resources: [
-    { text: 'Blog', href: 'https://tenzir.com/blog' },
-    { text: 'Events', href: 'https://tenzir.com/events' },
-    { text: 'Sheets & Briefs', href: 'https://tenzir.com/resources' },
-    { text: 'Documentation', href: '/' },
-    { text: 'Changelog', href: '/changelog' },
+    { text: "Blog", href: "https://tenzir.com/blog" },
+    { text: "Events", href: "https://tenzir.com/events" },
+    { text: "Sheets & Briefs", href: "https://tenzir.com/resources" },
+    { text: "Documentation", href: "/" },
+    { text: "Changelog", href: "/changelog" },
   ],
   Company: [
-    { text: 'About Tenzir', href: 'https://tenzir.com/company/about' },
-    { text: 'Partners', href: 'https://tenzir.com/company/partners' },
-    { text: 'Leadership', href: 'https://tenzir.com/company/leadership' },
-    { text: 'Founding Story', href: 'https://tenzir.com/company/founding-story' },
-    { text: 'Press Releases', href: 'https://tenzir.com/company/press' },
-    { text: 'Contact', href: 'https://tenzir.com/contact' },
+    { text: "About Tenzir", href: "https://tenzir.com/company/about" },
+    { text: "Partners", href: "https://tenzir.com/company/partners" },
+    { text: "Leadership", href: "https://tenzir.com/company/leadership" },
+    {
+      text: "Founding Story",
+      href: "https://tenzir.com/company/founding-story",
+    },
+    { text: "Press Releases", href: "https://tenzir.com/company/press" },
+    { text: "Contact", href: "https://tenzir.com/contact" },
   ],
   Social: [
-    { text: 'LinkedIn', href: 'https://linkedin.com/company/tenzir', icon: 'linkedin' },
-    { text: 'GitHub', href: 'https://github.com/tenzir', icon: 'github' },
-    { text: 'Discord', href: '/discord', icon: 'discord' },
-    { text: 'Bluesky', href: 'https://bsky.app/profile/tenzir.bsky.social', icon: 'blueSky' },
-    { text: 'X', href: 'https://x.com/tenzir_company', icon: 'x.com' },
+    {
+      text: "LinkedIn",
+      href: "https://linkedin.com/company/tenzir",
+      icon: "linkedin",
+    },
+    { text: "GitHub", href: "https://github.com/tenzir", icon: "github" },
+    { text: "Discord", href: "/discord", icon: "discord" },
+    {
+      text: "Bluesky",
+      href: "https://bsky.app/profile/tenzir.bsky.social",
+      icon: "blueSky",
+    },
+    { text: "X", href: "https://x.com/tenzir_company", icon: "x.com" },
   ],
 };
 
 const legalLinks = [
-  { text: 'Legal Notice', href: 'https://tenzir.com/legal' },
-  { text: 'Terms and Conditions', href: 'https://tenzir.com/terms' },
-  { text: 'Privacy Statement', href: 'https://tenzir.com/privacy' },
+  { text: "Legal Notice", href: "https://tenzir.com/legal" },
+  { text: "Terms and Conditions", href: "https://tenzir.com/terms" },
+  { text: "Privacy Statement", href: "https://tenzir.com/privacy" },
 ];
 ---
 
