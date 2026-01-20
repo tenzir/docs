@@ -1,3 +1,8 @@
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Parser } from "acorn";
+import jsx from "acorn-jsx";
 import type { Content, Root } from "mdast";
 import type { MdxjsEsm } from "mdast-util-mdx";
 import type {
@@ -6,15 +11,10 @@ import type {
   MdxJsxFlowElement,
   MdxJsxTextElement,
 } from "mdast-util-mdx-jsx";
-import type { Plugin } from "unified";
-import { Parser } from "acorn";
-import jsx from "acorn-jsx";
-import { visit } from "unist-util-visit";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { dirname, isAbsolute, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { remark } from "remark";
 import remarkMdx from "remark-mdx";
+import type { Plugin } from "unified";
+import { visit } from "unist-util-visit";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const defaultPartialsDir = resolve(__dirname, "../partials");
@@ -56,76 +56,75 @@ const cloneValue = <T>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T;
 };
 
-export const remarkInlinePartials: Plugin<[InlinePartialsOptions?], Root> =
-  function (options = {}) {
-    const partialsDir = options.partialsDir
-      ? resolve(options.partialsDir)
-      : defaultPartialsDir;
-    const cache = new Map<string, CachedPartial>();
+export const remarkInlinePartials: Plugin<[InlinePartialsOptions?], Root> = (
+  options = {},
+) => {
+  const partialsDir = options.partialsDir
+    ? resolve(options.partialsDir)
+    : defaultPartialsDir;
+  const cache = new Map<string, CachedPartial>();
 
-    return (tree, file) => {
-      if (!file.path) return;
+  return (tree, file) => {
+    if (!file.path) return;
 
-      const report = (message: string) => {
-        if (file.message) {
-          file.message(message);
-        } else {
-          console.warn(message);
-        }
-      };
-
-      const state: InlineState = { partialsDir, cache, report };
-      const existingImportValues = new Set<string>();
-      const existingImportKeys = new Set<string>();
-
-      for (const child of tree.children) {
-        if (child.type === "mdxjsEsm" && typeof child.value === "string") {
-          existingImportValues.add(child.value);
-          for (const entry of extractDefaultImports(child.value)) {
-            existingImportKeys.add(`${entry.name}::${entry.source}`);
-          }
-        }
+    const report = (message: string) => {
+      if (file.message) {
+        file.message(message);
+      } else {
       }
-
-      const { hoistedImports } = inlineTree(tree, file.path, state, [], false);
-
-      if (hoistedImports.length === 0) return;
-
-      const uniqueImports: MdxjsEsm[] = [];
-      for (const node of hoistedImports) {
-        const value = node.value;
-        if (typeof value !== "string") {
-          uniqueImports.push(node);
-          continue;
-        }
-
-        const entries = extractDefaultImports(value);
-        if (entries.length > 0) {
-          const hasDuplicate = entries.some((entry) =>
-            existingImportKeys.has(`${entry.name}::${entry.source}`),
-          );
-          if (hasDuplicate) continue;
-
-          for (const entry of entries) {
-            existingImportKeys.add(`${entry.name}::${entry.source}`);
-          }
-        }
-
-        if (existingImportValues.has(value)) continue;
-        existingImportValues.add(value);
-        uniqueImports.push(node);
-      }
-
-      if (uniqueImports.length === 0) return;
-
-      const insertIndex = tree.children.findIndex(
-        (child) => child.type !== "mdxjsEsm",
-      );
-      const targetIndex =
-        insertIndex === -1 ? tree.children.length : insertIndex;
-      tree.children.splice(targetIndex, 0, ...uniqueImports);
     };
+
+    const state: InlineState = { partialsDir, cache, report };
+    const existingImportValues = new Set<string>();
+    const existingImportKeys = new Set<string>();
+
+    for (const child of tree.children) {
+      if (child.type === "mdxjsEsm" && typeof child.value === "string") {
+        existingImportValues.add(child.value);
+        for (const entry of extractDefaultImports(child.value)) {
+          existingImportKeys.add(`${entry.name}::${entry.source}`);
+        }
+      }
+    }
+
+    const { hoistedImports } = inlineTree(tree, file.path, state, [], false);
+
+    if (hoistedImports.length === 0) return;
+
+    const uniqueImports: MdxjsEsm[] = [];
+    for (const node of hoistedImports) {
+      const value = node.value;
+      if (typeof value !== "string") {
+        uniqueImports.push(node);
+        continue;
+      }
+
+      const entries = extractDefaultImports(value);
+      if (entries.length > 0) {
+        const hasDuplicate = entries.some((entry) =>
+          existingImportKeys.has(`${entry.name}::${entry.source}`),
+        );
+        if (hasDuplicate) continue;
+
+        for (const entry of entries) {
+          existingImportKeys.add(`${entry.name}::${entry.source}`);
+        }
+      }
+
+      if (existingImportValues.has(value)) continue;
+      existingImportValues.add(value);
+      uniqueImports.push(node);
+    }
+
+    if (uniqueImports.length === 0) return;
+
+    const insertIndex = tree.children.findIndex(
+      (child) => child.type !== "mdxjsEsm",
+    );
+    const targetIndex = insertIndex === -1 ? tree.children.length : insertIndex;
+    tree.children.splice(targetIndex, 0, ...uniqueImports);
   };
+};
 
 function inlineTree(
   tree: Root,

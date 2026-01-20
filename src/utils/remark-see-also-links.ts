@@ -1,8 +1,8 @@
 import type { Root } from "mdast";
 import type { MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
+import { toString as mdastToString } from "mdast-util-to-string";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
-import { toString } from "mdast-util-to-string";
 
 /**
  * Remark plugin that extracts links from See Also components and exposes them
@@ -26,32 +26,30 @@ const seeAlsoComponents: Record<string, string> = {
   Explanation: "/explanations/",
 };
 
-export const remarkSeeAlsoLinks: Plugin<[], Root> = function () {
-  return (tree) => {
-    visit(
-      tree,
-      ["mdxJsxFlowElement", "mdxJsxTextElement"],
-      (node: MdxJsxFlowElement | MdxJsxTextElement) => {
-        if (!node.name) return;
-        const prefix = seeAlsoComponents[node.name];
-        if (!prefix) return;
+export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
+  visit(
+    tree,
+    ["mdxJsxFlowElement", "mdxJsxTextElement"],
+    (node: MdxJsxFlowElement | MdxJsxTextElement) => {
+      if (!node.name) return;
+      const prefix = seeAlsoComponents[node.name];
+      if (!prefix) return;
 
-        // Extract text content from children (slot content)
-        const slug = toString(node).trim();
-        if (!slug) return;
+      // Extract text content from children (slot content)
+      const slug = mdastToString(node).trim();
+      if (!slug) return;
 
-        // Transform :: to / for namespaced items (e.g., context::enrich)
-        const path = slug.replace(/::/g, "/");
-        const href = `${prefix}${path}`;
+      // Transform :: to / for namespaced items (e.g., context::enrich)
+      const path = slug.replace(/::/g, "/");
+      const href = `${prefix}${path}`;
 
-        // Add data-href attribute for the link validator
-        node.attributes = node.attributes || [];
-        node.attributes.push({
-          type: "mdxJsxAttribute",
-          name: "data-href",
-          value: href,
-        });
-      },
-    );
-  };
+      // Add data-href attribute for the link validator
+      node.attributes = node.attributes || [];
+      node.attributes.push({
+        type: "mdxJsxAttribute",
+        name: "data-href",
+        value: href,
+      });
+    },
+  );
 };

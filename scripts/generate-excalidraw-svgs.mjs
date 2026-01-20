@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 
 /**
  * Generate SVG files from Excalidraw source files.
@@ -14,11 +13,11 @@
  * Skips conversion if SVG is newer than source (incremental builds).
  */
 
-import fs from "fs/promises";
-import fsSync from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
+import fsSync from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Crypto } from "@peculiar/webcrypto";
 // Setup DOM environment for @excalidraw/utils before importing it.
 // The @excalidraw/utils package is designed for browser environments and expects
 // DOM APIs (window, document, DOMParser, XMLSerializer, etc.) to be globally
@@ -32,7 +31,6 @@ import { fileURLToPath } from "url";
 // with font embedding. Track https://github.com/excalidraw/excalidraw/issues
 // for stable release availability.
 import { JSDOM } from "jsdom";
-import { Crypto } from "@peculiar/webcrypto";
 
 const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>", {
   url: "http://localhost",
@@ -145,7 +143,7 @@ async function findExcalidrawFiles(dir) {
  * This naming convention allows gitignoring all generated SVGs with *.excalidraw.svg
  */
 function getSvgPath(excalidrawPath) {
-  return excalidrawPath + ".svg";
+  return `${excalidrawPath}.svg`;
 }
 
 /**

@@ -1,11 +1,11 @@
-import { Parser, Language, Query } from "web-tree-sitter";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
+  definePlugin,
   InlineStyleAnnotation,
   PluginStyleSettings,
-  definePlugin,
 } from "@expressive-code/core";
+import { Language, Parser, Query } from "web-tree-sitter";
 import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 
 // This plugin only wires Tree-sitter capture names to Expressive Code style keys.

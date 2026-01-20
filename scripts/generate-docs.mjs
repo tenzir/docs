@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
-import fs from "fs/promises";
-import path from "path";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 const DOCS_DIR = "src/content/docs";
 const OUTPUT_FILE = "public/sitemap.md";
@@ -73,7 +72,7 @@ function extractDescription(content) {
 
   let inFrontmatter = false;
   let foundTitle = false;
-  let paragraph = [];
+  const paragraph = [];
 
   for (const line of lines) {
     // Skip frontmatter
@@ -179,9 +178,9 @@ function extractHeadings(content) {
  */
 function demoteHeadings(content, demoteBy) {
   if (demoteBy <= 0) return content;
-  return content.replace(/^(#{1,6})\s/gm, (match, hashes) => {
+  return content.replace(/^(#{1,6})\s/gm, (_match, hashes) => {
     const newLevel = Math.min(hashes.length + demoteBy, 6);
-    return "#".repeat(newLevel) + " ";
+    return `${"#".repeat(newLevel)} `;
   });
 }
 
@@ -287,7 +286,7 @@ async function processSidebarItem(item, docsRoot) {
         const firstPath = docs[0].path;
         const isIndexPage = docs
           .slice(1)
-          .some((d) => d.path && d.path.startsWith(firstPath + "/"));
+          .some((d) => d.path?.startsWith(`${firstPath}/`));
         if (isIndexPage) {
           indexLink = `${BASE_URL}/${firstPath}.md`;
           indexDescription = docs[0].description; // Preserve description
@@ -432,7 +431,7 @@ function formatDocEntryFull(doc, level) {
   let entry = `${headingPrefix} ${doc.title}\n\n`;
 
   if (doc.body) {
-    entry += formatDocFull(doc, level) + "\n\n";
+    entry += `${formatDocFull(doc, level)}\n\n`;
   }
 
   return entry;

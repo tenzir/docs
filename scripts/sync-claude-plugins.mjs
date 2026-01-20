@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
 
-import fs from "fs/promises";
-import fsSync from "fs";
-import path from "path";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+import fsSync from "node:fs";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 /**
  * Sync Claude plugins documentation from tenzir/claude-plugins repository.

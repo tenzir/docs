@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * OCSF API client for fetching schema data from schema.ocsf.io.
  */

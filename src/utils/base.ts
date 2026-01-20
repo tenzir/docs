@@ -11,10 +11,10 @@ function stripTrailingSlash(path: string): string {
 }
 
 export function pathWithBase(path: NonNullable<string>): string {
-  let base = import.meta.env.BASE_URL;
+  const base = import.meta.env.BASE_URL;
   path = stripLeadingSlash(path);
   if (!base) {
     return path;
   }
-  return stripTrailingSlash(base) + "/" + path;
+  return `${stripTrailingSlash(base)}/${path}`;
 }

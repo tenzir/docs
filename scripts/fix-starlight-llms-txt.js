@@ -15,16 +15,15 @@
 // Also remove the "postinstall" script from package.json.
 import {
   existsSync,
-  symlinkSync,
-  unlinkSync,
+  lstatSync,
   readdirSync,
   renameSync,
-  lstatSync,
   rmSync,
-} from "fs";
-import { join } from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+  symlinkSync,
+  unlinkSync,
+} from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -77,7 +76,7 @@ if (hasPnpm) {
 
       try {
         symlinkSync(relativePath, targetPath, "dir");
-        const { execSync } = await import("child_process");
+        const { execSync } = await import("node:child_process");
         execSync("pnpm install", {
           cwd: actualPackagePath,
           stdio: "inherit",
