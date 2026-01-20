@@ -6,7 +6,9 @@
  * Output structure:
  *   tenzir/
  *   ├── SKILL.md           # Condensed sitemap with first-paragraph excerpts
- *   └── references/        # Full documentation hierarchy
+ *   ├── guides/            # Full documentation hierarchy
+ *   ├── tutorials/
+ *   └── ...
  *
  * Requires:
  *   - dist/ directory with sitemap.md (run 'bun run build:full')
@@ -18,10 +20,10 @@
  *   - H2/H3 bullet lists (internal structure)
  *
  * This script:
- *   - Rewrites URLs to relative paths (references/)
+ *   - Rewrites URLs to relative paths
  *   - Filters depth per section (Reference stops at level 3)
  *   - Strips H2/H3 bullet lists (keeps only headings + descriptions)
- *   - Copies markdown files to references/ for offline access
+ *   - Copies markdown files for offline access
  */
 
 import fs from "node:fs";
@@ -41,7 +43,7 @@ const SECTION_MAX_LEVEL = {
 };
 
 function rewriteLink(text) {
-  return text.replace(/https:\/\/docs\.tenzir\.com\//g, "references/");
+  return text.replace(/https:\/\/docs\.tenzir\.com\//g, "");
 }
 
 function getHeadingLevel(line) {
@@ -206,7 +208,7 @@ const cwd = process.cwd();
 const distPath = path.join(cwd, "dist");
 const sitemapPath = path.join(distPath, "sitemap.md");
 const outputDir = path.join(cwd, SKILL_NAME);
-const referencesDir = path.join(outputDir, "references");
+const contentDir = outputDir;
 
 // Check prerequisites
 if (!fs.existsSync(distPath)) {
@@ -232,7 +234,7 @@ if (!validateMarkdownFilesExist(sitemapPath, distPath)) {
 if (fs.existsSync(outputDir)) {
   fs.rmSync(outputDir, { recursive: true });
 }
-fs.mkdirSync(referencesDir, { recursive: true });
+fs.mkdirSync(contentDir, { recursive: true });
 
 // Generate SKILL.md from enhanced sitemap
 const skillMd = generateSkillMd(sitemapPath);
@@ -246,11 +248,9 @@ console.warn(
 );
 
 // Copy and rewrite reference files
-const fileCount = copyMarkdownFiles(distPath, referencesDir);
-removeEmptyDirs(referencesDir);
+const fileCount = copyMarkdownFiles(distPath, contentDir);
+removeEmptyDirs(contentDir);
 
-console.warn(
-  `Copied ${fmt(fileCount)} markdown files to ${SKILL_NAME}/references/`,
-);
+console.warn(`Copied ${fmt(fileCount)} markdown files to ${SKILL_NAME}/`);
 console.warn(`\nSkill ready at: ${outputDir}/`);
 console.warn(`Validate with: skills-ref validate ${SKILL_NAME}`);
