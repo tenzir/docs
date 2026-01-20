@@ -20,8 +20,19 @@ The `ocsf::derive` operator performs bidirectional enum derivation for OCSF
 events by automatically assigning enum string values based on their integer
 counterparts and vice versa.
 
-In the future, this operator will also assign automatically assign computable
-values such as `type_uid` based on what is available in the event.
+The operator preserves the original field order from the input record. When
+deriving new fields:
+
+- If both the enum field (integer) and its sibling field (string) exist in the
+  input, each remains at its original position.
+- If only the enum field exists, the derived sibling is inserted immediately
+  after it.
+- If only the sibling field exists, the derived enum is inserted immediately
+  before it.
+- Non-OCSF fields remain at their original positions.
+
+In the future, this operator will also automatically assign computable values
+such as `type_uid` based on what is available in the event.
 
 ## Examples
 
@@ -42,13 +53,17 @@ ocsf::derive
 {
   activity_id: 1,
   activity_name: "Create",
-  class_name: "File System Activity",
   class_uid: 1001,
+  class_name: "File System Activity",
   metadata: {
     version: "1.5.0",
   },
 }
 ```
+
+The derived `activity_name` appears immediately after `activity_id`, and the
+derived `class_name` appears immediately after `class_uid`, preserving the
+original field order.
 
 ### String to Integer
 
@@ -67,13 +82,16 @@ ocsf::derive
 {
   activity_id: 2,
   activity_name: "Read",
-  class_name: "File System Activity",
   class_uid: 1001,
+  class_name: "File System Activity",
   metadata: {
     version: "1.5.0",
   },
 }
 ```
+
+The derived `activity_id` appears immediately before `activity_name`, and the
+derived `class_name` appears immediately after `class_uid`.
 
 ### Bidirectional enum validation
 
@@ -93,17 +111,16 @@ ocsf::derive
 {
   activity_id: 1,
   activity_name: "Delete",
-  class_name: "File System Activity",
   class_uid: 1001,
+  class_name: "File System Activity",
   metadata: {
     version: "1.5.0",
   },
 }
 ```
 
-This will emit a warning about inconsistent values and preserve both original
-values without modification, allowing the user to decide how to handle the
-conflict.
+This emits a warning about inconsistent values and preserves both original
+values without modification, allowing you to decide how to handle the conflict.
 
 ```
 warning: found inconsistency between `activity_id` and `activity_name`
