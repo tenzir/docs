@@ -60,6 +60,53 @@ docker compose -f docker-compose.NODE.yaml up --detach
 Note that we `pull` first so that the subsequent downtime between `down` and
 `up` is minimal.
 
+### Verify container image signatures
+
+Tenzir signs all container images to ensure authenticity and integrity. You can
+verify signatures using Cosign or configure Podman for automatic verification.
+
+#### Cosign
+
+Use Cosign with keyless OIDC verification to validate the image was built by
+Tenzir's GitHub Actions:
+
+```bash
+cosign verify \
+  --certificate-identity-regexp="https://github.com/tenzir/tenzir/.github/workflows/.*" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  ghcr.io/tenzir/tenzir:latest
+```
+
+#### Podman
+
+Configure Podman for automatic signature verification using the public key from
+the [tenzir/tenzir repository][container-signing-pub].
+
+[container-signing-pub]: https://github.com/tenzir/tenzir/blob/main/container-signing.pub
+
+Create `/etc/containers/registries.d/tenzir.yaml`:
+
+```yaml
+docker:
+  ghcr.io/tenzir:
+    use-sigstore-attachments: true
+```
+
+Add the following to the `docker` key under `transports` in
+`/etc/containers/policy.json`:
+
+```json
+"ghcr.io/tenzir": [
+  {
+    "type": "sigstoreSigned",
+    "keyPath": "/etc/pki/containers/container-signing.pub"
+  }
+]
+```
+
+Copy the public key to the configured path. Podman then verifies signatures
+automatically when pulling Tenzir images.
+
 ## Linux
 
 For native Linux deployments, first [install
