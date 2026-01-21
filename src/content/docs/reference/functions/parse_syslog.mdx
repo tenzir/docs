@@ -10,8 +10,8 @@ import Integration from '@components/see-also/Integration.astro';
 Parses a string as a Syslog message.
 
 ```tql
-parse_syslog [raw=bool, schema=string, selector=string, schema_only=bool,
-              unflatten_separator=string]
+parse_syslog [octet_counting=bool, raw=bool, schema=string, selector=string,
+              schema_only=bool, unflatten_separator=string]
 ```
 
 ## Description
@@ -22,7 +22,34 @@ Tenzir supports reading syslog messages in both the standardized "Syslog Protoco
 ([RFC 5424](https://tools.ietf.org/html/rfc5424)), and the older "BSD syslog Protocol" format
 ([RFC 3164](https://tools.ietf.org/html/rfc3164)).
 
-## `input: string`
+### `input: string`
+
+The string to parse as a syslog message.
+
+### `octet_counting = bool (optional)`
+
+Controls handling of length-prefixed syslog messages as defined in
+[RFC 6587](https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1). Some
+syslog implementations prepend the message length in bytes, followed by a space:
+
+```
+<length> <syslog-message>
+```
+
+For example, where `65` is the byte count of the syslog message that follows:
+
+```
+65 <165>1 2023-10-11T22:14:15.003Z host app 1234 ID01 - Test message
+```
+
+The parameter supports three modes:
+
+- **Not specified (default)**: Auto-detect. Strips a length prefix if present
+  and valid, otherwise parses the input as-is.
+- **`octet_counting=true`**: Require a length prefix. Emits a warning and
+  returns null if the input lacks a valid prefix.
+- **`octet_counting=false`**: Never strip a length prefix. Parse the input
+  as-is, treating any leading digits as part of the message.
 
 import ParsingOptions from "@partials/functions/ParsingOptions.mdx";
 
@@ -59,6 +86,43 @@ output = input.parse_syslog()
   },
 }
 ```
+
+### Parse an octet-counted syslog message
+
+When dealing with syslog messages that use RFC 6587 octet counting, the function
+auto-detects and strips the length prefix:
+
+```tql
+from {
+  input: "119 <165>1 2023-10-11T22:14:15.003Z mymachineexamplecom evntslog 1370 ID47 [exampleSDID@32473 iut=\"3\"] Event log entry"
+}
+output = input.parse_syslog()
+```
+
+```tql
+{
+  input: "119 <165>1 2023-10-11T22:14:15.003Z mymachineexamplecom evntslog 1370 ID47 [exampleSDID@32473 iut=\"3\"] Event log entry",
+  output: {
+    facility: 20,
+    severity: 5,
+    version: 1,
+    timestamp: 2023-10-11T22:14:15.003Z,
+    hostname: "mymachineexamplecom",
+    app_name: "evntslog",
+    process_id: "1370",
+    message_id: "ID47",
+    structured_data: {
+      "exampleSDID@32473": {
+        iut: 3,
+      },
+    },
+    message: "Event log entry",
+  },
+}
+```
+
+Use `octet_counting=true` to require the prefix or `octet_counting=false` to
+disable auto-detection.
 
 ## See Also
 
