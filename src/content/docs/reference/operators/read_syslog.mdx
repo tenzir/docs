@@ -78,11 +78,28 @@ import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
 ### `octet_counting = bool (optional)`
 
-Employs "octet counting" according to [RFC6587](https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1)
-to determine message boundaries instead of the parsing heuristic for multi-line
-messages.
+Controls handling of length-prefixed syslog messages as defined in
+[RFC 6587](https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1). Some
+syslog implementations prepend the message length in bytes, followed by a space:
 
-Defaults to `false`.
+```
+<length> <syslog-message>
+```
+
+For example, where `65` is the byte count of the syslog message that follows:
+
+```
+65 <165>1 2023-10-11T22:14:15.003Z host app 1234 ID01 - Test message
+```
+
+The parameter supports three modes:
+
+- **Not specified (default)**: Auto-detect. Strips a length prefix if present
+  and valid, otherwise parses the input as-is.
+- **`octet_counting=true`**: Require a length prefix. Emits a warning and
+  returns null if the input lacks a valid prefix.
+- **`octet_counting=false`**: Never strip a length prefix. Parse the input
+  as-is, treating any leading digits as part of the message.
 
 <ParsingOptions />
 
@@ -115,6 +132,20 @@ read_syslog
   content: "pam_unix(cron:session): session closed for user root"
 }
 ```
+
+### Parse octet-counted syslog over TCP
+
+When receiving syslog over TCP from systems that use RFC 6587 octet counting,
+the parser auto-detects and strips the length prefix:
+
+```tql title="Pipeline"
+load_tcp "0.0.0.0:514" {
+  read_syslog
+}
+```
+
+Use `octet_counting=true` to require the prefix or `octet_counting=false` to
+disable auto-detection entirely.
 
 ## See Also
 

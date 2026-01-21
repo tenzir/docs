@@ -118,6 +118,24 @@ Tenzir's Syslog parser supports multi-line messages using a heuristic:
 
 This allows ingesting logs with stack traces or other verbose content correctly.
 
+### RFC 6587 Octet Counting
+
+When receiving syslog over TCP, some implementations use
+[RFC 6587](https://datatracker.ietf.org/doc/html/rfc6587#section-3.4.1) octet
+counting to frame messages. Instead of relying on newlines, each message is
+prefixed with its length in bytes:
+
+```
+65 <165>1 2023-10-11T22:14:15.003Z host app 1234 ID01 - Test message
+```
+
+Here, `65` is the byte count of the syslog message that follows.
+
+Tenzir auto-detects octet-counted messages in both
+[`read_syslog`](/reference/operators/read_syslog) for streaming input and
+[`parse_syslog`](/reference/functions/parse_syslog) for parsing individual
+strings. Use the `octet_counting` parameter to require or disable this behavior.
+
 ## Emit Events as Syslog
 
 Tenzir also supports **creating** Syslog messages from structured events via
