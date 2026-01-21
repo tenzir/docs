@@ -44,10 +44,13 @@ For example, where `65` is the byte count of the syslog message that follows:
 
 The parameter supports three modes:
 
-- **Not specified (default)**: Auto-detect. Strips a length prefix if present
-  and valid, otherwise parses the input as-is.
-- **`octet_counting=true`**: Require a length prefix. Emits a warning and
-  returns null if the input lacks a valid prefix.
+- **Not specified (default)**: Auto-detect. Treats the length prefix as a hint,
+  not an authority. The parser first tries to parse the full message; if that
+  fails and a valid prefix is present, it falls back to parsing the truncated
+  message. This maximizes leniency for messages that happen to start with digits.
+- **`octet_counting=true`**: Require and trust the length prefix. Emits a
+  warning and returns null if the input lacks a valid prefix. If the message is
+  longer than the stated length, truncates to the stated length before parsing.
 - **`octet_counting=false`**: Never strip a length prefix. Parse the input
   as-is, treating any leading digits as part of the message.
 
