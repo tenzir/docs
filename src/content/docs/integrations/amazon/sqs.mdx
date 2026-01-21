@@ -37,17 +37,19 @@ The URL scheme `sqs://` dispatches to
 Follow the [standard configuration instructions](/integrations/amazon) to authenticate with your
 AWS credentials.
 
-Alternatively, use the `aws_iam` parameter to provide explicit credentials or
-assume an IAM role:
+Alternatively, use the `aws_iam` parameter to provide explicit credentials:
 
 ```tql
 load_sqs "my-queue", aws_iam={
   region: "us-east-1",
   access_key_id: secret("aws-key"),
-  secret_access_key: secret("aws-secret"),
-  assume_role: "arn:aws:iam::123456789012:role/my-role"
+  secret_access_key: secret("aws-secret")
 }
 ```
+
+See the [`load_sqs`](/reference/operators/load_sqs) and
+[`save_sqs`](/reference/operators/save_sqs) operator documentation for all
+available options, including IAM role assumption.
 
 ## Examples
 
