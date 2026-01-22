@@ -236,15 +236,6 @@ export const reference = [
   },
   // OCSF sidebar is conditionally included when generated
   ...(ocsfSidebar ? [ocsfSidebar] : []),
-  {
-    label: "Workflows",
-    collapsed: true,
-    items: [
-      { label: "Overview", link: "reference/workflows" },
-      "reference/workflows/generate-a-parser-package",
-      "reference/workflows/generate-an-ocsf-mapping",
-    ],
-  },
 ];
 
 export const integrations = [
