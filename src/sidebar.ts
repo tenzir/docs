@@ -133,11 +133,11 @@ export const guides = [
     ],
   },
   {
-    label: "Package Management",
+    label: "Packages",
     collapsed: true,
     items: [
-      "guides/package-management/install-a-package",
-      "guides/package-management/maintain-a-changelog",
+      "guides/packages/install-a-package",
+      "guides/packages/maintain-a-changelog",
     ],
   },
   {
