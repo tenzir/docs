@@ -118,8 +118,6 @@ uvx tenzir-test
 
 Useful options:
 
-- `--tenzir-binary /path/to/tenzir`: Override binary lookup.
-- `--tenzir-node-binary /path/to/tenzir-node`: Override node binary path.
 - `--update`: Rewrite reference artifacts next to each test.
 - `--purge`: Remove generated artifacts (diffs, text outputs) from previous
   runs.
@@ -548,7 +546,9 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 `tenzir-test` recognises the following environment variables:
 
 - `TENZIR_TEST_ROOT` – Default test root when `--root` is omitted.
-- `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary discovery.
+- `TENZIR_BINARY` / `TENZIR_NODE_BINARY` – Override binary auto-detection.
+  Supports multi-part commands like `TENZIR_BINARY="uvx tenzir"` or
+  `TENZIR_NODE_BINARY="docker exec container tenzir-node"`.
 - `TENZIR_INPUTS` – Preferred data directory. Defaults to the nearest `inputs/`
   directory walking up from the test, falling back to the project-level inputs
   folder. Reflects any `inputs:` override from `test.yaml` or frontmatter.
@@ -557,6 +557,23 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
 - `TENZIR_TEST_DEBUG` – Enable debug logging (equivalent to `--debug`).
+
+### Binary resolution
+
+The harness automatically detects `tenzir` and `tenzir-node` binaries using this
+precedence:
+
+1. `TENZIR_BINARY` / `TENZIR_NODE_BINARY` environment variable (highest priority)
+2. Local installation found via `PATH` lookup (`shutil.which`)
+3. Fallback to `uvx tenzir` / `uvx --from tenzir tenzir-node` when `uv` is installed
+
+Most users can run `tenzir-test` without any configuration. When `uv` is
+installed, the harness automatically uses `uvx` to fetch and run Tenzir on
+demand.
+
+Environment variables support multi-part commands, allowing invocations like
+`TENZIR_BINARY="uvx tenzir"` or `TENZIR_BINARY="docker exec node tenzir"`. The
+harness splits these values into argument lists using shell tokenization rules.
 
 Fixtures often publish additional variables (for example
 `TENZIR_NODE_CLIENT_*`, `TENZIR_NODE_STATE_DIRECTORY`,
@@ -581,8 +598,10 @@ uvx tenzir-test --update
 
 ## Troubleshooting
 
-- **Missing binaries** – Ensure `tenzir` and `tenzir-node` are on `PATH` or set
-  `TENZIR_BINARY` / `TENZIR_NODE_BINARY` explicitly.
+- **Missing binaries** – The harness auto-detects binaries on `PATH` and falls
+  back to `uvx tenzir` when `uv` is installed. If neither is available, set the
+  `TENZIR_BINARY` and `TENZIR_NODE_BINARY` environment variables to point at
+  your installation.
 - **Unexpected exits** – Set `error: true` in frontmatter when a non-zero exit is
   expected.
 - **Skipped tests** – Use `skip: reason` to document temporary skips; baseline
