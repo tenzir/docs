@@ -1421,7 +1421,7 @@ Tenzir provides native support for OCSF through the \`ocsf.*\` operators:
 validate schema compliance, and work with OCSF-formatted data throughout your
 pipelines.
 
-See the [OCSF mapping workflow](/reference/workflows/generate-an-ocsf-mapping)
-for guidance on creating custom mappings for your data sources.
+Use [Tenzir's Claude plugins](/guides/ai-workbench/use-claude-plugins/) for
+guided OCSF mapping workflows.
 `;
 }
