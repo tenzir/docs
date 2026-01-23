@@ -115,6 +115,21 @@ export const guides = [
     ],
   },
   {
+    label: "Packages",
+    collapsed: true,
+    items: [
+      "guides/packages/install-a-package",
+      "guides/packages/create-a-package",
+      "guides/packages/test-packages",
+      "guides/packages/add-operators",
+      "guides/packages/add-pipelines",
+      "guides/packages/add-contexts",
+      "guides/packages/configure-inputs",
+      "guides/packages/maintain-a-changelog",
+      "guides/packages/publish-a-package",
+    ],
+  },
+  {
     label: "Platform Management",
     collapsed: true,
     items: [
@@ -130,14 +145,6 @@ export const guides = [
       "guides/testing/write-tests",
       "guides/testing/create-fixtures",
       "guides/testing/add-custom-runners",
-    ],
-  },
-  {
-    label: "Packages",
-    collapsed: true,
-    items: [
-      "guides/packages/install-a-package",
-      "guides/packages/maintain-a-changelog",
     ],
   },
   {

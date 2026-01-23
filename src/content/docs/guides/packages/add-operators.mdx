@@ -1,0 +1,244 @@
+---
+title: Add operators
+---
+
+import Guide from '@components/see-also/Guide.astro';
+import Reference from '@components/see-also/Reference.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+
+This guide shows you how to create user-defined operators (UDOs) for your
+package. You'll learn how to define operators with positional and named
+arguments, and how to test them with the Test Framework.
+
+## Create a user-defined operator
+
+**User-defined operators (UDOs)** are reusable building blocks that you can use
+in your pipelines. Place operator files in the `operators` directory of your
+package.
+
+Tenzir names operators using the convention `<package>::[dirs...]::<basename>`.
+For example, a file at `operators/ocsf/map.tql` in a package with ID `acme`
+becomes the operator `acme::ocsf::map`.
+
+```tql title="operators/ocsf/auth.tql"
+// Normalize authentication logs to OCSF Authentication event class
+class_uid = 3002
+category_uid = 3
+activity_id = 1 if outcome == "success" else 2
+actor.user.name = username
+actor.user.uid = user_id
+src_endpoint.ip = src_ip
+dst_endpoint.ip = dst_ip
+drop username, user_id, src_ip, dst_ip, outcome
+```
+
+After installing the package, use the operator in any pipeline:
+
+```tql
+from_file "auth.json"
+acme::ocsf::auth
+publish "ocsf-events"
+```
+
+## Add parameters to operators
+
+Operators can accept positional and named arguments, enabling you to create
+flexible, reusable building blocks that match the calling conventions of
+built-in operators. Define parameters in a YAML frontmatter block at the
+beginning of the `.tql` file.
+
+### Define positional arguments
+
+Positional arguments are passed in order when calling the operator. Define them
+under the `args.positional` key:
+
+```tql title="operators/tag.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+    - name: value
+      type: string
+---
+
+$field = $value
+```
+
+Call this operator with positional arguments:
+
+```tql
+from {x: 1}
+acme::tag name, "Alice"
+```
+
+```tql
+{x: 1, name: "Alice"}
+```
+
+### Define named arguments
+
+Named arguments use the `name=value` syntax and can have default values. Define
+them under the `args.named` key:
+
+```tql title="operators/tag.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+    - name: value
+      type: string
+  named:
+    - name: prefix
+      type: string
+      default: ""
+---
+
+$field = $prefix + $value
+```
+
+Call this operator with both positional and named arguments:
+
+```tql
+from {x: 1}
+acme::tag name, "Alice", prefix="User: "
+```
+
+```tql
+{x: 1, name: "User: Alice"}
+```
+
+### Parameter schema
+
+Each parameter supports the following fields:
+
+| Field         | Required | Description                                          |
+| ------------- | -------- | ---------------------------------------------------- |
+| `name`        | Yes      | Parameter name, used as `$name` in the operator body |
+| `type`        | No       | Type constraint for the parameter value              |
+| `description` | No       | Documentation string for the parameter               |
+| `default`     | No       | Default value if the argument is not provided        |
+
+### Supported types
+
+The `type` field constrains what values the parameter accepts:
+
+| Type     | Description                                                  |
+| -------- | ------------------------------------------------------------ |
+| `field`  | A field selector (for example, `name`). Cannot have defaults |
+| `string` | A string literal or expression                               |
+| `int`    | An integer value                                             |
+| `double` | A floating-point value                                       |
+| `bool`   | A boolean value                                              |
+| `ip`     | An IP address                                                |
+| `secret` | A secret string (accepts string literals)                    |
+
+If you omit the `type` field, the parameter accepts any value.
+
+:::note[Null values]
+All typed parameters accept `null` values regardless of their declared type.
+:::
+
+### Optional positional arguments
+
+Positional arguments with a `default` value become optional. Callers can omit
+them, and Tenzir substitutes the default:
+
+```tql title="operators/greet.tql"
+---
+args:
+  positional:
+    - name: name
+      type: string
+      default: "World"
+---
+
+greeting = "Hello, " + $name + "!"
+```
+
+Calling the operator without arguments uses the default value:
+
+```tql
+from {}
+acme::greet
+```
+
+```tql
+{greeting: "Hello, World!"}
+```
+
+Passing an explicit argument overrides the default:
+
+```tql
+from {}
+acme::greet "Alice"
+```
+
+```tql
+{greeting: "Hello, Alice!"}
+```
+
+### Use field parameters
+
+The `field` type enables dynamic field selection. The caller passes a field
+path, and the operator uses it to read or write data:
+
+```tql title="operators/double_value.tql"
+---
+args:
+  positional:
+    - name: target
+      type: field
+---
+
+$target = $target * 2
+```
+
+Using the operator:
+
+```tql
+from {count: 5, score: 10}
+acme::double_value count
+```
+
+```tql
+{count: 10, score: 10}
+```
+
+### Call other operators
+
+Parameterized operators can call other operators, including passing through
+their own parameters:
+
+```tql title="operators/transform.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+  named:
+    - name: multiplier
+      type: int
+      default: 2
+---
+
+utils::scale $field, factor=$multiplier
+```
+
+### Type checking
+
+Tenzir validates parameter types at compile time when possible:
+
+- **Compile-time checking** occurs when arguments are constant values
+- **Runtime checking** defers validation for expressions containing runtime data
+
+If a type mismatch occurs, Tenzir reports an error with the expected type and
+shows usage information for the operator.
+
+## See also
+
+- <Guide>packages/create-a-package</Guide>
+- <Guide>packages/add-pipelines</Guide>
+- <Guide>packages/test-packages</Guide>
+- <Tutorial>write-a-package</Tutorial>

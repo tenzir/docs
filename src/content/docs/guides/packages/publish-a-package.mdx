@@ -1,0 +1,166 @@
+---
+title: Publish a package
+---
+
+import { FileTree, Steps } from '@astrojs/starlight/components';
+import Guide from '@components/see-also/Guide.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+
+This guide shows you how to publish your package. You'll learn how to contribute
+to the Tenzir Community Library and how to set up your own package repository
+with automated testing.
+
+## Contribute to the Community Library
+
+The [Tenzir Community Library](https://github.com/tenzir/library) is a
+collection of open-source packages that appear in the
+[Tenzir Library](https://app.tenzir.com/library). Contributing your package
+makes it discoverable and installable by the entire community.
+
+### Prepare your package
+
+Before submitting, verify your package meets these requirements:
+
+- Has a complete `package.yaml` with descriptive metadata
+- Includes at least one example in the `examples/` directory
+- Has passing tests that cover the main functionality
+- Uses an SVG icon for `package_icon` (host it in your package directory)
+
+### Submit a pull request
+
+<Steps>
+
+1. Fork the [tenzir/library](https://github.com/tenzir/library) repository.
+
+2. Add your package directory to the repository root (see structure below).
+
+3. Push your changes and open a pull request.
+
+4. The CI pipeline automatically detects your package and runs its tests.
+
+5. After review and merge, your package appears in the Tenzir Library.
+
+</Steps>
+
+<FileTree>
+
+- library/
+  - your-package/
+    - package.yaml
+    - package.svg Your package icon
+    - examples/
+    - operators/
+    - pipelines/
+    - tests/
+
+</FileTree>
+
+:::caution[Get feedback first]
+Before opening a pull request, consider sharing your package on our
+[Discord server](/discord) in the `show-and-tell` channel. Community feedback
+helps refine your package before it reaches a wider audience.
+:::
+
+## Host your own package repository
+
+For private packages or custom distribution, host packages in your own Git
+repository. This approach works well for organization-specific integrations or
+packages under development.
+
+### Repository structure
+
+Organize your repository with one package per directory:
+
+<FileTree>
+
+- my-packages/
+  - .github/
+    - workflows/
+      - test.yml CI workflow
+    - scripts/
+      - detect-touched-packages.sh
+  - package-one/
+    - package.yaml
+    - operators/
+    - tests/
+  - package-two/
+    - package.yaml
+    - pipelines/
+    - tests/
+
+</FileTree>
+
+### Set up CI with GitHub Actions
+
+Create a workflow that tests packages on pull requests and pushes. The following
+workflow mirrors the approach used in the Community Library.
+
+```yaml title=".github/workflows/test.yml"
+name: Test Packages
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Detect touched packages
+        id: detect
+        run: |
+          packages=$(.github/scripts/detect-touched-packages.sh "${{ github.event.pull_request.base.sha }}")
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests
+        if: steps.detect.outputs.packages != ''
+        run: uvx tenzir-test ${{ steps.detect.outputs.packages }}
+```
+
+### Detect changed packages
+
+Create a script that identifies which packages changed in a pull request:
+
+```bash title=".github/scripts/detect-touched-packages.sh"
+#!/usr/bin/env bash
+set -euo pipefail
+
+base_sha="${1:-}"
+
+if [[ -n "$base_sha" ]]; then
+  changed_files=$(git diff --name-only "$base_sha"...HEAD)
+else
+  changed_files=$(git ls-files)
+fi
+
+echo "$changed_files" \
+  | xargs -I{} dirname {} \
+  | sort -u \
+  | while read -r dir; do
+      if [[ -f "$dir/package.yaml" ]]; then
+        echo "$dir"
+      fi
+    done
+```
+
+Make the script executable:
+
+```bash
+chmod +x .github/scripts/detect-touched-packages.sh
+```
+
+## See also
+
+- <Guide>packages/create-a-package</Guide>
+- <Guide>packages/test-packages</Guide>
+- <Guide>packages/install-a-package</Guide>
+- <Tutorial>write-a-package</Tutorial>

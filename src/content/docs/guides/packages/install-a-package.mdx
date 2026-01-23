@@ -2,6 +2,10 @@
 title: Install a package
 ---
 
+import Guide from '@components/see-also/Guide.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+import Explanation from '@components/see-also/Explanation.astro';
+
 [Packages](/explanations/packages) provide a flexible approach for combining
 operators, pipelines, contexts, and examples into a unified deployable unit.
 
@@ -68,12 +72,37 @@ ID.
 package::remove "your-package"
 ```
 
+## Install from a custom repository
+
+For packages hosted in a Git repository (like a private library), clone the
+repository and point Tenzir at it. You can reference the entire library
+directory—Tenzir discovers all packages inside:
+
+```bash
+git clone https://github.com/your-org/my-packages.git
+tenzir --package-dirs=/path/to/my-packages
+```
+
+Or configure the package directories in `tenzir.yaml`:
+
+```yaml title="tenzir.yaml"
+tenzir:
+  package-dirs:
+    - /path/to/my-packages
+```
+
+You can also install individual packages interactively:
+
+```tql
+package::add "/path/to/my-packages/package-one"
+```
+
 ## Install with Infrastructure as Code (IaC)
+
+import { FileTree } from '@astrojs/starlight/components';
 
 For IaC-style deployments, you can install packages _as code_ by putting them
 next to your `tenzir.yaml` configuration file:
-
-import { FileTree } from '@astrojs/starlight/components';
 
 <FileTree>
 
@@ -106,3 +135,10 @@ inputs:
   endpoint: localhost:42000
   policy: block
 ```
+
+## See also
+
+- <Guide>packages/configure-inputs</Guide>
+- <Guide>packages/publish-a-package</Guide>
+- <Tutorial>write-a-package</Tutorial>
+- <Explanation>packages</Explanation>

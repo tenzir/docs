@@ -38,14 +38,9 @@ Create a directory named `sslbl` and add the standard package layout:
   - operators/ Reusable building blocks for pipelines
   - pipelines/ Deployable pipelines
   - tests/ Integration tests
-    - inputs/ Sample data for test pipelines
   - package.yaml Manifest: metadata, contexts, and inputs
 
 </FileTree>
-
-The `tests/inputs/` directory holds sample data that the test harness makes
-available via the `TENZIR_INPUTS` environment variable. Reference these files
-from test pipelines using `f"{env("TENZIR_INPUTS")}/filename.txt"`.
 
 ## Add the package manifest
 
@@ -178,153 +173,22 @@ length.
 
 ### Add arguments to your operators
 
-So far, our operators are static—they always do the same thing. But what if we
-want to make them more flexible? [Parameterized
-operators](/explanations/packages#parameterized-operators) allow you to pass
-positional and named arguments, just like built-in operators.
+So far, our operators are static—they always do the same thing. You can make
+them more flexible with parameterized operators that accept positional and named
+arguments, just like built-in operators.
 
-Let's create a reusable operator that tags events with threat intelligence
-metadata. We'll make the confidence level configurable:
-
-```tql title="operators/tag_threat.tql"
----
-args:
-  positional:
-    - name: field
-      type: field
-      description: The field containing the indicator value
-  named:
-    - name: confidence
-      type: string
-      default: "Medium"
-      description: Confidence level (Low, Medium, High)
-    - name: source
-      type: string
-      default: "SSLBL"
-      description: The threat intelligence source name
----
-
-this.threat = {
-  indicator: $field,
-  confidence: $confidence,
-  source: $source,
-}
-```
-
-The YAML frontmatter defines the operator's interface:
-
-- **Positional arguments** (`args.positional`) are passed in order
-- **Named arguments** (`args.named`) use the `name=value` syntax and can have
-  defaults
-
-Now you can call this operator with different configurations:
-
-```tql
-// Use defaults
-from {hash: "abc123"}
-sslbl::tag_threat hash
-```
-
-```tql
-{
-  hash: "abc123",
-  threat: {
-    indicator: "abc123",
-    confidence: "Medium",
-    source: "SSLBL",
-  },
-}
-```
-
-Override confidence by passing `confidence` as named argument:
-
-```tql
-from {hash: "abc123"}
-sslbl::tag_threat hash, confidence="High"
-```
-
-```tql
-{
-  hash: "abc123",
-  threat: {
-    indicator: "abc123",
-    confidence: "High",
-    source: "SSLBL",
-  },
-}
-```
-
-Override both by passing `confidence` and `source`:
-
-```tql
-from {hash: "abc123"}
-sslbl::tag_threat hash, confidence="High", source="Custom Feed"
-```
-
-```tql
-{
-  hash: "abc123",
-  threat: {
-    indicator: "abc123",
-    confidence: "High",
-    source: "Custom Feed",
-  },
-}
-```
-
-The `field` type is special—it accepts field selectors like `hash` and
-allows your operator to work with any field the caller specifies.
-
-#### Supported parameter types
-
-You can constrain parameters to specific types:
-
-| Type     | Description                          | Example value |
-| -------- | ------------------------------------ | ------------- |
-| `field`  | A field selector                     | `field_name`  |
-| `string` | Text values                          | `"hello"`     |
-| `int`    | Integer numbers                      | `42`          |
-| `double` | Floating-point numbers               | `3.14`        |
-| `bool`   | Boolean values                       | `true`        |
-| `ip`     | IP addresses                         | `192.168.1.1` |
-| `secret` | Sensitive strings (handled securely) | `"api-key"`   |
-
-Omit the `type` field to accept any value. All types accept `null`. Type
-checking only applies to constant expressions; for runtime data, the type serves
-as documentation only.
-
-#### Test parameterized operators
-
-Testing parameterized operators works the same way as regular operators. Create
-test files that exercise different argument combinations:
-
-```tql title="tests/tag_threat.tql"
-from {hash: "test123"}
-sslbl::tag_threat hash, confidence="High", source="Test"
-```
-
-This ensures your operator handles various inputs correctly
+For example, an operator that tags events with threat metadata could accept
+a configurable confidence level and source name. See [Add
+operators](/guides/packages/add-operators) for the full parameter reference,
+including supported types and examples.
 
 ## Add deployable pipelines
 
-:::tip[Operators vs. Pipelines]
-With our user-defined operators, we get building blocks, but not yet entire
-pipelines. Packages that only ship operators provide capabilities—they offer
-reusable components that other pipelines can compose. This makes them versatile:
-users decide when and how to use the operators.
-
-Packages that include pipelines execute immediately upon installation. This is
-useful for background tasks like periodic data fetching, but it means the
-package takes action without explicit user invocation.
-
-For maximum flexibility, add `disabled: true` to pipeline frontmatter. This
-ships the pipeline as a template that users must explicitly enable, combining
-the convenience of ready-made pipelines with opt-in execution.
-:::
-
-We now create a pipeline that downloads SSLBL data and updates the context
-periodically so that we always have the latest version of the SSLBL data for
-enrichment.
+With our operators in place, we can now create deployable pipelines. Packages
+that include pipelines execute on installation, which is useful for background
+tasks like periodic data fetching. To ship a pipeline as a template that users
+must explicitly enable, add `disabled: true` to the frontmatter. See [Add
+pipelines](/guides/packages/add-pipelines) for all frontmatter options.
 
 The `sslbl::fetch` operator just downloads the blacklist entries once. But the
 remote data source changes periodically, and we want to always work with the
@@ -417,11 +281,9 @@ import topMalwareTQL from '/public/packages/sslbl/examples/top-malware.tql?raw';
 
 ## Make your package configurable
 
-To make a package more reusable, **inputs** offer a simple templating mechanism
-to replace variables with user-provided values.
-
-For example, to replace the hard-coded 1-hour refresh cadence with an input,
-replace the value with `{{ inputs.refresh_interval }}` in the above pipeline:
+**Inputs** let users customize package behavior without editing files. For
+example, to make the refresh interval configurable, replace the hard-coded
+value with `{{ inputs.refresh_interval }}`:
 
 ```tql title="sslbl/pipelines/update-as-ocsf.tql"
 every {{ inputs.refresh_interval }} {
@@ -431,24 +293,9 @@ sslbl::ocsf::to_osint
 context::update "sslbl", key=value
 ```
 
-Then add the input to your `package.yaml`:
-
-```yaml title="sslbl/package.yaml"
-inputs:
-  refresh_interval:
-    name: Time between context updates
-    description: |
-      How often the pipeline refreshes the SSLBL lookup table.
-    default: 1h
-```
-
-Users can accept the default or override the value [during
-installation](/guides/packages/install-a-package), e.g., when using
-[`package::add`](/reference/operators/package/add):
-
-```tql
-package::add "/path/to/sslbl", inputs={refresh_interval: 24h}
-```
+Define the input in `package.yaml` with a default value, then users can override
+it during installation. See [Configure inputs](/guides/packages/configure-inputs)
+for the full templating guide.
 
 ## Test your package
 
@@ -458,30 +305,15 @@ earlier you start, the better!
 ### Add tests for your operators
 
 Since our package ships with user-defined operators, we highly recommend to
-write tests for them, for the following reasons:
+write tests for them:
 
 1. You help users gain confidence in the functionality.
 2. You provide illustrative input-output pairs.
 3. You evolve faster with less regressions.
 
-Yes, writing tests is often boring and cumbersome. But it doesn't have to be
-that way! With our purpose-built [test framework](/reference/test-framework) for
-the Tenzir ecosystem, it is actually fun. 🕺
-
-Let's bootstrap the `tests` directory:
-
-```sh
-mkdir tests
-mkdir tests/inputs # files we reference from tests
-```
-
-We'll put a trimmed version of the
-[sslblacklist.csv](https://sslbl.abuse.ch/blacklist/sslblacklist.csv) file into
-`tests/inputs/`:
-
-import sslblacklistCsv from '/public/packages/sslbl/tests/inputs/sslblacklist.csv?raw';
-
-<Code code={sslblacklistCsv} lang="csv" title="tests/inputs/sslblacklist.csv" />
+Each test consists of a `.tql` file with the test pipeline, an optional `.input`
+file with test data, and a `.txt` file with the expected output baseline. Access
+the input file via `from_file env("TENZIR_INPUT")`.
 
 Let's test the operator that maps our input to OCSF OSINT objects:
 
@@ -499,8 +331,7 @@ import testOcsfToOsintTxt from '/public/packages/sslbl/tests/ocsf/to_osint.txt?r
 
 <Code code={testOcsfToOsintTxt} lang="tql" title="tests/ocsf/to_osint.txt" />
 
-As expected, a valid OCSF OSINT object. Let's make confirm this as our new
-baseline:
+As expected, a valid OCSF OSINT object. Let's confirm this as our new baseline:
 
 ```sh
 uvx tenzir-test --update
@@ -515,18 +346,9 @@ examples.
 
 ### Test contexts and node interaction
 
-Our package defines a context that lives in a node. Writing tests with nodes is
-a bit more involved than writing tests for stateless operators that we can
-simply run through the `tenzir` binary.
-
-To test node interactions, we need to use the **suite** concept from the test
-framework, which spins up a single fixture and then executes a series of tests
-sequentially against that fixture. With that capability, we can finally test the
-multi-stage process of updating the context, inspecting it, and using it for an
-enrichment.
-
-Defining a suite doesn't take much, just add a `test.yaml` file to a
-sub-directory that represents the suite of tests. We'll do this:
+Our package defines a context that lives in a node. To test node interactions,
+use a **suite** that spins up a fixture and runs tests sequentially against it.
+Add a `test.yaml` file to a subdirectory that represents the suite:
 
 <FileTree>
 
@@ -538,71 +360,25 @@ sub-directory that represents the suite of tests. We'll do this:
 
 </FileTree>
 
-Here's the test suite definition:
-
-import testYaml from '/public/packages/sslbl/tests/context/test.yaml?raw';
-
-<Code code={testYaml} lang="yaml" title="tests/context/test.yaml" />
-
-Let's take a look at our tests:
-
-import contextList from '/public/packages/sslbl/tests/context/01-context-list.tql?raw';
-
-<Code code={contextList} lang="tql" title="tests/context/01-context-list.tql" />
-
-Then load our input into the node's lookup table:
-
-import contextUpdate from '/public/packages/sslbl/tests/context/02-context-update.tql?raw';
-
-<Code code={contextUpdate} lang="tql" title="tests/context/02-context-update.tql" />
-
-Finally ensure that the lookup table has the expected values:
-
-import contextInspect from '/public/packages/sslbl/tests/context/03-context-inspect.tql?raw';
-
-<Code code={contextInspect} lang="tql" title="tests/context/03-context-inspect.tql" />
-
-:::note[Automatic package installation]
-When the test harness invokes the `tenzir`
-(as runner) and `tenzir-node` binary (as fixture), it passes the
-`--package-dirs` option in both cases. This ensures that user-defined operators
-are available for testing with the runner and contexts in the fixture. When
-writing tests, you can simply assume that the package is installed at the node.
-:::
+The suite updates the lookup table and verifies the expected values. See [Test
+packages](/guides/packages/test-packages) for suite configuration and [Add
+contexts](/guides/packages/add-contexts) for context-specific testing patterns.
 
 ## Add a changelog
 
-Creating a package is rarely a one-time act. In fact, the initial version often
-just marks the starting point of your journey: vendors frequently make upstream
-changes and you need to adapt your operators, you find a new log sample with a
-corner case that causes the current version to fail, and your users request new
-changes or new arguments for better parameterization. After shipping a minimum
-viable package (MVP), do your users a favor maintain a changelog!
+Creating a package is rarely a one-time act. Vendors make upstream changes, you
+find corner cases, and users request new features. Do your users a favor and
+maintain a changelog!
 
-The good news is we made changelog maintenance super easy with our bespoke
-[`tenzir-ship`](/reference/ship-framework) tool. From the package
-directory, create a new changelog entry as follows:
+From the package directory, create a new entry with
+[`tenzir-ship`](/reference/ship-framework):
 
 ```sh
 uvx tenzir-ship add
 ```
 
-The interactive wizard will guide you through the process. Thereafter, you'll
-see a new file in the `changelog/` directory.
-
-You have many options to view your changelog entries:
-
-```sh
-uvx tenzir-ship show              # show all entries in table format
-uvx tenzir-ship show unreleased   # show just unreleased entries
-uvx tenzir-ship show --markdown   # render all entries as Markdown
-uvx tenzir-ship show --json       # render all entries as JSON
-uvx tenzir-ship show --card 1     # render a specific entry as card
-```
-
-For more details on how to maintain a changelog and create releases, see our
-[guide on maintaining a
-changelog](/guides/packages/maintain-a-changelog).
+The interactive wizard guides you through the process. See [Maintain a
+changelog](/guides/packages/maintain-a-changelog) for the full release workflow.
 
 ## Share and contribute
 

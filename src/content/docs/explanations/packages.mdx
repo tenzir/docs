@@ -2,444 +2,137 @@
 title: Packages
 ---
 
-A **package** is a 1-click deployable unit that implements a specific use case. It
-contains pipelines, operators, contexts, examples, and tests. A templating
-mechanism makes packages customizable for a variety of deployment scenarios.
+import Tutorial from '@components/see-also/Tutorial.astro';
 
-## Anatomy of a package
+This page explains how packages bundle pipelines, operators, contexts, and
+examples into a deployable unit. You'll learn about package design principles
+and how the components fit together.
 
-A package comes in the form of a directory with the following structure:
+## What is a package
+
+A **package** is a 1-click deployable unit that implements a specific use case.
+Packages provide a modular way to distribute TQL functionality, from simple
+transformations to complete data processing workflows.
+
+Packages solve common distribution challenges:
+
+- **Reusability**: Share operators and pipelines across teams and projects
+- **Configurability**: Template inputs let users customize behavior without
+  modifying source files
+- **Testability**: The Test Framework validates package behavior
+- **Discoverability**: The Tenzir Library makes packages findable and
+  installable
+
+## Package structure
 
 import { FileTree } from '@astrojs/starlight/components';
+
+A package is a directory with the following structure:
 
 <FileTree>
 
 - pkg/
-  - changelog/ user-facing trail of changes
-  - examples/ self-contained examples the user can run
-    - snippet.tql
-  - operators/ user-defined operators (UDO)
-    - ocsf/
-      - foo.tql
-      - bar.tql
-    - map.tql
-  - pipelines/ fully deployable pipelines
-    - use-case-1.tql
-    - use-case-2.tql
-  - tests/ integration tests
-    - inputs/
-      - log.json
-      - download.csv
-    - test-ocsf.tql
-    - test-map.tql
-  - package.yaml package metadata, contexts, and inputs
+  - changelog/ User-facing trail of changes
+  - examples/ Self-contained snippets to run
+  - operators/ User-defined operators (UDOs)
+  - pipelines/ Fully deployable pipelines
+  - tests/ Integration tests
+    - inputs/ Sample data for tests
+  - package.yaml Package manifest
 
 </FileTree>
 
-Let's discuss each component in detail.
+The `package.yaml` manifest is the only required file. It identifies the
+directory as a package and contains metadata, context definitions, and input
+specifications.
 
-### `changelog`: User-facing changes
+## Package components
 
-The `changelog` directory tracks user-facing changes to the package using the
-[Ship Framework](/reference/ship-framework). It contains unreleased
-entries and versioned releases that document breaking changes, new features, bug
-fixes, and other modifications. Each entry includes metadata such as authors,
-pull request numbers, and creation dates. See the guide for [maintaining a
-changelog](/guides/packages/maintain-a-changelog) to learn how to add
-entries and create releases.
+### Operators
 
-### `examples`: Snippets to run
+**User-defined operators (UDOs)** in the `operators` directory provide reusable
+building blocks. Tenzir names them using the convention
+`<package>::[dirs...]::<basename>`.
 
-The `examples` directory contains self-contained code snippets that demonstrate
-how to use the package. These snippets exemplify the package's features and
-provide runnable TQL code that users can execute after installing the package.
+Operators can accept [positional and named
+arguments](/guides/packages/add-operators#add-parameters-to-operators) for
+flexible, parameterized transformations.
 
-You can run these examples with a single click from
-[app.tenzir.com](https://app.tenzir.com).
+### Pipelines
 
-### `operators`: User-defined operators (UDOs)
+**Pipelines** in the `pipelines` directory are complete, deployable TQL
+programs. Unlike operators, pipelines must have both input and output operators.
+They run automatically when you install the package (unless disabled).
 
-The `operators` directory contains **user-defined operators (UDOs)**: reusable
-building blocks that you can use in your pipelines.
-
-Tenzir names operators using the convention `<package>::[dirs...]::<basename>`.
-In the example above, the package defines `pkg::ocsf::foo`, `pkg::ocsf::bar`,
-and `pkg::map`.
-
-You can use these operators in any pipeline:
-
-```tql
-from_file "sample.json"
-pkg::ocsf::map // 👈 user-defined operator (UDO) defined in /pkg/ocsf/map.tql
-to_file "ocsf.json"
-```
-
-The `tests/` directory can include tests for these operators.
-
-#### Parameterized operators
-
-Operators can accept positional and named arguments, enabling you to create
-flexible, reusable building blocks that match the calling conventions of
-built-in operators. Define parameters in a YAML frontmatter block at the beginning of the
-`.tql` file.
-
-##### Defining positional arguments
-
-Positional arguments are passed in order when calling the operator. Define them
-under the `args.positional` key:
-
-```tql title="operators/tag.tql"
----
-args:
-  positional:
-    - name: field
-      type: field
-    - name: value
-      type: string
----
-
-$field = $value
-```
-
-Call this operator with positional arguments:
-
-```tql
-from {x: 1}
-pkg::tag name, "Alice"
-```
-
-```tql
-{x: 1, name: "Alice"}
-```
-
-##### Defining named arguments
-
-Named arguments use the `name=value` syntax and can have default values. Define
-them under the `args.named` key:
-
-```tql title="operators/tag.tql"
----
-args:
-  positional:
-    - name: field
-      type: field
-    - name: value
-      type: string
-  named:
-    - name: prefix
-      type: string
-      default: ""
----
-
-$field = $prefix + $value
-```
-
-Call this operator with both positional and named arguments:
-
-```tql
-from {x: 1}
-pkg::tag name, "Alice", prefix="User: "
-```
-
-```tql
-{x: 1, name: "User: Alice"}
-```
-
-##### Parameter schema
-
-Each parameter supports the following fields:
-
-| Field         | Required | Description                                          |
-| ------------- | -------- | ---------------------------------------------------- |
-| `name`        | Yes      | Parameter name, used as `$name` in the operator body |
-| `type`        | No       | Type constraint for the parameter value              |
-| `description` | No       | Documentation string for the parameter               |
-| `default`     | No       | Default value if the argument is not provided        |
-
-##### Supported types
-
-The `type` field constrains what values the parameter accepts:
-
-| Type     | Description                                           |
-| -------- | ----------------------------------------------------- |
-| `field`  | A field selector (e.g., `name`). Cannot have defaults |
-| `string` | A string literal or expression                        |
-| `int`    | An integer value                                      |
-| `double` | A floating-point value                                |
-| `bool`   | A boolean value                                       |
-| `ip`     | An IP address                                         |
-| `secret` | A secret string (accepts string literals)             |
-
-If you omit the `type` field, the parameter accepts any value.
-
-:::note[Null values]
-All typed parameters accept `null` values regardless of their declared type.
-:::
-
-##### Optional positional arguments
-
-Positional arguments with a `default` value become optional. Callers can omit
-them, and Tenzir substitutes the default:
-
-```tql title="operators/greet.tql"
----
-args:
-  positional:
-    - name: name
-      type: string
-      default: "World"
----
-
-greeting = "Hello, " + $name + "!"
-```
-
-```tql
-from {}
-pkg::greet
-```
-
-```tql
-{greeting: "Hello, World!"}
-```
-
-Passing an explicit argument overrides the default:
-
-```tql
-from {}
-pkg::greet "Alice"
-```
-
-```tql
-{greeting: "Hello, Alice!"}
-```
-
-##### Using field parameters
-
-The `field` type enables dynamic field selection. The caller passes a field
-path, and the operator uses it to read or write data:
-
-```tql title="operators/double_value.tql"
----
-args:
-  positional:
-    - name: target
-      type: field
----
-
-$target = $target * 2
-```
-
-Using the operator:
-
-```tql
-from {count: 5, score: 10}
-pkg::double_value count
-```
-
-```tql
-{count: 10, score: 10}
-```
-
-##### Calling other operators
-
-Parameterized operators can call other operators, including passing through
-their own parameters:
-
-```tql title="operators/transform.tql"
----
-args:
-  positional:
-    - name: field
-      type: field
-  named:
-    - name: multiplier
-      type: int
-      default: 2
----
-
-other_pkg::scale $field, factor=$multiplier
-```
-
-##### Type checking
-
-Tenzir validates parameter types at compile time when possible:
-
-- **Compile-time checking** occurs when arguments are constant values
-- **Runtime checking** defers validation for expressions containing runtime data
-
-If a type mismatch occurs, Tenzir reports an error with the expected type and
-shows usage information for the operator.
-
-### `pipelines`: End-to-end deployable TQL
-
-The `pipelines` directory contains fully deployable TQL pipelines. Unlike UDOs,
-pipelines are complete units that must begin with an [input
-operator](/explanations/architecture/pipeline) and end with an [output
-operator](/explanations/architecture/pipeline). These pipelines often use UDOs
-defined in the same package.
-
-You can configure pipelines using frontmatter at the beginning of the TQL file.
-The following options are available:
-
-- `restart-on-error`: Configures automatic restart behavior when the pipeline
-  encounters an error. By default, pipelines stop running and show an error
-  state. This option causes pipelines to restart automatically instead.
-  - Omit the option, or set it to `null` or `false` to disable automatic
-    restarts.
-  - Set it to `true` to enable restarts with a default delay of 1 minute.
-  - Set it to a valid duration to enable restarts with a custom delay.
-- `disabled`: Set to `true` to disable the pipeline. Defaults to `false`.
-- `unstoppable`: Set to `true` to make the pipeline run automatically and
-  indefinitely. You cannot pause or stop unstoppable pipelines manually. If
-  they complete, they end up in a failed state. If you enable
-  `restart-on-error`, they restart after the specified duration. Defaults to
-  `false`.
-
-Example:
-
-```tql
----
-restart-on-error: 1m
-disabled: false
-unstoppable: true
----
-
-// TQL here
-```
-
-### `tests`: Integration tests
-
-The `tests` directory contains deterministic integration tests, primarily for
-UDOs. These tests leverage the [Test Framework](/reference/test-framework) to
-verify that operators behave correctly.
-
-### `package.yaml`: Metadata
-
-The `package.yaml` file serves as the **package manifest**. It contains
-metadata about a package and acts as a marker to identify a directory as a
-package. The file is required for every package.
-
-#### Package description
-
-The beginning of `package.yaml` provides descriptive metadata:
-
-```yaml
-# The unique ID of the package. (required)
-id: example
-
-# The display name of the package and a path to an icon for the package.
-name: Example
-package_icon: https://github.com/tenzir.png
-
-# The display name of the package author and a path to a profile picture.
-author: Tenzir
-author_icon: https://github.com/tenzir.png
-
-# A user-facing description of the package.
-description: |
-  **Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Nullam suscipit
-  lacus felis, ac lacinia nibh pretium ut. Curabitur congue aliquam neque.
-  Vivamus in magna non turpis malesuada volutpat ut a felis. Ut lorem eros,
-  vulputate eget finibus ut, posuere sed leo. Vestibulum porta laoreet
-  venenatis. Curabitur aliquet semper sem, et tincidunt metus cursus at. Nulla
-  dapibus nibh vel faucibus commodo. Sed euismod eu sapien ut dictum. Phasellus
-  tincidunt venenatis semper.
-```
-
-#### Inputs
-
-The `inputs` section contains template variables that Tenzir replaces when you
-install the package. This allows the package definition to remain independent
-of the deployed environment.
-
-```yaml
-# Define user inputs to customize the package installation.
-inputs:
-  # Every input must have a unique id.
-  refresh-rate:
-    # A user-facing name for the input (required).
-    name: Refresh Rate
-    # A user-facing description of the input.
-    description: |
-      The interval at which we refresh our example context.
-      Defaults to refreshing every second.
-    # An (optional) default value for the input. The input is required if there
-    # is no input value.
-    default: 1s
-```
-
-You can reference inputs in pipeline and example definitions, and in context
-arguments using the syntax `{{ inputs.input-name }}`. Tenzir replaces these
-references with their configured values when installing the package. For
-example, with the input configured as above, the pipeline `every {{
-inputs.refresh-rate }} { version }` would print the version once per second by
-default.
-
-To write double curly braces literally, use the syntax `{{ '{{' }}` to produce
-the literal string enclosed inside the single quotes.
+Pipeline [frontmatter options](/guides/packages/add-pipelines#configure-pipeline-behavior)
+control restart behavior, enable/disable state, and other runtime settings.
 
 ### Contexts
 
-The `contexts` section defines contexts for
-[enrichment](/explanations/enrichment).
+**Contexts** defined in the manifest provide stateful enrichment capabilities.
+The node creates these contexts when you install the package, making them
+available for lookup and enrichment operations.
 
-Here is an example context definition:
+### Examples
 
-```yaml
-# Define any number of contexts.
-contexts:
-  # A unique name for the context that's used in the context::* operators to
-  # refer to the context.
-  example:
-    # The type of the context (required).
-    type: lookup-table
-    # An optional user-facing description of the context.
-    description: |
-      **Lorem ipsum** dolor sit amet, consectetur adipiscing elit. Nullam
-      suscipit lacus felis, ac lacinia nibh pretium ut. Curabitur congue aliquam
-      neque. Vivamus in magna non turpis malesuada volutpat ut a felis. Ut lorem
-      eros, vulputate eget finibus ut, posuere sed leo. Vestibulum porta laoreet
-      venenatis. Curabitur aliquet semper sem, et tincidunt metus cursus at.
-      Nulla dapibus nibh vel faucibus commodo. Sed euismod eu sapien ut dictum.
-      Phasellus tincidunt venenatis semper.
+**Examples** in the `examples` directory demonstrate how to use the package.
+These self-contained snippets appear in the Tenzir Library and help users
+understand package capabilities.
 
-    # Arguments for creating the context, depending on the type. Refer to the
-    # documentation of the individual context types to see the arguments they
-    # require. Note that changes to these arguments do not apply to any
-    # contexts that were previously created.
-    args: {}
-    # Disables the context.
-    disabled: false
-```
+### Tests
 
-## Configuration during installation
+**Tests** in the `tests` directory validate package behavior using the
+Test Framework. Tests ensure operators and pipelines work correctly and provide
+confidence during package updates.
 
-During installation, Tenzir merges the package definition with a configuration
-object. This can happen in three ways:
+### Changelog
 
-1. In the [Tenzir Library](https://app.tenzir.com/library), you provide inputs
-   that Tenzir converts into a `config` object.
-2. Using the [`package::add`](/reference/operators/package/add) operator,
-   you construct a `config` record explicitly.
-3. Using IaC-style installation, you provide a `config.yaml` next to the
-   `package.yaml` manifest.
+The **changelog** directory tracks user-facing changes using the Ship Framework.
+It helps users understand what changed between versions and guides upgrade
+decisions.
 
-Refer to the [package installation
-guide](/guides/packages/install-a-package) for details on how each
-method works.
+## Design principles
 
-```yaml title="config.yaml"
-# The equivalent of `package::add inputs={...}`.
-inputs:
-  filename: /opt/example/data.tsv
-```
+### Composability
 
-Tenzir replaces [inputs](/explanations/packages/#inputs), such as `from_file "{{
-inputs.filename }}"`, with their configured values when installing a package.
-You must explicitly provide values for inputs that do not have a default value
-by specifying them in your `config.yaml`:
+Good packages expose **operators** as building blocks that users can compose in
+their own pipelines. This maximizes flexibility: users decide when and how to
+invoke the functionality.
 
-```yaml title="config.yaml"
-inputs:
-  filename: /opt/example/data.tsv
-```
+### Opt-in execution
+
+Packages that include **pipelines** execute immediately upon installation. For
+maximum flexibility, ship pipelines with `disabled: true` so users can review
+and enable them explicitly.
+
+### Configurability
+
+Use **inputs** to parameterize packages instead of hardcoding values. This
+allows the same package to work across different environments without
+modification.
+
+### Testability
+
+Write tests for operators and contexts early. The Test Framework makes testing
+straightforward, and good test coverage enables confident iteration.
+
+## Package lifecycle
+
+1. **Create**: Set up the package structure and manifest
+2. **Develop**: Add operators, pipelines, contexts, and examples
+3. **Test**: Validate behavior with the Test Framework
+4. **Install**: Deploy locally or through the Tenzir Library
+5. **Maintain**: Update the changelog and publish releases
+
+## See also
+
+- [Install a package](/guides/packages/install-a-package): Deploy packages to
+  your node
+- [Create a package](/guides/packages/create-a-package): Set up the package
+  structure
+- [Add operators](/guides/packages/add-operators): Create user-defined operators
+- [Add pipelines](/guides/packages/add-pipelines): Create deployable pipelines
+- [Add contexts](/guides/packages/add-contexts): Define contexts for enrichment
+- [Maintain a changelog](/guides/packages/maintain-a-changelog): Track changes
+  with Ship Framework
+- <Tutorial>write-a-package</Tutorial>: End-to-end package development example

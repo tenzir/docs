@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+import { pathWithBase } from "@utils/base";
+import BookIcon from "../icons/BookIcon.astro";
+
+// Build lookup map for page titles
+const allDocs = await getCollection("docs");
+const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
+
+const path = Astro.slots.has("default")
+  ? (await Astro.slots.render("default")).trim()
+  : "";
+const href = pathWithBase(`/reference/${path}`);
+
+// Try to get actual page title, fall back to slug transformation
+const entry = docsMap.get(`reference/${path}`);
+const title =
+  entry?.data.title ??
+  path
+    .split("/")
+    .pop()
+    ?.split("-")
+    .map((word, i) =>
+      i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
+    )
+    .join(" ");
+---
+
+<span class="inline-icon-wrapper" data-tooltip="Reference"><BookIcon class="inline-icon" /></span><a href={href}>{title}</a>

@@ -1,0 +1,123 @@
+---
+title: Create a package
+---
+
+import { FileTree } from '@astrojs/starlight/components';
+import Guide from '@components/see-also/Guide.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+import Explanation from '@components/see-also/Explanation.astro';
+
+This guide shows you how to create a package from scratch. You'll learn how to
+set up the directory structure, write the manifest, and add runnable examples.
+
+## Create the package scaffold
+
+Create a directory with the standard package layout:
+
+<FileTree>
+
+- acme/
+  - changelog/ User-facing documentation of changes
+  - examples/ Runnable snippets for users
+  - operators/ Reusable building blocks for pipelines
+  - pipelines/ Deployable pipelines
+  - tests/ Integration tests
+    - inputs/ Sample data for test pipelines
+  - package.yaml Manifest: metadata, contexts, and inputs
+
+</FileTree>
+
+The `tests/inputs/` directory holds sample data that the test harness makes
+available via the `TENZIR_INPUTS` environment variable. Reference these files
+from test pipelines using `f"{env("TENZIR_INPUTS")}/filename.txt"`.
+
+## Add the package manifest
+
+The `package.yaml` file is the **package manifest**. It identifies the directory
+as a package and contains metadata, context definitions, and input
+specifications.
+
+### Add descriptive metadata
+
+Start with the required and recommended metadata fields:
+
+```yaml title="package.yaml"
+# The unique ID of the package. (required)
+id: acme
+
+# The display name of the package and a path to an icon for the package.
+name: My Package
+package_icon: https://example.com/icon.svg
+
+# The display name of the package author and a path to a profile picture.
+author: Your Name
+author_icon: https://github.com/yourusername.png
+
+# A user-facing description of the package.
+description: |
+  A brief description of what your package does and the use cases it supports.
+  You can use **Markdown** formatting here.
+```
+
+### Define inputs
+
+**Inputs** provide a templating mechanism that replaces variables with
+user-provided values during installation. This makes packages configurable
+without modifying source files.
+
+```yaml title="package.yaml"
+inputs:
+  refresh_interval:
+    name: Refresh Interval
+    description: How often the pipeline refreshes the data source.
+    default: 1h
+```
+
+Reference inputs using `{{ inputs.input-id }}` syntax. See [Configure
+inputs](/guides/packages/configure-inputs) for the complete templating guide.
+
+## Add examples
+
+The `examples` directory contains self-contained code snippets that demonstrate
+how to use the package. These snippets appear in the [Tenzir
+Library](https://app.tenzir.com/library) and provide runnable TQL code that
+users can execute after installing the package.
+
+Create example files that showcase your package's features:
+
+```tql title="examples/basic-usage.tql"
+// Demonstrate the primary use case
+acme::fetch
+acme::transform
+head 10
+```
+
+For more complex scenarios, combine multiple operators and show how they work
+together:
+
+```tql title="examples/advanced-usage.tql"
+// Show a more complex scenario
+acme::fetch
+where severity == "high"
+acme::enrich
+publish "alerts"
+```
+
+Keep examples focused and self-contained. Each example should demonstrate a
+single concept or use case.
+
+## Define contexts
+
+If your package uses enrichment contexts, add a `contexts` key to the manifest.
+See [Add contexts](/guides/packages/add-contexts) for the full schema and
+usage details.
+
+## See also
+
+- <Guide>packages/install-a-package</Guide>
+- <Guide>packages/configure-inputs</Guide>
+- <Guide>packages/add-operators</Guide>
+- <Guide>packages/add-pipelines</Guide>
+- <Guide>packages/maintain-a-changelog</Guide>
+- <Tutorial>write-a-package</Tutorial>
+- <Explanation>packages</Explanation>

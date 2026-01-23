@@ -1,0 +1,173 @@
+---
+title: Add pipelines
+---
+
+import Guide from '@components/see-also/Guide.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+import Explanation from '@components/see-also/Explanation.astro';
+
+This guide shows you how to add deployable pipelines to your package. You'll
+learn about pipeline frontmatter options and when to use pipelines versus
+operators.
+
+## Create a pipeline
+
+The `pipelines` directory contains fully deployable TQL pipelines. Unlike
+[user-defined operators (UDOs)](/guides/packages/add-operators), pipelines are complete units
+that must begin with an input operator and end with an output operator.
+
+Pipelines typically call UDOs from the same package to transform data:
+
+```tql title="pipelines/fetch-and-normalize.tql"
+every 1h {
+  from_http "https://api.example.com/events"
+}
+acme::parse
+acme::ocsf::normalize
+import
+```
+
+When you install the package, the node automatically runs any enabled pipelines.
+The UDOs handle the transformation logic while the pipeline orchestrates the
+data flow.
+
+## Configure pipeline behavior
+
+Configure pipelines using YAML frontmatter at the beginning of the TQL file.
+The following options are available:
+
+### `name` and `description`
+
+Add metadata to identify the pipeline in the UI:
+
+```tql title="pipelines/update-context.tql"
+---
+name: Update Threat Intel
+description: >
+  Fetches threat intelligence hourly and updates the lookup table.
+---
+
+every 1h {
+  from_http "https://feeds.example.com/iocs.json"
+}
+acme::parse_indicators
+context::update "threat-intel", key=indicator
+```
+
+### `restart-on-error`
+
+Configure automatic restart behavior when the pipeline encounters an error. By
+default, pipelines stop running and show an error state.
+
+```tql title="pipelines/resilient-fetch.tql"
+---
+restart-on-error: 5m  # Restart after 5 minutes on failure
+---
+
+every 1h {
+  from_http "https://api.example.com/data"
+}
+import
+```
+
+Options:
+
+- Omit the option, or set it to `null` or `false` to disable automatic restarts
+- Set it to `true` to enable restarts with a default delay of 1 minute
+- Set it to a valid duration (for example, `5m`, `1h`) to enable restarts with a custom
+  delay
+
+### `disabled`
+
+Set to `true` to disable the pipeline. Disabled pipelines don't run when the
+package is installed, but users can enable them manually.
+
+```tql title="pipelines/optional-export.tql"
+---
+name: Export to SIEM
+description: >
+  Exports enriched events to an external SIEM. Enable manually if needed.
+disabled: true
+---
+
+subscribe "enriched-events"
+to_http "https://siem.example.com/ingest"
+```
+
+:::tip[Ship disabled by default]
+For maximum flexibility, add `disabled: true` to pipeline frontmatter. This
+ships the pipeline as a template that users must explicitly enable, combining
+the convenience of ready-made pipelines with opt-in execution.
+:::
+
+### `unstoppable`
+
+Set to `true` to make the pipeline run automatically and indefinitely. You
+cannot pause or stop unstoppable pipelines manually. If they complete, they end
+up in a failed state. If you enable `restart-on-error`, they restart after the
+specified duration.
+
+```tql title="pipelines/critical-ingest.tql"
+---
+unstoppable: true
+restart-on-error: 1m
+---
+
+from_kafka "critical-events"
+import
+```
+
+### Complete example
+
+Combine multiple options:
+
+```tql title="pipelines/publish-as-ocsf.tql"
+---
+name: Publish as OCSF
+description: >
+  Fetches threat intel hourly and publishes OCSF events to the `ocsf` topic.
+disabled: true
+restart-on-error: 5m
+---
+
+every 1h {
+  acme::fetch
+}
+acme::ocsf::normalize
+publish "ocsf"
+```
+
+## Operators versus pipelines
+
+Understanding when to use operators versus pipelines helps you design packages
+that are both powerful and flexible.
+
+| Aspect        | Operators                      | Pipelines                            |
+| ------------- | ------------------------------ | ------------------------------------ |
+| **Purpose**   | Reusable building blocks       | Complete workflows                   |
+| **Execution** | Called explicitly by other TQL | Run automatically on install         |
+| **Structure** | No input/output restrictions   | Must have input and output operators |
+| **Testing**   | Test with sample data          | Test with fixtures or mocks          |
+
+**Use operators when:**
+
+- You want to provide reusable transformations
+- The logic should be composable with other operations
+- Users decide when and how to invoke the functionality
+
+**Use pipelines when:**
+
+- You need background tasks like periodic data fetching
+- The workflow is complete and self-contained
+- The package should take action upon installation
+
+For maximum flexibility, consider shipping both: operators that provide
+capabilities and disabled pipelines that demonstrate how to compose them.
+
+## See also
+
+- <Guide>packages/create-a-package</Guide>
+- <Guide>packages/add-operators</Guide>
+- <Guide>packages/add-contexts</Guide>
+- <Tutorial>write-a-package</Tutorial>
+- <Explanation>packages</Explanation>
