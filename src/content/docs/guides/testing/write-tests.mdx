@@ -10,9 +10,15 @@ pipelines work as expected.
 ## Prerequisites
 
 - Python 3.12 or newer.
-- [`uv`](https://docs.astral.sh/uv/) installed locally
-- A working installation of Tenzir. Place the `tenzir` and `tenzir-node`
-  binaries on your `PATH`, or be ready to pass explicit paths to the harness.
+- [`uv`](https://docs.astral.sh/uv/) installed locally.
+- A working installation of Tenzir. The harness automatically detects `tenzir`
+  and `tenzir-node` using this precedence:
+  1. `TENZIR_BINARY` / `TENZIR_NODE_BINARY` environment variables
+  2. Local binary on `PATH`
+  3. Fallback to `uvx tenzir` / `uvx tenzir-node` when `uv` is installed
+
+  Most users need no configuration because the harness uses `uvx` to fetch
+  Tenzir on demand.
 
 ## Step 1: Scaffold a project
 
