@@ -142,7 +142,12 @@ Useful options:
 - `-p`, `--passthrough`: Stream raw stdout/stderr to the terminal instead of
   comparing against reference artifacts. The harness forces single-job
   execution (overriding `--jobs` when necessary) and ignores `--update` while
-  passthrough is active.
+  passthrough is active. Passthrough mode automatically enables verbose output.
+- `-v`, `--verbose`: Print individual test results as they complete. By default
+  (quiet mode) the harness only shows failures and a compact summary,
+  significantly reducing noise for large test suites. Verbose mode displays
+  passing and skipped tests alongside failures. Use `--summary` together with
+  `--verbose` to include the tree summary at the end of the run.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
 
