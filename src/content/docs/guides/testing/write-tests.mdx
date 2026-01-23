@@ -111,10 +111,12 @@ uvx tenzir-test
 ```
 
 When the output diverges, the harness prints a diff and returns a non-zero
-exit code. Use `--debug` to see comparison targets alongside the usual harness
-diagnostics. For CI-only visibility you can set `TENZIR_TEST_DEBUG=1`. Add
-`--summary` when you also want the tabular breakdown and failure tree at the
-end.
+exit code. By default (quiet mode) the harness only shows failures, which keeps
+large test runs readable. Add `--verbose` (`-v`) to see passing and skipped
+tests as they complete. Use `--debug` to see comparison targets alongside the
+usual harness diagnostics. For CI-only visibility you can set
+`TENZIR_TEST_DEBUG=1`. Add `--summary` together with `--verbose` when you also
+want the tabular breakdown and failure tree at the end.
 
 ### Retry flaky tests (sparingly)
 
@@ -150,8 +152,9 @@ runners. Satellites inherit those definitions, can register their own helpers,
 and run their tests in isolation. Because the selection only listed the
 satellite, `--all-projects` keeps the root in scope. The CLI prints a compact
 summary showing how many tests each project contributes and which runners are
-involved. Add `--summary` when you prefer the tabular breakdown and detailed
-failure listing after each project.
+involved. Add `--verbose` to see individual test results as they complete, and
+combine it with `--summary` for the tabular breakdown and detailed failure
+listing after each project.
 
 ### Load packages explicitly
 
