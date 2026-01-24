@@ -7,9 +7,9 @@ import { defineConfig, passthroughImageService } from "astro/config";
 import rehypeExternalLinks from "rehype-external-links";
 import { bundledLanguages } from "shiki";
 import starlightLinksValidator from "starlight-links-validator";
-import starlightLlmsTxt from "starlight-llms-txt";
 import starlightOpenAPI from "starlight-openapi";
 import starlightSidebarTopics from "starlight-sidebar-topics";
+import starlightLlmsTxt from "./src/plugins/starlight-llms-txt/index.ts";
 import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
