@@ -32,7 +32,7 @@ const htmlToMarkdownPipeline = unified()
   .use(rehypeParse, { fragment: true })
   .use(function minifyLlmsTxt() {
     return (tree, file) => {
-      if (!file.data.starlightLlmsTxt.minify) {
+      if (!file.data?.starlightLlmsTxt?.minify) {
         return;
       }
       remove(tree, (_node) => {
@@ -164,9 +164,9 @@ const htmlToMarkdownPipeline = unified()
         "starlight-file-tree",
         tree as Parameters<typeof selectAll>[1],
       );
-      for (const tree of trees) {
+      for (const fileTree of trees) {
         // Remove "Directory" screen reader labels from <FileTree> entries.
-        remove(tree, (_node) => {
+        remove(fileTree, (_node) => {
           const node = _node as RootContent;
           return matches(".sr-only", node);
         });

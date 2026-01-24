@@ -52,11 +52,9 @@ export async function generateLlmsTxt(
     // to influence the sorting order. The more underscores, the earlier
     // the page will appear in the list. The amount of underscores added by
     // a pattern is determined by the respective array length and the match index.
-    const prefixLength =
-      (promoted > -1 ? promote.length - promoted : 0) +
-      demote.length -
-      demoted -
-      1;
+    const promotionRank = promoted > -1 ? promote.length - promoted : 0;
+    const demotionPenalty = demoted > -1 ? demoted - demote.length + 1 : 0;
+    const prefixLength = promotionRank - demotionPenalty;
     return "_".repeat(prefixLength) + id;
   };
   docs.sort((a, b) =>

@@ -13,7 +13,11 @@ export function getSiteTitle(): string {
 const localeKeys = Object.keys(locales || {}).filter(
   (key) => key !== "root" && key !== defaultLang,
 );
-const startsWithLocaleRE = new RegExp(`^(${localeKeys.join("|")})/`);
+const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const startsWithLocaleRE =
+  localeKeys.length > 0
+    ? new RegExp(`^(${localeKeys.map(escapeRegex).join("|")})/`)
+    : /(?!)/; // Never matches if no locale keys
 
 /** Check if a content collection entry is part of the default locale or not. */
 export function isDefaultLocale(doc: CollectionEntry<"docs">): boolean {

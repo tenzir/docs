@@ -4,7 +4,7 @@ import type { AstroConfig } from "astro";
 interface CustomSetUserConfig {
   /** Label for this subset of documentation, e.g. `"Tutorial"` */
   label: string;
-  /** An array of page slugs or glob patterns that match page slugs for docs to include in this set., e.g. `["tutorial/**"]` */
+  /** An array of page slugs or glob patterns that match page slugs for docs to include in this set, e.g. `["tutorial/**"]` */
   paths: string[];
   /** An optional description for this subset of the documentation, e.g. `"a step-by-step tutorial to build a new project"` */
   description?: string;

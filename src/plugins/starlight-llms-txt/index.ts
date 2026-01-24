@@ -13,7 +13,7 @@ export default function starlightLlmsTxt(
         if (!astroConfig.site) {
           throw new AstroError(
             "`site` not set in Astro configuration",
-            "The `starlight-llms-txt` plugin requires setting `site` in your Astro configuration file.",
+            "The `starlight-llms-txt` plugin requires `site` in your Astro config (e.g., site: 'https://docs.example.com').",
           );
         }
         addIntegration({
@@ -103,10 +103,17 @@ export default function starlightLlmsTxt(
                 perPageMarkdown: perPageMarkdownConfig,
               };
 
+              let serializedContext: string;
+              try {
+                serializedContext = JSON.stringify(projectContext);
+              } catch (err) {
+                throw new AstroError(
+                  "Failed to serialize plugin configuration",
+                  `The starlight-llms-txt configuration contains non-serializable values: ${err instanceof Error ? err.message : String(err)}`,
+                );
+              }
               const modules = {
-                "virtual:starlight-llms-txt/context": `export const starlightLlmsTxtContext = ${JSON.stringify(
-                  projectContext,
-                )}`,
+                "virtual:starlight-llms-txt/context": `export const starlightLlmsTxtContext = ${serializedContext}`,
               };
               /** Mapping names prefixed with `\0` to their original form. */
               const resolutionMap = Object.fromEntries(
@@ -119,7 +126,7 @@ export default function starlightLlmsTxt(
                 vite: {
                   plugins: [
                     {
-                      name: "vite-plugin-starlight-llms-text",
+                      name: "vite-plugin-starlight-llms-txt",
                       resolveId(id): string | void {
                         if (id in modules) return resolveVirtualModuleId(id);
                       },
