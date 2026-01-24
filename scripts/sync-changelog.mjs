@@ -1815,7 +1815,7 @@ template: splash
 ---
 
 import LinkCard from '@components/LinkCard.astro';
-import { LinkButton } from '@astrojs/starlight/components';
+import LinkButton from '@components/LinkButton.astro';
 
 Welcome to the Tenzir changelog hub. Here you can find release notes, feature
 updates, and behind-the-scenes improvements across our projects.

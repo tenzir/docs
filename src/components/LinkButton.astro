@@ -1,0 +1,20 @@
+---
+/**
+ * Wrapper around Starlight's LinkButton that applies the base URL to internal links.
+ * This ensures links work correctly in PR preview deployments with non-root base paths.
+ */
+import { LinkButton as StarlightLinkButton } from "@astrojs/starlight/components";
+import { pathWithBase } from "../utils/base";
+
+const { href, ...rest } = Astro.props;
+
+// Apply base URL to internal links (starting with / but not //)
+const resolvedHref =
+  typeof href === "string" && href.startsWith("/") && !href.startsWith("//")
+    ? pathWithBase(href)
+    : href;
+---
+
+<StarlightLinkButton href={resolvedHref} {...rest}>
+  <slot />
+</StarlightLinkButton>

@@ -1042,7 +1042,7 @@ export function generateVersionIndex(
   );
 
   // Import LinkButton for navigation
-  lines.push(`import { LinkButton } from '@astrojs/starlight/components';`, "");
+  lines.push(`import LinkButton from '@components/LinkButton.astro';`, "");
 
   lines.push(`Schema reference for OCSF version ${version}.`, "");
 
