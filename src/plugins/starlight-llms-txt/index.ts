@@ -1,0 +1,151 @@
+import type { StarlightPlugin } from "@astrojs/starlight/types";
+import { AstroError } from "astro/errors";
+import GithubSlugger from "github-slugger";
+import type { ProjectContext, StarlightLlmsTxtOptions } from "./types";
+
+export default function starlightLlmsTxt(
+  opts: StarlightLlmsTxtOptions = {},
+): StarlightPlugin {
+  return {
+    name: "starlight-llms-txt",
+    hooks: {
+      setup({ astroConfig, addIntegration, config }) {
+        if (!astroConfig.site) {
+          throw new AstroError(
+            "`site` not set in Astro configuration",
+            "The `starlight-llms-txt` plugin requires `site` in your Astro config (e.g., site: 'https://docs.example.com').",
+          );
+        }
+        addIntegration({
+          name: "starlight-llms-txt",
+          hooks: {
+            "astro:config:setup"({ injectRoute, updateConfig }) {
+              injectRoute({
+                entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
+                pattern: "/llms.txt",
+                prerender: true,
+              });
+              injectRoute({
+                entrypoint: new URL(
+                  "./routes/llms-full.txt.ts",
+                  import.meta.url,
+                ),
+                pattern: "/llms-full.txt",
+                prerender: true,
+              });
+              injectRoute({
+                entrypoint: new URL(
+                  "./routes/llms-small.txt.ts",
+                  import.meta.url,
+                ),
+                pattern: "/llms-small.txt",
+                prerender: true,
+              });
+              injectRoute({
+                entrypoint: new URL(
+                  "./routes/llms-custom.txt.ts",
+                  import.meta.url,
+                ),
+                pattern: "/_llms-txt/[slug].txt",
+                prerender: true,
+              });
+
+              // Parse perPageMarkdown config
+              const perPageMarkdownConfig = (() => {
+                if (!opts.perPageMarkdown) {
+                  return {
+                    enabled: false,
+                    extensionStrategy: "append" as const,
+                    excludePages: ["404"],
+                  };
+                }
+                if (opts.perPageMarkdown === true) {
+                  return {
+                    enabled: true,
+                    extensionStrategy: "append" as const,
+                    excludePages: ["404"],
+                  };
+                }
+                return {
+                  enabled: true,
+                  extensionStrategy:
+                    opts.perPageMarkdown.extensionStrategy ?? "append",
+                  excludePages: opts.perPageMarkdown.excludePages ?? ["404"],
+                };
+              })();
+
+              // Inject the individual page Markdown route if enabled
+              if (perPageMarkdownConfig.enabled) {
+                injectRoute({
+                  entrypoint: new URL(
+                    "./routes/page-markdown.ts",
+                    import.meta.url,
+                  ),
+                  pattern: "/[...slug].md",
+                  prerender: true,
+                });
+              }
+
+              const slugger = new GithubSlugger();
+              const projectContext: ProjectContext = {
+                base: astroConfig.base,
+                title: opts.projectName ?? config.title,
+                description: opts.description ?? config.description,
+                customSets: (opts.customSets ?? []).map((set) => ({
+                  ...set,
+                  slug: slugger.slug(set.label),
+                })),
+                promote: ["index*"],
+                demote: opts.demote ?? [],
+                defaultLocale: config.defaultLocale,
+                locales: config.locales,
+                pageSeparator: "\n\n",
+                perPageMarkdown: perPageMarkdownConfig,
+              };
+
+              let serializedContext: string;
+              try {
+                serializedContext = JSON.stringify(projectContext);
+              } catch (err) {
+                throw new AstroError(
+                  "Failed to serialize plugin configuration",
+                  `The starlight-llms-txt configuration contains non-serializable values: ${err instanceof Error ? err.message : String(err)}`,
+                );
+              }
+              const modules = {
+                "virtual:starlight-llms-txt/context": `export const starlightLlmsTxtContext = ${serializedContext}`,
+              };
+              /** Mapping names prefixed with `\0` to their original form. */
+              const resolutionMap = Object.fromEntries(
+                (Object.keys(modules) as (keyof typeof modules)[]).map(
+                  (key) => [resolveVirtualModuleId(key), key],
+                ),
+              );
+
+              updateConfig({
+                vite: {
+                  plugins: [
+                    {
+                      name: "vite-plugin-starlight-llms-txt",
+                      resolveId(id): string | void {
+                        if (id in modules) return resolveVirtualModuleId(id);
+                      },
+                      load(id): string | void {
+                        const resolution = resolutionMap[id];
+                        if (resolution) return modules[resolution];
+                      },
+                    },
+                  ],
+                },
+              });
+            },
+          },
+        });
+      },
+    },
+  };
+}
+
+function resolveVirtualModuleId<T extends string>(id: T): `\0${T}` {
+  return `\0${id}`;
+}
