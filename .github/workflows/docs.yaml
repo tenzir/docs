@@ -96,6 +96,8 @@ jobs:
       # The upload-pages-artifact action filters to web-servable content only
       # (HTML, CSS, JS, images), stripping raw .md files. The Release job needs
       # these markdown files to build the agent skill, so we upload them separately.
+      # Note: The glob pattern roots at dist/, so files are stored without the
+      # dist/ prefix and must be downloaded to dist/ in the Release job.
       - name: Upload markdown files for release
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
@@ -191,7 +193,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: markdown-files
-          path: .
+          path: dist
 
       - name: Fix index.md naming
         run: |
