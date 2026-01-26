@@ -1,12 +1,8 @@
 import { getCollection } from "astro:content";
 import { starlightLlmsTxtContext } from "virtual:starlight-llms-txt/context";
 import type { APIContext } from "astro";
-import micromatch from "micromatch";
 import { entryToSimpleMarkdown } from "./entry-to-markdown";
-import { defaultLang, isDefaultLocale } from "./utils";
-
-/** Collator to compare two strings in the default language. */
-const collator = new Intl.Collator(defaultLang);
+import { isDefaultLocale } from "./utils";
 
 /**
  * Generates a single plaintext Markdown document from the full website content.
@@ -14,62 +10,35 @@ const collator = new Intl.Collator(defaultLang);
 export async function generateLlmsTxt(
   context: APIContext,
   {
-    minify,
     description,
-    exclude,
-    include,
+    preamble,
   }: {
-    /** Generate a smaller file to fit within smaller context windows. */
-    minify: boolean;
     /** Description of the document being generated. Prepended to output inside `<SYSTEM>` tags. */
     description: string | undefined;
-    exclude?: string[] | undefined;
-    include?: string[] | undefined;
+    /** Optional preamble content to insert after the system description. */
+    preamble?: string | undefined;
   },
 ): Promise<string> {
-  let docs = await getCollection(
+  const docs = await getCollection(
     "docs",
     (doc) => isDefaultLocale(doc) && !doc.data.draft,
   );
-  if (include) {
-    docs = docs.filter((doc) => micromatch.isMatch(doc.id, include));
-  }
-  if (exclude) {
-    docs = docs.filter((doc) => !micromatch.isMatch(doc.id, exclude));
-  }
-  const { promote, demote, pageSeparator } = starlightLlmsTxtContext;
-  /** Processes page IDs by prepending underscores to influence the sorting order. */
-  const prioritizePages = (id: string) => {
-    // Match the page ID against the patterns listed in the `promote` and `demote`
-    // config options and return the index of the first match. If a page matches
-    // a `demote` pattern, we don't check `promote` as demotions take precedence.
-    const demoted = demote.findIndex((expr) => micromatch.isMatch(id, expr));
-    const promoted =
-      demoted > -1
-        ? -1
-        : promote.findIndex((expr) => micromatch.isMatch(id, expr));
-    // Calculate the number of underscores to prefix the page ID with
-    // to influence the sorting order. The more underscores, the earlier
-    // the page will appear in the list. The amount of underscores added by
-    // a pattern is determined by the respective array length and the match index.
-    const promotionRank = promoted > -1 ? promote.length - promoted : 0;
-    const demotionPenalty = demoted > -1 ? demoted - demote.length + 1 : 0;
-    const prefixLength = promotionRank - demotionPenalty;
-    return "_".repeat(prefixLength) + id;
-  };
-  docs.sort((a, b) =>
-    collator.compare(prioritizePages(a.id), prioritizePages(b.id)),
-  );
+  const { pageSeparator } = starlightLlmsTxtContext;
   const segments: string[] = [];
   for (const doc of docs) {
     const docSegments = [`# ${doc.data.hero?.title || doc.data.title}`];
     const docDescription = doc.data.hero?.tagline || doc.data.description;
     if (docDescription) docSegments.push(`> ${docDescription}`);
-    docSegments.push(await entryToSimpleMarkdown(doc, context, minify));
+    docSegments.push(await entryToSimpleMarkdown(doc, context));
     segments.push(docSegments.join("\n\n"));
   }
   if (description) {
     segments.unshift(`<SYSTEM>${description}</SYSTEM>`);
+  }
+  if (preamble) {
+    // Insert preamble after description (at index 1) or at the start.
+    const insertIndex = description ? 1 : 0;
+    segments.splice(insertIndex, 0, preamble);
   }
   return segments.join(pageSeparator);
 }

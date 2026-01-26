@@ -117,33 +117,21 @@ export default defineConfig({
                 perPageMarkdown: {
                   extensionStrategy: "replace",
                 },
-                customSets: [
-                  {
-                    label: "Reference",
-                    paths: ["reference/**/*"],
+                sitemapAlias: true,
+                preambles: {
+                  index: {
+                    content: `## Documentation Index
+
+> Fetch the complete documentation at: https://docs.tenzir.com/llms-full.txt
+> Use this file to discover all available pages before exploring further.`,
                   },
-                  {
-                    label: "Guides",
-                    paths: ["guides/**/*"],
+                  full: {
+                    content: `## Complete Documentation
+
+> This file contains the full Tenzir documentation.
+> For a navigable index, see: https://docs.tenzir.com/llms.txt`,
                   },
-                  {
-                    label: "Tutorials",
-                    paths: ["tutorials/**/*"],
-                  },
-                  {
-                    label: "Explanations",
-                    paths: ["explanations/**/*"],
-                  },
-                  {
-                    label: "Integrations",
-                    paths: ["integrations/**/*"],
-                  },
-                  {
-                    label: "Changelog",
-                    paths: ["changelog/**/*"],
-                  },
-                ],
-                demote: ["changelog/**/*"],
+                },
               }),
             ]
           : []),

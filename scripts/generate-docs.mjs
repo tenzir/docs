@@ -1,132 +1,24 @@
 #!/usr/bin/env node
+/**
+ * Generate a single markdown file with full documentation content.
+ *
+ * This script is used by `build:skill` to create the agent skill documentation bundle.
+ * For the sitemap, use the build-time generated `/sitemap.md` route instead.
+ *
+ * Usage: generate-docs.mjs [--output <file>]
+ */
 import fs from "node:fs/promises";
 import path from "node:path";
 
 const DOCS_DIR = "src/content/docs";
-const OUTPUT_FILE = "public/sitemap.md";
-const BASE_URL = "https://docs.tenzir.com";
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const mapMode = args.includes("--map");
-const fullMode = args.includes("--full");
-
-if (!mapMode && !fullMode) {
-  console.error("Error: Requires either --map or --full flag");
-  console.error("Usage: generate-docs.mjs (--map | --full) [--output <file>]");
-  console.error("  --map   Generate sitemap with headings only");
-  console.error("  --full  Generate single file with full content");
-  process.exit(1);
-}
-
 const outputIndex = args.indexOf("--output");
-const customOutput =
+const outputFile =
   outputIndex !== -1 && args[outputIndex + 1]
     ? args[outputIndex + 1]
-    : fullMode
-      ? "tenzir-docs.md"
-      : OUTPUT_FILE;
-
-// Reference subcategories that should only show links (no H2s)
-const REFERENCE_ONLY_PATHS = [
-  "reference/operators",
-  "reference/functions",
-  "reference/claude-plugins",
-];
-
-const FRONTMATTER = `---
-name: tenzir
-description: >
-  The complete Tenzir documentation. Covers deployment, configuration,
-  the Tenzir Query Language (TQL), operators, functions, formats,
-  connectors, integrations, and the Tenzir Platform.
-license: CC-BY-4.0
-metadata:
-  author: tenzir
-  docs: https://docs.tenzir.com
----`;
-
-const INTRO = `Tenzir is a data pipeline engine for security teams. Run pipelines to collect,
-parse, transform, and route security data. Deploy nodes on-prem or in the cloud,
-and manage them via the Tenzir Platform.`;
-
-const SECTION_DESCRIPTIONS = {
-  guides: `Practical step-by-step explanations to help you achieve a specific goal.
-Start here when you're trying to get something done.`,
-  tutorials: `Learning-oriented lessons that take you through a series of steps.
-Start here when you want to get started with Tenzir.`,
-  explanations: `Big-picture explanations of higher-level concepts.
-Start here to build understanding of a particular topic.`,
-  reference: `Nitty-gritty technical descriptions of how Tenzir works.
-Start here when you need detailed information about building blocks.`,
-  integrations: `Turn-key packages and native connectors for security tools.
-Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
-};
-
-/**
- * Extract the first paragraph from markdown content.
- * Skips frontmatter, title, and import statements.
- */
-function extractDescription(content) {
-  const lines = content.split("\n");
-
-  let inFrontmatter = false;
-  let foundTitle = false;
-  const paragraph = [];
-
-  for (const line of lines) {
-    // Skip frontmatter
-    if (line.trim() === "---") {
-      inFrontmatter = !inFrontmatter;
-      continue;
-    }
-    if (inFrontmatter) continue;
-
-    // Skip import statements
-    if (line.startsWith("import ")) continue;
-
-    // Skip the title (first heading)
-    if (!foundTitle && line.startsWith("# ")) {
-      foundTitle = true;
-      continue;
-    }
-
-    // Skip empty lines before content
-    if (paragraph.length === 0 && line.trim() === "") continue;
-
-    // Skip headings, code blocks, lists, images, components, blockquotes, admonitions
-    if (line.startsWith("#")) break;
-    if (line.startsWith("```")) break;
-    if (line.startsWith("- ") || line.startsWith("* ")) break;
-    if (line.startsWith("![")) break;
-    if (line.startsWith("<")) break;
-    if (line.startsWith(">")) continue; // Skip blockquotes (often frontmatter descriptions)
-    if (line.startsWith(":::")) continue; // Skip admonitions
-    if (line.match(/^\d+\.\s/)) break;
-
-    // End of paragraph
-    if (line.trim() === "" && paragraph.length > 0) break;
-
-    paragraph.push(line.trim());
-  }
-
-  if (paragraph.length === 0) return null;
-
-  // Join the full paragraph
-  let text = paragraph.join(" ");
-
-  // Strip markdown links [text](url) -> text
-  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-
-  // Strip bold/italic
-  text = text.replace(/\*\*([^*]+)\*\*/g, "$1");
-  text = text.replace(/\*([^*]+)\*/g, "$1");
-
-  // Strip inline code
-  text = text.replace(/`([^`]+)`/g, "$1");
-
-  return text.trim() || null;
-}
+    : "tenzir-docs.md";
 
 /**
  * Parse frontmatter from markdown content.
@@ -144,32 +36,6 @@ function parseFrontmatter(content) {
   const title = titleMatch ? titleMatch[1] : null;
 
   return { title, content: body };
-}
-
-/**
- * Extract H2 and H3 headings from markdown content as nested structure.
- */
-function extractHeadings(content) {
-  const headings = [];
-  const regex = /^(#{2,3})\s+(.+)$/gm;
-  let match;
-  let currentH2 = null;
-
-  while ((match = regex.exec(content)) !== null) {
-    const level = match[1].length;
-    let heading = match[2].trim();
-    heading = heading.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-    heading = heading.replace(/`([^`]+)`/g, "$1");
-
-    if (level === 2) {
-      currentH2 = { text: heading, children: [] };
-      headings.push(currentH2);
-    } else if (level === 3 && currentH2) {
-      currentH2.children.push(heading);
-    }
-  }
-
-  return headings;
 }
 
 /**
@@ -216,20 +82,10 @@ async function resolveDocPath(docPath, docsRoot) {
         const content = await fs.readFile(filePath, "utf-8");
         const { title, content: body } = parseFrontmatter(content);
 
-        const isReferenceOnly = REFERENCE_ONLY_PATHS.some((p) =>
-          docPath.startsWith(p),
-        );
-        const headings = isReferenceOnly ? [] : extractHeadings(body);
-
-        // Extract description from first paragraph (for map mode)
-        const description = mapMode ? extractDescription(content) : null;
-
         return {
           path: docPath,
           title: title || path.basename(docPath),
-          headings,
-          description,
-          body: fullMode ? body : null,
+          body,
         };
       } catch {
         // Try next variant
@@ -279,8 +135,6 @@ async function processSidebarItem(item, docsRoot) {
       }
 
       // Check if first item is an index/overview page (parent path of other items)
-      let indexLink = null;
-      let indexDescription = null;
       let items = docs;
       if (docs.length > 1 && docs[0].path) {
         const firstPath = docs[0].path;
@@ -288,80 +142,18 @@ async function processSidebarItem(item, docsRoot) {
           .slice(1)
           .some((d) => d.path?.startsWith(`${firstPath}/`));
         if (isIndexPage) {
-          indexLink = `${BASE_URL}/${firstPath}.md`;
-          indexDescription = docs[0].description; // Preserve description
           items = docs.slice(1); // Remove index page from items
         }
       }
 
       return {
         label: item.label,
-        link: indexLink,
-        description: indexDescription,
         items,
       };
     }
   }
 
   return null;
-}
-
-/**
- * Format a document entry as markdown.
- */
-function formatDocEntry(doc, level) {
-  const url = `${BASE_URL}/${doc.path}.md`;
-  const headingPrefix = "#".repeat(level);
-  let entry = `${headingPrefix} [${doc.title}](${url})\n\n`;
-
-  // Add first paragraph description (for map mode)
-  if (doc.description) {
-    entry += `${doc.description}\n\n`;
-  }
-
-  if (doc.headings && doc.headings.length > 0) {
-    for (const h2 of doc.headings) {
-      entry += `- ${h2.text}\n`;
-      for (const h3 of h2.children) {
-        entry += `  - ${h3}\n`;
-      }
-    }
-    entry += "\n";
-  }
-
-  return entry;
-}
-
-/**
- * Format a section (group of docs or nested groups).
- */
-function formatSection(item, level = 3) {
-  let output = "";
-  const headingPrefix = "#".repeat(level);
-
-  if (item.label && item.items) {
-    if (item.link) {
-      output += `${headingPrefix} [${item.label}](${item.link})\n\n`;
-    } else {
-      output += `${headingPrefix} ${item.label}\n\n`;
-    }
-    // Add group description (from index page)
-    if (item.description) {
-      output += `${item.description}\n\n`;
-    }
-    for (const subItem of item.items) {
-      if (subItem.label && subItem.items) {
-        // Nested group
-        output += formatSection(subItem, level + 1);
-      } else if (subItem.path) {
-        output += formatDocEntry(subItem, level + 1);
-      }
-    }
-  } else if (item.path) {
-    output += formatDocEntry(item, level);
-  }
-
-  return output;
 }
 
 /**
@@ -435,230 +227,6 @@ function formatDocEntryFull(doc, level) {
   }
 
   return entry;
-}
-
-/**
- * Generate the documentation map.
- */
-async function generateDocsMap() {
-  const docsRoot = path.join(process.cwd(), DOCS_DIR);
-  const outputPath = path.join(process.cwd(), customOutput);
-
-  console.log(
-    `Generating docs ${fullMode ? "bundle" : "map"} to ${customOutput}...`,
-  );
-
-  // Read the file and extract the exports
-  const sidebarContent = await fs.readFile(
-    path.join(process.cwd(), "src/sidebar.ts"),
-    "utf-8",
-  );
-
-  // Parse the sidebar exports (simplified - works for this structure)
-  const sections = {
-    guides: await extractAndProcess("guides", sidebarContent, docsRoot),
-    tutorials: await extractAndProcess("tutorials", sidebarContent, docsRoot),
-    explanations: await extractAndProcess(
-      "explanations",
-      sidebarContent,
-      docsRoot,
-    ),
-    reference: await extractAndProcess("reference", sidebarContent, docsRoot),
-    integrations: await extractAndProcess(
-      "integrations",
-      sidebarContent,
-      docsRoot,
-    ),
-  };
-
-  // Add operators, functions, and claude-plugins by walking directories
-  const operatorsDir = path.join(docsRoot, "reference/operators");
-  const functionsDir = path.join(docsRoot, "reference/functions");
-  const claudePluginsDir = path.join(docsRoot, "reference/claude-plugins");
-
-  const operators = await walkDirectory(
-    operatorsDir,
-    "reference/operators",
-    docsRoot,
-  );
-  const functions = await walkDirectory(
-    functionsDir,
-    "reference/functions",
-    docsRoot,
-  );
-  const claudePlugins = await walkDirectory(
-    claudePluginsDir,
-    "reference/claude-plugins",
-    docsRoot,
-  );
-
-  // Sort alphabetically
-  operators.sort((a, b) => a.title.localeCompare(b.title));
-  functions.sort((a, b) => a.title.localeCompare(b.title));
-  claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
-
-  // Helper to get description from index page
-  async function getIndexDescription(docPath) {
-    if (!mapMode) return null;
-    const doc = await resolveDocPath(docPath, docsRoot);
-    return doc?.description || null;
-  }
-
-  // Remove original Operators/Functions entries from sidebar (will be replaced with expanded versions)
-  sections.reference = sections.reference.filter(
-    (item) =>
-      item.path !== "reference/operators" &&
-      item.path !== "reference/functions",
-  );
-
-  // Insert into reference section (with links to index pages)
-  if (operators.length > 0) {
-    sections.reference.unshift({
-      label: "Operators",
-      link: `${BASE_URL}/reference/operators.md`,
-      description: await getIndexDescription("reference/operators"),
-      items: operators,
-    });
-  }
-  if (functions.length > 0) {
-    // Insert after operators
-    const insertIdx = operators.length > 0 ? 1 : 0;
-    sections.reference.splice(insertIdx, 0, {
-      label: "Functions",
-      link: `${BASE_URL}/reference/functions.md`,
-      description: await getIndexDescription("reference/functions"),
-      items: functions,
-    });
-  }
-  if (claudePlugins.length > 0) {
-    // Find and replace the Claude Marketplace entry with expanded version
-    const marketplaceIdx = sections.reference.findIndex(
-      (item) => item.path === "reference/claude-plugins",
-    );
-    const claudeDescription = await getIndexDescription(
-      "reference/claude-plugins",
-    );
-    if (marketplaceIdx !== -1) {
-      sections.reference.splice(marketplaceIdx, 1, {
-        label: "Claude Marketplace",
-        link: `${BASE_URL}/reference/claude-plugins.md`,
-        description: claudeDescription,
-        items: claudePlugins,
-      });
-    } else {
-      sections.reference.push({
-        label: "Claude Marketplace",
-        link: `${BASE_URL}/reference/claude-plugins.md`,
-        description: claudeDescription,
-        items: claudePlugins,
-      });
-    }
-  }
-
-  // Add OCSF reference from generated sidebar (if it exists).
-  // We use a simple regex to extract the sidebar object rather than a full
-  // TypeScript parser for simplicity (KISS). This is fragile but sufficient
-  // for our controlled input.
-  const ocsfSidebarPath = path.join(
-    process.cwd(),
-    "src/sidebar-ocsf.generated.ts",
-  );
-  try {
-    const ocsfContent = await fs.readFile(ocsfSidebarPath, "utf-8");
-    const ocsfMatch = ocsfContent.match(
-      /export const ocsfSidebar = (\{[\s\S]*?\});/,
-    );
-    if (ocsfMatch) {
-      const ocsfSidebar = new Function(`return ${ocsfMatch[1]}`)();
-      const ocsfDocs = await processSidebarItem(ocsfSidebar, docsRoot);
-      if (ocsfDocs) {
-        // Insert before Workflows (at the end, before last item)
-        const workflowsIdx = sections.reference.findIndex(
-          (item) => item.label === "Workflows",
-        );
-        if (workflowsIdx !== -1) {
-          sections.reference.splice(workflowsIdx, 0, ocsfDocs);
-        } else {
-          sections.reference.push(ocsfDocs);
-        }
-      }
-    }
-  } catch (error) {
-    // Skip if file doesn't exist (not generated yet), but warn on other errors
-    if (error.code !== "ENOENT") {
-      console.warn(`Warning: Failed to process OCSF sidebar: ${error.message}`);
-    }
-  }
-
-  // Generate output
-  const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
-  let output;
-  let totalDocs = 0;
-
-  if (fullMode) {
-    // Full mode: single file with all content
-    output = `# Tenzir Documentation
-
-> Auto-generated from https://docs.tenzir.com
->
-> Last updated: ${now}
-
-`;
-
-    for (const [name, items] of Object.entries(sections)) {
-      if (!items || items.length === 0) continue;
-
-      const title = name.charAt(0).toUpperCase() + name.slice(1);
-      output += `# ${title}\n\n`;
-
-      for (const item of items) {
-        if (item.label && item.items) {
-          output += formatSectionFull(item, 2);
-          totalDocs += countDocs(item);
-        } else if (item.path) {
-          output += formatDocEntryFull(item, 2);
-          totalDocs++;
-        }
-      }
-    }
-  } else {
-    // Map mode: sitemap with headings only
-    output = `${FRONTMATTER}
-
-# Tenzir Documentation Map
-
-> Last updated: ${now}
-
-${INTRO}
-
-`;
-
-    for (const [name, items] of Object.entries(sections)) {
-      if (!items || items.length === 0) continue;
-
-      const title = name.charAt(0).toUpperCase() + name.slice(1);
-      const sectionIndexUrl = `${BASE_URL}/${name}.md`;
-      output += `## [${title}](${sectionIndexUrl})\n\n`;
-
-      // Add section description (Diátaxis-style)
-      if (SECTION_DESCRIPTIONS[name]) {
-        output += `${SECTION_DESCRIPTIONS[name]}\n\n`;
-      }
-
-      for (const item of items) {
-        if (item.label && item.items) {
-          output += formatSection(item);
-          totalDocs += countDocs(item);
-        } else if (item.path) {
-          output += formatDocEntry(item, 3);
-          totalDocs++;
-        }
-      }
-    }
-  }
-
-  await fs.writeFile(outputPath, output);
-  console.log(`Generated ${outputPath} (${totalDocs} pages)`);
 }
 
 /**
@@ -748,7 +316,162 @@ async function extractAndProcess(name, content, docsRoot) {
   }
 }
 
-generateDocsMap().catch((err) => {
-  console.error("Error generating docs map:", err);
+/**
+ * Generate the documentation bundle.
+ */
+async function generateDocsBundle() {
+  const docsRoot = path.join(process.cwd(), DOCS_DIR);
+  const outputPath = path.join(process.cwd(), outputFile);
+
+  console.log(`Generating docs bundle to ${outputFile}...`);
+
+  // Read the file and extract the exports
+  const sidebarContent = await fs.readFile(
+    path.join(process.cwd(), "src/sidebar.ts"),
+    "utf-8",
+  );
+
+  // Parse the sidebar exports (simplified - works for this structure)
+  const sections = {
+    guides: await extractAndProcess("guides", sidebarContent, docsRoot),
+    tutorials: await extractAndProcess("tutorials", sidebarContent, docsRoot),
+    explanations: await extractAndProcess(
+      "explanations",
+      sidebarContent,
+      docsRoot,
+    ),
+    reference: await extractAndProcess("reference", sidebarContent, docsRoot),
+    integrations: await extractAndProcess(
+      "integrations",
+      sidebarContent,
+      docsRoot,
+    ),
+  };
+
+  // Add operators, functions, and claude-plugins by walking directories
+  const operatorsDir = path.join(docsRoot, "reference/operators");
+  const functionsDir = path.join(docsRoot, "reference/functions");
+  const claudePluginsDir = path.join(docsRoot, "reference/claude-plugins");
+
+  const operators = await walkDirectory(
+    operatorsDir,
+    "reference/operators",
+    docsRoot,
+  );
+  const functions = await walkDirectory(
+    functionsDir,
+    "reference/functions",
+    docsRoot,
+  );
+  const claudePlugins = await walkDirectory(
+    claudePluginsDir,
+    "reference/claude-plugins",
+    docsRoot,
+  );
+
+  // Sort alphabetically
+  operators.sort((a, b) => a.title.localeCompare(b.title));
+  functions.sort((a, b) => a.title.localeCompare(b.title));
+  claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
+
+  // Remove original Operators/Functions entries from sidebar (will be replaced with expanded versions)
+  sections.reference = sections.reference.filter(
+    (item) =>
+      item.path !== "reference/operators" &&
+      item.path !== "reference/functions",
+  );
+
+  // Insert into reference section
+  if (operators.length > 0) {
+    sections.reference.unshift({
+      label: "Operators",
+      items: operators,
+    });
+  }
+  if (functions.length > 0) {
+    // Insert after operators
+    const insertIdx = operators.length > 0 ? 1 : 0;
+    sections.reference.splice(insertIdx, 0, {
+      label: "Functions",
+      items: functions,
+    });
+  }
+  if (claudePlugins.length > 0) {
+    // Find and replace the Claude Marketplace entry with expanded version
+    const marketplaceIdx = sections.reference.findIndex(
+      (item) => item.path === "reference/claude-plugins",
+    );
+    if (marketplaceIdx !== -1) {
+      sections.reference.splice(marketplaceIdx, 1, {
+        label: "Claude Marketplace",
+        items: claudePlugins,
+      });
+    } else {
+      sections.reference.push({
+        label: "Claude Marketplace",
+        items: claudePlugins,
+      });
+    }
+  }
+
+  // Add OCSF reference from generated sidebar (if it exists).
+  const ocsfSidebarPath = path.join(
+    process.cwd(),
+    "src/sidebar-ocsf.generated.ts",
+  );
+  try {
+    const ocsfContent = await fs.readFile(ocsfSidebarPath, "utf-8");
+    const ocsfMatch = ocsfContent.match(
+      /export const ocsfSidebar = (\{[\s\S]*?\});/,
+    );
+    if (ocsfMatch) {
+      const ocsfSidebar = new Function(`return ${ocsfMatch[1]}`)();
+      const ocsfDocs = await processSidebarItem(ocsfSidebar, docsRoot);
+      if (ocsfDocs) {
+        sections.reference.push(ocsfDocs);
+      }
+    }
+  } catch (error) {
+    // Skip if file doesn't exist (not generated yet), but warn on other errors
+    if (error.code !== "ENOENT") {
+      console.warn(`Warning: Failed to process OCSF sidebar: ${error.message}`);
+    }
+  }
+
+  // Generate output
+  const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
+  let output = `# Tenzir Documentation
+
+> Auto-generated from https://docs.tenzir.com
+>
+> Last updated: ${now}
+
+`;
+
+  let totalDocs = 0;
+
+  for (const [name, items] of Object.entries(sections)) {
+    if (!items || items.length === 0) continue;
+
+    const title = name.charAt(0).toUpperCase() + name.slice(1);
+    output += `# ${title}\n\n`;
+
+    for (const item of items) {
+      if (item.label && item.items) {
+        output += formatSectionFull(item, 2);
+        totalDocs += countDocs(item);
+      } else if (item.path) {
+        output += formatDocEntryFull(item, 2);
+        totalDocs++;
+      }
+    }
+  }
+
+  await fs.writeFile(outputPath, output);
+  console.log(`Generated ${outputPath} (${totalDocs} pages)`);
+}
+
+generateDocsBundle().catch((err) => {
+  console.error("Error generating docs bundle:", err);
   process.exit(1);
 });

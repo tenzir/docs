@@ -26,5 +26,5 @@ export function isDefaultLocale(doc: CollectionEntry<"docs">): boolean {
 
 /** Append a `/` to the passed string if it doesn't already end with one. */
 export function ensureTrailingSlash(path: string) {
-  return path.at(-1) === "/" ? path : path + "/";
+  return path.at(-1) === "/" ? path : `${path}/`;
 }

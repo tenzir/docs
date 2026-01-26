@@ -79,16 +79,15 @@ Some content is auto-generated and excluded from linting:
   ```bash
   git update-index --skip-worktree src/content/docs/changelog/index.mdx
   ```
-- **Docs Map**: Run `bun run generate:docs-map` to create the documentation map.
-  Generated file: `public/sitemap.md`.
 - **Excalidraw Diagrams**: Run `bun run generate:excalidraw` to convert `.excalidraw`
   source files to SVG. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
   The remark plugin inlines the corresponding `foo.excalidraw.svg` directly into
   HTML for CSS dark mode support. Generated SVGs are gitignored.
 - **LLM Documentation**: Enabled via `LLMS_TXT=true`. The local starlight-llms-txt
   plugin implements the [llmstxt.org](https://llmstxt.org/) standard, generating
-  `/llms.txt`, `/llms-full.txt`, `/llms-small.txt`, custom sets at `/_llms-txt/*.txt`,
-  and per-page `.md` files. These outputs are for LLM consumption and not tracked in git.
+  `/llms.txt` (hierarchical index with descriptions and headings),
+  `/llms-full.txt` (complete documentation bundle), and per-page `.md` files.
+  These outputs are for LLM consumption and not tracked in git.
 - **OCSF Reference**: Run `bun run generate:ocsf` for latest version or
   `bun run generate:ocsf:all` for all versions. Fetches schema from schema.ocsf.io
   and articles from ocsf/ocsf-docs. Generated files: `src/content/docs/reference/ocsf/`,
