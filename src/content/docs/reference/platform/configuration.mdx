@@ -139,6 +139,52 @@ TENZIR_PLATFORM_INTERNAL_ACCESS_KEY_ID=
 TENZIR_PLATFORM_INTERNAL_SECRET_ACCESS_KEY=
 ```
 
+### Security
+
+These settings configure security-related HTTP response headers for the platform
+UI. Enable these when running a standalone deployment or when your reverse proxy
+does not add security headers.
+
+```sh
+# Enable default security response headers. When enabled, the following headers
+# are added to all responses:
+# - X-Frame-Options: SAMEORIGIN
+# - X-Content-Type-Options: nosniff
+# - Referrer-Policy: strict-origin-when-cross-origin
+# - Permissions-Policy: geolocation=(), microphone=(), camera=()
+# - Cross-Origin-Opener-Policy: same-origin
+# - Cross-Origin-Resource-Policy: same-origin
+# Set to 'true' to enable. Defaults to 'false'.
+TENZIR_PLATFORM_UI_ENABLE_RESPONSE_HEADERS_DEFAULT=false
+
+# Override default response headers with a custom JSON object. Only takes effect
+# when TENZIR_PLATFORM_UI_ENABLE_RESPONSE_HEADERS_DEFAULT is 'true'.
+# Note: Cross-Origin-Resource-Policy 'same-origin' blocks other origins from
+# embedding frontend resources. Use 'same-site' or 'cross-origin' if needed.
+#TENZIR_PLATFORM_UI_RESPONSE_HEADERS_DEFAULT=
+
+# Enable HTTP Strict Transport Security (HSTS) header. Only enable this when
+# serving the application over HTTPS/TLS, as it instructs browsers to only
+# access the site via HTTPS for one year.
+# Set to 'true' to enable. Defaults to 'false'.
+TENZIR_PLATFORM_UI_ENABLE_RESPONSE_HEADERS_HSTS=false
+
+# Enable Content Security Policy (CSP) header. The CSP uses nonces for inline
+# scripts and restricts resources to 'self', with additional connect-src and
+# img-src domains added at runtime (api.github.com, storage.googleapis.com,
+# websocket gateway).
+# Set to 'true' to enable. Defaults to 'false'.
+TENZIR_PLATFORM_UI_ENABLE_RESPONSE_HEADERS_CSP=false
+```
+
+:::tip[Reverse Proxy Headers]
+If your deployment uses a reverse proxy like Nginx, Caddy, or Traefik, you can
+configure security headers at the proxy level instead. This provides more
+flexibility and centralizes security configuration. See
+[Configure reverse proxy](/guides/platform-setup/configure-reverse-proxy) for
+setup details.
+:::
+
 ## Configuration File
 
 Currently, the configuration file supports only static workspace configuration.
