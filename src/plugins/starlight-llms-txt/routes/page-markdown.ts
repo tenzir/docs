@@ -236,7 +236,7 @@ async function generatePageMarkdown(
     ensureTrailingSlash(starlightLlmsTxtContext.base),
     context.site,
   );
-  const baseUrl = site.origin;
+  const baseUrl = site.href.replace(/\/$/, "");
   const childLinks = getChildLinksForPage(doc.id, baseUrl);
 
   if (childLinks.length > 0) {

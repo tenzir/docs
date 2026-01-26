@@ -396,7 +396,7 @@ export async function generateSitemap(context: APIContext): Promise<string> {
     ensureTrailingSlash(starlightLlmsTxtContext.base),
     context.site,
   );
-  const baseUrl = site.origin;
+  const baseUrl = site.href.replace(/\/$/, "");
 
   // Get all docs
   const docsCollection = await getCollection(
