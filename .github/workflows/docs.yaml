@@ -195,6 +195,13 @@ jobs:
           name: markdown-files
           path: dist
 
+      - name: Debug - List markdown files
+        run: |
+          echo "=== Files in dist/ ==="
+          find dist -name "*.md" | head -20
+          echo "=== Total .md files ==="
+          find dist -name "*.md" | wc -l
+
       - name: Fix index.md naming
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
