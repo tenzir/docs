@@ -43,7 +43,7 @@ const SECTION_MAX_LEVEL = {
 };
 
 function rewriteLink(text) {
-  return text.replace(/https:\/\/docs\.tenzir\.com\//g, "");
+  return text.replace(/https?:\/\/docs\.tenzir\.com\//g, "");
 }
 
 function getHeadingLevel(line) {
@@ -71,9 +71,12 @@ function validateMarkdownFilesExist(sitemapPath, distPath) {
 
   // Extract first page link to check if .md files exist
   for (const line of lines) {
-    const match = line.match(/\]\((https:\/\/docs\.tenzir\.com\/[^)]+\.md)\)/);
+    const match = line.match(/\]\((https?:\/\/docs\.tenzir\.com\/[^)]+\.md)\)/);
     if (match) {
-      const relativePath = match[1].replace("https://docs.tenzir.com/", "");
+      const relativePath = match[1].replace(
+        /https?:\/\/docs\.tenzir\.com\//,
+        "",
+      );
       const filePath = path.join(distPath, relativePath);
       return fs.existsSync(filePath);
     }

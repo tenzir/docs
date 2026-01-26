@@ -195,19 +195,6 @@ jobs:
           name: markdown-files
           path: dist
 
-      - name: Debug - List markdown files
-        run: |
-          echo "=== Files in dist/ ==="
-          find dist -name "*.md" | head -20
-          echo "=== Total .md files ==="
-          find dist -name "*.md" | wc -l
-          echo "=== Sitemap check ==="
-          ls -la dist/sitemap.md || echo "sitemap.md NOT FOUND"
-          echo "=== First link in sitemap ==="
-          grep -o '](https://docs.tenzir.com/[^)]*\.md)' dist/sitemap.md | head -3 || echo "No .md links found"
-          echo "=== First 50 lines of sitemap ==="
-          head -50 dist/sitemap.md
-
       - name: Fix index.md naming
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
