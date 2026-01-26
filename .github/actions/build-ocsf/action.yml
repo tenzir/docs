@@ -92,31 +92,11 @@ runs:
           VERSION_DIR="$SCHEMAS_DIR/$VERSION"
           mkdir -p "$VERSION_DIR"
 
-          # Create Elixir script to export schema data
-          # The script runs within the ocsf-server Mix project context
-          cat > "$RUNNER_TEMP/export_schema.exs" << 'ELIXIR_SCRIPT'
-output_dir = System.get_env("OUTPUT_DIR")
-
-# Export schema (classes, objects, types)
-schema = Schema.export()
-File.write!(Path.join(output_dir, "schema.json"), Jason.encode!(schema, pretty: true))
-
-# Export profiles
-profiles = Schema.profiles()
-File.write!(Path.join(output_dir, "profiles.json"), Jason.encode!(profiles, pretty: true))
-
-# Export extensions
-extensions = Schema.extensions()
-File.write!(Path.join(output_dir, "extensions.json"), Jason.encode!(extensions, pretty: true))
-
-IO.puts("Exported schema, profiles, and extensions")
-ELIXIR_SCRIPT
-
           # Run the export script with SCHEMA_DIR pointing to current schema checkout
           cd "$RUNNER_TEMP/ocsf-server"
           SCHEMA_DIR="$RUNNER_TEMP/ocsf-schema" \
           OUTPUT_DIR="$VERSION_DIR" \
-          mix run "$RUNNER_TEMP/export_schema.exs" 2>&1 || {
+          mix run "$GITHUB_ACTION_PATH/export_schema.exs" 2>&1 || {
             echo "Warning: Failed to export version $VERSION, skipping"
             rm -rf "$VERSION_DIR"
             cd "$RUNNER_TEMP/ocsf-schema"
