@@ -93,6 +93,9 @@ jobs:
         with:
           path: ./dist
 
+      # The upload-pages-artifact action filters to web-servable content only
+      # (HTML, CSS, JS, images), stripping raw .md files. The Release job needs
+      # these markdown files to build the agent skill, so we upload them separately.
       - name: Upload markdown files for release
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
