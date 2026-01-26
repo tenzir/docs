@@ -118,20 +118,7 @@ export default defineConfig({
                   extensionStrategy: "replace",
                 },
                 sitemapAlias: true,
-                preambles: {
-                  index: {
-                    content: `## Documentation Index
-
-> Fetch the complete documentation at: https://docs.tenzir.com/llms-full.txt
-> Use this file to discover all available pages before exploring further.`,
-                  },
-                  full: {
-                    content: `## Complete Documentation
-
-> This file contains the full Tenzir documentation.
-> For a navigable index, see: https://docs.tenzir.com/llms.txt`,
-                  },
-                },
+                preambles: true,
               }),
             ]
           : []),

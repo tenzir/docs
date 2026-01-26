@@ -88,7 +88,7 @@ export default function starlightLlmsTxt(
                 locales: config.locales,
                 pageSeparator: "\n\n",
                 perPageMarkdown: perPageMarkdownConfig,
-                preambles: opts.preambles ?? {},
+                preambles: opts.preambles ?? false,
               };
 
               let serializedContext: string;

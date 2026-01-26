@@ -218,6 +218,13 @@ async function generatePageMarkdown(
 ): Promise<string> {
   const segments: string[] = [];
 
+  // Compute baseUrl early for preamble and child links
+  const site = new URL(
+    ensureTrailingSlash(starlightLlmsTxtContext.base),
+    context.site,
+  );
+  const baseUrl = site.href.replace(/\/$/, "");
+
   // Add the page title
   segments.push(`# ${doc.data.hero?.title || doc.data.title}`);
 
@@ -227,16 +234,16 @@ async function generatePageMarkdown(
     segments.push(`> ${description}`);
   }
 
+  // Add preamble if enabled
+  if (starlightLlmsTxtContext.preambles) {
+    segments.push(`> Documentation index: ${baseUrl}/llms.txt`);
+  }
+
   // Convert the content to Markdown
   const markdown = await entryToSimpleMarkdown(doc, context);
   segments.push(markdown);
 
   // Append child links for pages that have children in the sidebar
-  const site = new URL(
-    ensureTrailingSlash(starlightLlmsTxtContext.base),
-    context.site,
-  );
-  const baseUrl = site.href.replace(/\/$/, "");
   const childLinks = getChildLinksForPage(doc.id, baseUrl);
 
   if (childLinks.length > 0) {

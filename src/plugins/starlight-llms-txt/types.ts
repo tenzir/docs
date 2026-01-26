@@ -1,20 +1,6 @@
 import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import type { AstroConfig } from "astro";
 
-/** Configuration for a preamble that appears after the title in generated files. */
-export interface PreambleConfig {
-  /** Markdown content inserted after the title/description. */
-  content: string;
-}
-
-/** Preamble configuration for generated output files. */
-export interface PreambleOptions {
-  /** Preamble for llms.txt (the index/sitemap file). */
-  index?: PreambleConfig;
-  /** Preamble for llms-full.txt. */
-  full?: PreambleConfig;
-}
-
 /** Project configuration metadata passed from the integration to the routes in a virtual module. */
 export interface ProjectContext {
   base: AstroConfig["base"];
@@ -28,7 +14,7 @@ export interface ProjectContext {
     extensionStrategy: "append" | "replace";
     excludePages: string[];
   };
-  preambles: PreambleOptions;
+  preambles: boolean;
 }
 
 /** Sidebar item from Starlight configuration. */
@@ -101,22 +87,12 @@ export interface StarlightLlmsTxtOptions {
       };
 
   /**
-   * Custom preambles for generated files.
+   * Enable navigation preamble on per-page .md files.
+   * Adds a link back to llms.txt for crawlers.
    *
-   * Preambles are markdown content inserted after the title/description in generated files.
-   * Use them to provide navigation hints or context for LLMs.
-   *
-   * @example
-   * preambles: {
-   *   index: {
-   *     content: '## Documentation Index\n> Fetch the complete docs at: https://docs.example.com/llms-full.txt',
-   *   },
-   *   full: {
-   *     content: '## Complete Documentation\n> For a navigable index, see: https://docs.example.com/llms.txt',
-   *   },
-   * }
+   * @default false
    */
-  preambles?: PreambleOptions;
+  preambles?: boolean;
 
   /**
    * Create a sitemap.md alias that serves the same content as llms.txt.

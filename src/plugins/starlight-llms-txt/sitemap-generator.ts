@@ -446,12 +446,6 @@ export async function generateSitemap(context: APIContext): Promise<string> {
 
   segments.push(`> Last updated: ${now}`);
 
-  // Add preamble if configured
-  const preamble = starlightLlmsTxtContext.preambles.index?.content;
-  if (preamble) {
-    segments.push(preamble);
-  }
-
   // Add intro text
   segments.push(`Tenzir is a data pipeline engine for security teams. Run pipelines to collect,
 parse, transform, and route security data. Deploy nodes on-prem or in the cloud,
