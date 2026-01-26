@@ -1,15 +1,39 @@
 /**
- * OCSF API client for fetching schema data from schema.ocsf.io.
+ * OCSF client for reading schema data from local files.
+ * Requires OCSF_LOCAL_DIR environment variable pointing to the schemas directory.
  */
 
-const OCSF_BASE_URL = "https://schema.ocsf.io";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
-// GitHub API for ocsf-docs repository
+// GitHub API for ocsf-docs repository (still fetched remotely)
 const OCSF_DOCS_API = "https://api.github.com/repos/ocsf/ocsf-docs/contents";
 const OCSF_DOCS_RAW = "https://raw.githubusercontent.com/ocsf/ocsf-docs/main";
 
 /**
- * Fetch JSON from a URL with timeout.
+ * Get the local schemas directory from environment.
+ */
+function getLocalDir() {
+  const dir = process.env.OCSF_LOCAL_DIR;
+  if (!dir) {
+    throw new Error(
+      "OCSF_LOCAL_DIR environment variable is required. " +
+        "Run the build-ocsf action first or set it to your local schemas directory.",
+    );
+  }
+  return dir;
+}
+
+/**
+ * Read JSON from a local file.
+ */
+async function readLocalJson(filePath) {
+  const content = await readFile(filePath, "utf-8");
+  return JSON.parse(content);
+}
+
+/**
+ * Fetch JSON from a URL with timeout (for GitHub API).
  */
 export async function fetchJson(url, timeout = 30000) {
   const controller = new AbortController();
@@ -27,7 +51,7 @@ export async function fetchJson(url, timeout = 30000) {
 }
 
 /**
- * Fetch text from a URL with timeout.
+ * Fetch text from a URL with timeout (for GitHub API).
  */
 export async function fetchText(url, timeout = 30000) {
   const controller = new AbortController();
@@ -45,39 +69,29 @@ export async function fetchText(url, timeout = 30000) {
 }
 
 /**
- * Fetch current/latest OCSF version.
+ * Fetch current/latest OCSF version from local versions.json.
  */
 export async function fetchCurrentVersion() {
-  const url = `${OCSF_BASE_URL}/api/version`;
-  console.log(`Fetching current version from ${url}...`);
-  const data = await fetchJson(url);
-  console.log(`  Current version: ${data.version}`);
-  return data.version;
+  const versions = await fetchAvailableVersions();
+  // Return the last (latest) version
+  const current = versions[versions.length - 1];
+  console.log(`  Current version: ${current}`);
+  return current;
 }
 
 /**
- * Fetch list of available OCSF versions.
- * Returns only stable versions (excludes alpha, beta, rc), sorted ascending.
+ * Fetch list of available OCSF versions from local versions.json.
+ * Returns versions sorted ascending.
  */
 export async function fetchAvailableVersions() {
-  const url = `${OCSF_BASE_URL}/api/versions`;
-  console.log(`Fetching available versions from ${url}...`);
-  const data = await fetchJson(url);
+  const localDir = getLocalDir();
+  const versionsFile = join(localDir, "versions.json");
 
-  // Extract version strings from version objects
-  const versions = (data.versions || []).map((v) =>
-    typeof v === "string" ? v : v.version,
-  );
-
-  // Filter to stable and dev versions (exclude alpha, beta, rc)
-  const stable = versions.filter(
-    (v) =>
-      !["alpha", "beta", "rc"].some((tag) => v.toLowerCase().includes(tag)),
-  );
+  console.log(`Reading available versions from ${versionsFile}...`);
+  const versions = await readLocalJson(versionsFile);
 
   // Sort by semantic version (dev versions sort after their base version)
-  stable.sort((a, b) => {
-    // Parse version: "1.8.0-dev" -> {major: 1, minor: 8, patch: 0, isDev: true}
+  versions.sort((a, b) => {
     const parseVersion = (v) => {
       const isDev = v.includes("-dev");
       const clean = v.replace(/-dev$/, "");
@@ -86,7 +100,6 @@ export async function fetchAvailableVersions() {
     };
     const va = parseVersion(a);
     const vb = parseVersion(b);
-    // Sort by major, minor, patch, then dev versions last
     return (
       va.major - vb.major ||
       va.minor - vb.minor ||
@@ -96,42 +109,39 @@ export async function fetchAvailableVersions() {
   });
 
   console.log(
-    `  Found ${stable.length} versions: ${stable[0]} to ${stable[stable.length - 1]}`,
+    `  Found ${versions.length} versions: ${versions[0]} to ${versions[versions.length - 1]}`,
   );
-  return stable;
+  return versions;
 }
 
 /**
- * Fetch OCSF schema for a specific version.
+ * Fetch OCSF schema for a specific version from local files.
  */
 export async function fetchSchema(version) {
-  const url = version
-    ? `${OCSF_BASE_URL}/${version}/export/schema`
-    : `${OCSF_BASE_URL}/export/schema`;
-  console.log(`Fetching schema from ${url}...`);
-  return await fetchJson(url, 120000);
+  const localDir = getLocalDir();
+  const schemaFile = join(localDir, version, "schema.json");
+  console.log(`Reading schema from ${schemaFile}...`);
+  return await readLocalJson(schemaFile);
 }
 
 /**
- * Fetch OCSF profiles for a specific version.
+ * Fetch OCSF profiles for a specific version from local files.
  */
 export async function fetchProfiles(version) {
-  const url = version
-    ? `${OCSF_BASE_URL}/api/${version}/profiles`
-    : `${OCSF_BASE_URL}/api/profiles`;
-  console.log(`Fetching profiles from ${url}...`);
-  return await fetchJson(url);
+  const localDir = getLocalDir();
+  const profilesFile = join(localDir, version, "profiles.json");
+  console.log(`Reading profiles from ${profilesFile}...`);
+  return await readLocalJson(profilesFile);
 }
 
 /**
- * Fetch OCSF extensions for a specific version.
+ * Fetch OCSF extensions for a specific version from local files.
  */
 export async function fetchExtensions(version) {
-  const url = version
-    ? `${OCSF_BASE_URL}/api/${version}/extensions`
-    : `${OCSF_BASE_URL}/api/extensions`;
-  console.log(`Fetching extensions from ${url}...`);
-  return await fetchJson(url);
+  const localDir = getLocalDir();
+  const extensionsFile = join(localDir, version, "extensions.json");
+  console.log(`Reading extensions from ${extensionsFile}...`);
+  return await readLocalJson(extensionsFile);
 }
 
 /**

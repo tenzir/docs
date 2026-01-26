@@ -1,0 +1,154 @@
+name: Build OCSF Schemas
+description: Build OCSF schemas locally using the official ocsf-server Elixir project
+
+inputs:
+  include-dev:
+    description: Include -dev versions in the output
+    required: false
+    default: "true"
+
+outputs:
+  schemas-dir:
+    description: Path to the directory containing exported schemas
+    value: ${{ steps.export.outputs.schemas-dir }}
+  versions:
+    description: JSON array of exported version strings
+    value: ${{ steps.export.outputs.versions }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: "27"
+        elixir-version: "1.17"
+
+    - name: Clone OCSF repositories
+      shell: bash
+      run: |
+        git clone --depth 1 https://github.com/ocsf/ocsf-server.git "$RUNNER_TEMP/ocsf-server"
+        git clone https://github.com/ocsf/ocsf-schema.git "$RUNNER_TEMP/ocsf-schema"
+
+    - name: Cache Elixir dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ runner.temp }}/ocsf-server/deps
+          ${{ runner.temp }}/ocsf-server/_build
+        key: ocsf-elixir-${{ runner.os }}-v1
+        restore-keys: |
+          ocsf-elixir-${{ runner.os }}-
+
+    - name: Build OCSF server
+      shell: bash
+      working-directory: ${{ runner.temp }}/ocsf-server
+      run: |
+        mix local.hex --force
+        mix local.rebar --force
+        mix deps.get
+        mix compile
+
+    - name: Export schemas for all versions
+      id: export
+      shell: bash
+      env:
+        INCLUDE_DEV: ${{ inputs.include-dev }}
+      run: |
+        SCHEMAS_DIR="$RUNNER_TEMP/ocsf-schemas"
+        mkdir -p "$SCHEMAS_DIR"
+
+        cd "$RUNNER_TEMP/ocsf-schema"
+
+        # Get all tags and filter to stable/dev versions
+        # Formats: v1.0.0, v1.1.0, 1.3.0, 1.8.0-dev
+        TAGS=$(git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+(-dev)?$' || true)
+
+        # Filter out -dev versions if not requested
+        if [[ "$INCLUDE_DEV" != "true" ]]; then
+          TAGS=$(echo "$TAGS" | grep -v '\-dev$' || true)
+        fi
+
+        # Sort versions semantically
+        SORTED_TAGS=$(echo "$TAGS" | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | uniq)
+
+        echo "Found versions: $SORTED_TAGS"
+
+        VERSIONS_JSON="["
+        FIRST=true
+
+        for VERSION in $SORTED_TAGS; do
+          echo "=== Processing version $VERSION ==="
+
+          # Determine the git tag (could be v-prefixed or not)
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            TAG="v$VERSION"
+          else
+            TAG="$VERSION"
+          fi
+
+          git checkout "$TAG" --quiet
+
+          VERSION_DIR="$SCHEMAS_DIR/$VERSION"
+          mkdir -p "$VERSION_DIR"
+
+          # Create Elixir script to export schema data
+          # The script runs within the ocsf-server Mix project context
+          cat > "$RUNNER_TEMP/export_schema.exs" << 'ELIXIR_SCRIPT'
+output_dir = System.get_env("OUTPUT_DIR")
+
+# Export schema (classes, objects, types)
+schema = Schema.export()
+File.write!(Path.join(output_dir, "schema.json"), Jason.encode!(schema, pretty: true))
+
+# Export profiles
+profiles = Schema.profiles()
+File.write!(Path.join(output_dir, "profiles.json"), Jason.encode!(profiles, pretty: true))
+
+# Export extensions
+extensions = Schema.extensions()
+File.write!(Path.join(output_dir, "extensions.json"), Jason.encode!(extensions, pretty: true))
+
+IO.puts("Exported schema, profiles, and extensions")
+ELIXIR_SCRIPT
+
+          # Run the export script with SCHEMA_DIR pointing to current schema checkout
+          cd "$RUNNER_TEMP/ocsf-server"
+          SCHEMA_DIR="$RUNNER_TEMP/ocsf-schema" \
+          OUTPUT_DIR="$VERSION_DIR" \
+          mix run "$RUNNER_TEMP/export_schema.exs" 2>&1 || {
+            echo "Warning: Failed to export version $VERSION, skipping"
+            rm -rf "$VERSION_DIR"
+            cd "$RUNNER_TEMP/ocsf-schema"
+            continue
+          }
+
+          cd "$RUNNER_TEMP/ocsf-schema"
+
+          # Verify export succeeded
+          if [[ -f "$VERSION_DIR/schema.json" ]]; then
+            if [[ "$FIRST" == "true" ]]; then
+              VERSIONS_JSON="$VERSIONS_JSON\"$VERSION\""
+              FIRST=false
+            else
+              VERSIONS_JSON="$VERSIONS_JSON,\"$VERSION\""
+            fi
+            echo "Successfully exported version $VERSION"
+          else
+            echo "Warning: Export incomplete for version $VERSION"
+            rm -rf "$VERSION_DIR"
+          fi
+        done
+
+        VERSIONS_JSON="$VERSIONS_JSON]"
+
+        # Write versions.json
+        echo "$VERSIONS_JSON" > "$SCHEMAS_DIR/versions.json"
+
+        echo "schemas-dir=$SCHEMAS_DIR" >> "$GITHUB_OUTPUT"
+        echo "versions=$VERSIONS_JSON" >> "$GITHUB_OUTPUT"
+
+        echo "=== Export complete ==="
+        echo "Schemas directory: $SCHEMAS_DIR"
+        echo "Versions: $VERSIONS_JSON"
+        ls -la "$SCHEMAS_DIR"

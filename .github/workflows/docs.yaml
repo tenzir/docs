@@ -53,8 +53,17 @@ jobs:
       - name: Generate Claude plugins
         run: bun run generate:claude-plugins
 
+      - name: Build OCSF schemas
+        if: github.event_name != 'pull_request'
+        id: ocsf
+        uses: ./.github/actions/build-ocsf
+        with:
+          include-dev: "true"
+
       - name: Generate OCSF reference
         if: github.event_name != 'pull_request'
+        env:
+          OCSF_LOCAL_DIR: ${{ steps.ocsf.outputs.schemas-dir }}
         run: bun run generate:ocsf:all
 
       - name: Generate Excalidraw SVGs
