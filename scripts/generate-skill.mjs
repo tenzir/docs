@@ -87,14 +87,14 @@ function validateMarkdownFilesExist(sitemapPath, distPath) {
 /**
  * Generate SKILL.md from enhanced sitemap.md
  *
- * The enhanced sitemap already contains:
- * - YAML frontmatter
+ * The sitemap contains:
  * - Intro text
  * - Section descriptions
  * - Page descriptions (first paragraphs)
  * - H2/H3 bullet lists
  *
  * This function:
+ * - Adds YAML frontmatter required by agentskills spec
  * - Rewrites URLs to relative paths
  * - Filters depth per section
  * - Strips H2/H3 bullet lists (keeps headings + descriptions)
@@ -160,7 +160,15 @@ function generateSkillMd(sitemapPath) {
   // Clean up: remove consecutive blank lines
   let result = output.join("\n");
   result = result.replace(/\n{3,}/g, "\n\n");
-  return result;
+
+  // Add YAML frontmatter required by agentskills spec
+  const frontmatter = `---
+name: tenzir
+description: Data pipeline engine for security teams
+---
+
+`;
+  return frontmatter + result;
 }
 
 function copyMarkdownFiles(srcDir, destDir) {
