@@ -1,6 +1,5 @@
 import type { StarlightPlugin } from "@astrojs/starlight/types";
 import { AstroError } from "astro/errors";
-import GithubSlugger from "github-slugger";
 import type { ProjectContext, StarlightLlmsTxtOptions } from "./types";
 
 export default function starlightLlmsTxt(
@@ -20,33 +19,19 @@ export default function starlightLlmsTxt(
           name: "starlight-llms-txt",
           hooks: {
             "astro:config:setup"({ injectRoute, updateConfig }) {
+              // /llms.txt - The sitemap entry point with navigation, descriptions, and headings
               injectRoute({
                 entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
                 pattern: "/llms.txt",
                 prerender: true,
               });
+              // /llms-full.txt - Complete documentation bundle
               injectRoute({
                 entrypoint: new URL(
                   "./routes/llms-full.txt.ts",
                   import.meta.url,
                 ),
                 pattern: "/llms-full.txt",
-                prerender: true,
-              });
-              injectRoute({
-                entrypoint: new URL(
-                  "./routes/llms-small.txt.ts",
-                  import.meta.url,
-                ),
-                pattern: "/llms-small.txt",
-                prerender: true,
-              });
-              injectRoute({
-                entrypoint: new URL(
-                  "./routes/llms-custom.txt.ts",
-                  import.meta.url,
-                ),
-                pattern: "/_llms-txt/[slug].txt",
                 prerender: true,
               });
 
@@ -86,21 +71,24 @@ export default function starlightLlmsTxt(
                 });
               }
 
-              const slugger = new GithubSlugger();
+              // Inject sitemap.md alias if enabled (serves same content as llms.txt)
+              if (opts.sitemapAlias) {
+                injectRoute({
+                  entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
+                  pattern: "/sitemap.md",
+                  prerender: true,
+                });
+              }
+
               const projectContext: ProjectContext = {
                 base: astroConfig.base,
                 title: opts.projectName ?? config.title,
                 description: opts.description ?? config.description,
-                customSets: (opts.customSets ?? []).map((set) => ({
-                  ...set,
-                  slug: slugger.slug(set.label),
-                })),
-                promote: ["index*"],
-                demote: opts.demote ?? [],
                 defaultLocale: config.defaultLocale,
                 locales: config.locales,
                 pageSeparator: "\n\n",
                 perPageMarkdown: perPageMarkdownConfig,
+                preambles: opts.preambles ?? {},
               };
 
               let serializedContext: string;
@@ -127,10 +115,10 @@ export default function starlightLlmsTxt(
                   plugins: [
                     {
                       name: "vite-plugin-starlight-llms-txt",
-                      resolveId(id): string | void {
+                      resolveId(id): string | undefined {
                         if (id in modules) return resolveVirtualModuleId(id);
                       },
-                      load(id): string | void {
+                      load(id): string | undefined {
                         const resolution = resolutionMap[id];
                         if (resolution) return modules[resolution];
                       },

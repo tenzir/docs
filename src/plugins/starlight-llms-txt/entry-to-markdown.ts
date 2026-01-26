@@ -2,7 +2,6 @@ import { type CollectionEntry, render } from "astro:content";
 import mdxServer from "@astrojs/mdx/server.js";
 import type { APIContext } from "astro";
 import { experimental_AstroContainer } from "astro/container";
-import type { RootContent } from "hast";
 import { matches, select, selectAll } from "hast-util-select";
 import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
@@ -10,19 +9,7 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { remove } from "unist-util-remove";
-
-/** Minification config for llms-small.txt (hardcoded defaults). */
-const minifyConfig = {
-  note: true,
-  tip: true,
-  caution: false,
-  danger: false,
-  details: true,
-  whitespace: true,
-};
-
-/** Selectors for elements to remove during minification. */
-const minifySelectors = minifyConfig.details ? ["details"] : [];
+import { getNonMarkdownPaths } from "../../utils/redirects.mjs";
 
 const astroContainer = await experimental_AstroContainer.create({
   renderers: [{ name: "astro:jsx", ssr: mdxServer }],
@@ -30,38 +17,6 @@ const astroContainer = await experimental_AstroContainer.create({
 
 const htmlToMarkdownPipeline = unified()
   .use(rehypeParse, { fragment: true })
-  .use(function minifyLlmsTxt() {
-    return (tree, file) => {
-      if (!file.data?.starlightLlmsTxt?.minify) {
-        return;
-      }
-      remove(tree, (_node) => {
-        const node = _node as RootContent;
-
-        // Remove elements matching any selectors to be minified:
-        for (const selector of minifySelectors) {
-          if (matches(selector, node)) {
-            return true;
-          }
-        }
-
-        // Remove aside components:
-        if (matches(".starlight-aside", node)) {
-          for (const variant of ["note", "tip", "caution", "danger"] as const) {
-            if (
-              minifyConfig[variant] &&
-              matches(`.starlight-aside--${variant}`, node)
-            ) {
-              return true;
-            }
-          }
-        }
-
-        return false;
-      });
-      return tree;
-    };
-  })
   .use(function improveExpressiveCodeHandling() {
     return (tree) => {
       const ecInstances = selectAll(
@@ -167,7 +122,7 @@ const htmlToMarkdownPipeline = unified()
       for (const fileTree of trees) {
         // Remove "Directory" screen reader labels from <FileTree> entries.
         remove(fileTree, (_node) => {
-          const node = _node as RootContent;
+          const node = _node as Parameters<typeof matches>[1];
           return matches(".sr-only", node);
         });
       }
@@ -178,9 +133,56 @@ const htmlToMarkdownPipeline = unified()
       // Remove Starlight's heading anchor links (e.g. "Section titled …").
       // These are sibling <a> elements next to headings inside .sl-heading-wrapper divs.
       remove(tree, (_node) => {
-        const node = _node as RootContent;
+        const node = _node as Parameters<typeof matches>[1];
         return matches("a.sl-anchor-link", node);
       });
+    };
+  })
+  .use(function addMarkdownExtensionToInternalLinks() {
+    // Extensions that should not get .md appended
+    const skipExtensions =
+      /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
+    // Routes that have no markdown page (redirects, OpenAPI-generated)
+    const nonMarkdownPaths = getNonMarkdownPaths();
+    return (tree) => {
+      const links = selectAll("a", tree as Parameters<typeof selectAll>[1]);
+      for (const link of links) {
+        const href = link.properties?.href;
+        if (typeof href !== "string") continue;
+        // Only transform internal links (starting with /)
+        if (!href.startsWith("/")) continue;
+        // Skip routes without markdown pages
+        const pathPart = href.split("#")[0].split("?")[0];
+        if (
+          nonMarkdownPaths.some(
+            (r) =>
+              pathPart === r ||
+              pathPart === `${r}/` ||
+              pathPart.startsWith(`${r}/`),
+          )
+        )
+          continue;
+        // Skip if already has a known extension
+        if (skipExtensions.test(pathPart)) continue;
+        // Skip anchor-only links
+        if (href.startsWith("/#")) continue;
+        // Add .md extension (preserve hash and query if present)
+        const hashIndex = href.indexOf("#");
+        const queryIndex = href.indexOf("?");
+        const suffixIndex =
+          hashIndex > -1 && queryIndex > -1
+            ? Math.min(hashIndex, queryIndex)
+            : hashIndex > -1
+              ? hashIndex
+              : queryIndex > -1
+                ? queryIndex
+                : href.length;
+        const path = href.slice(0, suffixIndex);
+        const suffix = href.slice(suffixIndex);
+        // Remove trailing slash before adding .md
+        const cleanPath = path.endsWith("/") ? path.slice(0, -1) : path;
+        link.properties.href = `${cleanPath}.md${suffix}`;
+      }
     };
   })
   .use(rehypeRemark)
@@ -194,17 +196,9 @@ const htmlToMarkdownPipeline = unified()
 export async function entryToSimpleMarkdown(
   entry: CollectionEntry<"docs">,
   context: APIContext,
-  shouldMinify: boolean = false,
 ) {
   const { Content } = await render(entry);
   const html = await astroContainer.renderToString(Content, context);
-  const file = await htmlToMarkdownPipeline.process({
-    value: html,
-    data: { starlightLlmsTxt: { minify: shouldMinify } },
-  });
-  let markdown = String(file).trim();
-  if (shouldMinify && minifyConfig.whitespace) {
-    markdown = markdown.replace(/\s+/g, " ");
-  }
-  return markdown;
+  const file = await htmlToMarkdownPipeline.process(html);
+  return String(file).trim();
 }

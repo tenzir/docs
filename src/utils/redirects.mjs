@@ -2,14 +2,22 @@
 const ocsfModules = import.meta.glob("../ocsf-version.mjs", { eager: true });
 const ocsfVersion = Object.values(ocsfModules)[0]?.OCSF_VERSION ?? null;
 
-// Generate all redirects for the documentation
-export function generateRedirects() {
-  const redirects = {};
+/** Static redirect paths (external URLs, versioned aliases). */
+const STATIC_REDIRECTS = {
+  "/discord": "https://discord.gg/xqbDgVTCxZ",
+  "/sbom":
+    "https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json",
+};
 
-  // Static redirects
-  redirects["/discord"] = "https://discord.gg/xqbDgVTCxZ";
-  redirects["/sbom"] =
-    "https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json";
+/**
+ * OpenAPI-generated paths (starlight-openapi plugin).
+ * These render as HTML but have no markdown source files.
+ */
+export const OPENAPI_PATHS = ["/reference/node/api", "/reference/platform/api"];
+
+/** Generate all redirects for the documentation. */
+export function generateRedirects() {
+  const redirects = { ...STATIC_REDIRECTS };
 
   // OCSF latest version redirect (only when OCSF docs are generated)
   // Note: Only base redirect works; Astro doesn't support dynamic segments in static redirects
@@ -18,4 +26,19 @@ export function generateRedirects() {
   }
 
   return redirects;
+}
+
+/**
+ * Get all paths that don't have markdown equivalents.
+ * Used by llms-txt plugin to avoid appending .md to these links.
+ */
+export function getNonMarkdownPaths() {
+  const paths = [...Object.keys(STATIC_REDIRECTS), ...OPENAPI_PATHS];
+
+  // Add OCSF latest redirect if available
+  if (ocsfVersion) {
+    paths.push("/reference/ocsf/latest");
+  }
+
+  return paths;
 }

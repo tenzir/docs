@@ -1,17 +1,18 @@
 import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import type { AstroConfig } from "astro";
 
-interface CustomSetUserConfig {
-  /** Label for this subset of documentation, e.g. `"Tutorial"` */
-  label: string;
-  /** An array of page slugs or glob patterns that match page slugs for docs to include in this set, e.g. `["tutorial/**"]` */
-  paths: string[];
-  /** An optional description for this subset of the documentation, e.g. `"a step-by-step tutorial to build a new project"` */
-  description?: string;
+/** Configuration for a preamble that appears after the title in generated files. */
+export interface PreambleConfig {
+  /** Markdown content inserted after the title/description. */
+  content: string;
 }
 
-interface CustomSet extends CustomSetUserConfig {
-  slug: string;
+/** Preamble configuration for generated output files. */
+export interface PreambleOptions {
+  /** Preamble for llms.txt (the index/sitemap file). */
+  index?: PreambleConfig;
+  /** Preamble for llms-full.txt. */
+  full?: PreambleConfig;
 }
 
 /** Project configuration metadata passed from the integration to the routes in a virtual module. */
@@ -21,16 +22,24 @@ export interface ProjectContext {
   locales: StarlightUserConfig["locales"];
   title: StarlightUserConfig["title"];
   description: StarlightUserConfig["description"];
-  customSets: Array<CustomSet>;
-  promote: string[];
-  demote: string[];
   pageSeparator: string;
   perPageMarkdown: {
     enabled: boolean;
     extensionStrategy: "append" | "replace";
     excludePages: string[];
   };
+  preambles: PreambleOptions;
 }
+
+/** Sidebar item from Starlight configuration. */
+export type SidebarItem =
+  | string
+  | {
+      label: string;
+      link?: string;
+      collapsed?: boolean;
+      items?: SidebarItem[];
+    };
 
 /** Plugin user options. */
 export interface StarlightLlmsTxtOptions {
@@ -51,18 +60,6 @@ export interface StarlightLlmsTxtOptions {
    * @example "The low-code data pipeline solution for security teams"
    */
   description?: string;
-
-  /**
-   * An array of custom subsets of your docs to process and add to the `llms.txt` entrypoint.
-   */
-  customSets?: Array<CustomSetUserConfig>;
-
-  /**
-   * Micromatch expressions to match page IDs that should be sorted to the end of the output.
-   *
-   * @default []
-   */
-  demote?: string[];
 
   /**
    * Enable generation of individual Markdown (.md) files for each documentation page.
@@ -102,4 +99,30 @@ export interface StarlightLlmsTxtOptions {
          */
         excludePages?: string[];
       };
+
+  /**
+   * Custom preambles for generated files.
+   *
+   * Preambles are markdown content inserted after the title/description in generated files.
+   * Use them to provide navigation hints or context for LLMs.
+   *
+   * @example
+   * preambles: {
+   *   index: {
+   *     content: '## Documentation Index\n> Fetch the complete docs at: https://docs.example.com/llms-full.txt',
+   *   },
+   *   full: {
+   *     content: '## Complete Documentation\n> For a navigable index, see: https://docs.example.com/llms.txt',
+   *   },
+   * }
+   */
+  preambles?: PreambleOptions;
+
+  /**
+   * Create a sitemap.md alias that serves the same content as llms.txt.
+   * Useful for backwards compatibility with tools expecting sitemap.md.
+   *
+   * @default false
+   */
+  sitemapAlias?: boolean;
 }
