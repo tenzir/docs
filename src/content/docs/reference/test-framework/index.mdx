@@ -130,8 +130,9 @@ Useful options:
   `package-dirs:` declared in directory `test.yaml` files, then get
   normalized, de-duplicated, and exported via `TENZIR_PACKAGE_DIRS`.
 - `--debug`: Emit framework-level diagnostics (fixture lifecycle, discovery
-  notes, comparison targets, etc.). The same mode is available via
-  `TENZIR_TEST_DEBUG=1`.
+  notes, comparison targets, etc.) and automatically enable verbose output so
+  you see all test results (pass/skip/fail) instead of only failures. The same
+  mode is available via `TENZIR_TEST_DEBUG=1`.
 - `--summary`: Print the tabular breakdown and failure tree after each project.
 - `--diff/--no-diff`: Toggle unified diff output for failed comparisons. Diffs
   are shown by default; disable them when you only need aggregated statistics.
@@ -556,7 +557,8 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
   next to the test. Not set otherwise.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
-- `TENZIR_TEST_DEBUG` – Enable debug logging (equivalent to `--debug`).
+- `TENZIR_TEST_DEBUG` – Enable debug logging and verbose output (equivalent to
+  `--debug`).
 
 ### Binary resolution
 
@@ -608,7 +610,8 @@ uvx tenzir-test --update
   files can stay empty.
 - **Noisy output** – Use `--jobs 1` to serialize worker logs, and enable
   `--debug` (or set `TENZIR_TEST_DEBUG=1`) when you need to trace comparisons
-  and fixture activity.
+  and fixture activity. Note that `--debug` automatically enables verbose
+  output.
 
 ## Further reading
 
