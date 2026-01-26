@@ -43,7 +43,15 @@ const SECTION_MAX_LEVEL = {
 };
 
 function rewriteLink(text) {
-  return text.replace(/https?:\/\/docs\.tenzir\.com\//g, "");
+  return (
+    text
+      // Remove absolute URL prefix
+      .replace(/https?:\/\/docs\.tenzir\.com\//g, "")
+      // Remove llms.txt preamble line
+      .replace(/^> Documentation index:.*\n\n?/gm, "")
+      // Convert /path links to relative (in markdown link syntax)
+      .replace(/\]\(\//g, "](")
+  );
 }
 
 function getHeadingLevel(line) {
