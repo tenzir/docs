@@ -18,16 +18,8 @@ import {
 } from "../../../sidebar";
 import { changelogTopics } from "../../../sidebar-changelog.generated";
 import { entryToSimpleMarkdown } from "../entry-to-markdown";
+import type { SidebarItem } from "../types";
 import { ensureTrailingSlash, isDefaultLocale } from "../utils";
-
-type SidebarItem =
-  | string
-  | {
-      label: string;
-      link?: string;
-      collapsed?: boolean;
-      items?: SidebarItem[];
-    };
 
 /** Map top-level doc IDs to their sidebar sections. */
 const SECTION_SIDEBARS: Record<string, SidebarItem[]> = {
@@ -236,7 +228,7 @@ async function generatePageMarkdown(
   }
 
   // Convert the content to Markdown
-  const markdown = await entryToSimpleMarkdown(doc, context, false);
+  const markdown = await entryToSimpleMarkdown(doc, context);
   segments.push(markdown);
 
   // Append child links for pages that have children in the sidebar

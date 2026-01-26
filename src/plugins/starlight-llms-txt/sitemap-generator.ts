@@ -13,6 +13,7 @@ import {
 // Changelog topics
 import { changelogTopics } from "../../sidebar-changelog.generated";
 import { entryToSimpleMarkdown } from "./entry-to-markdown";
+import type { SidebarItem } from "./types";
 import { ensureTrailingSlash, getSiteTitle, isDefaultLocale } from "./utils";
 
 /** Section descriptions matching the original generate-docs.mjs format. */
@@ -30,8 +31,15 @@ Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
   changelog: `Release notes and version history for all Tenzir projects.`,
 };
 
-/** Paths where we only show links, not H2/H3 headings. */
-const REFERENCE_ONLY_PATHS = [
+/**
+ * Reference index paths that get special handling:
+ * - Skip H2/H3 heading extraction (too verbose for sitemap)
+ * - Expand to list all child docs alphabetically
+ *
+ * These are index pages linking to many individual items (operators,
+ * functions, plugins) rather than narrative content with useful headings.
+ */
+const REFERENCE_INDEX_PATHS = [
   "reference/operators",
   "reference/functions",
   "reference/claude-plugins",
@@ -56,15 +64,6 @@ interface SidebarGroup {
   description?: string | null;
   items: (DocEntry | SidebarGroup)[];
 }
-
-type SidebarItem =
-  | string
-  | {
-      label: string;
-      link?: string;
-      collapsed?: boolean;
-      items?: SidebarItem[];
-    };
 
 /**
  * Extract the first paragraph from markdown content.
@@ -158,10 +157,10 @@ async function resolveDocEntry(
     return null;
   }
 
-  // Get rendered markdown for description and headings (don't minify - we need newlines)
-  const markdown = await entryToSimpleMarkdown(doc, context, false);
+  // Get rendered markdown for description and headings
+  const markdown = await entryToSimpleMarkdown(doc, context);
 
-  const isReferenceOnly = REFERENCE_ONLY_PATHS.some((p) =>
+  const isReferenceOnly = REFERENCE_INDEX_PATHS.some((p) =>
     docPath.startsWith(p),
   );
 
@@ -173,13 +172,6 @@ async function resolveDocEntry(
     url: `${baseUrl}/${docPath}.md`,
   };
 }
-
-/** Paths that should be expanded to list all child docs. */
-const EXPAND_PATHS = [
-  "reference/operators",
-  "reference/functions",
-  "reference/claude-plugins",
-];
 
 /**
  * Expand a directory path to list all child docs.
@@ -194,10 +186,7 @@ async function expandDirectoryDocs(
   // Find all docs in collection that start with basePath but are not the index
   const matchingDocs = docsCollection.filter(
     (doc) =>
-      doc.id.startsWith(`${basePath}/`) &&
-      doc.id !== `${basePath}/index` &&
-      // Only include direct children, not nested subdirectories
-      !doc.id.slice(basePath.length + 1).includes("/"),
+      doc.id.startsWith(`${basePath}/`) && doc.id !== `${basePath}/index`,
   );
   for (const doc of matchingDocs) {
     const entry = await resolveDocEntry(
@@ -241,7 +230,7 @@ async function processSidebarItem(
     // Item with link only (e.g., { label: "Operators", link: "reference/operators" })
     if (item.link && !item.items) {
       // Check if this is an expandable path
-      if (EXPAND_PATHS.includes(item.link)) {
+      if (REFERENCE_INDEX_PATHS.includes(item.link)) {
         const indexDoc = await resolveDocEntry(
           item.link,
           docsCollection,

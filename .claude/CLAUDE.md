@@ -85,7 +85,7 @@ Some content is auto-generated and excluded from linting:
   HTML for CSS dark mode support. Generated SVGs are gitignored.
 - **LLM Documentation**: Enabled via `LLMS_TXT=true`. The local starlight-llms-txt
   plugin implements the [llmstxt.org](https://llmstxt.org/) standard, generating
-  `/llms.txt` (hierarchical index with descriptions and headings),
+  `/llms.txt` (documentation map with page descriptions and headings),
   `/llms-full.txt` (complete documentation bundle), and per-page `.md` files.
   These outputs are for LLM consumption and not tracked in git.
 - **OCSF Reference**: Run `bun run generate:ocsf` for latest version or

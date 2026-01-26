@@ -31,6 +31,16 @@ export interface ProjectContext {
   preambles: PreambleOptions;
 }
 
+/** Sidebar item from Starlight configuration. */
+export type SidebarItem =
+  | string
+  | {
+      label: string;
+      link?: string;
+      collapsed?: boolean;
+      items?: SidebarItem[];
+    };
+
 /** Plugin user options. */
 export interface StarlightLlmsTxtOptions {
   /**

@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { remove } from "unist-util-remove";
+import { getNonMarkdownPaths } from "../../utils/redirects.mjs";
 
 const astroContainer = await experimental_AstroContainer.create({
   renderers: [{ name: "astro:jsx", ssr: mdxServer }],
@@ -141,6 +142,8 @@ const htmlToMarkdownPipeline = unified()
     // Extensions that should not get .md appended
     const skipExtensions =
       /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
+    // Routes that have no markdown page (redirects, OpenAPI-generated)
+    const nonMarkdownPaths = getNonMarkdownPaths();
     return (tree) => {
       const links = selectAll("a", tree as Parameters<typeof selectAll>[1]);
       for (const link of links) {
@@ -148,8 +151,18 @@ const htmlToMarkdownPipeline = unified()
         if (typeof href !== "string") continue;
         // Only transform internal links (starting with /)
         if (!href.startsWith("/")) continue;
-        // Skip if already has a known extension
+        // Skip routes without markdown pages
         const pathPart = href.split("#")[0].split("?")[0];
+        if (
+          nonMarkdownPaths.some(
+            (r) =>
+              pathPart === r ||
+              pathPart === `${r}/` ||
+              pathPart.startsWith(`${r}/`),
+          )
+        )
+          continue;
+        // Skip if already has a known extension
         if (skipExtensions.test(pathPart)) continue;
         // Skip anchor-only links
         if (href.startsWith("/#")) continue;
