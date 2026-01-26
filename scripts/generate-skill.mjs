@@ -29,7 +29,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const SKILL_NAME = "tenzir";
+const SKILL_NAME = "tenzir-skill";
 
 // Max heading level to include per section
 // ## = level 2 (section header), ### = level 3, #### = level 4

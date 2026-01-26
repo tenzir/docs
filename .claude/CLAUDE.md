@@ -94,7 +94,7 @@ Some content is auto-generated and excluded from linting:
   `src/sidebar-ocsf.generated.ts`, `src/ocsf-version.mjs`.
 - **Agent Skill**: Run `bun run build:skill` to generate the Tenzir agent skill.
   Requires `bun run build:full` first to generate per-page markdown files in `dist/`.
-  Generated files: `tenzir/SKILL.md`, `tenzir/<doc-hierarchy>/`.
+  Generated files: `tenzir-skill/SKILL.md`, `tenzir-skill/<doc-hierarchy>/`.
 
 ### Linting
 
