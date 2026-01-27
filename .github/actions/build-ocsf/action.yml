@@ -62,7 +62,7 @@ runs:
 
         # Get all tags and filter to stable/dev versions
         # Formats: v1.0.0, v1.1.0, 1.3.0, 1.8.0-dev
-        TAGS=$(git tag -l | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+(-dev)?$' || true)
+        TAGS=$(git tag -l | grep -E '^v?[1-9][0-9]*\.[0-9]+\.[0-9]+(-dev)?$' || true)
 
         # Filter out -dev versions if not requested
         if [[ "$INCLUDE_DEV" != "true" ]]; then
