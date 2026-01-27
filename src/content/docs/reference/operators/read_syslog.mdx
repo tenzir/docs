@@ -11,7 +11,7 @@ import Integration from '@components/see-also/Integration.astro';
 Parses an incoming Syslog stream into events.
 
 ```tql
-read_syslog [octet_counting=bool, merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
+read_syslog [octet_counting=bool, raw_message=field, merge=bool, raw=bool, schema=string, selector=string, schema_only=bool, unflatten_separator=string]
 ```
 
 ## Description
@@ -101,6 +101,18 @@ The parameter supports three modes:
 - **`octet_counting=false`**: Never strip a length prefix. Parse the input
   as-is, treating any leading digits as part of the message.
 
+### `raw_message = field (optional)`
+
+Stores the original, unparsed syslog message in the specified field. The field
+name can be a simple identifier like `raw` or a nested path like
+`original.line`.
+
+This is useful when you need to preserve the original message for auditing,
+debugging, or forwarding purposes while still parsing the structured fields.
+
+For multi-line messages, the raw message includes all lines joined with
+newlines.
+
 <ParsingOptions />
 
 ## Examples
@@ -146,6 +158,35 @@ load_tcp "0.0.0.0:514" {
 
 Use `octet_counting=true` to require the prefix or `octet_counting=false` to
 disable auto-detection entirely.
+
+### Preserve the original message
+
+Use `raw_message` to keep the unparsed syslog line alongside the parsed fields:
+
+```tql title="Pipeline"
+load_file "/var/log/auth.log"
+read_syslog raw_message=raw
+```
+
+```tql
+{
+  facility: null,
+  severity: null,
+  timestamp: 2024-10-14T07:15:01.348027,
+  hostname: "tenzirs-magic-machine",
+  app_name: "CRON",
+  process_id: "895756",
+  content: "pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)",
+  raw: "Oct 14 07:15:01 tenzirs-magic-machine CRON[895756]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)",
+}
+```
+
+You can also store the raw message in a nested field:
+
+```tql title="Pipeline"
+load_file "/var/log/auth.log"
+read_syslog raw_message=original.line
+```
 
 ## See Also
 

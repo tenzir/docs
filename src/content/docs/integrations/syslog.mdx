@@ -118,6 +118,40 @@ Tenzir's Syslog parser supports multi-line messages using a heuristic:
 
 This allows ingesting logs with stack traces or other verbose content correctly.
 
+### Preserving the Original Message
+
+For auditing, compliance, or debugging purposes, you may need to keep the
+original syslog line alongside the parsed fields. Use the `raw_message`
+parameter to store the unparsed input:
+
+```tql
+load_tcp "0.0.0.0:514" {
+  read_syslog raw_message=raw
+}
+```
+
+This adds a `raw` field containing the complete original message, including any
+multi-line content:
+
+```tql
+{
+  facility: 4,
+  severity: 2,
+  timestamp: "Nov 16 14:55:56",
+  hostname: "mymachine",
+  app_name: "PROGRAM",
+  process_id: null,
+  content: "Freeform message",
+  raw: "<34>Nov 16 14:55:56 mymachine PROGRAM: Freeform message",
+}
+```
+
+You can also store the raw message in a nested field by using a dotted path:
+
+```tql
+read_syslog raw_message=original.line
+```
+
 ### RFC 6587 Octet Counting
 
 When receiving syslog over TCP, some implementations use
