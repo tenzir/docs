@@ -3,16 +3,58 @@ name: Cleanup Preview
 on:
   pull_request:
     types: [closed]
+  workflow_run:
+    workflows: ["Build & Deploy"]
+    types: [completed]
 
 permissions:
+  actions: read
   pull-requests: write
 
 jobs:
   cleanup:
     name: Clean up PR preview
     runs-on: ubuntu-latest
+    # Run if: PR closed directly, OR build completed for a closed PR
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request')
     steps:
+      - name: Get PR info
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+            echo "state=closed" >> "$GITHUB_OUTPUT"
+          else
+            # Extract PR number from workflow_run
+            PR_NUMBER=$(echo '${{ toJson(github.event.workflow_run.pull_requests) }}' | jq -r '.[0].number // empty')
+            if [[ -z "$PR_NUMBER" ]]; then
+              echo "No PR associated with this workflow run"
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # Check if PR is closed
+            PR_STATE=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq '.state')
+            echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "state=$PR_STATE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if cleanup needed
+        id: check
+        if: steps.pr.outputs.skip != 'true'
+        run: |
+          if [[ "${{ steps.pr.outputs.state }}" != "closed" ]]; then
+            echo "PR #${{ steps.pr.outputs.number }} is still open, skipping cleanup"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PR #${{ steps.pr.outputs.number }} is closed, proceeding with cleanup"
+          fi
+
       - name: Generate app token
+        if: steps.pr.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
@@ -21,21 +63,25 @@ jobs:
           repositories: docs-previews
 
       - name: Remove preview from docs-previews repo
+        if: steps.pr.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           set -e
-          git clone --depth 1 --branch gh-pages \
-            https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git preview-repo
+          if ! git clone --depth 1 --branch gh-pages \
+            https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git preview-repo; then
+            echo "Could not clone docs-previews repo, nothing to clean up"
+            exit 0
+          fi
           cd preview-repo
 
-          PREVIEW_DIR="${{ github.event.pull_request.number }}"
+          PREVIEW_DIR="${{ steps.pr.outputs.number }}"
           if [ -d "$PREVIEW_DIR" ]; then
             rm -rf "$PREVIEW_DIR"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add -A
-            git commit -m "Remove preview for PR #${{ github.event.pull_request.number }}"
+            git commit -m "Remove preview for PR #${{ steps.pr.outputs.number }}"
             git push
             echo "Removed preview: $PREVIEW_DIR"
           else
@@ -43,10 +89,12 @@ jobs:
           fi
 
       - name: Comment on PR
+        if: steps.pr.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const url = 'https://tenzir.github.io/docs-previews/${{ github.event.pull_request.number }}';
+            const prNumber = ${{ steps.pr.outputs.number }};
+            const url = 'https://preview.docs.tenzir.com/' + prNumber;
             const comment = [
               '<!-- docs-preview -->',
               `📦 **Preview** &nbsp;·&nbsp; ~~[View →](${url})~~ &nbsp;·&nbsp; ⚪ Removed`,
@@ -55,7 +103,7 @@ jobs:
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: prNumber,
             });
 
             const botComment = comments.find(c =>
