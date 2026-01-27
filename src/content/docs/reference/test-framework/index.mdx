@@ -323,6 +323,26 @@ directories are treated as **satellites**:
 uvx tenzir-test --root example-project --all-projects example-satellite
 ```
 
+The harness prints a project listing before execution that identifies each
+project with a marker and path:
+
+```text
+i found 3 projects
+i   ■ test-legacy
+i   □ ../contrib/plugins/context/test
+i   □ ../contrib/plugins/packages/test
+```
+
+Marker semantics:
+
+- **Filled markers** indicate the root project; **empty markers** indicate
+  satellites.
+- **Squares** (■ □) represent regular projects; **circles** (● ○) represent
+  packages or libraries.
+
+Satellite paths display relative to the root project, making projects with
+identical directory names distinguishable.
+
 Key rules:
 
 - The root project provides the baseline configuration (fixtures, runners,
