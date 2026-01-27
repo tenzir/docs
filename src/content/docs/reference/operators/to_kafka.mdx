@@ -12,7 +12,7 @@ Sends messages to an Apache Kafka topic.
 
 ```tql
 to_kafka topic:string, [message=blob|string, key=string, timestamp=time,
-         options=record, aws_iam=record]
+         options=record, aws_iam=record, aws_region=string]
 ```
 
 ## Description
@@ -64,6 +64,11 @@ We recommend factoring these options into the plugin-specific `kafka.yaml` so
 that they are independent of the `to_kafka` arguments.
 
 <AWSIAMOptions />
+
+### `aws_region = string (optional)`
+
+The AWS region used to construct the MSK authentication URL. Required when
+connecting to MSK with IAM authentication.
 
 ## Examples
 

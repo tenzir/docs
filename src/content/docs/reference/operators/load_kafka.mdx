@@ -12,7 +12,7 @@ Loads a byte stream from an Apache Kafka topic.
 
 ```tql
 load_kafka topic:string, [count=int, exit=bool, offset=int|string, options=record,
-           aws_iam=record, commit_batch_size=int, commit_timeout=duration]
+           aws_iam=record, aws_region=string, commit_batch_size=int, commit_timeout=duration]
 ```
 
 ## Description
@@ -95,6 +95,11 @@ A timeout after which the operator commits messages, even if it accepted fewer t
 Defaults to `10s`.
 
 <AWSIAMOptions />
+
+### `aws_region = string (optional)`
+
+The AWS region used to construct the MSK authentication URL. Required when
+connecting to MSK with IAM authentication.
 
 ## Examples
 
