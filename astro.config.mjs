@@ -16,6 +16,7 @@ import {
 } from "./src/sidebar-shared-groups.ts";
 import { topicPaths, topics } from "./src/topics";
 import { generateRedirects } from "./src/utils/redirects.mjs";
+import { rehypeBaseLinks } from "./src/utils/rehype-base-links";
 import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
 import { remarkInlinePartials } from "./src/utils/remark-inline-partials";
 import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
@@ -23,6 +24,18 @@ import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
 const checkLinks = !!process.env.CHECK_LINKS;
 const llmsTxt = !!process.env.LLMS_TXT;
 const isProd = process.env.NODE_ENV === "production";
+
+// Parse --base from CLI args (Astro passes it but config runs before resolution)
+const baseArg = process.argv.find((arg) => arg.startsWith("--base="));
+const baseIndex = process.argv.indexOf("--base");
+let base =
+  baseArg?.slice(7) ||
+  (baseIndex >= 0 ? process.argv[baseIndex + 1] : "") ||
+  "";
+// Ensure base starts with / for absolute paths
+if (base && !base.startsWith("/")) {
+  base = `/${base}`;
+}
 
 // Sidebar groups are now imported from shared-sidebar-groups.ts to ensure
 // the same symbols are used in both astro.config.mjs and sidebar.ts
@@ -196,6 +209,7 @@ export default defineConfig({
       remarkSeeAlsoLinks,
     ],
     rehypePlugins: [
+      [rehypeBaseLinks, { base }],
       [
         rehypeExternalLinks,
         { target: "_blank", rel: ["noopener", "noreferrer"] },
