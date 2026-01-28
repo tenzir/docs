@@ -10,23 +10,22 @@ Sends events to a Databricks Unity Catalog table.
 
 ```tql
 to_databricks workspace=string, catalog=string, schema=string, table=string,
-              client_id=string, client_secret=string, [warehouse_id=string],
-              [staging_volume=string], [partition_by=list], [sort_by=list],
-              [flush_interval=duration], [file_size=int],
-              [method=string], [ingest_mode=string]
+              client_id=string, client_secret=string, warehouse_id=string,
+              [staging_volume=string], [partition_by=list<field>],
+              [sort_by=list<field>], [flush_interval=duration], [file_size=int],
+              [ingest_mode=string]
 ```
 
 ## Description
 
-The `to_databricks` operator writes events to a table in
+The `to_databricks` operator writes events to a managed Delta table in
 [Databricks Unity Catalog](https://docs.databricks.com/en/data-governance/unity-catalog/index.html).
-It produces optimized Parquet files and commits them atomically to the target
-table, making data immediately queryable in Databricks SQL, notebooks, and
-downstream tools.
+It stages optimized Parquet files in a Unity Catalog Volume and commits them
+atomically via `COPY INTO`, making data immediately queryable in Databricks
+SQL, notebooks, and downstream tools.
 
-The operator supports multiple ingestion methods with different cost and
-governance trade-offs. See the [Databricks integration
-overview](/integrations/databricks) for guidance on choosing a method.
+See the [Databricks integration overview](/integrations/databricks) for
+architecture details and configuration guidance.
 
 ### `workspace = string`
 
@@ -101,10 +100,9 @@ GRANT READ VOLUME, WRITE VOLUME ON VOLUME my_catalog.bronze.staging
   TO `my-service-principal`;
 ```
 
-### `warehouse_id = string (optional)`
+### `warehouse_id = string`
 
-The ID of the SQL Warehouse that executes `COPY INTO` statements. Required when
-`method` is `delta`.
+The ID of the SQL Warehouse that executes `COPY INTO` statements.
 
 Find this in **SQL Warehouses → [Your Warehouse] → Connection details**. The
 warehouse ID is the final segment of the HTTP Path, after `/sql/1.0/warehouses/`.
@@ -127,29 +125,35 @@ CREATE VOLUME IF NOT EXISTS my_catalog.bronze.ingestion_staging;
 
 Staged files are automatically removed after successful commits.
 
-### `partition_by = list (optional)`
+### `partition_by = list<field> (optional)`
 
-The partitioning scheme for the target table. Partitioning improves query
-performance by enabling partition pruning on filtered queries.
+List of column names to partition by. The columns must exist in the events
+being written. Delta tables use Hive-style partitioning, creating a directory
+structure like `day=2025-01-15/class_uid=4001/`.
 
-Defaults to no partitioning. Specify partition columns when creating tables
-that will be queried with predictable filter patterns. This option only applies
-when the operator creates a new table; it is ignored when appending to existing
-tables whose partitioning is already defined.
+If the target table already exists, the operator queries Unity Catalog for the
+existing partition scheme and ignores this parameter—partition columns are
+immutable after table creation. Staging files are automatically aligned with
+the target table's partitions for optimal `COPY INTO` performance.
 
-Common patterns:
+If the table does not exist, these columns define the partition scheme for the
+newly created table. If omitted, creates an unpartitioned table.
 
-| Pattern                       | Use Case                                       |
-| ----------------------------- | ---------------------------------------------- |
-| `[time.round(1d)]`            | Time-series data with date-range queries       |
-| `[time.round(1h)]`            | High-volume streams needing hourly granularity |
-| `[time.round(1d), source]`    | Multi-source ingestion with source filtering   |
-| `[time.round(1d), class_uid]` | OCSF events filtered by event class            |
+To partition by derived values (e.g., daily buckets from a timestamp), add the
+partition column to your events before writing:
+
+```tql
+subscribe "events"
+day = time.round(1d)
+to_databricks
+  ...
+  partition_by=[day, class_uid]
+```
 
 Avoid over-partitioning. Each partition should contain at least 1GB of data
 for optimal file sizes and query performance.
 
-### `sort_by = list (optional)`
+### `sort_by = list<field> (optional)`
 
 Columns to sort rows by within each output file. Sorting improves query
 performance by enabling data skipping: Databricks reads Parquet column
@@ -163,8 +167,11 @@ partition). The `sort_by` columns are applied as secondary sort keys.
 For best results, sort by columns that appear frequently in `WHERE` clauses:
 
 ```tql
-to_databricks ...,
-  partition_by=[time.round(1d)],
+subscribe "events"
+day = time.round(1d)
+to_databricks
+  ...
+  partition_by=[day],
   sort_by=[src_ip, dst_ip]
 ```
 
@@ -205,29 +212,6 @@ For high-volume streams, the `file_size` threshold triggers most flushes. For
 low-volume streams, `flush_interval` ensures timely commits despite smaller
 file sizes.
 
-### `method = string (optional)`
-
-The ingestion method for writing data to Databricks:
-
-- `delta`: Stages optimized Parquet files in a Unity Catalog Volume and commits
-  them via `COPY INTO` using the SQL Statement API. Requires a SQL Warehouse
-  and consumes DBUs proportional to data volume. Produces fully managed Delta
-  tables with complete Unity Catalog governance.
-
-- `iceberg` _(planned)_: Uses the Unity Catalog Iceberg REST Catalog API to
-  commit directly to managed Iceberg tables. Zero DBU cost—only API calls.
-  Requires tables created with Iceberg format.
-
-- `external-delta` _(planned)_: Writes Delta tables directly to customer-managed
-  cloud storage (S3, ADLS, GCS) using the Delta Lake protocol. Zero DBU cost.
-  Tables are registered as external tables in Unity Catalog with reduced
-  governance features compared to managed tables.
-
-Defaults to `delta`.
-
-See the [Databricks integration overview](/integrations/databricks) for detailed
-guidance on choosing a method based on cost, latency, and governance requirements.
-
 ### `ingest_mode = string (optional)`
 
 Controls table creation and append behavior:
@@ -248,9 +232,9 @@ events are filled with `null`.
 The operator applies several optimizations to produce query-efficient files
 that minimize the need for post-write maintenance:
 
-**Partition alignment**: Each output file contains data for exactly one
-partition value. This ensures perfect partition pruning—queries filtering on
-partition columns never read irrelevant files.
+**Partition-aligned files**: Each output file contains data for exactly one
+partition value. This enables partition pruning—queries filtering on partition
+columns skip irrelevant directories without opening files.
 
 **Sorted rows**: Rows are sorted by partition columns (if specified) followed
 by `sort_by` columns. Sorting produces tight min/max statistics in Parquet row
@@ -264,11 +248,6 @@ the urgency of running `OPTIMIZE` for compaction.
 with dictionary encoding, run-length encoding, and Zstd compression for
 compact, fast-to-read files.
 
-These optimizations are applied regardless of the `method` chosen. For managed
-Delta tables (`method=delta`), `COPY INTO` preserves the file organization.
-For Iceberg and external Delta methods, the files are committed directly with
-their optimized layout intact.
-
 ## Examples
 
 ### Send events to a bronze layer table
@@ -280,6 +259,7 @@ let $client_id = secret("databricks-client-id")
 let $client_secret = secret("databricks-client-secret")
 
 from_file "/var/log/zeek/conn.log", read=read_zeek_tsv
+day = ts.round(1d)
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="security",
@@ -288,7 +268,7 @@ to_databricks
   client_id=$client_id,
   client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[ts.round(1d)]
+  partition_by=[day]
 ```
 
 ### Stream OCSF events with partitioning
@@ -300,6 +280,7 @@ let $client_id = secret("databricks-client-id")
 let $client_secret = secret("databricks-client-secret")
 
 subscribe "ocsf"
+day = time.round(1d)
 to_databricks
   workspace="https://dbc-a1b2c3d4.cloud.databricks.com",
   catalog="prod",
@@ -309,7 +290,7 @@ to_databricks
   client_secret=$client_secret,
   warehouse_id="abc123def456",
   staging_volume="tenzir_staging",
-  partition_by=[time.round(1d), class_uid]
+  partition_by=[day, class_uid]
 ```
 
 ### Low-latency ingestion for alerting
@@ -342,6 +323,7 @@ let $client_id = secret("databricks-client-id")
 let $client_secret = secret("databricks-client-secret")
 
 subscribe "network"
+day = time.round(1d)
 to_databricks
   workspace="https://adb-1234567890.azuredatabricks.net",
   catalog="analytics",
@@ -350,7 +332,7 @@ to_databricks
   client_id=$client_id,
   client_secret=$client_secret,
   warehouse_id="abc123def456",
-  partition_by=[time.round(1d)],
+  partition_by=[day],
   sort_by=[src_ip, dst_ip, dst_port],
   flush_interval=5m,
   file_size=1Gi
@@ -365,6 +347,7 @@ let $client_id = secret("databricks-client-id")
 let $client_secret = secret("databricks-client-secret")
 
 export
+day = time.round(1d)
 to_databricks
   workspace="https://dbc-a1b2c3d4-e5f6.cloud.databricks.com",
   catalog="archive",
@@ -375,7 +358,7 @@ to_databricks
   warehouse_id="abc123def456",
   flush_interval=15m,
   file_size=1Gi,
-  partition_by=[time.round(1d), source_type]
+  partition_by=[day, source_type]
 ```
 
 ## See Also
