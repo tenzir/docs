@@ -108,6 +108,24 @@ if (!global.TextDecoder) {
   global.TextDecoder = dom.window.TextDecoder;
 }
 
+// Silence font-face warnings from @excalidraw/utils - these are harmless
+// warnings about font embedding that don't affect the output.
+function isFontFaceWarning(args) {
+  const msg = String(args[0] ?? "");
+  return msg.includes("Couldn't transform font-face");
+}
+
+const originalWarn = console.warn.bind(console);
+const originalError = console.error.bind(console);
+console.warn = (...args) => {
+  if (isFontFaceWarning(args)) return;
+  originalWarn(...args);
+};
+console.error = (...args) => {
+  if (isFontFaceWarning(args)) return;
+  originalError(...args);
+};
+
 // Now we can import @excalidraw/utils
 const { exportToSvg } = await import("@excalidraw/utils");
 
