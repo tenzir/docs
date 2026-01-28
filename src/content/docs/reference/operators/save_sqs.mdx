@@ -6,13 +6,14 @@ example: 'save_sqs "sqs://tenzir"'
 
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 
 Saves bytes to [Amazon SQS][sqs] queues.
 
 [sqs]: https://docs.aws.amazon.com/sqs/
 
 ```tql
-save_sqs queue:str, [poll_time=duration]
+save_sqs queue:str, [poll_time=duration, aws_iam=record]
 ```
 
 ## Description
@@ -21,10 +22,8 @@ save_sqs queue:str, [poll_time=duration]
 queuing service to decouple and scale microservices, distributed systems, and
 serverless applications. The `save_sqs` operator writes bytes as messages into an SQS queue.
 
-The `save_sqs` operator uses long polling, which helps reduce your cost of using SQS
-by reducing the number of empty responses when there are no messages available
-to return in reply to a message request. Use the `poll_time` option to adjust
-the timeout.
+The `poll_time` parameter configures request timeouts for the underlying AWS SDK
+client.
 
 The operator requires the following AWS permissions:
 
@@ -37,11 +36,13 @@ The name of the queue to use.
 
 ### `poll_time = duration (optional)`
 
-The long polling timeout per request.
+The request timeout for AWS SDK operations.
 
 The value must be between 1 and 20 seconds.
 
 Defaults to `3s`.
+
+<AWSIAMOptions />
 
 ## Examples
 
@@ -51,6 +52,29 @@ Write JSON messages from a source feed to the SQS queue `tenzir`:
 subscribe "to-sqs"
 write_json
 save_sqs "tenzir"
+```
+
+Send messages using explicit credentials:
+
+```tql
+from {alert: "security event detected"}
+write_json
+save_sqs "alerts-queue", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-key"),
+  secret_access_key: secret("aws-secret")
+}
+```
+
+Send messages by assuming an IAM role:
+
+```tql
+subscribe "events"
+write_json
+save_sqs "my-queue", aws_iam={
+  region: "eu-west-1",
+  assume_role: "arn:aws:iam::123456789012:role/my-sqs-role"
+}
 ```
 
 ## See Also
