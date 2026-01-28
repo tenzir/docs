@@ -23,12 +23,12 @@ The operator stages optimized Parquet files in a Unity Catalog Volume and
 commits them via `COPY INTO` using the SQL Statement API.
 
 | Step | Who              | Action                               | DBU Cost |
-| ---- | ---------------- | ------------------------------------ | -------- |
-|  ①   | Tenzir           | Write Parquet to staging             | ❌       |
-|  ②   | Tenzir → SQL API | POST COPY INTO command               | ❌       |
-|  ③   | SQL Warehouse    | Read staged files (via UC perms)     | ✅       |
-|  ④   | SQL Warehouse    | Write to table + commit `_delta_log` | ✅       |
-|  ⑤   | Tenzir           | Delete staging files _(not shown)_   | ❌       |
+| :--: | ---------------- | ------------------------------------ | :------: |
+|  ①   | Tenzir           | Write Parquet to staging             |    ❌    |
+|  ②   | Tenzir → SQL API | POST COPY INTO command               |    ❌    |
+|  ③   | SQL Warehouse    | Read staged files (via UC perms)     |    ✅    |
+|  ④   | SQL Warehouse    | Write to table + commit `_delta_log` |    ✅    |
+|  ⑤   | Tenzir           | Delete staging files _(not shown)_   |    ❌    |
 
 Key characteristics:
 
