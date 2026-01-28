@@ -303,14 +303,60 @@ Contains statistics about allocated memory.
       cumulative: int, // Cumulative allocations during this run
     },
   },
+  actor: [
+    {
+      name: string, // Name of the operator, actor or thread, whichever is more concrete.
+      arrow: { // Information about memory allocated by Arrow buffers from this thread/actor.
+        bytes: {
+          current: int, // Currently allocated bytes
+          peak: int, // Peak allocated bytes during this run
+          cumulative: int, // Cumulative allocations during this run
+        },
+        allocations: {
+          current: int, // Number of current allocations
+          peak: int, // Peak number of allocations
+          cumulative: int, // Cumulative allocations during this run
+        },
+      },
+      cpp: { /// Information about memory allocated by `operator new` from this thread/actor.
+        bytes: {
+          current: int, // Currently allocated bytes
+          peak: int, // Peak allocated bytes during this run
+          cumulative: int, // Cumulative allocations during this run
+        },
+        allocations: {
+          current: int, // Number of current allocations
+          peak: int, // Peak number of allocations
+          cumulative: int, // Cumulative allocations during this run
+        },
+      },
+      c: { /// Information about memory allocated `malloc` and other C/POSIX functions from this thread/actor.
+        bytes: {
+          current: int, // Currently allocated bytes
+          peak: int, // Peak allocated bytes during this run
+          cumulative: int, // Cumulative allocations during this run
+        },
+        allocations: {
+          current: int, // Number of current allocations
+          peak: int, // Peak number of allocations
+          cumulative: int, // Cumulative allocations during this run
+        },
+      },
+    }
+  ]
 }
 ```
 
 :::note[Detailed Metrics Availability]
 The `arrow`, `cpp` and `c` records in `tenzir.metrics.memory` are only collected
-if Tenzir was build with allocator support (all are by default) **and** the environment
-variable `TENZIR_ALLOC_STATS=true` is set. `TENZIR_ALLOC_STATS_<component>` can also
-be used to enable only a specific component.
+if Tenzir was build with allocator support (enabled by default)
+**and** the environment variable `TENZIR_ALLOC_STATS=true` is set.
+`TENZIR_ALLOC_STATS_<component>` can also be used to enable only a specific component.
+
+The `actor` statistics in `tenzir.metrics.memory` are only collected
+if Tenzir was build with allocator support (enabled by default)
+**and** the environment variable `TENZIR_ALLOC_ACTOR_STATS=true` is set.
+`TENZIR_ALLOC_ACTOR_STATS_<component>` can also be used to enable only a specific component.
 :::
 
 ### `tenzir.metrics.operator`
