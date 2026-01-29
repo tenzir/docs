@@ -6,13 +6,14 @@ example: 'load_sqs "sqs://tenzir"'
 
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 
 Loads bytes from [Amazon SQS][sqs] queues.
 
 [sqs]: https://docs.aws.amazon.com/sqs/
 
 ```tql
-load_sqs queue:str, [poll_time=duration]
+load_sqs queue:str, [poll_time=duration, aws_iam=record]
 ```
 
 ## Description
@@ -45,6 +46,8 @@ The value must be between 1 and 20 seconds.
 
 Defaults to `3s`.
 
+<AWSIAMOptions />
+
 ## Examples
 
 Read JSON messages from the SQS queue `tenzir`:
@@ -57,6 +60,26 @@ Read JSON messages with a 20-second long poll timeout:
 
 ```tql
 load_sqs "tenzir", poll_time=20s
+```
+
+Read messages using explicit credentials:
+
+```tql
+load_sqs "my-queue", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-key"),
+  secret_access_key: secret("aws-secret")
+}
+```
+
+Read messages by assuming an IAM role:
+
+```tql
+load_sqs "my-queue", aws_iam={
+  region: "eu-west-1",
+  assume_role: "arn:aws:iam::123456789012:role/my-sqs-role",
+  session_name: "tenzir-session"
+}
 ```
 
 ## See Also
