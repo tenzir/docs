@@ -443,6 +443,7 @@ Common frontmatter keys:
 | `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.             |
 | `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                |
 | `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`. |
+| `pre-compare`  | string or list  | `[]`      | Transform names to apply before comparison (e.g., `sort`).       |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -457,6 +458,67 @@ declaring the test failed. Intermediate attempts stay quiet; the final outcome
 line includes `attempts=N/M` whenever the budget exceeds one. Keep the value
 small and treat it as a temporary guardrail while you fix the underlying
 flakiness.
+
+### Pre-compare transforms
+
+Use `pre-compare` transforms to normalize output before comparison with
+baselines. This helps test scenarios that produce non-deterministic output,
+such as unordered result sets from hash-based aggregations or parallel
+operations.
+
+Configure transforms in `test.yaml` or per-test frontmatter:
+
+```yaml
+# tests/aggregation/test.yaml
+pre-compare: sort
+```
+
+Or as a list for multiple transforms:
+
+```yaml
+pre-compare: [sort]
+```
+
+In shell scripts, use a comment:
+
+```sh
+#!/usr/bin/env bash
+# pre-compare: sort
+
+echo "zebra"
+echo "alpha"
+echo "bravo"
+```
+
+Available transforms:
+
+| Transform | Description                                                                                                                                              |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sort`    | Sort output lines lexicographically. Handles unordered results from parallel processing, hash-based aggregations, or other non-deterministic operations. |
+
+Transforms apply in order to both the actual test output and the baseline before
+comparison. The original output and baseline files remain unchanged on disk.
+
+**Comparison workflow:**
+
+1. The harness runs the test and captures raw output.
+2. When updating baselines (`--update`), the raw output writes to the `.txt`
+   file without any transformation.
+3. During comparison, both the baseline and actual output pass through the
+   configured transforms before the harness checks for equality.
+4. Diffs display the _transformed_ content when a mismatch occurs, making it
+   easier to identify the actual difference.
+
+This design keeps baselines human-readable while still handling non-determinism.
+You can inspect the `.txt` file to see what the test actually produced, even
+when the comparison uses transformed data.
+
+Common use cases:
+
+- Hash-based aggregations that produce results in arbitrary order
+- Parallel operations where output order depends on execution scheduling
+- Set operations where mathematical correctness does not require order
+- Tests that enumerate filesystem entries or process IDs
 
 ### Tenzir configuration files
 
@@ -617,6 +679,10 @@ uvx tenzir-test --update
 
 `--purge` removes stale artifacts (diffs, temporary files). Keep generated
 `.txt` files under version control so future runs can diff against them.
+
+For tests with non-deterministic output, use
+[pre-compare transforms](#pre-compare-transforms) to normalize output before
+comparison while keeping original baselines unchanged.
 
 ## Troubleshooting
 
