@@ -96,7 +96,7 @@ Create a workflow that tests packages on pull requests and pushes. The following
 workflow mirrors the approach used in the Community Library.
 
 ```yaml title=".github/workflows/test.yml"
-name: Test Packages
+name: Tests
 
 on:
   workflow_dispatch:
@@ -106,9 +106,11 @@ on:
 
 jobs:
   test:
+    name: Test packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -116,14 +118,15 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Detect touched packages
-        id: detect
+        id: touched
+        shell: bash
         run: |
-          packages=$(.github/scripts/detect-touched-packages.sh "${{ github.event.pull_request.base.sha }}")
+          packages=$(.github/scripts/detect-touched-packages.sh "${{ github.event.pull_request.base.sha || '' }}")
           echo "packages=$packages" >> "$GITHUB_OUTPUT"
 
-      - name: Run tests
-        if: steps.detect.outputs.packages != ''
-        run: uvx tenzir-test ${{ steps.detect.outputs.packages }}
+      - name: Run package tests
+        if: steps.touched.outputs.packages != ''
+        run: uvx tenzir-test ${{ steps.touched.outputs.packages }}
 ```
 
 ### Detect changed packages
@@ -132,24 +135,41 @@ Create a script that identifies which packages changed in a pull request:
 
 ```bash title=".github/scripts/detect-touched-packages.sh"
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
-base_sha="${1:-}"
+base_ref="${1:-}"
 
-if [[ -n "$base_sha" ]]; then
-  changed_files=$(git diff --name-only "$base_sha"...HEAD)
-else
-  changed_files=$(git ls-files)
+# Without a base ref, test all packages.
+if [[ -z "$base_ref" ]]; then
+  printf '.\n'
+  exit 0
 fi
 
-echo "$changed_files" \
-  | xargs -I{} dirname {} \
-  | sort -u \
-  | while read -r dir; do
-      if [[ -f "$dir/package.yaml" ]]; then
-        echo "$dir"
-      fi
-    done
+# If the diff fails (e.g., shallow clone), test all packages.
+if ! diff_output=$(git diff --name-only "${base_ref}"...HEAD 2>/dev/null); then
+  printf '.\n'
+  exit 0
+fi
+
+# Extract top-level directories from changed files.
+candidate_lines=$(printf '%s\n' "$diff_output" \
+  | awk -F/ 'NF>1 && $1 !~ /^\./ {print $1}' \
+  | sort -u)
+
+# Filter to directories that contain a package.yaml.
+filtered=()
+while IFS= read -r candidate; do
+  [[ -z "$candidate" ]] && continue
+  if [[ -f "$candidate/package.yaml" ]]; then
+    filtered+=("$candidate")
+  fi
+done <<< "$candidate_lines"
+
+if (( ${#filtered[@]} == 0 )); then
+  printf '\n'
+else
+  printf '%s\n' "${filtered[*]}"
+fi
 ```
 
 Make the script executable:
