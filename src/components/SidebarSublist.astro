@@ -170,12 +170,6 @@ function getSectionIcon(entry: SidebarEntry): string | null {
       overflow-wrap: anywhere;
     }
 
-    ul ul li {
-      margin-inline-start: var(--sl-sidebar-item-padding-inline);
-      border-inline-start: 1px solid var(--sl-color-hairline-light);
-      padding-inline-start: var(--sl-sidebar-item-padding-inline);
-    }
-
     .large {
       font-size: var(--sl-text-lg);
       font-weight: 600;
@@ -251,13 +245,14 @@ function getSectionIcon(entry: SidebarEntry): string | null {
     }
   }
 
-  /* Section header styles */
-  .sidebar-section {
+  /* Section header styles - add spacing before sections
+     Apply margin to parent <li> rather than .sidebar-section to ensure proper
+     spacing in the list item flow and avoid collapsing margins */
+  li:has(> .sidebar-section) {
     margin-top: var(--tnz-space-6);
   }
 
-  .sidebar-section:first-child,
-  li:first-child > .sidebar-section {
+  li:first-child:has(> .sidebar-section) {
     margin-top: 0;
   }
 
@@ -265,7 +260,18 @@ function getSectionIcon(entry: SidebarEntry): string | null {
     display: flex;
     align-items: center;
     gap: var(--tnz-space-2);
-    padding: var(--tnz-space-2) var(--sl-sidebar-item-padding-inline);
+    /* Only top padding - bottom spacing handled by nested content to bring header closer to items */
+    padding-block-start: var(--tnz-space-2);
+  }
+
+  /* Add left padding to section content, remove individual item padding to align with header */
+  .sidebar-section {
+    padding-inline-start: var(--sl-sidebar-item-padding-inline);
+  }
+
+  .sidebar-section a,
+  .sidebar-section summary {
+    padding-inline: 0;
   }
 
   .sidebar-section-icon {
@@ -286,13 +292,12 @@ function getSectionIcon(entry: SidebarEntry): string | null {
   .sidebar-section-label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--tnz-neutral-500);
+    color: var(--tnz-neutral-400);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  :root[data-theme="light"] .sidebar-section-label,
-  :root[data-theme="light"] .sidebar-section-icon {
-    color: var(--tnz-neutral-500);
+  .sidebar-section-icon {
+    color: var(--tnz-neutral-400);
   }
 </style>
