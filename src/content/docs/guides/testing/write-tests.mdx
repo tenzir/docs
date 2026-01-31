@@ -142,6 +142,36 @@ quiet; the final result line includes `attempts=3/3` (or the actual number on a
 success). Use this as a guardrail while you investigate the underlying flake and
 keep the budget small to avoid masking issues.
 
+### Handle non-deterministic output
+
+Some tests produce output in an unpredictable order, for example when querying
+hash-based aggregations or parallel operations. Instead of retrying until the
+order happens to match, use `pre-compare` transforms to normalize both sides
+before comparison:
+
+```yaml
+---
+pre-compare: sort
+---
+```
+
+The `sort` transform sorts output lines lexicographically before comparing them
+against the baseline. This lets you capture the raw output with `--update` while
+still verifying correctness regardless of order.
+
+```sh
+#!/usr/bin/env bash
+# pre-compare: sort
+
+# Output order depends on filesystem enumeration
+ls /tmp/*.log 2>/dev/null || echo "no logs"
+```
+
+Transforms only affect comparison. The baseline file stores the original
+untransformed output, keeping it human-readable. See
+[pre-compare transforms](/reference/test-framework/#pre-compare-transforms) in
+the reference documentation for the full list of available transforms.
+
 ### Run multiple projects together
 
 Large organisations often split tests across several repositories but still
