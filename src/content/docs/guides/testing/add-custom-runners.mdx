@@ -175,6 +175,9 @@ projects focus on their own tests.
   `inputs:` when the runner should read data from a different directory than the
   project default.
 - Extend the runner to emit `*.diff` artifacts when the hexdumps diverge.
+- Add stdin support by calling `run_mod.get_stdin_content(env)` and passing the
+  result to `run_subprocess(stdin_data=...)`. See the shell runner
+  implementation for reference.
 - Branch on `run.get_harness_mode()` or `run.is_passthrough_enabled()` when you
   need bespoke behaviour for passthrough runs, but prefer to rely on
   `run.run_subprocess()` for most cases so output handling stays consistent.

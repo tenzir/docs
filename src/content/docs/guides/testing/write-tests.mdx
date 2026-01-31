@@ -178,7 +178,92 @@ and makes sibling packages visible for cross-imports. You can also declare
 package directories in a directory `test.yaml` via `package-dirs:`; those entries
 merge with `--package-dirs`.
 
-## Step 7: Introduce a fixture
+## Step 7: Provide stdin input
+
+Some tests need data piped to stdin rather than read from files. Place a
+`.stdin` file next to the test to provide this content automatically. This
+simplifies TQL tests by letting pipelines start with a parser directly.
+
+### TQL pipelines with stdin
+
+Create `tests/parsing/csv.stdin` with your test data:
+
+```csv title="tests/parsing/csv.stdin"
+name,count
+alice,42
+bob,23
+```
+
+Create `tests/parsing/csv.tql` that reads from stdin:
+
+```tql title="tests/parsing/csv.tql"
+read_csv
+sort name
+```
+
+Run the test with `--update` to capture the baseline:
+
+```sh
+uvx tenzir-test --update tests/parsing/csv.tql
+```
+
+The harness pipes the CSV data to tenzir's stdin, so `read_csv` processes it
+directly. This is an alternative to using `.input` files with
+`from_file env("TENZIR_INPUT")`—choose whichever fits your test better.
+
+### Shell scripts with stdin
+
+The same mechanism works for shell scripts. Create `tests/shell/echo.sh`:
+
+```sh title="tests/shell/echo.sh"
+#!/bin/sh
+cat
+```
+
+Create `tests/shell/echo.stdin` with the input data:
+
+```text title="tests/shell/echo.stdin"
+Hello from stdin!
+```
+
+The harness pipes the contents of `echo.stdin` to the script's stdin.
+
+### Combine stdin with input files
+
+Tests can use both `.stdin` and `.input` files together. The stdin content gets
+piped to the process, while the input file path is available via `TENZIR_INPUT`.
+
+Create `tests/shell/process.sh`:
+
+```sh title="tests/shell/process.sh"
+#!/bin/sh
+echo "from stdin:"
+cat
+echo "from TENZIR_INPUT:"
+cat "$TENZIR_INPUT"
+```
+
+Create the corresponding files:
+
+```text title="tests/shell/process.stdin"
+stdin content
+```
+
+```text title="tests/shell/process.input"
+input file content
+```
+
+Run `--update` to capture both sources in the baseline output. The output looks
+like this:
+
+```text title="tests/shell/process.txt"
+from stdin:
+stdin content
+from TENZIR_INPUT:
+input file content
+```
+
+## Step 8: Introduce a fixture
 
 Fixtures let you bootstrap external resources and expose their configuration
 through environment variables. Add a simple `node`-driven test to exercise a
@@ -283,7 +368,7 @@ test’s scratch directory by default and are cleaned up automatically when the
 controller goes out of scope. Acquire a fresh controller when you need a brand
 new workspace.
 
-## Step 8: Organize defaults with `test.yaml`
+## Step 9: Organize defaults with `test.yaml`
 
 As suites grow, you can extract shared configuration into directory-level
 defaults. Place a `tests/node/test.yaml` file with convenient settings:
@@ -300,7 +385,7 @@ paths resolve against the directory that owns the YAML file, so `inputs: ../data
 points at `tests/data/`. Individual files still override keys in their
 frontmatter when necessary.
 
-## Step 9: Automate runs
+## Step 10: Automate runs
 
 Once the suite passes locally, integrate it into your CI pipeline. Configure the
 job to install Python 3.12, install `tenzir-test`, provision or download the
