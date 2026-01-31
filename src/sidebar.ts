@@ -22,6 +22,15 @@ export const guides = [
         collapsed: true,
         items: ["guides/installation", "guides/installation/create-account"],
       },
+      {
+        label: "Basic Usage",
+        collapsed: true,
+        items: [
+          "guides/basic-usage/run-pipelines",
+          "guides/basic-usage/manage-a-pipeline",
+          "guides/basic-usage/collect-metrics",
+        ],
+      },
     ],
     "lightbulb",
   ),
@@ -57,6 +66,15 @@ export const guides = [
       ],
     },
     {
+      label: "Platform Management",
+      collapsed: true,
+      items: [
+        "guides/platform-management/configure-workspaces",
+        "guides/platform-management/configure-dashboards",
+        "guides/platform-management/use-ephemeral-nodes",
+      ],
+    },
+    {
       label: "AI Workbench",
       collapsed: true,
       items: [
@@ -69,15 +87,6 @@ export const guides = [
     },
   ]),
   section("Work with Data", [
-    {
-      label: "Basic Usage",
-      collapsed: true,
-      items: [
-        "guides/basic-usage/run-pipelines",
-        "guides/basic-usage/manage-a-pipeline",
-        "guides/basic-usage/collect-metrics",
-      ],
-    },
     {
       label: "Data Loading",
       collapsed: true,
@@ -105,16 +114,6 @@ export const guides = [
       ],
     },
     {
-      label: "Edge Storage",
-      collapsed: true,
-      items: [
-        "guides/edge-storage/import-into-a-node",
-        "guides/edge-storage/export-from-a-node",
-        "guides/edge-storage/show-available-schemas",
-        "guides/edge-storage/transform-data-at-rest",
-      ],
-    },
-    {
       label: "Enrichment",
       collapsed: true,
       items: [
@@ -124,8 +123,18 @@ export const guides = [
         "guides/enrichment/execute-sigma-rules",
       ],
     },
+    {
+      label: "Edge Storage",
+      collapsed: true,
+      items: [
+        "guides/edge-storage/import-into-a-node",
+        "guides/edge-storage/export-from-a-node",
+        "guides/edge-storage/show-available-schemas",
+        "guides/edge-storage/transform-data-at-rest",
+      ],
+    },
   ]),
-  section("Extend", [
+  section("Build", [
     {
       label: "Packages",
       collapsed: true,
@@ -139,15 +148,6 @@ export const guides = [
         "guides/packages/configure-inputs",
         "guides/packages/maintain-a-changelog",
         "guides/packages/publish-a-package",
-      ],
-    },
-    {
-      label: "Platform Management",
-      collapsed: true,
-      items: [
-        "guides/platform-management/configure-workspaces",
-        "guides/platform-management/configure-dashboards",
-        "guides/platform-management/use-ephemeral-nodes",
       ],
     },
     {
