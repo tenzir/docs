@@ -34,152 +34,168 @@ export const guides = [
     ],
     "lightbulb",
   ),
-  section("Setup", [
-    {
-      label: "Node Setup",
-      collapsed: true,
-      items: [
-        "guides/node-setup",
-        "guides/node-setup/provision-a-node",
-        "guides/node-setup/size-a-node",
-        "guides/node-setup/deploy-a-node",
-        "guides/node-setup/configure-a-node",
-        "guides/node-setup/configure-tls",
-        "guides/node-setup/start-the-api",
-        "guides/node-setup/tune-performance",
-      ],
-    },
-    {
-      label: "Platform Setup",
-      collapsed: true,
-      items: [
-        "guides/platform-setup",
-        "guides/platform-setup/deploy-on-aws",
-        "guides/platform-setup/choose-a-scenario",
-        "guides/platform-setup/configure-reverse-proxy",
-        "guides/platform-setup/configure-internal-services",
-        "guides/platform-setup/configure-identity-provider",
-        "guides/platform-setup/configure-database",
-        "guides/platform-setup/configure-blob-storage",
-        "guides/platform-setup/configure-secret-store",
-        "guides/platform-setup/run-the-platform",
-      ],
-    },
-    {
-      label: "Platform Management",
-      collapsed: true,
-      items: [
-        "guides/platform-management/configure-workspaces",
-        "guides/platform-management/configure-dashboards",
-        "guides/platform-management/use-ephemeral-nodes",
-      ],
-    },
-    {
-      label: "AI Workbench",
-      collapsed: true,
-      items: [
-        { label: "Overview", link: "guides/ai-workbench" },
-        "guides/ai-workbench/install-mcp-server",
-        "guides/ai-workbench/configure-your-agent",
-        "guides/ai-workbench/use-claude-plugins",
-        "guides/ai-workbench/use-documentation-skill",
-      ],
-    },
-  ]),
-  section("Work with Data", [
-    {
-      label: "Data Loading",
-      collapsed: true,
-      items: [
-        "guides/data-loading/read-and-watch-files",
-        "guides/data-loading/fetch-data-from-apis",
-      ],
-    },
-    {
-      label: "Data Shaping",
-      collapsed: true,
-      items: [
-        "guides/data-shaping/shape-data",
-        "guides/data-shaping/filter-and-select-data",
-        "guides/data-shaping/transform-basic-values",
-        "guides/data-shaping/manipulate-strings",
-        "guides/data-shaping/work-with-time",
-        "guides/data-shaping/transform-collections",
-        "guides/data-shaping/aggregate-and-summarize",
-        "guides/data-shaping/slice-and-sample-data",
-        "guides/data-shaping/extract-structured-data-from-text",
-        "guides/data-shaping/convert-data-formats",
-        "guides/data-shaping/reshape-complex-data",
-        "guides/data-shaping/deduplicate-events",
-      ],
-    },
-    {
-      label: "Enrichment",
-      collapsed: true,
-      items: [
-        "guides/enrichment/work-with-lookup-tables",
-        "guides/enrichment/enrich-with-network-inventory",
-        "guides/enrichment/enrich-with-threat-intel",
-        "guides/enrichment/execute-sigma-rules",
-      ],
-    },
-    {
-      label: "Edge Storage",
-      collapsed: true,
-      items: [
-        "guides/edge-storage/import-into-a-node",
-        "guides/edge-storage/export-from-a-node",
-        "guides/edge-storage/show-available-schemas",
-        "guides/edge-storage/transform-data-at-rest",
-      ],
-    },
-  ]),
-  section("Build", [
-    {
-      label: "Packages",
-      collapsed: true,
-      items: [
-        "guides/packages/install-a-package",
-        "guides/packages/create-a-package",
-        "guides/packages/test-packages",
-        "guides/packages/add-operators",
-        "guides/packages/add-pipelines",
-        "guides/packages/add-contexts",
-        "guides/packages/configure-inputs",
-        "guides/packages/maintain-a-changelog",
-        "guides/packages/publish-a-package",
-      ],
-    },
-    {
-      label: "Testing",
-      collapsed: true,
-      items: [
-        "guides/testing/write-tests",
-        "guides/testing/create-fixtures",
-        "guides/testing/add-custom-runners",
-      ],
-    },
-  ]),
-  section("Contribute", [
-    {
-      label: "Contribution",
-      collapsed: true,
-      items: [
-        "guides/contribution/code-of-conduct",
-        "guides/contribution/workflow",
-        "guides/contribution/documentation",
-        "guides/contribution/security",
-      ],
-    },
-    {
-      label: "Development",
-      collapsed: true,
-      items: [
-        "guides/development/build-from-source",
-        "guides/development/write-a-node-plugin",
-      ],
-    },
-  ]),
+  section(
+    "Setup",
+    [
+      {
+        label: "Node Setup",
+        collapsed: true,
+        items: [
+          "guides/node-setup",
+          "guides/node-setup/provision-a-node",
+          "guides/node-setup/size-a-node",
+          "guides/node-setup/deploy-a-node",
+          "guides/node-setup/configure-a-node",
+          "guides/node-setup/configure-tls",
+          "guides/node-setup/start-the-api",
+          "guides/node-setup/tune-performance",
+        ],
+      },
+      {
+        label: "Platform Setup",
+        collapsed: true,
+        items: [
+          "guides/platform-setup",
+          "guides/platform-setup/deploy-on-aws",
+          "guides/platform-setup/choose-a-scenario",
+          "guides/platform-setup/configure-reverse-proxy",
+          "guides/platform-setup/configure-internal-services",
+          "guides/platform-setup/configure-identity-provider",
+          "guides/platform-setup/configure-database",
+          "guides/platform-setup/configure-blob-storage",
+          "guides/platform-setup/configure-secret-store",
+          "guides/platform-setup/run-the-platform",
+        ],
+      },
+      {
+        label: "Platform Management",
+        collapsed: true,
+        items: [
+          "guides/platform-management/configure-workspaces",
+          "guides/platform-management/configure-dashboards",
+          "guides/platform-management/use-ephemeral-nodes",
+        ],
+      },
+      {
+        label: "AI Workbench",
+        collapsed: true,
+        items: [
+          { label: "Overview", link: "guides/ai-workbench" },
+          "guides/ai-workbench/install-mcp-server",
+          "guides/ai-workbench/configure-your-agent",
+          "guides/ai-workbench/use-claude-plugins",
+          "guides/ai-workbench/use-documentation-skill",
+        ],
+      },
+    ],
+    "gear",
+  ),
+  section(
+    "Work with Data",
+    [
+      {
+        label: "Data Loading",
+        collapsed: true,
+        items: [
+          "guides/data-loading/read-and-watch-files",
+          "guides/data-loading/fetch-data-from-apis",
+        ],
+      },
+      {
+        label: "Data Shaping",
+        collapsed: true,
+        items: [
+          "guides/data-shaping/shape-data",
+          "guides/data-shaping/filter-and-select-data",
+          "guides/data-shaping/transform-basic-values",
+          "guides/data-shaping/manipulate-strings",
+          "guides/data-shaping/work-with-time",
+          "guides/data-shaping/transform-collections",
+          "guides/data-shaping/aggregate-and-summarize",
+          "guides/data-shaping/slice-and-sample-data",
+          "guides/data-shaping/extract-structured-data-from-text",
+          "guides/data-shaping/convert-data-formats",
+          "guides/data-shaping/reshape-complex-data",
+          "guides/data-shaping/deduplicate-events",
+        ],
+      },
+      {
+        label: "Enrichment",
+        collapsed: true,
+        items: [
+          "guides/enrichment/work-with-lookup-tables",
+          "guides/enrichment/enrich-with-network-inventory",
+          "guides/enrichment/enrich-with-threat-intel",
+          "guides/enrichment/execute-sigma-rules",
+        ],
+      },
+      {
+        label: "Edge Storage",
+        collapsed: true,
+        items: [
+          "guides/edge-storage/import-into-a-node",
+          "guides/edge-storage/export-from-a-node",
+          "guides/edge-storage/show-available-schemas",
+          "guides/edge-storage/transform-data-at-rest",
+        ],
+      },
+    ],
+    "layers",
+  ),
+  section(
+    "Build",
+    [
+      {
+        label: "Packages",
+        collapsed: true,
+        items: [
+          "guides/packages/install-a-package",
+          "guides/packages/create-a-package",
+          "guides/packages/test-packages",
+          "guides/packages/add-operators",
+          "guides/packages/add-pipelines",
+          "guides/packages/add-contexts",
+          "guides/packages/configure-inputs",
+          "guides/packages/maintain-a-changelog",
+          "guides/packages/publish-a-package",
+        ],
+      },
+      {
+        label: "Testing",
+        collapsed: true,
+        items: [
+          "guides/testing/write-tests",
+          "guides/testing/create-fixtures",
+          "guides/testing/add-custom-runners",
+        ],
+      },
+    ],
+    "package",
+  ),
+  section(
+    "Contribute",
+    [
+      {
+        label: "Contribution",
+        collapsed: true,
+        items: [
+          "guides/contribution/code-of-conduct",
+          "guides/contribution/workflow",
+          "guides/contribution/documentation",
+          "guides/contribution/security",
+        ],
+      },
+      {
+        label: "Development",
+        collapsed: true,
+        items: [
+          "guides/development/build-from-source",
+          "guides/development/write-a-node-plugin",
+        ],
+      },
+    ],
+    "heart",
+  ),
 ];
 
 export const tutorials = [
