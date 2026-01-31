@@ -206,74 +206,101 @@ export const tutorials = [
 ];
 
 export const explanations = [
-  {
-    label: "Architecture",
-    items: [
-      "explanations/architecture",
-      "explanations/architecture/pipeline",
-      "explanations/architecture/node",
-      "explanations/architecture/platform",
+  section(
+    "Concepts",
+    [
+      {
+        label: "Architecture",
+        items: [
+          "explanations/architecture",
+          "explanations/architecture/pipeline",
+          "explanations/architecture/node",
+          "explanations/architecture/platform",
+        ],
+      },
+      {
+        label: "Language (TQL)",
+        items: [
+          "explanations/language",
+          "explanations/language/types",
+          "explanations/language/expressions",
+          "explanations/language/statements",
+          "explanations/language/programs",
+        ],
+      },
+      "explanations/configuration",
+      "explanations/secrets",
+      "explanations/enrichment",
+      "explanations/packages",
     ],
-  },
-  {
-    label: "Language (TQL)",
-    items: [
-      "explanations/language",
-      "explanations/language/types",
-      "explanations/language/expressions",
-      "explanations/language/statements",
-      "explanations/language/programs",
-    ],
-  },
-  "explanations/configuration",
-  "explanations/secrets",
-  "explanations/enrichment",
-  "explanations/packages",
-  "explanations/glossary",
-  "explanations/faqs",
+    "puzzle-piece",
+  ),
+  section(
+    "Help",
+    ["explanations/glossary", "explanations/faqs"],
+    "circle-help",
+  ),
 ];
 
 export const reference = [
-  {
-    label: "Operators",
-    link: "reference/operators",
-  },
-  {
-    label: "Functions",
-    link: "reference/functions",
-  },
-  {
-    label: "Node",
-    collapsed: true,
-    items: ["reference/node/configuration", nodeAPISidebarGroup],
-  },
-  {
-    label: "Platform",
-    collapsed: true,
-    items: [
-      "reference/platform/configuration",
-      "reference/platform/command-line-interface",
-      platformAPISidebarGroup,
+  section(
+    "Language",
+    [
+      {
+        label: "Operators",
+        link: "reference/operators",
+      },
+      {
+        label: "Functions",
+        link: "reference/functions",
+      },
     ],
-  },
-  {
-    label: "Test Framework",
-    link: "reference/test-framework",
-  },
-  {
-    label: "Ship Framework",
-    link: "reference/ship-framework",
-  },
-  {
-    label: "MCP Server",
-    link: "reference/mcp-server",
-  },
-  {
-    label: "Claude Marketplace",
-    link: "reference/claude-plugins",
-  },
+    "code",
+  ),
+  section(
+    "Components",
+    [
+      {
+        label: "Node",
+        collapsed: true,
+        items: ["reference/node/configuration", nodeAPISidebarGroup],
+      },
+      {
+        label: "Platform",
+        collapsed: true,
+        items: [
+          "reference/platform/configuration",
+          "reference/platform/command-line-interface",
+          platformAPISidebarGroup,
+        ],
+      },
+    ],
+    "cube",
+  ),
+  section(
+    "Tools",
+    [
+      {
+        label: "Test Framework",
+        link: "reference/test-framework",
+      },
+      {
+        label: "Ship Framework",
+        link: "reference/ship-framework",
+      },
+      {
+        label: "MCP Server",
+        link: "reference/mcp-server",
+      },
+      {
+        label: "Claude Marketplace",
+        link: "reference/claude-plugins",
+      },
+    ],
+    "wrench",
+  ),
   // OCSF sidebar is conditionally included when generated
-  ...(ocsfSidebar ? [ocsfSidebar] : []),
+  ...(ocsfSidebar ? [section("Standards", [ocsfSidebar], "shield")] : []),
 ];
 
 export const integrations = [
