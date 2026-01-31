@@ -2,361 +2,99 @@
 title: Map to OCSF
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+import Guide from '@components/see-also/Guide.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+
 This guide shows you how to map security data to the [Open Cybersecurity Schema
 Framework (OCSF)](https://schema.ocsf.io). You'll learn to identify the correct
 event class, organize mappings by attribute groups, handle unmapped fields, and
 validate your output.
 
 :::tip[OCSF Tutorial]
-For a hands-on walkthrough with Zeek logs, see the
-[Map data to OCSF tutorial](/tutorials/map-data-to-ocsf).
+For an end-to-end walkthrough with Zeek logs, see the [Map data to OCSF
+tutorial](/tutorials/map-data-to-ocsf).
 :::
 
-## Understanding OCSF structure
+## Identify the OCSF target
 
-OCSF organizes events into a hierarchy:
+<Tabs>
+<TabItem label="Human" icon="pencil">
 
-- **Categories** group related event classes (e.g., Network Activity, Findings)
-- **Event classes** define specific event types (e.g., Network Activity, DNS Activity)
-- **Attribute groups** organize fields within an event class:
-  - **Classification**: Event type and severity identifiers
-  - **Occurrence**: Temporal information (timestamps, duration)
-  - **Context**: Metadata about the source and collection
-  - **Primary**: Core semantic fields specific to the event class
+Browse [schema.ocsf.io](https://schema.ocsf.io) categories, read event class
+descriptions, compare required fields with your data, and check example events
+in the schema.
 
-:::note[Think in graphs]
-OCSF mapping is essentially a graph transformation. Your source schema forms
-one set of nodes (fields), OCSF forms another, and your mapping defines the
-edges between them. Some source fields map 1:1, others require transformation,
-and some have no OCSF equivalent (unmapped).
-:::
+</TabItem>
+<TabItem label="AI-assisted" icon="star">
 
-## Step 1: Identify the event class
+Use the [Tenzir agent skill](/guides/ai-workbench/use-documentation-skill) or
+[Tenzir Claude plugin](/guides/ai-workbench/use-claude-plugins). For example,
+with Claude Code you can use the `@tenzir:ocsf` subagent to answer any OCSF
+question:
 
-Before writing any TQL, determine which OCSF event class fits your data.
+```
+`@tenzir:ocsf` where would this log go?
 
-### Human approach
+date=2019-05-13 time=14:12:26 logid="0103020301" ...
+```
 
-1. Browse [schema.ocsf.io](https://schema.ocsf.io) categories
-2. Read event class descriptions
-3. Compare required fields with your data
-4. Check example events in the schema
+If you have the agent skill installed, just omit `@tenzir:ocsf` and clarify that
+the question is about OCSF.
 
-### AI-assisted approach
+</TabItem>
+</Tabs>
 
-Describe your event structure to an AI assistant:
+### Find the best fitting event class
 
-> I have firewall connection logs with fields: src_ip, dst_ip, src_port,
-> dst_port, protocol, action (allow/deny), bytes_sent, bytes_received,
-> timestamp, rule_id. Which OCSF event class should I use?
+Match your source event to an OCSF event class by comparing the semantic meaning
+of the data. Look at the class's required and recommended attributes—if your
+source data can populate most of them meaningfully, it's a good fit.
 
-Common mappings:
+### Identify needed OCSF profiles
 
-| Data Source Type    | OCSF Event Class                                                             |
-| ------------------- | ---------------------------------------------------------------------------- |
-| Network connections | [Network Activity](https://schema.ocsf.io/classes/network_activity) (4001)   |
-| DNS queries         | [DNS Activity](https://schema.ocsf.io/classes/dns_activity) (4003)           |
-| HTTP requests       | [HTTP Activity](https://schema.ocsf.io/classes/http_activity) (4002)         |
-| Authentication      | [Authentication](https://schema.ocsf.io/classes/authentication) (3002)       |
-| File operations     | [File Activity](https://schema.ocsf.io/classes/file_activity) (1001)         |
-| Process events      | [Process Activity](https://schema.ocsf.io/classes/process_activity) (1007)   |
-| Security alerts     | [Detection Finding](https://schema.ocsf.io/classes/detection_finding) (2004) |
+If your source has fields that don't fit the event class attributes, check
+whether a profile provides them. Declare active profiles in
+`ocsf.metadata.profiles` and map their attributes alongside the class attributes.
 
-## Step 2: Set up the mapping structure
+## Write the OCSF mapping
 
-Use this template to organize your mapping:
+### Operator template
+
+Use this annotated template as a starting point for creating a
+[user-defined operator](/guides/packages/add-operators/) as part of a TQL
+package.
+
+We recommend to organize fields by OCSF attribute groups: classification,
+occurrence, context, primary.
 
 ```tql
 // --- Preamble ---------------------------------
 
-// Move source data into a dedicated field
-this = { source: this }
-
-// --- Classification attributes ----------------
-
-ocsf.category_uid = 4
-ocsf.class_uid = 4001
-ocsf.activity_id = 6
-ocsf.severity_id = 1
-ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
-
-// --- Occurrence attributes --------------------
-
-ocsf.time = move source.timestamp
-// ...add duration, start_time, end_time as needed
-
-// --- Context attributes -----------------------
-
-ocsf.metadata = {
-  product: {
-    name: "Your Product",
-    vendor_name: "Your Vendor",
-  },
-  version: "1.3.0",
-}
-// ...add observables, enrichments as needed
-
-// --- Primary attributes -----------------------
-
-ocsf.src_endpoint = {
-  ip: source.src_ip,
-  port: source.src_port,
-}
-drop source.src_ip, source.src_port
-// ...map remaining primary fields
-
-// --- Epilogue ---------------------------------
-
-// Hoist OCSF fields to root, collect unmapped
-this = {...ocsf, unmapped: source}
-drop_null_fields unmapped
-
-// Derive sibling fields and assign schema name
-ocsf::derive
-@name = "ocsf.network_activity"
-```
-
-### Key principles
-
-1. **Isolate source data**: `this = { source: this }` prevents name clashes and
-   makes unmapped field collection automatic.
-
-2. **Use `move`**: Transfer fields with `move` to simultaneously assign and
-   remove from source, e.g., `ocsf.time = move source.timestamp`.
-
-3. **Use `drop` for multi-use fields**: When a field appears in multiple
-   mappings, drop it after the last use.
-
-4. **Collect unmapped**: `this = {...ocsf, unmapped: source}` gathers any
-   fields you didn't map.
-
-## Step 3: Map classification attributes
-
-Classification attributes identify the event type. These are largely mechanical
-mappings from the OCSF schema:
-
-```tql
-// Network Activity event class
-ocsf.category_uid = 4         // Network Activity category
-ocsf.class_uid = 4001         // Network Activity class
-ocsf.activity_id = 6          // Traffic activity
-ocsf.severity_id = 1          // Informational
-
-// Computed fields
-ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
-
-// Let ocsf::derive populate the *_name siblings
-ocsf::derive
-```
-
-The [`ocsf::derive`](/reference/operators/ocsf/derive) operator automatically
-populates sibling fields like `activity_name`, `category_name`, `class_name`,
-and `severity` based on the `*_id` values.
-
-## Step 4: Map occurrence attributes
-
-Occurrence attributes capture when the event happened:
-
-```tql
-// Primary timestamp (required)
-ocsf.time = move source.timestamp
-
-// Duration and derived times (if available)
-ocsf.duration = move source.duration
-ocsf.start_time = ocsf.time
-ocsf.end_time = ocsf.time + ocsf.duration
-
-// Timezone offset (if known)
-ocsf.timezone_offset = -480  // UTC-8 in minutes
-```
-
-If your source only has epoch timestamps, convert them:
-
-```tql
-ocsf.time = source.epoch_ms.milliseconds().from_epoch()
-drop source.epoch_ms
-```
-
-## Step 5: Map context attributes
-
-Context provides metadata about the event source:
-
-```tql
-ocsf.metadata = {
-  log_name: "conn.log",
-  logged_time: move source._write_ts?,
-  product: {
-    name: "Zeek",
-    vendor_name: "Zeek",
-    cpe_name: "cpe:2.3:a:zeek:zeek",
-  },
-  uid: move source.uid,
-  version: "1.3.0",
-}
-
-// Drop implied fields
-drop source._path?
-
-// Application name (if relevant)
-ocsf.app_name = move source.service
-```
-
-Use `?` when accessing fields that might not exist.
-
-## Step 6: Map primary attributes
-
-Primary attributes carry the core semantic meaning. This is where most of your
-mapping logic goes.
-
-### Endpoint mapping
-
-```tql
-ocsf.src_endpoint = {
-  ip: source.id.orig_h,
-  port: source.id.orig_p,
-}
-ocsf.dst_endpoint = {
-  ip: source.id.resp_h,
-  port: source.id.resp_p,
-}
-drop source.id
-```
-
-### Protocol mapping with lookups
-
-```tql
-let $proto_nums = {
-  tcp: 6,
-  udp: 17,
-  icmp: 1,
-}
-
-ocsf.connection_info = {
-  protocol_name: move source.proto,
-  protocol_num: $proto_nums[source.proto]? else -1,
-}
-```
-
-### Conditional mapping
-
-```tql
-// Determine IP version
-if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
-  ocsf.connection_info.protocol_ver_id = 6
-} else {
-  ocsf.connection_info.protocol_ver_id = 4
-}
-
-// Map direction based on locality
-if source.local_orig and source.local_resp {
-  ocsf.connection_info.direction = "Lateral"
-  ocsf.connection_info.direction_id = 3
-} else if source.local_orig {
-  ocsf.connection_info.direction = "Outbound"
-  ocsf.connection_info.direction_id = 2
-} else if source.local_resp {
-  ocsf.connection_info.direction = "Inbound"
-  ocsf.connection_info.direction_id = 1
-} else {
-  ocsf.connection_info.direction = "Unknown"
-  ocsf.connection_info.direction_id = 0
-}
-drop source.local_orig, source.local_resp
-```
-
-### Traffic statistics
-
-```tql
-ocsf.traffic = {
-  bytes_in: source.resp_bytes,
-  bytes_out: source.orig_bytes,
-  packets_in: source.resp_pkts,
-  packets_out: source.orig_pkts,
-  total_bytes: source.orig_bytes + source.resp_bytes,
-  total_packets: source.orig_pkts + source.resp_pkts,
-}
-drop source.resp_bytes, source.orig_bytes, source.resp_pkts, source.orig_pkts
-```
-
-## Step 7: Identify needed profiles
-
-OCSF profiles add optional field sets for specific use cases. Common profiles:
-
-| Profile            | Use Case             | Added Fields         |
-| ------------------ | -------------------- | -------------------- |
-| `host`             | Endpoint context     | `actor`, `device`    |
-| `network_proxy`    | Proxy events         | `proxy`              |
-| `security_control` | Security tool events | `attacks`, `malware` |
-| `cloud`            | Cloud events         | `cloud`              |
-
-Declare profiles in metadata:
-
-```tql
-ocsf.metadata.profiles = ["host", "network_proxy"]
-```
-
-Then map the profile-specific fields accordingly.
-
-## Step 8: Finalize and validate
-
-### Collect unmapped fields
-
-```tql
-// Hoist OCSF to root, preserve unmapped
-this = {...ocsf, unmapped: source}
-
-// Clean up empty unmapped
-drop_null_fields unmapped
-if unmapped == {} {
-  drop unmapped
-}
-```
-
-### Derive sibling fields
-
-```tql
-ocsf::derive
-```
-
-### Assign schema name
-
-```tql
-@name = "ocsf.network_activity"
-```
-
-### Validate with ocsf::cast
-
-Use [`ocsf::cast`](/reference/operators/ocsf/cast) to validate your output:
-
-```tql
-ocsf::cast class_uid=4001
-```
-
-This checks that all required fields are present and correctly typed.
-Validation errors appear as warnings, helping you catch mapping issues.
-
-## Complete mapping example
-
-Here's a complete Network Activity mapping:
-
-```tql
-// --- Preamble ---------------------------------
+// Move source data into a dedicated field to prevent name clashes
+// and enable automatic unmapped field collection
 this = { zeek: this }
 
-// --- Classification attributes ----------------
+// --- OCSF: classification attributes ----------
+
+// Identify the event type (values from schema.ocsf.io)
 ocsf.category_uid = 4
 ocsf.class_uid = 4001
 ocsf.activity_id = 6
 ocsf.severity_id = 1
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
-// --- Occurrence attributes --------------------
+// --- OCSF: occurrence attributes --------------
+
+// Capture when the event happened
 ocsf.time = move zeek.ts
 ocsf.duration = move zeek.duration
-ocsf.end_time = ocsf.time + ocsf.duration if ocsf.duration != null
 ocsf.start_time = ocsf.time
+ocsf.end_time = ocsf.time + ocsf.duration if ocsf.duration != null
 
-// --- Context attributes -----------------------
+// --- OCSF: context attributes -----------------
+
+// Metadata about the event source
 ocsf.metadata = {
   log_name: "conn.log",
   product: {
@@ -369,7 +107,10 @@ ocsf.metadata = {
 drop zeek._path?, zeek._write_ts?
 ocsf.app_name = move zeek.service
 
-// --- Primary attributes -----------------------
+// --- OCSF: primary attributes -----------------
+
+// Primary attributes reflect the core semantic meaning of the event.
+
 ocsf.src_endpoint = {ip: zeek.id.orig_h, port: zeek.id.orig_p}
 ocsf.dst_endpoint = {ip: zeek.id.resp_h, port: zeek.id.resp_p}
 drop zeek.id
@@ -386,43 +127,89 @@ ocsf.status = "Other"
 ocsf.status_code = move zeek.conn_state
 
 ocsf.traffic = {
-  bytes_in: zeek.resp_bytes,
-  bytes_out: zeek.orig_bytes,
-  packets_in: zeek.resp_pkts,
-  packets_out: zeek.orig_pkts,
+  bytes_in: move zeek.resp_bytes,
+  bytes_out: move zeek.orig_bytes,
+  packets_in: move zeek.resp_pkts,
+  packets_out: move zeek.orig_pkts,
 }
-drop zeek.resp_bytes, zeek.orig_bytes, zeek.resp_pkts, zeek.orig_pkts
+
+// --- OCSF: profile-specific attributes --------
+
+// Add fields for declared profiles (host, network_proxy, etc.)
+// ocsf.device = {...}
+// ocsf.proxy = {...}
 
 // --- Epilogue ---------------------------------
+
+// Hoist OCSF fields to root, collect unmapped
 this = {...ocsf, unmapped: zeek}
 drop_null_fields unmapped
+
+// Derive sibling fields (activity_name, category_name, etc.)
 ocsf::derive
+
+// Set TQL-internal schema name for easier dispatching.
 @name = "ocsf.network_activity"
 ```
+
+### Key principles
+
+- **Isolate source data**: `this = { source: this }` prevents name clashes and
+  makes unmapped field collection automatic.
+- **Use `move`**: Transfer fields with `move` to simultaneously assign and
+  remove from source, for example `ocsf.time = move source.timestamp`.
+- **Use [`drop`](/reference/operators/drop) for multi-use fields**: When a field
+  appears in multiple mappings, drop it after the last use.
+- **Collect unmapped**: `this = {...ocsf, unmapped: source}` gathers any
+  fields you didn't map.
+
+:::note[Think in graphs]
+OCSF mapping is a bipartite graph transformation: source fields form one vertex
+set, OCSF attributes form another, and your mapping defines the edges. Edges can
+be 1:1 (direct assignment), 1:n (field splitting), n:1 (aggregation), or n:m
+(complex transformation). Fields with no outgoing edges remain `unmapped`.
+:::
+
+## Validate the mapping
+
+Use [`ocsf::cast`](/reference/operators/ocsf/cast) to validate that your mapping
+produces schema-compliant output:
+
+```tql
+ocsf::cast class_uid=4001
+```
+
+This operator checks that all required fields are present and correctly typed.
+Validation errors appear as warnings, helping you catch mapping issues early.
+
+:::tip[Agentic workflows]
+Schema validation is the critical feedback signal for autonomous agent loops. An
+AI agent can generate a mapping, run `ocsf::cast`, inspect the diagnostics, and
+refine the mapping until validation passes—converging on correct output without
+human intervention.
+:::
+
+For testing mappings in CI pipelines, see the [Package and test
+mappings](/guides/normalization/package-and-test-mappings) guide.
 
 ## Best practices
 
 1. **Map by attribute group**: Organize your TQL in clear sections matching
    OCSF attribute groups.
-
-2. **Use `move` for single-use fields**: This keeps your unmapped collection
-   accurate.
-
+2. **Use `move` keyword for single-use fields**: This keeps your unmapped
+   collection accurate.
 3. **Document edge cases**: Add comments explaining non-obvious mappings or
    why certain fields remain unmapped.
-
-4. **Validate early and often**: Run `ocsf::cast` during development to catch
-   issues.
-
+4. **Validate early and often**: Run [`ocsf::cast`](/reference/operators/ocsf/cast)
+   during development to catch issues.
 5. **Test with real data**: Use sample events from production to verify your
    mapping handles edge cases.
-
 6. **Package for reuse**: Extract mappings into user-defined operators for
    use across pipelines.
 
-## Related guides
+## See also
 
-- [Map data to OCSF tutorial](/tutorials/map-data-to-ocsf) - Complete tutorial
-- [Clean up values](/guides/normalization/clean-up-values) - Prepare data before mapping
-- [Package and test mappings](/guides/normalization/package-and-test-mappings) - Production-ready mappings
-- [Map to other schemas](/guides/normalization/map-to-other-schemas) - ECS, UDM, ASIM
+- <Tutorial>map-data-to-ocsf</Tutorial>
+- <Guide>normalization/clean-up-values</Guide>
+- <Guide>normalization/package-and-test-mappings</Guide>
+- <Guide>normalization/map-to-other-schemas</Guide>
