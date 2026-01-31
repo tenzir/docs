@@ -873,6 +873,13 @@ main {
   ) !important;
 }
 
+/* Fix active indicator for section direct children - no negative margin needed since no gray hairline */
+.sidebar-content .sidebar-section > ul > li > a[aria-current="page"],
+.sidebar-content .sidebar-section > ul > li > a[aria-current="page"]:hover {
+  margin-inline-start: 0;
+  padding-inline-start: calc(0.5rem - 2px) !important;
+}
+
 .sidebar-content {
   background-color: var(--sl-color-bg-sidebar) !important;
 }
