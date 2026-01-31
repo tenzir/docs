@@ -23,7 +23,7 @@ export const guides = [
         items: ["guides/installation", "guides/installation/create-account"],
       },
     ],
-    "sparkle",
+    "lightbulb",
   ),
   section("Setup", [
     {
