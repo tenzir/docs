@@ -4,43 +4,7 @@
  * Sections are detected by a badge with class "sidebar-section-marker".
  */
 import { Badge, Icon } from "@astrojs/starlight/components";
-import BookIcon from "./icons/BookIcon.astro";
-import ChartBarIcon from "./icons/ChartBarIcon.astro";
-import CircleHelpIcon from "./icons/CircleHelpIcon.astro";
-import CodeIcon from "./icons/CodeIcon.astro";
-import CompassIcon from "./icons/CompassIcon.astro";
-import CubeIcon from "./icons/CubeIcon.astro";
-import FnIcon from "./icons/FnIcon.astro";
-import GearIcon from "./icons/GearIcon.astro";
-import GraduationCapIcon from "./icons/GraduationCapIcon.astro";
-import HeartIcon from "./icons/HeartIcon.astro";
-import LayersIcon from "./icons/LayersIcon.astro";
-import LightbulbIcon from "./icons/LightbulbIcon.astro";
-import PackageIcon from "./icons/PackageIcon.astro";
-import PlugIcon from "./icons/PlugIcon.astro";
-import PuzzlePieceIcon from "./icons/PuzzlePieceIcon.astro";
-import ShieldIcon from "./icons/ShieldIcon.astro";
-import WrenchIcon from "./icons/WrenchIcon.astro";
-
-const iconComponents: Record<string, typeof BookIcon> = {
-  book: BookIcon,
-  "chart-bar": ChartBarIcon,
-  "circle-help": CircleHelpIcon,
-  code: CodeIcon,
-  compass: CompassIcon,
-  cube: CubeIcon,
-  fn: FnIcon,
-  gear: GearIcon,
-  "graduation-cap": GraduationCapIcon,
-  heart: HeartIcon,
-  layers: LayersIcon,
-  lightbulb: LightbulbIcon,
-  package: PackageIcon,
-  plug: PlugIcon,
-  "puzzle-piece": PuzzlePieceIcon,
-  shield: ShieldIcon,
-  wrench: WrenchIcon,
-};
+import { getIconComponent } from "../utils/icon-registry";
 
 // SidebarEntry types replicated from Starlight internals
 interface SidebarLink {
@@ -82,10 +46,13 @@ function getNextGroupIndex(): number {
   return index;
 }
 
-/** Flatten a nested sidebar tree into a flat list of links. */
-function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
+/**
+ * Recursively extracts all leaf links from a sidebar tree.
+ * Used to check if any descendant link is the current page.
+ */
+function extractLeafLinks(sidebar: SidebarEntry[]): SidebarLink[] {
   return sidebar.flatMap((entry) =>
-    entry.type === "group" ? flattenSidebar(entry.entries) : entry,
+    entry.type === "group" ? extractLeafLinks(entry.entries) : entry,
   );
 }
 
@@ -100,9 +67,10 @@ function isVisualSection(entry: SidebarEntry): boolean {
 
 /**
  * Extracts the icon name from a section's badge class.
+ * Icon names are encoded in badge classes as "icon-<name>" (e.g., "icon-lightbulb").
  * Returns null if no icon is specified.
  */
-function getSectionIcon(entry: SidebarEntry): string | null {
+function getSectionIconName(entry: SidebarEntry): string | null {
   if (entry.type !== "group" || !entry.badge?.class) return null;
   const match = entry.badge.class.match(/icon-(\S+)/);
   return match ? match[1] : null;
@@ -131,27 +99,28 @@ function getSectionIcon(entry: SidebarEntry): string | null {
           </a>
         ) : isVisualSection(entry) ? (
           /* Section header - non-collapsible with optional icon */
-          <div class="sidebar-section">
-            <div class="sidebar-section-header">
-              {getSectionIcon(entry) &&
-                iconComponents[getSectionIcon(entry)!] && (
-                  <span class="sidebar-section-icon">
-                    {(() => {
-                      const IconComponent =
-                        iconComponents[getSectionIcon(entry)!];
-                      return <IconComponent />;
-                    })()}
-                  </span>
-                )}
-              <span class="sidebar-section-label">{entry.label}</span>
-            </div>
-            <Astro.self sublist={entry.entries} nested />
-          </div>
+          (() => {
+            const iconName = getSectionIconName(entry);
+            const IconComponent = iconName ? getIconComponent(iconName) : undefined;
+            return (
+              <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                  {IconComponent && (
+                    <span class="sidebar-section-icon">
+                      <IconComponent />
+                    </span>
+                  )}
+                  <span class="sidebar-section-label">{entry.label}</span>
+                </div>
+                <Astro.self sublist={entry.entries} nested />
+              </div>
+            );
+          })()
         ) : (
           /* Standard collapsible group */
           <details
             open={
-              flattenSidebar(entry.entries).some((i) => i.isCurrent) ||
+              extractLeafLinks(entry.entries).some((i) => i.isCurrent) ||
               !entry.collapsed
             }
           >

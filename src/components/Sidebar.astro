@@ -4,31 +4,9 @@ import { Badge } from "@astrojs/starlight/components";
 import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import changelogProjects from "../changelog-projects.json";
 import { childTopics, dropdownTopics, topicParents } from "../topics.ts";
-import BookIcon from "./icons/BookIcon.astro";
-import CodeIcon from "./icons/CodeIcon.astro";
-import CompassIcon from "./icons/CompassIcon.astro";
-import FnIcon from "./icons/FnIcon.astro";
-import GearIcon from "./icons/GearIcon.astro";
-import GraduationCapIcon from "./icons/GraduationCapIcon.astro";
-import HeartIcon from "./icons/HeartIcon.astro";
-import LayersIcon from "./icons/LayersIcon.astro";
-import LightbulbIcon from "./icons/LightbulbIcon.astro";
-import PackageIcon from "./icons/PackageIcon.astro";
+import { getIconComponent } from "../utils/icon-registry";
 import SidebarSublist from "./SidebarSublist.astro";
 import TopicDropdown from "./TopicDropdown.astro";
-
-const iconComponents: Record<string, any> = {
-  compass: CompassIcon,
-  "graduation-cap": GraduationCapIcon,
-  lightbulb: LightbulbIcon,
-  book: BookIcon,
-  code: CodeIcon,
-  fn: FnIcon,
-  gear: GearIcon,
-  layers: LayersIcon,
-  package: PackageIcon,
-  heart: HeartIcon,
-};
 
 const { topics } = Astro.locals.starlightSidebarTopics;
 const { sidebar } = Astro.locals.starlightRoute;
@@ -43,10 +21,8 @@ const getTopicColor = (link: string | undefined): string | undefined => {
   return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
-// Find the current topic
+// Find the current topic (may be undefined on non-topic pages)
 const currentTopic = topics.find((topic) => topic.isCurrent);
-if (!currentTopic) {
-}
 
 // If current is a root → show its children
 // If current is a child → show its siblings
@@ -83,7 +59,7 @@ const dropdownItems = useDropdown
     {
       sidebarTopics.map((topic) => {
         const iconName = typeof topic.icon === 'string' ? topic.icon : topic.icon?.name;
-        const IconComponent = iconName ? iconComponents[iconName] : null;
+        const IconComponent = iconName ? getIconComponent(iconName) : undefined;
         return (
           <li>
             <a href={topic.link} class:list={{ 'starlight-sidebar-topics-current': topic.isCurrent }}>
