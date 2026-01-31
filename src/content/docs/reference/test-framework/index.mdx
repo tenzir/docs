@@ -308,8 +308,24 @@ the tests that use them without worrying about inheritance.
 ### Stdin inputs
 
 Place a `.stdin` file next to a test to provide content that the harness pipes
-to the subprocess stdin. The harness also exposes the file path via
-`TENZIR_STDIN`:
+to the subprocess stdin. This simplifies TQL tests by letting pipelines start
+with a parser directly instead of using `from_file env("TENZIR_INPUT")`:
+
+```text
+tests/parsing/
+  csv.stdin          # CSV data piped to stdin
+  csv.tql            # Test file starting with read_csv
+  csv.txt            # Expected output baseline
+```
+
+The TQL test reads directly from stdin:
+
+```tql
+read_csv
+sort name
+```
+
+For shell scripts, the same mechanism applies:
 
 ```text
 tests/shell/
@@ -318,16 +334,14 @@ tests/shell/
   echo.txt           # Expected output baseline
 ```
 
-A shell script that reads from stdin:
-
 ```sh
 #!/bin/sh
 cat
 ```
 
-The harness pipes the contents of `echo.stdin` to the script's stdin
-automatically. Tests can combine `.stdin` with `.input` when they need both
-stdin content and a test-specific input file:
+The harness pipes the contents of the `.stdin` file automatically. Tests can
+combine `.stdin` with `.input` when they need both stdin content and a
+test-specific input file:
 
 ```text
 tests/shell/
@@ -347,7 +361,9 @@ echo "from TENZIR_INPUT:"
 cat "$TENZIR_INPUT"
 ```
 
-The harness sets `TENZIR_STDIN` only when a matching `.stdin` file exists.
+The harness sets `TENZIR_STDIN` only when a matching `.stdin` file exists. TQL
+tests can also combine both mechanisms—start with a parser for stdin data while
+using `env("TENZIR_INPUT")` to reference additional files.
 
 ## Run a subset of tests
 

@@ -181,9 +181,39 @@ merge with `--package-dirs`.
 ## Step 7: Provide stdin input
 
 Some tests need data piped to stdin rather than read from files. Place a
-`.stdin` file next to the test to provide this content automatically.
+`.stdin` file next to the test to provide this content automatically. This
+simplifies TQL tests by letting pipelines start with a parser directly.
 
-Create `tests/shell/echo.sh`:
+### TQL pipelines with stdin
+
+Create `tests/parsing/csv.stdin` with your test data:
+
+```csv title="tests/parsing/csv.stdin"
+name,count
+alice,42
+bob,23
+```
+
+Create `tests/parsing/csv.tql` that reads from stdin:
+
+```tql title="tests/parsing/csv.tql"
+read_csv
+sort name
+```
+
+Run the test with `--update` to capture the baseline:
+
+```sh
+uvx tenzir-test --update tests/parsing/csv.tql
+```
+
+The harness pipes the CSV data to tenzir's stdin, so `read_csv` processes it
+directly. This avoids the `from_file env("TENZIR_INPUT")` pattern and makes
+tests more readable.
+
+### Shell scripts with stdin
+
+The same mechanism works for shell scripts. Create `tests/shell/echo.sh`:
 
 ```sh title="tests/shell/echo.sh"
 #!/bin/sh
@@ -196,14 +226,7 @@ Create `tests/shell/echo.stdin` with the input data:
 Hello from stdin!
 ```
 
-Run the test with `--update` to capture the baseline:
-
-```sh
-uvx tenzir-test --update tests/shell/echo.sh
-```
-
-The harness pipes the contents of `echo.stdin` to the script's stdin. The test
-outputs whatever it receives, which becomes the baseline in `echo.txt`.
+The harness pipes the contents of `echo.stdin` to the script's stdin.
 
 ### Combine stdin with input files
 
