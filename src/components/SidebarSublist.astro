@@ -1,0 +1,298 @@
+---
+/**
+ * Custom SidebarSublist component that supports visual section headers.
+ * Sections are detected by a badge with class "sidebar-section-marker".
+ */
+import { Badge, Icon } from "@astrojs/starlight/components";
+import BookIcon from "./icons/BookIcon.astro";
+import CodeIcon from "./icons/CodeIcon.astro";
+import CompassIcon from "./icons/CompassIcon.astro";
+import FnIcon from "./icons/FnIcon.astro";
+import GraduationCapIcon from "./icons/GraduationCapIcon.astro";
+import PlugIcon from "./icons/PlugIcon.astro";
+import SparkleIcon from "./icons/SparkleIcon.astro";
+
+const iconComponents: Record<string, typeof BookIcon> = {
+  book: BookIcon,
+  code: CodeIcon,
+  compass: CompassIcon,
+  fn: FnIcon,
+  "graduation-cap": GraduationCapIcon,
+  plug: PlugIcon,
+  sparkle: SparkleIcon,
+};
+
+// SidebarEntry types replicated from Starlight internals
+interface SidebarLink {
+  type: "link";
+  label: string;
+  href: string;
+  isCurrent: boolean;
+  badge?: { text: string; variant?: string; class?: string };
+  attrs: Record<string, string | undefined>;
+}
+
+interface SidebarGroup {
+  type: "group";
+  label: string;
+  entries: SidebarEntry[];
+  collapsed: boolean;
+  badge?: { text: string; variant?: string; class?: string };
+}
+
+type SidebarEntry = SidebarLink | SidebarGroup;
+
+interface Props {
+  sublist: SidebarEntry[];
+  nested?: boolean;
+}
+
+const { sublist, nested } = Astro.props;
+
+// SidebarRestorePoint logic - manage group index for state persistence
+const currentGroupIndexSymbol = Symbol.for("starlight-sidebar-group-index");
+const locals = Astro.locals as App.Locals & {
+  [typeof currentGroupIndexSymbol]: number;
+};
+
+/** Get the next sidebar group index and increment for the next call. */
+function getNextGroupIndex(): number {
+  const index = locals[currentGroupIndexSymbol] || 0;
+  locals[currentGroupIndexSymbol] = index + 1;
+  return index;
+}
+
+/** Flatten a nested sidebar tree into a flat list of links. */
+function flattenSidebar(sidebar: SidebarEntry[]): SidebarLink[] {
+  return sidebar.flatMap((entry) =>
+    entry.type === "group" ? flattenSidebar(entry.entries) : entry,
+  );
+}
+
+/**
+ * Detects if a group entry is a visual section (non-collapsible header with optional icon).
+ * Sections are marked with a badge that has the class "sidebar-section-marker".
+ */
+function isVisualSection(entry: SidebarEntry): boolean {
+  if (entry.type !== "group") return false;
+  return entry.badge?.class?.includes("sidebar-section-marker") ?? false;
+}
+
+/**
+ * Extracts the icon name from a section's badge class.
+ * Returns null if no icon is specified.
+ */
+function getSectionIcon(entry: SidebarEntry): string | null {
+  if (entry.type !== "group" || !entry.badge?.class) return null;
+  const match = entry.badge.class.match(/icon-(\S+)/);
+  return match ? match[1] : null;
+}
+---
+
+<ul class:list={{ "top-level": !nested }}>
+  {
+    sublist.map((entry) => (
+      <li>
+        {entry.type === "link" ? (
+          <a
+            href={entry.href}
+            aria-current={entry.isCurrent && "page"}
+            class:list={[{ large: !nested }, entry.attrs.class]}
+            {...entry.attrs}
+          >
+            <span>{entry.label}</span>
+            {entry.badge && (
+              <Badge
+                variant={entry.badge.variant as any}
+                class={entry.badge.class}
+                text={entry.badge.text}
+              />
+            )}
+          </a>
+        ) : isVisualSection(entry) ? (
+          /* Section header - non-collapsible with optional icon */
+          <div class="sidebar-section">
+            <div class="sidebar-section-header">
+              {getSectionIcon(entry) &&
+                iconComponents[getSectionIcon(entry)!] && (
+                  <span class="sidebar-section-icon">
+                    {(() => {
+                      const IconComponent =
+                        iconComponents[getSectionIcon(entry)!];
+                      return <IconComponent />;
+                    })()}
+                  </span>
+                )}
+              <span class="sidebar-section-label">{entry.label}</span>
+            </div>
+            <Astro.self sublist={entry.entries} nested />
+          </div>
+        ) : (
+          /* Standard collapsible group */
+          <details
+            open={
+              flattenSidebar(entry.entries).some((i) => i.isCurrent) ||
+              !entry.collapsed
+            }
+          >
+            <summary>
+              <span class="group-label">
+                <span class="large">{entry.label}</span>
+                {entry.badge && (
+                  <Badge
+                    variant={entry.badge.variant as any}
+                    class={entry.badge.class}
+                    text={entry.badge.text}
+                  />
+                )}
+              </span>
+              <Icon name="right-caret" class="caret" size="1.25rem" />
+            </summary>
+            {/* SidebarRestorePoint inline - for state persistence */}
+            <sl-sidebar-restore data-index={getNextGroupIndex()} />
+            <Astro.self sublist={entry.entries} nested />
+          </details>
+        )}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  @layer starlight.core {
+    ul {
+      --sl-sidebar-item-padding-inline: 0.5rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      overflow-wrap: anywhere;
+    }
+
+    ul ul li {
+      margin-inline-start: var(--sl-sidebar-item-padding-inline);
+      border-inline-start: 1px solid var(--sl-color-hairline-light);
+      padding-inline-start: var(--sl-sidebar-item-padding-inline);
+    }
+
+    .large {
+      font-size: var(--sl-text-lg);
+      font-weight: 600;
+      color: var(--sl-color-white);
+    }
+
+    .top-level > li + li {
+      margin-top: 0.75rem;
+    }
+
+    summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.2em var(--sl-sidebar-item-padding-inline);
+      line-height: 1.4;
+      cursor: pointer;
+      user-select: none;
+    }
+    summary::marker,
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .caret {
+      transition: transform 0.2s ease-in-out;
+      flex-shrink: 0;
+    }
+    :global([dir="rtl"]) .caret {
+      transform: rotateZ(180deg);
+    }
+    [open] > summary .caret {
+      transform: rotateZ(90deg);
+    }
+
+    a {
+      display: block;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      color: var(--sl-color-gray-2);
+      padding: 0.3em var(--sl-sidebar-item-padding-inline);
+      line-height: 1.4;
+    }
+
+    a:hover,
+    a:focus {
+      color: var(--sl-color-white);
+    }
+
+    [aria-current="page"],
+    [aria-current="page"]:hover,
+    [aria-current="page"]:focus {
+      font-weight: 600;
+      color: var(--sl-color-text-invert);
+      background-color: var(--sl-color-text-accent);
+    }
+
+    a > *:not(:last-child),
+    .group-label > *:not(:last-child) {
+      margin-inline-end: 0.25em;
+    }
+
+    @media (min-width: 50rem) {
+      .top-level > li + li {
+        margin-top: 0.5rem;
+      }
+      .large {
+        font-size: var(--sl-text-base);
+      }
+      a {
+        font-size: var(--sl-text-sm);
+      }
+    }
+  }
+
+  /* Section header styles */
+  .sidebar-section {
+    margin-top: var(--tnz-space-6);
+  }
+
+  .sidebar-section:first-child,
+  li:first-child > .sidebar-section {
+    margin-top: 0;
+  }
+
+  .sidebar-section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--tnz-space-2);
+    padding: var(--tnz-space-2) var(--sl-sidebar-item-padding-inline);
+  }
+
+  .sidebar-section-icon {
+    color: var(--tnz-neutral-500);
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-section-icon :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .sidebar-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--tnz-neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :root[data-theme="light"] .sidebar-section-label,
+  :root[data-theme="light"] .sidebar-section-icon {
+    color: var(--tnz-neutral-500);
+  }
+</style>
