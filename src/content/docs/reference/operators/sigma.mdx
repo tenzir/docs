@@ -6,7 +6,7 @@ example: 'sigma "/tmp/rules/"'
 
 import Op from '@components/see-also/Op.astro';
 import Guide from '@components/see-also/Guide.astro';
-import Explanation from '@components/see-also/Explanation.astro';
+import Reference from '@components/see-also/Reference.astro';
 
 Filter the input with Sigma rules and output matching events.
 
@@ -25,7 +25,7 @@ operator discards all events that do not match the provided rules.
 <summary> Transpilation Process </summary>
 
 For each rule, the operator transpiles the YAML into an
-[expression](/explanations/language/expressions) and instantiates a
+[expression](/reference/expressions) and instantiates a
 [`where`](/reference/operators/where) operator, followed by assignments to
 generate an output. Here's how the transpilation works. The Sigma rule YAML
 format requires a `detection` attribute that includes a map of named
@@ -154,4 +154,4 @@ will match it on all subsequent inputs.
 
 - <Op>where</Op>
 - <Guide>enrichment/execute-sigma-rules</Guide>
-- <Explanation>language/expressions</Explanation>
+- <Reference>expressions</Reference>

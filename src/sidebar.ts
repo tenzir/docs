@@ -199,35 +199,33 @@ export const guides = [
 ];
 
 export const tutorials = [
-  "tutorials/learn-idiomatic-tql",
-  "tutorials/write-a-package",
-  "tutorials/map-data-to-ocsf",
-  "tutorials/plot-data-with-charts",
+  section(
+    "Fundamentals",
+    [
+      "tutorials/learn-idiomatic-tql",
+      "tutorials/write-a-package",
+      "tutorials/map-data-to-ocsf",
+    ],
+    "code",
+  ),
+  section("Analytics", ["tutorials/plot-data-with-charts"], "chart-bar"),
 ];
 
 export const explanations = [
   section(
+    "Architecture",
+    [
+      "explanations/deployment",
+      "explanations/pipeline",
+      "explanations/node",
+      "explanations/platform",
+      "explanations/language",
+    ],
+    "layers",
+  ),
+  section(
     "Concepts",
     [
-      {
-        label: "Architecture",
-        items: [
-          "explanations/architecture",
-          "explanations/architecture/pipeline",
-          "explanations/architecture/node",
-          "explanations/architecture/platform",
-        ],
-      },
-      {
-        label: "Language (TQL)",
-        items: [
-          "explanations/language",
-          "explanations/language/types",
-          "explanations/language/expressions",
-          "explanations/language/statements",
-          "explanations/language/programs",
-        ],
-      },
       "explanations/configuration",
       "explanations/secrets",
       "explanations/enrichment",
@@ -244,16 +242,14 @@ export const explanations = [
 
 export const reference = [
   section(
-    "Language",
+    "Language (TQL)",
     [
-      {
-        label: "Operators",
-        link: "reference/operators",
-      },
-      {
-        label: "Functions",
-        link: "reference/functions",
-      },
+      "reference/types",
+      "reference/expressions",
+      "reference/statements",
+      "reference/programs",
+      { label: "Operators", link: "reference/operators" },
+      { label: "Functions", link: "reference/functions" },
     ],
     "code",
   ),
