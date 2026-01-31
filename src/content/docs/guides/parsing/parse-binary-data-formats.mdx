@@ -1,0 +1,223 @@
+---
+title: Parse binary data formats
+---
+
+This guide shows you how to parse binary data formats into structured events
+using TQL. You'll learn to work with columnar formats like Parquet and Feather,
+packet captures in PCAP format, and Tenzir's native Bitz format.
+
+## Columnar data formats
+
+Columnar formats store data in columns rather than rows, providing excellent
+compression and fast analytical queries. TQL supports reading the most common
+columnar formats.
+
+### Apache Parquet
+
+[Apache Parquet](https://parquet.apache.org/) is widely used in data lakes and
+analytics pipelines. Use [`read_parquet`](/reference/operators/read_parquet):
+
+```tql
+load_file "events.parquet"
+read_parquet
+```
+
+Parquet files often come from cloud storage:
+
+```tql
+from_file "s3://datalake/events/*.parquet"
+```
+
+The `from_file` operator automatically detects Parquet format from the file
+extension.
+
+### Apache Feather
+
+[Apache Feather](https://arrow.apache.org/docs/python/feather.html) (also known
+as Arrow IPC) provides fast read/write with minimal serialization overhead. Use
+[`read_feather`](/reference/operators/read_feather):
+
+```tql
+load_file "data.feather"
+read_feather
+```
+
+Feather is particularly efficient for inter-process communication and temporary
+storage.
+
+## Network packet formats
+
+TQL supports parsing network packet captures for network forensics and security
+analysis.
+
+### PCAP format
+
+[PCAP](https://wiki.wireshark.org/Development/LibpcapFileFormat) is the standard
+format for packet captures. Use [`read_pcap`](/reference/operators/read_pcap):
+
+```tql
+load_file "capture.pcap"
+read_pcap
+```
+
+Each packet becomes an event with metadata and raw packet data:
+
+```tql
+{
+  linktype: 1,
+  timestamp: 2024-01-15T10:30:45.123456Z,
+  captured_packet_length: 74,
+  original_packet_length: 74,
+  data: "ABY88f1tZJ7zvttmCABFAAA8...",
+}
+```
+
+### Decapsulate packets
+
+Extract protocol headers from raw packet data:
+
+```tql
+load_file "capture.pcap"
+read_pcap
+packet = decapsulate(this)
+```
+
+The [`decapsulate`](/reference/functions/decapsulate) function parses Ethernet,
+IP, TCP, UDP, and ICMP headers:
+
+```tql
+{
+  packet: {
+    ether: {src: "64-9E-F3-BE-DB-66", dst: "00-16-3C-F1-FD-6D", type: 2048},
+    ip: {src: "192.168.1.100", dst: "10.0.0.1", type: 6},
+    tcp: {src_port: 54321, dst_port: 443},
+    community_id: "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM=",
+  },
+}
+```
+
+### Live packet capture
+
+Capture packets directly from a network interface:
+
+```tql
+load_nic "eth0"
+read_pcap
+packet = decapsulate(this)
+```
+
+Apply BPF filters to capture specific traffic:
+
+```tql
+load_nic "eth0", filter="tcp port 443"
+read_pcap
+```
+
+## Tenzir native formats
+
+Tenzir provides optimized binary formats for internal use.
+
+### Bitz format
+
+[Bitz](/reference/operators/read_bitz) is Tenzir's native columnar format,
+optimized for schema-rich security data. Use
+[`read_bitz`](/reference/operators/read_bitz):
+
+```tql
+load_file "archive.bitz"
+read_bitz
+```
+
+Bitz files are commonly produced when exporting from a Tenzir node:
+
+```tql
+export
+write_bitz
+save_file "backup.bitz"
+```
+
+## Compressed binary data
+
+Binary formats often come compressed. TQL automatically handles common
+compression formats based on file extensions:
+
+```tql
+// Gzip-compressed Parquet
+from_file "data.parquet.gz"
+
+// Zstd-compressed PCAP
+load_file "capture.pcap.zst"
+decompress_zstd
+read_pcap
+```
+
+When file extensions don't indicate compression, decompress explicitly:
+
+```tql
+load_file "mystery.bin"
+decompress_gzip
+read_parquet
+```
+
+## Common patterns
+
+### Analyze packet captures
+
+Extract network flows from a capture:
+
+```tql
+load_file "capture.pcap"
+read_pcap
+packet = decapsulate(this)
+select
+  timestamp,
+  src=packet.ip.src,
+  dst=packet.ip.dst,
+  proto=packet.ip.type,
+  community_id=packet.community_id
+```
+
+### Process data lake exports
+
+Read partitioned Parquet data from cloud storage:
+
+```tql
+from_file "s3://datalake/year=2024/month=01/**/*.parquet"
+where event_type == "authentication"
+```
+
+### Convert between formats
+
+Transform binary formats for different use cases:
+
+```tql
+// Parquet to Feather
+load_file "input.parquet"
+read_parquet
+write_feather
+save_file "output.feather"
+
+// PCAP to JSON for analysis
+load_file "capture.pcap"
+read_pcap
+packet = decapsulate(this)
+write_json
+save_file "packets.json"
+```
+
+## Performance considerations
+
+1. **Columnar formats**: Parquet and Feather support column pruning. Selecting
+   specific fields reduces I/O and memory usage.
+
+2. **PCAP processing**: Packet capture files can be large. Use filters to
+   reduce data volume before detailed analysis.
+
+3. **Compression trade-offs**: Compressed files reduce I/O but require CPU for
+   decompression. Zstd offers a good balance of compression ratio and speed.
+
+## Related guides
+
+- [Parse text streams into events](/guides/parsing/parse-text-streams-into-events) - Line-based parsing
+- [Parse log messages from strings](/guides/parsing/parse-log-messages-from-strings) - Text format parsing
+- [Get data from the network](/guides/collecting/get-data-from-the-network) - Packet capture

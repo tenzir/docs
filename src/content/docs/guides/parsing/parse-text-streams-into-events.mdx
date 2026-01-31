@@ -1,0 +1,203 @@
+---
+title: Parse text streams into events
+---
+
+This guide shows you how to convert byte streams into individual events using
+TQL's line-oriented parsers. You'll learn to split incoming data on line
+boundaries, custom delimiters, and regular expression patterns.
+
+## Line-based parsing
+
+The most common way to convert a byte stream into events is splitting on line
+boundaries. Each line becomes a separate event.
+
+### Read lines
+
+Use [`read_lines`](/reference/operators/read_lines) to split a byte stream on
+newline characters:
+
+```tql
+load_file "/var/log/app.log"
+read_lines
+```
+
+Each line becomes an event with the line content in a `content` field:
+
+```tql
+{content: "2024-01-15 10:30:45 INFO Application started"}
+{content: "2024-01-15 10:30:46 DEBUG Processing request"}
+```
+
+### Skip empty lines
+
+Filter out empty lines to focus on content:
+
+```tql
+load_file "/var/log/app.log"
+read_lines
+where content != ""
+```
+
+### Parse line content
+
+After splitting into lines, parse each line's content into structured data:
+
+```tql
+load_file "/var/log/app.log"
+read_lines
+parsed = content.parse_grok("%{TIMESTAMP_ISO8601:ts} %{LOGLEVEL:level} %{GREEDYDATA:message}")
+```
+
+## Delimiter-based parsing
+
+When data uses delimiters other than newlines, use the delimited readers.
+
+### Fixed string delimiter
+
+Use [`read_delimited`](/reference/operators/read_delimited) for fixed-string
+separators:
+
+```tql
+load_file "records.dat"
+read_delimited separator="|||"
+```
+
+This splits on every occurrence of `|||`, producing events with the content
+between delimiters.
+
+### Record terminator patterns
+
+Some formats use specific record terminators. Configure the separator
+accordingly:
+
+```tql
+// Double newline separated records
+load_file "paragraphs.txt"
+read_delimited separator="\n\n"
+
+// Null-byte terminated (common in some protocols)
+load_tcp "0.0.0.0:9000"
+read_delimited separator="\x00"
+```
+
+## Regex-based parsing
+
+When delimiters follow patterns rather than fixed strings, use regex-based
+splitting.
+
+### Split on patterns
+
+Use [`read_delimited_regex`](/reference/operators/read_delimited_regex) for
+pattern-based splitting:
+
+```tql
+load_file "log.txt"
+read_delimited_regex separator=r"(?m)^\d{4}-\d{2}-\d{2}"
+```
+
+This splits on date patterns at the start of lines, useful for multi-line log
+entries where each entry starts with a timestamp.
+
+### Capture groups
+
+Extract data from the delimiter itself using capture groups:
+
+```tql
+load_file "structured.log"
+read_delimited_regex separator=r"\[(\w+)\]"
+```
+
+## Working with structured formats
+
+After splitting bytes into text events, parse the content into structured data.
+
+### JSON lines
+
+When each line contains a JSON object:
+
+```tql
+load_file "events.jsonl"
+read_lines
+this = content.parse_json()
+```
+
+Or use the dedicated [`read_ndjson`](/reference/operators/read_ndjson) operator:
+
+```tql
+load_file "events.jsonl"
+read_ndjson
+```
+
+### Key-value pairs
+
+Parse key-value formatted lines:
+
+```tql
+load_file "metrics.log"
+read_lines
+metrics = content.parse_kv()
+```
+
+### Syslog
+
+Parse syslog-formatted lines:
+
+```tql
+load_file "/var/log/syslog"
+read_lines
+this = content.parse_syslog()
+```
+
+## Common patterns
+
+### Multi-line log entries
+
+Handle log entries that span multiple lines (like stack traces):
+
+```tql
+load_file "app.log"
+read_delimited_regex separator=r"(?m)^(?=\d{4}-\d{2}-\d{2})"
+// Each event now contains a complete entry including any continuation lines
+```
+
+### Streaming from network
+
+Apply line-based parsing to network streams:
+
+```tql
+from "tcp://0.0.0.0:9000" {
+  read_lines
+}
+parsed = content.parse_json()
+```
+
+### Mixed-format processing
+
+Handle files with headers or footers:
+
+```tql
+load_file "data.txt"
+read_lines
+// Skip header line
+slice begin=1
+// Parse content
+data = content.parse_csv(header=["id", "name", "value"])
+```
+
+## Performance considerations
+
+1. **Buffer size**: Line-based parsers buffer data until finding delimiters.
+   Very long lines or rare delimiters increase memory usage.
+
+2. **Regex complexity**: Complex regex patterns in `read_delimited_regex` impact
+   performance. Use simpler patterns or fixed delimiters when possible.
+
+3. **Downstream parsing**: Parsing structured data from text (like JSON or
+   key-value pairs) adds processing overhead. Consider using binary formats for
+   high-volume data.
+
+## Related guides
+
+- [Parse binary data formats](/guides/parsing/parse-binary-data-formats) - Binary format parsing
+- [Parse log messages from strings](/guides/parsing/parse-log-messages-from-strings) - String-to-structure parsing
+- [Read and watch files](/guides/collecting/read-and-watch-files) - File collection

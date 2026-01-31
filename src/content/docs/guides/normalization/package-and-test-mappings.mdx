@@ -1,0 +1,314 @@
+---
+title: Package and test mappings
+---
+
+This guide shows you how to create production-ready normalization mappings.
+You'll learn to structure mappings as reusable operators, write tests with
+expected outputs, and validate against schemas.
+
+## Structure mappings as operators
+
+Instead of embedding mapping logic directly in pipelines, extract it into
+user-defined operators for reuse.
+
+### Basic operator structure
+
+Create a file in your package's `operators/` directory:
+
+```tql title="myproduct/operators/ocsf/map.tql"
+// Map MyProduct logs to OCSF
+// Dispatches to specific log type mappers
+
+match @name {
+  "myproduct.auth" => myproduct::ocsf::logs::auth
+  "myproduct.network" => myproduct::ocsf::logs::network
+  "myproduct.file" => myproduct::ocsf::logs::file
+}
+```
+
+Each log type gets its own operator:
+
+```tql title="myproduct/operators/ocsf/logs/auth.tql"
+// Map MyProduct authentication logs to OCSF Authentication (3002)
+
+this = { src: this }
+
+ocsf.category_uid = 3
+ocsf.class_uid = 3002
+ocsf.activity_id = 1
+ocsf.severity_id = 1
+ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
+
+ocsf.time = move src.timestamp
+// ... remaining mappings
+
+this = {...ocsf, unmapped: src}
+drop_null_fields unmapped
+ocsf::derive
+@name = "ocsf.authentication"
+```
+
+### Package structure
+
+Organize your package following this structure:
+
+```
+myproduct/
+├── operators/
+│   └── ocsf/
+│       ├── map.tql           # Main dispatcher
+│       └── logs/
+│           ├── auth.tql      # Authentication logs
+│           ├── network.tql   # Network logs
+│           └── file.tql      # File activity logs
+├── tests/
+│   ├── inputs/               # Sample data
+│   │   ├── auth.json
+│   │   ├── network.json
+│   │   └── file.json
+│   ├── map_auth.tql          # Test scenarios
+│   ├── map_auth.txt          # Expected output
+│   ├── map_network.tql
+│   ├── map_network.txt
+│   └── ...
+└── package.yaml
+```
+
+### Use the operator
+
+After installation, use the operator in any pipeline:
+
+```tql
+from_kafka "myproduct-logs"
+this = message.parse_json()
+myproduct::ocsf::map
+```
+
+## Write tests
+
+Tests ensure your mappings produce correct output and don't regress.
+
+### Test file structure
+
+Each test consists of:
+
+- A `.tql` file with the test pipeline
+- A `.txt` file with expected output (generated or hand-written)
+- Input data in `tests/inputs/`
+
+```tql title="myproduct/tests/map_auth.tql"
+from_file "./inputs/auth.json"
+read_json
+myproduct::ocsf::map
+head 1
+```
+
+### Run tests
+
+Use the test framework to execute tests:
+
+```bash
+cd myproduct/
+uvx tenzir-test
+```
+
+Output:
+
+```
+i executing project: myproduct (.)
+i running 3 tests (12 jobs) in project .
+✔ tests/map_auth.tql
+✔ tests/map_network.tql
+✔ tests/map_file.tql
+i ran 3 tests: 3 passed (100%) / 0 failed (0%)
+```
+
+### Generate baselines
+
+When creating new tests, generate the expected output:
+
+```bash
+uvx tenzir-test --update
+```
+
+This creates `.txt` files with the actual output. Review them to ensure
+correctness before committing.
+
+### View test output
+
+To inspect output without saving:
+
+```bash
+uvx tenzir-test --passthrough
+```
+
+### Test edge cases
+
+Create tests for unusual inputs:
+
+```tql title="myproduct/tests/map_auth_missing_fields.tql"
+// Test mapping with optional fields missing
+from {
+  timestamp: 2024-01-15T10:30:45Z,
+  user: "alice",
+  // action field is missing
+}
+@name = "myproduct.auth"
+myproduct::ocsf::map
+```
+
+## Validate with schema casts
+
+Use [`ocsf::cast`](/reference/operators/ocsf/cast) to validate output against
+the OCSF schema.
+
+### Basic validation
+
+```tql
+myproduct::ocsf::map
+ocsf::cast class_uid=4001
+```
+
+Validation errors appear as warnings:
+
+```
+warning: OCSF validation failed: missing required field 'time'
+```
+
+### Validate in tests
+
+Add validation to your test pipelines:
+
+```tql title="myproduct/tests/map_network_validate.tql"
+from_file "./inputs/network.json"
+read_json
+myproduct::ocsf::map
+ocsf::cast class_uid=4001  // Validate as Network Activity
+```
+
+### Handle validation warnings
+
+If validation finds issues, decide whether to:
+
+1. Fix the mapping to include missing fields
+2. Document why a field is intentionally omitted
+3. Add a default value for missing fields
+
+## Test input data
+
+### Create representative samples
+
+Your test inputs should cover:
+
+- Typical events with all common fields
+- Events with optional fields missing
+- Events with unusual values (empty strings, nulls)
+- Edge cases specific to your data source
+
+```json title="myproduct/tests/inputs/auth.json"
+[
+  {
+    "timestamp": "2024-01-15T10:30:45Z",
+    "user": "alice",
+    "action": "login",
+    "status": "success",
+    "src_ip": "192.168.1.100"
+  },
+  {
+    "timestamp": "2024-01-15T10:31:00Z",
+    "user": "bob",
+    "action": "login",
+    "status": "failure",
+    "src_ip": "10.0.0.5",
+    "failure_reason": "invalid_password"
+  },
+  {
+    "timestamp": "2024-01-15T10:32:00Z",
+    "user": "",
+    "action": "login",
+    "status": "failure"
+  }
+]
+```
+
+### Stdin-based inputs
+
+For simple inline data, use stdin syntax:
+
+```tql title="myproduct/tests/map_simple.tql"
+stdin
+---
+{"timestamp": "2024-01-15T10:30:45Z", "user": "alice", "action": "login"}
+---
+read_json
+@name = "myproduct.auth"
+myproduct::ocsf::map
+```
+
+## Document your mappings
+
+### Inline comments
+
+Add comments explaining non-obvious decisions:
+
+```tql
+// MyProduct uses -1 to indicate "any port"
+ocsf.dst_endpoint.port = null if src.port == -1
+
+// conn_state maps to OCSF status but meanings differ
+// SF = "normal termination" → Success
+// REJ = "connection refused" → Failure
+if src.conn_state == "SF" {
+  ocsf.status_id = 1
+  ocsf.status = "Success"
+} else {
+  ocsf.status_id = 2
+  ocsf.status = "Failure"
+}
+```
+
+### Mapping reference
+
+Maintain a mapping reference in your package documentation:
+
+```markdown
+# MyProduct OCSF Mapping
+
+## Authentication (3002)
+
+| Source Field | OCSF Field | Notes |
+|--------------|------------|-------|
+| timestamp | time | Direct mapping |
+| user | actor.user.name | |
+| action | activity_id | login=1, logout=2, ... |
+| status | status_id | success=1, failure=2 |
+| src_ip | src_endpoint.ip | Parsed to IP type |
+```
+
+## Best practices
+
+1. **One operator per log type**: Keep mappings focused and testable.
+
+2. **Use a dispatcher**: Create a main `map` operator that routes to specific
+   log type mappers based on `@name`.
+
+3. **Test edge cases**: Include tests for missing fields, empty values, and
+   unusual inputs.
+
+4. **Validate output**: Run `ocsf::cast` in tests to catch schema violations.
+
+5. **Generate baselines carefully**: Review generated test baselines before
+   committing to ensure they're actually correct.
+
+6. **Document decisions**: Comment on non-obvious mappings and maintain a
+   mapping reference.
+
+7. **Version your mappings**: Update metadata.version when changing mappings
+   so consumers know which version produced their data.
+
+## Related guides
+
+- [Map to OCSF](/guides/normalization/map-to-ocsf) - OCSF mapping fundamentals
+- [Create a package](/guides/packages/create-a-package) - Package creation
+- [Write tests](/guides/testing/write-tests) - Test framework details
+- [Test framework reference](/reference/test-framework) - Complete test framework documentation

@@ -1,0 +1,144 @@
+---
+title: Collect data
+---
+
+This guide provides an overview of data collection in TQL. You'll learn about
+the different types of operators that acquire data and how to compose them
+for various ingestion scenarios.
+
+## Understanding input operators
+
+TQL provides two classes of operators for acquiring data:
+
+1. **Void-to-bytes operators**: Produce raw bytes from external sources like
+   files, network sockets, or cloud storage. Examples include
+   [`load_file`](/reference/operators/load_file),
+   [`load_tcp`](/reference/operators/load_tcp), and
+   [`load_http`](/reference/operators/load_http).
+
+2. **Void-to-events operators**: Produce structured events directly without an
+   intermediate byte stream. Examples include
+   [`from_kafka`](/reference/operators/from_kafka),
+   [`from_udp`](/reference/operators/from_udp), and
+   [`from_google_cloud_pubsub`](/reference/operators/from_google_cloud_pubsub).
+
+The distinction matters when you compose pipelines. Void-to-bytes operators
+require a parsing operator (like `read_json` or `read_csv`) to produce
+structured events, while void-to-events operators produce events directly:
+
+```tql
+// Void-to-bytes: requires parsing
+load_file "data.json"
+read_json
+
+// Void-to-events: produces events directly
+from_kafka "events"
+```
+
+## The generic `from` operator
+
+The [`from`](/reference/operators/from) operator provides a unified interface
+for data collection. It automatically dispatches to the appropriate specialized
+operator based on the URL scheme or file extension:
+
+```tql
+// File-based collection
+from "file://data.csv"
+
+// Cloud storage
+from "s3://bucket/path/data.parquet"
+
+// Network protocols
+from "tcp://192.168.1.1:9000"
+
+// Message brokers (via URL scheme)
+from "amqp://user:pass@broker:5672/queue"
+```
+
+When automatic format detection doesn't suffice, provide a parsing pipeline:
+
+```tql
+from "s3://bucket/logs/app.log" {
+  read_lines
+}
+```
+
+## Collection patterns
+
+Different data sources require different collection approaches.
+
+### Files and cloud storage
+
+Read local files, watch directories for changes, or access cloud storage:
+
+```tql
+// Single file with automatic format detection
+from_file "/var/log/app.json"
+
+// Watch a directory for new files
+from_file "/incoming/*.csv", watch=true
+
+// Cloud storage with glob patterns
+from_file "s3://bucket/data/**/*.parquet"
+```
+
+See the [file collection guide](/guides/collecting/read-and-watch-files) for
+details.
+
+### HTTP and APIs
+
+Fetch data from web APIs with authentication, pagination, and retry handling:
+
+```tql
+from_http "https://api.example.com/events",
+  headers={"Authorization": "Bearer " + secret("API_TOKEN")}
+```
+
+See the [HTTP and API guide](/guides/collecting/fetch-via-http-and-apis) for
+pagination patterns and advanced configurations.
+
+### Message brokers
+
+Subscribe to topics or queues from Apache Kafka, AMQP, Amazon SQS, and Google
+Cloud Pub/Sub:
+
+```tql
+from_kafka "security-events", offset="end"
+```
+
+See the [message broker guide](/guides/collecting/get-events-from-message-brokers)
+for broker-specific configurations.
+
+### Network data
+
+Receive data over TCP or UDP sockets, or capture packets from network
+interfaces:
+
+```tql
+// UDP syslog receiver
+from_udp "0.0.0.0:514"
+
+// TCP with TLS
+from "tcp://0.0.0.0:8443", tls=true
+```
+
+See the [network data guide](/guides/collecting/get-data-from-the-network) for
+socket configurations and packet capture.
+
+## Legacy operators
+
+:::info[Migration note]
+The `from_*` family of operators supersedes the older `load_*` operators that
+produce bytes. While `load_*` operators remain supported, prefer the newer
+`from_*` variants which provide a more unified experience with built-in format
+inference.
+
+For example, `from_file "data.csv"` replaces `load_file "data.csv" | read_csv`.
+:::
+
+## Related guides
+
+- [Read and watch files](/guides/collecting/read-and-watch-files) - File-based collection
+- [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis) - Web API integration
+- [Get events from message brokers](/guides/collecting/get-events-from-message-brokers) - Kafka, AMQP, SQS
+- [Get data from the network](/guides/collecting/get-data-from-the-network) - TCP, UDP, packets
