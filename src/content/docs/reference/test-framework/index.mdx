@@ -43,6 +43,9 @@ uvx tenzir-test --help
   you can override it per directory or per test with an `inputs:` setting. The
   harness also supports inline inputs via `TENZIR_INPUT` for test-specific data
   files.
+- **Stdin** – Content piped to the test process via a `.stdin` file placed next
+  to the test. The harness exposes the file path via `TENZIR_STDIN` and
+  automatically pipes its content to the subprocess stdin.
 - **Scratch directory** – Ephemeral workspace exposed as `TENZIR_TMP_DIR` during
   each test run.
 - **Artifact / Baseline** – Runner output persisted next to the test; regenerate
@@ -68,6 +71,10 @@ project-root/
     │   ├── csv.input           # Inline input for this test
     │   ├── csv.tql
     │   └── csv.txt
+    ├── shell/
+    │   ├── echo.sh
+    │   ├── echo.stdin          # Stdin content piped to the test
+    │   └── echo.txt
     └── python/
         └── quick-check.py
 ```
@@ -297,6 +304,50 @@ Resolution hierarchy for `TENZIR_INPUTS`:
 When multiple `inputs/` directories exist in the hierarchy, the nearest one
 shadows the others. This keeps the mental model simple: move inputs closer to
 the tests that use them without worrying about inheritance.
+
+### Stdin inputs
+
+Place a `.stdin` file next to a test to provide content that the harness pipes
+to the subprocess stdin. The harness also exposes the file path via
+`TENZIR_STDIN`:
+
+```text
+tests/shell/
+  echo.stdin         # Content piped to stdin
+  echo.sh            # Test file
+  echo.txt           # Expected output baseline
+```
+
+A shell script that reads from stdin:
+
+```sh
+#!/bin/sh
+cat
+```
+
+The harness pipes the contents of `echo.stdin` to the script's stdin
+automatically. Tests can combine `.stdin` with `.input` when they need both
+stdin content and a test-specific input file:
+
+```text
+tests/shell/
+  process.stdin      # Content piped to stdin
+  process.input      # Input file accessible via TENZIR_INPUT
+  process.sh         # Test file
+  process.txt        # Expected output baseline
+```
+
+A script using both mechanisms:
+
+```sh
+#!/bin/sh
+echo "from stdin:"
+cat
+echo "from TENZIR_INPUT:"
+cat "$TENZIR_INPUT"
+```
+
+The harness sets `TENZIR_STDIN` only when a matching `.stdin` file exists.
 
 ## Run a subset of tests
 
@@ -575,6 +626,9 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
   folder. Reflects any `inputs:` override from `test.yaml` or frontmatter.
 - `TENZIR_INPUT` – Path to the inline input file when a `.input` file exists
   next to the test. Not set otherwise.
+- `TENZIR_STDIN` – Path to the stdin file when a `.stdin` file exists next to
+  the test. The harness pipes this file's content to the subprocess stdin. Not
+  set otherwise.
 - `TENZIR_KEEP_TMP_DIRS` – Keep per-test scratch directories (equivalent to
   `--keep`).
 - `TENZIR_TEST_DEBUG` – Enable debug logging and verbose output (equivalent to
