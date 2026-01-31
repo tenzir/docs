@@ -170,6 +170,20 @@ function getSectionIcon(entry: SidebarEntry): string | null {
       overflow-wrap: anywhere;
     }
 
+    /* Nested items get hairline and indentation */
+    ul ul li {
+      margin-inline-start: var(--sl-sidebar-item-padding-inline);
+      border-inline-start: 1px solid var(--sl-color-hairline-light);
+      padding-inline-start: var(--sl-sidebar-item-padding-inline);
+    }
+
+    /* Section direct children: remove hairline, keep aligned with section header */
+    .sidebar-section > ul > li {
+      margin-inline-start: 0;
+      border-inline-start: none;
+      padding-inline-start: 0;
+    }
+
     .large {
       font-size: var(--sl-text-lg);
       font-weight: 600;
@@ -260,19 +274,10 @@ function getSectionIcon(entry: SidebarEntry): string | null {
     display: flex;
     align-items: center;
     gap: var(--tnz-space-2);
-    /* Only top padding - bottom spacing handled by nested content to bring header closer to items */
-    padding-block-start: var(--tnz-space-2);
+    /* Match left padding of sidebar items, top padding for spacing */
+    padding: var(--tnz-space-2) 0 0 var(--sl-sidebar-item-padding-inline);
   }
 
-  /* Add left padding to section content, remove individual item padding to align with header */
-  .sidebar-section {
-    padding-inline-start: var(--sl-sidebar-item-padding-inline);
-  }
-
-  .sidebar-section a,
-  .sidebar-section summary {
-    padding-inline: 0;
-  }
 
   .sidebar-section-icon {
     color: var(--tnz-neutral-500);
