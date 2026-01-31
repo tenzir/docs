@@ -1,6 +1,7 @@
 import type { StarlightUserConfig } from "@astrojs/starlight/types";
 import { parse } from "yaml";
 import * as sidebars from "./sidebar";
+import { isSection } from "./sidebar-sections";
 import configYaml from "./topics.yaml?raw";
 
 // ============================================================================
@@ -47,6 +48,41 @@ const changelogTopicParents = generated?.changelogTopicParents ?? {};
 const changelogTopicPaths = generated?.changelogTopicPaths ?? {};
 
 // ============================================================================
+// Transform Sidebar Items (Section Support)
+// ============================================================================
+
+/**
+ * Transforms sidebar items, converting our custom section() items into
+ * Starlight-compatible groups with badge markers that SidebarSublist can detect.
+ */
+function transformSidebarItems(items: SidebarItems): SidebarItems {
+  return items.flatMap((item) => {
+    if (isSection(item)) {
+      // Convert to Starlight group with badge marker
+      // Badge class encodes section + icon info for SidebarSublist detection
+      const badgeClass = item.icon
+        ? `sidebar-section-marker icon-${item.icon}`
+        : "sidebar-section-marker";
+      return {
+        label: item.label,
+        collapsed: false,
+        badge: { text: "", variant: "default" as const, class: badgeClass },
+        items: transformSidebarItems(item.items),
+      };
+    }
+    // Recursively transform nested groups
+    if (
+      typeof item === "object" &&
+      "items" in item &&
+      Array.isArray(item.items)
+    ) {
+      return { ...item, items: transformSidebarItems(item.items) };
+    }
+    return item;
+  });
+}
+
+// ============================================================================
 // Process Configuration
 // ============================================================================
 
@@ -72,8 +108,10 @@ function processConfig(
     const id = def.link || label.toLowerCase();
     const link = def.link ?? label.toLowerCase();
 
-    // Resolve sidebar reference to actual items
-    const items: SidebarItems = def.sidebar ? sidebars[def.sidebar] : [];
+    // Resolve sidebar reference to actual items and transform sections
+    const items: SidebarItems = def.sidebar
+      ? transformSidebarItems(sidebars[def.sidebar])
+      : [];
 
     topics.push({ label, id, link, icon: def.icon, items });
     parents[label] = parent;

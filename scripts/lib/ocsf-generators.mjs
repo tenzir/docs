@@ -1357,10 +1357,6 @@ import { CardGrid } from "@astrojs/starlight/components";
 import LinkCard from "@components/LinkCard.astro";
 import ocsfIcon from "@assets/ocsf.svg?raw";
 
-:::tip[AI-Optimized Documentation]
-This reference is optimized for AI agents.
-:::
-
 This reference provides comprehensive documentation for the
 [Open Cybersecurity Schema Framework (OCSF)](https://ocsf.io), an open standard
 for normalizing security telemetry across tools and vendors.

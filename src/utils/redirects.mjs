@@ -7,6 +7,16 @@ const STATIC_REDIRECTS = {
   "/discord": "https://discord.gg/xqbDgVTCxZ",
   "/sbom":
     "https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json",
+  // Architecture hoisting
+  "/explanations/architecture": "/explanations/deployment",
+  "/explanations/architecture/pipeline": "/explanations/pipeline",
+  "/explanations/architecture/node": "/explanations/node",
+  "/explanations/architecture/platform": "/explanations/platform",
+  // Language detail pages move to Reference
+  "/explanations/language/types": "/reference/types",
+  "/explanations/language/expressions": "/reference/expressions",
+  "/explanations/language/statements": "/reference/statements",
+  "/explanations/language/programs": "/reference/programs",
 };
 
 /**

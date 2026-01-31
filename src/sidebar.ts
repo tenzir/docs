@@ -1,3 +1,4 @@
+import { section } from "./sidebar-sections";
 import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
@@ -12,281 +13,344 @@ const ocsfGenerated = Object.values(ocsfModules)[0];
 const ocsfSidebar = ocsfGenerated?.ocsfSidebar ?? null;
 
 export const guides = [
-  "guides/quickstart",
-  {
-    label: "Installation",
-    collapsed: true,
-    items: ["guides/installation", "guides/installation/create-account"],
-  },
-  {
-    label: "Node Setup",
-    collapsed: true,
-    items: [
-      "guides/node-setup",
-      "guides/node-setup/provision-a-node",
-      "guides/node-setup/size-a-node",
-      "guides/node-setup/deploy-a-node",
-      "guides/node-setup/configure-a-node",
-      "guides/node-setup/configure-tls",
-      "guides/node-setup/start-the-api",
-      "guides/node-setup/tune-performance",
+  section(
+    "Get Started",
+    [
+      "guides/quickstart",
+      {
+        label: "Installation",
+        collapsed: true,
+        items: ["guides/installation", "guides/installation/create-account"],
+      },
+      {
+        label: "Basic Usage",
+        collapsed: true,
+        items: [
+          "guides/basic-usage/run-pipelines",
+          "guides/basic-usage/manage-a-pipeline",
+          "guides/basic-usage/collect-metrics",
+        ],
+      },
     ],
-  },
-  {
-    label: "Platform Setup",
-    collapsed: true,
-    items: [
-      "guides/platform-setup",
-      "guides/platform-setup/deploy-on-aws",
-      "guides/platform-setup/choose-a-scenario",
-      "guides/platform-setup/configure-reverse-proxy",
-      "guides/platform-setup/configure-internal-services",
-      "guides/platform-setup/configure-identity-provider",
-      "guides/platform-setup/configure-database",
-      "guides/platform-setup/configure-blob-storage",
-      "guides/platform-setup/configure-secret-store",
-      "guides/platform-setup/run-the-platform",
+    "lightbulb",
+  ),
+  section(
+    "Setup",
+    [
+      {
+        label: "Node Setup",
+        collapsed: true,
+        items: [
+          "guides/node-setup",
+          "guides/node-setup/provision-a-node",
+          "guides/node-setup/size-a-node",
+          "guides/node-setup/deploy-a-node",
+          "guides/node-setup/configure-a-node",
+          "guides/node-setup/configure-tls",
+          "guides/node-setup/start-the-api",
+          "guides/node-setup/tune-performance",
+        ],
+      },
+      {
+        label: "Platform Setup",
+        collapsed: true,
+        items: [
+          "guides/platform-setup",
+          "guides/platform-setup/deploy-on-aws",
+          "guides/platform-setup/choose-a-scenario",
+          "guides/platform-setup/configure-reverse-proxy",
+          "guides/platform-setup/configure-internal-services",
+          "guides/platform-setup/configure-identity-provider",
+          "guides/platform-setup/configure-database",
+          "guides/platform-setup/configure-blob-storage",
+          "guides/platform-setup/configure-secret-store",
+          "guides/platform-setup/run-the-platform",
+        ],
+      },
+      {
+        label: "Platform Management",
+        collapsed: true,
+        items: [
+          "guides/platform-management/configure-workspaces",
+          "guides/platform-management/configure-dashboards",
+          "guides/platform-management/use-ephemeral-nodes",
+        ],
+      },
+      {
+        label: "AI Workbench",
+        collapsed: true,
+        items: [
+          { label: "Overview", link: "guides/ai-workbench" },
+          "guides/ai-workbench/install-mcp-server",
+          "guides/ai-workbench/configure-your-agent",
+          "guides/ai-workbench/use-claude-plugins",
+          "guides/ai-workbench/use-documentation-skill",
+        ],
+      },
     ],
-  },
-  {
-    label: "AI Workbench",
-    collapsed: true,
-    items: [
-      { label: "Overview", link: "guides/ai-workbench" },
-      "guides/ai-workbench/install-mcp-server",
-      "guides/ai-workbench/configure-your-agent",
-      "guides/ai-workbench/use-claude-plugins",
-      "guides/ai-workbench/use-documentation-skill",
+    "gear",
+  ),
+  section(
+    "Work with Data",
+    [
+      {
+        label: "Data Loading",
+        collapsed: true,
+        items: [
+          "guides/data-loading/read-and-watch-files",
+          "guides/data-loading/fetch-data-from-apis",
+        ],
+      },
+      {
+        label: "Data Shaping",
+        collapsed: true,
+        items: [
+          "guides/data-shaping/shape-data",
+          "guides/data-shaping/filter-and-select-data",
+          "guides/data-shaping/transform-basic-values",
+          "guides/data-shaping/manipulate-strings",
+          "guides/data-shaping/work-with-time",
+          "guides/data-shaping/transform-collections",
+          "guides/data-shaping/aggregate-and-summarize",
+          "guides/data-shaping/slice-and-sample-data",
+          "guides/data-shaping/extract-structured-data-from-text",
+          "guides/data-shaping/convert-data-formats",
+          "guides/data-shaping/reshape-complex-data",
+          "guides/data-shaping/deduplicate-events",
+        ],
+      },
+      {
+        label: "Enrichment",
+        collapsed: true,
+        items: [
+          "guides/enrichment/work-with-lookup-tables",
+          "guides/enrichment/enrich-with-network-inventory",
+          "guides/enrichment/enrich-with-threat-intel",
+          "guides/enrichment/execute-sigma-rules",
+        ],
+      },
+      {
+        label: "Edge Storage",
+        collapsed: true,
+        items: [
+          "guides/edge-storage/import-into-a-node",
+          "guides/edge-storage/export-from-a-node",
+          "guides/edge-storage/show-available-schemas",
+          "guides/edge-storage/transform-data-at-rest",
+        ],
+      },
     ],
-  },
-  {
-    label: "Basic Usage",
-    collapsed: true,
-    items: [
-      "guides/basic-usage/run-pipelines",
-      "guides/basic-usage/manage-a-pipeline",
-      "guides/basic-usage/collect-metrics",
+    "layers",
+  ),
+  section(
+    "Build",
+    [
+      {
+        label: "Packages",
+        collapsed: true,
+        items: [
+          "guides/packages/install-a-package",
+          "guides/packages/create-a-package",
+          "guides/packages/test-packages",
+          "guides/packages/add-operators",
+          "guides/packages/add-pipelines",
+          "guides/packages/add-contexts",
+          "guides/packages/configure-inputs",
+          "guides/packages/maintain-a-changelog",
+          "guides/packages/publish-a-package",
+        ],
+      },
+      {
+        label: "Testing",
+        collapsed: true,
+        items: [
+          "guides/testing/write-tests",
+          "guides/testing/create-fixtures",
+          "guides/testing/add-custom-runners",
+        ],
+      },
     ],
-  },
-  {
-    label: "Data Loading",
-    collapsed: true,
-    items: [
-      "guides/data-loading/read-and-watch-files",
-      "guides/data-loading/fetch-data-from-apis",
+    "package",
+  ),
+  section(
+    "Contribute",
+    [
+      {
+        label: "Contribution",
+        collapsed: true,
+        items: [
+          "guides/contribution/code-of-conduct",
+          "guides/contribution/workflow",
+          "guides/contribution/documentation",
+          "guides/contribution/security",
+        ],
+      },
+      {
+        label: "Development",
+        collapsed: true,
+        items: [
+          "guides/development/build-from-source",
+          "guides/development/write-a-node-plugin",
+        ],
+      },
     ],
-  },
-  {
-    label: "Data Shaping",
-    collapsed: true,
-    items: [
-      "guides/data-shaping/shape-data",
-      "guides/data-shaping/filter-and-select-data",
-      "guides/data-shaping/transform-basic-values",
-      "guides/data-shaping/manipulate-strings",
-      "guides/data-shaping/work-with-time",
-      "guides/data-shaping/transform-collections",
-      "guides/data-shaping/aggregate-and-summarize",
-      "guides/data-shaping/slice-and-sample-data",
-      "guides/data-shaping/extract-structured-data-from-text",
-      "guides/data-shaping/convert-data-formats",
-      "guides/data-shaping/reshape-complex-data",
-      "guides/data-shaping/deduplicate-events",
-    ],
-  },
-  {
-    label: "Edge Storage",
-    collapsed: true,
-    items: [
-      "guides/edge-storage/import-into-a-node",
-      "guides/edge-storage/export-from-a-node",
-      "guides/edge-storage/show-available-schemas",
-      "guides/edge-storage/transform-data-at-rest",
-    ],
-  },
-  {
-    label: "Enrichment",
-    collapsed: true,
-    items: [
-      "guides/enrichment/work-with-lookup-tables",
-      "guides/enrichment/enrich-with-network-inventory",
-      "guides/enrichment/enrich-with-threat-intel",
-      "guides/enrichment/execute-sigma-rules",
-    ],
-  },
-  {
-    label: "Packages",
-    collapsed: true,
-    items: [
-      "guides/packages/install-a-package",
-      "guides/packages/create-a-package",
-      "guides/packages/test-packages",
-      "guides/packages/add-operators",
-      "guides/packages/add-pipelines",
-      "guides/packages/add-contexts",
-      "guides/packages/configure-inputs",
-      "guides/packages/maintain-a-changelog",
-      "guides/packages/publish-a-package",
-    ],
-  },
-  {
-    label: "Platform Management",
-    collapsed: true,
-    items: [
-      "guides/platform-management/configure-workspaces",
-      "guides/platform-management/configure-dashboards",
-      "guides/platform-management/use-ephemeral-nodes",
-    ],
-  },
-  {
-    label: "Testing",
-    collapsed: true,
-    items: [
-      "guides/testing/write-tests",
-      "guides/testing/create-fixtures",
-      "guides/testing/add-custom-runners",
-    ],
-  },
-  {
-    label: "Contribution",
-    collapsed: true,
-    items: [
-      "guides/contribution/code-of-conduct",
-      "guides/contribution/workflow",
-      "guides/contribution/documentation",
-      "guides/contribution/security",
-    ],
-  },
-  {
-    label: "Development",
-    collapsed: true,
-    items: [
-      "guides/development/build-from-source",
-      "guides/development/write-a-node-plugin",
-    ],
-  },
+    "heart",
+  ),
 ];
 
 export const tutorials = [
-  "tutorials/learn-idiomatic-tql",
-  "tutorials/write-a-package",
-  "tutorials/map-data-to-ocsf",
-  "tutorials/plot-data-with-charts",
+  section(
+    "Fundamentals",
+    [
+      "tutorials/learn-idiomatic-tql",
+      "tutorials/write-a-package",
+      "tutorials/map-data-to-ocsf",
+    ],
+    "code",
+  ),
+  section("Analytics", ["tutorials/plot-data-with-charts"], "chart-bar"),
 ];
 
 export const explanations = [
-  {
-    label: "Architecture",
-    items: [
-      "explanations/architecture",
-      "explanations/architecture/pipeline",
-      "explanations/architecture/node",
-      "explanations/architecture/platform",
-    ],
-  },
-  {
-    label: "Language (TQL)",
-    items: [
+  section(
+    "Architecture",
+    [
+      "explanations/deployment",
+      "explanations/pipeline",
+      "explanations/node",
+      "explanations/platform",
       "explanations/language",
-      "explanations/language/types",
-      "explanations/language/expressions",
-      "explanations/language/statements",
-      "explanations/language/programs",
     ],
-  },
-  "explanations/configuration",
-  "explanations/secrets",
-  "explanations/enrichment",
-  "explanations/packages",
-  "explanations/glossary",
-  "explanations/faqs",
+    "layers",
+  ),
+  section(
+    "Concepts",
+    [
+      "explanations/configuration",
+      "explanations/secrets",
+      "explanations/enrichment",
+      "explanations/packages",
+    ],
+    "puzzle-piece",
+  ),
+  section(
+    "Help",
+    ["explanations/glossary", "explanations/faqs"],
+    "circle-help",
+  ),
 ];
 
 export const reference = [
-  {
-    label: "Operators",
-    link: "reference/operators",
-  },
-  {
-    label: "Functions",
-    link: "reference/functions",
-  },
-  {
-    label: "Node",
-    collapsed: true,
-    items: ["reference/node/configuration", nodeAPISidebarGroup],
-  },
-  {
-    label: "Platform",
-    collapsed: true,
-    items: [
-      "reference/platform/configuration",
-      "reference/platform/command-line-interface",
-      platformAPISidebarGroup,
+  section(
+    "Language (TQL)",
+    [
+      "reference/types",
+      "reference/expressions",
+      "reference/statements",
+      "reference/programs",
+      { label: "Operators", link: "reference/operators" },
+      { label: "Functions", link: "reference/functions" },
     ],
-  },
-  {
-    label: "Test Framework",
-    link: "reference/test-framework",
-  },
-  {
-    label: "Ship Framework",
-    link: "reference/ship-framework",
-  },
-  {
-    label: "MCP Server",
-    link: "reference/mcp-server",
-  },
-  {
-    label: "Claude Marketplace",
-    link: "reference/claude-plugins",
-  },
+    "code",
+  ),
+  section(
+    "Components",
+    [
+      {
+        label: "Node",
+        collapsed: true,
+        items: ["reference/node/configuration", nodeAPISidebarGroup],
+      },
+      {
+        label: "Platform",
+        collapsed: true,
+        items: [
+          "reference/platform/configuration",
+          "reference/platform/command-line-interface",
+          platformAPISidebarGroup,
+        ],
+      },
+    ],
+    "cube",
+  ),
+  section(
+    "Tools",
+    [
+      {
+        label: "Test Framework",
+        link: "reference/test-framework",
+      },
+      {
+        label: "Ship Framework",
+        link: "reference/ship-framework",
+      },
+      {
+        label: "MCP Server",
+        link: "reference/mcp-server",
+      },
+      {
+        label: "Claude Marketplace",
+        link: "reference/claude-plugins",
+      },
+    ],
+    "wrench",
+  ),
   // OCSF sidebar is conditionally included when generated
-  ...(ocsfSidebar ? [ocsfSidebar] : []),
+  ...(ocsfSidebar ? [section("Standards", [ocsfSidebar], "shield")] : []),
 ];
 
 export const integrations = [
-  {
-    label: "Amazon",
-    items: [
-      "integrations/amazon",
-      "integrations/amazon/msk",
-      "integrations/amazon/s3",
-      "integrations/amazon/security-lake",
-      "integrations/amazon/sqs",
+  section(
+    "Cloud Providers",
+    [
+      {
+        label: "Amazon",
+        collapsed: true,
+        items: [
+          "integrations/amazon",
+          "integrations/amazon/msk",
+          "integrations/amazon/s3",
+          "integrations/amazon/security-lake",
+          "integrations/amazon/sqs",
+        ],
+      },
+      {
+        label: "Google",
+        collapsed: true,
+        items: [
+          "integrations/google/cloud-logging",
+          "integrations/google/cloud-storage",
+          "integrations/google/cloud-pubsub",
+          "integrations/google/secops",
+        ],
+      },
+      {
+        label: "Microsoft",
+        collapsed: true,
+        items: [
+          "integrations/microsoft/azure-blob-storage",
+          "integrations/microsoft/azure-event-hubs",
+          "integrations/microsoft/azure-log-analytics",
+          "integrations/microsoft/defender",
+          "integrations/microsoft/windows-event-logs",
+        ],
+      },
     ],
-  },
-  {
-    label: "Google",
-    items: [
-      "integrations/google/cloud-logging",
-      "integrations/google/cloud-storage",
-      "integrations/google/cloud-pubsub",
-      "integrations/google/secops",
-    ],
-  },
-  {
-    label: "Microsoft",
-    items: [
-      "integrations/microsoft/azure-blob-storage",
-      "integrations/microsoft/azure-event-hubs",
-      "integrations/microsoft/azure-log-analytics",
-      "integrations/microsoft/defender",
-      "integrations/microsoft/windows-event-logs",
-    ],
-  },
-  {
-    label: "Message Brokers",
-    items: [
+    "cube",
+  ),
+  section(
+    "Messaging",
+    [
       "integrations/amqp",
       "integrations/fluent-bit",
       "integrations/kafka",
       "integrations/zeromq",
     ],
-  },
-  {
-    label: "Protocols",
-    items: [
+    "plug",
+  ),
+  section(
+    "Protocols",
+    [
       "integrations/email",
       "integrations/file",
       "integrations/ftp",
@@ -296,10 +360,11 @@ export const integrations = [
       "integrations/tcp",
       "integrations/udp",
     ],
-  },
-  {
-    label: "Data Tools",
-    items: [
+    "layers",
+  ),
+  section(
+    "Data Tools",
+    [
       "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/graylog",
@@ -307,15 +372,17 @@ export const integrations = [
       "integrations/snowflake",
       "integrations/splunk",
     ],
-  },
-  {
-    label: "Security Tools",
-    items: [
+    "chart-bar",
+  ),
+  section(
+    "Security Tools",
+    [
       "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
       "integrations/zscaler",
     ],
-  },
+    "shield",
+  ),
 ];

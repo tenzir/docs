@@ -1,26 +1,37 @@
 ---
+import MobileMenuFooter from "virtual:starlight/components/MobileMenuFooter";
 import { Badge } from "@astrojs/starlight/components";
-import Default from "@astrojs/starlight/components/Sidebar.astro";
+import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import changelogProjects from "../changelog-projects.json";
 import { childTopics, dropdownTopics, topicParents } from "../topics.ts";
 import BookIcon from "./icons/BookIcon.astro";
 import CodeIcon from "./icons/CodeIcon.astro";
 import CompassIcon from "./icons/CompassIcon.astro";
 import FnIcon from "./icons/FnIcon.astro";
+import GearIcon from "./icons/GearIcon.astro";
 import GraduationCapIcon from "./icons/GraduationCapIcon.astro";
-import SparkleIcon from "./icons/SparkleIcon.astro";
+import HeartIcon from "./icons/HeartIcon.astro";
+import LayersIcon from "./icons/LayersIcon.astro";
+import LightbulbIcon from "./icons/LightbulbIcon.astro";
+import PackageIcon from "./icons/PackageIcon.astro";
+import SidebarSublist from "./SidebarSublist.astro";
 import TopicDropdown from "./TopicDropdown.astro";
 
 const iconComponents: Record<string, any> = {
   compass: CompassIcon,
   "graduation-cap": GraduationCapIcon,
-  sparkle: SparkleIcon,
+  lightbulb: LightbulbIcon,
   book: BookIcon,
   code: CodeIcon,
   fn: FnIcon,
+  gear: GearIcon,
+  layers: LayersIcon,
+  package: PackageIcon,
+  heart: HeartIcon,
 };
 
 const { topics } = Astro.locals.starlightSidebarTopics;
+const { sidebar } = Astro.locals.starlightRoute;
 
 // Look up color by topic link (handles various formats: "changelog/tenzir", "/changelog/tenzir/", etc.)
 const getTopicColor = (link: string | undefined): string | undefined => {
@@ -99,7 +110,13 @@ const dropdownItems = useDropdown
   </ul>
 )}
 
-<Default><slot /></Default>
+<SidebarPersister>
+  <SidebarSublist sublist={sidebar} />
+</SidebarPersister>
+
+<div class="md:sl-hidden">
+  <MobileMenuFooter />
+</div>
 
 <style>
   ul {
