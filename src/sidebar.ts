@@ -300,47 +300,57 @@ export const reference = [
 ];
 
 export const integrations = [
-  {
-    label: "Amazon",
-    items: [
-      "integrations/amazon",
-      "integrations/amazon/msk",
-      "integrations/amazon/s3",
-      "integrations/amazon/security-lake",
-      "integrations/amazon/sqs",
+  section(
+    "Cloud Providers",
+    [
+      {
+        label: "Amazon",
+        collapsed: true,
+        items: [
+          "integrations/amazon",
+          "integrations/amazon/msk",
+          "integrations/amazon/s3",
+          "integrations/amazon/security-lake",
+          "integrations/amazon/sqs",
+        ],
+      },
+      {
+        label: "Google",
+        collapsed: true,
+        items: [
+          "integrations/google/cloud-logging",
+          "integrations/google/cloud-storage",
+          "integrations/google/cloud-pubsub",
+          "integrations/google/secops",
+        ],
+      },
+      {
+        label: "Microsoft",
+        collapsed: true,
+        items: [
+          "integrations/microsoft/azure-blob-storage",
+          "integrations/microsoft/azure-event-hubs",
+          "integrations/microsoft/azure-log-analytics",
+          "integrations/microsoft/defender",
+          "integrations/microsoft/windows-event-logs",
+        ],
+      },
     ],
-  },
-  {
-    label: "Google",
-    items: [
-      "integrations/google/cloud-logging",
-      "integrations/google/cloud-storage",
-      "integrations/google/cloud-pubsub",
-      "integrations/google/secops",
-    ],
-  },
-  {
-    label: "Microsoft",
-    items: [
-      "integrations/microsoft/azure-blob-storage",
-      "integrations/microsoft/azure-event-hubs",
-      "integrations/microsoft/azure-log-analytics",
-      "integrations/microsoft/defender",
-      "integrations/microsoft/windows-event-logs",
-    ],
-  },
-  {
-    label: "Message Brokers",
-    items: [
+    "cube",
+  ),
+  section(
+    "Messaging",
+    [
       "integrations/amqp",
       "integrations/fluent-bit",
       "integrations/kafka",
       "integrations/zeromq",
     ],
-  },
-  {
-    label: "Protocols",
-    items: [
+    "plug",
+  ),
+  section(
+    "Protocols",
+    [
       "integrations/email",
       "integrations/file",
       "integrations/ftp",
@@ -350,10 +360,11 @@ export const integrations = [
       "integrations/tcp",
       "integrations/udp",
     ],
-  },
-  {
-    label: "Data Tools",
-    items: [
+    "layers",
+  ),
+  section(
+    "Data Tools",
+    [
       "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/graylog",
@@ -361,15 +372,17 @@ export const integrations = [
       "integrations/snowflake",
       "integrations/splunk",
     ],
-  },
-  {
-    label: "Security Tools",
-    items: [
+    "chart-bar",
+  ),
+  section(
+    "Security Tools",
+    [
       "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
       "integrations/zeek",
       "integrations/zscaler",
     ],
-  },
+    "shield",
+  ),
 ];
