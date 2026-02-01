@@ -362,6 +362,43 @@ summarize first_reading = first(reading),
 }
 ```
 
+### Group and collect values
+
+Use `collect()` with grouping to build hierarchical structures:
+
+```tql
+from {dept: "Engineering", team: "Backend", member: "Alice"},
+     {dept: "Engineering", team: "Backend", member: "Bob"},
+     {dept: "Engineering", team: "Frontend", member: "Charlie"},
+     {dept: "Sales", team: "Direct", member: "David"}
+summarize dept, team, members=collect(member)
+```
+
+```tql
+{
+  dept: "Sales",
+  team: "Direct",
+  members: [
+    "David",
+  ],
+}
+{
+  dept: "Engineering",
+  team: "Frontend",
+  members: [
+    "Charlie",
+  ],
+}
+{
+  dept: "Engineering",
+  team: "Backend",
+  members: [
+    "Alice",
+    "Bob",
+  ],
+}
+```
+
 ## Boolean aggregations
 
 Use [`all()`](/reference/functions/all) and [`any()`](/reference/functions/any) for boolean checks:
@@ -383,6 +420,37 @@ summarize all_passed = all(passed),
   total_duration: 645
 }
 ```
+
+## Conditional aggregation
+
+Collect values conditionally during aggregation:
+
+```tql
+from {src_ip: 10.0.0.5, dst_port: 22, bytes: 1024},
+     {src_ip: 192.168.1.10, dst_port: 80, bytes: 2048},
+     {src_ip: 10.0.0.5, dst_port: 443, bytes: 4096},
+     {src_ip: 192.168.1.10, dst_port: 22, bytes: 512}
+
+let $critical_ports = [22, 3389, 5985]
+
+summarize src_ip,
+  total_bytes=sum(bytes),
+  // Collect all unique ports
+  all_ports=collect(dst_port),
+  // Collect with conditional transformation
+  port_types=collect("HIGH" if dst_port in $critical_ports else "LOW")
+```
+
+```tql
+{src_ip: 192.168.1.10, total_bytes: 2560, all_ports: [80, 22], port_types: ["LOW", "HIGH"]}
+{src_ip: 10.0.0.5, total_bytes: 5120, all_ports: [22, 443], port_types: ["HIGH", "LOW"]}
+```
+
+This pattern enables:
+
+- Building risk profiles during aggregation
+- Transforming values during collection based on conditions
+- Creating categorical metrics from raw data
 
 ## Practical examples
 
