@@ -17,8 +17,8 @@ for Tenzir (https://tenzir.com).
 
 ## Content Authoring
 
-When writing or editing documentation content, invoke the `docs:authoring` skill
-for Diátaxis framework guidance, file format details, and writing style.
+When writing or editing documentation content, invoke the `dev:docs-authoring`
+skill for Diátaxis framework guidance, file format details, and writing style.
 
 For comprehensive contributor documentation including local development setup,
 image optimization, and diagram workflows, see
