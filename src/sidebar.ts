@@ -99,7 +99,7 @@ export const guides = [
           { label: "Overview", link: "guides/collecting" },
           "guides/collecting/read-and-watch-files",
           "guides/collecting/fetch-via-http-and-apis",
-          "guides/collecting/get-events-from-message-brokers",
+          "guides/collecting/read-from-message-brokers",
           "guides/collecting/get-data-from-the-network",
         ],
       },
@@ -107,9 +107,9 @@ export const guides = [
         label: "Parsing",
         collapsed: true,
         items: [
-          "guides/parsing/parse-text-streams-into-events",
-          "guides/parsing/parse-binary-data-formats",
-          "guides/parsing/parse-log-messages-from-strings",
+          "guides/parsing/parse-delimited-text",
+          "guides/parsing/parse-binary-data",
+          "guides/parsing/parse-string-fields",
         ],
       },
       {
@@ -152,6 +152,15 @@ export const guides = [
         items: [
           "guides/optimization/slice-and-sample-data",
           "guides/optimization/deduplicate-events",
+        ],
+      },
+      {
+        label: "Routing",
+        collapsed: true,
+        items: [
+          "guides/routing/send-to-destinations",
+          "guides/routing/split-and-merge-streams",
+          "guides/routing/load-balance-pipelines",
         ],
       },
       {

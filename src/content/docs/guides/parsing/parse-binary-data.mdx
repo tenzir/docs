@@ -1,0 +1,134 @@
+---
+title: Parse binary data
+---
+
+This guide shows you how to parse binary data formats into structured events.
+You'll learn to work with columnar formats like Parquet and Feather, packet
+captures in PCAP format, Tenzir's native Bitz format, and compressed data.
+
+The examples use [`from_file`](/reference/operators/from_file) with a
+[parsing subpipeline](/reference/programs#parsing-subpipelines) to illustrate
+each technique.
+
+## Parquet
+
+[Apache Parquet](https://parquet.apache.org/) is a columnar format widely used
+in data lakes and analytics pipelines. Given this Parquet file containing user
+data:
+
+```tql
+from_file "users.parquet" {
+  read_parquet
+}
+```
+
+```tql
+{id: 1, name: "alice", email: "alice@example.com", role: "admin"}
+{id: 2, name: "bob", email: "bob@example.com", role: "user"}
+{id: 3, name: "carol", email: "carol@example.com", role: "user"}
+```
+
+Parquet files often come from cloud storage:
+
+```tql
+from_file "s3://datalake/events/*.parquet"
+```
+
+The [`from_file`](/reference/operators/from_file) operator automatically detects
+Parquet format from the file extension.
+
+## Feather
+
+[Apache Feather](https://arrow.apache.org/docs/python/feather.html) is Parquet's
+little brother—a lightweight columnar format optimized for fast I/O:
+
+```tql
+from_file "data.feather" {
+  read_feather
+}
+```
+
+Use [`read_feather`](/reference/operators/read_feather) to parse Feather files.
+
+## PCAP
+
+[PCAP](https://wiki.wireshark.org/Development/LibpcapFileFormat) is the standard
+format for packet captures. Use [`read_pcap`](/reference/operators/read_pcap) to
+parse captured packets:
+
+```tql
+from_file "capture.pcap" {
+  read_pcap
+}
+```
+
+```tql
+{linktype: 1, timestamp: 2024-01-15T10:30:45.123456Z, captured_packet_length: 74, original_packet_length: 74, data: "ABY88f1tZJ7zvttmCABFAAA8..."}
+```
+
+Use [`from_nic`](/reference/operators/read_pcap) to parse directly from a live
+interface. TQL furhter comes with light-weight packet processing functions. For
+example, you can extract protocol headers from raw packet data using the
+[`decapsulate`](/reference/functions/decapsulate) function:
+
+```tql
+from_file "capture.pcap" {
+  read_pcap
+}
+packet = decapsulate(this)
+```
+
+```tql
+{packet: {ether: {src: "64-9E-F3-BE-DB-66", dst: "00-16-3C-F1-FD-6D", type: 2048}, ip: {src: "192.168.1.100", dst: "10.0.0.1", type: 6}, tcp: {src_port: 54321, dst_port: 443}, community_id: "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM="}}
+```
+
+## Bitz
+
+Bitz is Tenzir's native columnar format, optimized for schema-rich security
+data. Use [`read_bitz`](/reference/operators/read_bitz) to parse it:
+
+```tql
+from_file "archive.bitz" {
+  read_bitz
+}
+```
+
+## Compressed data
+
+Binary formats often come compressed. The
+[`from_file`](/reference/operators/from_file) operator automatically detects
+compression based on file extensions like `.gz`, `.zst`, `.bz2`, `.lz4`, and
+`.br`:
+
+```tql
+from_file "data.parquet.gz"      // Auto-detects gzip
+from_file "logs.json.zst"        // Auto-detects zstd
+```
+
+When automatic detection doesn't apply (e.g., custom extensions or chained
+formats), use explicit decompression operators in the parsing subpipeline. These
+are bytes-to-bytes operators, so they must appear before the parser:
+
+| Format    | Operator                                                      |
+| --------- | ------------------------------------------------------------- |
+| Gzip      | [`decompress_gzip`](/reference/operators/decompress_gzip)     |
+| Zstandard | [`decompress_zstd`](/reference/operators/decompress_zstd)     |
+| Bzip2     | [`decompress_bz2`](/reference/operators/decompress_bz2)       |
+| LZ4       | [`decompress_lz4`](/reference/operators/decompress_lz4)       |
+| Brotli    | [`decompress_brotli`](/reference/operators/decompress_brotli) |
+
+Example with explicit decompression:
+
+```tql
+from_file "capture.pcap.zst" {
+  decompress_zstd
+  read_pcap
+}
+```
+
+import Guide from "@components/see-also/Guide.astro";
+
+## See also
+
+- <Guide>parsing/parse-delimited-text</Guide>
+- <Guide>collecting/get-data-from-the-network</Guide>

@@ -8,9 +8,9 @@ capture raw packets from network interfaces.
 
 ## TCP sockets
 
-The [Transmission Control Protocol (TCP)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
-provides reliable, ordered byte streams. Use TCP when you need guaranteed
-delivery and message ordering.
+The [Transmission Control Protocol (TCP)](/integrations/tcp) provides reliable,
+ordered byte streams. Use TCP when you need guaranteed delivery and message
+ordering.
 
 ### Listen for connections
 
@@ -37,32 +37,28 @@ from "tcp://192.168.1.100:9000", connect=true {
 
 ### Enable TLS
 
-Secure your TCP connections with TLS:
+Secure your TCP connections with TLS by passing a `tls` record:
 
 ```tql
-from "tcp://0.0.0.0:9443",
-  tls=true,
-  certfile="/path/to/cert.pem",
-  keyfile="/path/to/key.pem" {
+from "tcp://0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```
 
-For testing, generate a self-signed certificate:
+For testing, generate certificates with trustme:
 
 ```bash
-openssl req -x509 -newkey rsa:2048 \
-  -keyout key.pem -out cert.pem \
-  -days 365 -nodes
+uv run --with trustme python -m trustme
 ```
 
-For detailed TCP options, see the [TCP integration](/integrations/tcp) page.
+For production TLS configuration, including mutual TLS and cipher settings, see
+[Configure TLS](/guides/node-setup/configure-tls).
 
 ## UDP sockets
 
-The [User Datagram Protocol (UDP)](https://en.wikipedia.org/wiki/User_Datagram_Protocol)
-is a connectionless protocol ideal for high-volume, loss-tolerant data like
-syslog messages or metrics.
+The [User Datagram Protocol (UDP)](/integrations/udp) is a connectionless
+protocol ideal for high-volume, loss-tolerant data like syslog messages or
+metrics.
 
 ### Receive UDP datagrams
 
@@ -85,22 +81,26 @@ from_udp "0.0.0.0:514"
 this = data.parse_syslog()
 ```
 
-### Process sender information
+### Enrich with sender metadata
 
-Include the sender's IP address in your events:
+Include the sender's IP address and collection timestamp in your events:
 
 ```tql
 from_udp "0.0.0.0:514"
-message = data.parse_syslog()
-source_ip = peer.ip()
+syslog = data.parse_syslog()
+this = {
+  ...syslog,
+  collector: {
+    source_ip: peer.ip(),
+    received_at: now(),
+  },
+}
 ```
-
-For detailed UDP options, see the [UDP integration](/integrations/udp) page.
 
 ## Packet capture
 
-Capture raw network packets from a network interface card (NIC) for deep packet
-inspection or network forensics.
+Capture raw network packets from a [network interface card (NIC)](/integrations/nic)
+for deep packet inspection or network forensics.
 
 ### List available interfaces
 
@@ -119,12 +119,12 @@ where up
 
 ### Capture packets
 
-Use [`load_nic`](/reference/operators/load_nic) with
-[`read_pcap`](/reference/operators/read_pcap) to capture and parse packets:
+Use [`from_nic`](/reference/operators/from_nic) to capture and parse packets:
 
 ```tql
-load_nic "eth0"
-read_pcap
+from_nic "eth0" {
+  read_pcap
+}
 ```
 
 Each packet becomes an event with metadata and the raw packet data:
@@ -145,8 +145,9 @@ Extract protocol headers from captured packets using the
 [`decapsulate`](/reference/functions/decapsulate) function:
 
 ```tql
-load_nic "eth0"
-read_pcap
+from_nic "eth0" {
+  read_pcap
+}
 packet = decapsulate(this)
 select packet
 ```
@@ -172,8 +173,9 @@ Apply Berkeley Packet Filter (BPF) expressions to capture only specific
 traffic:
 
 ```tql
-load_nic "eth0", filter="tcp port 443"
-read_pcap
+from_nic filter="tcp port 443", "eth0" {
+  read_pcap
+}
 ```
 
 ### Read PCAP files
@@ -181,56 +183,20 @@ read_pcap
 The same parsing works for PCAP files:
 
 ```tql
-from_file "capture.pcap"
-read_pcap
+from_file "capture.pcap" {
+  read_pcap
+}
 packet = decapsulate(this)
 ```
 
-For detailed packet capture options, see the
-[Network Interface integration](/integrations/nic) page.
-
-## Common patterns
-
-### Syslog collection with enrichment
-
-Receive syslog, parse it, and add source metadata:
-
-```tql
-from_udp "0.0.0.0:514"
-syslog = data.parse_syslog()
-this = {
-  ...syslog,
-  collector: {
-    source_ip: peer.ip(),
-    received_at: now(),
-  },
-}
-```
-
-### Multi-protocol receiver
-
-Accept data on multiple ports with different formats:
-
-```tql
-// JSON over TCP on port 9000
-from "tcp://0.0.0.0:9000" {
-  read_json
-}
-```
-
-```tql
-// Syslog over UDP on port 514
-from_udp "0.0.0.0:514"
-this = data.parse_syslog()
-```
-
-### Network flow extraction
+### Extract flow summaries
 
 Capture packets and extract flow-level summaries:
 
 ```tql
-load_nic "eth0"
-read_pcap
+from_nic "eth0" {
+  read_pcap
+}
 packet = decapsulate(this)
 select
   timestamp,
@@ -241,9 +207,11 @@ select
   community_id=packet.community_id
 ```
 
-## Related guides
+import Integration from "@components/see-also/Integration.astro";
 
-- [TCP integration](/integrations/tcp) - TCP socket options and TLS
-- [UDP integration](/integrations/udp) - UDP socket configuration
-- [Network Interface integration](/integrations/nic) - Packet capture details
-- [Syslog integration](/integrations/syslog) - Syslog format parsing
+## See also
+
+- <Integration>tcp</Integration>
+- <Integration>udp</Integration>
+- <Integration>nic</Integration>
+- <Integration>syslog</Integration>

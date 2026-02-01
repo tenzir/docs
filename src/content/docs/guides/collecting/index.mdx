@@ -1,67 +1,28 @@
 ---
-title: Collect data
+title: Overview
 ---
 
 This guide provides an overview of data collection in TQL. You'll learn about
-the different types of operators that acquire data and how to compose them
-for various ingestion scenarios.
+the different approaches for ingesting data from various sources.
 
-## Understanding input operators
+TQL provides two types of input operators:
 
-TQL provides two classes of operators for acquiring data:
+- **`from_*` operators** like [`from_file`](/reference/operators/from_file) and
+  [`from_http`](/reference/operators/from_http) read bytes and parse them using
+  a [subpipeline](/reference/programs/#parsing-subpipelines).
 
-1. **Void-to-bytes operators**: Produce raw bytes from external sources like
-   files, network sockets, or cloud storage. Examples include
-   [`load_file`](/reference/operators/load_file),
-   [`load_tcp`](/reference/operators/load_tcp), and
-   [`load_http`](/reference/operators/load_http).
+- **Direct event operators** like [`from_kafka`](/reference/operators/from_kafka)
+  and [`from_udp`](/reference/operators/from_udp) produce structured events
+  directly without an intermediate byte stream.
 
-2. **Void-to-events operators**: Produce structured events directly without an
-   intermediate byte stream. Examples include
-   [`from_kafka`](/reference/operators/from_kafka),
-   [`from_udp`](/reference/operators/from_udp), and
-   [`from_google_cloud_pubsub`](/reference/operators/from_google_cloud_pubsub).
+:::caution[Migration note]
+The `from_*` family of operators supersedes the older `load_*` operators that
+produce bytes. While `load_*` operators remain supported, prefer the newer
+`from_*` variants which provide a more unified experience with built-in format
+inference.
 
-The distinction matters when you compose pipelines. Void-to-bytes operators
-require a parsing operator (like `read_json` or `read_csv`) to produce
-structured events, while void-to-events operators produce events directly:
-
-```tql
-// Void-to-bytes: requires parsing
-load_file "data.json"
-read_json
-
-// Void-to-events: produces events directly
-from_kafka "events"
-```
-
-## The generic `from` operator
-
-The [`from`](/reference/operators/from) operator provides a unified interface
-for data collection. It automatically dispatches to the appropriate specialized
-operator based on the URL scheme or file extension:
-
-```tql
-// File-based collection
-from "file://data.csv"
-
-// Cloud storage
-from "s3://bucket/path/data.parquet"
-
-// Network protocols
-from "tcp://192.168.1.1:9000"
-
-// Message brokers (via URL scheme)
-from "amqp://user:pass@broker:5672/queue"
-```
-
-When automatic format detection doesn't suffice, provide a parsing pipeline:
-
-```tql
-from "s3://bucket/logs/app.log" {
-  read_lines
-}
-```
+For example, `from_file "data.csv"` replaces `load_file "data.csv" | read_csv`.
+:::
 
 ## Collection patterns
 
@@ -82,7 +43,7 @@ from_file "/incoming/*.csv", watch=true
 from_file "s3://bucket/data/**/*.parquet"
 ```
 
-See the [file collection guide](/guides/collecting/read-and-watch-files) for
+See the [file reading guide](/guides/collecting/read-and-watch-files) for
 details.
 
 ### HTTP and APIs
@@ -106,7 +67,7 @@ Cloud Pub/Sub:
 from_kafka "security-events", offset="end"
 ```
 
-See the [message broker guide](/guides/collecting/get-events-from-message-brokers)
+See the [message broker guide](/guides/collecting/read-from-message-brokers)
 for broker-specific configurations.
 
 ### Network data
@@ -125,20 +86,18 @@ from "tcp://0.0.0.0:8443", tls=true
 See the [network data guide](/guides/collecting/get-data-from-the-network) for
 socket configurations and packet capture.
 
-## Legacy operators
+## Sending data to destinations
 
-:::info[Migration note]
-The `from_*` family of operators supersedes the older `load_*` operators that
-produce bytes. While `load_*` operators remain supported, prefer the newer
-`from_*` variants which provide a more unified experience with built-in format
-inference.
+For routing data to outputs, see the [Routing guides](/guides/routing/send-to-destinations),
+which cover destination operators, file output, load balancing, and pipeline
+connections.
 
-For example, `from_file "data.csv"` replaces `load_file "data.csv" | read_csv`.
-:::
+## See also
 
-## Related guides
+import Guide from "@components/see-also/Guide.astro";
 
-- [Read and watch files](/guides/collecting/read-and-watch-files) - File-based collection
-- [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis) - Web API integration
-- [Get events from message brokers](/guides/collecting/get-events-from-message-brokers) - Kafka, AMQP, SQS
-- [Get data from the network](/guides/collecting/get-data-from-the-network) - TCP, UDP, packets
+- <Guide>collecting/read-and-watch-files</Guide>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
+- <Guide>collecting/read-from-message-brokers</Guide>
+- <Guide>collecting/get-data-from-the-network</Guide>
+- <Guide>routing/send-to-destinations</Guide>
