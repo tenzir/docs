@@ -251,13 +251,13 @@ directory layout.
 Consider a package that normalizes various log formats to OCSF. You can organize
 the operators into layers:
 
-| Operator             | Purpose                                                                       |
-| -------------------- | ----------------------------------------------------------------------------- |
-| `acme::parse`        | [Parse](/guides/parsing/parse-delimited-text) raw input into events |
-| `acme::clean`        | [Normalize fields](/guides/normalization/clean-up-values), fix types          |
-| `acme::ocsf::base`   | Fallback: maps to OCSF Base Event                                             |
-| `acme::ocsf::map`    | Dispatcher: routes to specific mappers                                        |
-| `acme::ocsf::map::*` | Event-specific mapping (dns, http, auth, etc.)                                |
+| Operator             | Purpose                                                              |
+| -------------------- | -------------------------------------------------------------------- |
+| `acme::parse`        | [Parse](/guides/parsing/parse-delimited-text) raw input into events  |
+| `acme::clean`        | [Normalize fields](/guides/normalization/clean-up-values), fix types |
+| `acme::ocsf::base`   | Fallback: maps to OCSF Base Event                                    |
+| `acme::ocsf::map`    | Dispatcher: routes to specific mappers                               |
+| `acme::ocsf::map::*` | Event-specific mapping (dns, http, auth, etc.)                       |
 
 This hierarchy maps directly to your directory structure:
 

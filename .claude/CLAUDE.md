@@ -15,7 +15,6 @@ for Tenzir (https://tenzir.com).
 - Sidebar: manually managed in `/src/sidebar.ts`. Add new pages here.
 - Topics: `/src/topics.yaml` defines the navigation topic hierarchy.
 
-
 ## Partials
 
 Import reusable content from `/src/partials/`:
