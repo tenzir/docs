@@ -61,12 +61,11 @@ inside `/src/partials/` are inlined; other component imports behave normally.
 
 ## Workflow
 
-### Development Server
+By default, use `bun run dev` to start a development server in the background
+for live preview during development.
 
-- Use `bun run dev` to start a development server in the background for live
-  preview during development.
-- Use `bun run build` only when you need to inspect build artifacts. Output goes
-  to `dist/`.
+Only use `bun run build` when you actually need to inspect build artifacts.
+Output goes to `dist/`.
 
 ### Generated Content
 
