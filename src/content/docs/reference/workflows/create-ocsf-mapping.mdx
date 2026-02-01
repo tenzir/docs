@@ -1,0 +1,52 @@
+---
+title: Create an OCSF mapping
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import Guide from '@components/see-also/Guide.astro';
+import Op from '@components/see-also/Op.astro';
+import Reference from '@components/see-also/Reference.astro';
+import Tutorial from '@components/see-also/Tutorial.astro';
+
+This workflow guides you through creating an OCSF mapping package. It builds on
+the [package creation workflow](/reference/workflows/create-package), adding
+OCSF-specific mapping and validation steps.
+
+<Steps>
+
+1. **Create a package with parse and clean operators**
+
+   Before mapping to OCSF, you need a package that can parse and clean your
+   source data. Follow the package creation workflow first.
+   - <Reference>workflows/create-package</Reference>
+
+2. **Write the OCSF mapping**
+
+   Identify the correct OCSF event class and map your source fields to OCSF
+   attributes.
+   - <Guide>normalization/map-to-ocsf</Guide>
+
+3. **Validate the mapping**
+
+   Use the `ocsf::cast` operator to validate that your mapped events conform
+   to the OCSF schema.
+   - <Op>ocsf::cast</Op>
+
+4. **Derive enum values**
+
+   Use `ocsf::derive` to automatically compute enum fields based on mapped
+   values.
+   - <Op>ocsf::derive</Op>
+
+5. **Package and test the mapping**
+
+   Structure your mapping as a production-ready package with tests.
+   - <Guide>normalization/package-and-test-mappings</Guide>
+
+</Steps>
+
+## Learn more
+
+For a complete end-to-end example mapping Zeek logs to OCSF, see the tutorial:
+
+- <Tutorial>map-data-to-ocsf</Tutorial>

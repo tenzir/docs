@@ -339,6 +339,14 @@ export const reference = [
   ),
   // OCSF sidebar is conditionally included when generated
   ...(ocsfSidebar ? [section("Standards", [ocsfSidebar], "shield")] : []),
+  section(
+    "Workflows",
+    [
+      "reference/workflows/create-package",
+      "reference/workflows/create-ocsf-mapping",
+    ],
+    "list-checks",
+  ),
 ];
 
 export const integrations = [
