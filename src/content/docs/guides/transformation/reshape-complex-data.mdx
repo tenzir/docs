@@ -287,48 +287,6 @@ items = [
 
 Create nested structures from flat data.
 
-### Group data with summarize
-
-Use the [`summarize`](/reference/operators/summarize) operator to group data:
-
-```tql
-from {
-  records: [
-    {dept: "Engineering", team: "Backend", member: "Alice"},
-    {dept: "Engineering", team: "Backend", member: "Bob"},
-    {dept: "Engineering", team: "Frontend", member: "Charlie"},
-    {dept: "Sales", team: "Direct", member: "David"}
-  ]
-}
-unroll records
-summarize dept=records.dept, team=records.team, members=collect(records.member)
-```
-
-```tql
-{
-  dept: "Sales",
-  team: "Direct",
-  members: [
-    "David",
-  ],
-}
-{
-  dept: "Engineering",
-  team: "Frontend",
-  members: [
-    "Charlie",
-  ],
-}
-{
-  dept: "Engineering",
-  team: "Backend",
-  members: [
-    "Alice",
-    "Bob",
-  ],
-}
-```
-
 ### Extract path components
 
 ```tql
@@ -563,39 +521,6 @@ efficiency = (bytes_received / bytes_sent) * 100 if bytes_sent != null else
 }
 ```
 
-## Conditional aggregation patterns
-
-### Selective data collection
-
-Collect values conditionally during aggregation:
-
-```tql title="Conditional collection in summarize"
-from {src_ip: 10.0.0.5, dst_port: 22, bytes: 1024},
-     {src_ip: 192.168.1.10, dst_port: 80, bytes: 2048},
-     {src_ip: 10.0.0.5, dst_port: 443, bytes: 4096},
-     {src_ip: 192.168.1.10, dst_port: 22, bytes: 512}
-
-let $critical_ports = [22, 3389, 5985]
-
-summarize src_ip,
-  total_bytes=sum(bytes),
-  // Collect all unique ports
-  all_ports=collect(dst_port),
-  // Collect with conditional transformation
-  port_types=collect("HIGH" if dst_port in $critical_ports else "LOW")
-```
-
-```tql
-{src_ip: 192.168.1.10, total_bytes: 2560, all_ports: [80, 22], port_types: ["LOW", "HIGH"]}
-{src_ip: 10.0.0.5, total_bytes: 5120, all_ports: [22, 443], port_types: ["HIGH", "LOW"]}
-```
-
-This pattern enables:
-
-- Building risk profiles during aggregation
-- Transforming values during collection based on conditions
-- Creating categorical metrics from raw data
-
 ## Advanced transformations
 
 ### Recursive flattening
@@ -756,16 +681,11 @@ select flattened = log_stats.flatten()
 }
 ```
 
-## Best practices
+import Guide from "@components/see-also/Guide.astro";
 
-1. **Plan your structure**: Design the target schema before transforming
-2. **Handle missing fields**: Use conditional logic or defaults for optional data
-3. **Preserve information**: Don't lose data during transformation unless intentional
-4. **Test edge cases**: Verify transformations work with incomplete or unusual data
-5. **Document complex logic**: Add comments explaining non-obvious transformations
+## See also
 
-## Related guides
-
-- [Transform collections](/guides/data-shaping/transform-collections) - Basic collection operations
-- [Extract structured data from text](/guides/data-shaping/extract-structured-data-from-text) - Parse before reshaping
-- [Shape data](/guides/data-shaping/shape-data) - Overview of all shaping operations
+- <Guide>transformation/shape-lists-and-records</Guide>
+- <Guide>parsing/parse-string-fields</Guide>
+- <Guide>transformation/filter-and-select-data</Guide>
+- <Guide>analytics/aggregate-and-summarize</Guide>

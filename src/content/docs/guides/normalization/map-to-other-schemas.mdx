@@ -1,0 +1,233 @@
+---
+title: Map to other schemas
+---
+
+This guide provides brief guidance on mapping data to schemas other than OCSF.
+While OCSF is the recommended choice for security data, you may need to support
+Elastic Common Schema (ECS), Google UDM, or Microsoft ASIM for integration with
+specific platforms.
+
+## Choosing a schema
+
+| Schema   | Best For                    | Considerations                                 |
+| -------- | --------------------------- | ---------------------------------------------- |
+| **OCSF** | Security data normalization | Vendor-neutral, comprehensive security focus   |
+| **ECS**  | Elasticsearch/Elastic Stack | Tight Elastic integration, good field coverage |
+| **UDM**  | Google SecOps (Chronicle)   | Required for Chronicle, maps well from OCSF    |
+| **ASIM** | Microsoft Sentinel          | Required for Sentinel, KQL-optimized           |
+
+:::tip[Recommended approach]
+Map to OCSF first, then translate to other schemas as needed. This gives you a
+single source of truth and reduces maintenance burden.
+:::
+
+## Elastic Common Schema (ECS)
+
+[ECS](https://www.elastic.co/guide/en/ecs/current/index.html) is Elastic's
+open schema for structured data in Elasticsearch.
+
+### Key differences from OCSF
+
+- Field names use dots instead of nesting: `source.ip` vs `src_endpoint.ip`
+- Less prescriptive about field values
+- Wider scope (not security-specific)
+
+### Mapping pattern
+
+```tql
+// From OCSF to ECS
+ecs.source.ip = ocsf.src_endpoint.ip
+ecs.source.port = ocsf.src_endpoint.port
+ecs.destination.ip = ocsf.dst_endpoint.ip
+ecs.destination.port = ocsf.dst_endpoint.port
+ecs.event.category = ["network"]
+ecs.event.type = ["connection"]
+ecs.network.protocol = ocsf.connection_info.protocol_name
+ecs.network.bytes = ocsf.traffic.total_bytes
+ecs.@timestamp = ocsf.time
+```
+
+### ECS field sets
+
+Common ECS field sets for security data:
+
+- `event.*` - Event metadata and classification
+- `source.*` / `destination.*` - Network endpoints
+- `process.*` - Process information
+- `file.*` - File metadata
+- `user.*` - User information
+- `host.*` - Host/device details
+- `threat.*` - Threat intelligence
+
+## Google Unified Data Model (UDM)
+
+[UDM](https://cloud.google.com/chronicle/docs/reference/udm-field-list) is
+Google Chronicle's (SecOps) event schema.
+
+### Key differences from OCSF
+
+- Uses protobuf-style nested structures
+- Strict typing with enums for many fields
+- Event type determines required field sets
+
+### Mapping pattern
+
+```tql
+// From OCSF to UDM
+udm.metadata.event_timestamp = ocsf.time
+udm.metadata.event_type = "NETWORK_CONNECTION"
+udm.principal.ip = [ocsf.src_endpoint.ip]
+udm.principal.port = ocsf.src_endpoint.port
+udm.target.ip = [ocsf.dst_endpoint.ip]
+udm.target.port = ocsf.dst_endpoint.port
+udm.network.ip_protocol = ocsf.connection_info.protocol_name.to_upper()
+```
+
+### UDM entity types
+
+- `principal` - Initiating entity (source)
+- `target` - Target entity (destination)
+- `src` - Alternative source (for multi-party events)
+- `observer` - Monitoring/logging entity
+- `intermediary` - Proxy or middlebox
+
+## Microsoft ASIM
+
+[ASIM](https://learn.microsoft.com/en-us/azure/sentinel/normalization) (Advanced
+Security Information Model) is Microsoft Sentinel's normalization schema.
+
+### Key differences from OCSF
+
+- Designed for KQL queries
+- Uses specific parser naming conventions
+- Column-oriented naming style
+
+### Mapping pattern
+
+```tql
+// From OCSF to ASIM Network Session
+asim.EventType = "NetworkSession"
+asim.EventProduct = ocsf.metadata.product.name
+asim.EventVendor = ocsf.metadata.product.vendor_name
+asim.TimeGenerated = ocsf.time
+asim.SrcIpAddr = ocsf.src_endpoint.ip
+asim.SrcPortNumber = ocsf.src_endpoint.port
+asim.DstIpAddr = ocsf.dst_endpoint.ip
+asim.DstPortNumber = ocsf.dst_endpoint.port
+asim.NetworkProtocol = ocsf.connection_info.protocol_name
+asim.NetworkBytes = ocsf.traffic.total_bytes
+```
+
+### ASIM schemas
+
+ASIM provides schemas for:
+
+- Network sessions
+- Authentication events
+- DNS activity
+- Web sessions
+- Process events
+- File activity
+- Audit events
+
+## Translation strategies
+
+### Direct field mapping
+
+When fields have direct equivalents:
+
+```tql
+ecs.source.ip = ocsf.src_endpoint.ip
+```
+
+### Value transformation
+
+When values need conversion:
+
+```tql
+// OCSF uses integers, ECS might use strings
+ecs.event.severity = ocsf.severity_id.string()
+
+// Protocol name case differences
+udm.network.ip_protocol = ocsf.connection_info.protocol_name.to_upper()
+```
+
+### Structural transformation
+
+When structure differs:
+
+```tql
+// OCSF nested to ECS flat
+ecs.source.ip = ocsf.src_endpoint.ip
+ecs.source.port = ocsf.src_endpoint.port
+ecs.source.bytes = ocsf.traffic.bytes_out
+```
+
+### Enum mapping
+
+When schemas use different enumerations:
+
+```tql
+let $severity_map = {
+  1: "low",
+  2: "medium",
+  3: "high",
+  4: "critical",
+}
+ecs.event.severity_name = $severity_map[ocsf.severity_id]
+```
+
+## Maintaining multiple schemas
+
+If you need to support multiple target schemas:
+
+1. **Normalize to OCSF first** as your canonical format
+2. **Create translator operators** for each target schema
+3. **Branch pipelines** based on destination
+
+```tql
+// Central normalization
+from_kafka "raw-events"
+my_source::ocsf::map  // Normalize to OCSF
+
+// Branch to different destinations
+fork {
+  // Send OCSF to data lake
+  to_kafka "ocsf-events"
+}
+fork {
+  // Translate and send to Elasticsearch
+  ocsf_to_ecs
+  to_elasticsearch "..."
+}
+fork {
+  // Translate and send to Chronicle
+  ocsf_to_udm
+  to_google_secops "..."
+}
+```
+
+## Best practices
+
+1. **Start with OCSF**: It's designed for security data and translates well to
+   other schemas.
+
+2. **Document mapping decisions**: Record why you chose specific field mappings,
+   especially for ambiguous cases.
+
+3. **Test with real data**: Each schema has quirks that only surface with
+   production data.
+
+4. **Maintain translator operators**: Package schema translations as reusable
+   operators.
+
+5. **Monitor for schema updates**: All schemas evolve; plan for periodic
+   updates to your mappings.
+
+import Guide from "@components/see-also/Guide.astro";
+
+## See also
+
+- <Guide>normalization/map-to-ocsf</Guide>
+- <Guide>normalization/package-and-test-mappings</Guide>
+- <Guide>transformation/transform-values</Guide>

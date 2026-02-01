@@ -54,7 +54,7 @@ connection 4-tuple, log ID, inbound/outbound bytes, and sends to Kafka.
 <TabItem label="Response" icon="document">
 
 ```tql
-load_tcp "0.0.0.0:9999" {
+from "tcp://0.0.0.0:9999" {
   read_zeek_tsv
 }
 select \
@@ -68,12 +68,12 @@ select \
 to_kafka "flows"
 ```
 
-| Operator                  | Purpose                                                              |
-| ------------------------- | -------------------------------------------------------------------- |
-| `load_tcp "0.0.0.0:9999"` | Listens on TCP port 9999 for incoming connections                    |
-| `{ read_zeek_tsv }`       | Per-connection pipeline that parses Zeek's tab-separated format      |
-| `select`                  | Extracts only the requested fields, renaming the 4-tuple for clarity |
-| `to_kafka "flows"`        | Publishes each event as JSON to the Kafka topic "flows"              |
+| Operator                    | Purpose                                                              |
+| --------------------------- | -------------------------------------------------------------------- |
+| `from "tcp://0.0.0.0:9999"` | Listens on TCP port 9999 for incoming connections                    |
+| `{ read_zeek_tsv }`         | Per-connection pipeline that parses Zeek's tab-separated format      |
+| `select`                    | Extracts only the requested fields, renaming the 4-tuple for clarity |
+| `to_kafka "flows"`          | Publishes each event as JSON to the Kafka topic "flows"              |
 
 </TabItem>
 </Tabs>
@@ -109,5 +109,5 @@ Key attributes for firewall events:
 
 ## Next steps
 
-- Browse the [Claude Marketplace reference](/reference/claude-plugins) for all
-  available plugins
+- Browse the [Claude Marketplace](https://github.com/tenzir/claude-plugins) for
+  all available plugins

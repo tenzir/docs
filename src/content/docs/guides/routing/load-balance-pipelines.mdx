@@ -1,0 +1,125 @@
+---
+title: Load-balance pipelines
+---
+
+import Op from "@components/see-also/Op.astro";
+import Guide from "@components/see-also/Guide.astro";
+
+This guide shows you how to distribute events across multiple destinations
+using the [`load_balance`](/reference/operators/load_balance) operator. You'll
+learn to route events to multiple endpoints for high availability and
+throughput.
+
+## How load balancing works
+
+The `load_balance` operator spawns a nested pipeline for each element in a
+configuration list. Incoming events are distributed to exactly one of the
+nested pipelines, enabling you to spread load across multiple destinations.
+
+```tql
+let $endpoints = ["host1:8080", "host2:8080", "host3:8080"]
+subscribe "events"
+load_balance $endpoints {
+  write_json
+  save_tcp $endpoints
+}
+```
+
+Each event goes to exactly one endpoint. The operator may reorder the event
+stream to optimize throughput.
+
+## Basic patterns
+
+### Multiple TCP endpoints
+
+Distribute events across multiple TCP receivers:
+
+```tql
+let $cfg = ["192.168.0.30:8080", "192.168.0.31:8080"]
+
+subscribe "input"
+load_balance $cfg {
+  write_json
+  save_tcp $cfg
+}
+```
+
+### Multiple Kafka brokers
+
+Balance writes across Kafka clusters:
+
+```tql
+let $brokers = [
+  {host: "kafka1.example.com", topic: "events"},
+  {host: "kafka2.example.com", topic: "events"},
+]
+
+subscribe "events"
+load_balance $brokers {
+  to_kafka $brokers.topic, options={"bootstrap.servers": $brokers.host}
+}
+```
+
+## Complex configurations
+
+### Splunk with different credentials
+
+Route to multiple Splunk instances, each with its own authentication:
+
+```tql
+let $cfg = [
+  {ip: "192.168.0.30", token: "token-1234"},
+  {ip: "192.168.0.31", token: "token-5678"},
+]
+
+subscribe "input"
+load_balance $cfg {
+  let $endpoint = string($cfg.ip) + ":8088"
+  to_splunk $endpoint, hec_token=$cfg.token
+}
+```
+
+### OpenSearch with index routing
+
+Balance across OpenSearch clusters with per-cluster configuration:
+
+```tql
+let $clusters = [
+  {url: "https://es1.example.com:9200", index: "logs-primary"},
+  {url: "https://es2.example.com:9200", index: "logs-secondary"},
+]
+
+subscribe "logs"
+load_balance $clusters {
+  to_opensearch $clusters.url, action="index", index=$clusters.index
+}
+```
+
+## When to use load_balance
+
+Use `load_balance` when you need to:
+
+- **Scale throughput**: Distribute events across multiple receivers
+- **Achieve high availability**: Route to backup endpoints when primary is busy
+- **Handle heterogeneous destinations**: Route to endpoints with different
+  credentials or configurations
+
+### Comparison with other operators
+
+| Operator                                            | Behavior                        | Use case                       |
+| --------------------------------------------------- | ------------------------------- | ------------------------------ |
+| [`load_balance`](/reference/operators/load_balance) | Events go to exactly one target | Throughput scaling, HA         |
+| [`fork`](/reference/operators/fork)                 | Events copied to all targets    | Parallel processing, archiving |
+| [`publish`](/reference/operators/publish)           | Events go to all subscribers    | Fan-out to pipelines           |
+
+## Requirements
+
+The nested pipeline inside `load_balance` must end with a sink operator. The
+configuration variable must be declared with `let` before use.
+
+## See also
+
+- <Guide>routing/send-to-destinations</Guide>
+- <Guide>routing/split-and-merge-streams</Guide>
+- <Op>load_balance</Op>
+- <Op>fork</Op>

@@ -51,9 +51,10 @@ let $ports = [22, 443] | from "/tmp/logs.json" | where port in $ports | select s
 ```
 
 In theory, you can combine pipes and newlines to write programs that resemble
-Kusto and similar languages. However, we discourage this practice because it can
-make the code harder to read and maintainespecially when adding nested
-pipelines that increase the level of indentation.
+Kusto and similar languages. However, [we
+discourage](/tutorials/learn-idiomatic-tql) this practice because it can make
+the code harder to read and maintain, especially when adding nested pipelines
+that increase the level of indentation.
 
 ## Diagnostics
 
@@ -80,8 +81,27 @@ TQL tutorial](/tutorials/learn-idiomatic-tql).
 ## Pipeline nesting
 
 Operators can contain entire subpipelines that execute based on the operator's
-semantics. For example, the [`every`](/reference/operators/every) operator
-executes its subpipeline at regular intervals:
+semantics. You define subpipelines syntactically within a block of curly braces
+(`{}`).
+
+There are three types of subpipelines based on what they expect and produce:
+
+1. **Closed subpipelines** (void-to-void): Complete programs that run
+   independently, used by operators like [`every`](/reference/operators/every)
+   and [`subscribe`](/reference/operators/subscribe).
+
+2. **Parsing subpipelines** (bytes-to-events): Transform raw bytes into
+   structured events, used by input operators like
+   [`from_file`](/reference/operators/from_file) and
+   [`from_http`](/reference/operators/from_http).
+
+3. **Printing subpipelines** (events-to-bytes): Transform structured events into
+   raw bytes, used by output operators like [`to`](/reference/operators/to).
+
+### Closed subpipelines
+
+The [`every`](/reference/operators/every) operator executes a closed subpipeline
+at regular intervals:
 
 ```tql
 every 1h {
@@ -91,11 +111,41 @@ every 1h {
 }
 ```
 
-You define subpipelines syntactically within a block of curly braces (`{}`).
+### Parsing subpipelines
 
-Some operators require that you define a closed (void-to-void) pipeline, whereas
-others exhibit parsing (bytes-to-events) or printing (events-to-bytes)
-semantics.
+Input operators like [`from_file`](/reference/operators/from_file) or
+[`from_http`](/reference/operators/from_http) that read raw bytes use parsing
+subpipelines to convert bytes into events. This pattern separates _where_ data
+comes from (the outer operator) from _how_ it's parsed (the subpipeline):
+
+```tql
+from_file "data.log" {
+  read_lines
+}
+```
+
+The subpipeline contains `read_*` operators that perform the actual parsing. You
+can also chain bytes-to-bytes transformations like `decompress_*` before
+parsing:
+
+```tql
+from_file "logs.gz" {
+  decompress_gzip
+  read_json
+}
+```
+
+When the input operator can infer the format automatically (e.g., from the file
+extension), you can omit the subpipeline:
+
+```tql
+from_file "data.json"  // Automatically uses read_json
+```
+
+Operators that produce events directly, like
+[`from_kafka`](/reference/operators/from_kafka) or
+[`from_udp`](/reference/operators/from_udp), don't take a parsing subpipeline
+because the data format is inherent to the source.
 
 ## Comments
 

@@ -1,0 +1,117 @@
+---
+title: Normalize data
+---
+
+This guide provides an overview of data normalization in TQL. Normalization
+transforms raw, inconsistent data into a clean, standardized format that's
+ready for analysis, storage, and sharing.
+
+## What is normalization?
+
+Normalization involves several key transformations:
+
+1. **Clean up values** - Replace nulls, normalize sentinels, fix types
+2. **Map to schemas** - Translate fields to a standard schema like OCSF
+3. **Package mappings** - Create reusable, tested mapping operators
+
+Each step builds on the previous. Start with clean data, then map to your
+target schema, and finally package your mappings for production use.
+
+## Why normalize?
+
+Raw data from different sources varies in:
+
+- **Field names**: `src_ip` vs `source_address` vs `client.ip`
+- **Value formats**: `"true"` vs `true` vs `1` vs `"yes"`
+- **Missing values**: `null` vs `""` vs `"-"` vs `"N/A"`
+- **Timestamps**: Unix epochs vs ISO strings vs custom formats
+
+Normalization solves these inconsistencies, enabling:
+
+- Unified queries across data sources
+- Reliable enrichment and correlation
+- Consistent analytics and dashboards
+- Interoperability with external tools
+
+## The normalization pipeline
+
+A typical normalization pipeline follows this structure:
+
+```tql
+// 1. Collect raw data
+from_kafka "raw-events"
+
+// 2. Parse into structured events
+this = message.parse_json()
+
+// 3. Clean up values
+replace what="N/A", with=null
+replace what="-", with=null
+
+// 4. Map to target schema
+my_source::ocsf::map
+
+// 5. Output normalized events
+publish "normalized-events"
+```
+
+## Normalization guides
+
+Work through these guides in order for a complete normalization workflow:
+
+### [Clean up values](/guides/normalization/clean-up-values)
+
+Start by fixing data quality issues:
+
+- Replace null placeholders (`"None"`, `"N/A"`, `"-"`)
+- Normalize sentinel values
+- Fix types (strings to timestamps, IPs, numbers)
+- Provide default values for missing fields
+
+### [Map to OCSF](/guides/normalization/map-to-ocsf)
+
+Learn the comprehensive approach to OCSF mapping:
+
+- Identify the correct event class
+- Map fields by attribute group
+- Handle unmapped fields
+- Validate with `ocsf::cast`
+
+### [Map to other schemas](/guides/normalization/map-to-other-schemas)
+
+Brief guidance on alternative schemas:
+
+- Elastic Common Schema (ECS)
+- Google UDM
+- Microsoft ASIM
+
+### [Package and test mappings](/guides/normalization/package-and-test-mappings)
+
+Make your mappings production-ready:
+
+- Structure mappings as user-defined operators
+- Write tests with the test framework
+- Validate output with schema casts
+
+## When to normalize
+
+Normalize data at the ingestion point in your pipeline:
+
+```
+Collection → Parsing → Normalization → Storage/Forwarding
+              ↑
+        You are here
+```
+
+Normalizing early ensures all downstream consumers work with consistent data.
+Avoid normalizing the same data multiple times by storing normalized events.
+
+import Guide from "@components/see-also/Guide.astro";
+import Tutorial from "@components/see-also/Tutorial.astro";
+
+## See also
+
+- <Guide>parsing/parse-string-fields</Guide>
+- <Guide>packages/create-a-package</Guide>
+- <Guide>testing/write-tests</Guide>
+- <Tutorial>map-data-to-ocsf</Tutorial>

@@ -92,12 +92,25 @@ pipeline, set this option to `1` to commit every message individually.
 
 Defaults to `1000`.
 
+## Amazon MSK
+
+The operator supports [Amazon MSK](/integrations/amazon/msk) with IAM
+authentication.
+
 <AWSIAMOptions />
 
 ### `aws_region = string (optional)`
 
 The AWS region used to construct the MSK authentication URL. Required when
 connecting to MSK with IAM authentication.
+
+### Consume from MSK using AWS IAM authentication
+
+```tql
+from_kafka "security-logs",
+  options={"bootstrap.servers": "my-cluster.kafka.us-east-1.amazonaws.com:9098"},
+  aws_iam={region: "us-east-1"}
+```
 
 ## Examples
 
@@ -118,14 +131,6 @@ from_kafka "events", count=100, offset="beginning"
 
 ```tql
 from_kafka "alerts", exit=true
-```
-
-### Consume from MSK using AWS IAM authentication
-
-```tql
-from_kafka "security-logs",
-  options={"bootstrap.servers": "my-cluster.kafka.us-east-1.amazonaws.com:9098"},
-  aws_iam={region: "us-east-1"}
 ```
 
 ## See Also

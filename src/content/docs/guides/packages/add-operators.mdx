@@ -2,6 +2,7 @@
 title: Add operators
 ---
 
+import { FileTree } from '@astrojs/starlight/components';
 import Guide from '@components/see-also/Guide.astro';
 import Reference from '@components/see-also/Reference.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
@@ -46,6 +47,51 @@ Operators can accept positional and named arguments, enabling you to create
 flexible, reusable building blocks that match the calling conventions of
 built-in operators. Define parameters in a YAML frontmatter block at the
 beginning of the `.tql` file.
+
+### Parameter schema
+
+Each parameter supports the following fields:
+
+| Field         | Required | Description                                          |
+| ------------- | -------- | ---------------------------------------------------- |
+| `name`        | Yes      | Parameter name, used as `$name` in the operator body |
+| `type`        | No       | Type constraint for the parameter value              |
+| `description` | No       | Documentation string for the parameter               |
+| `default`     | No       | Default value if the argument is not provided        |
+
+### Supported types
+
+The `type` field constrains what values the parameter accepts:
+
+| Type     | Description                                                  |
+| -------- | ------------------------------------------------------------ |
+| `field`  | A field selector (for example, `name`). Cannot have defaults |
+| `string` | A string literal or expression                               |
+| `int`    | An integer value                                             |
+| `double` | A floating-point value                                       |
+| `bool`   | A boolean value                                              |
+| `ip`     | An IP address                                                |
+| `secret` | A secret string (accepts string literals)                    |
+
+If you omit the `type` field, the parameter accepts any value.
+
+:::note[Null values]
+All typed parameters accept `null` values regardless of their declared type.
+:::
+
+### Type checking
+
+Tenzir validates parameter types at compile time when possible:
+
+- **Compile-time checking** occurs when arguments are constant values
+- **Runtime checking** defers validation for expressions containing runtime data
+
+If a type mismatch occurs, Tenzir reports an error with the expected type and
+shows usage information for the operator.
+
+## Work with operator parameters
+
+This section shows common patterns for defining and using operator parameters.
 
 ### Define positional arguments
 
@@ -109,38 +155,7 @@ acme::tag name, "Alice", prefix="User: "
 {x: 1, name: "User: Alice"}
 ```
 
-### Parameter schema
-
-Each parameter supports the following fields:
-
-| Field         | Required | Description                                          |
-| ------------- | -------- | ---------------------------------------------------- |
-| `name`        | Yes      | Parameter name, used as `$name` in the operator body |
-| `type`        | No       | Type constraint for the parameter value              |
-| `description` | No       | Documentation string for the parameter               |
-| `default`     | No       | Default value if the argument is not provided        |
-
-### Supported types
-
-The `type` field constrains what values the parameter accepts:
-
-| Type     | Description                                                  |
-| -------- | ------------------------------------------------------------ |
-| `field`  | A field selector (for example, `name`). Cannot have defaults |
-| `string` | A string literal or expression                               |
-| `int`    | An integer value                                             |
-| `double` | A floating-point value                                       |
-| `bool`   | A boolean value                                              |
-| `ip`     | An IP address                                                |
-| `secret` | A secret string (accepts string literals)                    |
-
-If you omit the `type` field, the parameter accepts any value.
-
-:::note[Null values]
-All typed parameters accept `null` values regardless of their declared type.
-:::
-
-### Optional positional arguments
+### Make arguments optional
 
 Positional arguments with a `default` value become optional. Callers can omit
 them, and Tenzir substitutes the default:
@@ -226,15 +241,99 @@ args:
 utils::scale $field, factor=$multiplier
 ```
 
-### Type checking
+## Modularize packages with operator hierarchies
 
-Tenzir validates parameter types at compile time when possible:
+Complex packages benefit from breaking functionality into a hierarchy of
+operators that call each other. This pattern keeps individual operators focused,
+enables independent testing, and creates a clear structure that mirrors your
+directory layout.
 
-- **Compile-time checking** occurs when arguments are constant values
-- **Runtime checking** defers validation for expressions containing runtime data
+Consider a package that normalizes various log formats to OCSF. You can organize
+the operators into layers:
 
-If a type mismatch occurs, Tenzir reports an error with the expected type and
-shows usage information for the operator.
+| Operator             | Purpose                                                              |
+| -------------------- | -------------------------------------------------------------------- |
+| `acme::parse`        | [Parse](/guides/parsing/parse-delimited-text) raw input into events  |
+| `acme::clean`        | [Normalize fields](/guides/normalization/clean-up-values), fix types |
+| `acme::ocsf::base`   | Fallback: maps to OCSF Base Event                                    |
+| `acme::ocsf::map`    | Dispatcher: routes to specific mappers                               |
+| `acme::ocsf::map::*` | Event-specific mapping (dns, http, auth, etc.)                       |
+
+This hierarchy maps directly to your directory structure:
+
+<FileTree>
+
+- operators/
+  - parse.tql
+  - clean.tql
+  - ocsf/
+    - base.tql
+    - map.tql
+    - map/
+      - dns.tql
+      - http.tql
+      - auth.tql
+
+</FileTree>
+
+The dispatcher operator routes events to specialized mappers, e.g., based on
+event type:
+
+```tql title="operators/ocsf/map.tql"
+if @name == "acme.dns" {
+  acme::ocsf::map::dns
+} else if @name == "acme.http" {
+  acme::ocsf::map::http
+} else if @name == "acme.auth" {
+  acme::ocsf::map::auth
+} else {
+  acme::ocsf::base
+}
+```
+
+The fallback operator ensures that unrecognized events still conform to OCSF by
+mapping them to the Base Event class:
+
+```tql title="operators/ocsf/base.tql"
+// Map unrecognized events to OCSF Base Event (class_uid: 0)
+class_uid = 0
+category_uid = 0
+activity_id = 0
+raw_data = move raw_message
+```
+
+Each leaf operator handles one specific event type:
+
+```tql title="operators/ocsf/map/dns.tql"
+// Map DNS logs to OCSF DNS Activity (class_uid: 4003)
+class_uid = 4003
+category_uid = 4
+activity_id = 1
+query.hostname = move query_name
+query.type = move query_type
+answers = move dns_answers
+// ... additional field mappings
+```
+
+These operators compose into an end-to-end pipeline:
+
+```tql
+from_file "logs/mixed.json"
+acme::parse
+acme::clean
+acme::ocsf::map
+publish "ocsf"
+```
+
+### Design principles
+
+When building operator hierarchies, follow these guidelines:
+
+- **Keep operators focused**: Each operator should do one thing well
+- **Use dispatchers for routing**: Route events based on type or other criteria
+- **Mirror directory structure**: Operator names reflect their location
+- **Enable independent testing**: Each layer can be tested in isolation
+- **Provide fallbacks**: Handle unrecognized inputs gracefully
 
 ## See also
 

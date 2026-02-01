@@ -1,0 +1,162 @@
+---
+title: Send to destinations
+---
+
+import Op from "@components/see-also/Op.astro";
+import Guide from "@components/see-also/Guide.astro";
+
+This guide shows you how to send data to various destinations using TQL output
+operators. You'll learn about destination operators, file output patterns, and
+expression-based serialization.
+
+## Destination operators
+
+TQL provides `to_*` operators for sending events to various destinations. These
+operators accept expressions for flexible serialization.
+
+### Message brokers
+
+Send events to message brokers like [Kafka](/integrations/kafka).
+
+Send to Kafka with automatic JSON formatting:
+
+```tql
+subscribe "security-events"
+to_kafka "events"
+```
+
+Specify explicit serialization with the `message` parameter:
+
+```tql
+subscribe "logs"
+to_kafka "events", message=this.print_json()
+```
+
+The `message` parameter accepts any expression that evaluates to a string or
+blob.
+
+### Analytics platforms
+
+Send data to platforms like [Splunk](/integrations/splunk),
+[OpenSearch](/integrations/opensearch), and
+[Elasticsearch](/integrations/elasticsearch).
+
+Send to a Splunk HEC endpoint:
+
+```tql
+subscribe "logs"
+to_splunk "https://splunk.example.com:8088",
+  hec_token=secret("SPLUNK_HEC_TOKEN")
+```
+
+Send to OpenSearch with index routing:
+
+```tql
+subscribe "security"
+to_opensearch "https://opensearch.example.com:9200",
+  action="index",
+  index="security-events"
+```
+
+### Cloud services
+
+Route events to cloud destinations like [Amazon SQS](/integrations/amazon/sqs)
+and [Google Cloud Pub/Sub](/integrations/google/cloud-pubsub).
+
+Send to SQS:
+
+```tql
+subscribe "notifications"
+to_sqs "https://sqs.us-east-1.amazonaws.com/123456789/queue"
+```
+
+Send to Pub/Sub:
+
+```tql
+subscribe "events"
+to_gcp_pubsub "projects/my-project/topics/events"
+```
+
+## File output
+
+For writing to files, use `write_*` operators followed by `save_*` operators.
+This two-operator pattern separates serialization from storage.
+
+Write JSON to a local file:
+
+```tql
+subscribe "logs"
+write_json
+save_file "output.json"
+```
+
+Write compressed Parquet:
+
+```tql
+export
+write_parquet
+save_file "archive.parquet.zst"
+```
+
+Write JSON Lines to [S3](/integrations/amazon/s3):
+
+```tql
+write_json
+save_file "s3://bucket/logs/events.jsonl"
+```
+
+Send NDJSON over [TCP](/integrations/tcp):
+
+```tql
+write_json
+save_tcp "collector.example.com:5044"
+```
+
+## Expression-based serialization
+
+Destination operators use expressions for flexible message formatting:
+
+### Serialize the entire event
+
+Serialize as JSON (the default for most operators):
+
+```tql
+to_kafka "events", message=this.print_json()
+```
+
+Serialize as compact JSON without nulls:
+
+```tql
+to_kafka "events", message=this.print_json(include_nulls=false)
+```
+
+### Serialize specific fields
+
+Send only a specific field:
+
+```tql
+to_kafka "alerts", message=alert_message
+```
+
+Combine fields into a formatted string:
+
+```tql
+to_kafka "metrics", message=f"{host}: {metric_name}={value}"
+```
+
+### Dynamic routing
+
+Route events to different destinations based on content:
+
+```tql
+to_kafka f"events.{event_type}", message=this.print_json()
+```
+
+## See also
+
+- <Guide>routing/load-balance-pipelines</Guide>
+- <Guide>routing/split-and-merge-streams</Guide>
+- <Op>to_kafka</Op>
+- <Op>to_splunk</Op>
+- <Op>to_opensearch</Op>
+- <Op>fork</Op>

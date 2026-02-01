@@ -28,7 +28,6 @@ export const guides = [
         items: [
           "guides/basic-usage/run-pipelines",
           "guides/basic-usage/manage-a-pipeline",
-          "guides/basic-usage/collect-metrics",
         ],
       },
     ],
@@ -94,29 +93,47 @@ export const guides = [
     "Work with Data",
     [
       {
-        label: "Data Loading",
+        label: "Collecting",
         collapsed: true,
         items: [
-          "guides/data-loading/read-and-watch-files",
-          "guides/data-loading/fetch-data-from-apis",
+          { label: "Overview", link: "guides/collecting" },
+          "guides/collecting/read-and-watch-files",
+          "guides/collecting/fetch-via-http-and-apis",
+          "guides/collecting/read-from-message-brokers",
+          "guides/collecting/get-data-from-the-network",
         ],
       },
       {
-        label: "Data Shaping",
+        label: "Parsing",
         collapsed: true,
         items: [
-          "guides/data-shaping/shape-data",
-          "guides/data-shaping/filter-and-select-data",
-          "guides/data-shaping/transform-basic-values",
-          "guides/data-shaping/manipulate-strings",
-          "guides/data-shaping/work-with-time",
-          "guides/data-shaping/transform-collections",
-          "guides/data-shaping/aggregate-and-summarize",
-          "guides/data-shaping/slice-and-sample-data",
-          "guides/data-shaping/extract-structured-data-from-text",
-          "guides/data-shaping/convert-data-formats",
-          "guides/data-shaping/reshape-complex-data",
-          "guides/data-shaping/deduplicate-events",
+          "guides/parsing/parse-delimited-text",
+          "guides/parsing/parse-binary-data",
+          "guides/parsing/parse-string-fields",
+        ],
+      },
+      {
+        label: "Transformation",
+        collapsed: true,
+        items: [
+          "guides/transformation/filter-and-select-data",
+          "guides/transformation/transform-values",
+          "guides/transformation/manipulate-strings",
+          "guides/transformation/work-with-time",
+          "guides/transformation/shape-lists-and-records",
+          "guides/transformation/reshape-complex-data",
+          "guides/transformation/convert-data-formats",
+        ],
+      },
+      {
+        label: "Normalization",
+        collapsed: true,
+        items: [
+          { label: "Overview", link: "guides/normalization" },
+          "guides/normalization/clean-up-values",
+          "guides/normalization/map-to-ocsf",
+          "guides/normalization/map-to-other-schemas",
+          "guides/normalization/package-and-test-mappings",
         ],
       },
       {
@@ -127,6 +144,31 @@ export const guides = [
           "guides/enrichment/enrich-with-network-inventory",
           "guides/enrichment/enrich-with-threat-intel",
           "guides/enrichment/execute-sigma-rules",
+        ],
+      },
+      {
+        label: "Optimization",
+        collapsed: true,
+        items: [
+          "guides/optimization/slice-and-sample-data",
+          "guides/optimization/deduplicate-events",
+        ],
+      },
+      {
+        label: "Routing",
+        collapsed: true,
+        items: [
+          "guides/routing/send-to-destinations",
+          "guides/routing/split-and-merge-streams",
+          "guides/routing/load-balance-pipelines",
+        ],
+      },
+      {
+        label: "Analytics",
+        collapsed: true,
+        items: [
+          "guides/analytics/aggregate-and-summarize",
+          "guides/analytics/collect-metrics",
         ],
       },
       {

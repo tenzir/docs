@@ -1,0 +1,502 @@
+---
+title: Parse string fields
+---
+
+This guide shows you how to extract structured data from string fields using
+TQL's parsing functions. You'll learn to parse JSON, YAML, XML, key-value
+pairs, delimited data, timestamps, and log formats like Syslog, CEF, LEEF, and
+Windows Event Logs. For custom formats, Grok patterns provide flexible pattern
+matching.
+
+## Parse JSON
+
+The most common parsing task is extracting JSON from string fields. Use
+[`parse_json()`](/reference/functions/parse_json):
+
+```tql
+from {message: r#"{"user": "alice", "action": "login"}"#}
+data = message.parse_json()
+```
+
+```tql
+{
+  message: "{\"user\": \"alice\", \"action\": \"login\"}",
+  data: {
+    user: "alice",
+    action: "login",
+  },
+}
+```
+
+Access nested fields directly after parsing:
+
+```tql
+from {message: r#"{"user": "alice", "action": "login"}"#}
+data = message.parse_json()
+user = data.user
+action = data.action
+```
+
+```tql
+{
+  message: "{\"user\": \"alice\", \"action\": \"login\"}",
+  data: {
+    user: "alice",
+    action: "login",
+  },
+  user: "alice",
+  action: "login",
+}
+```
+
+## Extract key-value pairs
+
+Many logs use key-value formats. [`parse_kv()`](/reference/functions/parse_kv)
+handles these automatically:
+
+```tql
+from {log: "status=200 method=GET path=/api/users duration=45ms"}
+fields = log.parse_kv()
+```
+
+```tql
+{
+  log: "status=200 method=GET path=/api/users duration=45ms",
+  fields: {
+    status: 200,
+    method: "GET",
+    path: "/api/users",
+    duration: 45ms,
+  },
+}
+```
+
+The function automatically detects separators and converts numeric values and
+durations.
+
+Specify separators when defaults don't apply:
+
+```tql
+from {log: "user:alice action:login time:2024-01-15"}
+fields = log.parse_kv(field_split=" ", value_split=":")
+```
+
+```tql
+{
+  log: "user:alice action:login time:2024-01-15",
+  fields: {
+    user: "alice",
+    action: "login",
+    time: 2024-01-15T00:00:00Z,
+  },
+}
+```
+
+## Parse tabular data
+
+TQL provides parsers for various tabular formats within string fields.
+
+### CSV
+
+Use [`parse_csv()`](/reference/functions/parse_csv):
+
+```tql
+from {line: "alice,30,engineer,SF"}
+record = line.parse_csv(header=["name", "age", "role", "location"])
+```
+
+```tql
+{
+  line: "alice,30,engineer,SF",
+  record: {
+    name: "alice",
+    age: 30,
+    role: "engineer",
+    location: "SF",
+  },
+}
+```
+
+### TSV (tab-separated)
+
+Use [`parse_tsv()`](/reference/functions/parse_tsv):
+
+```tql
+from {line: "alice\t30\tengineer"}
+record = line.parse_tsv(header=["name", "age", "role"])
+```
+
+```tql
+{
+  line: "alice\t30\tengineer",
+  record: {
+    name: "alice",
+    age: 30,
+    role: "engineer",
+  },
+}
+```
+
+### SSV (space-separated)
+
+Use [`parse_ssv()`](/reference/functions/parse_ssv):
+
+```tql
+from {line: "alice 30 engineer"}
+record = line.parse_ssv(header=["name", "age", "role"])
+```
+
+```tql
+{
+  line: "alice 30 engineer",
+  record: {
+    name: "alice",
+    age: 30,
+    role: "engineer",
+  },
+}
+```
+
+### Custom delimiters
+
+Use [`parse_xsv()`](/reference/functions/parse_xsv) for arbitrary delimiters:
+
+```tql
+from {line: "alice|30|engineer|SF"}
+record = line.parse_xsv(
+  field_separator="|",
+  list_separator=",",
+  null_value="-",
+  header=["name", "age", "role", "location"]
+)
+```
+
+```tql
+{
+  line: "alice|30|engineer|SF",
+  record: {
+    name: "alice",
+    age: 30,
+    role: "engineer",
+    location: "SF",
+  },
+}
+```
+
+## Parse YAML
+
+Use [`parse_yaml()`](/reference/functions/parse_yaml) for YAML content:
+
+```tql
+from {config: "user: alice\nrole: admin\npermissions:\n  - read\n  - write"}
+data = config.parse_yaml()
+```
+
+```tql
+{
+  config: "user: alice\nrole: admin\npermissions:\n  - read\n  - write",
+  data: {
+    user: "alice",
+    role: "admin",
+    permissions: [
+      "read",
+      "write",
+    ],
+  },
+}
+```
+
+## Parse XML
+
+Use [`parse_xml()`](/reference/functions/parse_xml) with an XPath expression to
+extract elements from XML strings:
+
+```tql
+from {
+  xml: r#"<book id="1"><title>TQL Guide</title><author>Jane</author></book>"#
+}
+data = xml.parse_xml(xpath="/book")
+```
+
+```tql
+{
+  xml: "<book id=\"1\"><title>TQL Guide</title><author>Jane</author></book>",
+  data: {
+    "@id": "1",
+    title: "TQL Guide",
+    author: "Jane",
+  },
+}
+```
+
+Attributes are prefixed with `@` by default. Use `attr_prefix=""` to remove
+the prefix.
+
+## Parse Windows Event Logs
+
+Use [`parse_winlog()`](/reference/functions/parse_winlog) for Windows Event Log
+XML. It preserves the standard Windows event structure with `System` and
+`EventData` sections:
+
+```tql
+from {
+  xml: r#"<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing"/>
+    <EventID>4624</EventID>
+    <TimeCreated SystemTime="2024-01-15T10:30:45Z"/>
+    <Computer>WORKSTATION1</Computer>
+  </System>
+  <EventData>
+    <Data Name="TargetUserName">alice</Data>
+    <Data Name="LogonType">10</Data>
+  </EventData>
+</Event>"#
+}
+event = xml.parse_winlog()
+```
+
+```tql
+{
+  event: {
+    System: {
+      Provider: {
+        Name: "Microsoft-Windows-Security-Auditing",
+      },
+      EventID: 4624,
+      TimeCreated: {
+        SystemTime: 2024-01-15T10:30:45Z,
+      },
+      Computer: "WORKSTATION1",
+    },
+    EventData: {
+      TargetUserName: "alice",
+      LogonType: 10,
+    },
+  },
+}
+```
+
+## Parse Syslog
+
+Use [`parse_syslog()`](/reference/functions/parse_syslog) for RFC 5424 and
+RFC 3164 syslog messages:
+
+```tql
+from {line: "2024-01-15T10:30:45.123Z myhost myapp[1234]: User login failed"}
+syslog = line.parse_syslog()
+```
+
+```tql
+{
+  line: "2024-01-15T10:30:45.123Z myhost myapp[1234]: User login failed",
+  syslog: {
+    facility: null,
+    severity: null,
+    timestamp: "2024-01-15T10:30:45.123Z",
+    hostname: "myhost",
+    app_name: "myapp",
+    process_id: "1234",
+    content: "User login failed",
+  },
+}
+```
+
+## Parse CEF
+
+Use [`parse_cef()`](/reference/functions/parse_cef) for Common Event Format
+logs from security tools:
+
+```tql
+from {log: "CEF:0|Security|Firewall|1.0|100|Connection Blocked|5|src=10.0.0.1 dst=192.168.1.1"}
+event = log.parse_cef()
+```
+
+```tql
+{
+  log: "CEF:0|Security|Firewall|1.0|100|Connection Blocked|5|src=10.0.0.1 dst=192.168.1.1",
+  event: {
+    cef_version: 0,
+    device_vendor: "Security",
+    device_product: "Firewall",
+    device_version: "1.0",
+    signature_id: "100",
+    name: "Connection Blocked",
+    severity: "5",
+    extension: {
+      src: 10.0.0.1,
+      dst: 192.168.1.1,
+    },
+  },
+}
+```
+
+## Parse LEEF
+
+Use [`parse_leef()`](/reference/functions/parse_leef) for Log Event Extended
+Format (IBM QRadar):
+
+```tql
+from {log: "LEEF:1.0|Security|Firewall|1.0|100|src=10.0.0.1\tdst=192.168.1.1"}
+event = log.parse_leef()
+```
+
+```tql
+{
+  log: "LEEF:1.0|Security|Firewall|1.0|100|src=10.0.0.1\tdst=192.168.1.1",
+  event: {
+    leef_version: "1.0",
+    vendor: "Security",
+    product_name: "Firewall",
+    product_version: "1.0",
+    event_class_id: "100",
+    attributes: {
+      src: 10.0.0.1,
+      dst: 192.168.1.1,
+    },
+  },
+}
+```
+
+## Parse timestamps
+
+The [`time()`](/reference/functions/time) function auto-parses many common
+timestamp formats without requiring a format string:
+
+```tql
+from {ts: "2024-01-15T10:30:45Z"}
+timestamp = ts.time()
+```
+
+```tql
+{
+  ts: "2024-01-15T10:30:45Z",
+  timestamp: 2024-01-15T10:30:45Z,
+}
+```
+
+It handles ISO 8601 dates, Unix timestamps (with `@` prefix), and relative
+expressions like `now` or `5min ago`:
+
+```tql
+from {ts: "@1705316445"}
+timestamp = ts.time()
+```
+
+```tql
+{
+  ts: "@1705316445",
+  timestamp: 2024-01-15T11:00:45Z,
+}
+```
+
+For non-standard formats, use [`parse_time()`](/reference/functions/parse_time)
+with an explicit format string:
+
+```tql
+from {log: "Event at 15/01/2024"}
+timestamp = "15/01/2024".parse_time("%d/%m/%Y")
+```
+
+```tql
+{
+  log: "Event at 15/01/2024",
+  timestamp: 2024-01-15T00:00:00Z,
+}
+```
+
+Common format specifiers:
+
+| Specifier | Meaning             | Example |
+| --------- | ------------------- | ------- |
+| `%Y`      | 4-digit year        | 2024    |
+| `%m`      | Month (01-12)       | 01      |
+| `%d`      | Day (01-31)         | 15      |
+| `%H`      | Hour (00-23)        | 14      |
+| `%M`      | Minute (00-59)      | 30      |
+| `%S`      | Second (00-59)      | 45      |
+| `%b`      | Abbreviated month   | Jan     |
+| `%a`      | Abbreviated weekday | Mon     |
+
+## Parse with Grok patterns
+
+For complex formats, [`parse_grok()`](/reference/functions/parse_grok) provides
+powerful pattern matching:
+
+```tql
+from {log: "2024-01-15 10:30:45 ERROR [UserService] Authentication failed"}
+parsed = log.parse_grok(
+  r"%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} \[%{DATA:service}\] %{GREEDYDATA:message}"
+)
+```
+
+```tql
+{
+  log: "2024-01-15 10:30:45 ERROR [UserService] Authentication failed",
+  parsed: {
+    timestamp: 2024-01-15T10:30:45Z,
+    level: "ERROR",
+    service: "UserService",
+    message: "Authentication failed",
+  },
+}
+```
+
+Common Grok patterns:
+
+| Pattern                      | Matches                | Example                |
+| ---------------------------- | ---------------------- | ---------------------- |
+| `%{DATA:field}`              | Any chars (non-greedy) | `user123`              |
+| `%{GREEDYDATA:field}`        | Any chars (greedy)     | `the rest of the line` |
+| `%{NUMBER:field}`            | Numbers                | `42`, `3.14`           |
+| `%{IP:field}`                | IP addresses           | `192.168.1.1`          |
+| `%{TIMESTAMP_ISO8601:field}` | ISO timestamps         | `2024-01-15T10:30:45Z` |
+| `%{LOGLEVEL:field}`          | Log levels             | `ERROR`, `INFO`        |
+| `%{WORD:field}`              | Single word            | `hello`                |
+| `%{QUOTEDSTRING:field}`      | Quoted strings         | `"hello world"`        |
+
+## Layer multiple parsers
+
+Real-world logs often require multiple parsing steps:
+
+```tql
+from {
+  line: r#"2024-01-15T10:30:45Z web nginx: {"method":"POST","status":401}"#
+}
+// Step 1: Parse syslog wrapper
+syslog = line.parse_syslog()
+// Step 2: Parse embedded JSON
+request = syslog.content.parse_json()
+// Step 3: Extract specific fields
+method = request.method
+status = request.status
+```
+
+```tql
+{
+  line: "2024-01-15T10:30:45Z web nginx: {\"method\":\"POST\",\"status\":401}",
+  syslog: {
+    facility: null,
+    severity: null,
+    timestamp: "2024-01-15T10:30:45Z",
+    hostname: "web",
+    app_name: "nginx",
+    process_id: null,
+    content: "{\"method\":\"POST\",\"status\":401}",
+  },
+  request: {
+    method: "POST",
+    status: 401,
+  },
+  method: "POST",
+  status: 401,
+}
+```
+
+import Guide from "@components/see-also/Guide.astro";
+
+## See also
+
+- <Guide>parsing/parse-delimited-text</Guide>
+- <Guide>parsing/parse-binary-data</Guide>
+- <Guide>transformation/transform-values</Guide>
