@@ -1863,14 +1863,15 @@ starlight-tabs [role="tab"]:hover > *:not(svg) {
   background-color: var(--tnz-neutral-700);
 }
 
-/* Focus state */
+/* Focus state - apply focus ring to text container with no offset to stay within tab bounds */
 starlight-tabs [role="tab"]:focus-visible {
   outline: none;
 }
 
 starlight-tabs [role="tab"]:focus-visible > *:not(svg) {
   outline: 2px solid var(--tnz-primary-500);
-  outline-offset: 2px;
+  outline-offset: 0;
+  border-radius: var(--tnz-radius);
 }
 
 /* Active state - primary color text, 2px bottom border */
