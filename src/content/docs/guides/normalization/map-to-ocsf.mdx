@@ -5,33 +5,15 @@ title: Map to OCSF
 import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 
-This guide shows you how to map security data to the [Open Cybersecurity Schema
-Framework (OCSF)](https://schema.ocsf.io). You'll learn to identify the correct
-event class, organize mappings by attribute groups, handle unmapped fields, and
-validate your output.
+This guide shows you how to write OCSF mapping operators in TQL. You'll learn
+to organize mappings by attribute groups, handle unmapped fields, and validate
+your output. The guide assumes you've already identified your target OCSF event
+class and profiles.
 
 :::tip[OCSF Tutorial]
 For an end-to-end walkthrough with Zeek logs, see the [Map data to OCSF
 tutorial](/tutorials/map-data-to-ocsf).
 :::
-
-## Identify the OCSF target
-
-Browse [schema.ocsf.io](https://schema.ocsf.io) categories, read event class
-descriptions, compare required fields with your data, and check example events
-in the schema.
-
-### Find the best fitting event class
-
-Match your source event to an OCSF event class by comparing the semantic meaning
-of the data. Look at the class's required and recommended attributes—if your
-source data can populate most of them meaningfully, it's a good fit.
-
-### Identify needed OCSF profiles
-
-If your source has fields that don't fit the event class attributes, check
-whether a profile provides them. Declare active profiles in
-`ocsf.metadata.profiles` and map their attributes alongside the class attributes.
 
 ## Write the OCSF mapping
 
@@ -163,7 +145,7 @@ import { FileTree } from '@astrojs/starlight/components';
           - threat.tql Threat logs → Security Finding
   - tests/
     - inputs/
-      - traffic.json
+      - traffic.json Input shared across multiple tests
     - ngfw/
       - ocsf/
         - map.tql
@@ -171,9 +153,9 @@ import { FileTree } from '@astrojs/starlight/components';
         - base.tql
         - base.txt
         - event/
-          - network.stdin Traffic log samples
-          - network.tql
-          - network.txt
+          - network.stdin Log sample(s)
+          - network.tql Mapping for network event type
+          - network.txt Mapped OCSF event(s)
           - dns.stdin
           - dns.tql
           - dns.txt
