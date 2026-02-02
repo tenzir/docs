@@ -1763,10 +1763,28 @@ starlight-menu-button[aria-expanded="true"] button {
   color: var(--sl-color-gray-2) !important;
 }
 
-/* Starlight Tabs Component Styling - Per Tenzir Tab Bar Design System */
+/* Starlight Tabs Component Styling - Card-like Container Per Tenzir Design System */
 starlight-tabs {
   display: block;
   margin: var(--tnz-space-6) 0;
+  border: 1px solid var(--tnz-neutral-600);
+  border-radius: var(--tnz-radius);
+}
+
+/* Light mode container */
+:root[data-theme="light"] starlight-tabs {
+  border-color: var(--tnz-neutral-200);
+}
+
+/* Tab list wrapper - add horizontal padding for tabs overflow container */
+starlight-tabs .tablist-wrapper {
+  padding: 0 var(--tnz-space-2);
+}
+
+@media (min-width: 50rem) {
+  starlight-tabs .tablist-wrapper {
+    padding: 0 var(--tnz-space-4);
+  }
 }
 
 /* Tab list container - 48px height */
@@ -1775,8 +1793,10 @@ starlight-tabs [role="tablist"] {
   align-items: center;
   gap: var(--tnz-space-2); /* 8px - slightly more than spec for readability */
   height: 48px;
-  border-bottom: none;
-  margin-bottom: var(--tnz-space-4);
+  padding: 0;
+  border-bottom: none !important;
+  /* Zero margin creates unified card design - panel padding provides spacing */
+  margin-bottom: 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1785,21 +1805,32 @@ starlight-tabs [role="tablist"]::-webkit-scrollbar {
   display: none;
 }
 
+/*
+ * Tab component styling
+ *
+ * Note: Several properties use !important to override Starlight's default tab
+ * styles, which apply high-specificity rules or inline styles. This ensures
+ * our custom styling takes precedence without restructuring the component.
+ */
+
 /* Individual tab - 48px height */
 starlight-tabs [role="tab"] {
   position: relative;
   display: flex;
   align-items: center;
   height: 48px;
-  padding: 0;
-  padding-bottom: 2px; /* Space for indicator */
+  padding: 0 0 2px 0 !important; /* Space for indicator */
   background-color: transparent;
   border: none;
+  box-shadow: none !important; /* Override Starlight's default indicator */
+  font-weight: var(--tnz-font-regular) !important; /* Consistent font-weight across all tab states prevents layout shift during tab switching */
+  line-height: var(--tnz-leading-sm) !important;
   cursor: pointer;
   text-decoration: none !important;
 }
 
-/* Tab text container - 6px/8px padding, 5px radius for hover bg */
+/* Tab text container - 6px/8px padding, 5px radius for hover bg
+ * Selector excludes SVG icons which are siblings styled separately */
 starlight-tabs [role="tab"] > *:not(svg) {
   display: flex;
   align-items: center;
@@ -1807,7 +1838,7 @@ starlight-tabs [role="tab"] > *:not(svg) {
   padding: var(--tnz-space-1-5) var(--tnz-space-2); /* 6px 8px */
   border-radius: var(--tnz-radius); /* 5px */
   font-size: var(--tnz-text-sm); /* 14px */
-  font-weight: var(--tnz-font-medium); /* 500 */
+  font-weight: var(--tnz-font-regular);
   line-height: var(--tnz-leading-sm); /* 20px */
   white-space: nowrap;
   transition:
@@ -1841,14 +1872,15 @@ starlight-tabs [role="tab"]:hover > *:not(svg) {
   background-color: var(--tnz-neutral-700);
 }
 
-/* Focus state */
+/* Focus state - apply focus ring to text container with no offset to stay within tab bounds */
 starlight-tabs [role="tab"]:focus-visible {
   outline: none;
 }
 
 starlight-tabs [role="tab"]:focus-visible > *:not(svg) {
   outline: 2px solid var(--tnz-primary-500);
-  outline-offset: 2px;
+  outline-offset: 0;
+  border-radius: var(--tnz-radius);
 }
 
 /* Active state - primary color text, 2px bottom border */
@@ -1878,40 +1910,40 @@ starlight-tabs [role="tab"] svg {
 
 /* Tab panel styling */
 starlight-tabs [role="tabpanel"] {
-  padding: 0;
+  padding: var(--tnz-space-4);
+  border-top: none;
+}
+
+starlight-tabs [role="tabpanel"] > :first-child {
+  margin-top: 0;
+}
+
+starlight-tabs [role="tabpanel"] > :last-child {
+  margin-bottom: 0;
 }
 
 /* Light mode - use design system light mode colors */
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"]:not([aria-selected="true"]) {
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]) {
   color: var(--tnz-neutral-500) !important;
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"]:not([aria-selected="true"]):hover {
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
   color: var(--tnz-neutral-700) !important;
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"]:hover > *:not(svg) {
-  background-color: var(--tnz-neutral-100);
+  background-color: var(--tnz-neutral-200);
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"] {
   color: var(--tnz-neutral-800) !important;
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"][aria-selected="true"]:hover {
+:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover {
   color: var(--tnz-neutral-800);
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"][aria-selected="true"]:hover
-  > *:not(svg) {
+:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover > *:not(svg) {
   background-color: transparent;
 }
 
