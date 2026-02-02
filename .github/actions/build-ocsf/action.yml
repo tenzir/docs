@@ -10,10 +10,13 @@ inputs:
 outputs:
   schemas-dir:
     description: Path to the directory containing exported schemas
-    value: ${{ steps.export.outputs.schemas-dir }}
+    value: ${{ steps.schemas-dir.outputs.path }}
   versions:
     description: JSON array of exported version strings
-    value: ${{ steps.export.outputs.versions }}
+    value: ${{ steps.export.outputs.versions || steps.read-versions.outputs.versions }}
+  cache-hit:
+    description: Whether schemas were restored from cache
+    value: ${{ steps.schema-cache.outputs.cache-hit }}
 
 runs:
   using: composite
@@ -30,7 +33,44 @@ runs:
         git clone --depth 1 https://github.com/ocsf/ocsf-server.git "$RUNNER_TEMP/ocsf-server"
         git clone https://github.com/ocsf/ocsf-schema.git "$RUNNER_TEMP/ocsf-schema"
 
+    - name: Set schemas directory
+      id: schemas-dir
+      shell: bash
+      run: |
+        SCHEMAS_DIR="$RUNNER_TEMP/ocsf-schemas"
+        mkdir -p "$SCHEMAS_DIR"
+        echo "path=$SCHEMAS_DIR" >> "$GITHUB_OUTPUT"
+
+    - name: Compute schema cache key
+      id: cache-key
+      shell: bash
+      run: |
+        cd "$RUNNER_TEMP/ocsf-schema"
+        # Get all tag SHAs for version tags
+        TAGS_HASH=$(git tag -l | grep -E '^v?[1-9][0-9]*\.[0-9]+\.[0-9]+(-dev)?$' | \
+          xargs -I{} git rev-parse {} 2>/dev/null | sha256sum | cut -c1-16)
+        SERVER_SHA=$(git -C "$RUNNER_TEMP/ocsf-server" rev-parse --short HEAD)
+        SCRIPT_HASH=$(sha256sum "$GITHUB_ACTION_PATH/export_schema.exs" | cut -c1-8)
+        echo "key=ocsf-schemas-${TAGS_HASH}-${SERVER_SHA}-${SCRIPT_HASH}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore schema cache
+      id: schema-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.schemas-dir.outputs.path }}
+        key: ${{ steps.cache-key.outputs.key }}
+
+    - name: Read versions from cache
+      id: read-versions
+      if: steps.schema-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: |
+        VERSIONS=$(cat "${{ steps.schemas-dir.outputs.path }}/versions.json")
+        echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+        echo "Schema cache hit - versions: $VERSIONS"
+
     - name: Cache Elixir dependencies
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       uses: actions/cache@v4
       with:
         path: |
@@ -41,6 +81,7 @@ runs:
           ocsf-elixir-${{ runner.os }}-
 
     - name: Build OCSF server
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{ runner.temp }}/ocsf-server
       run: |
@@ -50,13 +91,13 @@ runs:
         mix compile
 
     - name: Export schemas for all versions
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       id: export
       shell: bash
       env:
         INCLUDE_DEV: ${{ inputs.include-dev }}
       run: |
-        SCHEMAS_DIR="$RUNNER_TEMP/ocsf-schemas"
-        mkdir -p "$SCHEMAS_DIR"
+        SCHEMAS_DIR="${{ steps.schemas-dir.outputs.path }}"
 
         cd "$RUNNER_TEMP/ocsf-schema"
 
@@ -132,3 +173,10 @@ runs:
         echo "Schemas directory: $SCHEMAS_DIR"
         echo "Versions: $VERSIONS_JSON"
         ls -la "$SCHEMAS_DIR"
+
+    - name: Save schema cache
+      if: steps.schema-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.schemas-dir.outputs.path }}
+        key: ${{ steps.cache-key.outputs.key }}

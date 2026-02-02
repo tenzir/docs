@@ -44,6 +44,14 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Restore Astro cache
+        uses: actions/cache@v4
+        with:
+          path: .astro
+          key: astro-${{ runner.os }}-${{ hashFiles('bun.lockb', 'package.json', 'astro.config.mjs') }}
+          restore-keys: |
+            astro-${{ runner.os }}-
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
@@ -60,11 +68,44 @@ jobs:
         with:
           include-dev: "true"
 
-      - name: Generate OCSF reference
+      - name: Compute OCSF MDX cache key
         if: github.event_name != 'pull_request'
+        id: ocsf-mdx-key
+        run: |
+          SCRIPTS_HASH=$(cat scripts/sync-ocsf.mjs scripts/lib/ocsf-*.mjs | sha256sum | cut -c1-12)
+          DOCS_SHA=$(git ls-remote https://github.com/ocsf/ocsf-docs.git HEAD | cut -c1-8)
+          SCHEMAS_HASH=$(find "${{ steps.ocsf.outputs.schemas-dir }}" -name "*.json" -exec sha256sum {} \; 2>/dev/null | sort | sha256sum | cut -c1-12 || echo "none")
+          echo "schemas-hash=${SCHEMAS_HASH}" >> "$GITHUB_OUTPUT"
+          echo "key=ocsf-mdx-${SCHEMAS_HASH}-${DOCS_SHA}-${SCRIPTS_HASH}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore OCSF MDX cache
+        if: github.event_name != 'pull_request'
+        id: ocsf-mdx-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            src/content/docs/reference/ocsf
+            src/sidebar-ocsf.generated.ts
+            src/ocsf-version.mjs
+          key: ${{ steps.ocsf-mdx-key.outputs.key }}
+          restore-keys: |
+            ocsf-mdx-${{ steps.ocsf-mdx-key.outputs.schemas-hash }}-
+
+      - name: Generate OCSF reference
+        if: github.event_name != 'pull_request' && steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
         env:
           OCSF_LOCAL_DIR: ${{ steps.ocsf.outputs.schemas-dir }}
         run: bun run generate:ocsf:all
+
+      - name: Save OCSF MDX cache
+        if: github.event_name != 'pull_request' && steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            src/content/docs/reference/ocsf
+            src/sidebar-ocsf.generated.ts
+            src/ocsf-version.mjs
+          key: ${{ steps.ocsf-mdx-key.outputs.key }}
 
       - name: Generate Excalidraw SVGs
         run: bun run generate:excalidraw
