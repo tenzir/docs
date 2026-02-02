@@ -1763,10 +1763,22 @@ starlight-menu-button[aria-expanded="true"] button {
   color: var(--sl-color-gray-2) !important;
 }
 
-/* Starlight Tabs Component Styling - Per Tenzir Tab Bar Design System */
+/* Starlight Tabs Component Styling - Card-like Container */
 starlight-tabs {
   display: block;
   margin: var(--tnz-space-6) 0;
+  border: 1px solid var(--tnz-neutral-600);
+  border-radius: var(--tnz-radius);
+}
+
+/* Light mode container */
+:root[data-theme="light"] starlight-tabs {
+  border-color: var(--tnz-neutral-200);
+}
+
+/* Tab list wrapper */
+starlight-tabs .tablist-wrapper {
+  padding: 0 var(--tnz-space-4);
 }
 
 /* Tab list container - 48px height */
@@ -1775,8 +1787,9 @@ starlight-tabs [role="tablist"] {
   align-items: center;
   gap: var(--tnz-space-2); /* 8px - slightly more than spec for readability */
   height: 48px;
-  border-bottom: none;
-  margin-bottom: var(--tnz-space-4);
+  padding: 0;
+  border-bottom: none !important;
+  margin-bottom: 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1791,10 +1804,13 @@ starlight-tabs [role="tab"] {
   display: flex;
   align-items: center;
   height: 48px;
-  padding: 0;
-  padding-bottom: 2px; /* Space for indicator */
+  padding: 0 !important;
+  padding-bottom: 2px !important; /* Space for indicator */
   background-color: transparent;
   border: none;
+  box-shadow: none !important; /* Override Starlight's default indicator */
+  font-weight: var(--tnz-font-regular) !important; /* Consistent weight, no layout shift */
+  line-height: var(--tnz-leading-sm) !important;
   cursor: pointer;
   text-decoration: none !important;
 }
@@ -1807,7 +1823,7 @@ starlight-tabs [role="tab"] > *:not(svg) {
   padding: var(--tnz-space-1-5) var(--tnz-space-2); /* 6px 8px */
   border-radius: var(--tnz-radius); /* 5px */
   font-size: var(--tnz-text-sm); /* 14px */
-  font-weight: var(--tnz-font-medium); /* 500 */
+  font-weight: var(--tnz-font-regular);
   line-height: var(--tnz-leading-sm); /* 20px */
   white-space: nowrap;
   transition:
@@ -1878,7 +1894,16 @@ starlight-tabs [role="tab"] svg {
 
 /* Tab panel styling */
 starlight-tabs [role="tabpanel"] {
-  padding: 0;
+  padding: var(--tnz-space-4);
+  border-top: none;
+}
+
+starlight-tabs [role="tabpanel"] > :first-child {
+  margin-top: 0;
+}
+
+starlight-tabs [role="tabpanel"] > :last-child {
+  margin-bottom: 0;
 }
 
 /* Light mode - use design system light mode colors */
