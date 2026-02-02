@@ -133,7 +133,6 @@ export const guides = [
           "guides/normalization/clean-up-values",
           "guides/normalization/map-to-ocsf",
           "guides/normalization/map-to-other-schemas",
-          "guides/normalization/package-and-test-mappings",
         ],
       },
       {
@@ -339,6 +338,14 @@ export const reference = [
   ),
   // OCSF sidebar is conditionally included when generated
   ...(ocsfSidebar ? [section("Standards", [ocsfSidebar], "shield")] : []),
+  section(
+    "Workflows",
+    [
+      "reference/workflows/create-parser-package",
+      "reference/workflows/create-ocsf-mapping",
+    ],
+    "list-checks",
+  ),
 ];
 
 export const integrations = [

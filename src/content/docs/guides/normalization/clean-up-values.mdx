@@ -211,20 +211,9 @@ email = email.trim().to_lower()
 {name: "Alice", email: "bob@example.com"}
 ```
 
-## Drop null fields
+## Drop null fields from nested records
 
-Remove fields that are null to reduce event size:
-
-```tql
-from {a: 1, b: null, c: 3, d: null}
-drop_null_fields this
-```
-
-```tql
-{a: 1, c: 3}
-```
-
-Use `drop_null_fields` on specific nested records:
+Remove null fields from nested records to reduce event size:
 
 ```tql
 from {user: {name: "alice", email: null, phone: null}}
@@ -234,6 +223,11 @@ drop_null_fields user
 ```tql
 {user: {name: "alice"}}
 ```
+
+Avoid using `drop_null_fields` without arguments on the top-level record. Each
+unique combination of present fields creates a distinct schema, leading to
+_schema fragmentation_ that defeats the purpose of normalization. It also
+removes fields you just normalized.
 
 ## Practical example
 
@@ -263,8 +257,8 @@ blocked = action? == "block"
 action = action? else "unknown"
 protocol = protocol? else "unknown"
 
-// Clean up
-drop_null_fields this
+// Drop nulls from user context (e.g., domain, group may be missing)
+drop_null_fields user
 ```
 
 ## Best practices

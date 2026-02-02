@@ -19,6 +19,7 @@ import GraduationCapIcon from "../components/icons/GraduationCapIcon.astro";
 import HeartIcon from "../components/icons/HeartIcon.astro";
 import LayersIcon from "../components/icons/LayersIcon.astro";
 import LightbulbIcon from "../components/icons/LightbulbIcon.astro";
+import ListChecksIcon from "../components/icons/ListChecksIcon.astro";
 import PackageIcon from "../components/icons/PackageIcon.astro";
 import PlugIcon from "../components/icons/PlugIcon.astro";
 import PuzzlePieceIcon from "../components/icons/PuzzlePieceIcon.astro";
@@ -41,6 +42,7 @@ export type IconName =
   | "heart"
   | "layers"
   | "lightbulb"
+  | "list-checks"
   | "package"
   | "plug"
   | "puzzle-piece"
@@ -69,6 +71,7 @@ export const iconComponents: Record<IconName, IconComponent> = {
   layers: LayersIcon,
   lightbulb: LightbulbIcon,
   package: PackageIcon,
+  "list-checks": ListChecksIcon,
   plug: PlugIcon,
   "puzzle-piece": PuzzlePieceIcon,
   shield: ShieldIcon,

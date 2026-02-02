@@ -2,7 +2,6 @@
 title: Map to OCSF
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
 import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 
@@ -18,32 +17,9 @@ tutorial](/tutorials/map-data-to-ocsf).
 
 ## Identify the OCSF target
 
-<Tabs>
-<TabItem label="Human" icon="pencil">
-
 Browse [schema.ocsf.io](https://schema.ocsf.io) categories, read event class
 descriptions, compare required fields with your data, and check example events
 in the schema.
-
-</TabItem>
-<TabItem label="AI-assisted" icon="star">
-
-Use the [Tenzir agent skill](/guides/ai-workbench/use-documentation-skill) or
-[Tenzir Claude plugin](/guides/ai-workbench/use-claude-plugins). For example,
-with Claude Code you can use the `@tenzir:ocsf` subagent to answer any OCSF
-question:
-
-```
-`@tenzir:ocsf` where would this log go?
-
-date=2019-05-13 time=14:12:26 logid="0103020301" ...
-```
-
-If you have the agent skill installed, just omit `@tenzir:ocsf` and clarify that
-the question is about OCSF.
-
-</TabItem>
-</Tabs>
 
 ### Find the best fitting event class
 
@@ -59,25 +35,28 @@ whether a profile provides them. Declare active profiles in
 
 ## Write the OCSF mapping
 
+This section uses Palo Alto NGFW traffic logs as a running example. The
+namespace follows the `vendor::product::` convention, resulting in
+`paloalto::ngfw::ocsf::map`.
+
 ### Operator template
 
 Use this annotated template as a starting point for creating a
 [user-defined operator](/guides/packages/add-operators/) as part of a TQL
 package.
 
-We recommend to organize fields by OCSF attribute groups: classification,
+We recommend organizing fields by OCSF attribute groups: classification,
 occurrence, context, primary.
 
 ```tql
 // --- Preamble ---------------------------------
 
 // Move source data into a dedicated field to prevent name clashes
-// and enable automatic unmapped field collection
-this = { zeek: this }
+// and enable automatic unmapped field collection.
+this = { src: this }
 
 // --- OCSF: classification attributes ----------
 
-// Identify the event type (values from schema.ocsf.io)
 ocsf.category_uid = 4
 ocsf.class_uid = 4001
 ocsf.activity_id = 6
@@ -86,52 +65,46 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
 
-// Capture when the event happened
-ocsf.time = move zeek.ts
-ocsf.duration = move zeek.duration
-ocsf.start_time = ocsf.time
-ocsf.end_time = ocsf.time + ocsf.duration if ocsf.duration != null
+ocsf.time = move src.time_generated
+ocsf.start_time = move src.start
+ocsf.duration = move src.elapsed
+ocsf.end_time = ocsf.start_time + ocsf.duration if ocsf.duration != null
 
 // --- OCSF: context attributes -----------------
 
-// Metadata about the event source
+// Metadata about the event source.
 ocsf.metadata = {
-  log_name: "conn.log",
+  log_name: "traffic",
   product: {
-    name: "Zeek",
-    vendor_name: "Zeek",
+    cpe_name: "cpe:/a:paloaltonetworks:pan-os",
+    name: "NGFW",
+    vendor_name: "Palo Alto Networks",
   },
-  uid: move zeek.uid,
-  version: "1.3.0",
+  uid: move src.sessionid,
+  version: "1.7.0",
 }
-drop zeek._path?, zeek._write_ts?
-ocsf.app_name = move zeek.service
+ocsf.app_name = move src.app
 
 // --- OCSF: primary attributes -----------------
 
 // Primary attributes reflect the core semantic meaning of the event.
 
-ocsf.src_endpoint = {ip: zeek.id.orig_h, port: zeek.id.orig_p}
-ocsf.dst_endpoint = {ip: zeek.id.resp_h, port: zeek.id.resp_p}
-drop zeek.id
+ocsf.src_endpoint = {
+  ip: move src.src,
+  port: move src.sport,
+}
+
+ocsf.dst_endpoint = {
+  ip: move src.dst,
+  port: move src.dport,
+}
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
 ocsf.connection_info = {
-  community_uid: move zeek.community_id?,
-  protocol_name: move zeek.proto,
-  protocol_num: $proto_nums[zeek.proto]? else -1,
+  protocol_num: $proto_nums[src.proto]? else -1,
+  protocol_name: src.proto,
 }
-
-ocsf.status_id = 99
-ocsf.status = "Other"
-ocsf.status_code = move zeek.conn_state
-
-ocsf.traffic = {
-  bytes_in: move zeek.resp_bytes,
-  bytes_out: move zeek.orig_bytes,
-  packets_in: move zeek.resp_pkts,
-  packets_out: move zeek.orig_pkts,
-}
+drop src.proto
 
 // --- OCSF: profile-specific attributes --------
 
@@ -141,8 +114,8 @@ ocsf.traffic = {
 
 // --- Epilogue ---------------------------------
 
-// Hoist OCSF fields to root, collect unmapped
-this = {...ocsf, unmapped: zeek}
+// Hoist OCSF fields to root, collect unmapped.
+this = {...ocsf, unmapped: src}
 drop_null_fields unmapped
 
 // Derive sibling fields (activity_name, category_name, etc.)
@@ -154,13 +127,13 @@ ocsf::derive
 
 ### Key principles
 
-- **Isolate source data**: `this = { source: this }` prevents name clashes and
+- **Isolate source data**: `this = { src: this }` prevents name clashes and
   makes unmapped field collection automatic.
 - **Use `move`**: Transfer fields with `move` to simultaneously assign and
-  remove from source, for example `ocsf.time = move source.timestamp`.
-- **Use [`drop`](/reference/operators/drop) for multi-use fields**: When a field
-  appears in multiple mappings, drop it after the last use.
-- **Collect unmapped**: `this = {...ocsf, unmapped: source}` gathers any
+  remove from source, for example `ocsf.time = move src.time_generated`.
+- **Only use `drop` for multi-use fields**: When a field appears in multiple
+  mappings, drop it after the last use. Prefer `move` and single assignments.
+- **Collect unmapped**: `this = {...ocsf, unmapped: src}` gathers any
   fields you didn't map.
 
 :::note[Think in graphs]
@@ -170,46 +143,89 @@ be 1:1 (direct assignment), 1:n (field splitting), n:1 (aggregation), or n:m
 (complex transformation). Fields with no outgoing edges remain `unmapped`.
 :::
 
-## Validate the mapping
+### Package structure
 
-Use [`ocsf::cast`](/reference/operators/ocsf/cast) to validate that your mapping
-produces schema-compliant output:
+Organize OCSF mappings as a package with a dispatcher and per-event-type
+operators:
 
-```tql
-ocsf::cast class_uid=4001
+import { FileTree } from '@astrojs/starlight/components';
+
+<FileTree>
+- paloalto/
+  - operators/
+    - ngfw/
+      - ocsf/
+        - map.tql Main dispatcher
+        - base.tql Fallback to OCSF base event
+        - event/
+          - network.tql Traffic logs → Network Activity
+          - dns.tql DNS logs → DNS Activity
+          - threat.tql Threat logs → Security Finding
+  - tests/
+    - inputs/
+      - traffic.json
+    - ngfw/
+      - ocsf/
+        - map.tql
+        - map.txt
+        - base.tql
+        - base.txt
+        - event/
+          - network.stdin Traffic log samples
+          - network.tql
+          - network.txt
+          - dns.stdin
+          - dns.tql
+          - dns.txt
+  - package.yaml
+</FileTree>
+
+### Dispatcher operator
+
+Your package should include one dispatching operator. The dispatcher routes
+events to an event-specific mapping operator:
+
+```tql title="paloalto/operators/ngfw/ocsf/map.tql"
+if src.type == "TRAFFIC" {
+  paloalto::ngfw::ocsf::event::network
+} else if src.type == "DNS" {
+  paloalto::ngfw::ocsf::event::dns
+} else if src.type == "THREAT" {
+  paloalto::ngfw::ocsf::event::threat
+} else {
+  // Map to base event.
+  paloalto::ngfw::ocsf::base
+}
 ```
 
-This operator checks that all required fields are present and correctly typed.
-Validation errors appear as warnings, helping you catch mapping issues early.
+If the parser package does not set a type field, dispatch on a different field
+in the log that differentiates the event types.
 
-:::tip[Agentic workflows]
-Schema validation is the critical feedback signal for autonomous agent loops. An
-AI agent can generate a mapping, run `ocsf::cast`, inspect the diagnostics, and
-refine the mapping until validation passes—converging on correct output without
-human intervention.
-:::
+### Test structure
 
-For testing mappings in CI pipelines, see the [Package and test
-mappings](/guides/normalization/package-and-test-mappings) guide.
+Create one test file per event type:
 
-## Best practices
+```tql
+paloalto::ngfw::parse
+paloalto::ngfw::clean
+paloalto::ngfw::ocsf::event::network
+ocsf::cast
+```
 
-1. **Map by attribute group**: Organize your TQL in clear sections matching
-   OCSF attribute groups.
-2. **Use `move` keyword for single-use fields**: This keeps your unmapped
-   collection accurate.
-3. **Document edge cases**: Add comments explaining non-obvious mappings or
-   why certain fields remain unmapped.
-4. **Validate early and often**: Run [`ocsf::cast`](/reference/operators/ocsf/cast)
-   during development to catch issues.
-5. **Test with real data**: Use sample events from production to verify your
-   mapping handles edge cases.
-6. **Package for reuse**: Extract mappings into user-defined operators for
-   use across pipelines.
+This requires that your test file has a sibling `.stdin` input that the [test
+framework](/guides/testing/write-tests) picks up automatically.
+
+### Validation gate
+
+The [`ocsf::cast`](/reference/operators/ocsf/cast) operator is the primary
+schema validation gate. It ensures that your mapping produces schema-compliant
+output.
+
+Your mapping is complete once [`ocsf::cast`](/reference/operators/ocsf/cast) no
+longer emits warnings.
 
 ## See also
 
-- <Tutorial>map-data-to-ocsf</Tutorial>
 - <Guide>normalization/clean-up-values</Guide>
-- <Guide>normalization/package-and-test-mappings</Guide>
 - <Guide>normalization/map-to-other-schemas</Guide>
+- <Tutorial>map-data-to-ocsf</Tutorial>
