@@ -6,6 +6,10 @@ inputs:
     description: Include -dev versions in the output
     required: false
     default: "true"
+  latest-only:
+    description: Export only the latest stable version (faster for PRs)
+    required: false
+    default: "false"
 
 outputs:
   schemas-dir:
@@ -133,6 +137,12 @@ runs:
 
         # Sort versions semantically
         SORTED_TAGS=$(echo "$TAGS" | sed 's/^v//' | sort -t. -k1,1n -k2,2n -k3,3n | uniq)
+
+        # Filter to latest only if requested (for faster PR builds)
+        if [[ "${{ inputs.latest-only }}" == "true" ]]; then
+          SORTED_TAGS=$(echo "$SORTED_TAGS" | grep -v '\-dev$' | tail -1)
+          echo "Latest-only mode: exporting $SORTED_TAGS"
+        fi
 
         echo "Found versions: $SORTED_TAGS"
 

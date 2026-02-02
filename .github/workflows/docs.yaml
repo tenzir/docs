@@ -62,16 +62,15 @@ jobs:
         run: bun run generate:claude-plugins
 
       - name: Build OCSF schemas
-        if: github.event_name != 'pull_request'
         id: ocsf
         uses: ./.github/actions/build-ocsf
         with:
-          include-dev: "true"
+          include-dev: ${{ github.event_name != 'pull_request' }}
+          latest-only: ${{ github.event_name == 'pull_request' }}
 
       # MDX cache key differs from schema cache: includes docs repo and local scripts
       # (schema cache in build-ocsf action only tracks schema tags and export script)
       - name: Compute OCSF MDX cache key
-        if: github.event_name != 'pull_request'
         id: ocsf-mdx-key
         run: |
           # We trust ocsf/ocsf-docs repository as it's the official OCSF documentation source
@@ -84,11 +83,12 @@ jobs:
             exit 1
           fi
           echo "schemas-hash=${SCHEMAS_HASH}" >> "$GITHUB_OUTPUT"
-          echo "key=ocsf-mdx-${SCHEMAS_HASH}-${DOCS_SHA}-${{ hashFiles('scripts/sync-ocsf.mjs', 'scripts/lib/ocsf-*.mjs') }}" >> "$GITHUB_OUTPUT"
+          # PR cache key includes 'latest' to avoid conflicts with main
+          PREFIX=${{ github.event_name == 'pull_request' && 'ocsf-mdx-latest' || 'ocsf-mdx' }}
+          echo "key=${PREFIX}-${SCHEMAS_HASH}-${DOCS_SHA}-${{ hashFiles('scripts/sync-ocsf.mjs', 'scripts/lib/ocsf-*.mjs') }}" >> "$GITHUB_OUTPUT"
 
       # restore-keys allows partial match when only docs/scripts change but schemas are same
       - name: Restore OCSF MDX cache
-        if: github.event_name != 'pull_request'
         id: ocsf-mdx-cache
         uses: actions/cache/restore@v4
         with:
@@ -98,17 +98,22 @@ jobs:
             src/ocsf-version.mjs
           key: ${{ steps.ocsf-mdx-key.outputs.key }}
           restore-keys: |
-            ocsf-mdx-${{ steps.ocsf-mdx-key.outputs.schemas-hash }}-
+            ${{ github.event_name == 'pull_request' && 'ocsf-mdx-latest-' || 'ocsf-mdx-' }}${{ steps.ocsf-mdx-key.outputs.schemas-hash }}-
 
       # Depends on: ocsf.outputs.schemas-dir (from build-ocsf action)
       - name: Generate OCSF reference
-        if: github.event_name != 'pull_request' && steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
+        if: steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
         env:
           OCSF_LOCAL_DIR: ${{ steps.ocsf.outputs.schemas-dir }}
-        run: bun run generate:ocsf:all
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            bun run generate:ocsf
+          else
+            bun run generate:ocsf:all
+          fi
 
       - name: Save OCSF MDX cache
-        if: github.event_name != 'pull_request' && steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
+        if: steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           path: |
