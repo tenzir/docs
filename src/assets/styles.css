@@ -1763,7 +1763,7 @@ starlight-menu-button[aria-expanded="true"] button {
   color: var(--sl-color-gray-2) !important;
 }
 
-/* Starlight Tabs Component Styling - Card-like Container */
+/* Starlight Tabs Component Styling - Card-like Container Per Tenzir Design System */
 starlight-tabs {
   display: block;
   margin: var(--tnz-space-6) 0;
@@ -1776,7 +1776,7 @@ starlight-tabs {
   border-color: var(--tnz-neutral-200);
 }
 
-/* Tab list wrapper */
+/* Tab list wrapper - add horizontal padding for tabs overflow container */
 starlight-tabs .tablist-wrapper {
   padding: 0 var(--tnz-space-2);
 }
@@ -1795,6 +1795,7 @@ starlight-tabs [role="tablist"] {
   height: 48px;
   padding: 0;
   border-bottom: none !important;
+  /* Zero margin creates unified card design - panel padding provides spacing */
   margin-bottom: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -1804,24 +1805,32 @@ starlight-tabs [role="tablist"]::-webkit-scrollbar {
   display: none;
 }
 
+/*
+ * Tab component styling
+ *
+ * Note: Several properties use !important to override Starlight's default tab
+ * styles, which apply high-specificity rules or inline styles. This ensures
+ * our custom styling takes precedence without restructuring the component.
+ */
+
 /* Individual tab - 48px height */
 starlight-tabs [role="tab"] {
   position: relative;
   display: flex;
   align-items: center;
   height: 48px;
-  padding: 0 !important;
-  padding-bottom: 2px !important; /* Space for indicator */
+  padding: 0 0 2px 0 !important; /* Space for indicator */
   background-color: transparent;
   border: none;
   box-shadow: none !important; /* Override Starlight's default indicator */
-  font-weight: var(--tnz-font-regular) !important; /* Consistent weight, no layout shift */
+  font-weight: var(--tnz-font-regular) !important; /* Consistent font-weight across all tab states prevents layout shift during tab switching */
   line-height: var(--tnz-leading-sm) !important;
   cursor: pointer;
   text-decoration: none !important;
 }
 
-/* Tab text container - 6px/8px padding, 5px radius for hover bg */
+/* Tab text container - 6px/8px padding, 5px radius for hover bg
+ * Selector excludes SVG icons which are siblings styled separately */
 starlight-tabs [role="tab"] > *:not(svg) {
   display: flex;
   align-items: center;
@@ -1914,36 +1923,27 @@ starlight-tabs [role="tabpanel"] > :last-child {
 }
 
 /* Light mode - use design system light mode colors */
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"]:not([aria-selected="true"]) {
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]) {
   color: var(--tnz-neutral-500) !important;
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"]:not([aria-selected="true"]):hover {
+:root[data-theme="light"] starlight-tabs [role="tab"]:not([aria-selected="true"]):hover {
   color: var(--tnz-neutral-700) !important;
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"]:hover > *:not(svg) {
-  background-color: var(--tnz-neutral-100);
+  background-color: var(--tnz-neutral-200);
 }
 
 :root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"] {
   color: var(--tnz-neutral-800) !important;
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"][aria-selected="true"]:hover {
+:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover {
   color: var(--tnz-neutral-800);
 }
 
-:root[data-theme="light"]
-  starlight-tabs
-  [role="tab"][aria-selected="true"]:hover
-  > *:not(svg) {
+:root[data-theme="light"] starlight-tabs [role="tab"][aria-selected="true"]:hover > *:not(svg) {
   background-color: transparent;
 }
 
