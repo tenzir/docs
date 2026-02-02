@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { pathWithBase } from "@utils/base";
+import { resolvePageTitle } from "@utils/page-title";
 import GraduationCapIcon from "../icons/GraduationCapIcon.astro";
 
 // Build lookup map for page titles
@@ -12,18 +13,7 @@ const path = Astro.slots.has("default")
   : "";
 const href = pathWithBase(`/tutorials/${path}`);
 
-// Try to get actual page title, fall back to slug transformation
-const entry = docsMap.get(`tutorials/${path}`);
-const title =
-  entry?.data.title ??
-  path
-    .split("/")
-    .pop()
-    ?.split("-")
-    .map((word, i) =>
-      i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
-    )
-    .join(" ");
+const title = resolvePageTitle(docsMap, "tutorials", path);
 ---
 
 <span class="inline-icon-wrapper" data-tooltip="Tutorial"><GraduationCapIcon class="inline-icon" /></span><a href={href}>{title}</a>
