@@ -10,27 +10,86 @@ inputs:
 outputs:
   schemas-dir:
     description: Path to the directory containing exported schemas
-    value: ${{ steps.export.outputs.schemas-dir }}
+    value: ${{ steps.schemas-dir.outputs.path }}
   versions:
     description: JSON array of exported version strings
-    value: ${{ steps.export.outputs.versions }}
+    # Fallback handles two mutually exclusive paths: fresh export vs cache hit.
+    # Only one of these steps runs, so the other's output is empty (not an error).
+    value: ${{ steps.export.outputs.versions || steps.read-versions.outputs.versions }}
+  cache-hit:
+    description: Whether schemas were restored from cache
+    value: ${{ steps.schema-cache.outputs.cache-hit }}
 
 runs:
   using: composite
   steps:
+    - name: Set schemas directory
+      id: schemas-dir
+      shell: bash
+      run: |
+        SCHEMAS_DIR="$RUNNER_TEMP/ocsf-schemas"
+        mkdir -p "$SCHEMAS_DIR"
+        echo "path=$SCHEMAS_DIR" >> "$GITHUB_OUTPUT"
+
+    - name: Compute schema cache key
+      id: cache-key
+      shell: bash
+      run: |
+        # Use git ls-remote to get tag refs without cloning (faster cache key computation)
+        # Pattern matches: v1.0.0, 1.3.0, 1.8.0-dev (semantic versions with optional v prefix and -dev suffix)
+        TAGS_HASH=$(git ls-remote --tags https://github.com/ocsf/ocsf-schema.git | \
+          awk '{print $1, $2}' | \
+          while read -r sha ref; do
+            tag="${ref#refs/tags/}"
+            # Skip ^{} dereferenced refs
+            [[ "$tag" == *"^{}" ]] && continue
+            if [[ "$tag" =~ ^v?[1-9][0-9]*\.[0-9]+\.[0-9]+(-dev)?$ ]]; then
+              echo "$sha"
+            fi
+          done | sort | sha256sum | cut -c1-32)
+        SCRIPT_HASH=$(sha256sum "$GITHUB_ACTION_PATH/export_schema.exs" | cut -c1-16)
+        echo "key=ocsf-schemas-${TAGS_HASH}-${SCRIPT_HASH}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore schema cache
+      id: schema-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ steps.schemas-dir.outputs.path }}
+        key: ${{ steps.cache-key.outputs.key }}
+
+    - name: Read versions from cache
+      id: read-versions
+      if: steps.schema-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: |
+        VERSIONS_FILE="${{ steps.schemas-dir.outputs.path }}/versions.json"
+        # Validate JSON before using to prevent cache poisoning
+        if ! jq -e 'type == "array"' "$VERSIONS_FILE" >/dev/null 2>&1; then
+          echo "::error::Cached versions.json is invalid or not a JSON array"
+          exit 1
+        fi
+        VERSIONS=$(cat "$VERSIONS_FILE")
+        echo "versions=$VERSIONS" >> "$GITHUB_OUTPUT"
+        echo "Schema cache hit - versions: $VERSIONS"
+
+    # The following steps only run on cache miss to build schemas from scratch
     - name: Setup Elixir
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       uses: erlef/setup-beam@v1
       with:
         otp-version: "27"
         elixir-version: "1.17"
 
     - name: Clone OCSF repositories
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
         git clone --depth 1 https://github.com/ocsf/ocsf-server.git "$RUNNER_TEMP/ocsf-server"
         git clone https://github.com/ocsf/ocsf-schema.git "$RUNNER_TEMP/ocsf-schema"
 
+    # Elixir deps cache uses restore-keys for partial matches since deps are additive
     - name: Cache Elixir dependencies
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       uses: actions/cache@v4
       with:
         path: |
@@ -41,6 +100,7 @@ runs:
           ocsf-elixir-${{ runner.os }}-
 
     - name: Build OCSF server
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{ runner.temp }}/ocsf-server
       run: |
@@ -50,19 +110,21 @@ runs:
         mix compile
 
     - name: Export schemas for all versions
+      if: steps.schema-cache.outputs.cache-hit != 'true'
       id: export
       shell: bash
       env:
         INCLUDE_DEV: ${{ inputs.include-dev }}
       run: |
-        SCHEMAS_DIR="$RUNNER_TEMP/ocsf-schemas"
-        mkdir -p "$SCHEMAS_DIR"
+        # Local var for convenience; matches step output from schemas-dir step
+        SCHEMAS_DIR="${{ steps.schemas-dir.outputs.path }}"
 
         cd "$RUNNER_TEMP/ocsf-schema"
 
-        # Get all tags and filter to stable/dev versions
-        # Formats: v1.0.0, v1.1.0, 1.3.0, 1.8.0-dev
-        TAGS=$(git tag -l | grep -E '^v?[1-9][0-9]*\.[0-9]+\.[0-9]+(-dev)?$' || true)
+        # Get all tags and filter to stable/dev versions using git for-each-ref
+        # Pattern matches: v1.0.0, v1.1.0, 1.3.0, 1.8.0-dev (semantic versions)
+        TAGS=$(git for-each-ref --format='%(refname:short)' 'refs/tags/*' | \
+          grep -E '^v?[1-9][0-9]*\.[0-9]+\.[0-9]+(-dev)?$' || true)
 
         # Filter out -dev versions if not requested
         if [[ "$INCLUDE_DEV" != "true" ]]; then
@@ -81,13 +143,14 @@ runs:
           echo "=== Processing version $VERSION ==="
 
           # Determine the git tag (could be v-prefixed or not)
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          # VERSION is already validated by the regex filter above
+          if git show-ref --verify --quiet "refs/tags/v$VERSION"; then
             TAG="v$VERSION"
           else
             TAG="$VERSION"
           fi
 
-          git checkout "$TAG" --quiet
+          git checkout "refs/tags/$TAG" --quiet
 
           VERSION_DIR="$SCHEMAS_DIR/$VERSION"
           mkdir -p "$VERSION_DIR"
@@ -132,3 +195,10 @@ runs:
         echo "Schemas directory: $SCHEMAS_DIR"
         echo "Versions: $VERSIONS_JSON"
         ls -la "$SCHEMAS_DIR"
+
+    - name: Save schema cache
+      if: steps.schema-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ steps.schemas-dir.outputs.path }}
+        key: ${{ steps.cache-key.outputs.key }}
