@@ -2,51 +2,89 @@
 title: Create an OCSF mapping
 ---
 
-import { Steps } from '@astrojs/starlight/components';
+import WorkflowExecutor from '@partials/workflows/WorkflowExecutor.mdx';
 import Guide from '@components/see-also/Guide.astro';
 import Op from '@components/see-also/Op.astro';
 import Reference from '@components/see-also/Reference.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 
-This workflow guides you through creating an OCSF mapping package. It builds on
-the [package creation workflow](/reference/workflows/create-package), adding
-OCSF-specific mapping and validation steps.
+This workflow guides you through creating an OCSF mapping for a parser package.
+It builds on a [parser package](/reference/workflows/create-parser-package),
+adding OCSF-specific mapping and validation steps.
 
-<Steps>
+<WorkflowExecutor />
 
-1. **Create a package with parse and clean operators**
+## 1. Create a parser package
 
-   Before mapping to OCSF, you need a package that can parse and clean your
-   source data. Follow the package creation workflow first.
-   - <Reference>workflows/create-package</Reference>
+Before mapping to OCSF, you need a package that can parse and clean your source
+data. Complete a parser package workflow first.
 
-2. **Write the OCSF mapping**
+**Results**:
 
-   Identify the correct OCSF event class and map your source fields to OCSF
-   attributes.
-   - <Guide>normalization/map-to-ocsf</Guide>
+- A working parser package
+- All parsing tests passing
 
-3. **Validate the mapping**
+**Resources**:
 
-   Use the `ocsf::cast` operator to validate that your mapped events conform
-   to the OCSF schema.
-   - <Op>ocsf::cast</Op>
+- <Reference>workflows/create-parser-package</Reference>
 
-4. **Derive enum values**
+## 2. Identify the OCSF event class
 
-   Use `ocsf::derive` to automatically compute enum fields based on mapped
-   values.
-   - <Op>ocsf::derive</Op>
+Analyze your source events to determine which OCSF event class best represents
+them. Consider the event semantics, not just field names.
 
-5. **Package and test the mapping**
+**Results**:
 
-   Structure your mapping as a production-ready package with tests.
-   - <Guide>normalization/package-and-test-mappings</Guide>
+- The OCSF event class (e.g., `network_activity`, `authentication`)
+- Understanding of required vs. optional attributes
 
-</Steps>
+**Resources**:
 
-## Learn more
+- <Reference>ocsf</Reference>
 
-For a complete end-to-end example mapping Zeek logs to OCSF, see the tutorial:
+## 3. Write mapping operators
 
-- <Tutorial>map-data-to-ocsf</Tutorial>
+For each log type, create a user-defined operator that transforms cleaned events
+into the OCSF schema. Map source fields to OCSF attributes, handling type
+conversions and nested structures.
+
+**Results**:
+
+- Main dispatching operator: `acme::vendor::product::ocsf::map`
+- Test: `acme/tests/product/ocsf/map.{tql,txt}`
+- Event-specific operator(s): `acme::vendor::product::ocsf::event::foo`
+- Test(s): `acme/tests/product/ocsf/event/log.{tql,txt}`
+
+**Resources**:
+
+- <Guide>normalization/map-to-ocsf</Guide>
+
+## 6. Add end-to-end examples
+
+Add examples showing the complete pipeline from raw data to OCSF output:
+
+```tql
+from_* {
+  acme::product::parse
+  acme::product::clean
+  acme::product::ocsf::map
+}
+```
+
+**Results**:
+
+- Examples demonstrating the full normalization pipeline
+
+**Resources**:
+
+- <Guide>collecting</Guide>
+
+## 7. Finalize package
+
+Update the package manifest to include the OCSF mapping operator. Verify all
+tests pass, including OCSF validation.
+
+**Results**:
+
+- All tests pass
+- Updated package manifest with OCSF operator documentation
