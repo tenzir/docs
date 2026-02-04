@@ -35,9 +35,8 @@ A MySQL connection URI in the format:
 mysql://[user[:password]@]host[:port][/database]
 ```
 
-When provided, the URI takes precedence over individual connection parameters.
-Credentials in the URI can be overridden by explicit `user` and `password`
-parameters.
+When provided, the URI supplies connection parameters. Providing credentials in
+both the URI and as explicit parameters (`user`, `password`) is an error.
 
 ### `table = string (optional)`
 
@@ -59,12 +58,15 @@ from_mysql sql=r"SELECT id, name FROM users WHERE active = 1"
 
 ### `show = string (optional)`
 
-Retrieve database metadata. This is mutually exclusive with `table` and `sql`.
+Retrieve database metadata. This is mutually exclusive with `sql`.
 
 Supported values:
 
 - `"tables"`: List all tables in the database
 - `"columns"`: List all columns for the table specified in `table`
+
+When using `show="columns"`, the `table` parameter specifies which table to
+inspect (not as a query mode).
 
 ### `host = string (optional)`
 
@@ -102,21 +104,21 @@ The database to connect to.
 
 The operator maps MySQL types to [Tenzir types](/reference/types) as follows:
 
-| MySQL Type                    | Tenzir Type   | Notes                  |
-| :---------------------------- | :------------ | :--------------------- |
-| `TINYINT(1)`                  | `bool`        | Boolean representation |
-| `TINYINT`, `SMALLINT`, `INT`  | `int64`       |                        |
-| `BIGINT`                      | `int64`       |                        |
-| `BIGINT UNSIGNED`             | `uint64`      |                        |
-| `FLOAT`, `DOUBLE`             | `double`      |                        |
-| `DECIMAL`, `NUMERIC`          | `double`      | May lose precision     |
-| `DATE`, `DATETIME`            | `time`        |                        |
-| `TIMESTAMP`                   | `time`        |                        |
-| `TIME`                        | `duration`    |                        |
-| `CHAR`, `VARCHAR`, `TEXT`     | `string`      |                        |
-| `BINARY`, `VARBINARY`, `BLOB` | `blob`        |                        |
-| `JSON`                        | `string`      |                        |
-| `ENUM`                        | `enumeration` |                        |
+| MySQL Type                    | Tenzir Type | Notes                  |
+| :---------------------------- | :---------- | :--------------------- |
+| `TINYINT(1)`                  | `bool`      | Boolean representation |
+| `TINYINT`, `SMALLINT`, `INT`  | `int64`     |                        |
+| `BIGINT`                      | `int64`     |                        |
+| `BIGINT UNSIGNED`             | `uint64`    |                        |
+| `FLOAT`, `DOUBLE`             | `double`    |                        |
+| `DECIMAL`, `NUMERIC`          | `double`    | May lose precision     |
+| `DATE`, `DATETIME`            | `time`      |                        |
+| `TIMESTAMP`                   | `time`      |                        |
+| `TIME`                        | `duration`  |                        |
+| `CHAR`, `VARCHAR`, `TEXT`     | `string`    |                        |
+| `BINARY`, `VARBINARY`, `BLOB` | `blob`      |                        |
+| `JSON`                        | `string`    |                        |
+| `ENUM`                        | `string`    | Enum value as text     |
 
 ## Examples
 
@@ -160,6 +162,11 @@ from_mysql show="tables", host="localhost", database="mydb"
 ```tql
 from_mysql show="columns", table="users", host="localhost", database="mydb"
 ```
+
+## Limitations
+
+The operator performs one-shot queries. Continuous polling for newly inserted
+rows (e.g., tracking by incremental row ID) is not yet supported.
 
 ## See Also
 
