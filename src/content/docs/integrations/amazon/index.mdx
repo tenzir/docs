@@ -31,6 +31,38 @@ load_s3 "s3://my-bucket/data.json", aws_iam={
 }
 ```
 
+### Web identity authentication
+
+For cross-cloud authentication, you can use OIDC tokens from external identity
+providers like Azure, Google Cloud, or custom OIDC endpoints. This approach
+uses the AWS `AssumeRoleWithWebIdentity` API to exchange an OIDC token for
+temporary AWS credentials.
+
+```tql
+load_s3 "s3://my-bucket/data.json", aws_iam={
+  region: "us-east-1",
+  assume_role: "arn:aws:iam::123456789012:role/CrossCloudRole",
+  web_identity: {
+    token_file: "/var/run/secrets/tokens/aws-token"
+  }
+}
+```
+
+The `web_identity` option supports three token sources:
+
+- **`token_file`**: Path to a file containing the JWT token. This is standard
+  for Kubernetes workload identity where the platform mounts a projected service
+  account token.
+
+- **`token_endpoint`**: HTTP endpoint that returns a token. Use this for Azure
+  IMDS or similar metadata services.
+
+- **`token`**: Direct token value for testing or when tokens come from another
+  source.
+
+Credentials automatically refresh before expiration, making this suitable for
+long-running pipelines.
+
 ### Default credential chain
 
 If no `aws_iam` parameter is specified, operators use AWS's [default credentials
