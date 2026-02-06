@@ -38,11 +38,13 @@ The `web_identity` record accepts the following fields:
 
 ```tql
 {
-  token_file: string,     // path to file containing the JWT token.
-  token_endpoint: string, // HTTP endpoint URL to fetch tokens from.
-  token: string,          // direct token value.
-  headers: record,        // HTTP headers for token endpoint requests.
-  token_path: string,     // JSON path to extract token from response.
+  token_file: string,       // path to file containing the JWT token.
+  token_endpoint: {         // HTTP endpoint configuration.
+    url: string,            // endpoint URL to fetch tokens from.
+    headers: record,        // HTTP headers for the request.
+    path: string,           // JSON path to extract token from response.
+  },
+  token: string,            // direct token value.
 }
 ```
 
@@ -52,21 +54,21 @@ Exactly one of `token_file`, `token_endpoint`, or `token` must be specified:
   approach for Kubernetes workload identity (EKS, AKS, GKE) where the platform
   mounts a token file into the pod.
 
-- `token_endpoint`: HTTP endpoint URL that returns a token. Use this for Azure
-  IMDS (`http://169.254.169.254/metadata/identity/oauth2/token?...`) or similar
-  metadata services.
+- `token_endpoint`: Configuration for fetching tokens from an HTTP endpoint.
+  Use this for Azure IMDS or similar metadata services. The nested record
+  contains:
+  - `url` (required): The HTTP endpoint URL that returns a token, such as
+    `http://169.254.169.254/metadata/identity/oauth2/token?...` for Azure IMDS.
+
+  - `headers`: HTTP headers to include in the token request. For Azure IMDS,
+    you typically need `{Metadata: "true"}`.
+
+  - `path`: JSON path to extract the token from the endpoint response. Defaults
+    to `.access_token`. Set to `null` for endpoints that return the token as
+    plain text.
 
 - `token`: Direct token value as a string. Useful for testing or when the token
   is available from another source.
-
-The following fields are only valid when using `token_endpoint`:
-
-- `headers`: HTTP headers to include in the token request. For Azure IMDS, you
-  typically need `{Metadata: "true"}`.
-
-- `token_path`: JSON path to extract the token from the endpoint response.
-  Defaults to `.access_token`. Set to `null` for endpoints that return the
-  token as plain text.
 
 Credentials are automatically refreshed before expiration, with exponential
 backoff retry logic for transient failures.

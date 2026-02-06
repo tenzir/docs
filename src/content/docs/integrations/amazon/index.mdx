@@ -51,11 +51,12 @@ load_s3 "s3://my-bucket/data.json", aws_iam={
 The `web_identity` option supports three token sources:
 
 - **`token_file`**: Path to a file containing the JWT token. This is standard
-  for Kubernetes workload identity where the platform mounts a projected service
-  account token.
+  for Kubernetes workload identity where the platform mounts a service account
+  token into the pod.
 
-- **`token_endpoint`**: HTTP endpoint that returns a token. Use this for Azure
-  IMDS or similar metadata services.
+- **`token_endpoint`**: Configuration for fetching tokens from an HTTP endpoint.
+  Contains `url`, optional `headers`, and optional `path` for JSON extraction.
+  Use this for Azure IMDS or similar metadata services.
 
 - **`token`**: Direct token value for testing or when tokens come from another
   source.
