@@ -142,11 +142,12 @@ Multiple patterns act as an OR filter -- a test runs if it matches any pattern:
 uvx tenzir-test -m '*create*' -m '*update*'
 ```
 
-You can combine `-m` with positional paths. The harness merges both selections,
-so you can run a specific test alongside everything matching a pattern:
+You can combine `-m` with positional paths. The harness intersects both
+selections, so only tests matching both the path selection and a pattern are
+run. This lets you narrow a directory to a subset of its tests:
 
 ```sh
-uvx tenzir-test tests/smoke.tql -m '*context*'
+uvx tenzir-test tests/context/ -m '*create*'
 ```
 
 ### Retry flaky tests (sparingly)

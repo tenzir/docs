@@ -208,10 +208,11 @@ uvx tenzir-test -m '*context*'
 uvx tenzir-test -m '*create*' -m '*update*'
 ```
 
-You can combine paths and patterns -- the harness merges both selections:
+You can combine paths and patterns -- the harness intersects both selections,
+running only tests that match both the path and a pattern:
 
 ```sh
-uvx tenzir-test tests/normalize.tql -m '*context*'
+uvx tenzir-test tests/context/ -m '*create*'
 ```
 
 ## Test frontmatter options

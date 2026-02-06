@@ -159,8 +159,8 @@ Useful options:
 - `-m`, `--match`: Run tests whose relative path matches a glob pattern
   ([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax).
   Repeatable; tests matching any pattern are selected. When combined with
-  positional `TEST` paths, the two selections are merged (union). Patterns
-  are case-sensitive.
+  positional `TEST` paths, only tests matching both the path selection and a
+  pattern are run (intersection). Patterns are case-sensitive.
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
@@ -403,13 +403,17 @@ Specify multiple patterns to select tests matching any of them:
 uvx tenzir-test -m '*create*' -m '*update*'
 ```
 
-When you combine positional `TEST` paths with `-m` patterns, the harness merges
-both selections (union). This lets you run a named test alongside everything
-matching a pattern:
+When you combine positional `TEST` paths with `-m` patterns, only tests
+matching both the path selection and a pattern are run (intersection). This
+lets you narrow a directory to a subset of its tests:
 
 ```sh
-uvx tenzir-test tests/foo.tql -m '*context*'
+uvx tenzir-test tests/context/ -m '*create*'
 ```
+
+Multiple `-m` patterns still act as OR among themselves, so `-m '*create*'
+-m '*update*'` selects tests matching either pattern. The intersection applies
+between the positional paths and the combined set of patterns.
 
 When `-m` is used without positional paths, the harness discovers all tests in
 the project and filters them by the patterns. If a matched test belongs to a
