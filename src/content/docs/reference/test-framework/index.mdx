@@ -157,13 +157,12 @@ Useful options:
   `--verbose` to include the tree summary at the end of the run.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
-- `-m`, `--match`: Run tests whose relative path matches a glob pattern
-  ([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax).
-  Repeatable; tests matching any pattern are selected. When combined with
-  positional `TEST` paths, only tests matching both the path selection and a
-  pattern are run (intersection). Patterns are case-sensitive. If a matched
-  test belongs to a suite, the harness automatically includes the entire suite.
-  Empty and whitespace-only patterns are silently ignored.
+- `-m`, `--match`: Select tests whose relative path matches a substring or glob
+  pattern. Bare strings (without `*`, `?`, or `[`) match as substrings, so
+  `-m mysql` selects any test with "mysql" anywhere in its path. Patterns
+  containing glob metacharacters use fnmatch syntax. Repeatable; tests matching
+  any pattern are selected. When combined with positional TEST paths, only tests
+  matching both are run (intersection).
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
@@ -389,42 +388,41 @@ from the project and external checkouts:
 uvx tenzir-test tests/alerts ../contrib/plugins/*/tests
 ```
 
-### Select tests by name pattern
+### Filter tests by pattern
 
-Use `-m`/`--match` to select tests whose relative path matches a glob pattern.
-The matching uses Python's
-[`fnmatch`](https://docs.python.org/3/library/fnmatch.html) syntax with
-case-sensitive comparison:
-
-```sh
-uvx tenzir-test -m '*context*'
-```
-
-Specify multiple patterns to select tests matching any of them:
+Use `-m`/`--match` to select tests by matching against their relative path.
+Bare strings default to substring matching, so you can write short keywords
+without glob syntax:
 
 ```sh
-uvx tenzir-test -m '*create*' -m '*update*'
+uvx tenzir-test -m mysql         # runs every test with "mysql" in its path
+uvx tenzir-test -m connect       # runs every test with "connect" in its path
 ```
 
-When you combine positional `TEST` paths with `-m` patterns, only tests
-matching both the path selection and a pattern are run (intersection). This
-lets you narrow a directory to a subset of its tests:
+Patterns containing glob metacharacters (`*`, `?`, `[`) still use fnmatch
+syntax, which is fully backwards-compatible:
 
 ```sh
-uvx tenzir-test tests/context/ -m '*create*'
+uvx tenzir-test -m '*mysql*'             # equivalent to -m mysql
+uvx tenzir-test -m 'tests/*/connect.tql' # glob with wildcard
 ```
 
-Multiple `-m` patterns still act as OR among themselves, so `-m '*create*'
--m '*update*'` selects tests matching either pattern. The intersection applies
-between the positional paths and the combined set of patterns.
+Repeat the flag to match multiple patterns (logical OR):
 
-When `-m` is used without positional paths, the harness discovers all tests in
-the project and filters them by the patterns. If a matched test belongs to a
-suite, the harness automatically includes the entire suite so that shared
-fixtures stay consistent.
+```sh
+uvx tenzir-test -m context -m create     # tests matching either substring
+```
 
-If no tests match the patterns, the harness prints a diagnostic message and
-continues without error.
+When you combine positional TEST paths with `-m` patterns, the harness runs
+only tests that satisfy both constraints (intersection):
+
+```sh
+uvx tenzir-test tests/integrations/ -m mysql  # only mysql tests under integrations/
+```
+
+If a matched test belongs to a suite (configured via `test.yaml`), all tests in
+that suite are included automatically so the shared fixture lifecycle stays
+intact.
 
 ### Run multiple projects with one command
 
