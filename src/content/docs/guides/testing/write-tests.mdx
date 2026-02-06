@@ -125,6 +125,30 @@ you see all test results. For CI-only visibility you can set
 `TENZIR_TEST_DEBUG=1`. Add `--summary` together with `--verbose` when you also
 want the tabular breakdown and failure tree at the end.
 
+### Select tests by name pattern
+
+When you have many tests, you can filter by name instead of spelling out file
+paths. The `-m`/`--match` flag accepts glob patterns
+([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax) matched
+against relative test paths:
+
+```sh
+uvx tenzir-test -m '*context*'
+```
+
+Multiple patterns act as an OR filter -- a test runs if it matches any pattern:
+
+```sh
+uvx tenzir-test -m '*create*' -m '*update*'
+```
+
+You can combine `-m` with positional paths. The harness merges both selections,
+so you can run a specific test alongside everything matching a pattern:
+
+```sh
+uvx tenzir-test tests/smoke.tql -m '*context*'
+```
+
 ### Retry flaky tests (sparingly)
 
 If a scenario fails intermittently, add a `retry` entry to its frontmatter so the
