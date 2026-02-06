@@ -107,103 +107,7 @@ Review the reference file, adjust the pipeline if needed, and rerun `--update`
 until you are satisfied with the results. Commit the `.tql` test and `.txt`
 baseline together so future runs can compare against known-good output.
 
-## Step 6: Rerun the tests
-
-After you check in the reference output, execute the tests _without_ `--update`.
-The harness verifies that the actual output matches the baseline.
-
-```sh
-uvx tenzir-test
-```
-
-When the output diverges, the harness prints a diff and returns a non-zero
-exit code. By default (quiet mode) the harness only shows failures, which keeps
-large test runs readable. Add `--verbose` (`-v`) to see passing and skipped
-tests as they complete. Use `--debug` to see comparison targets alongside the
-usual harness diagnostics; debug mode automatically enables verbose output so
-you see all test results. For CI-only visibility you can set
-`TENZIR_TEST_DEBUG=1`. Add `--summary` together with `--verbose` when you also
-want the tabular breakdown and failure tree at the end.
-
-### Select tests by name pattern
-
-When you have many tests, you can filter by name instead of spelling out file
-paths. The `-m`/`--match` flag accepts glob patterns
-([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax) matched
-against relative test paths:
-
-```sh
-uvx tenzir-test -m '*context*'
-```
-
-Multiple patterns act as an OR filter -- a test runs if it matches any pattern:
-
-```sh
-uvx tenzir-test -m '*create*' -m '*update*'
-```
-
-You can combine `-m` with positional paths. The harness intersects both
-selections, so only tests matching both the path selection and a pattern are
-run. This lets you narrow a directory to a subset of its tests:
-
-```sh
-uvx tenzir-test tests/context/ -m '*create*'
-```
-
-### Retry flaky tests (sparingly)
-
-If a scenario fails intermittently, add a `retry` entry to its frontmatter so the
-harness reruns it before flagging a failure. The value is the **total** attempt
-budget:
-
-```yaml
----
-retry: 3
----
-```
-
-With `retry: 3`, the test runs up to three times. Intermediate attempts stay
-quiet; the final result line includes `attempts=3/3` (or the actual number on a
-success). Use this as a guardrail while you investigate the underlying flake and
-keep the budget small to avoid masking issues.
-
-### Run multiple projects together
-
-Large organisations often split tests across several repositories but still
-want an aggregated run. List additional project directories after `--root` and
-add `--all-projects` to execute the root alongside its satellites under a single
-invocation. Those positional paths form the selection; here it only names the
-satellite project:
-
-```sh
-uvx tenzir-test --root example-project --all-projects ../example-satellite
-```
-
-The root project (`example-project` above) supplies the shared fixtures and
-runners. Satellites inherit those definitions, can register their own helpers,
-and run their tests in isolation. Because the selection only listed the
-satellite, `--all-projects` keeps the root in scope. The CLI prints a compact
-summary showing how many tests each project contributes and which runners are
-involved. Add `--verbose` to see individual test results as they complete, and
-combine it with `--summary` for the tabular breakdown and detailed failure
-listing after each project.
-
-### Load packages explicitly
-
-When your tests need packages, point `--package-dirs` at the package directories
-(or a parent that contains them). The flag is repeatable and supports
-comma-separated lists:
-
-```sh
-uvx tenzir-test --package-dirs example-library example-library
-```
-
-Here `example-library` contains multiple packages, so the harness loads them all
-and makes sibling packages visible for cross-imports. You can also declare
-package directories in a directory `test.yaml` via `package-dirs:`; those entries
-merge with `--package-dirs`.
-
-## Step 7: Provide stdin input
+## Step 6: Provide stdin input
 
 Some tests need data piped to stdin rather than read from files. Place a
 `.stdin` file next to the test to provide this content automatically. This
@@ -288,7 +192,7 @@ from TENZIR_INPUT:
 input file content
 ```
 
-## Step 8: Introduce a fixture
+## Step 7: Introduce a fixture
 
 Fixtures let you bootstrap external resources and expose their configuration
 through environment variables. Add a simple `node`-driven test to exercise a
@@ -393,7 +297,7 @@ test’s scratch directory by default and are cleaned up automatically when the
 controller goes out of scope. Acquire a fresh controller when you need a brand
 new workspace.
 
-## Step 9: Organize defaults with `test.yaml`
+## Step 8: Organize defaults with `test.yaml`
 
 As suites grow, you can extract shared configuration into directory-level
 defaults. Place a `tests/node/test.yaml` file with convenient settings:
@@ -410,19 +314,13 @@ paths resolve against the directory that owns the YAML file, so `inputs: ../data
 points at `tests/data/`. Individual files still override keys in their
 frontmatter when necessary.
 
-## Step 10: Automate runs
-
-Once the suite passes locally, integrate it into your CI pipeline. Configure the
-job to install Python 3.12, install `tenzir-test`, provision or download the
-required Tenzir binaries, and execute `uvx tenzir-test --root .`. For reproducible
-results, keep your datasets small and deterministic, and prefer fixtures that
-wipe state between runs.
-
 ## Next steps
 
 You now have a project that owns its inputs, tests, fixtures, and baselines.
 From here you can:
 
+- [Run tests](/guides/testing/run-tests) to learn about executing the suite,
+  selecting tests, and setting up CI.
 - Add custom runners under `runners/` when you need specialized logic around
   `tenzir` invocations.
 - Build Python fixtures that publish or verify data through the helper APIs in

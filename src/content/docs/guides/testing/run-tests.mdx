@@ -1,0 +1,151 @@
+---
+title: Run tests
+---
+
+This guide shows you how to run integration tests with the
+[`tenzir-test`](/reference/test-framework) framework. You'll learn how to
+execute the test suite, control output verbosity, select specific tests, handle
+flaky scenarios, and run multi-project setups.
+
+If you haven't set up a test project yet, start with the
+[write tests](/guides/testing/write-tests) guide.
+
+## Run the test suite
+
+Execute all tests from the project root:
+
+```sh
+uvx tenzir-test
+```
+
+The harness discovers tests under `tests/`, runs them against their baselines,
+and returns a non-zero exit code when any output diverges. By default (quiet
+mode) the harness only shows failures, which keeps large test runs readable.
+
+## Control output
+
+Add `--verbose` (`-v`) to see passing and skipped tests as they complete:
+
+```sh
+uvx tenzir-test --verbose
+```
+
+Use `--debug` to see comparison targets alongside the usual harness diagnostics.
+Debug mode automatically enables verbose output so you see all test results. For
+CI-only visibility you can set `TENZIR_TEST_DEBUG=1`.
+
+Add `--summary` together with `--verbose` when you also want the tabular
+breakdown and failure tree at the end:
+
+```sh
+uvx tenzir-test --verbose --summary
+```
+
+Use `--passthrough` (`-p`) to stream raw stdout/stderr to the terminal instead
+of comparing against baselines. This is useful during early iterations when you
+want to inspect command output before recording reference artifacts:
+
+```sh
+uvx tenzir-test --passthrough tests/high-severity.tql
+```
+
+## Select tests
+
+### By path
+
+Pass individual files or directories as positional arguments:
+
+```sh
+uvx tenzir-test tests/alerts/high-severity.tql
+```
+
+You can list multiple paths in a single invocation:
+
+```sh
+uvx tenzir-test tests/alerts tests/parsing/csv.tql
+```
+
+### By name pattern
+
+Use `-m`/`--match` to select tests whose relative path matches a glob pattern.
+The matching uses Python's
+[fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax with
+case-sensitive comparison:
+
+```sh
+uvx tenzir-test -m '*context*'
+```
+
+Multiple patterns act as an OR filter---a test runs if it matches any pattern:
+
+```sh
+uvx tenzir-test -m '*create*' -m '*update*'
+```
+
+You can combine `-m` with positional paths. The harness intersects both
+selections, so only tests matching both the path selection and a pattern are
+run. This lets you narrow a directory to a subset of its tests:
+
+```sh
+uvx tenzir-test tests/context/ -m '*create*'
+```
+
+## Retry flaky tests
+
+If a scenario fails intermittently, add a `retry` entry to its frontmatter so
+the harness reruns it before flagging a failure. The value is the **total**
+attempt budget:
+
+```yaml
+---
+retry: 3
+---
+```
+
+With `retry: 3`, the test runs up to three times. Intermediate attempts stay
+quiet; the final result line includes `attempts=3/3` (or the actual number on a
+success). Use this as a guardrail while you investigate the underlying flake and
+keep the budget small to avoid masking issues.
+
+## Run multiple projects
+
+Large organisations often split tests across several repositories but still want
+an aggregated run. List additional project directories after `--root` and add
+`--all-projects` to execute the root alongside its satellites under a single
+invocation:
+
+```sh
+uvx tenzir-test --root example-project --all-projects ../example-satellite
+```
+
+The root project (`example-project` above) supplies the shared fixtures and
+runners. Satellites inherit those definitions, can register their own helpers,
+and run their tests in isolation. Because the selection only listed the
+satellite, `--all-projects` keeps the root in scope. The CLI prints a compact
+summary showing how many tests each project contributes and which runners are
+involved. Add `--verbose` to see individual test results as they complete, and
+combine it with `--summary` for the tabular breakdown and detailed failure
+listing after each project.
+
+## Load packages
+
+When your tests need packages, point `--package-dirs` at the package directories
+(or a parent that contains them). The flag is repeatable and supports
+comma-separated lists:
+
+```sh
+uvx tenzir-test --package-dirs example-library example-library
+```
+
+Here `example-library` contains multiple packages, so the harness loads them all
+and makes sibling packages visible for cross-imports. You can also declare
+package directories in a directory `test.yaml` via `package-dirs:`; those entries
+merge with `--package-dirs`.
+
+## Automate runs
+
+Once the suite passes locally, integrate it into your CI pipeline. Configure the
+job to install Python 3.12, install `tenzir-test`, provision or download the
+required Tenzir binaries, and execute `uvx tenzir-test --root .`. For
+reproducible results, keep your datasets small and deterministic, and prefer
+fixtures that wipe state between runs.
