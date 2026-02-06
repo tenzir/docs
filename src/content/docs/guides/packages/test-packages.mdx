@@ -201,6 +201,20 @@ uvx tenzir-test tests/normalize.tql
 uvx tenzir-test tests/context/
 ```
 
+Use `-m`/`--match` to select tests by name pattern instead of path:
+
+```sh
+uvx tenzir-test -m '*context*'
+uvx tenzir-test -m '*create*' -m '*update*'
+```
+
+You can combine paths and patterns -- the harness intersects both selections,
+running only tests that match both the path and a pattern:
+
+```sh
+uvx tenzir-test tests/context/ -m '*create*'
+```
+
 ## Test frontmatter options
 
 Control test behavior with YAML frontmatter:

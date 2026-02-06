@@ -5,7 +5,8 @@ title: Test Framework
 The [`tenzir-test`](https://github.com/tenzir/test) harness discovers and runs
 integration tests for pipelines, fixtures, and custom runners. Use this page as
 a reference for concepts, configuration, and CLI details. For step-by-step
-walkthroughs, see the guides for [writing tests](/guides/testing/write-tests),
+walkthroughs, see the guides for [running tests](/guides/testing/run-tests),
+[writing tests](/guides/testing/write-tests),
 [creating fixtures](/guides/testing/create-fixtures), and
 [adding custom runners](/guides/testing/add-custom-runners).
 
@@ -156,6 +157,13 @@ Useful options:
   `--verbose` to include the tree summary at the end of the run.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
+- `-m`, `--match`: Run tests whose relative path matches a glob pattern
+  ([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax).
+  Repeatable; tests matching any pattern are selected. When combined with
+  positional `TEST` paths, only tests matching both the path selection and a
+  pattern are run (intersection). Patterns are case-sensitive. If a matched
+  test belongs to a suite, the harness automatically includes the entire suite.
+  Empty and whitespace-only patterns are silently ignored.
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
@@ -367,6 +375,8 @@ using `env("TENZIR_INPUT")` to reference additional files.
 
 ## Run a subset of tests
 
+Pass individual files or directories to run specific tests:
+
 ```sh
 uvx tenzir-test tests/alerts/high-severity.tql
 ```
@@ -378,6 +388,43 @@ from the project and external checkouts:
 ```sh
 uvx tenzir-test tests/alerts ../contrib/plugins/*/tests
 ```
+
+### Select tests by name pattern
+
+Use `-m`/`--match` to select tests whose relative path matches a glob pattern.
+The matching uses Python's
+[`fnmatch`](https://docs.python.org/3/library/fnmatch.html) syntax with
+case-sensitive comparison:
+
+```sh
+uvx tenzir-test -m '*context*'
+```
+
+Specify multiple patterns to select tests matching any of them:
+
+```sh
+uvx tenzir-test -m '*create*' -m '*update*'
+```
+
+When you combine positional `TEST` paths with `-m` patterns, only tests
+matching both the path selection and a pattern are run (intersection). This
+lets you narrow a directory to a subset of its tests:
+
+```sh
+uvx tenzir-test tests/context/ -m '*create*'
+```
+
+Multiple `-m` patterns still act as OR among themselves, so `-m '*create*'
+-m '*update*'` selects tests matching either pattern. The intersection applies
+between the positional paths and the combined set of patterns.
+
+When `-m` is used without positional paths, the harness discovers all tests in
+the project and filters them by the patterns. If a matched test belongs to a
+suite, the harness automatically includes the entire suite so that shared
+fixtures stay consistent.
+
+If no tests match the patterns, the harness prints a diagnostic message and
+continues without error.
 
 ### Run multiple projects with one command
 
