@@ -5,7 +5,8 @@ title: Write tests
 This guide shows you how to create integration tests with the
 [`tenzir-test`](/reference/test-framework) framework. You'll set up a standalone
 repository, write test scenarios, and record reference output to verify your
-pipelines work as expected.
+pipelines work as expected. If you already have tests and want to run them, see
+the [run tests](/guides/testing/run-tests) guide.
 
 ## Prerequisites
 
@@ -105,7 +106,9 @@ The command produces `tests/high-severity.txt` with the captured stdout.
 
 Review the reference file, adjust the pipeline if needed, and rerun `--update`
 until you are satisfied with the results. Commit the `.tql` test and `.txt`
-baseline together so future runs can compare against known-good output.
+baseline together so future runs can compare against known-good output. At this
+point you can [run the test suite](/guides/testing/run-tests) without
+`--update` to verify that the actual output matches the baseline.
 
 ## Step 6: Provide stdin input
 
