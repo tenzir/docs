@@ -478,6 +478,15 @@ function formatDate(dateStr) {
 }
 
 /**
+ * Convert Markdown auto-links to bare URLs for MDX compatibility.
+ * Auto-links like <https://example.com> are valid Markdown but MDX
+ * parses them as JSX tags, causing build failures.
+ */
+function escapeForMdx(markdown) {
+  return markdown.replace(/<(https?:\/\/[^>]+)>/g, "$1");
+}
+
+/**
  * Render a single changelog entry as markdown.
  */
 function renderEntry(entry) {
@@ -535,7 +544,7 @@ function renderEntry(entry) {
 
   // Add body
   if (entry.body) {
-    md += `${entry.body}\n\n`;
+    md += `${escapeForMdx(entry.body)}\n\n`;
   }
 
   return md;
