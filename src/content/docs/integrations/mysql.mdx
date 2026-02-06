@@ -1,0 +1,46 @@
+---
+title: MySQL
+---
+
+import Op from '@components/see-also/Op.astro';
+import { Steps } from '@astrojs/starlight/components';
+
+[MySQL](https://www.mysql.com/) is an open-source relational database management
+system widely used for web applications, data warehousing, and enterprise
+applications.
+
+TODO: diagram
+
+Tenzir connects to MySQL over the network using the MySQL wire protocol. Tenzir
+communicates with MySQL via the host and port you specify in the
+[`from_mysql`](/reference/operators/from_mysql) operator. This means:
+
+- **Network**: Tenzir and MySQL can run on the same machine (using `localhost`)
+  or on different machines in the same network. You just need to make sure that
+  Tenzir can reach the MySQL server.
+- **IPC**: There is no direct inter-process communication (IPC) mechanism; all
+  communication uses MySQL's network protocol.
+- **Co-deployment**: For best performance and security, deploy Tenzir and MySQL
+  in the same trusted network or use TLS for encrypted connections.
+
+## Examples
+
+These examples assume that the MySQL server is running on the same host as
+Tenzir.
+
+### List available tables
+
+```tql
+from_mysql show="tables", host="localhost", database="mydb"
+```
+
+### Execute a custom SQL query
+
+```tql
+from_mysql sql=r"SELECT id, name, email FROM users WHERE active = 1",
+           host="localhost", database="mydb"
+```
+
+## See Also
+
+- <Op>from_mysql</Op>
