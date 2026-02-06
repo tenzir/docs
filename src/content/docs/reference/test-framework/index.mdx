@@ -161,7 +161,9 @@ Useful options:
   ([fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax).
   Repeatable; tests matching any pattern are selected. When combined with
   positional `TEST` paths, only tests matching both the path selection and a
-  pattern are run (intersection). Patterns are case-sensitive.
+  pattern are run (intersection). Patterns are case-sensitive. If a matched
+  test belongs to a suite, the harness automatically includes the entire suite.
+  Empty and whitespace-only patterns are silently ignored.
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.

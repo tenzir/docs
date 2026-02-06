@@ -90,6 +90,12 @@ run. This lets you narrow a directory to a subset of its tests:
 uvx tenzir-test tests/context/ -m '*create*'
 ```
 
+:::note[Suite expansion]
+If a matched test belongs to a suite (configured via `test.yaml`), all tests
+in that suite are included automatically. Empty and whitespace-only patterns
+are silently ignored.
+:::
+
 ## Retry flaky tests
 
 If a scenario fails intermittently, add a `retry` entry to its frontmatter so
