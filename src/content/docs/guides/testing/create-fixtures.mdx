@@ -206,6 +206,60 @@ uvx tenzir-test tests/http
 Selecting a single file inside that suite now fails fast with a descriptive error.
 This keeps the lifecycle predictable and avoids partially exercised fixtures.
 
+## Handle unavailable fixtures
+
+Fixtures sometimes depend on external tools that may not be present in every
+environment, for example a container runtime or a cloud CLI. Rather than
+letting the suite fail outright, you can raise `FixtureUnavailable` during
+initialization to signal that the fixture cannot provide its service.
+
+### Raise the exception in the fixture
+
+Check for the required dependency before yielding and raise
+`FixtureUnavailable` when it is missing:
+
+```python
+import shutil
+from typing import Iterator
+
+from tenzir_test.fixtures import FixtureUnavailable, fixture
+
+
+@fixture()
+def mysql() -> Iterator[dict[str, str]]:
+    if not shutil.which("docker"):
+        raise FixtureUnavailable("docker not found")
+    # ... start container, yield env, cleanup ...
+```
+
+The exception message describes why the fixture cannot start. The harness
+includes it in skip output and log messages, so keep it concise.
+
+### Opt in to graceful skipping
+
+By default, `FixtureUnavailable` propagates as a normal exception and causes a
+test failure. To convert it into a skip, add a structured `skip` entry to the
+suite's `test.yaml`:
+
+```yaml
+# tests/mysql/test.yaml
+suite: mysql-integration
+fixtures: [mysql]
+skip:
+  on: fixture-unavailable
+```
+
+When the fixture raises `FixtureUnavailable` and the suite carries this
+configuration, the harness marks every test in the suite as skipped (exit
+code 0). The skip output includes the exception message from
+`FixtureUnavailable`. You can optionally add a `reason` field that is combined
+with the exception message for additional context.
+
+This opt-in design ensures that suites fail loudly by default. You only
+suppress the failure for suites where the missing dependency is expected in some
+environments (for example local development without Docker, or CI runners
+without GPU access).
+
 ## Manual controllers
 
 Python-mode tests often need fine-grained control over fixture lifecycle to

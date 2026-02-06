@@ -547,16 +547,16 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key            | Type            | Default   | Description                                                      |
-| -------------- | --------------- | --------- | ---------------------------------------------------------------- |
-| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).               |
-| `fixtures`     | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.            |
-| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)           |
-| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                     |
-| `skip`         | string          | unset     | Mark the test as skipped (reason required).                      |
-| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.             |
-| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                |
-| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`. |
+| Key            | Type            | Default   | Description                                                           |
+| -------------- | --------------- | --------- | --------------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                    |
+| `fixtures`     | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.                 |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                          |
+| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration). |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                  |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                     |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.      |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -571,6 +571,37 @@ declaring the test failed. Intermediate attempts stay quiet; the final outcome
 line includes `attempts=N/M` whenever the budget exceeds one. Keep the value
 small and treat it as a temporary guardrail while you fix the underlying
 flakiness.
+
+### Skip configuration
+
+The `skip` key supports two forms:
+
+**String form** marks the test (or every test in the directory) as
+unconditionally skipped. The value is the reason:
+
+```yaml
+skip: "pending upstream fix"
+```
+
+**Structured form** conditionally skips tests when a fixture signals that it
+cannot provide its service. Use this when the suite depends on an external
+resource that may not be available in every environment (for example a container
+runtime):
+
+```yaml
+skip:
+  on: fixture-unavailable
+```
+
+The only supported value for `on` is `fixture-unavailable`. When a fixture
+raises `FixtureUnavailable` during initialization and the suite carries this
+configuration, all tests in the suite are marked as skipped with exit code 0.
+Without the opt-in configuration the exception propagates normally and causes a
+test failure.
+
+The optional `reason` field provides additional context that is combined with
+the exception message in the skip output. See
+[Fixture unavailability](#fixture-unavailability) for the fixture-side API.
 
 ### Tenzir configuration files
 
@@ -676,6 +707,43 @@ managers, or `FixtureHandle` instances for advanced scenarios.
 The [fixture guide](/guides/testing/create-fixtures) demonstrates an HTTP echo
 server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 
+### Fixture unavailability
+
+Fixtures can signal that they cannot provide their service by raising
+`FixtureUnavailable` during initialization (before yielding). This is useful
+when a fixture depends on an external tool or runtime that may not be present
+in every environment.
+
+```python
+from tenzir_test.fixtures import FixtureUnavailable, fixture
+
+
+@fixture()
+def mysql():
+    if not shutil.which("docker"):
+        raise FixtureUnavailable("docker not found")
+    # ... start container, yield env, cleanup ...
+```
+
+By default the exception propagates and causes a test failure. To convert it
+into a skip, add a structured `skip` entry to the suite's `test.yaml`:
+
+```yaml
+# tests/mysql/test.yaml
+suite: mysql-integration
+fixtures: [mysql]
+skip:
+  on: fixture-unavailable
+  reason: "needs container runtime"
+```
+
+When the fixture raises `FixtureUnavailable` and the suite carries this
+configuration, the harness marks every test in the suite as skipped (exit
+code 0) and logs the combined reason. Without the opt-in configuration the
+exception surfaces as a regular failure. See
+[skip configuration](#skip-configuration) for the full syntax of the `skip`
+key.
+
 ## Environment variables
 
 `tenzir-test` recognises the following environment variables:
@@ -744,7 +812,9 @@ uvx tenzir-test --update
 - **Unexpected exits** – Set `error: true` in frontmatter when a non-zero exit is
   expected.
 - **Skipped tests** – Use `skip: reason` to document temporary skips; baseline
-  files can stay empty.
+  files can stay empty. For fixture-dependent suites, use the structured
+  `skip: {on: fixture-unavailable}` form so tests skip gracefully when a
+  required tool is missing.
 - **Noisy output** – Use `--jobs 1` to serialize worker logs, and enable
   `--debug` (or set `TENZIR_TEST_DEBUG=1`) when you need to trace comparisons
   and fixture activity. Note that `--debug` automatically enables verbose
