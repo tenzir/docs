@@ -67,19 +67,31 @@ uvx tenzir-test tests/alerts tests/parsing/csv.tql
 
 ### By name pattern
 
-Use `-m`/`--match` to select tests whose relative path matches a glob pattern.
-The matching uses Python's
-[fnmatch](https://docs.python.org/3/library/fnmatch.html) syntax with
-case-sensitive comparison:
+Use `-m`/`--match` to select tests whose relative path contains a given
+substring:
 
 ```sh
-uvx tenzir-test -m '*context*'
+uvx tenzir-test -m context
+```
+
+Bare strings without glob metacharacters perform a **substring match** against
+the test's relative POSIX path from the project root. For example, `-m mysql`
+matches any test whose path contains `mysql`, such as
+`tests/mysql/connect.tql`. This means you no longer need to wrap the keyword in
+wildcards---`-m mysql` works the same as `-m '*mysql*'`.
+
+Patterns containing `*`, `?`, or `[` still use
+[fnmatch](https://docs.python.org/3/library/fnmatch.html) glob syntax with
+case-sensitive comparison, so existing glob patterns continue to work:
+
+```sh
+uvx tenzir-test -m 'tests/*/connect.tql'
 ```
 
 Multiple patterns act as an OR filter---a test runs if it matches any pattern:
 
 ```sh
-uvx tenzir-test -m '*create*' -m '*update*'
+uvx tenzir-test -m create -m update
 ```
 
 You can combine `-m` with positional paths. The harness intersects both
@@ -87,7 +99,7 @@ selections, so only tests matching both the path selection and a pattern are
 run. This lets you narrow a directory to a subset of its tests:
 
 ```sh
-uvx tenzir-test tests/context/ -m '*create*'
+uvx tenzir-test tests/context/ -m create
 ```
 
 :::note[Suite expansion]
