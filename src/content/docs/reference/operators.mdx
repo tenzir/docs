@@ -359,6 +359,10 @@ operators:
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
     path: 'reference/operators/from_http'
+  - name: 'from_stdin'
+    description: 'Reads and parses events from standard input.'
+    example: 'from_stdin { read_json }'
+    path: 'reference/operators/from_stdin'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
@@ -2171,6 +2175,14 @@ from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
 
 ```tql
 from_http "0.0.0.0:8080"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
+
+```tql
+from_stdin { read_json }
 ```
 
 </ReferenceCard>
