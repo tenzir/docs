@@ -367,6 +367,10 @@ operators:
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
     path: 'reference/operators/from_kafka'
+  - name: 'from_mysql'
+    description: 'Reads events from a MySQL database.'
+    example: 'from_mysql table="users", host="db.example.com", database="mydb"'
+    path: 'reference/operators/from_mysql'
   - name: 'from_opensearch'
     description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
@@ -2191,6 +2195,14 @@ from_stdin { read_json }
 
 ```tql
 from_kafka "logs"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_mysql" description="Reads events from a MySQL database." href="/reference/operators/from_mysql">
+
+```tql
+from_mysql table="users", host="db.example.com", database="mydb"
 ```
 
 </ReferenceCard>
