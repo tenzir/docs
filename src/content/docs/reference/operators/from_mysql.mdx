@@ -1,10 +1,9 @@
 ---
 title: from_mysql
 category: Inputs/Events
-example: 'from_mysql "users", host="db.example.com", database="mydb"'
+example: 'from_mysql table="users", host="db.example.com", database="mydb"'
 ---
 
-import TLSOptions from '@partials/operators/TLSOptions.mdx';
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
 
@@ -13,7 +12,7 @@ Reads events from a MySQL database.
 ```tql
 from_mysql [uri=string], [table=string], [sql=string], [show=string],
            [host=string], [port=int], [user=string], [password=string],
-           [database=string], [tls=record]
+           [database=string], [tls=bool|record]
 ```
 
 ## Description
@@ -43,9 +42,6 @@ parameters.
 
 The name of the table to read from. This is mutually exclusive with `sql` and
 `show`.
-
-When specified as the first positional argument without a parameter name, the
-operator assumes it's a table name unless it starts with `mysql://`.
 
 ### `sql = string (optional)`
 
@@ -96,7 +92,21 @@ Defaults to `""`.
 
 The database to connect to.
 
-<TLSOptions tls_default="false" />
+### `tls = bool|record (optional)`
+
+TLS configuration for the MySQL connection. Defaults to `false` (no TLS).
+
+Use `tls=true` to enable TLS with default settings and certificate verification,
+or provide a record to customize specific options:
+
+```tql
+{
+  skip_peer_verification: bool, // skip certificate verification.
+  cacert: string,               // CA bundle to verify peers.
+  certfile: string,             // client certificate to present.
+  keyfile: string,              // private key for the client certificate.
+}
+```
 
 ## Types
 
@@ -123,13 +133,13 @@ The operator maps MySQL types to [Tenzir types](/reference/types) as follows:
 ### Read all rows from a table
 
 ```tql
-from_mysql "users", host="db.example.com", database="mydb"
+from_mysql table="users", host="db.example.com", database="mydb"
 ```
 
 ### Use a connection URI
 
 ```tql
-from_mysql "mysql://admin:secret@db.example.com:3306/production", table="events"
+from_mysql uri="mysql://admin:secret@db.example.com:3306/production", table="events"
 ```
 
 ### Execute a custom SQL query
@@ -142,7 +152,7 @@ from_mysql sql=r"SELECT id, name, created_at FROM users WHERE active = 1 LIMIT 1
 ### Use secure credentials
 
 ```tql
-from_mysql "orders",
+from_mysql table="orders",
            host="db.example.com",
            user=secret("mysql-user"),
            password=secret("mysql-password"),
@@ -159,6 +169,33 @@ from_mysql show="tables", host="localhost", database="mydb"
 
 ```tql
 from_mysql show="columns", table="users", host="localhost", database="mydb"
+```
+
+### Enable TLS with defaults
+
+```tql
+from_mysql table="events",
+           host="db.example.com",
+           database="production",
+           tls=true
+```
+
+### Connect with TLS but skip peer verification
+
+```tql
+from_mysql table="events",
+           host="db.example.com",
+           database="production",
+           tls={skip_peer_verification: true}
+```
+
+### Connect with TLS using a CA certificate
+
+```tql
+from_mysql table="events",
+           host="db.example.com",
+           database="production",
+           tls={cacert: "/path/to/ca.pem"}
 ```
 
 ## See Also
