@@ -32,21 +32,32 @@ from {x: 0},
      {x:null},
      {x: {x: 0, y: 1}},
      {x: [0,1,2,]}
-x = x.print_ndjson(strip_null_fields=true)
+result = this.print_ndjson(strip_null_fields=true)
 ```
 
 ```tql
 {
-  x: "0",
+  x: 0,
+  result: "{\"x\":0}",
 }
 {
   x: null,
+  result: "{}",
 }
 {
-  x: "{\"x\": 0, \"y\": 1}",
+  x: {
+    x: 0,
+    y: 1,
+  },
+  result: "{\"x\":{\"x\":0,\"y\":1}}",
 }
 {
-  x: "[0, 1, 2]",
+  x: [
+    0,
+    1,
+    2,
+  ],
+  result: "{\"x\":[0,1,2]}",
 }
 ```
 
