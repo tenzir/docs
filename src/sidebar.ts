@@ -419,6 +419,7 @@ export const integrations = [
       "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/graylog",
+      "integrations/mysql",
       "integrations/opensearch",
       "integrations/snowflake",
       "integrations/splunk",
