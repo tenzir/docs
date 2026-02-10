@@ -1,0 +1,102 @@
+---
+title: from_tcp
+category: Inputs/Bytes
+example: 'from_tcp "0.0.0.0:8090" { read_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Listens for incoming TCP connections and reads bytes from each connection.
+
+```tql
+from_tcp endpoint:string, [tls=record] { … }
+```
+
+## Description
+
+The `from_tcp` operator binds to the given endpoint, accepts incoming TCP
+connections, and reads bytes from each connection. Each connection spawns a
+sub-pipeline that processes the incoming byte stream independently.
+
+The sub-pipeline has access to a `$peer` variable containing the remote address
+information of the connected client.
+
+### `endpoint: string`
+
+The endpoint at which the server will listen. Must be of the form
+`[tcp://]<hostname>:<port>`. Use the hostname `0.0.0.0` to accept connections on
+all interfaces.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+### `{ … }`
+
+The pipeline to run for each individual TCP connection. Inside the pipeline, the
+`$peer` variable is available as a record with the following fields:
+
+| Field  | Type    | Description                           |
+| :----- | :------ | :------------------------------------ |
+| `ip`   | `ip`    | The IP address of the connected peer  |
+| `port` | `int64` | The port number of the connected peer |
+
+## Examples
+
+### Listen for incoming JSON over TCP
+
+Listen on all network interfaces, parsing each individual connection as JSON:
+
+```tql
+from_tcp "0.0.0.0:8090" {
+  read_json
+}
+```
+
+### Log the peer address of each connection
+
+```tql
+from_tcp "0.0.0.0:8090" {
+  read_json
+  this.client_ip = $peer.ip
+}
+```
+
+### Listen with TLS enabled
+
+Accept TLS-encrypted connections on localhost:
+
+```tql
+from_tcp "127.0.0.1:4000", tls={certfile: "key_and_cert.pem", keyfile: "key_and_cert.pem"} {
+  read_json
+}
+```
+
+This example may use a self-signed certificate that can be generated like this:
+
+```bash
+openssl req -x509 -newkey rsa:2048 -keyout key_and_cert.pem -out key_and_cert.pem -days 365 -nodes
+```
+
+You can test the endpoint locally by issuing a TLS connection:
+
+```bash
+openssl s_client 127.0.0.1:4000
+```
+
+### Listen with mutual TLS (mTLS) authentication
+
+Require clients to present valid certificates signed by a trusted CA:
+
+```tql
+from_tcp "0.0.0.0:4000", tls={certfile: "server.pem", keyfile: "server-key.pem", client_ca: "ca.pem", require_client_cert: true} {
+  read_json
+}
+```
+
+## See Also
+
+- <Op>load_tcp</Op>
+- <Op>save_tcp</Op>
+- <Integration>tcp</Integration>
