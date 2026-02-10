@@ -173,7 +173,83 @@ requested. In Python-mode tests you can call `fixtures()` to inspect the
 selection (for example `fixtures().http` returns `True` when the fixture is
 active).
 
-## Step 6: Share the fixture across multiple tests
+## Step 6: Add structured options to a fixture
+
+When a fixture needs runtime configuration, such as a custom port or a TLS
+toggle, declare an options dataclass and let test authors provide values in
+`test.yaml`.
+
+### Define the options dataclass
+
+Add a frozen dataclass to your fixture module. Every field must have a default so
+bare fixture requests (`fixtures: [http]`) keep working without any options:
+
+```python
+# fixtures/http.py
+from dataclasses import dataclass
+from typing import Iterator
+
+from tenzir_test import current_options, fixture
+
+
+@dataclass(frozen=True)
+class HttpOptions:
+    port: int = 0
+
+
+@fixture(options=HttpOptions)
+def http() -> Iterator[dict[str, str]]:
+    opts = current_options("http")
+    server = ThreadingHTTPServer(("127.0.0.1", opts.port), EchoHandler)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+
+    try:
+        port = server.server_address[1]
+        url = f"http://127.0.0.1:{port}/"
+        yield {"HTTP_FIXTURE_URL": url}
+    finally:
+        server.shutdown()
+        worker.join()
+```
+
+Passing `options=HttpOptions` to `@fixture()` registers the dataclass. The
+harness validates that the type is a dataclass at registration time and raises
+`TypeError` otherwise.
+
+### Provide options in test configuration
+
+Test authors pass options using a single-key mapping under `fixtures` in
+`test.yaml` or frontmatter:
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures:
+  - http:
+      port: 9090
+timeout: 45
+```
+
+Bare names remain fully backward compatible. The harness constructs an
+`HttpOptions(port=9090)` instance for the mapping form and `HttpOptions()` (with
+defaults) for bare names.
+
+### Retrieve options inside the fixture
+
+Call `current_options("http")` to get the typed instance. The function returns
+the dataclass when one is registered, the raw options dict when no dataclass was
+declared, or an empty dict when no options were provided:
+
+```python
+opts = current_options("http")
+# opts.port is 9090 when the test specified it, or 0 by default
+```
+
+Because the dataclass is frozen, options are immutable during the fixture
+lifecycle.
+
+## Step 7: Share the fixture across multiple tests
 
 Suites keep a fixture alive for several tests. Declare one in a directory-level
 `test.yaml`; every descendant test joins automatically.

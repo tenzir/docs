@@ -545,16 +545,16 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key            | Type            | Default   | Description                                                           |
-| -------------- | --------------- | --------- | --------------------------------------------------------------------- |
-| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                    |
-| `fixtures`     | list of strings | `[]`      | Requested fixtures; use `fixture` for a single value.                 |
-| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                |
-| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                          |
-| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration). |
-| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                  |
-| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                     |
-| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.      |
+| Key            | Type            | Default   | Description                                                             |
+| -------------- | --------------- | --------- | ----------------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                      |
+| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings. |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                  |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                            |
+| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).   |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                    |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                       |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.        |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -621,9 +621,30 @@ the exception message in the skip output. See
 
 ### Declaring fixtures
 
-- List fixture names in frontmatter (`fixtures: [node, http]`). Importing the
-  project `fixtures` package is enough to register custom fixtures thanks to the
-  side effects in `fixtures/__init__.py`.
+- List fixture names in frontmatter (`fixtures: [node, http]`). Entries can be
+  bare strings or single-key mappings with structured options:
+
+  ```yaml
+  # Bare names (backward compatible)
+  fixtures: [node, http]
+
+  # With structured options
+  fixtures:
+    - node:
+        tls: true
+        port: 8443
+    - http
+
+  # Mixed form
+  fixtures:
+    - node:
+        tls: true
+    - http
+  ```
+
+  Importing the project `fixtures` package is enough to register custom fixtures
+  thanks to the side effects in `fixtures/__init__.py`.
+
 - The harness encodes requests in `TENZIR_TEST_FIXTURES` and exposes helper APIs
   in `tenzir_test.fixtures`:
   - `fixtures()` – Read-only view of active fixtures. Attribute access is
@@ -704,6 +725,98 @@ managers, or `FixtureHandle` instances for advanced scenarios.
 
 The [fixture guide](/guides/testing/create-fixtures) demonstrates an HTTP echo
 server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
+
+### Fixture options
+
+Fixtures can declare a typed options dataclass via the `options` parameter on
+`@fixture()`. Test authors then pass structured configuration in `test.yaml` and
+the fixture retrieves a typed instance at runtime with `current_options()`.
+
+#### Declaring an options dataclass
+
+Define a frozen dataclass with default values for every field. The `@fixture`
+decorator validates that the type is a dataclass at registration time:
+
+```python
+from dataclasses import dataclass
+from typing import Iterator
+
+from tenzir_test import current_options, fixture
+
+
+@dataclass(frozen=True)
+class HttpOptions:
+    port: int = 0
+    tls: bool = False
+
+
+@fixture(options=HttpOptions)
+def http() -> Iterator[dict[str, str]]:
+    opts = current_options("http")
+    # opts is an HttpOptions instance with typed fields
+    server = start_server(port=opts.port, tls=opts.tls)
+    try:
+        yield {"HTTP_FIXTURE_URL": server.url}
+    finally:
+        server.stop()
+```
+
+#### Providing options in `test.yaml`
+
+Tests pass options using the single-key mapping syntax under `fixtures`:
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures:
+  - http:
+      port: 9090
+      tls: true
+timeout: 45
+```
+
+Bare names remain valid and produce the dataclass defaults:
+
+```yaml
+fixtures: [http]  # HttpOptions(port=0, tls=False)
+```
+
+#### Retrieving options at runtime
+
+Call `current_options(name)` inside a fixture factory to get the typed instance.
+The function returns the dataclass when one is registered, the raw options dict
+when no dataclass was declared but options were provided, or an empty dict when
+neither applies:
+
+```python
+from tenzir_test import current_options
+
+opts = current_options("http")  # HttpOptions instance or {}
+```
+
+#### How options flow through the harness
+
+The harness processes fixture options in this order:
+
+1. `test.yaml` or frontmatter declares fixtures with optional mappings.
+2. The configuration parser converts each entry into a `FixtureSpec` (name plus
+   raw options dict).
+3. Before activating fixtures, the harness calls `_build_fixture_options()` to
+   construct typed dataclass instances (or pass through raw dicts).
+4. The resulting `fixture_options` mapping is stored on `FixtureContext` so
+   `current_options()` can retrieve the correct instance for each fixture.
+
+#### Programmatic registration
+
+The `register()` function also accepts the `options` parameter:
+
+```python
+from tenzir_test.fixtures import register
+
+register("http", http_factory, options=HttpOptions)
+```
+
+Passing a non-dataclass type raises `TypeError` at registration time.
 
 ### Fixture unavailability
 
