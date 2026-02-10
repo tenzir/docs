@@ -21,8 +21,11 @@ The URL schemes `tcp://` and `tcps://` dispatch to
 
 ## SSL/TLS
 
-To enable TLS, use `tls=true`. You can optionally pass a PEM-encoded certificate
-and private key via the `certfile` and `keyfile` options.
+To enable TLS, pass `tls={}` to enable TLS with defaults or provide a record
+with specific options like `certfile` and `keyfile`. Both
+[`from_tcp`](/reference/operators/from_tcp) and
+[`load_tcp`](/reference/operators/load_tcp) support server-side TLS for
+accepting encrypted connections.
 
 For testing purposes, you can quickly generate a self-signed certificate as
 follows:
@@ -39,6 +42,14 @@ openssl s_client 127.0.0.1:443
 
 ## Examples
 
+### Listen for incoming JSON over TCP
+
+```tql
+from_tcp "0.0.0.0:8090" {
+  read_json
+}
+```
+
 ### Read data by connecting to a remote TCP server
 
 ```tql
@@ -47,10 +58,10 @@ from "tcp://127.0.0.1:443", connect=true {
 }
 ```
 
-### Read data by listen on localhost with TLS enabled
+### Listen on localhost with TLS enabled
 
 ```tql
-from "tcp://127.0.0.1:443", tls=true, certfile="cert.pem", keyfile="key.pem" {
+from_tcp "127.0.0.1:443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```
