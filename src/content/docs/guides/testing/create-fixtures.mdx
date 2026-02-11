@@ -235,6 +235,49 @@ Bare names remain fully backward compatible. The harness constructs an
 `HttpOptions(port=9090)` instance for the mapping form and `HttpOptions()` (with
 defaults) for bare names.
 
+### Nested dataclass options
+
+Option fields can themselves be dataclasses. Declare a nested type and reference
+it via `field(default_factory=...)`:
+
+```python
+from dataclasses import dataclass, field
+
+from tenzir_test import current_options, fixture
+
+
+@dataclass(frozen=True)
+class AuthOptions:
+    token: str = ""
+
+
+@dataclass(frozen=True)
+class HttpOptions:
+    port: int = 0
+    auth: AuthOptions = field(default_factory=AuthOptions)
+
+
+@fixture(options=HttpOptions)
+def http() -> Iterator[dict[str, str]]:
+    opts = current_options("http")
+    # opts.auth is an AuthOptions instance
+    ...
+```
+
+Tests pass nested records in YAML:
+
+```yaml
+fixtures:
+  - http:
+      port: 9090
+      auth:
+        token: secret-value
+```
+
+The harness walks the type annotations recursively and constructs each level
+from the corresponding YAML mapping. Use `Optional[T]` or `T | None` for
+nested fields that may be absent.
+
 ### Retrieve options inside the fixture
 
 Call `current_options("http")` to get the typed instance. The function returns
