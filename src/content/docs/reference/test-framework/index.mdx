@@ -728,95 +728,35 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 
 ### Fixture options
 
-Fixtures can declare a typed options dataclass via the `options` parameter on
-`@fixture()`. Test authors then pass structured configuration in `test.yaml` and
-the fixture retrieves a typed instance at runtime with `current_options()`.
-
-#### Declaring an options dataclass
-
-Define a frozen dataclass with default values for every field. The `@fixture`
-decorator validates that the type is a dataclass at registration time:
+Fixtures can declare a frozen dataclass via `options=` on `@fixture()`. The
+harness constructs a typed instance from frontmatter values and makes it
+available through `current_options()`:
 
 ```python
-from dataclasses import dataclass
-from typing import Iterator
-
-from tenzir_test import current_options, fixture
-
-
 @dataclass(frozen=True)
 class HttpOptions:
     port: int = 0
-    tls: bool = False
-
 
 @fixture(options=HttpOptions)
 def http() -> Iterator[dict[str, str]]:
-    opts = current_options("http")
-    # opts is an HttpOptions instance with typed fields
-    server = start_server(port=opts.port, tls=opts.tls)
-    try:
-        yield {"HTTP_FIXTURE_URL": server.url}
-    finally:
-        server.stop()
+    opts = current_options("http")  # HttpOptions instance
+    ...
 ```
 
-#### Providing options in `test.yaml`
-
-Tests pass options using the single-key mapping syntax under `fixtures`:
-
 ```yaml
-# tests/http/test.yaml
-suite: smoke-http
 fixtures:
   - http:
       port: 9090
-      tls: true
-timeout: 45
 ```
 
-Bare names remain valid and produce the dataclass defaults:
+Bare names (`fixtures: [http]`) produce the dataclass defaults. Option fields
+can themselves be dataclasses; the harness instantiates nested types
+recursively. Use `Optional[T]` or `T | None` for nested fields that may be
+absent. The `register()` function accepts the same `options` parameter for
+programmatic registration.
 
-```yaml
-fixtures: [http]  # HttpOptions(port=0, tls=False)
-```
-
-#### Retrieving options at runtime
-
-Call `current_options(name)` inside a fixture factory to get the typed instance.
-The function returns the dataclass when one is registered, the raw options dict
-when no dataclass was declared but options were provided, or an empty dict when
-neither applies:
-
-```python
-from tenzir_test import current_options
-
-opts = current_options("http")  # HttpOptions instance or {}
-```
-
-#### How options flow through the harness
-
-The harness processes fixture options in this order:
-
-1. `test.yaml` or frontmatter declares fixtures with optional mappings.
-2. The configuration parser converts each entry into a `FixtureSpec` (name plus
-   raw options dict).
-3. Before activating fixtures, the harness calls `_build_fixture_options()` to
-   construct typed dataclass instances (or pass through raw dicts).
-4. The resulting `fixture_options` mapping is stored on `FixtureContext` so
-   `current_options()` can retrieve the correct instance for each fixture.
-
-#### Programmatic registration
-
-The `register()` function also accepts the `options` parameter:
-
-```python
-from tenzir_test.fixtures import register
-
-register("http", http_factory, options=HttpOptions)
-```
-
-Passing a non-dataclass type raises `TypeError` at registration time.
+See the [fixture guide](/guides/testing/create-fixtures) for a complete
+walkthrough including nested options and optional fields.
 
 ### Fixture unavailability
 
