@@ -11,6 +11,7 @@ Reads events from a MySQL database.
 
 ```tql
 from_mysql [uri=string], [table=string], [sql=string], [show=string],
+           [live=bool], [tracking_column=string],
            [host=string], [port=int], [user=string], [password=string],
            [database=string], [tls=bool|record]
 ```
@@ -61,6 +62,23 @@ Supported values:
 
 - `"tables"`: List all tables in the database
 - `"columns"`: List all columns for the table specified in `table`
+
+### `live = bool (optional)`
+
+Enables continuous polling for new rows from a table. The operator tracks
+progress using a watermark on an integer column and polls every second for rows
+above the last-seen value. Mutually exclusive with `sql` and `show`. Requires
+`table`.
+
+Defaults to `false`.
+
+### `tracking_column = string (optional)`
+
+The integer column to use for watermark tracking in live mode. The operator
+queries for rows where this column exceeds the last-seen watermark.
+
+When omitted, the tracking column is auto-detected from the table's
+auto-increment primary key. Requires `live=true`.
 
 ### `host = string (optional)`
 
@@ -196,6 +214,20 @@ from_mysql table="events",
            host="db.example.com",
            database="production",
            tls={cacert: "/path/to/ca.pem"}
+```
+
+### Stream new rows from a table
+
+```tql
+from_mysql table="events", live=true,
+           host="db.example.com", database="mydb"
+```
+
+### Stream with an explicit tracking column
+
+```tql
+from_mysql table="events", live=true, tracking_column="event_id",
+           host="db.example.com", database="mydb"
 ```
 
 ## See Also
