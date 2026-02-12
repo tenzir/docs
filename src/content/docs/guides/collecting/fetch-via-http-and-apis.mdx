@@ -214,7 +214,7 @@ monitoring.
 
 Handle APIs that return large datasets across multiple pages.
 
-### Simple Pagination
+### Lambda-Based Pagination
 
 Implement automatic pagination by providing a lambda function to the `paginate`
 parameter that extracts the next page URL from the response:
@@ -239,6 +239,37 @@ from_http f"{$base_url}?page=1",
 ```
 
 This example builds pagination URLs dynamically based on response data.
+
+### Link Header Pagination
+
+Many REST APIs (such as GitHub, GitLab, and Jira) include pagination URLs in the
+HTTP `Link` response header following
+[RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288). Use `paginate="link"`
+to follow these automatically:
+
+```tql
+from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
+  paginate="link"
+```
+
+The operator parses the `Link` header, finds the `rel=next` relation, and
+continues fetching pages until the response no longer includes a next link.
+
+This works with any API that returns a header like:
+
+```
+Link: <https://api.example.com/items?page=2>; rel="next"
+```
+
+Relative URLs in the `Link` header are resolved against the request URL, so both
+absolute and relative pagination links work correctly.
+
+The same approach works with the [`http`](/reference/operators/http) operator:
+
+```tql
+from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
+http url, paginate="link"
+```
 
 ### Rate Limiting
 
@@ -335,3 +366,6 @@ Follow these practices for reliable and efficient API integration:
    performance.
 7. **Leverage automatic format inference**. Use descriptive file extensions in
    URLs when possible to enable automatic format and compression detection.
+8. **Prefer link pagination when available**. Use `paginate="link"` for APIs
+   that support RFC 8288 `Link` headers instead of writing custom lambda
+   expressions.

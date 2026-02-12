@@ -13,7 +13,7 @@ Sends HTTP/1.1 requests and forwards the response.
 ```tql
 http url:string, [method=string, body=record|string|blob, encode=string,
      headers=record, response_field=field, metadata_field=field,
-     error_field=field, paginate=record->string, paginate_delay=duration,
+     error_field=field, paginate=record->string|string, paginate_delay=duration,
      parallel=int, tls=record, connection_timeout=duration,
      max_retry_count=int, retry_delay=duration
      { … }]
@@ -36,40 +36,9 @@ If neither the URL nor the HTTP headers provide enough information, you can expl
 
 URL to connect to.
 
-### `method = string (optional)`
+import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
 
-One of the following HTTP methods to use when using the client:
-
-- `get`
-- `head`
-- `post`
-- `put`
-- `del`
-- `connect`
-- `options`
-- `trace`
-
-Defaults to `get`, or `post` if `body` is specified.
-
-### `body = blob|record|string (optional)`
-
-Body to send with the HTTP request.
-
-If the value is a `record`, then the body is encoded according to the `encode`
-option and an appropriate `Content-Type` is set for the request.
-
-### `encode = string (optional)`
-
-Specifies how to encode `record` bodies. Supported values:
-
-- `json`
-- `form`
-
-Defaults to `json`.
-
-### `headers = record (optional)`
-
-Record of headers to send with the request.
+<HTTPClientOptions />
 
 ### `response_field = field (optional)`
 
@@ -96,18 +65,6 @@ When set, any HTTP response with a status code outside the 200–399 range will
 have its body stored in this field as a `blob`. Otherwise, error responses,
 alongside the original event, are skipped and a warning is emitted.
 
-### `paginate = record -> string (optional)`
-
-A lambda expression to evaluate against the result of the request (optionally parsed
-by the given pipeline). If the expression evaluation is successful and non-null, the
-resulting string is used as the URL for a new GET request with the same headers.
-
-### `paginate_delay = duration (optional)`
-
-The duration to wait between consecutive pagination requests.
-
-Defaults to `0s`.
-
 ### `parallel = int (optional)`
 
 Maximum amount of requests that can be in progress at any time.
@@ -115,25 +72,6 @@ Maximum amount of requests that can be in progress at any time.
 Defaults to `1`.
 
 <TLSOptions tls_default="false"/>
-
-### `connection_timeout = duration (optional)`
-
-Timeout for the connection.
-
-Defaults to `5s`.
-
-### `max_retry_count = int (optional)`
-
-The maximum times to retry a failed request. Every request has its own retry
-count.
-
-Defaults to `0`.
-
-### `retry_delay = duration (optional)`
-
-The duration to wait between each retry.
-
-Defaults to `1s`.
 
 ### `{ … } (optional)`
 
@@ -242,6 +180,18 @@ The `if has_more?` ensures pagination only continues till we have a `has_more`
 field that is `true`.
 
 Additionally, we limit the maximum pages by a simple `head 10`.
+
+### Paginate via Link Headers
+
+Use `paginate="link"` to follow RFC 8288 `Link` headers automatically:
+
+```tql
+from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
+http url, paginate="link"
+```
+
+This is useful for APIs that include pagination URLs in the `Link` response
+header with `rel=next`, such as GitHub, GitLab, and Jira.
 
 ## See Also
 

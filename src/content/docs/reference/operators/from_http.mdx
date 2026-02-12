@@ -13,7 +13,7 @@ Sends and receives HTTP/1.1 requests.
 ```tql
 from_http url:string, [method=string, body=record|string|blob, encode=string,
           headers=record, metadata_field=field, error_field=field,
-          paginate=record->string, paginate_delay=duration,
+          paginate=record->string|string, paginate_delay=duration,
           connection_timeout=duration, max_retry_count=int,
           retry_delay=duration, tls=record]
 from_http url:string, server=true, [metadata_field=field, responses=record,
@@ -40,40 +40,9 @@ URL to listen on or to connect to.
 
 Must have the form `<host>:<port>` when `server=true`.
 
-### `method = string (optional)`
+import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
 
-One of the following HTTP methods to use when using the client:
-
-- `get`
-- `head`
-- `post`
-- `put`
-- `del`
-- `connect`
-- `options`
-- `trace`
-
-Defaults to `get`, or `post` if `body` is specified.
-
-### `body = blob|record|string (optional)`
-
-Body to send with the HTTP request.
-
-If the value is a `record`, then the body is encoded according to the `encode`
-option and an appropriate `Content-Type` is set for the request.
-
-### `encode = string (optional)`
-
-Specifies how to encode `record` bodies. Supported values:
-
-- `json`
-- `form`
-
-Defaults to `json`.
-
-### `headers = record (optional)`
-
-Record of headers to send with the request.
+<HTTPClientOptions />
 
 ### `metadata_field = field (optional)`
 
@@ -104,37 +73,6 @@ Field to insert the response body for HTTP error responses (status codes not in 
 When set, any HTTP response with a status code outside the 200–399 range will
 have its body stored in this field as a `blob`. Otherwise, error responses,
 alongside the original event, are skipped and an error is emitted.
-
-### `paginate = record -> string (optional)`
-
-A lambda expression to evaluate against the result of the request (optionally parsed
-by the given pipeline). If the expression evaluation is successful and non-null, the
-resulting string is used as the URL for a new GET request with the same headers.
-
-### `paginate_delay = duration (optional)`
-
-The duration to wait between consecutive pagination requests.
-
-Defaults to `0s`.
-
-### `connection_timeout = duration (optional)`
-
-Timeout for the connection.
-
-Defaults to `5s`.
-
-### `max_retry_count = int (optional)`
-
-The maximum times to retry a failed request. Every request has its own retry
-count.
-
-Defaults to `0`.
-
-### `retry_delay = duration (optional)`
-
-The duration to wait between each retry.
-
-Defaults to `1s`.
 
 ### `server = bool (optional)`
 
@@ -215,9 +153,10 @@ head 1
 }
 ```
 
-### Paginated API Requests
+### Paginate with a Lambda
 
-Use the `paginate` parameter to handle paginated APIs:
+Use the `paginate` parameter with a lambda to extract the next page URL from the
+response body:
 
 ```tql
 from_http "https://api.example.com/data", paginate=(x => x.next_url?)
@@ -225,6 +164,20 @@ from_http "https://api.example.com/data", paginate=(x => x.next_url?)
 
 This sends a GET request to the initial URL and evaluates the `x.next_url` field
 in the response to determine the next URL for subsequent requests.
+
+### Paginate via Link Headers
+
+Use `paginate="link"` to automatically follow RFC 8288 `Link` headers with
+`rel=next`:
+
+```tql
+from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
+  paginate="link"
+```
+
+Many APIs (such as GitHub, GitLab, and Jira) use the `Link` header for
+pagination. The operator extracts the `rel=next` URL from the header and
+continues fetching until no more pages are available.
 
 ### Retry Failed Requests
 
