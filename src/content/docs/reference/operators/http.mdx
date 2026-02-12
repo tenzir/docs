@@ -13,7 +13,7 @@ Sends HTTP/1.1 requests and forwards the response.
 ```tql
 http url:string, [method=string, body=record|string|blob, encode=string,
      headers=record, response_field=field, metadata_field=field,
-     error_field=field, paginate=record->string, paginate_delay=duration,
+     error_field=field, paginate=record->string|string, paginate_delay=duration,
      parallel=int, tls=record, connection_timeout=duration,
      max_retry_count=int, retry_delay=duration
      { … }]
@@ -96,11 +96,28 @@ When set, any HTTP response with a status code outside the 200–399 range will
 have its body stored in this field as a `blob`. Otherwise, error responses,
 alongside the original event, are skipped and a warning is emitted.
 
-### `paginate = record -> string (optional)`
+### `paginate = record -> string | string (optional)`
 
-A lambda expression to evaluate against the result of the request (optionally parsed
-by the given pipeline). If the expression evaluation is successful and non-null, the
-resulting string is used as the URL for a new GET request with the same headers.
+Controls automatic pagination of HTTP responses.
+
+**Lambda mode**: A lambda expression to evaluate against the result of the
+request (optionally parsed by the given pipeline). If the expression evaluation
+is successful and non-null, the resulting string is used as the URL for a new
+GET request with the same headers.
+
+```tql
+http url, paginate=(x => x.next_url?)
+```
+
+**Link mode**: The string `"link"` to automatically follow pagination links in
+the HTTP `Link` response header per [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
+The operator parses `Link` headers and follows the `rel=next` relation to fetch
+the next page. Pagination stops when the response no longer contains a
+`rel=next` link.
+
+```tql
+http url, paginate="link"
+```
 
 ### `paginate_delay = duration (optional)`
 
@@ -242,6 +259,18 @@ The `if has_more?` ensures pagination only continues till we have a `has_more`
 field that is `true`.
 
 Additionally, we limit the maximum pages by a simple `head 10`.
+
+### Paginate via Link Headers
+
+Use `paginate="link"` to follow RFC 8288 `Link` headers automatically:
+
+```tql
+from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
+http url, paginate="link"
+```
+
+This is useful for APIs that include pagination URLs in the `Link` response
+header with `rel=next`, such as GitHub, GitLab, and Jira.
 
 ## See Also
 
