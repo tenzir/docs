@@ -40,40 +40,9 @@ URL to listen on or to connect to.
 
 Must have the form `<host>:<port>` when `server=true`.
 
-### `method = string (optional)`
+import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
 
-One of the following HTTP methods to use when using the client:
-
-- `get`
-- `head`
-- `post`
-- `put`
-- `del`
-- `connect`
-- `options`
-- `trace`
-
-Defaults to `get`, or `post` if `body` is specified.
-
-### `body = blob|record|string (optional)`
-
-Body to send with the HTTP request.
-
-If the value is a `record`, then the body is encoded according to the `encode`
-option and an appropriate `Content-Type` is set for the request.
-
-### `encode = string (optional)`
-
-Specifies how to encode `record` bodies. Supported values:
-
-- `json`
-- `form`
-
-Defaults to `json`.
-
-### `headers = record (optional)`
-
-Record of headers to send with the request.
+<HTTPClientOptions />
 
 ### `metadata_field = field (optional)`
 
@@ -104,54 +73,6 @@ Field to insert the response body for HTTP error responses (status codes not in 
 When set, any HTTP response with a status code outside the 200–399 range will
 have its body stored in this field as a `blob`. Otherwise, error responses,
 alongside the original event, are skipped and an error is emitted.
-
-### `paginate = record -> string | string (optional)`
-
-Controls automatic pagination of HTTP responses.
-
-**Lambda mode**: A lambda expression to evaluate against the result of the
-request (optionally parsed by the given pipeline). If the expression evaluation
-is successful and non-null, the resulting string is used as the URL for a new
-GET request with the same headers.
-
-```tql
-from_http "https://api.example.com/data", paginate=(x => x.next_url?)
-```
-
-**Link mode**: The string `"link"` to automatically follow pagination links in
-the HTTP `Link` response header per [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
-The operator parses `Link` headers and follows the `rel=next` relation to fetch
-the next page. Pagination stops when the response no longer contains a
-`rel=next` link.
-
-```tql
-from_http "https://api.example.com/data", paginate="link"
-```
-
-### `paginate_delay = duration (optional)`
-
-The duration to wait between consecutive pagination requests.
-
-Defaults to `0s`.
-
-### `connection_timeout = duration (optional)`
-
-Timeout for the connection.
-
-Defaults to `5s`.
-
-### `max_retry_count = int (optional)`
-
-The maximum times to retry a failed request. Every request has its own retry
-count.
-
-Defaults to `0`.
-
-### `retry_delay = duration (optional)`
-
-The duration to wait between each retry.
-
-Defaults to `1s`.
 
 ### `server = bool (optional)`
 
