@@ -708,6 +708,123 @@ assert result.returncode == 0
 - When `tenzir-node` fails to start, the fixture reports the exit code and
   stderr output, making it easier to diagnose startup failures.
 
+### Built-in docker-compose fixture
+
+- Request the fixture with `fixtures: [docker-compose]` or pass structured
+  options in `test.yaml` or frontmatter. The fixture manages Docker Compose
+  services for the duration of the test or suite.
+- The fixture requires `docker compose` (v2) on the host. When Docker Compose
+  is not available, it raises `FixtureUnavailable` so tests can skip
+  gracefully via `skip: {on: fixture-unavailable}`.
+- Configuration uses three nested dataclasses: `DockerComposeOptions` (top
+  level), `DockerComposeWaitOptions` (readiness polling), and
+  `DockerComposeDownOptions` (teardown behavior).
+
+#### Options reference
+
+Top-level options (`DockerComposeOptions`):
+
+| Field             | Type           | Default     | Description                                                                                |
+| ----------------- | -------------- | ----------- | ------------------------------------------------------------------------------------------ |
+| `file`            | string         | `""`      | Path to the Compose file, resolved relative to the test directory.                         |
+| `project_name`    | string         | `""`      | Compose project name. Auto-generated from the test file name when empty.                   |
+| `profiles`        | list of string | `[]`        | Compose profiles to activate.                                                              |
+| `services`        | list of string | `[]`        | Services to start. When empty, all services in the Compose file start.                     |
+| `env_file`        | string or null | `null`      | Path to an env file passed to `docker compose --env-file`, resolved relative to the test. |
+| `env`             | dict           | `{}`        | Extra environment variables injected into the Compose process.                             |
+| `pull`            | string         | `"missing"` | Image pull policy: `missing`, `always`, or `never`.                                       |
+| `build`           | boolean        | `false`     | Pass `--build` to `docker compose up`.                                                     |
+| `wait`            | object         | see below   | Readiness polling settings.                                                                |
+| `down`            | object         | see below   | Teardown settings.                                                                         |
+| `log_on_failure`  | boolean        | `true`      | Collect and attach Docker Compose logs when the fixture fails.                             |
+
+Wait options (`DockerComposeWaitOptions`):
+
+| Field                  | Type  | Default | Description                                     |
+| ---------------------- | ----- | ------- | ----------------------------------------------- |
+| `timeout_seconds`      | float | `120.0` | Maximum time to wait for all services to be ready. |
+| `poll_interval_seconds` | float | `1.0`   | Interval between readiness checks.              |
+
+Down options (`DockerComposeDownOptions`):
+
+| Field              | Type    | Default | Description                                   |
+| ------------------ | ------- | ------- | --------------------------------------------- |
+| `volumes`          | boolean | `true`  | Remove volumes on teardown (`--volumes`).       |
+| `remove_orphans`   | boolean | `true`  | Remove orphan containers (`--remove-orphans`).  |
+| `timeout_seconds`  | integer | `20`    | Timeout for `docker compose down` (`--timeout`). |
+
+#### Example configuration
+
+Minimal configuration in `test.yaml`:
+
+```yaml
+suite: compose-demo
+fixtures:
+  - docker-compose:
+      file: compose.yaml
+skip:
+  on: fixture-unavailable
+  reason: requires docker compose
+```
+
+Full configuration with all options:
+
+```yaml
+fixtures:
+  - docker-compose:
+      file: compose.yaml
+      project_name: my-project
+      profiles: [integration]
+      services: [redis, postgres]
+      env_file: compose.env
+      env:
+        COMPOSE_PARALLEL_LIMIT: 8
+      pull: always
+      build: true
+      wait:
+        timeout_seconds: 90
+        poll_interval_seconds: 2.0
+      down:
+        volumes: true
+        remove_orphans: true
+        timeout_seconds: 30
+      log_on_failure: true
+```
+
+#### Readiness detection
+
+The fixture polls each container until it is ready. If a container defines a
+health check, the fixture waits for the `healthy` status. Otherwise, it falls
+back to checking that the container is in the `running` state. The
+`wait.timeout_seconds` setting controls how long the fixture waits before
+raising an error.
+
+#### Exported environment variables
+
+Once all services are running, the fixture exports the following variables to
+the test environment:
+
+| Variable                                                    | Description                                                                                        |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `DOCKER_COMPOSE_PROVIDER`                                   | Always `docker`.                                                                                 |
+| `DOCKER_COMPOSE_PROJECT_NAME`                                | The Compose project name (explicit or auto-generated).                                             |
+| `DOCKER_COMPOSE_FILE`                                        | Absolute path to the resolved Compose file.                                                        |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_CONTAINER_ID`                 | Container ID for the service. `<NAME>` is the uppercased, normalized service name.                 |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_HOST`                          | Always `127.0.0.1`.                                                                              |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT_<PORT>_<PROTO>`           | Host-mapped port for a specific container port and protocol (for example `_PORT_6379_TCP`).         |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT`                          | Shorthand for the single published port, set only when the service exposes exactly one port binding. |
+
+Service names are normalized to uppercase with non-alphanumeric characters
+replaced by underscores. For a service named `redis`, the prefix is
+`DOCKER_COMPOSE_SERVICE_REDIS_`.
+
+#### Teardown
+
+When the test (or suite) completes, the fixture runs `docker compose down` with
+the configured teardown options. Volumes are removed by default to avoid leaking
+state between test runs. The fixture always attempts teardown even when the test
+fails.
+
 ### Registering fixtures
 
 Implement fixtures in `fixtures/` and register them with `@tenzir_test.fixture()`.

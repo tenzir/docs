@@ -379,6 +379,94 @@ suppress the failure for suites where the missing dependency is expected in some
 environments (for example local development without Docker, or CI runners
 without GPU access).
 
+## Use the built-in docker-compose fixture
+
+When your tests need Docker Compose services such as databases or message
+brokers, the harness provides a built-in `docker-compose` fixture. It starts
+services before a test (or suite), waits for readiness, exports connection
+details as environment variables, and tears everything down afterwards. You do
+not need to write any fixture code for this workflow.
+
+### Step 1: Create a Compose file
+
+Place a `compose.yaml` next to your test or in the same directory as your
+`test.yaml`:
+
+```yaml title="tests/docker-compose/compose.yaml"
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+```
+
+Publish ports without a fixed host binding (use `"6379"` instead of
+`"6379:6379"`) so the fixture discovers the dynamically assigned host port.
+
+### Step 2: Configure the fixture in test.yaml
+
+Reference the Compose file and select the services to start:
+
+```yaml title="tests/docker-compose/test.yaml"
+suite: docker-compose-demo
+fixtures:
+  - docker-compose:
+      file: compose.yaml
+      services: [redis]
+      wait:
+        timeout_seconds: 90
+skip:
+  on: fixture-unavailable
+  reason: requires docker compose
+```
+
+The `skip` entry ensures the suite skips cleanly on machines without Docker
+Compose instead of failing.
+
+### Step 3: Write a test that uses the services
+
+The fixture exports environment variables for each service. Use them in a shell
+script or TQL pipeline to connect to the running containers:
+
+```sh title="tests/docker-compose/check.sh"
+#!/bin/sh
+set -eu
+
+: "${DOCKER_COMPOSE_PROVIDER:?}"
+: "${DOCKER_COMPOSE_PROJECT_NAME:?}"
+: "${DOCKER_COMPOSE_FILE:?}"
+: "${DOCKER_COMPOSE_SERVICE_REDIS_CONTAINER_ID:?}"
+: "${DOCKER_COMPOSE_SERVICE_REDIS_HOST:?}"
+: "${DOCKER_COMPOSE_SERVICE_REDIS_PORT_6379_TCP:?}"
+: "${DOCKER_COMPOSE_SERVICE_REDIS_PORT:?}"
+
+echo "docker-compose fixture ok"
+```
+
+For a service named `redis` that publishes port 6379, the fixture sets
+`DOCKER_COMPOSE_SERVICE_REDIS_HOST` to `127.0.0.1` and
+`DOCKER_COMPOSE_SERVICE_REDIS_PORT_6379_TCP` to the dynamically assigned host
+port. When a service exposes exactly one port, the shorthand
+`DOCKER_COMPOSE_SERVICE_REDIS_PORT` is also available.
+
+### Step 4: Capture the baseline and run
+
+```sh
+uvx tenzir-test --update tests/docker-compose
+```
+
+Subsequent runs without `--update` bring the services online, execute the test,
+compare output against the baseline, and tear down the containers.
+
+See the [test framework reference](/reference/test-framework/#built-in-docker-compose-fixture)
+for the full options reference, including all configuration fields, readiness
+detection behavior, and the complete list of exported environment variables.
+
 ## Manual controllers
 
 Python-mode tests often need fine-grained control over fixture lifecycle to
