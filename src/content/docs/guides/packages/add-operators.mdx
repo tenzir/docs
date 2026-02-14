@@ -63,15 +63,15 @@ Each parameter supports the following fields:
 
 The `type` field constrains what values the parameter accepts:
 
-| Type     | Description                                                  |
-| -------- | ------------------------------------------------------------ |
-| `field`  | A field selector (for example, `name`). Cannot have defaults |
-| `string` | A string literal or expression                               |
-| `int`    | An integer value                                             |
-| `double` | A floating-point value                                       |
-| `bool`   | A boolean value                                              |
-| `ip`     | An IP address                                                |
-| `secret` | A secret string (accepts string literals)                    |
+| Type     | Description                                                           |
+| -------- | --------------------------------------------------------------------- |
+| `field`  | A field selector (for example, `name`). Cannot have non-null defaults |
+| `string` | A string literal or expression                                        |
+| `int`    | An integer value                                                      |
+| `double` | A floating-point value                                                |
+| `bool`   | A boolean value                                                       |
+| `ip`     | An IP address                                                         |
+| `secret` | A secret string (accepts string literals)                             |
 
 If you omit the `type` field, the parameter accepts any value.
 
@@ -220,6 +220,83 @@ acme::double_value count
 ```tql
 {count: 10, score: 10}
 ```
+
+### Detect whether an argument was provided
+
+Any typed parameter supports `default: null`, making it optional without
+requiring a concrete fallback value. Inside the operator body, compare the
+parameter against `null` to check whether the caller provided it.
+
+This is especially useful for `field` parameters, which cannot have non-null
+defaults because a field selector is not a constant value:
+
+```tql title="operators/redact.tql"
+---
+args:
+  positional:
+    - name: input
+      type: field
+  named:
+    - name: target
+      type: field
+      default: null
+      description: "Optional field to redact"
+---
+
+if $target != null {
+  $target = "REDACTED"
+}
+$input = $input
+```
+
+When the caller omits `target`, the operator skips the redaction:
+
+```tql
+from {message: "hello", secret: "s3cret"}
+acme::redact message
+```
+
+```tql
+{message: "hello", secret: "s3cret"}
+```
+
+When the caller provides `target`, the operator redacts that field:
+
+```tql
+from {message: "hello", secret: "s3cret"}
+acme::redact message, target=secret
+```
+
+```tql
+{message: "hello", secret: "REDACTED"}
+```
+
+The same pattern works for other types. For example, an optional `string`
+parameter that only applies when provided:
+
+```tql title="operators/tag.tql"
+---
+args:
+  positional:
+    - name: field
+      type: field
+  named:
+    - name: suffix
+      type: string
+      default: null
+---
+
+if $suffix != null {
+  $field = $field + $suffix
+}
+```
+
+:::note
+Callers cannot pass `null` explicitly for a `field` parameter. Writing
+`target=null` produces a compile-time error because `null` is not a valid
+field selector. The `null` default applies only when the argument is omitted
+entirely. Other parameter types do accept explicit `null` values.
+:::
 
 ### Call other operators
 
