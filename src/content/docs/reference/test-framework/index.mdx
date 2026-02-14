@@ -163,9 +163,61 @@ Useful options:
   containing glob metacharacters use fnmatch syntax. Repeatable; tests matching
   any pattern are selected. When combined with positional TEST paths, only tests
   matching both are run (intersection).
+- `--fixture`: Activate fixtures in standalone foreground mode without running
+  tests. Repeatable. Accepts bare names (`--fixture mysql`) or YAML mapping
+  specs (`--fixture 'kafka: {port: 9092}'`). When provided, positional TEST
+  arguments are not allowed. See [standalone fixture mode](#standalone-fixture-mode).
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
+
+## Standalone fixture mode
+
+Use `--fixture` to start fixtures in the foreground without executing any
+tests. The harness discovers project fixtures, activates the requested ones,
+prints their exported `KEY=VALUE` environment entries, and blocks until you
+press Ctrl+C. This is useful for interactive development against services that
+a fixture manages (databases, message brokers, HTTP servers, etc.).
+
+```sh
+uvx tenzir-test --fixture mysql
+uvx tenzir-test --fixture 'kafka: {port: 9092}' --debug
+```
+
+The option is repeatable, so you can bring up several fixtures at once:
+
+```sh
+uvx tenzir-test --fixture mysql --fixture redis
+```
+
+Fixture specs follow the same syntax as the `fixtures:` frontmatter key.
+Bare names use default options; a YAML mapping after the name provides
+structured options that the fixture receives through `current_options()`.
+
+Once all fixtures are healthy the harness prints their environment variables
+in sorted order, for example:
+
+```text
+MYSQL_PORT=3306
+MYSQL_HOST=127.0.0.1
+i fixture environment is active; press Ctrl+C to stop
+```
+
+You can export these variables into another shell session or feed them to an
+external tool. Press Ctrl+C (or send SIGTERM) for a clean teardown -- the
+harness tears fixtures down in reverse order, just like it does after a
+regular test run.
+
+Key constraints:
+
+- Positional TEST arguments and `--fixture` are mutually exclusive. The
+  harness rejects invocations that combine both.
+- `--debug` and `--keep` work the same way as during test execution.
+  `--debug` enables verbose fixture lifecycle logging; `--keep` preserves
+  temporary directories after shutdown.
+- Package directories supplied via `--package-dirs` are forwarded to the
+  fixture environment so fixtures that start Tenzir nodes see the correct
+  packages.
 
 ## Python API
 
