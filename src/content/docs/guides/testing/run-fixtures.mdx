@@ -35,7 +35,6 @@ variables the fixture exports:
 ```text
 MYSQL_HOST=127.0.0.1
 MYSQL_PORT=3306
-i fixture environment is active; press Ctrl+C to stop
 ```
 
 You can copy these values into another terminal session or feed them to an
@@ -86,18 +85,10 @@ Press **Ctrl+C** or send `SIGTERM` to stop. The harness tears fixtures down in
 reverse order, just as it does after a regular test run. Temporary directories
 are cleaned up unless you passed `--keep`.
 
-## Constraints
-
-Standalone fixture mode and positional TEST arguments are mutually exclusive.
-The harness rejects invocations that combine both:
-
-```sh
-# This produces an error:
-uvx tenzir-test --fixture mysql tests/foo.tql
-```
-
-If you need to run a specific test with a specific fixture, declare the fixture
-in the test's frontmatter or `test.yaml` instead and run the test normally.
+:::note
+`--fixture` and positional TEST arguments are mutually exclusive. To run a
+specific test with a fixture, declare it in frontmatter or `test.yaml` instead.
+:::
 
 ## See also
 

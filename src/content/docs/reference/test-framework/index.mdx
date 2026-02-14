@@ -2,6 +2,8 @@
 title: Test Framework
 ---
 
+import Guide from '@components/see-also/Guide.astro';
+
 The [`tenzir-test`](https://github.com/tenzir/test) harness discovers and runs
 integration tests for pipelines, fixtures, and custom runners. Use this page as
 a reference for concepts, configuration, and CLI details. For step-by-step
@@ -734,8 +736,7 @@ server that exposes `HTTP_FIXTURE_URL` and tears down cleanly.
 ### Fixture options
 
 Fixtures can declare a frozen dataclass via `options=` on `@fixture()`. The
-harness constructs a typed instance from frontmatter values and makes it
-available through `current_options()`:
+harness constructs a typed instance from frontmatter values:
 
 ```python
 @dataclass(frozen=True)
@@ -754,14 +755,13 @@ fixtures:
       port: 9090
 ```
 
-Bare names (`fixtures: [http]`) produce the dataclass defaults. Option fields
-can themselves be dataclasses; the harness instantiates nested types
-recursively. Use `Optional[T]` or `T | None` for nested fields that may be
-absent. The `register()` function accepts the same `options` parameter for
-programmatic registration.
+Bare names (`fixtures: [http]`) produce the dataclass defaults.
 
-See the [fixture guide](/guides/testing/create-fixtures) for a complete
-walkthrough including nested options and optional fields.
+:::note
+Option fields can be nested dataclasses. The harness instantiates them
+recursively. See the [fixture guide](/guides/testing/create-fixtures) for a
+complete walkthrough.
+:::
 
 ### Fixture unavailability
 
@@ -876,9 +876,10 @@ uvx tenzir-test --update
   and fixture activity. Note that `--debug` automatically enables verbose
   output.
 
-## Further reading
+## See Also
 
-- [Run fixtures](/guides/testing/run-fixtures)
-- [Write tests](/guides/testing/write-tests)
-- [Create fixtures](/guides/testing/create-fixtures)
-- [Add custom runners](/guides/testing/add-custom-runners)
+- <Guide>testing/run-tests</Guide>
+- <Guide>testing/write-tests</Guide>
+- <Guide>testing/create-fixtures</Guide>
+- <Guide>testing/add-custom-runners</Guide>
+- <Guide>testing/run-fixtures</Guide>
