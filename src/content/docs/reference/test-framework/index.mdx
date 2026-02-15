@@ -157,6 +157,12 @@ Useful options:
   significantly reducing noise for large test suites. Verbose mode displays
   passing and skipped tests alongside failures. Use `--summary` together with
   `--verbose` to include the tree summary at the end of the run.
+- `--run-skipped`: Ignore all skip configuration and execute tests
+  normally. Both static skips (`skip: reason`) and conditional skips
+  (`skip: {on: fixture-unavailable}`) are bypassed. When a fixture raises
+  `FixtureUnavailable` and `--run-skipped` is active, the exception
+  propagates as a hard failure instead of being caught. This is useful for
+  verifying that skipped tests still compile and run correctly.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
 - `-m`, `--match`: Select tests whose relative path matches a substring or glob
@@ -607,6 +613,12 @@ test failure.
 The optional `reason` field provides additional context that is combined with
 the exception message in the skip output. See
 [Fixture unavailability](#fixture-unavailability) for the fixture-side API.
+
+Pass `--run-skipped` on the command line to ignore all skip configuration
+and execute tests normally. Both static and conditional skips are bypassed.
+For conditional skips, the `FixtureUnavailable` exception propagates as a
+hard failure instead of being caught, which is useful for validating that
+skipped tests still work when the required resources become available.
 
 ### Tenzir configuration files
 
