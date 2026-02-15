@@ -379,6 +379,190 @@ suppress the failure for suites where the missing dependency is expected in some
 environments (for example local development without Docker, or CI runners
 without GPU access).
 
+
+## Use container runtime helpers
+
+When a fixture needs to manage a single container directly rather than
+orchestrating services through Docker Compose, the
+`tenzir_test.fixtures.container_runtime` module provides shared helpers that
+handle runtime detection, container lifecycle, and readiness polling. You will
+learn how to detect an available container runtime, start a container in
+detached mode, wait for it to become ready, and clean up on teardown.
+
+### Step 1: Detect the container runtime
+
+Call `detect_runtime()` at the top of your fixture. The function probes the
+system for Podman first, then Docker, and returns a `RuntimeSpec` with the
+binary name. When no runtime is found it returns `None`, which you can convert
+into a `FixtureUnavailable` exception so the suite skips gracefully.
+
+```python
+from tenzir_test.fixtures import FixtureUnavailable, fixture
+from tenzir_test.fixtures.container_runtime import detect_runtime
+
+
+@fixture()
+def mysql():
+    runtime = detect_runtime()  # tries podman, then docker
+    if runtime is None:
+        raise FixtureUnavailable("no container runtime found")
+    # runtime.binary is "podman" or "docker"
+```
+
+Pass a custom `order` tuple when you need a specific runtime or want to probe
+a non-standard binary:
+
+```python
+runtime = detect_runtime(order=("podman", "docker", "nerdctl"))
+```
+
+### Step 2: Start a container
+
+Use `start_detached()` to launch a container in the background. The function
+runs `<runtime> run -d <args>`, captures the container ID, and returns a
+`ManagedContainer` handle that you use for all subsequent operations.
+
+```python
+from tenzir_test.fixtures.container_runtime import start_detached
+
+container = start_detached(
+    runtime,
+    ["--rm", "-p", "3306", "mysql:8", "--default-authentication-plugin=mysql_native_password"],
+)
+# container.container_id holds the running container's ID
+```
+
+The arguments after the runtime are passed directly to `run -d`, so you can
+include port mappings, volume mounts, environment variables, and the image name
+exactly as you would on the command line.
+
+### Step 3: Wait for readiness
+
+Containers often need a few seconds to initialize. Use `wait_until_ready()`
+with a probe function that returns a `(ready, observation)` tuple. The helper
+polls at a configurable interval and raises `ContainerReadinessTimeout` if the
+deadline expires.
+
+```python
+from tenzir_test.fixtures.container_runtime import wait_until_ready
+
+def probe():
+    result = container.exec(["mysqladmin", "ping", "-h", "127.0.0.1"], check=False)
+    return result.returncode == 0, result.stdout.strip()
+
+wait_until_ready(
+    probe,
+    timeout_seconds=60,
+    poll_interval_seconds=1.0,
+    timeout_context="mysql startup",
+)
+```
+
+The `timeout_context` string appears in the error message when the timeout
+expires, making it easy to identify which service failed to start. The
+`observation` value from the last probe call is also included in the exception,
+which helps diagnose why the service did not become ready.
+
+### Step 4: Yield environment and clean up
+
+Once the container is ready, yield the connection details as environment
+variables and stop the container in a `finally` block.
+
+```python
+    try:
+        wait_until_ready(...)
+        yield {
+            "MYSQL_HOST": "127.0.0.1",
+            "MYSQL_CONTAINER_ID": container.container_id,
+        }
+    finally:
+        container.stop()
+```
+
+### Complete example
+
+Putting all the pieces together, here is a fixture that starts a MySQL
+container, waits for it to accept connections, exports environment variables for
+tests, and tears the container down afterwards:
+
+```python
+# fixtures/mysql.py
+from __future__ import annotations
+
+from typing import Iterator
+
+from tenzir_test.fixtures import FixtureUnavailable, fixture
+from tenzir_test.fixtures.container_runtime import (
+    detect_runtime,
+    start_detached,
+    wait_until_ready,
+)
+
+
+@fixture()
+def mysql() -> Iterator[dict[str, str]]:
+    runtime = detect_runtime()
+    if runtime is None:
+        raise FixtureUnavailable("no container runtime found")
+
+    container = start_detached(
+        runtime,
+        ["--rm", "-p", "3306", "-e", "MYSQL_ROOT_PASSWORD=test", "mysql:8"],
+    )
+    try:
+        def probe():
+            result = container.exec(
+                ["mysqladmin", "ping", "-h", "127.0.0.1", "--silent"],
+                check=False,
+            )
+            return result.returncode == 0, result.stdout.strip()
+
+        wait_until_ready(
+            probe,
+            timeout_seconds=60,
+            poll_interval_seconds=1.0,
+            timeout_context="mysql readiness",
+        )
+        yield {
+            "MYSQL_HOST": "127.0.0.1",
+            "MYSQL_CONTAINER_ID": container.container_id,
+        }
+    finally:
+        container.stop()
+```
+
+Configure the suite to skip gracefully when no container runtime is available:
+
+```yaml
+# tests/mysql/test.yaml
+suite: mysql-integration
+fixtures: [mysql]
+skip:
+  on: fixture-unavailable
+  reason: needs container runtime
+```
+
+### ManagedContainer operations
+
+The `ManagedContainer` returned by `start_detached()` exposes several methods
+for interacting with the running container:
+
+- `exec(args, check=False)` -- Run a command inside the container. Set
+  `check=True` to raise `ContainerCommandError` on non-zero exit.
+- `inspect_json()` -- Return the parsed JSON from `docker inspect` /
+  `podman inspect`.
+- `is_running()` -- Check whether the container is still in the `running`
+  state.
+- `copy_from(source, dest)` -- Copy a file from the container to the host
+  (equivalent to `docker cp`).
+- `stop()` -- Stop the container.
+
+These methods automatically use the runtime binary and container ID from the
+handle, so you never need to construct command lines manually.
+
+See the [test framework reference](/reference/test-framework/#container-runtime-helpers)
+for the full API table and exception types.
+
 ## Manual controllers
 
 Python-mode tests often need fine-grained control over fixture lifecycle to
