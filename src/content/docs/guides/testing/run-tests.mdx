@@ -127,22 +127,7 @@ keep the budget small to avoid masking issues.
 
 ## Override skip configuration
 
-Tests marked with `skip` in their frontmatter or `test.yaml` are normally
-excluded from execution. Pass `--run-skipped` to ignore all skip
-configuration and run those tests anyway:
-
-```sh
-uvx tenzir-test --run-skipped
-```
-
-This applies to both static skips (`skip: "maintenance"`) and conditional
-skips (`skip: {on: fixture-unavailable}`). For conditional skips, a
-`FixtureUnavailable` exception raised by a fixture propagates as a hard
-failure instead of being silently caught. Use this flag to verify that
-previously skipped tests still pass once the underlying issue is resolved or
-the required fixture becomes available.
-
-Combine it with path selection or `-m` to target specific skipped tests:
+Pass `--run-skipped` to ignore all skip configuration and execute skipped tests:
 
 ```sh
 uvx tenzir-test --run-skipped -m mysql
