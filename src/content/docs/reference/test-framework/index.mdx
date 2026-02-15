@@ -724,34 +724,34 @@ assert result.returncode == 0
 
 Top-level options (`DockerComposeOptions`):
 
-| Field             | Type           | Default     | Description                                                                                |
-| ----------------- | -------------- | ----------- | ------------------------------------------------------------------------------------------ |
-| `file`            | string         | `""`      | Path to the Compose file, resolved relative to the test directory.                         |
-| `project_name`    | string         | `""`      | Compose project name. Auto-generated from the test file name when empty.                   |
-| `profiles`        | list of string | `[]`        | Compose profiles to activate.                                                              |
-| `services`        | list of string | `[]`        | Services to start. When empty, all services in the Compose file start.                     |
-| `env_file`        | string or null | `null`      | Path to an env file passed to `docker compose --env-file`, resolved relative to the test. |
-| `env`             | dict           | `{}`        | Extra environment variables injected into the Compose process.                             |
-| `pull`            | string         | `"missing"` | Image pull policy: `missing`, `always`, or `never`.                                       |
-| `build`           | boolean        | `false`     | Pass `--build` to `docker compose up`.                                                     |
-| `wait`            | object         | see below   | Readiness polling settings.                                                                |
-| `down`            | object         | see below   | Teardown settings.                                                                         |
-| `log_on_failure`  | boolean        | `true`      | Collect and attach Docker Compose logs when the fixture fails.                             |
+| Field            | Type           | Default     | Description                                                                               |
+| ---------------- | -------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| `file`           | string         | `""`        | Path to the Compose file, resolved relative to the test directory.                        |
+| `project_name`   | string         | `""`        | Compose project name. Auto-generated from the test file name when empty.                  |
+| `profiles`       | list of string | `[]`        | Compose profiles to activate.                                                             |
+| `services`       | list of string | `[]`        | Services to start. When empty, all services in the Compose file start.                    |
+| `env_file`       | string or null | `null`      | Path to an env file passed to `docker compose --env-file`, resolved relative to the test. |
+| `env`            | dict           | `{}`        | Extra environment variables injected into the Compose process.                            |
+| `pull`           | string         | `"missing"` | Image pull policy: `missing`, `always`, or `never`.                                       |
+| `build`          | boolean        | `false`     | Pass `--build` to `docker compose up`.                                                    |
+| `wait`           | object         | see below   | Readiness polling settings.                                                               |
+| `down`           | object         | see below   | Teardown settings.                                                                        |
+| `log_on_failure` | boolean        | `true`      | Collect and attach Docker Compose logs when the fixture fails.                            |
 
 Wait options (`DockerComposeWaitOptions`):
 
-| Field                  | Type  | Default | Description                                     |
-| ---------------------- | ----- | ------- | ----------------------------------------------- |
-| `timeout_seconds`      | float | `120.0` | Maximum time to wait for all services to be ready. |
-| `poll_interval_seconds` | float | `1.0`   | Interval between readiness checks.              |
+| Field                   | Type  | Default | Description                                        |
+| ----------------------- | ----- | ------- | -------------------------------------------------- |
+| `timeout_seconds`       | float | `120.0` | Maximum time to wait for all services to be ready. |
+| `poll_interval_seconds` | float | `1.0`   | Interval between readiness checks.                 |
 
 Down options (`DockerComposeDownOptions`):
 
-| Field              | Type    | Default | Description                                   |
-| ------------------ | ------- | ------- | --------------------------------------------- |
-| `volumes`          | boolean | `true`  | Remove volumes on teardown (`--volumes`).       |
-| `remove_orphans`   | boolean | `true`  | Remove orphan containers (`--remove-orphans`).  |
-| `timeout_seconds`  | integer | `20`    | Timeout for `docker compose down` (`--timeout`). |
+| Field             | Type    | Default | Description                                      |
+| ----------------- | ------- | ------- | ------------------------------------------------ |
+| `volumes`         | boolean | `true`  | Remove volumes on teardown (`--volumes`).        |
+| `remove_orphans`  | boolean | `true`  | Remove orphan containers (`--remove-orphans`).   |
+| `timeout_seconds` | integer | `20`    | Timeout for `docker compose down` (`--timeout`). |
 
 #### Example configuration
 
@@ -804,15 +804,15 @@ raising an error.
 Once all services are running, the fixture exports the following variables to
 the test environment:
 
-| Variable                                                    | Description                                                                                        |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `DOCKER_COMPOSE_PROVIDER`                                   | Always `docker`.                                                                                 |
-| `DOCKER_COMPOSE_PROJECT_NAME`                                | The Compose project name (explicit or auto-generated).                                             |
-| `DOCKER_COMPOSE_FILE`                                        | Absolute path to the resolved Compose file.                                                        |
-| `DOCKER_COMPOSE_SERVICE_<NAME>_CONTAINER_ID`                 | Container ID for the service. `<NAME>` is the uppercased, normalized service name.                 |
-| `DOCKER_COMPOSE_SERVICE_<NAME>_HOST`                          | Always `127.0.0.1`.                                                                              |
-| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT_<PORT>_<PROTO>`           | Host-mapped port for a specific container port and protocol (for example `_PORT_6379_TCP`).         |
-| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT`                          | Shorthand for the single published port, set only when the service exposes exactly one port binding. |
+| Variable                                            | Description                                                                                          |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `DOCKER_COMPOSE_PROVIDER`                           | Always `docker`.                                                                                     |
+| `DOCKER_COMPOSE_PROJECT_NAME`                       | The Compose project name (explicit or auto-generated).                                               |
+| `DOCKER_COMPOSE_FILE`                               | Absolute path to the resolved Compose file.                                                          |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_CONTAINER_ID`        | Container ID for the service. `<NAME>` is the uppercased, normalized service name.                   |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_HOST`                | Always `127.0.0.1`.                                                                                  |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT_<PORT>_<PROTO>` | Host-mapped port for a specific container port and protocol (for example `_PORT_6379_TCP`).          |
+| `DOCKER_COMPOSE_SERVICE_<NAME>_PORT`                | Shorthand for the single published port, set only when the service exposes exactly one port binding. |
 
 Service names are normalized to uppercase with non-alphanumeric characters
 replaced by underscores. For a service named `redis`, the prefix is
