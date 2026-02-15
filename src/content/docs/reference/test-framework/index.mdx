@@ -920,90 +920,12 @@ key.
 ### Container runtime helpers
 
 The `tenzir_test.fixtures.container_runtime` module provides shared building
-blocks for fixtures that manage containers directly (without Docker Compose).
-The built-in `docker-compose` fixture uses these helpers internally, and custom
-fixtures can import them to avoid reimplementing runtime detection, subprocess
-wrappers, readiness polling, and container lifecycle management.
+blocks for fixtures that manage containers directly (without Docker Compose):
+runtime detection, detached container startup, readiness polling, and lifecycle
+management. The built-in `docker-compose` fixture uses these helpers internally.
 
-Import the helpers from `tenzir_test.fixtures.container_runtime`:
-
-```python
-from tenzir_test.fixtures.container_runtime import (
-    ContainerCommandError,
-    ContainerReadinessTimeout,
-    ManagedContainer,
-    RuntimeSpec,
-    detect_runtime,
-    start_detached,
-    wait_until_ready,
-)
-```
-
-#### API reference
-
-| Symbol                     | Kind      | Description                                                                                                        |
-| -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| `RuntimeSpec`              | dataclass | Frozen dataclass holding the `binary` name of the detected container runtime (for example `"docker"` or `"podman"`). |
-| `detect_runtime(order)`    | function  | Probe the system for a container runtime. Returns the first match from `order` (default: `("podman", "docker")`) or `None`. |
-| `run_command(cmd, ...)`    | function  | Run a subprocess with captured text output. Accepts optional `env`, `cwd`, `input`, and `logger` parameters.       |
-| `run_command_checked(...)` | function  | Same as `run_command` but raises `ContainerCommandError` on non-zero exit.                                          |
-| `start_detached(...)`      | function  | Run a container in detached mode (`run -d`) and return a `ManagedContainer` handle.                                |
-| `ManagedContainer`         | dataclass | Handle for a running container. Provides `exec()`, `inspect_json()`, `is_running()`, `copy_from()`, and `stop()`.  |
-| `wait_until_ready(...)`    | function  | Poll a callable until it reports readiness. Raises `ContainerReadinessTimeout` on expiry.                           |
-| `parse_single_inspect_payload(...)` | function | Parse `docker inspect` / `podman inspect` JSON output for a single container.                               |
-| `ContainerCommandError`    | exception | Raised when a container runtime command fails. Carries `cmd`, `returncode`, `stdout`, and `stderr`.                |
-| `ContainerInspectError`    | exception | Raised when inspect output cannot be parsed.                                                                       |
-| `ContainerReadinessTimeout` | exception | Raised when `wait_until_ready` exceeds its deadline. Carries `timeout_context` and `last_observation`.             |
-
-#### Typical usage pattern
-
-A container-backed fixture follows this pattern:
-
-1. Call `detect_runtime()` to find Docker or Podman.
-2. Raise `FixtureUnavailable` when no runtime is present.
-3. Call `start_detached()` with the runtime and image arguments.
-4. Use `wait_until_ready()` to poll the container until it accepts connections.
-5. Yield the environment mapping with connection details.
-6. Call `container.stop()` in the cleanup path.
-
-```python
-from tenzir_test.fixtures import FixtureUnavailable, fixture
-from tenzir_test.fixtures.container_runtime import (
-    ManagedContainer,
-    detect_runtime,
-    start_detached,
-    wait_until_ready,
-)
-
-
-@fixture()
-def redis():
-    runtime = detect_runtime()
-    if runtime is None:
-        raise FixtureUnavailable("no container runtime found")
-
-    container = start_detached(runtime, ["--rm", "-p", "6379", "redis:7-alpine"])
-    try:
-        # Poll until the container responds
-        def probe():
-            result = container.exec(["redis-cli", "ping"])
-            return result.returncode == 0, result.stdout.strip()
-
-        wait_until_ready(
-            probe,
-            timeout_seconds=30,
-            poll_interval_seconds=0.5,
-            timeout_context="redis readiness",
-        )
-        yield {"REDIS_HOST": "127.0.0.1", "REDIS_CONTAINER_ID": container.container_id}
-    finally:
-        container.stop()
-```
-
-The [create fixtures](/guides/testing/create-fixtures#use-container-runtime-helpers)
-guide walks through a complete example that uses these helpers, including
-graceful skipping when the runtime is absent.
-
+See the [create fixtures](/guides/testing/create-fixtures#use-container-runtime-helpers)
+guide for a step-by-step walkthrough.
 
 ## Environment variables
 
