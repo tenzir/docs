@@ -454,14 +454,21 @@ For a service named `redis` that publishes port 6379, the fixture sets
 port. When a service exposes exactly one port, the shorthand
 `DOCKER_COMPOSE_SERVICE_REDIS_PORT` is also available.
 
-### Step 4: Capture the baseline and run
-
-```sh
-uvx tenzir-test --update tests/docker-compose
+```tql
+from {
+  host: env("DOCKER_COMPOSE_SERVICE_REDIS_HOST"),
+  port: env("DOCKER_COMPOSE_SERVICE_REDIS_PORT_6379_TCP"),
+  shorthand: env("DOCKER_COMPOSE_SERVICE_REDIS_PORT"),
+}
 ```
 
-Subsequent runs without `--update` bring the services online, execute the test,
-compare output against the baseline, and tear down the containers.
+```tql
+{
+  host: "127.0.0.1",
+  port: "49152",
+  shorthand: "49152",
+}
+```
 
 See the [test framework reference](/reference/test-framework/#built-in-docker-compose-fixture)
 for the full options reference, including all configuration fields, readiness
