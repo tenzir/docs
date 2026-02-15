@@ -917,6 +917,16 @@ exception surfaces as a regular failure. See
 [skip configuration](#skip-configuration) for the full syntax of the `skip`
 key.
 
+### Container runtime helpers
+
+The `tenzir_test.fixtures.container_runtime` module provides shared building
+blocks for fixtures that manage containers directly (without Docker Compose):
+runtime detection, detached container startup, readiness polling, and lifecycle
+management. The built-in `docker-compose` fixture uses these helpers internally.
+
+See the [create fixtures](/guides/testing/create-fixtures#use-container-runtime-helpers)
+guide for a step-by-step walkthrough.
+
 ## Environment variables
 
 `tenzir-test` recognises the following environment variables:

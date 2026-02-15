@@ -2,10 +2,10 @@
 title: Create fixtures
 ---
 
-Fixtures let `tenzir-test` prepare external services before a scenario runs and
-clean everything up afterwards. In this guide you build an HTTP echo fixture from
-scratch, wire it into the harness, and exercise it with a TQL test that posts a
-JSON payload via [`http`](/reference/operators/http).
+This guide shows you how to create a fixture, wire it into the test harness, and
+use it from a test. You will build an HTTP echo server as a running example and
+then learn how to share fixtures across suites, handle missing dependencies,
+manage containers, and add structured options.
 
 ## Prerequisites
 
@@ -14,81 +14,45 @@ JSON payload via [`http`](/reference/operators/http).
 - Make sure your project root already contains `fixtures/`, `inputs/`, and
   `tests/` directories (they can be empty).
 
-## Step 1: Expose a fixtures package
+## Register the fixture
 
-`tenzir-test` imports `fixtures/__init__.py` automatically. Import the modules
-that host your fixtures so their decorators run as soon as the package loads.
+`tenzir-test` imports `fixtures/__init__.py` automatically. Each module you
+import there registers its `@fixture()`-decorated functions on startup:
 
 ```python
 # fixtures/__init__.py
-"""Project fixtures."""
-
 from . import http  # noqa: F401  (side effect: register fixture)
-
-__all__ = ["http"]
 ```
 
-## Step 2: Implement the HTTP echo fixture
+## Implement a fixture
 
-Create `fixtures/http.py` with a tiny HTTP server that echoes POST bodies. The
-fixture yields the server URL with `@fixture()` and tears the server down inside
-its `finally` block.
+A fixture is a generator decorated with `@fixture()`. It sets up a resource,
+yields a dictionary of environment variables that tests can read, and cleans up
+in a `finally` block. Here is a minimal HTTP echo server:
 
 ```python
 # fixtures/http.py
-from __future__ import annotations
-
-import threading
-from http import HTTPStatus
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Iterator
-
 from tenzir_test import fixture
 
-
-class EchoHandler(BaseHTTPRequestHandler):
-    def do_POST(self) -> None:  # noqa: N802
-        stated_length = self.headers.get("Content-Length", "0")
-        try:
-            length = int(stated_length)
-        except ValueError:
-            length = 0
-        body = self.rfile.read(length) if length else b"{}"
-        self._reply(body or b"{}")
-
-    def log_message(self, *_: object) -> None:  # noqa: D401
-        return  # Keep the console quiet.
-
-    def _reply(self, payload: bytes) -> None:
-        self.send_response(HTTPStatus.OK)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
-
-
 @fixture()
-def http() -> Iterator[dict[str, str]]:
-    server = ThreadingHTTPServer(("127.0.0.1", 0), EchoHandler)
-    worker = threading.Thread(target=server.serve_forever, daemon=True)
-    worker.start()
-
+def http():
+    server = start_echo_server()          # your setup logic
     try:
-        port = server.server_address[1]
-        url = f"http://127.0.0.1:{port}/"
-        yield {"HTTP_FIXTURE_URL": url}
+        yield {"HTTP_FIXTURE_URL": server.url}  # expose to tests
     finally:
-        server.shutdown()
-        worker.join()
+        server.shutdown()                 # always clean up
 ```
 
-## Step 3: Author a test that uses the fixture
+The harness calls the generator once per fixture activation. Everything before
+`yield` is setup, the dictionary becomes environment variables, and the
+`finally` block runs regardless of whether the test passes or fails. Fixtures
+also receive a per-test scratch directory via `TENZIR_TMP_DIR` for temporary
+files.
 
-Create `tests/http/echo-read.tql` and request the `http` fixture in the
-frontmatter (or rely on `tests/http/test.yaml`). The pipeline creates sample
-data and then crafts a HTTP request body using the
-[`http`](/reference/operators/http) operator. The fixture echoes the payload
-back into the result stream.
+## Use the fixture in a test
+
+Request a fixture by name in the test's frontmatter. The harness starts it
+before the test runs and exports its environment variables:
 
 ```tql
 ---
@@ -99,42 +63,200 @@ from {x: 42, y: "foo"}
 http env("HTTP_FIXTURE_URL"), body=this
 ```
 
-Fixtures receive the same per-test scratch directory as the scenario itself via
-`TENZIR_TMP_DIR`. Use it to stage temporary files or logs that should disappear
-after the run. Launch the harness with `--keep` when you want to retain those
-artifacts for debugging.
+## Capture the baseline
 
-## Step 4: Capture the reference output
-
-Run the harness in update mode so it records the HTTP response next to the test.
+Run the harness in update mode to record the expected output:
 
 ```sh
 uvx tenzir-test --update
 ```
 
-You should now have `tests/http/echo-read.txt` with the echoed payload:
+This creates `tests/http/echo-read.txt` with the fixture's response. Subsequent
+runs compare live output against this baseline. Add `--debug` to see fixture
+lifecycle logs, or set `TENZIR_TEST_DEBUG=1` in CI.
 
-```tql
-{
-  x: 42,
-  y: "foo",
-}
+## Share a fixture across a suite
+
+By default each test gets its own fixture lifecycle. To start a fixture once and
+share it across multiple tests, declare a suite in a directory-level
+`test.yaml`:
+
+```yaml
+# tests/http/test.yaml
+suite: smoke-http
+fixtures: [http]
+timeout: 45
 ```
 
-Subsequent runs without `--update` bring the fixture online, hit the server, and
-compare the live response against the baseline.
+Every test file in that directory joins the suite. The harness starts the
+fixture once, runs all members in lexicographic order, and tears it down
+afterwards. Suites pin to a single worker but different suites still run in
+parallel when `--jobs` permits.
 
-Need to inspect the fixture while it runs? Append `--debug` to emit lifecycle
-logs together with comparison targets. In CI-only scenarios set
-`TENZIR_TEST_DEBUG=1` to enable the same diagnostics without passing the flag
-at runtime, and add `--summary` if you also need the tabular breakdown and
-failure tree afterwards.
+Tests inside a suite inherit `fixtures`, `timeout`, and `retry` from the suite
+configuration and cannot override them in frontmatter. Other keys like `inputs:`
+remain overridable per file.
 
-### Stabilise flaky fixture scenarios
+Run just the suite directory to focus on it:
 
-Occasionally a fixture-backed test may need a couple of tries—for example when a
-service takes slightly longer to initialise. Add `retry` to the frontmatter to
-let the harness rerun the test before giving up:
+```sh
+uvx tenzir-test tests/http
+```
+
+Selecting a single file inside a suite fails fast with a descriptive error to
+keep the lifecycle predictable.
+
+## Handle unavailable fixtures
+
+Fixtures that depend on external tools (a container runtime, a cloud CLI) should
+raise `FixtureUnavailable` when the dependency is missing:
+
+```python
+from tenzir_test.fixtures import FixtureUnavailable, fixture
+
+@fixture()
+def mysql():
+    if not shutil.which("docker"):
+        raise FixtureUnavailable("docker not found")
+    # ...
+```
+
+By default this causes a test failure. To convert it into a skip, add a
+structured `skip` entry to the suite's `test.yaml`:
+
+```yaml
+suite: mysql-integration
+fixtures: [mysql]
+skip:
+  on: fixture-unavailable
+```
+
+The harness marks every test in the suite as skipped and includes the exception
+message in the output. This opt-in design keeps suites failing loudly by
+default — you only suppress the failure for environments where the missing
+dependency is expected.
+
+## Use container runtime helpers
+
+When a fixture manages a single container directly rather than orchestrating
+services through Docker Compose, the `container_runtime` module
+(`tenzir_test.fixtures.container_runtime`) handles the repetitive parts:
+finding a runtime, running containers, polling for readiness, and tearing down.
+
+A container-backed fixture follows four steps:
+
+1. **Detect the runtime.** `detect_runtime()` probes the system for Podman
+   first, then Docker, and returns a `RuntimeSpec`. When no runtime is found it
+   returns `None` — raise `FixtureUnavailable` so the suite can
+   [skip gracefully](#handle-unavailable-fixtures).
+
+2. **Start the container.** `start_detached(runtime, args)` runs
+   `<runtime> run -d` and returns a `ManagedContainer` handle. Pass the same
+   flags you would use on the command line (port mappings, environment
+   variables, image name).
+
+3. **Wait for readiness.** `wait_until_ready(probe, ...)` calls your probe
+   function repeatedly until it returns `(True, observation)`. On timeout it
+   raises `ContainerReadinessTimeout` with the context string and the last
+   observation, so you can tell _why_ the service did not come up.
+
+4. **Clean up.** Call `container.stop()` in a `finally` block. The
+   `ManagedContainer` handle also exposes `exec()`, `inspect_json()`,
+   `is_running()`, and `copy_from()` for anything you need during the test.
+
+The `example-project/fixtures/container.py` in this repository shows the
+pattern applied end-to-end.
+
+## Add structured options
+
+When a fixture needs runtime configuration — a custom port, a TLS toggle, a
+database name — declare a frozen dataclass and pass it to `@fixture()`:
+
+```python
+from dataclasses import dataclass
+from tenzir_test import current_options, fixture
+
+@dataclass(frozen=True)
+class HttpOptions:
+    port: int = 0
+
+@fixture(options=HttpOptions)
+def http():
+    opts = current_options("http")
+    server = start_echo_server(port=opts.port)
+    # ...
+```
+
+Every field needs a default so that bare requests (`fixtures: [http]`) keep
+working. Test authors provide values via a mapping in `test.yaml` or
+frontmatter:
+
+```yaml
+fixtures:
+  - http:
+      port: 9090
+```
+
+The harness constructs the dataclass from the YAML mapping. Nested dataclasses
+work too — the harness walks the type annotations recursively. See the
+[test framework reference](/reference/test-framework/#fixture-options) for the
+full options API.
+
+## Control fixtures from Python tests
+
+The declarative workflow (`fixtures: [http]`) covers most cases. When a
+Python-mode test needs to start, stop, or restart a fixture explicitly — for
+example to simulate a crash — use `acquire_fixture()`:
+
+```python
+# runner: python
+with acquire_fixture("http") as http:
+    env = http.env
+    # exercise the system while the fixture runs
+
+# start a fresh instance
+http = acquire_fixture("http")
+http.start()
+http.stop()
+```
+
+The controller wraps the registered fixture factory. `start()` enters the
+generator and stores the environment mapping on `controller.env`; `stop()`
+triggers the `finally` block. Use the context manager form when a single
+lifecycle suffices, or call `start()`/`stop()` manually when you need multiple
+cycles.
+
+### Fixture hooks
+
+Fixtures can advertise extra operations by returning a `FixtureHandle` with
+named hooks:
+
+```python
+@fixture()
+def node():
+    process = _start_node()
+    return FixtureHandle(
+        env=_make_env(process),
+        teardown=lambda: process.terminate(),
+        hooks={"kill": lambda sig=SIGTERM: process.send_signal(sig)},
+    )
+```
+
+Test authors access hooks as attributes on the controller. Assert their presence
+so tests fail immediately when the contract changes:
+
+```python
+node = acquire_fixture("node")
+node.start()
+assert hasattr(node, "kill")
+node.kill(signal.SIGKILL)
+node.stop()
+```
+
+## Stabilise flaky scenarios
+
+Fixture-backed tests may occasionally need retries when a service takes longer
+to initialise. Add `retry` to the frontmatter:
 
 ```yaml
 ---
@@ -143,335 +265,5 @@ retry: 4
 ---
 ```
 
-The number is the total attempt budget (four in the example above). Intermediate
-attempts stay quiet and the final log line reports how many tries were required.
-Treat this as a temporary safety net and investigate persistent flakes; long
-retry chains mask underlying race conditions.
-
-## Step 5: Iterate on the fixture
-
-With the echo workflow in place you can:
-
-- Serve canned responses from files under `inputs/` for more realistic
-  scenarios, or redirect `TENZIR_INPUTS` with an `inputs:` entry in `test.yaml`
-  when the data lives elsewhere.
-- Add environment keys (for example `HTTP_FIXTURE_TOKEN`) so tests can assert on
-  authentication behavior.
-- Harden the cleanup in your `finally` block (or factor it into a helper) when
-  fixtures manage external processes, containers, or cloud resources.
-- Reuse the fixture from satellite projects. When you call
-  `tenzir-test --root main-project --all-projects satellite-a`, the selection
-  only names the satellite root, so `--all-projects` keeps the main project in
-  the run. The satellite automatically imports the root project’s fixtures
-  before loading its own. If a satellite needs specialized behavior, it can
-  register an additional fixture with a new name while still leaning on the
-  shared implementations.
-
-Check the [test framework reference](/reference/test-framework/) for more
-fixture APIs, including helpers that tell you which fixtures the current test
-requested. In Python-mode tests you can call `fixtures()` to inspect the
-selection (for example `fixtures().http` returns `True` when the fixture is
-active).
-
-## Step 6: Add structured options to a fixture
-
-When a fixture needs runtime configuration, such as a custom port or a TLS
-toggle, declare an options dataclass and let test authors provide values in
-`test.yaml`.
-
-### Define the options dataclass
-
-Add a frozen dataclass to your fixture module. Every field must have a default so
-bare fixture requests (`fixtures: [http]`) keep working without any options:
-
-```python
-# fixtures/http.py
-from dataclasses import dataclass
-from typing import Iterator
-
-from tenzir_test import current_options, fixture
-
-
-@dataclass(frozen=True)
-class HttpOptions:
-    port: int = 0
-
-
-@fixture(options=HttpOptions)
-def http() -> Iterator[dict[str, str]]:
-    opts = current_options("http")
-    server = ThreadingHTTPServer(("127.0.0.1", opts.port), EchoHandler)
-    worker = threading.Thread(target=server.serve_forever, daemon=True)
-    worker.start()
-
-    try:
-        port = server.server_address[1]
-        url = f"http://127.0.0.1:{port}/"
-        yield {"HTTP_FIXTURE_URL": url}
-    finally:
-        server.shutdown()
-        worker.join()
-```
-
-Passing `options=HttpOptions` to `@fixture()` registers the dataclass. The
-harness validates that the type is a dataclass at registration time and raises
-`TypeError` otherwise.
-
-### Provide options in test configuration
-
-Test authors pass options using a single-key mapping under `fixtures` in
-`test.yaml` or frontmatter:
-
-```yaml
-# tests/http/test.yaml
-suite: smoke-http
-fixtures:
-  - http:
-      port: 9090
-timeout: 45
-```
-
-Bare names remain fully backward compatible. The harness constructs an
-`HttpOptions(port=9090)` instance for the mapping form and `HttpOptions()` (with
-defaults) for bare names.
-
-### Nested dataclass options
-
-Option fields can themselves be dataclasses. Declare a nested type and reference
-it via `field(default_factory=...)`:
-
-```python
-from dataclasses import dataclass, field
-
-from tenzir_test import current_options, fixture
-
-
-@dataclass(frozen=True)
-class AuthOptions:
-    token: str = ""
-
-
-@dataclass(frozen=True)
-class HttpOptions:
-    port: int = 0
-    auth: AuthOptions = field(default_factory=AuthOptions)
-
-
-@fixture(options=HttpOptions)
-def http() -> Iterator[dict[str, str]]:
-    opts = current_options("http")
-    # opts.auth is an AuthOptions instance
-    ...
-```
-
-Tests pass nested records in YAML:
-
-```yaml
-fixtures:
-  - http:
-      port: 9090
-      auth:
-        token: secret-value
-```
-
-The harness walks the type annotations recursively and constructs each level
-from the corresponding YAML mapping. Use `Optional[T]` or `T | None` for
-nested fields that may be absent.
-
-### Retrieve options inside the fixture
-
-Call `current_options("http")` to get the typed instance. The function returns
-the dataclass when one is registered, the raw options dict when no dataclass was
-declared, or an empty dict when no options were provided:
-
-```python
-opts = current_options("http")
-# opts.port is 9090 when the test specified it, or 0 by default
-```
-
-Because the dataclass is frozen, options are immutable during the fixture
-lifecycle.
-
-## Step 7: Share the fixture across multiple tests
-
-Suites keep a fixture alive for several tests. Declare one in a directory-level
-`test.yaml`; every descendant test joins automatically.
-
-```yaml
-# tests/http/test.yaml
-suite: smoke-http
-fixtures: [http]
-timeout: 45
-```
-
-With that configuration the harness:
-
-- Starts the `http` fixture once, runs all members in lexicographic order, and
-  tears the fixture down afterwards.
-- Pins the suite to a single worker while still running different suites (and
-  standalone tests) in parallel when `--jobs` permits it.
-- Keeps policies such as `fixtures`, `timeout`, and `retry` in the directory
-  defaults. Tests inside the suite cannot set `suite`, `fixtures`, or `retry` in
-  their own frontmatter; everything else (for example `inputs:` or additional
-  metadata) remains overridable per file. Outside of suites you can still use
-  frontmatter for any of those keys.
-
-Run the directory that owns the suite when you want to focus on it:
-
-```sh
-uvx tenzir-test tests/http
-```
-
-Selecting a single file inside that suite now fails fast with a descriptive error.
-This keeps the lifecycle predictable and avoids partially exercised fixtures.
-
-## Handle unavailable fixtures
-
-Fixtures sometimes depend on external tools that may not be present in every
-environment, for example a container runtime or a cloud CLI. Rather than
-letting the suite fail outright, you can raise `FixtureUnavailable` during
-initialization to signal that the fixture cannot provide its service.
-
-### Raise the exception in the fixture
-
-Check for the required dependency before yielding and raise
-`FixtureUnavailable` when it is missing:
-
-```python
-import shutil
-from typing import Iterator
-
-from tenzir_test.fixtures import FixtureUnavailable, fixture
-
-
-@fixture()
-def mysql() -> Iterator[dict[str, str]]:
-    if not shutil.which("docker"):
-        raise FixtureUnavailable("docker not found")
-    # ... start container, yield env, cleanup ...
-```
-
-The exception message describes why the fixture cannot start. The harness
-includes it in skip output and log messages, so keep it concise.
-
-### Opt in to graceful skipping
-
-By default, `FixtureUnavailable` propagates as a normal exception and causes a
-test failure. To convert it into a skip, add a structured `skip` entry to the
-suite's `test.yaml`:
-
-```yaml
-# tests/mysql/test.yaml
-suite: mysql-integration
-fixtures: [mysql]
-skip:
-  on: fixture-unavailable
-```
-
-When the fixture raises `FixtureUnavailable` and the suite carries this
-configuration, the harness marks every test in the suite as skipped (exit
-code 0). The skip output includes the exception message from
-`FixtureUnavailable`. You can optionally add a `reason` field that is combined
-with the exception message for additional context.
-
-This opt-in design ensures that suites fail loudly by default. You only
-suppress the failure for suites where the missing dependency is expected in some
-environments (for example local development without Docker, or CI runners
-without GPU access).
-
-## Manual controllers
-
-Python-mode tests often need fine-grained control over fixture lifecycle to
-simulate crashes, restarts, or configuration changes. The manual controller API
-builds on the same registration flow shown above and lets you call directly
-into the fixture from a test. The harness preloads common helpers (including
-`fixtures()` for quick introspection and `acquire_fixture()` for manual
-control) so you can use them without imports.
-
-```python
-# runner: python
-# timeout: 30
-
-import fixtures
-
-with acquire_fixture("http") as http:
-    env = http.env              # provided by the fixture's start()
-    client = Executor.from_env(env)
-
-    # Exercise the system under test while the fixture runs
-    client.run("status")
-
-# Restart explicitly when you need another lifecycle
-http = acquire_fixture("http")
-http.start()
-http.stop()
-```
-
-Key ideas:
-
-- `acquire_fixture(name)` returns a controller that wraps the registered
-  fixture factory. Calling `start()` (or using `with acquire_fixture(...) as controller:`)
-  enters the context manager lazily and stores the returned environment mapping
-  on `controller.env` so you can reuse it between calls.
-- `with acquire_fixture(...)` is shorthand for `start()`/`stop()`; call those
-  methods manually when you need to restart or interleave multiple lifecycle
-  steps.
-- The Python runner serialises the active test context into
-  `TENZIR_PYTHON_FIXTURE_CONTEXT`; the helpers in `tenzir_test.fixtures` consume
-  it automatically so manual controllers see the same configuration as the
-  declarative flow.
-- Fixtures advertise optional operations by returning a `FixtureHandle` with
-  extra callables (for example `kill`, `restart`, or `configure`). Treat these
-  hooks as part of the fixture contract—assert their presence (or rely on type
-  hints) when your test depends on them so failures are immediate and obvious.
-- `Executor.from_env(env)` and similar helpers make it straightforward to reuse
-  the active fixture environment in client calls while the fixture is running;
-  in Python-mode tests these helpers are imported for you automatically.
-- For stricter typing you can import lightweight `Protocol` definitions (e.g.
-  `SupportsKill`) and cast controllers once a fixture documents the hooks it
-  exposes.
-
-The declarative workflow (`fixtures: [http]` combined with automatic
-activation) remains the default. Manual controllers complement it when tests
-need imperative control over setup and teardown—skip the frontmatter entry when
-you prefer to start and stop the fixture yourself from Python code.
-
-### Fixture contracts
-
-The controller API works best when fixture authors and consumers agree on the
-available hooks.
-
-**Fixture author**
-
-```python
-import signal
-
-@fixture()
-def node():
-    process = _start_node()
-
-    def _kill(signal_no: int = signal.SIGTERM) -> None:
-        process.send_signal(signal_no)
-
-    return FixtureHandle(
-        env=_make_env(process),
-        teardown=lambda: _stop_node(process),
-        hooks={"kill": _kill},
-    )
-```
-
-**Test author**
-
-```python
-import signal
-
-node = acquire_fixture("node")
-node.start()
-
-assert hasattr(node, "kill"), "node fixture must expose kill() for this test"
-node.kill(signal.SIGKILL)
-node.stop()
-```
-
-If the fixture stops exporting `kill`, the assertion fails immediately so the
-test never produces misleading results.
+The number is the total attempt budget. Treat this as a temporary safety net and
+investigate persistent flakes — long retry chains mask race conditions.
