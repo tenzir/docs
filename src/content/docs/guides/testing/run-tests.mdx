@@ -125,6 +125,14 @@ quiet; the final result line includes `attempts=3/3` (or the actual number on a
 success). Use this as a guardrail while you investigate the underlying flake and
 keep the budget small to avoid masking issues.
 
+## Override skip configuration
+
+Pass `--run-skipped` to ignore all skip configuration and execute skipped tests:
+
+```sh
+uvx tenzir-test --run-skipped -m mysql
+```
+
 ## Run multiple projects
 
 Large organisations often split tests across several repositories but still want
