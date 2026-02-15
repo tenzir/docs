@@ -206,6 +206,7 @@ export const guides = [
         collapsed: true,
         items: [
           "guides/testing/run-tests",
+          "guides/testing/run-fixtures",
           "guides/testing/write-tests",
           "guides/testing/create-fixtures",
           "guides/testing/add-custom-runners",

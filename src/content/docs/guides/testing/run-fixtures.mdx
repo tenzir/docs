@@ -1,0 +1,96 @@
+---
+title: Run fixtures
+---
+
+import Reference from '@components/see-also/Reference.astro';
+import Guide from '@components/see-also/Guide.astro';
+
+This guide shows you how to start fixtures in standalone mode without running
+tests. You'll learn how to use the `--fixture` CLI option to bring up managed
+services, inspect their environment variables, and tear them down cleanly.
+
+Standalone fixture mode is useful when you want to develop or debug against a
+service that a fixture manages (a database, message broker, HTTP server, etc.)
+without waiting for the full test suite.
+
+## Prerequisites
+
+- Install `tenzir-test` (see the [test framework](/reference/test-framework)
+  reference).
+- Have a project with registered fixtures, either built-in ones like `node` or
+  custom ones under `fixtures/`.
+
+## Start a fixture
+
+Pass `--fixture` with the fixture name:
+
+```sh
+uvx tenzir-test --fixture mysql
+```
+
+The harness discovers project fixtures, activates the one you requested, and
+blocks until you interrupt it. While it runs, it prints the environment
+variables the fixture exports:
+
+```text
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+```
+
+You can copy these values into another terminal session or feed them to an
+external tool.
+
+## Pass options to a fixture
+
+Fixtures that declare structured options accept them through a YAML mapping
+spec. Append a colon and braces after the fixture name:
+
+```sh
+uvx tenzir-test --fixture 'kafka: {port: 9092}'
+```
+
+This follows the same syntax as the `fixtures:` frontmatter key in test files.
+Bare names use the fixture's default options; the mapping overrides specific
+fields. The fixture receives the values through `current_options()`.
+
+## Start multiple fixtures
+
+The `--fixture` flag is repeatable:
+
+```sh
+uvx tenzir-test --fixture mysql --fixture redis
+```
+
+All requested fixtures start together. Their combined environment variables
+appear in the output, sorted by key.
+
+## Combine with other flags
+
+Several flags from the regular test path also work in fixture mode:
+
+- `--debug` enables verbose fixture lifecycle logging so you can see startup
+  and health-check details.
+- `-k` / `--keep` preserves temporary directories after shutdown, which is
+  helpful for inspecting state or log files that a fixture wrote.
+- `--package-dirs` forwards package directories to the fixture environment so
+  fixtures that start Tenzir nodes find the correct packages.
+
+```sh
+uvx tenzir-test --fixture node --debug --keep
+```
+
+## Shut down
+
+Press **Ctrl+C** or send `SIGTERM` to stop. The harness tears fixtures down in
+reverse order, just as it does after a regular test run. Temporary directories
+are cleaned up unless you passed `--keep`.
+
+:::note
+`--fixture` and positional TEST arguments are mutually exclusive. To run a
+specific test with a fixture, declare it in frontmatter or `test.yaml` instead.
+:::
+
+## See also
+
+- <Guide>testing/create-fixtures</Guide>
+- <Reference>test-framework</Reference>
