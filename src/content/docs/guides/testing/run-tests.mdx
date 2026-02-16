@@ -127,11 +127,53 @@ keep the budget small to avoid masking issues.
 
 ## Override skip configuration
 
-Pass `--run-skipped` to ignore all skip configuration and execute skipped tests:
+The harness provides two levels of control for running skipped tests.
+
+### Run all skipped tests
+
+Pass `--run-skipped` to bypass all skip configuration unconditionally and force
+every skipped test to execute:
 
 ```sh
-uvx tenzir-test --run-skipped -m mysql
+uvx tenzir-test --run-skipped
 ```
+
+Both static skips (`skip: reason`) and conditional skips
+(`skip: {on: fixture-unavailable}`) are bypassed. This is the sledgehammer
+approach---useful when you want to verify that every skipped test still works.
+
+### Filter by skip reason
+
+Use `--run-skipped-reason` to selectively run skipped tests whose reason matches
+a pattern. The flag uses the same substring and glob matching semantics as
+`--match`:
+
+```sh
+uvx tenzir-test --run-skipped-reason maintenance
+uvx tenzir-test --run-skipped-reason '*docker*'
+```
+
+Bare strings match as substrings, and patterns containing `*`, `?`, or `[` use
+fnmatch syntax. The match applies to the final displayed skip reason, which
+includes the `fixture unavailable:` prefix for conditional skips. For example,
+a suite with `skip: {on: fixture-unavailable, reason: requires docker}` produces
+the displayed reason `fixture unavailable: requires docker`, and
+`--run-skipped-reason docker` matches it as a substring.
+
+The flag is repeatable---a skipped test runs if its reason matches any provided
+pattern:
+
+```sh
+uvx tenzir-test --run-skipped-reason maintenance --run-skipped-reason '*docker*'
+```
+
+When no skipped tests match the reason filters, the harness prints a diagnostic
+so you know the patterns had no effect.
+
+### Combining both flags
+
+When both `--run-skipped` and `--run-skipped-reason` are provided,
+`--run-skipped` takes precedence and all skipped tests run unconditionally.
 
 ## Run multiple projects
 
