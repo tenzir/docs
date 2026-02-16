@@ -138,3 +138,43 @@ services:
 This example mounts a local `workspaces.yaml` file into the container. The
 platform service then accesses it at the location that
 `WORKSPACE_CONFIG_FILE` specifies.
+
+### Add a workspace token
+
+A **workspace token** is a shared secret that allows nodes to self-register as
+[ephemeral nodes](/guides/platform-management/use-ephemeral-nodes) without
+manual provisioning. Add a `token` field to your static workspace configuration:
+
+```yaml title="workspaces.yaml"
+workspaces:
+  static0:
+    name: Tenzir
+    category: Statically Configured Workspaces
+    icon-url: https://storage.googleapis.com/tenzir-public-data/icons/tenzir-logo-square.svg
+    auth-rules:
+      - { "auth_fn": "auth_allow_all" }
+    token: wsk_e9ee76d4faf4b213745dd5c99a9be11f501d7009ded63f2d5NmDS38vXR
+```
+
+For improved security, reference a file instead of inlining the token:
+
+```yaml title="workspaces.yaml"
+workspaces:
+  static0:
+    name: Tenzir
+    # Other configuration...
+    token-file: /run/secrets/workspace_token
+```
+
+Generate a valid token with the CLI:
+
+```bash
+tenzir-platform tools generate-workspace-token <workspace-id>
+```
+
+:::caution
+Workspace tokens have a specific format. Do not create them manually.
+Use the `generate-workspace-token` command or see the
+[ephemeral nodes guide](/guides/platform-management/use-ephemeral-nodes#workspace-token-format)
+for format details.
+:::
