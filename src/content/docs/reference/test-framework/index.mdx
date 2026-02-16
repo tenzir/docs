@@ -157,12 +157,23 @@ Useful options:
   significantly reducing noise for large test suites. Verbose mode displays
   passing and skipped tests alongside failures. Use `--summary` together with
   `--verbose` to include the tree summary at the end of the run.
-- `--run-skipped`: Ignore all skip configuration and execute tests
-  normally. Both static skips (`skip: reason`) and conditional skips
+- `--run-skipped`: Run all skipped tests unconditionally. Both static
+  skips (`skip: reason`) and conditional skips
   (`skip: {on: fixture-unavailable}`) are bypassed. When a fixture raises
   `FixtureUnavailable` and `--run-skipped` is active, the exception
-  propagates as a hard failure instead of being caught. This is useful for
-  verifying that skipped tests still compile and run correctly.
+  propagates as a hard failure instead of being caught. This is the
+  sledgehammer approach---use it when you want to force every skipped test
+  to execute regardless of its skip reason.
+- `--run-skipped-reason`: Selectively run skipped tests whose reason
+  matches a substring or glob pattern. Bare strings match as substrings;
+  patterns containing `*`, `?`, or `[` use fnmatch syntax---the same
+  matching semantics as `--match`. Repeatable; a test runs if its skip
+  reason matches any provided pattern. The match applies to the final
+  displayed reason, including the `fixture unavailable:` prefix for
+  conditional skips. When both `--run-skipped` and `--run-skipped-reason`
+  are provided, `--run-skipped` takes precedence and all skipped tests run.
+  When no skipped tests match the reason filters, the harness prints a
+  diagnostic message.
 - `-a`, `--all-projects`: Run the root project together with any satellites
   provided on the command line.
 - `-m`, `--match`: Select tests whose relative path matches a substring or glob
