@@ -189,6 +189,39 @@ comma) or use a backslash to continue.
 - Inside `()`, `[]`, `{}`: newlines don't end the statement
   :::
 
+## Expression style
+
+### Avoid unnecessary parentheses
+
+TQL's `if` and `where` don't require parentheses around conditions. Adding them
+creates visual noise without any benefit.
+
+✅ Clean:
+
+```tql
+if @name == "suricata.dns" {
+  // ...
+}
+
+where severity == "critical"
+```
+
+❌ Noisy:
+
+```tql
+if (@name == "suricata.dns") {
+  // ...
+}
+
+where (severity == "critical")
+```
+
+Use parentheses only when they clarify precedence in complex expressions:
+
+```tql
+where (a > 1 and b < 2) or c == 3
+```
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
