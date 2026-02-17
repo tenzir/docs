@@ -1,0 +1,146 @@
+---
+title: accept_http
+category: Inputs/Events
+example: 'accept_http "0.0.0.0:8080" { read_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Accepts incoming HTTP requests and forwards them as events.
+
+```tql
+accept_http url:string, [responses=record, max_request_size=int,
+            max_connections=int, tls=record]
+            { … }
+```
+
+## Description
+
+The `accept_http` operator starts an HTTP/1.1 server on the given address and
+forwards incoming requests as events. Each request spawns a sub-pipeline that
+processes the request body independently.
+
+The sub-pipeline has access to a `$request` variable containing the request
+metadata.
+
+### `url: string`
+
+The endpoint to listen on. Must have the form `<host>:<port>`. Use `0.0.0.0` to
+accept connections on all interfaces.
+
+### `responses = record (optional)`
+
+Specify custom responses for endpoints on the server. For example,
+
+```tql
+responses = {
+  "/resource/create": { code: 200, content_type: "text/html", body: "Created!" },
+  "/resource/delete": { code: 401, content_type: "text/html", body: "Unauthorized!" }
+}
+```
+
+creates two special routes on the server with different responses.
+
+Each route must be a record with `code`, `content_type`, and `body` fields.
+
+Requests to an unspecified endpoint are responded with HTTP Status `200 OK`.
+
+### `max_request_size = int (optional)`
+
+The maximum size of an incoming request to accept.
+
+Defaults to `10MiB`.
+
+### `max_connections = int (optional)`
+
+The maximum number of simultaneous incoming connections to accept.
+
+Defaults to `10`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+### `{ … }`
+
+The pipeline to run for each incoming HTTP request. Inside the pipeline, the
+`$request` variable is available as a record with the following fields:
+
+| Field      | Type     | Description                          |
+| :--------- | :------- | :----------------------------------- |
+| `headers`  | `record` | The request headers.                 |
+| `query`    | `record` | The query parameters of the request. |
+| `path`     | `string` | The path requested.                  |
+| `fragment` | `string` | The URI fragment of the request.     |
+| `method`   | `string` | The HTTP method of the request.      |
+| `version`  | `string` | The HTTP version of the request.     |
+| `body`     | `blob`   | The raw request body.                |
+
+## Examples
+
+### Accept JSON requests on port 8080
+
+Listen on all interfaces and parse incoming request bodies as JSON:
+
+```tql
+accept_http "0.0.0.0:8080" {
+  read_json
+}
+```
+
+Send a request to the endpoint via `curl`:
+
+```bash
+echo '{"key": "value"}' | curl localhost:8080 --data-binary @- -H 'Content-Type: application/json'
+```
+
+### Filter requests by path
+
+Use the `$request` variable to filter or route requests:
+
+```tql
+accept_http "0.0.0.0:8080" {
+  read_json
+  where $request.path == "/events" and $request.method == "POST"
+}
+```
+
+### Custom responses per endpoint
+
+Return different HTTP responses based on the request path:
+
+```tql
+accept_http "0.0.0.0:8080",
+            responses={
+              "/webhook": {
+                code: 201,
+                content_type: "text/plain",
+                body: "accepted",
+              },
+            } {
+  read_json
+  where $request.path == "/webhook"
+}
+```
+
+### Accept HTTPS requests with TLS
+
+```tql
+accept_http "0.0.0.0:8443",
+            tls={
+              certfile: "/path/to/cert.pem",
+              keyfile: "/path/to/key.pem",
+            } {
+  read_json
+}
+```
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>http</Op>
+- <Op>serve</Op>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
+- <Integration>http</Integration>
