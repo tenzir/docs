@@ -5,63 +5,34 @@ title: TCP
 The [Transmission Control Protocol
 (TCP)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol) offers a
 bi-directional byte stream between applications that communicate via IP. Tenzir
-supports writing to and reading from TCP sockets, both in server (listening) and
-client (connect) mode.
+provides operators for both sides of a TCP conversation: connecting to remote
+endpoints and accepting incoming connections.
 
 ![TCP](tcp.svg)
 
-Use the IP address `0.0.0.0` to listen on all available network interfaces.
+## Connecting to remote endpoints
 
-:::tip[URL Support]
-The URL schemes `tcp://` and `tcps://` dispatch to
-[`load_tcp`](/reference/operators/load_tcp) and
-[`save_tcp`](/reference/operators/save_tcp) for seamless URL-style use via
-[`from`](/reference/operators/from) and [`to`](/reference/operators/to).
-:::
+Use [`from_tcp`](/reference/operators/from_tcp) to connect to a remote TCP
+endpoint as a client and read data from it. The operator reconnects
+automatically with exponential backoff on connection failure.
+
+## Accepting incoming connections
+
+Use [`accept_tcp`](/reference/operators/accept_tcp) to listen on a local
+endpoint and accept incoming TCP connections. Each connection spawns a nested
+pipeline that processes the incoming byte stream independently.
+
+## Serving data to clients
+
+Use [`serve_tcp`](/reference/operators/serve_tcp) to start a TCP server that
+broadcasts pipeline output to all connected clients. A nested pipeline
+serializes events into bytes before sending.
+
+See the [Get data from the network](/guides/collecting/get-data-from-the-network/)
+guide for practical examples.
 
 ## SSL/TLS
 
-To enable TLS, pass `tls={}` to enable TLS with defaults or provide a record
-with specific options like `certfile` and `keyfile`. Both
-[`from_tcp`](/reference/operators/from_tcp) and
-[`load_tcp`](/reference/operators/load_tcp) support server-side TLS for
-accepting encrypted connections.
-
-For testing purposes, you can quickly generate a self-signed certificate as
-follows:
-
-```bash
-openssl req -x509 -newkey rsa:2048 -keyout key_and_cert.pem -out key_and_cert.pem -days 365 -nodes
-```
-
-An easy way to test a TLS connection is to try connecting via OpenSSL:
-
-```bash
-openssl s_client 127.0.0.1:443
-```
-
-## Examples
-
-### Listen for incoming JSON over TCP
-
-```tql
-from_tcp "0.0.0.0:8090" {
-  read_json
-}
-```
-
-### Read data by connecting to a remote TCP server
-
-```tql
-from "tcp://127.0.0.1:443", connect=true {
-  read_json
-}
-```
-
-### Listen on localhost with TLS enabled
-
-```tql
-from_tcp "127.0.0.1:443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
-  read_json
-}
-```
+All TCP operators support TLS via the `tls` option. Pass an empty record
+(`tls={}`) for defaults, or provide specific options like `certfile` and
+`keyfile`.
