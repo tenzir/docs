@@ -20,6 +20,10 @@ request, or [`http`](/reference/operators/http) to enrich events flowing through
 a pipeline with HTTP responses. Both operators automatically infer the response
 format from the URL extension or `Content-Type` header.
 
+See the [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis)
+guide for practical examples covering authentication, pagination, error
+handling, and data enrichment.
+
 ## Accepting Incoming Requests
 
 Use [`accept_http`](/reference/operators/accept_http) to spin up an HTTP server
@@ -40,72 +44,4 @@ pipeline data as an HTTP request body.
 ## SSL/TLS
 
 All HTTP operators support TLS. Pass `tls={}` to enable TLS with defaults, or
-provide specific options:
-
-```tql
-from_http "https://api.example.com/data",
-  tls={
-    certfile: "/path/to/client.crt",
-    keyfile: "/path/to/client.key",
-  }
-```
-
-For server-side TLS with [`accept_http`](/reference/operators/accept_http):
-
-```tql
-accept_http "0.0.0.0:8443",
-  tls={
-    certfile: "/path/to/server.crt",
-    keyfile: "/path/to/server.key",
-  } {
-  read_json
-}
-```
-
-## Examples
-
-### Fetch JSON from an API
-
-```tql
-from_http "https://api.example.com/data?query=tenzir"
-```
-
-### Send a POST request with JSON body
-
-```tql
-from_http "https://api.example.com/data",
-  method="post",
-  body={query: "tenzir"}
-```
-
-### Enrich events with API lookups
-
-```tql
-from {domain: "example.com"}
-http f"https://api.example.com/lookup?q={domain}",
-  response_field=result
-```
-
-### Accept webhook events
-
-```tql
-accept_http "0.0.0.0:8080" {
-  read_json
-  where $request.path == "/webhook"
-}
-```
-
-### Paginate through an API
-
-```tql
-from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
-  paginate="link"
-```
-
-### Push data to a remote API
-
-```tql
-from {x: 42, y: "foo"}
-write_json
-save_http "https://api.example.com/ingest", method="POST"
-```
+provide a record with specific options like `certfile` and `keyfile`.
