@@ -24,6 +24,16 @@ See the [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis)
 guide for practical examples covering authentication, pagination, error
 handling, and data enrichment.
 
+## Sending Data to Webhooks and APIs
+
+Use [`to_http`](/reference/operators/to_http) to send events as HTTP requests to
+a webhook or API endpoint. Each input event is sent as a separate request, with
+the event JSON-encoded as the body by default. This is useful for pushing alerts
+to webhooks, forwarding events to SIEMs, or calling external APIs for each
+event.
+
+![HTTP to](http-to.svg)
+
 ## Accepting Incoming Requests
 
 Use [`accept_http`](/reference/operators/accept_http) to spin up an HTTP server

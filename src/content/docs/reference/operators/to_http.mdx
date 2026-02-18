@@ -1,0 +1,221 @@
+---
+title: to_http
+category: Outputs/Events
+example: 'to_http "https://example.com/webhook"'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Sends events as HTTP requests to a webhook or API endpoint.
+
+```tql
+to_http url:string, [method=string, body=record|string|blob, encode=string,
+        headers=record, paginate=string, paginate_delay=duration,
+        parallel=int, tls=record, connection_timeout=duration,
+        max_retry_count=int, retry_delay=duration]
+        { … }
+```
+
+## Description
+
+The `to_http` operator sends each input event as an HTTP request to a webhook or
+API endpoint. By default, it JSON-encodes the entire event as the request body
+and sends it as a POST request.
+
+The operator is fire-and-forget: non-success HTTP status codes do not cause
+pipeline errors. Use the hook pipeline to observe and react to responses.
+
+### `url: string`
+
+URL to send the request to. This is an expression evaluated per event, so you
+can use field values to construct the URL dynamically.
+
+### `method = string (optional)`
+
+One of the following HTTP methods to use:
+
+- `get`
+- `head`
+- `post`
+- `put`
+- `del`
+- `connect`
+- `options`
+- `trace`
+
+Defaults to `post`.
+
+### `body = blob|record|string (optional)`
+
+Body to send with the HTTP request.
+
+If the value is a `record`, then the body is encoded according to the `encode`
+option and an appropriate `Content-Type` is set for the request.
+
+If not specified, the entire input event is JSON-encoded as the request body.
+
+### `encode = string (optional)`
+
+Specifies how to encode `record` bodies. Supported values:
+
+- `json`
+- `form`
+
+Defaults to `json`.
+
+### `headers = record (optional)`
+
+Record of headers to send with the request. This is an expression evaluated per
+event, so you can use field values.
+
+### `paginate = string (optional)`
+
+The string `"link"` to automatically follow pagination links in the HTTP `Link`
+response header per
+[RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288). The operator parses
+`Link` headers and follows the `rel=next` relation to fetch the next page.
+Pagination stops when the response no longer contains a `rel=next` link or when
+a non-success status code is received.
+
+### `paginate_delay = duration (optional)`
+
+The duration to wait between consecutive pagination requests.
+
+Defaults to `0s`.
+
+### `parallel = int (optional)`
+
+Maximum number of requests that can be in progress at any time.
+
+Defaults to `1`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+### `connection_timeout = duration (optional)`
+
+Timeout for the connection.
+
+Defaults to `5s`.
+
+### `max_retry_count = int (optional)`
+
+The maximum times to retry a failed request. Every request has its own retry
+count.
+
+Defaults to `0`.
+
+### `retry_delay = duration (optional)`
+
+The duration to wait between each retry.
+
+Defaults to `1s`.
+
+### `{ … } (optional)`
+
+A hook pipeline that runs for each completed HTTP request. Use this to observe
+responses, log failures, or trigger side effects.
+
+The hook pipeline receives events with the following fields:
+
+| Field      | Type     | Description                                        |
+| :--------- | :------- | :------------------------------------------------- |
+| `request`  | `record` | The original input event.                          |
+| `url`      | `string` | The URL the request was sent to.                   |
+| `ok`       | `bool`   | `true` if the status code is in the 200–399 range. |
+| `response` | `record` | The HTTP response (see below). Present on reply.   |
+| `error`    | `string` | Error message. Present on connection failure.      |
+
+The `response` record contains:
+
+| Field     | Type     | Description                           |
+| :-------- | :------- | :------------------------------------ |
+| `code`    | `uint64` | The HTTP status code of the response. |
+| `headers` | `record` | The response headers.                 |
+| `body`    | `blob`   | The response body.                    |
+
+The hook pipeline must return events. It cannot be a sink.
+
+## Examples
+
+### Send events to a webhook
+
+Send each event as a JSON POST request:
+
+```tql
+from {message: "hello", severity: "info"}
+to_http "https://example.com/webhook"
+```
+
+The entire event is JSON-encoded as the request body.
+
+### Use a custom body
+
+Override the default body with a string:
+
+```tql
+from {foo: "bar"}
+to_http "https://example.com/api", body="custom-payload"
+```
+
+### Send form-encoded data
+
+```tql
+from {user: "alice"}
+to_http "https://example.com/api",
+  body={name: "alice", role: "admin"},
+  encode="form"
+```
+
+### Set a custom method and headers
+
+```tql
+from {foo: "bar"}
+to_http "https://example.com/api",
+  method="put",
+  headers={"X-Custom": "value"}
+```
+
+### Observe responses with a hook pipeline
+
+Use a hook pipeline to react to HTTP responses:
+
+```tql
+from {alert: "intrusion detected"}
+to_http "https://siem.example.com/ingest" {
+  where not ok
+  publish "failed-webhooks"
+}
+```
+
+The hook pipeline receives one event per HTTP request with the response details.
+In this example, failed requests are published to a topic for monitoring.
+
+### Send events with TLS
+
+```tql
+from {data: "sensitive"}
+to_http "https://secure.example.com/api",
+  tls={skip_peer_verification: true}
+```
+
+### Send requests in parallel
+
+Increase throughput by sending multiple requests concurrently:
+
+```tql
+load_file "events.json"
+read_json
+to_http "https://example.com/ingest", parallel=4
+```
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>http</Op>
+- <Op>accept_http</Op>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
+- <Integration>http</Integration>
