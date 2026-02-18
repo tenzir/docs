@@ -15,7 +15,6 @@ to_http url:string, [method=string, body=record|string|blob, encode=string,
         headers=record, paginate=string, paginate_delay=duration,
         parallel=int, tls=record, connection_timeout=duration,
         max_retry_count=int, retry_delay=duration]
-        { … }
 ```
 
 ## Description
@@ -25,7 +24,7 @@ API endpoint. By default, it JSON-encodes the entire event as the request body
 and sends it as a POST request.
 
 The operator is fire-and-forget: non-success HTTP status codes do not cause
-pipeline errors. Use the hook pipeline to observe and react to responses.
+pipeline errors.
 
 ### `url: string`
 
@@ -114,31 +113,6 @@ The duration to wait between each retry.
 
 Defaults to `1s`.
 
-### `{ … } (optional)`
-
-A hook pipeline that runs for each completed HTTP request. Use this to observe
-responses, log failures, or trigger side effects.
-
-The hook pipeline receives events with the following fields:
-
-| Field      | Type     | Description                                        |
-| :--------- | :------- | :------------------------------------------------- |
-| `request`  | `record` | The original input event.                          |
-| `url`      | `string` | The URL the request was sent to.                   |
-| `ok`       | `bool`   | `true` if the status code is in the 200–399 range. |
-| `response` | `record` | The HTTP response (see below). Present on reply.   |
-| `error`    | `string` | Error message. Present on connection failure.      |
-
-The `response` record contains:
-
-| Field     | Type     | Description                           |
-| :-------- | :------- | :------------------------------------ |
-| `code`    | `uint64` | The HTTP status code of the response. |
-| `headers` | `record` | The response headers.                 |
-| `body`    | `blob`   | The response body.                    |
-
-The hook pipeline must return events. It cannot be a sink.
-
 ## Examples
 
 ### Send events to a webhook
@@ -178,21 +152,6 @@ to_http "https://example.com/api",
   method="put",
   headers={"X-Custom": "value"}
 ```
-
-### Observe responses with a hook pipeline
-
-Use a hook pipeline to react to HTTP responses:
-
-```tql
-from {alert: "intrusion detected"}
-to_http "https://siem.example.com/ingest" {
-  where not ok
-  publish "failed-webhooks"
-}
-```
-
-The hook pipeline receives one event per HTTP request with the response details.
-In this example, failed requests are published to a topic for monitoring.
 
 ### Send events with TLS
 
