@@ -7,32 +7,33 @@ This guide shows you how to fetch data from HTTP APIs using the
 [`http`](/reference/operators/http) operators. You'll learn to make GET
 requests, handle authentication, and implement pagination for large result sets.
 
+## Choosing the Right Operator
+
+Tenzir has two HTTP client operators that share nearly identical options:
+
+- [`from_http`](/reference/operators/from_http) is a **source** operator that
+  starts a pipeline with an HTTP request. Use it for standalone API calls.
+- [`http`](/reference/operators/http) is a **transformation** operator that
+  enriches events flowing through a pipeline with HTTP responses. Use it when
+  you have existing data and want to make per-event API lookups.
+
+Most examples in this guide use `from_http`. Unless noted otherwise, the same
+options work with `http` as well.
+
 ## Basic API Requests
 
 Start with these fundamental patterns for making HTTP requests to APIs.
 
 ### Simple GET Requests
 
-To fetch data from an API endpoint, pass the URL as the first parameter to the
-`from_http` operator:
+To fetch data from an API endpoint, pass the URL as the first parameter:
 
 ```tql
 from_http "https://api.example.com/data"
 ```
 
 The operator makes a GET request by default and forwards the response as an
-event. The `from_http` operator is an input operator, i.e., it starts a
-pipeline. The companion operator `http` is a transformation, allowing you to
-specify the URL as a field by referencing an event field that contains the URL:
-
-```tql
-from {url: "https://api.example.com/data"}
-http url
-```
-
-This pattern is useful when processing multiple URLs or when URLs are generated
-dynamically. Most of our subsequent examples use `from_http`, as the operator
-options are very similar.
+event.
 
 ### Parsing the HTTP Response Body
 
@@ -264,33 +265,28 @@ http url, paginate="link"
 
 ### Lambda-Based Pagination
 
-The [`http`](/reference/operators/http) operator supports lambda-based
-pagination for APIs that use custom pagination schemes. Provide a lambda
-function to the `paginate` parameter that extracts the next page URL from the
-response:
+The [`http`](/reference/operators/http) operator additionally supports
+lambda-based pagination for APIs with custom pagination schemes. Provide a
+lambda function to the `paginate` parameter that extracts the next page URL from
+the response:
 
 ```tql
-from {}
-http "https://api.example.com/search?q=query",
+from {query: "tenzir"}
+http f"https://api.example.com/search?q={query}",
   paginate=(x => x.next_url if x.has_more)
 ```
 
-The operator continues making requests as long as the pagination lambda function
-returns a valid URL.
+The operator continues making requests as long as the pagination lambda returns
+a valid URL.
 
-### Complex Pagination Logic
-
-Handle APIs with custom pagination schemes by building pagination URLs
-dynamically using expressions that reference response data:
+You can also build pagination URLs dynamically:
 
 ```tql
-let $base_url = "https://api.example.com/items"
-from {}
-http f"{$base_url}?page=1",
-  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages)
+let $base = "https://api.example.com/items"
+from {category: "security"}
+http f"{$base}?category={category}&page=1",
+  paginate=(x => f"{$base}?category={category}&page={x.page + 1}" if x.page < x.total_pages)
 ```
-
-This example builds pagination URLs dynamically based on response data.
 
 ### Rate Limiting
 
@@ -299,8 +295,8 @@ delays between requests and the `parallel` parameter to limit concurrent
 requests:
 
 ```tql
-from {url: "https://api.example.com/data"}
-http url,
+from {domain: "example.com"}
+http f"https://api.example.com/scan?q={domain}",
   paginate=(x => x.next_url if x.has_next),
   paginate_delay=500ms,
   parallel=2
