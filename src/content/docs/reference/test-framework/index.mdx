@@ -901,49 +901,8 @@ complete walkthrough.
 ### Fixture assertions
 
 Fixtures can declare a frozen dataclass via `assertions=` on `@fixture()` to
-accept structured assertion payloads from tests. The harness constructs a typed
-instance from the frontmatter values and invokes the fixture's `assert_test`
-hook after the test succeeds but before teardown, while the fixture is still
-active.
-
-Register an assertions dataclass alongside options:
-
-```python
-from dataclasses import dataclass
-from tenzir_test import FixtureHandle, current_assertions, fixture
-
-
-@dataclass(frozen=True)
-class ExpectedRequest:
-    count: int = 1
-    method: str = "POST"
-    path: str = "/"
-    body: str = ""
-
-
-@dataclass(frozen=True)
-class HttpAssertions:
-    expected_request: ExpectedRequest | None = None
-
-
-@fixture(assertions=HttpAssertions)
-def http() -> FixtureHandle:
-    server = start_server()
-
-    def _assert_test(*, test, assertions, **_):
-        a = assertions  # typed HttpAssertions instance
-        if a.expected_request is not None:
-            validate_requests(server, a.expected_request)
-
-    return FixtureHandle(
-        env={"HTTP_FIXTURE_URL": server.url},
-        teardown=server.shutdown,
-        hooks={"assert_test": _assert_test},
-    )
-```
-
-Tests declare assertion payloads under `assertions.fixtures.<name>` in
-frontmatter:
+accept structured assertion payloads from tests. Tests declare payloads under
+`assertions.fixtures.<name>` in frontmatter:
 
 ```yaml
 assertions:
@@ -956,20 +915,13 @@ assertions:
         body: '{"foo":"bar"}'
 ```
 
-Bare fixture names (`fixtures: [http]`) without an `assertions` block skip the
-hook entirely. When the `assert_test` hook raises an exception, the harness
-reports the test as failed with the exception message.
+The harness constructs a typed instance and invokes the fixture's `assert_test`
+hook after the test succeeds but before teardown. Omitting the `assertions`
+block skips the hook. A raised exception fails the test. For suite tests, the
+hook runs after each member rather than once at the end.
 
-Fixtures retrieve the typed assertions instance at runtime with
-`current_assertions("http")`, which returns the dataclass instance if one was
-registered, or an empty dict otherwise. Like options, nested dataclasses are
-instantiated recursively from the YAML mapping.
-
-:::note
-The `assert_test` hook runs only after the test's output comparison succeeds.
-For suite tests, the harness invokes the hook after each member test rather than
-once at the end of the suite.
-:::
+The [fixture guide](/guides/testing/create-fixtures#add-fixture-assertions)
+walks through the full implementation.
 
 ### Fixture unavailability
 
