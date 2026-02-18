@@ -569,16 +569,17 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key            | Type            | Default   | Description                                                             |
-| -------------- | --------------- | --------- | ----------------------------------------------------------------------- |
-| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                      |
-| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings. |
-| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                  |
-| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                            |
-| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).   |
-| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                    |
-| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                       |
-| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.        |
+| Key            | Type            | Default   | Description                                                                |
+| -------------- | --------------- | --------- | -------------------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                         |
+| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings.    |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                     |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                               |
+| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).      |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                       |
+| `assertions`   | mapping         | `{}`      | Fixture assertion payloads. See [fixture assertions](#fixture-assertions). |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                          |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.           |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -895,6 +896,79 @@ Bare names (`fixtures: [http]`) produce the dataclass defaults.
 Option fields can be nested dataclasses. The harness instantiates them
 recursively. See the [fixture guide](/guides/testing/create-fixtures) for a
 complete walkthrough.
+:::
+
+### Fixture assertions
+
+Fixtures can declare a frozen dataclass via `assertions=` on `@fixture()` to
+accept structured assertion payloads from tests. The harness constructs a typed
+instance from the frontmatter values and invokes the fixture's `assert_test`
+hook after the test succeeds but before teardown, while the fixture is still
+active.
+
+Register an assertions dataclass alongside options:
+
+```python
+from dataclasses import dataclass
+from tenzir_test import FixtureHandle, current_assertions, fixture
+
+
+@dataclass(frozen=True)
+class ExpectedRequest:
+    count: int = 1
+    method: str = "POST"
+    path: str = "/"
+    body: str = ""
+
+
+@dataclass(frozen=True)
+class HttpAssertions:
+    expected_request: ExpectedRequest | None = None
+
+
+@fixture(assertions=HttpAssertions)
+def http() -> FixtureHandle:
+    server = start_server()
+
+    def _assert_test(*, test, assertions, **_):
+        a = assertions  # typed HttpAssertions instance
+        if a.expected_request is not None:
+            validate_requests(server, a.expected_request)
+
+    return FixtureHandle(
+        env={"HTTP_FIXTURE_URL": server.url},
+        teardown=server.shutdown,
+        hooks={"assert_test": _assert_test},
+    )
+```
+
+Tests declare assertion payloads under `assertions.fixtures.<name>` in
+frontmatter:
+
+```yaml
+assertions:
+  fixtures:
+    http:
+      expected_request:
+        count: 1
+        method: POST
+        path: /status/not-found
+        body: '{"foo":"bar"}'
+```
+
+Bare fixture names (`fixtures: [http]`) without an `assertions` block skip the
+hook entirely. When the `assert_test` hook raises an exception, the harness
+reports the test as failed with the exception message.
+
+Fixtures retrieve the typed assertions instance at runtime with
+`current_assertions("http")`, which returns the dataclass instance if one was
+registered, or an empty dict otherwise. Like options, nested dataclasses are
+instantiated recursively from the YAML mapping.
+
+:::note
+The `assert_test` hook runs only after the test's output comparison succeeds.
+For suite tests, the harness invokes the hook after each member test rather than
+once at the end of the suite.
 :::
 
 ### Fixture unavailability

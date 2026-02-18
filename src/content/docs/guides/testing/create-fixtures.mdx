@@ -5,7 +5,8 @@ title: Create fixtures
 This guide shows you how to create a fixture, wire it into the test harness, and
 use it from a test. You will build an HTTP echo server as a running example and
 then learn how to share fixtures across suites, handle missing dependencies,
-manage containers, and add structured options.
+manage containers, add structured options, and validate test behavior with
+fixture assertions.
 
 ## Prerequisites
 
@@ -201,6 +202,98 @@ The harness constructs the dataclass from the YAML mapping. Nested dataclasses
 work too — the harness walks the type annotations recursively. See the
 [test framework reference](/reference/test-framework/#fixture-options) for the
 full options API.
+
+## Add fixture assertions
+
+Fixtures can validate what happened during a test by declaring an assertions
+dataclass. The harness calls the fixture's `assert_test` hook after the test
+succeeds but before teardown, passing a typed payload that the test author
+defined in frontmatter.
+
+### Declare the assertions dataclass
+
+Define a frozen dataclass describing the expected shape. Nested dataclasses work
+the same way as options:
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class ExpectedRequest:
+    count: int = 1
+    method: str = "POST"
+    path: str = "/"
+    body: str = ""
+
+@dataclass(frozen=True)
+class HttpAssertions:
+    expected_request: ExpectedRequest | None = None
+```
+
+### Register assertions with the fixture
+
+Pass the dataclass to `@fixture(assertions=...)` and return a `FixtureHandle`
+with an `assert_test` hook:
+
+```python
+from pathlib import Path
+from typing import Any
+
+from tenzir_test import FixtureHandle, current_options, fixture
+
+
+@fixture(options=HttpOptions, assertions=HttpAssertions)
+def http() -> FixtureHandle:
+    opts = current_options("http")
+    server = start_echo_server(port=opts.port)
+
+    def _assert_test(*, test: Path, assertions: HttpAssertions, **_: Any) -> None:
+        if assertions.expected_request is None:
+            return
+        observed = server.get_request_log()
+        expected = assertions.expected_request
+        if len(observed) != expected.count:
+            raise AssertionError(
+                f"expected {expected.count} request(s), got {len(observed)}"
+            )
+        # ... validate method, path, body ...
+
+    return FixtureHandle(
+        env={"HTTP_FIXTURE_URL": server.url},
+        teardown=server.shutdown,
+        hooks={"assert_test": _assert_test},
+    )
+```
+
+The `assert_test` callback receives keyword arguments `test` (the test path),
+`assertions` (the typed dataclass instance), and `fixture` (the fixture name).
+When the callback raises an exception, the harness reports the test as failed.
+
+### Write assertion payloads in test frontmatter
+
+Test authors declare assertion payloads under `assertions.fixtures.<name>`:
+
+```yaml
+---
+fixtures: [http]
+assertions:
+  fixtures:
+    http:
+      expected_request:
+        count: 1
+        method: POST
+        path: /status/not-found
+        body: '{"foo":"bar"}'
+---
+```
+
+Omitting the `assertions` block skips the hook entirely. You can also retrieve
+the typed assertions instance inside a fixture with
+`current_assertions("http")`.
+
+See the
+[test framework reference](/reference/test-framework/#fixture-assertions) for
+the full assertions API.
 
 ## Control fixtures from Python tests
 
