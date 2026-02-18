@@ -4,47 +4,108 @@ sidebar:
   label: HTTP(S)
 ---
 
-Tenzir supports HTTP and HTTPS, both as sender and receiver.
+[HTTP](https://en.wikipedia.org/wiki/HTTP) is the foundation of data exchange
+on the web. Tenzir provides operators for both sides of an HTTP conversation:
+fetching data from APIs and accepting incoming requests.
+
+## Fetching Data from APIs
 
 When retrieving data from an API or website, you prepare your HTTP request and
 get back the HTTP response body as your pipeline data:
 
 ![HTTP from](http-from.svg)
 
+Use [`from_http`](/reference/operators/from_http) to issue a one-shot HTTP
+request, or [`http`](/reference/operators/http) to enrich events flowing through
+a pipeline with HTTP responses. Both operators automatically infer the response
+format from the URL extension or `Content-Type` header.
+
+## Accepting Incoming Requests
+
+Use [`accept_http`](/reference/operators/accept_http) to spin up an HTTP server
+that turns incoming requests into pipeline events. This is useful for receiving
+webhooks, building custom API endpoints, or ingesting data pushed by external
+systems.
+
+## Sending Data to APIs
+
 When sending data from a pipeline to an API or website, the events in the
-pipeline make up the HTTP request body. If the HTTP status code is not 2\*\*,
-you will get a warning.
+pipeline make up the HTTP request body:
 
-![HTTP from](http-to.svg)
+![HTTP to](http-to.svg)
 
-In both cases, you can only provide static header data.
+Use [`save_http`](/reference/operators/save_http) with a write operator to send
+pipeline data as an HTTP request body.
 
-Use [`from_http`](/reference/operators/from_http) to perform HTTP requests or
-run an HTTP server. This operator automatically tries to infer the format from the
-`Content-Type` header. For sending, use
-[`save_http`](/reference/operators/save_http) with a write operator.
+## SSL/TLS
+
+All HTTP operators support TLS. Pass `tls={}` to enable TLS with defaults, or
+provide specific options:
+
+```tql
+from_http "https://api.example.com/data",
+  tls={
+    certfile: "/path/to/client.crt",
+    keyfile: "/path/to/client.key",
+  }
+```
+
+For server-side TLS with [`accept_http`](/reference/operators/accept_http):
+
+```tql
+accept_http "0.0.0.0:8443",
+  tls={
+    certfile: "/path/to/server.crt",
+    keyfile: "/path/to/server.key",
+  } {
+  read_json
+}
+```
 
 ## Examples
 
-### Perform a GET request with URL parameters
+### Fetch JSON from an API
 
 ```tql
-from_http "http://example.com:8888/api?query=tenzir"
+from_http "https://api.example.com/data?query=tenzir"
 ```
 
-### Perform a POST request with JSON body
+### Send a POST request with JSON body
 
 ```tql
-from_http "http://example.com:8888/api", method="post", body={query: "tenzir"}
+from_http "https://api.example.com/data",
+  method="post",
+  body={query: "tenzir"}
 ```
 
-### Call a webhook API with pipeline data
+### Enrich events with API lookups
 
 ```tql
-from {
-  x: 42,
-  y: "foo",
+from {domain: "example.com"}
+http f"https://api.example.com/lookup?q={domain}",
+  response_field=result
+```
+
+### Accept webhook events
+
+```tql
+accept_http "0.0.0.0:8080" {
+  read_json
+  where $request.path == "/webhook"
 }
+```
+
+### Paginate through an API
+
+```tql
+from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
+  paginate="link"
+```
+
+### Push data to a remote API
+
+```tql
+from {x: 42, y: "foo"}
 write_json
-save_http "http://example.com:8888/api", method="POST"
+save_http "https://api.example.com/ingest", method="POST"
 ```
