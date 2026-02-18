@@ -51,8 +51,9 @@ default, the separator is excluded from the results.
 ### Split Syslog-like events without newline terminators from a TCP input
 
 ```tql
-load_tcp "0.0.0.0:514"
-read_delimited_regex "(?=<[0-9]+>)"
+accept_tcp "0.0.0.0:514" {
+  read_delimited_regex "(?=<[0-9]+>)"
+}
 this = data.parse_syslog()
 ```
 

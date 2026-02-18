@@ -30,17 +30,17 @@ this = data.parse_syslog()
 publish "syslog"
 ```
 
-To use TCP instead of UDP, use [`load_tcp`](/reference/operators/load_tcp) with
-[`read_syslog`](/reference/operators/read_syslog):
+To use TCP instead of UDP, use [`accept_tcp`](/reference/operators/accept_tcp)
+with [`read_syslog`](/reference/operators/read_syslog):
 
 ```tql
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog
 }
 publish "syslog"
 ```
 
-The pipeline inside `load_tcp` executes _for each accepted connection_.
+The pipeline inside `accept_tcp` executes _for each accepted connection_.
 
 ### Parsing CEF, LEEF, or JSON Payloads
 
@@ -125,7 +125,7 @@ original syslog line alongside the parsed fields. Use the `raw_message`
 parameter to store the unparsed input:
 
 ```tql
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog raw_message=raw
 }
 ```
