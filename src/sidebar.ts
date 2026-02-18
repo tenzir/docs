@@ -158,6 +158,7 @@ export const guides = [
         collapsed: true,
         items: [
           "guides/routing/send-to-destinations",
+          "guides/routing/expose-data-as-server",
           "guides/routing/split-and-merge-streams",
           "guides/routing/load-balance-pipelines",
         ],
