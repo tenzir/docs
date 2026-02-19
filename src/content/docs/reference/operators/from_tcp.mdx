@@ -36,8 +36,13 @@ import TLSOptions from '@partials/operators/TLSOptions.mdx';
 The pipeline to run for the TCP connection. Use this to parse the incoming byte
 stream into events, for instance `{ read_json }`.
 
-The variable `peer` is available inside the pipeline and contains a record with
-the fields `ip` and `port` of the remote endpoint.
+Inside the pipeline, the `$peer` variable is available as a record with the
+following fields:
+
+| Field  | Type    | Description                        |
+| :----- | :------ | :--------------------------------- |
+| `ip`   | `ip`    | The IP address of the remote peer  |
+| `port` | `int64` | The port number of the remote peer |
 
 ## Examples
 
