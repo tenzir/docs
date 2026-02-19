@@ -569,17 +569,17 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key            | Type            | Default   | Description                                                                |
-| -------------- | --------------- | --------- | -------------------------------------------------------------------------- |
-| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                         |
-| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings.    |
-| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                     |
-| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                               |
-| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).      |
-| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                       |
-| `assertions`   | mapping         | `{}`      | Fixture assertion payloads. See [fixture assertions](#fixture-assertions). |
-| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                          |
-| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.           |
+| Key            | Type            | Default   | Description                                                             |
+| -------------- | --------------- | --------- | ----------------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                      |
+| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings. |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                  |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                            |
+| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).   |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                    |
+| `assertions`   | mapping         | `{}`      | Post-test assertion payloads. See [assertions](#assertions).            |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                       |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.        |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -898,31 +898,6 @@ recursively. See the [fixture guide](/guides/testing/create-fixtures) for a
 complete walkthrough.
 :::
 
-### Fixture assertions
-
-Fixtures can declare a frozen dataclass via `assertions=` on `@fixture()` to
-accept structured assertion payloads from tests. Tests declare payloads under
-`assertions.fixtures.<name>` in frontmatter:
-
-```yaml
-assertions:
-  fixtures:
-    http:
-      expected_request:
-        count: 1
-        method: POST
-        path: /status/not-found
-        body: '{"foo":"bar"}'
-```
-
-The harness constructs a typed instance and invokes the fixture's `assert_test`
-hook after the test succeeds but before teardown. Omitting the `assertions`
-block skips the hook. A raised exception fails the test. For suite tests, the
-hook runs after each member rather than once at the end.
-
-The [fixture guide](/guides/testing/create-fixtures#add-fixture-assertions)
-walks through the full implementation.
-
 ### Fixture unavailability
 
 Fixtures can signal that they cannot provide their service by raising
@@ -969,6 +944,36 @@ management. The built-in `docker-compose` fixture uses these helpers internally.
 
 See the [create fixtures](/guides/testing/create-fixtures#use-container-runtime-helpers)
 guide for a step-by-step walkthrough.
+
+## Assertions
+
+The `assertions` frontmatter key holds post-test validation payloads. Each
+top-level key inside `assertions` identifies an assertion category. The harness
+evaluates assertions after the test succeeds but before teardown, so resources
+are still live when checks run. A raised exception fails the test.
+
+### Fixture assertions
+
+Fixture assertions let a fixture verify what happened during the test. Declare
+payloads under `assertions.fixtures.<name>`:
+
+```yaml
+assertions:
+  fixtures:
+    http:
+      expected_request:
+        count: 1
+        method: POST
+        path: /status/not-found
+        body: '{"foo":"bar"}'
+```
+
+The harness constructs a typed instance from the fixture's registered assertions
+dataclass and invokes its `assert_test` hook. Omitting the block skips the hook.
+For suite tests the hook runs after each member rather than once at the end.
+
+The [fixture guide](/guides/testing/create-fixtures#add-fixture-assertions)
+walks through the full implementation.
 
 ## Environment variables
 

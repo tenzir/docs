@@ -205,10 +205,10 @@ full options API.
 
 ## Add fixture assertions
 
-Fixtures can validate what happened during a test by declaring an assertions
-dataclass. The harness calls the fixture's `assert_test` hook after the test
-succeeds but before teardown, passing a typed payload that the test author
-defined in frontmatter.
+The harness supports [assertions](/reference/test-framework#assertions) that run
+after a test succeeds but before teardown. Fixture assertions are one category:
+they let a fixture validate what happened during the test by declaring an
+assertions dataclass and an `assert_test` hook.
 
 ### Declare the assertions dataclass
 
