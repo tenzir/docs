@@ -38,8 +38,13 @@ there is at most one active connection at a time, it is recommended to specify a
 pipeline that parses the individual connection streams into events, for instance
 `{ read_json }`. Otherwise, the output can be interleaved.
 
-The variable `peer` is available inside the pipeline and contains a record with
-the fields `ip` and `port` of the remote endpoint.
+Inside the pipeline, the `$peer` variable is available as a record with the
+following fields:
+
+| Field  | Type    | Description                           |
+| :----- | :------ | :------------------------------------ |
+| `ip`   | `ip`    | The IP address of the connected peer  |
+| `port` | `int64` | The port number of the connected peer |
 
 ## Examples
 
