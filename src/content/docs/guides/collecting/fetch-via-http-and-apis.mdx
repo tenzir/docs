@@ -7,32 +7,33 @@ This guide shows you how to fetch data from HTTP APIs using the
 [`http`](/reference/operators/http) operators. You'll learn to make GET
 requests, handle authentication, and implement pagination for large result sets.
 
+## Choosing the Right Operator
+
+Tenzir has two HTTP client operators that share nearly identical options:
+
+- [`from_http`](/reference/operators/from_http) is a **source** operator that
+  starts a pipeline with an HTTP request. Use it for standalone API calls.
+- [`http`](/reference/operators/http) is a **transformation** operator that
+  enriches events flowing through a pipeline with HTTP responses. Use it when
+  you have existing data and want to make per-event API lookups.
+
+Most examples in this guide use `from_http`. Unless noted otherwise, the same
+options work with `http` as well.
+
 ## Basic API Requests
 
 Start with these fundamental patterns for making HTTP requests to APIs.
 
 ### Simple GET Requests
 
-To fetch data from an API endpoint, pass the URL as the first parameter to the
-`from_http` operator:
+To fetch data from an API endpoint, pass the URL as the first parameter:
 
 ```tql
 from_http "https://api.example.com/data"
 ```
 
 The operator makes a GET request by default and forwards the response as an
-event. The `from_http` operator is an input operator, i.e., it starts a
-pipeline. The companion operator `http` is a transformation, allowing you to
-specify the URL as a field by referencing an event field that contains the URL:
-
-```tql
-from {url: "https://api.example.com/data"}
-http url
-```
-
-This pattern is useful when processing multiple URLs or when URLs are generated
-dynamically. Most of our subsequent examples use `from_http`, as the operator
-options are very similar.
+event.
 
 ### Parsing the HTTP Response Body
 
@@ -150,17 +151,25 @@ API tokens, as in the above example.
 
 ### TLS and Security
 
-Enable TLS by setting the `tls` parameter to `true` and configure client
-certificates using the `certfile` and `keyfile` parameters:
+Configure TLS by passing a record to the `tls` parameter with certificate
+paths:
 
 ```tql
 from_http "https://secure-api.example.com/data",
-  tls=true,
-  certfile="/path/to/client.crt",
-  keyfile="/path/to/client.key"
+  tls={
+    certfile: "/path/to/client.crt",
+    keyfile: "/path/to/client.key",
+  }
 ```
 
 Use these options when APIs require client certificate authentication.
+
+To skip peer verification (e.g., for self-signed certificates in development):
+
+```tql
+from_http "https://dev-api.example.com/data",
+  tls={skip_peer_verification: true}
+```
 
 ### Timeout and Retry Configuration
 
@@ -169,8 +178,8 @@ Configure timeouts and retry behavior by setting the `connection_timeout`,
 
 ```tql
 from_http "https://api.example.com/data",
-  timeout=10s,
-  max_retries=3,
+  connection_timeout=10s,
+  max_retry_count=3,
   retry_delay=2s
 ```
 
@@ -183,62 +192,45 @@ Use HTTP requests to enrich existing data with information from external APIs.
 ### Preserving Input Context
 
 Keep original event data while adding API responses by specifying the
-`response_field` parameter to control where the response is stored:
+`response_field` parameter on the [`http`](/reference/operators/http) operator to
+control where the response is stored:
 
 ```tql
 from {
   domain: "example.com",
   severity: "HIGH",
-  api_url: "https://threat-intel.example.com/lookup",
-  response_field: "threat_data",
 }
-http f"{api_url}?domain={domain}", response_field=response_field
+http f"https://threat-intel.example.com/lookup?domain={domain}",
+  response_field=threat_data
 ```
 
 This approach preserves your original data and adds API responses in a specific
 field.
 
-### Adding Metadata
+### Accessing Response Metadata
 
-Capture HTTP response metadata by specifying the `metadata_field` parameter to
-store status codes and headers separately from the response body:
+With `from_http`, use the `$response` variable inside a parsing pipeline to
+access HTTP status codes and headers:
 
 ```tql
-from_http "https://api.example.com/status", metadata_field=http_meta
+from_http "https://api.example.com/status" {
+  read_json
+  status_code = $response.code
+  server = $response.headers.Server
+}
 ```
 
-The metadata includes status codes and response headers for debugging and
-monitoring.
+With the `http` operator, use the `metadata_field` parameter instead:
+
+```tql
+from {url: "https://api.example.com/status"}
+http url, metadata_field=http_meta
+where http_meta.code >= 200 and http_meta.code < 300
+```
 
 ## Pagination and Bulk Processing
 
 Handle APIs that return large datasets across multiple pages.
-
-### Lambda-Based Pagination
-
-Implement automatic pagination by providing a lambda function to the `paginate`
-parameter that extracts the next page URL from the response:
-
-```tql
-from_http "https://api.example.com/search?q=query",
-  paginate=(response => "next_page_url" if response.has_more)
-```
-
-The operator continues making requests as long as the pagination lambda function
-returns a valid URL.
-
-### Complex Pagination Logic
-
-Handle APIs with custom pagination schemes by building pagination URLs
-dynamically using expressions that reference response data:
-
-```tql
-let $base_url = "https://api.example.com/items"
-from_http f"{$base_url}?page=1",
-  paginate=(x => f"{$base_url}?page={x.page + 1}" if x.page < x.total_pages),
-```
-
-This example builds pagination URLs dynamically based on response data.
 
 ### Link Header Pagination
 
@@ -271,6 +263,31 @@ from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
 http url, paginate="link"
 ```
 
+### Lambda-Based Pagination
+
+The [`http`](/reference/operators/http) operator additionally supports
+lambda-based pagination for APIs with custom pagination schemes. Provide a
+lambda function to the `paginate` parameter that extracts the next page URL from
+the response:
+
+```tql
+from {query: "tenzir"}
+http f"https://api.example.com/search?q={query}",
+  paginate=(x => x.next_url if x.has_more)
+```
+
+The operator continues making requests as long as the pagination lambda returns
+a valid URL.
+
+You can also build pagination URLs dynamically:
+
+```tql
+let $base = "https://api.example.com/items"
+from {category: "security"}
+http f"{$base}?category={category}&page=1",
+  paginate=(x => f"{$base}?category={category}&page={x.page + 1}" if x.page < x.total_pages)
+```
+
 ### Rate Limiting
 
 Control request frequency by configuring the `paginate_delay` parameter to add
@@ -278,15 +295,11 @@ delays between requests and the `parallel` parameter to limit concurrent
 requests:
 
 ```tql
-from {
-  url: "https://api.example.com/data",
-  paginate_delay: 500ms,
-  parallel: 2
-}
-http url,
-  paginate="next_url" if has_next,
-  paginate_delay=paginate_delay,
-  parallel=parallel
+from {domain: "example.com"}
+http f"https://api.example.com/scan?q={domain}",
+  paginate=(x => x.next_url if x.has_next),
+  paginate_delay=500ms,
+  parallel=2
 ```
 
 Use `paginate_delay` and `parallel` to manage request rates appropriately.
@@ -310,17 +323,17 @@ scenarios.
 Monitor API health and response times:
 
 ```tql
-from_http "https://api.example.com/health", metadata_field=metadata
-select date=metadata.headers.Date.parse_time("%a, %d %b %Y %H:%M:%S %Z")
-latency = now() - date
+from_http "https://api.example.com/health" {
+  read_json
+  date = $response.headers.Date.parse_time("%a, %d %b %Y %H:%M:%S %Z")
+  latency = now() - date
+}
 ```
 
 The above example parses the `Date` header from the HTTP response via
 [`parse_time`](/reference/functions/parse_time) into a timestamp and then
 compares it to the current wallclock time using the
 [`now`](/reference/functions/now) function.
-
-Nit: `%T` is a shortcut for `%H:%M:%S`.
 
 ## Error Handling
 
@@ -334,18 +347,28 @@ between retries:
 
 ```tql
 from_http "https://unreliable-api.example.com/data",
-  max_retries=5,
+  max_retry_count=5,
   retry_delay=2s
 ```
 
 ### Status Code Handling
 
-Check HTTP status codes by capturing metadata and filtering based on the
-`code` field to handle different response types:
+Check HTTP status codes using the `$response` variable to handle different
+response types:
 
 ```tql
-from_http "https://api.example.com/data", metadata_field=metadata
-where metadata.code >= 200 and metadata.code < 300
+from_http "https://api.example.com/data" {
+  read_json
+  where $response.code >= 200 and $response.code < 300
+}
+```
+
+With the `http` operator, use `metadata_field` instead:
+
+```tql
+from {url: "https://api.example.com/data"}
+http url, metadata_field=meta
+where meta.code >= 200 and meta.code < 300
 ```
 
 ## Best Practices
@@ -358,8 +381,9 @@ Follow these practices for reliable and efficient API integration:
    handling transient failures.
 3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control
    request rates.
-4. **Handle errors gracefully**. Check status codes in metadata
-   (`metadata_field`) and implement fallback logic.
+4. **Handle errors gracefully**. Use `$response` in `from_http` parsing
+   pipelines or `metadata_field` with `http` to check status codes and implement
+   fallback logic.
 5. **Secure credentials**. Access API keys and tokens via
    [secrets](/explanations/secrets), not in code.
 6. **Monitor API usage**. Track response times and error rates for
