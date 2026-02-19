@@ -577,6 +577,7 @@ Common frontmatter keys:
 | `error`        | boolean         | `false`   | Expect a non-zero exit code.                                            |
 | `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).   |
 | `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                    |
+| `assertions`   | mapping         | `{}`      | Post-test assertion payloads. See [assertions](#assertions).            |
 | `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                       |
 | `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.        |
 
@@ -943,6 +944,36 @@ management. The built-in `docker-compose` fixture uses these helpers internally.
 
 See the [create fixtures](/guides/testing/create-fixtures#use-container-runtime-helpers)
 guide for a step-by-step walkthrough.
+
+## Assertions
+
+The `assertions` frontmatter key holds post-test validation payloads. Each
+top-level key inside `assertions` identifies an assertion category. The harness
+evaluates assertions after the test succeeds but before teardown, so resources
+are still live when checks run. A raised exception fails the test.
+
+### Fixture assertions
+
+Fixture assertions let a fixture verify what happened during the test. Declare
+payloads under `assertions.fixtures.<name>`:
+
+```yaml
+assertions:
+  fixtures:
+    http:
+      expected_request:
+        count: 1
+        method: POST
+        path: /status/not-found
+        body: '{"foo":"bar"}'
+```
+
+The harness constructs a typed instance from the fixture's registered assertions
+dataclass and invokes its `assert_test` hook. Omitting the block skips the hook.
+For suite tests the hook runs after each member rather than once at the end.
+
+The [fixture guide](/guides/testing/create-fixtures#add-fixture-assertions)
+walks through the full implementation.
 
 ## Environment variables
 
