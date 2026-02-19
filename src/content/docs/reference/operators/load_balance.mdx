@@ -52,7 +52,7 @@ let $cfg = ["192.168.0.30:8080", "192.168.0.30:8081"]
 
 subscribe "input"
 load_balance $cfg {
-  to "tcp://$cfg" { write_json }
+  to_tcp $cfg { write_json }
 }
 ```
 

@@ -1,0 +1,60 @@
+---
+title: to_tcp
+category: Outputs/Events
+example: 'to_tcp "collector.example.com:5044" { write_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Connects to a remote TCP or TLS endpoint and sends events.
+
+```tql
+to_tcp endpoint:string, [tls=record] { … }
+```
+
+## Description
+
+Connects to the specified TCP endpoint as a client and writes serialized events
+to the connection. Input events are run through a nested pipeline that must
+produce bytes (e.g., `{ write_json }`).
+
+If the connection fails, the operator reconnects automatically with exponential
+backoff.
+
+### `endpoint: string`
+
+The remote endpoint to connect to. Must be of the form
+`[tcp://]<hostname>:<port>`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions/>
+
+### `{ … }`
+
+The pipeline to serialize input events into bytes. Must produce bytes as output,
+for instance `{ write_json }` or `{ write_csv }`.
+
+## Examples
+
+### Send JSON to a remote server
+
+```tql
+export
+to_tcp "collector.example.com:5044" { write_json }
+```
+
+### Send with TLS
+
+```tql
+export
+to_tcp "collector.example.com:5044", tls={} { write_json }
+```
+
+## See Also
+
+- <Op>from_tcp</Op>
+- <Op>serve_tcp</Op>
+- <Op>accept_tcp</Op>
+- <Integration>tcp</Integration>
