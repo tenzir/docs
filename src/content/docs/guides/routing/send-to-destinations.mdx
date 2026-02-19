@@ -105,9 +105,7 @@ save_file "s3://bucket/logs/events.jsonl"
 Send NDJSON over <Integration>tcp</Integration>:
 
 ```tql
-to "tcp://collector.example.com:5044" {
-  write_json
-}
+to_tcp "collector.example.com:5044" { write_json }
 ```
 
 ## Expression-based serialization
