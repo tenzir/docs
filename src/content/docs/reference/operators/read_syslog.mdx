@@ -146,7 +146,7 @@ When receiving syslog over TCP from systems that use RFC 6587 octet counting,
 the parser auto-detects and strips the length prefix:
 
 ```tql title="Pipeline"
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog
 }
 ```

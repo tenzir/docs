@@ -7,6 +7,11 @@ example: 'load_tcp "0.0.0.0:8090" { read_json }'
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
 
+:::caution[Deprecated]
+Use [`from_tcp`](/reference/operators/from_tcp) for client connections or
+[`accept_tcp`](/reference/operators/accept_tcp) for server connections instead.
+:::
+
 Loads bytes from a TCP or TLS connection.
 
 ```tql
@@ -133,5 +138,8 @@ openssl s_client -connect 127.0.0.1:4000 -cert client.pem -key client-key.pem -C
 ## See Also
 
 - <Op>from_tcp</Op>
+- <Op>to_tcp</Op>
+- <Op>accept_tcp</Op>
+- <Op>serve_tcp</Op>
 - <Op>save_tcp</Op>
 - <Integration>tcp</Integration>

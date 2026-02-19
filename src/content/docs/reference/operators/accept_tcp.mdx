@@ -1,0 +1,80 @@
+---
+title: accept_tcp
+category: Inputs/Events
+example: 'accept_tcp "0.0.0.0:8090" { read_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Listens for incoming TCP or TLS connections and receives events.
+
+```tql
+accept_tcp endpoint:string, [tls=record, { … }]
+```
+
+## Description
+
+Listens on the specified endpoint for incoming TCP connections. For each
+accepted connection, the operator spawns the nested pipeline and feeds it the
+bytes received from that connection.
+
+### `endpoint: string`
+
+The endpoint to listen on. Must be of the form `[tcp://]<hostname>:<port>`. Use
+`0.0.0.0` as the host to accept connections on all interfaces.
+
+### `tls = record (optional)`
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions/>
+
+### `{ … } (optional)`
+
+The pipeline to run for each individual TCP connection. If none is specified, no
+transformations are applied to the output streams. Unless you are sure that
+there is at most one active connection at a time, it is recommended to specify a
+pipeline that parses the individual connection streams into events, for instance
+`{ read_json }`. Otherwise, the output can be interleaved.
+
+Inside the pipeline, the `$peer` variable is available as a record with the
+following fields:
+
+| Field  | Type    | Description                           |
+| :----- | :------ | :------------------------------------ |
+| `ip`   | `ip`    | The IP address of the connected peer  |
+| `port` | `int64` | The port number of the connected peer |
+
+## Examples
+
+### Accept incoming JSON over TCP
+
+```tql
+accept_tcp "0.0.0.0:8090" {
+  read_json
+}
+```
+
+### Accept incoming Syslog over TCP
+
+```tql
+accept_tcp "0.0.0.0:514" {
+  read_syslog
+}
+```
+
+### Accept connections with TLS
+
+```tql
+accept_tcp "0.0.0.0:4443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
+  read_json
+}
+```
+
+## See Also
+
+- <Op>from_tcp</Op>
+- <Op>to_tcp</Op>
+- <Op>serve_tcp</Op>
+- <Integration>tcp</Integration>

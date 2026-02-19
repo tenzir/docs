@@ -14,10 +14,11 @@ ordering.
 
 ### Listen for connections
 
-Start a TCP server that accepts incoming connections:
+Use [`accept_tcp`](/reference/operators/accept_tcp) to start a TCP server that
+accepts incoming connections:
 
 ```tql
-from "tcp://0.0.0.0:9000" {
+accept_tcp "0.0.0.0:9000" {
   read_json
 }
 ```
@@ -27,10 +28,11 @@ pipeline to convert incoming bytes to events.
 
 ### Connect to a remote server
 
-Act as a TCP client by connecting to an existing server:
+Use [`from_tcp`](/reference/operators/from_tcp) to connect to an existing
+server:
 
 ```tql
-from "tcp://192.168.1.100:9000", connect=true {
+from_tcp "192.168.1.100:9000" {
   read_json
 }
 ```
@@ -40,7 +42,7 @@ from "tcp://192.168.1.100:9000", connect=true {
 Secure your TCP connections with TLS by passing a `tls` record:
 
 ```tql
-from "tcp://0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
+accept_tcp "0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```

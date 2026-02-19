@@ -1,0 +1,68 @@
+---
+title: serve_tcp
+category: Outputs/Events
+example: 'serve_tcp "0.0.0.0:8090" { write_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Listens for incoming TCP connections and sends events to all connected clients.
+
+```tql
+serve_tcp endpoint:string, [tls=record] { … }
+```
+
+## Description
+
+The `serve_tcp` operator starts a TCP server on the given endpoint and
+broadcasts pipeline output to all connected clients. Input events are run
+through a nested pipeline that must produce bytes (e.g., `{ write_json }`).
+
+Clients that connect receive the serialized output as a continuous byte stream.
+Clients that disconnect or fail to keep up are dropped with a warning.
+
+### `endpoint: string`
+
+The endpoint to listen on. Must be of the form `[tcp://]<hostname>:<port>`. Use
+`0.0.0.0` as the host to accept connections on all interfaces.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions/>
+
+### `{ … }`
+
+The pipeline to serialize input events into bytes. Must produce bytes as output,
+for instance `{ write_json }` or `{ write_csv }`.
+
+## Examples
+
+### Serve JSON to all connected TCP clients
+
+```tql
+export
+serve_tcp "0.0.0.0:8090" { write_json }
+```
+
+Connect with:
+
+```bash
+nc localhost 8090
+```
+
+### Serve with TLS
+
+```tql
+export
+serve_tcp "0.0.0.0:8443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
+  write_json
+}
+```
+
+## See Also
+
+- <Op>accept_tcp</Op>
+- <Op>from_tcp</Op>
+- <Op>to_tcp</Op>
+- <Integration>tcp</Integration>
