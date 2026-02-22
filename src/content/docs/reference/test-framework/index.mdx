@@ -621,7 +621,8 @@ The `on` field accepts the following values:
 - `fixture-unavailable` — skip when a fixture raises `FixtureUnavailable`
   during initialization. See [Fixture unavailability](#fixture-unavailability).
 - `capability-unavailable` — skip when a required capability (declared via
-  [`requires`](#capability-requirements)) is missing from the Tenzir build.
+  [`requires`](#capability-requirements)) is missing from the runtime
+  environment.
 
 You can combine multiple conditions by passing a list:
 
@@ -642,9 +643,9 @@ the condition message in the skip output.
 
 ### Capability requirements
 
-The `requires` key declares capabilities that the Tenzir build must provide
-for the suite to run. It is only allowed in directory-level `test.yaml` files.
-Currently, the only supported category is `operators`:
+The `requires` key declares capabilities that must be present for a suite to
+run. It is only allowed in directory-level `test.yaml` files. Currently, the
+only supported category is `operators`:
 
 ```yaml
 # tests/gcs/test.yaml
@@ -656,17 +657,18 @@ skip:
   reason: requires GCS operators
 ```
 
-Before running the suite, the harness probes the Tenzir binary for each listed
-operator. If any are missing and the suite carries
+Before running the suite, the harness asks each runner to check the listed
+requirements. If any are missing and the suite carries
 `skip: {on: capability-unavailable}`, the tests are skipped. Without the skip
 opt-in, missing capabilities cause a hard failure with a message listing the
-missing operators.
+missing entries.
 
-Capability probes are runner-aware. The TQL runner checks operators by querying
-`plugins | where name == "<operator>"`. Runners that do not implement
-capability probes report all requirement categories as unsupported, which
-raises a hard error. This means `requires` is currently effective only for
-suites whose tests use the TQL runner.
+Capability probes are runner-aware. Each runner implements its own
+`check_requirements` method. For example, the built-in TQL runner checks
+operators by querying `plugins | where name == "<operator>"`. Custom runners
+can override this method to probe their own environment. Runners that do not
+implement capability probes report all requirement categories as unsupported,
+which raises a hard error.
 
 ### Tenzir configuration files
 
