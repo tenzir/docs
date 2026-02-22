@@ -569,17 +569,18 @@ The harness cycles between three internal modes:
 
 Common frontmatter keys:
 
-| Key            | Type            | Default   | Description                                                             |
-| -------------- | --------------- | --------- | ----------------------------------------------------------------------- |
-| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                      |
-| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings. |
-| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                  |
-| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                            |
-| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).   |
-| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                    |
-| `assertions`   | mapping         | `{}`      | Post-test assertion payloads. See [assertions](#assertions).            |
-| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                       |
-| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.        |
+| Key            | Type            | Default   | Description                                                                                             |
+| -------------- | --------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                                                      |
+| `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings.                                 |
+| `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                                                  |
+| `error`        | boolean         | `false`   | Expect a non-zero exit code.                                                                            |
+| `skip`         | string or dict  | unset     | Mark tests as skipped. See [skip configuration](#skip-configuration).                                   |
+| `requires`     | mapping         | unset     | Capability requirements. See [capability requirements](#capability-requirements). Directory-level only. |
+| `inputs`       | string          | project   | Override `TENZIR_INPUTS` for this directory or test.                                                    |
+| `assertions`   | mapping         | `{}`      | Post-test assertion payloads. See [assertions](#assertions).                                            |
+| `retry`        | integer         | `1`       | Total attempt budget for flaky tests (see below).                                                       |
+| `package-dirs` | list of strings | inherit   | Directory-only; extra packages merged with CLI `--package-dirs`.                                        |
 
 `test.yaml` files accept the same keys and apply recursively to child
 directories. A relative `inputs:` value resolves against the file that defines
@@ -606,25 +607,66 @@ unconditionally skipped. The value is the reason:
 skip: "pending upstream fix"
 ```
 
-**Structured form** conditionally skips tests when a fixture signals that it
-cannot provide its service. Use this when the suite depends on an external
-resource that may not be available in every environment (for example a container
-runtime):
+**Structured form** conditionally skips tests when a runtime condition occurs.
+Use this when the suite depends on an external resource that may not be
+available in every environment:
 
 ```yaml
 skip:
   on: fixture-unavailable
 ```
 
-The only supported value for `on` is `fixture-unavailable`. When a fixture
-raises `FixtureUnavailable` during initialization and the suite carries this
-configuration, all tests in the suite are marked as skipped with exit code 0.
-Without the opt-in configuration the exception propagates normally and causes a
-test failure.
+The `on` field accepts the following values:
+
+- `fixture-unavailable` — skip when a fixture raises `FixtureUnavailable`
+  during initialization. See [Fixture unavailability](#fixture-unavailability).
+- `capability-unavailable` — skip when a required capability (declared via
+  [`requires`](#capability-requirements)) is missing from the Tenzir build.
+
+You can combine multiple conditions by passing a list:
+
+```yaml
+skip:
+  on:
+    - fixture-unavailable
+    - capability-unavailable
+```
+
+When the triggering condition occurs and the suite carries the matching `on`
+value, all tests in the suite are marked as skipped with exit code 0. Without
+the opt-in configuration the exception propagates normally and causes a test
+failure.
 
 The optional `reason` field provides additional context that is combined with
-the exception message in the skip output. See
-[Fixture unavailability](#fixture-unavailability) for the fixture-side API.
+the condition message in the skip output.
+
+### Capability requirements
+
+The `requires` key declares capabilities that the Tenzir build must provide
+for the suite to run. It is only allowed in directory-level `test.yaml` files.
+Currently, the only supported category is `operators`:
+
+```yaml
+# tests/gcs/test.yaml
+suite: gcs-integration
+requires:
+  operators: [from_gcs, to_gcs]
+skip:
+  on: capability-unavailable
+  reason: requires GCS operators
+```
+
+Before running the suite, the harness probes the Tenzir binary for each listed
+operator. If any are missing and the suite carries
+`skip: {on: capability-unavailable}`, the tests are skipped. Without the skip
+opt-in, missing capabilities cause a hard failure with a message listing the
+missing operators.
+
+Capability probes are runner-aware. The TQL runner checks operators by querying
+`plugins | where name == "<operator>"`. Runners that do not implement
+capability probes report all requirement categories as unsupported, which
+raises a hard error. This means `requires` is currently effective only for
+suites whose tests use the TQL runner.
 
 ### Tenzir configuration files
 
@@ -1043,9 +1085,10 @@ uvx tenzir-test --update
 - **Unexpected exits** – Set `error: true` in frontmatter when a non-zero exit is
   expected.
 - **Skipped tests** – Use `skip: reason` to document temporary skips; baseline
-  files can stay empty. For fixture-dependent suites, use the structured
-  `skip: {on: fixture-unavailable}` form so tests skip gracefully when a
-  required tool is missing.
+  files can stay empty. For fixture-dependent suites, use
+  `skip: {on: fixture-unavailable}` so tests skip gracefully when a required
+  tool is missing. For capability-dependent suites, combine `requires` with
+  `skip: {on: capability-unavailable}`.
 - **Noisy output** – Use `--jobs 1` to serialize worker logs, and enable
   `--debug` (or set `TENZIR_TEST_DEBUG=1`) when you need to trace comparisons
   and fixture activity. Note that `--debug` automatically enables verbose
