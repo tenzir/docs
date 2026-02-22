@@ -7,25 +7,26 @@ example: '"Hi".slice(begin=2, stride=4)'
 import Fn from '@components/see-also/Fn.astro';
 import Guide from '@components/see-also/Guide.astro';
 
-Slices a string with offsets and strides.
+Slices a string or list with offsets and strides.
 
 ```tql
 slice(x:string, [begin=int, end=int, stride=int])
+slice(x:list, [begin=int, end=int, stride=int])
 ```
 
 ## Description
 
-The `slice` function takes a string as input and selects parts from it.
+The `slice` function takes a string or list as input and selects parts from it.
 
-### `x: string`
+### `x: string|list`
 
-The string to slice.
+The string or list to slice.
 
 ### `begin = int (optional)`
 
 The offset to start slice from.
 
-If negative, offset is calculated from the end of string.
+If negative, offset is calculated from the end of the input.
 
 Defaults to `0`.
 
@@ -33,16 +34,17 @@ Defaults to `0`.
 
 The offset to end the slice at.
 
-If negative, offset is calculated from the end of string.
+If negative, offset is calculated from the end of the input.
 
-If unspecified, ends at the `input`'s end.
+If unspecified, ends at the input's end.
 
 ### `stride = int (optional)`
 
-The difference between the current character to take and the next character to
-take.
+The step size between elements to select.
 
-If negative, characters are chosen in reverse.
+For strings, stride must be positive. For lists, stride can be negative. When
+negative, elements are selected in reverse order from the range defined by
+`begin` and `end`.
 
 Defaults to `1`.
 
@@ -79,6 +81,39 @@ x = x.slice(begin=1, end=8)
 
 ```tql
 {x: "2345678"}
+```
+
+### Get the first 3 elements of a list
+
+```tql
+from {x: [1, 2, 3, 4, 5]}
+x = x.slice(end=3)
+```
+
+```tql
+{x: [1, 2, 3]}
+```
+
+### Slice a list with a negative begin offset
+
+```tql
+from {x: [1, 2, 3, 4, 5]}
+x = x.slice(begin=-3)
+```
+
+```tql
+{x: [3, 4, 5]}
+```
+
+### Reverse a list
+
+```tql
+from {x: [1, 2, 3, 4, 5]}
+x = x.slice(stride=-1)
+```
+
+```tql
+{x: [5, 4, 3, 2, 1]}
 ```
 
 ## See Also
