@@ -317,6 +317,38 @@ paths resolve against the directory that owns the YAML file, so `inputs: ../data
 points at `tests/data/`. Individual files still override keys in their
 frontmatter when necessary.
 
+## Step 9: Skip suites by capability
+
+Some suites only make sense when certain capabilities are present in the
+runtime environment. Declare requirements in `test.yaml` with the `requires`
+key and opt into graceful skipping with `skip: {on: capability-unavailable}`:
+
+```yaml
+# tests/gcs/test.yaml
+suite: gcs-smoke
+requires:
+  operators: [from_gcs]
+skip:
+  on: capability-unavailable
+```
+
+Before executing the suite, the harness asks each runner to check the listed
+requirements. When a required operator is missing, the suite is skipped instead
+of failing. Without the `skip` opt-in, missing requirements cause a hard error.
+
+You can combine this with `fixture-unavailable` when a suite depends on both
+capabilities and fixtures:
+
+```yaml
+skip:
+  on:
+    - fixture-unavailable
+    - capability-unavailable
+```
+
+See the [capability requirements](/reference/test-framework#capability-requirements)
+reference for details on how runners implement the probes.
+
 ## Next steps
 
 You now have a project that owns its inputs, tests, fixtures, and baselines.
