@@ -1,7 +1,7 @@
 ---
 title: to_kafka
 category: Outputs/Events
-example: 'to_kafka "topic", message=this.print_json()'
+example: 'to_kafka "topic", message=this.print_ndjson()'
 ---
 
 import Op from '@components/see-also/Op.astro';
@@ -41,7 +41,7 @@ The Kafka topic to send messages to.
 
 An expression that evaluates to the message content for each row.
 
-Defaults to `this.print_json()` when not specified.
+Defaults to `this.print_ndjson()` when not specified.
 
 ### `key = string (optional)`
 
@@ -72,7 +72,7 @@ connecting to MSK with IAM authentication.
 
 ## Examples
 
-### Send JSON-formatted events to topic `events` (using default)
+### Send NDJSON-formatted events to topic `events` (using default)
 
 Stream security events to a Kafka topic with automatic JSON formatting:
 
@@ -85,7 +85,8 @@ to_kafka "events"
 
 This pipeline subscribes to security alerts, filters for high-severity events,
 selects relevant fields, and sends them to Kafka as JSON. Each event is
-automatically formatted using `this.print_json()`, producing messages like:
+automatically formatted using `this.print_ndjson()`, producing one NDJSON line per
+event:
 
 ```json
 {
@@ -96,11 +97,11 @@ automatically formatted using `this.print_json()`, producing messages like:
 }
 ```
 
-### Send JSON-formatted events with explicit message
+### Send NDJSON-formatted events with explicit message
 
 ```tql
 subscribe "logs"
-to_kafka "events", message=this.print_json()
+to_kafka "events", message=this.print_ndjson()
 ```
 
 ### Send specific field values with a timestamp
@@ -114,7 +115,7 @@ to_kafka "alerts", message=alert_msg, timestamp=2024-01-01T00:00:00
 
 ```tql
 metrics
-to_kafka "metrics", message=this.print_json(), key="server-01"
+to_kafka "metrics", message=this.print_ndjson(), key="server-01"
 ```
 
 ## See Also

@@ -12,7 +12,7 @@ Receives events from an Apache Kafka topic.
 
 ```tql
 from_kafka topic:string, [count=int, exit=bool, offset=int|string, options=record,
-           aws_iam=record, aws_region=string, commit_batch_size=int]
+           aws_iam=record, aws_region=string, batch_size=int, batch_timeout=duration]
 ```
 
 ## Description
@@ -84,13 +84,20 @@ options][librdkafka-options] to configure Kafka according to your needs.
 We recommend factoring these options into the plugin-specific `kafka.yaml` so
 that they are independent of the `from_kafka` arguments.
 
-### `commit_batch_size = int (optional)`
+### `batch_size = int (optional)`
 
-The operator commits offsets after receiving `commit_batch_size` messages
-to improve throughput. If you need to ensure exactly-once semantics for your
-pipeline, set this option to `1` to commit every message individually.
+The number of messages to accumulate before emitting a batch. The operator
+commits offsets after each batch to improve throughput.
 
 Defaults to `1000`.
+
+### `batch_timeout = duration (optional)`
+
+The maximum time to wait before flushing a partial batch. If the operator
+receives fewer than `batch_size` messages within this interval, it emits
+and commits whatever it has collected so far.
+
+Defaults to `10s`.
 
 ## Amazon MSK
 
