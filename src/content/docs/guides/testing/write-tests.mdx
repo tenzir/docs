@@ -238,15 +238,42 @@ timeout: 45
 retry: 2
 ```
 
+The `suite` key accepts either a plain string (as shown earlier) or a mapping
+with `name` and `mode` keys:
+
+```yaml
+# tests/pubsub/test.yaml
+suite:
+  name: parallel-pubsub
+  mode: parallel
+fixtures: [node]
+timeout: 30
+```
+
+The `mode` key controls how suite members execute:
+
+- `sequential` (default): members run one after another in lexicographic order
+  of their relative paths.
+- `parallel`: all members run concurrently on separate threads while sharing the
+  same fixture lifecycle. Use this when tests are independent and can safely
+  share fixtures at the same time, for example in publish/subscribe workflows
+  where a publisher and multiple subscribers must run simultaneously.
+
+When `mode` is omitted or set to `sequential`, the behavior is identical to the
+plain string form.
+
 Key behaviour:
 
 - Suites are directory-scoped. Once a `test.yaml` declares `suite`, every test
   in that directory _and its subdirectories_ joins automatically. Move the
   scenarios that should remain independent into a sibling directory.
-- Suites run sequentially on a single worker. The harness activates the shared
-  fixtures once, executes members in lexicographic order of their relative
-  paths, and tears the fixtures down afterwards. Other suites (and standalone
-  tests) still run in parallel when `--jobs` allows it.
+- In sequential mode, the harness activates the shared fixtures once, executes
+  members in lexicographic order, and tears the fixtures down afterwards. In
+  parallel mode, the harness activates fixtures once, runs all members
+  concurrently, and tears down after every member finishes. Fixture assertions
+  are serialized during parallel execution to maintain correctness.
+- Other suites (and standalone tests) still run in parallel when `--jobs`
+  allows it.
 - Per-test frontmatter cannot introduce `suite`, and suite members may not
   define their own `fixtures` or `retry`. Keep those policies in the directory
   defaults so every member agrees on the shared lifecycle. Outside a suite,
