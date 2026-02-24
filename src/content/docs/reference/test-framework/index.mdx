@@ -39,9 +39,9 @@ uvx tenzir-test --help
   entries).
 - **Fixture** – Reusable environment provider registered under `fixtures/` and
   requested via frontmatter.
-- **Suite** – Directory-owned group of tests that share fixtures and run
-  sequentially. Declare it with `suite:` in a `test.yaml`; all descendants join
-  automatically.
+- **Suite** – Directory-owned group of tests that share fixtures. Declare it
+  with `suite:` in a `test.yaml`; all descendants join automatically. Members
+  run sequentially by default, or concurrently when `mode: parallel` is set.
 - **Input** – Data accessed with `TENZIR_INPUTS`; defaults to `<root>/inputs` but
   you can override it per directory or per test with an `inputs:` setting. The
   harness also supports inline inputs via `TENZIR_INPUT` for test-specific data
@@ -240,12 +240,36 @@ Suites let you run several tests under one shared fixture lifecycle. Declare a
 suite in a directory-level `test.yaml`; the definition applies to every test
 under that directory, including nested subdirectories.
 
+The `suite` key accepts a plain string or a mapping with `name` and `mode`:
+
 ```yaml
-# tests/http/test.yaml
+# tests/http/test.yaml — sequential (default)
 suite: smoke-http
 fixtures: [http]
 timeout: 45
 ```
+
+The mapping form adds a `mode` field:
+
+```yaml
+# tests/pubsub/test.yaml — parallel execution
+suite:
+  name: parallel-pubsub
+  mode: parallel
+fixtures: [node]
+timeout: 30
+```
+
+The `mode` field controls how members execute:
+
+- `sequential` (default): members run one after another in lexicographic order.
+- `parallel`: all members run concurrently on separate threads while sharing the
+  same fixture lifecycle. Fixture assertions are serialized to maintain
+  correctness. Use this when tests are independent and can safely share fixtures
+  at the same time.
+
+The plain string form (`suite: smoke-http`) is equivalent to
+`suite: {name: smoke-http, mode: sequential}`.
 
 Key rules:
 
@@ -258,9 +282,8 @@ Key rules:
   defined at the directory level once a suite is active so every member agrees
   on the shared lifecycle. Outside suites you can still set those keys directly
   in frontmatter.
-- The harness runs suite members sequentially in lexicographic order of their
-  relative paths. Each suite occupies a single worker, but different suites can
-  run in parallel when `--jobs` allows it.
+- Each suite occupies a single worker. Different suites (and standalone tests)
+  can run in parallel when `--jobs` allows it.
 - The CLI executes all suites before any remaining standalone tests so shared
   fixtures start and stop predictably.
 - Run the directory that defines the suite (for example `tenzir-test tests/http`)
