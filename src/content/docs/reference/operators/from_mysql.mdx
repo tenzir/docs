@@ -27,6 +27,10 @@ The operator supports three query modes that are mutually exclusive:
 2. **SQL mode**: Execute a custom SQL query using the `sql` parameter
 3. **Show mode**: List tables or columns using the `show` parameter
 
+Internal metadata queries (such as resolving tracking columns for live mode) use
+MySQL prepared statements to prevent SQL injection through user-provided table
+and column names.
+
 ### `uri = string (optional)`
 
 A MySQL connection URI in the format:
