@@ -81,13 +81,31 @@ from_file "input.tql" {
 }
 ```
 
-### Round-trip data through TQL notation
+### Assign a schema name
 
 ```tql
-export
-write_tql
-read_tql
+from_file "events.tql" {
+  read_tql schema="my_events"
+}
 ```
+
+### Use a field as schema selector
+
+Given records with a `type` field, use it to derive the schema name:
+
+```tql title="input.tql"
+{type: "alert", severity: "high", msg: "intrusion detected"}
+{type: "flow", src: 10.0.0.1, dst: 10.0.0.2}
+```
+
+```tql title="Pipeline"
+from_file "input.tql" {
+  read_tql selector="type:suricata"
+}
+```
+
+Events with `type: "alert"` get the schema `suricata.alert`, and events with
+`type: "flow"` get the schema `suricata.flow`.
 
 ## See Also
 
