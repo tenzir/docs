@@ -77,17 +77,26 @@ valid certificates are rejected.
 ## Platform connection TLS
 
 When connecting a node to the Tenzir Platform, you can configure TLS settings
-specifically for this connection:
+specifically for this connection under `plugins.platform`. All options have the
+same semantics as the [node-level TLS config](#node-level-tls-configuration),
+but only apply to the node &harr; platform connection.
 
 ```yaml title="tenzir.yaml"
 plugins:
   platform:
+    enable: true
+    skip-peer-verification: false
+    cacert: "/etc/ssl/certs/ca-certificates.crt"
+    certfile: "/etc/tenzir/platform-client.crt"
+    keyfile: "/etc/tenzir/platform-client.key"
     tls-min-version: "1.2"
     tls-ciphers: "HIGH:!aNULL:!MD5"
+    tls-client-ca: "/etc/tenzir/platform-ca.crt"
+    tls-require-client-cert: false
 ```
 
-If not specified, these settings fall back to the node-level `tenzir.tls`
-settings.
+Any option specified here overrides the corresponding node-level
+`tenzir.tls` setting.
 
 ## Generate test certificates
 
