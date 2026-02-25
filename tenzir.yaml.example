@@ -435,15 +435,19 @@ tenzir:
 # Plugin-specific configuration.
 plugins:
   # TLS settings for the connection from the node to the Tenzir Platform.
-  # These take precedence over the node-level tenzir.tls settings but fall
-  # back to them if not specified.
+  # All options have the same semantics as the node-level tenzir.tls config
+  # block, but only apply to the node <-> platform connection. Any option
+  # specified here overrides the corresponding node-level setting.
   platform:
-    # Minimum TLS protocol version for platform connections.
-    # Valid values: "1.0", "1.1", "1.2", "1.3".
+    #enable:
+    #skip-peer-verification:
+    #cacert:
+    #certfile:
+    #keyfile:
     #tls-min-version:
-
-    # OpenSSL cipher list string for platform connections.
     #tls-ciphers:
+    #tls-client-ca:
+    #tls-require-client-cert:
 
 # The below settings are internal to CAF, and aren't checked by Tenzir directly.
 # Please be careful when changing these options. Note that some CAF options may
