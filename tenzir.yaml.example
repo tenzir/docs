@@ -57,6 +57,41 @@ tenzir:
   #   - /etc/ssl/certs/ca-certificates.crt on Ubuntu
   #cacert:
 
+  # TLS configuration that applies to all operators supporting TLS, such as
+  # from_http, load_tcp, save_tcp, to_opensearch, from_opensearch, to_splunk,
+  # save_email, and to_fluent_bit. Operators can override these settings
+  # individually via their `tls` option.
+  tls:
+    # Enable TLS on all operators that support it.
+    #enable: false
+
+    # Disable certificate verification (not recommended for production).
+    #skip-peer-verification: false
+
+    # Path to a CA certificate bundle for server verification.
+    #cacert:
+
+    # Path to a client certificate file.
+    #certfile:
+
+    # Path to a client private key file.
+    #keyfile:
+
+    # Minimum TLS protocol version.
+    # Valid values: "1.0", "1.1", "1.2", "1.3".
+    #tls-min-version:
+
+    # OpenSSL cipher list string.
+    #tls-ciphers:
+
+    # Path to a CA certificate for validating client certificates (mTLS).
+    # Only applies to operators that accept incoming connections.
+    #tls-client-ca:
+
+    # Require clients to present valid certificates signed by the client CA
+    # (mTLS). Only applies to operators that accept incoming connections.
+    #tls-require-client-cert: false
+
   # The file system path used for persistent state.
   # Defaults to one of the following paths, selecting the first that is
   # available:
@@ -396,6 +431,19 @@ tenzir:
 
   # Configure the interval for experimental trimming of unused memory.
   malloc-trim-interval: 10min
+
+# Plugin-specific configuration.
+plugins:
+  # TLS settings for the connection from the node to the Tenzir Platform.
+  # These take precedence over the node-level tenzir.tls settings but fall
+  # back to them if not specified.
+  platform:
+    # Minimum TLS protocol version for platform connections.
+    # Valid values: "1.0", "1.1", "1.2", "1.3".
+    #tls-min-version:
+
+    # OpenSSL cipher list string for platform connections.
+    #tls-ciphers:
 
 # The below settings are internal to CAF, and aren't checked by Tenzir directly.
 # Please be careful when changing these options. Note that some CAF options may
