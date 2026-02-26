@@ -10,7 +10,7 @@ import Integration from '@components/see-also/Integration.astro';
 Listens for incoming TCP connections and sends events to all connected clients.
 
 ```tql
-serve_tcp endpoint:string, [tls=record] { … }
+serve_tcp endpoint:string, [max_connections=int, tls=record] { … }
 ```
 
 ## Description
@@ -30,6 +30,13 @@ The endpoint to listen on. Must be of the form `[tcp://]<hostname>:<port>`. Use
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions/>
+
+### `max_connections = int (optional)`
+
+The maximum number of simultaneous client connections to accept. Additional
+connections beyond this limit are rejected.
+
+Defaults to unlimited.
 
 ### `{ … }`
 
