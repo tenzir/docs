@@ -8,6 +8,12 @@ import Fn from '@components/see-also/Fn.astro';
 
 Computes an HMAC (Hash-based Message Authentication Code).
 
+:::caution[Experimental]
+This function is experimental. The `key` parameter currently accepts a plain
+string because function arguments cannot be secrets yet. We plan to change this
+in the future.
+:::
+
 ```tql
 hmac(x:any, key:string, [algorithm=string]) -> string
 ```
@@ -26,7 +32,8 @@ are first converted to their string representation.
 
 ### `key: string`
 
-The secret key for the HMAC computation.
+The secret key for the HMAC computation. Currently a plain string; secret
+support is planned for the future.
 
 ### `algorithm = string (optional)`
 
