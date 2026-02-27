@@ -1,0 +1,88 @@
+---
+title: hmac
+category: Hashing
+example: 'hmac("foo", "key")'
+---
+
+import Fn from '@components/see-also/Fn.astro';
+
+Computes an HMAC (Hash-based Message Authentication Code).
+
+```tql
+hmac(x:any, key:string, [algorithm=string]) -> string
+```
+
+## Description
+
+The `hmac` function computes an HMAC for the given value `x` using the provided
+`key`. HMAC combines a cryptographic hash function with a secret key to produce
+a message authentication code, useful for verifying both data integrity and
+authenticity.
+
+### `x: any`
+
+The value to authenticate. Strings and blobs are hashed directly; other types
+are first converted to their string representation.
+
+### `key: string`
+
+The secret key for the HMAC computation.
+
+### `algorithm = string (optional)`
+
+The hash algorithm to use. Defaults to `"sha256"`.
+
+Supported algorithms: `sha256`, `sha512`, `sha384`, `sha1`, `md5`.
+
+## Examples
+
+### Compute an HMAC with the default algorithm (SHA-256)
+
+```tql
+from {
+  digest: hmac("The quick brown fox jumps over the lazy dog", "key"),
+}
+```
+
+```tql
+{
+  digest: "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8",
+}
+```
+
+### Compute an HMAC with SHA-512
+
+```tql
+from {
+  digest: hmac("The quick brown fox jumps over the lazy dog", "key", algorithm="sha512"),
+}
+```
+
+```tql
+{
+  digest: "b42af09057bac1e2d41708e48a902e09b5ff7f12ab428a4fe86653c73dd248fb82f948a549f7b791a5b41915ee4d1ec3935357e4e2317250d0372afa2ebeeb3a",
+}
+```
+
+### Authenticate field values in a pipeline
+
+```tql
+from {message: "login_attempt", user: "alice"}
+digest = hmac(message, "my-secret-key")
+```
+
+```tql
+{
+  message: "login_attempt",
+  user: "alice",
+  digest: "5e2b4e934dddfc291cad7e4982e3a6a78f498a429fbb12ef8e23e8e2ec9b3391",
+}
+```
+
+## See Also
+
+- <Fn>hash_sha256</Fn>
+- <Fn>hash_sha512</Fn>
+- <Fn>hash_sha384</Fn>
+- <Fn>hash_sha1</Fn>
+- <Fn>hash_md5</Fn>
