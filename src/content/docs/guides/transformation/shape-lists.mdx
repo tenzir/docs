@@ -298,6 +298,46 @@ unique_nums = distinct(numbers).sort()
 }
 ```
 
+## Use lists as sets
+
+Use [`add()`](/reference/functions/add) for set-insertion (append only if absent)
+and [`remove()`](/reference/functions/remove) to delete all occurrences:
+
+```tql
+from {tags: ["info", "warning", "info"]}
+with_error = tags.add("error")
+still_same = tags.add("info")
+without_info = tags.remove("info")
+```
+
+```tql
+{
+  tags: ["info", "warning", "info"],
+  with_error: ["info", "warning", "info", "error"],
+  still_same: ["info", "warning", "info"],
+  without_info: ["warning"]
+}
+```
+
+Combine `add()` with [`distinct()`](/reference/functions/distinct) when you need
+a deduplicated collection:
+
+```tql
+from {xs: [1, 2, 2, 3]}
+unique = distinct(xs).sort()
+with_4 = unique.add(4)
+with_2 = unique.add(2)
+```
+
+```tql
+{
+  xs: [1, 2, 2, 3],
+  unique: [1, 2, 3],
+  with_4: [1, 2, 3, 4],
+  with_2: [1, 2, 3]
+}
+```
+
 ## Flatten nested lists
 
 Note: Direct list flattening is not currently supported in TQL. The [`flatten()`](/reference/functions/flatten) function is designed for flattening records, not lists. To work with nested lists, you would need to process them element by element.
