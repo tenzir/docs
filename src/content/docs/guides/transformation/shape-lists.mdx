@@ -15,9 +15,9 @@ Get values from specific positions:
 
 ```tql
 from {items: ["first", "second", "third", "fourth"]}
-set first_item = items[0]
-set last_item = items[-1]
-set length = items.length()
+first_item = items[0]
+last_item = items[-1]
+length = items.length()
 ```
 
 ```tql
@@ -41,9 +41,9 @@ Use [`append()`](/reference/functions/append) and [`prepend()`](/reference/funct
 
 ```tql
 from {colors: ["red", "green"]}
-set with_blue = colors.append("blue")
-set with_yellow = with_blue.prepend("yellow")
-set multi_append = colors.append("blue").append("purple")
+with_blue = colors.append("blue")
+with_yellow = with_blue.prepend("yellow")
+multi_append = colors.append("blue").append("purple")
 ```
 
 ```tql
@@ -65,9 +65,9 @@ from {
   list2: [4, 5, 6],
   list3: [7, 8, 9]
 }
-set combined = concatenate(concatenate(list1, list2), list3)
-set spread = [...list1, ...list2, ...list3]
-set with_value = [...list1, 10, ...list2]
+combined = concatenate(concatenate(list1, list2), list3)
+spread = [...list1, ...list2, ...list3]
+with_value = [...list1, 10, ...list2]
 ```
 
 ```tql
@@ -90,9 +90,9 @@ from {
   prices: [10, 20, 30],
   names: ["alice", "bob", "charlie"]
 }
-set with_tax = prices.map(p => p * 1.1)
-set uppercase = names.map(n => n.to_upper())
-set squared = prices.map(x => x * x)
+with_tax = prices.map(p => p * 1.1)
+uppercase = names.map(n => n.to_upper())
+squared = prices.map(x => x * x)
 ```
 
 ```tql
@@ -116,9 +116,9 @@ from {
 }
 // Note: The modulo operator (%) is not currently supported in TQL
 // Here's an alternative approach for filtering:
-set big_nums = numbers.where(n => n > 5)
-set small_nums = numbers.where(n => n <= 5)
-set a_names = users.where(u => u.starts_with("a"))
+big_nums = numbers.where(n => n > 5)
+small_nums = numbers.where(n => n <= 5)
+a_names = users.where(u => u.starts_with("a"))
 ```
 
 ```tql
@@ -140,8 +140,8 @@ from {
   numbers: [3, 1, 4, 1, 5, 9],
   words: ["zebra", "apple", "banana"]
 }
-set sorted_nums = numbers.sort()
-set sorted_words = words.sort()
+sorted_nums = numbers.sort()
+sorted_words = words.sort()
 ```
 
 ```tql
@@ -157,7 +157,7 @@ Sort in descending order with `desc`:
 
 ```tql
 from {numbers: [3, 1, 4, 1, 5, 9]}
-set descending = numbers.sort(desc=true)
+descending = numbers.sort(desc=true)
 ```
 
 ```tql
@@ -174,8 +174,8 @@ from {
     {name: "Bob", age: 25}
   ]
 }
-set by_age = users.sort(cmp=(a, b) => a.age < b.age)
-set by_name = users.sort(cmp=(a, b) => a.name < b.name)
+by_age = users.sort(cmp=(a, b) => a.age < b.age)
+by_name = users.sort(cmp=(a, b) => a.name < b.name)
 ```
 
 ```tql
@@ -206,7 +206,7 @@ Get the first N elements:
 
 ```tql
 from {xs: [1, 2, 3, 4, 5]}
-set first_three = xs.slice(end=3)
+first_three = xs.slice(end=3)
 ```
 
 ```tql
@@ -217,7 +217,7 @@ Get the last N elements:
 
 ```tql
 from {xs: [1, 2, 3, 4, 5]}
-set last_three = xs.slice(begin=-3)
+last_three = xs.slice(begin=-3)
 ```
 
 ```tql
@@ -228,7 +228,7 @@ Extract a range:
 
 ```tql
 from {xs: [10, 20, 30, 40, 50, 60, 70]}
-set middle = xs.slice(begin=2, end=5)
+middle = xs.slice(begin=2, end=5)
 ```
 
 ```tql
@@ -239,7 +239,7 @@ Reverse a list:
 
 ```tql
 from {xs: [1, 2, 3, 4, 5]}
-set reversed = xs.slice(stride=-1)
+reversed = xs.slice(stride=-1)
 ```
 
 ```tql
@@ -250,7 +250,7 @@ Select every Nth element:
 
 ```tql
 from {xs: [1, 2, 3, 4, 5, 6, 7, 8]}
-set every_other = xs.slice(stride=2)
+every_other = xs.slice(stride=2)
 ```
 
 ```tql
@@ -264,8 +264,8 @@ to implement a top-k query over list elements:
 
 ```tql
 from {scores: [72, 95, 88, 61, 83, 97, 56]}
-set top_3 = scores.sort(desc=true).slice(end=3)
-set bottom_3 = scores.sort().slice(end=3)
+top_3 = scores.sort(desc=true).slice(end=3)
+bottom_3 = scores.sort().slice(end=3)
 ```
 
 ```tql
@@ -285,8 +285,8 @@ from {
   items: ["a", "b", "a", "c", "b", "d"],
   numbers: [1, 2, 2, 3, 3, 3, 4]
 }
-set unique_items = distinct(items)
-set unique_nums = distinct(numbers)
+unique_items = distinct(items).sort()
+unique_nums = distinct(numbers).sort()
 ```
 
 ```tql
@@ -314,9 +314,9 @@ from {
     {name: "Charlie", age: 35, city: "NYC"}
   ]
 }
-set names = users.map(u => u.name)
-set nyc_users = users.where(u => u.city == "NYC")
-set avg_age = users.map(u => u.age).sum() / users.length()
+names = users.map(u => u.name)
+nyc_users = users.where(u => u.city == "NYC")
+avg_age = users.map(u => u.age).sum() / users.length()
 ```
 
 ```tql
@@ -348,9 +348,9 @@ from {
   cities: ["NYC", "SF", "LA"]
 }
 // Note: zip only takes 2 arguments, returns records with left/right fields
-set name_age = zip(names, ages)
-set zipped = zip(name_age, cities)
-set users = zipped.map(z => {
+name_age = zip(names, ages)
+zipped = zip(name_age, cities)
+users = zipped.map(z => {
   name: z.left.left,
   age: z.left.right,
   city: z.right
@@ -434,7 +434,7 @@ san_entries = domains.map(name => {
     {
       name: "example.com",
       type: "DNSName",
-      verified: true
+      verified: false
     },
     {
       name: "www.example.com",
@@ -489,8 +489,8 @@ from {
     }
   }
 }
-set users = response.data.users
-set summaries = users.map(u, {
+users = response.data.users
+summaries = users.map(u => {
   name: u.name,
   avg_score: u.scores.sum() / u.scores.length(),
   max_score: u.scores.max()
@@ -523,10 +523,10 @@ from {
     {id: "C003", name: "Tool", price: 15}
   ]
 }
-set first_item = items.first()
-set ids = items.map(item => item.id)
-set names = items.map(item => item.name)
-set expensive = items.where(item => item.price > 15)
+first_item = items.first()
+ids = items.map(item => item.id)
+names = items.map(item => item.name)
+expensive = items.where(item => item.price > 15)
 ```
 
 ```tql

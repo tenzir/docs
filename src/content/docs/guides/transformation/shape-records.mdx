@@ -23,10 +23,10 @@ from {
     }
   }
 }
-set name = user.name
-set city = user.address.city
-set zip = user["address"]["zip"]
-set has_email = user.has("email")
+name = user.name
+city = user.address.city
+zip = user["address"]["zip"]
+has_email = user.has("email")
 ```
 
 ```tql
@@ -55,9 +55,9 @@ from {
     ssl: true
   }
 }
-set field_names = config.keys()
+field_names = config.keys()
 // Note: values() function is not available
-set num_fields = config.keys().length()
+num_fields = config.keys().length()
 ```
 
 ```tql
@@ -77,9 +77,9 @@ from {
   defaults: {host: "localhost", port: 80, ssl: false},
   custom: {port: 8080, ssl: true}
 }
-set merged = merge(defaults, custom)
-set spread = {...defaults, ...custom}
-set with_extra = {...defaults, ...custom, debug: true}
+merged = merge(defaults, custom)
+spread = {...defaults, ...custom}
+with_extra = {...defaults, ...custom, debug: true}
 ```
 
 ```tql
@@ -105,7 +105,7 @@ from {
   }
 }
 // Manual transformation example:
-set with_tax = {
+with_tax = {
   apple: prices.apple * 1.1,
   banana: prices.banana * 1.1,
   orange: prices.orange * 1.1
@@ -128,12 +128,12 @@ from {
 }
 // Note: filter_keys and select functions are not available
 // Manual field selection:
-set public_info = {
+public_info = {
   id: user.id,
   name: user.name,
   email: user.email
 }
-set contact = {
+contact = {
   name: user.name,
   email: user.email
 }
