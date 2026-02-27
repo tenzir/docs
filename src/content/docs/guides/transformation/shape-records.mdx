@@ -1,0 +1,168 @@
+---
+title: Shape records
+---
+
+import Fn from "@components/see-also/Fn.astro";
+import Guide from "@components/see-also/Guide.astro";
+
+Records (objects) contain key-value pairs. This guide shows you how to work with
+records — accessing fields, extracting keys, merging, and transforming values.
+
+## Access record fields
+
+Get values using dot notation or brackets:
+
+```tql
+from {
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {
+      city: "NYC",
+      zip: "10001"
+    }
+  }
+}
+name = user.name
+city = user.address.city
+zip = user["address"]["zip"]
+has_email = user.has("email")
+```
+
+```tql
+{
+  user: {
+    name: "Alice",
+    age: 30,
+    address: {city: "NYC", zip: "10001"}
+  },
+  name: "Alice",
+  city: "NYC",
+  zip: "10001",
+  has_email: false
+}
+```
+
+## Get keys and values
+
+Extract field names and values:
+
+```tql
+from {
+  config: {
+    host: "localhost",
+    port: 8080,
+    ssl: true
+  }
+}
+field_names = config.keys()
+// Note: values() function is not available
+num_fields = config.keys().length()
+```
+
+```tql
+{
+  config: {host: "localhost", port: 8080, ssl: true},
+  field_names: ["host", "port", "ssl"],
+  num_fields: 3
+}
+```
+
+## Merge records
+
+Combine multiple records with [`merge()`](/reference/functions/merge) or spread syntax:
+
+```tql
+from {
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true}
+}
+merged = merge(defaults, custom)
+spread = {...defaults, ...custom}
+with_extra = {...defaults, ...custom, debug: true}
+```
+
+```tql
+{
+  defaults: {host: "localhost", port: 80, ssl: false},
+  custom: {port: 8080, ssl: true},
+  merged: {host: "localhost", port: 8080, ssl: true},
+  spread: {host: "localhost", port: 8080, ssl: true},
+  with_extra: {host: "localhost", port: 8080, ssl: true, debug: true}
+}
+```
+
+## Transform record values
+
+Note: The `map_values` function is not available in TQL. To transform record values, you would need to reconstruct the record with transformed values manually:
+
+```tql
+from {
+  prices: {
+    apple: 1.50,
+    banana: 0.75,
+    orange: 2.00
+  }
+}
+// Manual transformation example:
+with_tax = {
+  apple: prices.apple * 1.1,
+  banana: prices.banana * 1.1,
+  orange: prices.orange * 1.1
+}
+```
+
+## Filter record fields
+
+Keep only specific fields:
+
+```tql
+from {
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  }
+}
+// Note: filter_keys and select functions are not available
+// Manual field selection:
+public_info = {
+  id: user.id,
+  name: user.name,
+  email: user.email
+}
+contact = {
+  name: user.name,
+  email: user.email
+}
+```
+
+```tql
+{
+  user: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com",
+    password: "secret",
+    api_key: "xyz123"
+  },
+  public_info: {
+    id: 123,
+    name: "Alice",
+    email: "alice@example.com"
+  },
+  contact: {
+    name: "Alice",
+    email: "alice@example.com"
+  }
+}
+```
+
+## See Also
+
+- <Guide>transformation/shape-lists</Guide>
+- <Guide>transformation/filter-and-select-data</Guide>
+- <Guide>transformation/transform-values</Guide>
+- <Guide>transformation/reshape-complex-data</Guide>
