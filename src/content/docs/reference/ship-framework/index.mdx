@@ -271,7 +271,11 @@ tenzir-ship release create [version] [options]
 
 The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
 into `entries/`. It performs a dry run by default. When the release already
-exists, the CLI appends additional unreleased entries.
+exists, the CLI appends additional unreleased entries. If no changelog entries
+are available, the command still succeeds when you provide `--intro` or
+`--intro-file`, creating an intro-only release. This is useful for
+re-publishing after yanking a package or retrying a failed publish workflow.
+Without either entries or intro text, the command fails with an error.
 
 ### release version
 
