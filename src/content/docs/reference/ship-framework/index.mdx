@@ -269,6 +269,11 @@ tenzir-ship release create [version] [options]
 | `--explicit-links`    | Render @mentions and PR refs as explicit Markdown links    |
 | `--date <YYYY-MM-DD>` | Override release date                                      |
 
+When creating a release, the command also updates version fields in detected
+package manifest files (`package.json`, `pyproject.toml`, `project.toml`,
+`Cargo.toml`). See the [version bumping configuration](#version-bumping) for
+details.
+
 The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
 into `entries/`. It performs a dry run by default. When the release already
 exists, the CLI appends additional unreleased entries. If no changelog entries
@@ -528,9 +533,34 @@ release:
 
 The `release` block supports:
 
-| Field            | Default             | Description                                       |
-| ---------------- | ------------------- | ------------------------------------------------- |
-| `commit_message` | `Release {version}` | Template for `--commit` flag; `{version}` expands |
+| Field               | Default             | Description                                              |
+| ------------------- | ------------------- | -------------------------------------------------------- |
+| `commit_message`    | `Release {version}` | Template for `--commit` flag; `{version}` expands        |
+| `version_bump_mode` | `auto`              | `auto` to detect and update version files, `off` to skip |
+| `version_files`     | `[]`                | Explicit list of paths to version files to update        |
+
+### Version bumping
+
+During `release create`, tenzir-ship can automatically update version fields in
+package manifest files. By default (`version_bump_mode: auto`), it searches the
+project root and parent directory for `package.json`, `pyproject.toml`,
+`project.toml`, and `Cargo.toml` files and updates their version fields to match
+the release version.
+
+Files without a static version field are skipped gracefully. For example,
+`pyproject.toml` files with `dynamic = ["version"]` and workspace `Cargo.toml`
+files are ignored in auto mode.
+
+To specify exactly which files to update, use `version_files`:
+
+```yaml
+release:
+  version_files:
+    - ../pyproject.toml
+    - ../Cargo.toml
+```
+
+Set `version_bump_mode: off` to disable version file updates entirely.
 
 The `omit_pr` and `omit_author` options suppress PR numbers and author
 attribution in generated entries. When enabled, the CLI skips auto-detection and
