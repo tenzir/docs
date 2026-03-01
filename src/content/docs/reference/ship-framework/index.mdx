@@ -543,13 +543,29 @@ The `release` block supports:
 
 During `release create`, tenzir-ship can automatically update version fields in
 package manifest files. By default (`version_bump_mode: auto`), it searches the
-project root and parent directory for `package.json`, `pyproject.toml`,
-`project.toml`, and `Cargo.toml` files and updates their version fields to match
-the release version.
+project root for `package.json`, `pyproject.toml`, `project.toml`, and
+`Cargo.toml` files and updates their version fields to match the release version.
+For nested changelog projects (where the changelog lives in a `changelog/`
+subdirectory), the parent directory is also searched.
 
-Files without a static version field are skipped gracefully. For example,
-`pyproject.toml` files with `dynamic = ["version"]` and workspace `Cargo.toml`
-files are ignored in auto mode.
+The version written to files strips the `v` prefix from the release label, so
+`v1.2.3` becomes `1.2.3` in the manifest file.
+
+#### Auto-detection behavior
+
+In auto mode, files without a static version field are skipped gracefully:
+
+- **pyproject.toml**: Updates `[project].version`. Falls back to
+  `[tool.poetry].version` when `[project]` has `dynamic = ["version"]` or is
+  absent. Skips files where neither section has a static version.
+- **Cargo.toml**: Updates `[package].version`. Falls back to
+  `[workspace.package].version` for workspace root manifests. Skips files
+  where neither section has a version field.
+- **package.json**: Updates the top-level `version` field. Skips files without
+  one.
+- **project.toml**: Same behavior as `pyproject.toml`.
+
+#### Explicit version files
 
 To specify exactly which files to update, use `version_files`:
 
@@ -560,7 +576,19 @@ release:
     - ../Cargo.toml
 ```
 
+Explicitly configured files use strict validation: the command fails if the file
+exists but has no recognizable version field, preventing silent misconfiguration.
+Auto-detected files skip silently instead.
+
+#### Disabling version bumping
+
 Set `version_bump_mode: off` to disable version file updates entirely.
+
+#### Downgrade prevention
+
+Version files are only updated when the release version is equal to or newer
+than the latest existing release. Editing an older release does not downgrade
+version fields in manifest files.
 
 The `omit_pr` and `omit_author` options suppress PR numbers and author
 attribution in generated entries. When enabled, the CLI skips auto-detection and
