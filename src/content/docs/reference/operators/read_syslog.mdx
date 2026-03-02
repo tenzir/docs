@@ -169,8 +169,7 @@ When an SD-ID is missing, Tenzir stores the parameters under
 from {
   line: r#"<134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:"Accept"; conn_direction:"Incoming"; flags:"8667398"]"#,
 }
-write_lines
-read_syslog
+this = line.parse_syslog()
 ```
 
 ```tql
