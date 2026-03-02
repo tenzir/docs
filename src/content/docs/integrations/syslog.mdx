@@ -164,6 +164,15 @@ Tenzir auto-detects octet-counted messages in both
 [`parse_syslog`](/reference/functions/parse_syslog) for parsing individual
 strings. Use the `octet_counting` parameter to require or disable this behavior.
 
+### Check Point structured data compatibility
+
+Some Check Point exports use structured-data syntax that differs from RFC 5424,
+for example `key:"value"` parameters and semicolon separators. Tenzir supports
+these variants in both `read_syslog` and `parse_syslog`.
+
+When a record omits the SD-ID, Tenzir stores the parsed parameters under
+`structured_data["checkpoint@2620"]`.
+
 ## Emit Events as Syslog
 
 Tenzir also supports **creating** Syslog messages from structured events via
