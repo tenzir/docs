@@ -163,7 +163,7 @@ Some Check Point exports use a structured-data dialect that differs from RFC 542
 parameters, semicolon separators, and records that omit the SD-ID.
 
 When an SD-ID is missing, Tenzir stores the parameters under
-`structured_data["checkpoint@2620"]`:
+`structured_data.checkpoint_2620`:
 
 ```txt title="checkpoint.txt"
 <134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:"Accept"; conn_direction:"Incoming"; flags:"8667398"]
@@ -186,7 +186,7 @@ from_file "checkpoint.txt" {
   process_id: "10024",
   message_id: null,
   structured_data: {
-    "checkpoint@2620": {
+    checkpoint_2620: {
       action: "Accept",
       conn_direction: "Incoming",
       flags: 8667398,
