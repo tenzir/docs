@@ -5,53 +5,482 @@ title: Maintain a changelog
 import Reference from '@components/see-also/Reference.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 
-This guide shows you how to maintain changelogs for packages using
-[`tenzir-ship`](/reference/ship-framework).
+This guide shows you how to manage changelog entries and publish releases with
+[`tenzir-ship`](/reference/ship-framework). You'll learn the complete workflow
+from adding your first entry to publishing a release on GitHub.
 
-## Add an entry
+## Prerequisites
 
-Run `tenzir-ship add` from your package directory while preparing a pull
-request. The CLI prompts for title, type, and description, and infers the author
-automatically.
+- Python 3.12 or newer
+- [`uv`](https://docs.astral.sh/uv/) installed locally
+- Access to the repository that hosts the changelog files
+
+## Quick start
+
+Create your first changelog entry to scaffold the project:
 
 ```sh
 uvx tenzir-ship add
 ```
 
-The first invocation scaffolds a `changelog/` subdirectory automatically.
+The wizard will guide you through the process of creating a new changelog entry.
+It will ask you for the title, type, and description of the change, as well as
+the author.
 
-## Release a package
+The first invocation creates a `changelog/` subdirectory with `config.yaml` and
+`unreleased/`, inferring sensible defaults from the parent directory name—no
+separate bootstrap step required. When you provide an explicit `--root` flag,
+the CLI uses that directory directly instead of creating a subdirectory.
+Changelog projects that already expose `package.yaml` next to their `changelog/`
+directory reuse the package `id` and `name` automatically, so the CLI creates no
+extra files.
 
-When you're ready to release, create the release manifest:
+View the current changelog for your working tree:
 
 ```sh
+uvx tenzir-ship show
+```
+
+The default table lists every entry with row numbers, making it easy to
+reference specific items. Row numbers count backward from the newest entry, so
+`#1` always targets the latest change.
+
+Inspect a card layout with `uvx tenzir-ship show --card 1` or export release
+notes with `uvx tenzir-ship show v0.2.0 --release --markdown`.
+
+Add entries as you prepare pull requests:
+
+```sh
+uvx tenzir-ship add \
+  --title "Introduce pipeline builder" \
+  --type feature \
+  --pr 101
+```
+
+Pass flags for authors, projects, and descriptions to avoid interactive prompts,
+or provide the details interactively when prompted—there is no GitHub
+auto-detection.
+
+## Daily development workflow
+
+These tasks cover the most common operations you'll perform while working on
+pull requests and reviewing pending changes.
+
+### Add entries for pull requests
+
+Run `uvx tenzir-ship add` while preparing pull requests to capture changes:
+
+```sh
+uvx tenzir-ship add \
+  --title "Fix authentication timeout" \
+  --type bugfix \
+  --description "Resolves session expiry issue." \
+  --pr 102
+```
+
+The CLI prompts for missing information interactively. Use one-key shortcuts for
+change types: `0` for breaking, `1` for feature, `2` for bugfix, `3` for change.
+
+### Add co-authors
+
+Use `--co-author` to credit additional contributors alongside the automatically
+inferred author:
+
+```sh
+uvx tenzir-ship add \
+  --title "Implement caching layer" \
+  --type feature \
+  --co-author claude
+```
+
+This is ideal for AI-assisted development, pair programming, or collaborative
+contributions. The CLI infers the primary author from environment variables or
+the GitHub CLI, then appends co-authors in the order you specify:
+
+```sh
+uvx tenzir-ship add \
+  --title "Refactor authentication" \
+  --type change \
+  --co-author claude \
+  --co-author copilot \
+  --pr 150
+```
+
+You can also combine `--author` with `--co-author` to set the primary author
+explicitly:
+
+```sh
+uvx tenzir-ship add \
+  --title "Fix race condition" \
+  --type bugfix \
+  --author alice \
+  --co-author bob
+```
+
+### View pending changes
+
+List all unreleased entries:
+
+```sh
+uvx tenzir-ship show
+```
+
+Show detailed information for a specific entry:
+
+```sh
+uvx tenzir-ship show --card 1
+```
+
+The card view displays detailed metadata and the full entry body:
+
+```text
+❯ tenzir-ship show --card 1
+╭─ 🐞 Normalize release note paragraphs ───────────────────────────────────╮
+│ Entry ID:  normalize-release-note-paragraphs                             │
+│ Type:      bugfix                                                        │
+│ Created:   2025-10-27                                                    │
+│ Authors:   @codex                                                        │
+│ Status:    Released in v0.4.1                                            │
+│ ──────────────────────────────────────────────────────────────────────── │
+│ GitHub release notes now collapse soft line breaks from entry bodies so  │
+│ paragraphs render as expected.                                           │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
+
+Filter by project when working with multiple projects:
+
+```sh
+uvx tenzir-ship show --project core
+```
+
+### Validate changelog structure
+
+Run validation checks to catch issues early:
+
+```sh
+uvx tenzir-ship validate
+```
+
+The validator reports missing metadata, unused entries, duplicate entry IDs, and
+configuration drift. It also checks changelog directory layout and flags stray
+items (for example an unexpected `changelog/next/` directory). Add this to CI
+pipelines to enforce metadata completeness.
+
+### View project statistics
+
+Get an overview of your project's release history and entry distribution:
+
+```sh
+uvx tenzir-ship stats
+```
+
+Single projects show a vertical card layout with sections for project metadata,
+releases, entry types, and status. Multi-module projects display a compact table
+comparing all modules.
+
+Export statistics as JSON for automation:
+
+```sh
+uvx tenzir-ship stats --json
+```
+
+## Release workflow
+
+Once you've accumulated unreleased entries, you can cut a release, export notes,
+and publish to GitHub.
+
+### Create a release
+
+Preview the release before committing changes:
+
+```sh
+uvx tenzir-ship release create v5.4.0
+```
+
+The command shows which entries will be included and performs a dry run. When
+the summary looks good, re-run with `--yes` to commit the changes:
+
+```sh
+uvx tenzir-ship release create v5.4.0 --yes
+```
+
+This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
+`notes.md`, and updates `manifest.yaml`.
+
+By default, `release create` also updates common package-manager version files
+(`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) when present
+in the changelog root or, for `changelog/` projects, in the parent directory.
+For advanced repositories with custom release scripts, disable built-in bumps in
+`config.yaml`:
+
+```yaml
+release:
+  version_bump_mode: off
+```
+
+If changelog structure is invalid, `release create` and `release publish` fail
+fast with detailed errors. Other commands emit warnings so you can fix layout
+problems before cutting a release.
+
+Use version bump shortcuts instead of typing the full version:
+
+```sh
+uvx tenzir-ship release create --patch --yes
 uvx tenzir-ship release create --minor --yes
+uvx tenzir-ship release create --major --yes
 ```
 
-Then publish to GitHub:
+Add an inline intro summary:
 
 ```sh
-uvx tenzir-ship release publish --commit --tag --yes
+uvx tenzir-ship release create v5.4.0 \
+  --intro "Major stability improvements." \
+  --yes
 ```
 
-This commits staged changes, creates a git tag, and publishes the GitHub
-release.
-
-## Release a library
-
-A library acts as a parent workspace containing multiple packages as modules.
-When releasing the library:
-
-1. Release each package that has unreleased changes
-2. Create the library release—it automatically aggregates module changes
+Alternatively, provide intro content from a file:
 
 ```sh
-# From the library root
-uvx tenzir-ship release create --minor --yes
+uvx tenzir-ship release create v5.4.0 \
+  --intro-file intro.md \
+  --yes
 ```
 
-The release notes include a summary section for each module with changes since
-the previous library release.
+The intro file can include Markdown links, call-outs, or image references. The
+command embeds its content in `manifest.yaml` and includes it in `notes.md`.
+
+### Export release notes
+
+Export release notes for a specific version:
+
+```sh
+uvx tenzir-ship show v5.4.0 --release --markdown
+```
+
+Export as JSON for programmatic use:
+
+```sh
+uvx tenzir-ship show v5.4.0 --release --json
+```
+
+Use compact format for bullet-list layout:
+
+```sh
+uvx tenzir-ship show v5.4.0 --release --compact --markdown
+```
+
+Preview unreleased entries as if they were already released:
+
+```sh
+uvx tenzir-ship show --release --markdown
+```
+
+Export all releases in a single invocation for batch processing:
+
+```sh
+uvx tenzir-ship show all --release --json
+```
+
+This exports every release as a JSON array, useful for documentation sync
+scripts that need all release data at once.
+
+### Publish to GitHub
+
+Publish directly from the changelog project using the CLI:
+
+```sh
+uvx tenzir-ship release publish v5.4.0 --yes
+```
+
+Include tagging and pushing via the CLI:
+
+```sh
+uvx tenzir-ship release publish v5.4.0 --tag --yes
+```
+
+Draft or prerelease variants:
+
+```sh
+uvx tenzir-ship release publish v5.4.0 --draft --yes
+uvx tenzir-ship release publish v5.4.0 --prerelease --yes
+```
+
+:::note[Terminology]
+We use the verb "publish" in prose even though the GitHub CLI subcommand to
+create a release is `gh release create`. If you created a draft first, you can
+publish it with `gh release edit v5.4.0 --draft=false`.
+:::
+
+## End-to-end Walkthrough
+
+This walkthrough shows how to initialize a repository, add entries, preview the
+backlog, and publish a release manifest with custom introductory content.
+
+### Create a project
+
+Initialize a new changelog project from your project root:
+
+```sh
+cd my-project
+uvx tenzir-ship add \
+  --title "Add pipeline builder" \
+  --type feature \
+  --description "Introduces the new pipeline builder UI." \
+  --author alice \
+  --pr 101
+```
+
+The first `add` invocation scaffolds the project automatically, creating a
+`changelog/` subdirectory—no manual config editing needed. After the command
+completes, inspect `changelog/config.yaml` (or update `package.yaml` if you're
+using the package layout):
+
+```yaml
+id: my-project
+name: My Project
+```
+
+### Capture entries
+
+Record additional changes with authors and pull request numbers:
+
+```sh
+uvx tenzir-ship add \
+  --title "Fix ingest crash" \
+  --type bugfix \
+  --description "Resolves ingest worker crash when tokens expire." \
+  --author bob \
+  --pr 102 \
+  --pr 115
+
+uvx tenzir-ship add \
+  --title "Improve CLI help" \
+  --type change \
+  --description "Tweaks command descriptions for clarity." \
+  --author carol \
+  --pr 103
+```
+
+Each invocation writes a Markdown file inside `changelog/unreleased/`. For
+example, `add-pipeline-builder.md` looks like:
+
+```markdown
+---
+title: Add pipeline builder
+type: feature
+author: alice
+created: 2025-10-16T09:30:00Z
+pr: 101
+---
+
+Introduces the new pipeline builder UI.
+```
+
+You can use either singular (`author`, `pr`, `component`) or plural (`authors`,
+`prs`, `components`) keys. The singular form is shorthand for single values.
+
+If an entry spans multiple pull requests, repeat `--pr` during `add`. The CLI
+stores a `prs:` list in the generated frontmatter automatically.
+
+### Preview the changelog
+
+View all entries in table format:
+
+```sh
+uvx tenzir-ship show
+```
+
+Inspect a detailed card for any entry:
+
+```sh
+uvx tenzir-ship show --card 1
+```
+
+### Prepare release notes
+
+Author an intro snippet that can include Markdown links, call-outs, or image
+references. Save it as `intro.md`:
+
+```markdown
+Welcome to the first release of the Tenzir changelog!
+
+![Release Overview](images/release-overview.png)
+
+We cover breaking changes, highlights, upgrades, and fixes below.
+```
+
+### Cut the release
+
+Create the release with the custom intro file:
+
+```sh
+uvx tenzir-ship release create v0.1.0 \
+  --intro-file intro.md \
+  --yes
+```
+
+The tool writes release artifacts under `releases/v0.1.0/`:
+
+- `manifest.yaml` records the release date and intro:
+
+  ```yaml
+  created: 2025-10-18
+  intro: |-
+    Welcome to the first release of the Tenzir changelog!
+
+    ![Release Overview](images/release-overview.png)
+
+    We cover breaking changes, highlights, upgrades, and fixes below.
+  ```
+
+- `notes.md` stitches together the intro and generated sections:
+
+  ```markdown
+  Welcome to the first release of the Tenzir changelog!
+
+  ![Release Overview](images/release-overview.png)
+
+  We cover breaking changes, highlights, upgrades, and fixes below.
+
+  ## Features
+
+  - **Add pipeline builder**: Introduces the new pipeline builder UI.
+
+  ## Bug fixes
+
+  - **Fix ingest crash**: Resolves ingest worker crash when tokens expire.
+
+  ## Changes
+
+  - **Improve CLI help**: Tweaks command descriptions for clarity.
+  ```
+
+- `entries/` contains the archived entry files moved from `unreleased/`.
+
+### Validate the project
+
+Verify everything is correct:
+
+```sh
+uvx tenzir-ship validate
+```
+
+A clean run prints `All changelog files look good!`. You can remove `intro.md`
+now that its content is embedded in the release file.
+
+### Export the release
+
+Print the release notes:
+
+```sh
+uvx tenzir-ship show v0.1.0 --release --markdown
+```
+
+Export as JSON for programmatic use:
+
+```sh
+uvx tenzir-ship show v0.1.0 --release --json
+```
 
 ## See also
 
