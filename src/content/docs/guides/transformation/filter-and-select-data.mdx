@@ -144,6 +144,10 @@ select name=first_name, age=years
 
 Here `first_name` becomes `name` and `years` becomes `age` in the output.
 
+Note that `select` restricts the output to only the listed fields. If you want
+to rename fields while keeping everything else, use an assignment with
+[`move`](/reference/expressions/#moving-fields) instead.
+
 ### Computing new fields
 
 Create new fields with expressions during selection:
@@ -261,6 +265,41 @@ This is distinctively different from an existing field with a null value, which
 does not elicit a warning.
 :::
 
+## Rename fields
+
+TQL has no dedicated `rename` operator. Instead, use the
+[`move`](/reference/expressions/#moving-fields) keyword in an assignment to
+relocate a value from one field to another, removing the original:
+
+```tql
+from {first_name: "alice", years: 30, city: "NYC"},
+     {first_name: "bob", years: 25, city: "SF"}
+name = move first_name
+age = move years
+```
+
+```tql
+{city: "NYC", name: "alice", age: 30}
+{city: "SF", name: "bob", age: 25}
+```
+
+Unlike [`select`](/reference/operators/select), which restricts the output to only the
+listed fields, an assignment with `move` preserves all other fields.
+
+### Renaming into nested fields
+
+You can move fields into nested structures:
+
+```tql
+from {src_ip: 1.2.3.4, src_port: 443}
+src.ip = move src_ip
+src.port = move src_port
+```
+
+```tql
+{src: {ip: 1.2.3.4, port: 443}}
+```
+
 ## Combining operations
 
 Real-world pipelines often combine multiple operations:
@@ -293,6 +332,8 @@ select method, path, duration = duration_ms.milliseconds()
      fields from many.
    - Use [`set`](/reference/operators/set) when you want to add/override fields
      without changing existing ones.
+   - Use an assignment with `move` when you want to rename fields without
+     affecting the rest of the event.
 
 4. **Understand null handling**: The [`where`](/reference/operators/where)
    operator skips events where the condition evaluates to null or false. Use the
