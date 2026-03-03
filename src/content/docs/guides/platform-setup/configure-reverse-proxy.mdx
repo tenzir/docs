@@ -157,6 +157,25 @@ services:
       - ./ssl/ca.pem:/ssl/ca.pem
 ```
 
+:::caution[Browser certificate trust for direct gateway connections]
+When the browser connects directly to the gateway (the default when
+`TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY` is `false`) and the gateway uses a
+self-signed certificate, the browser must explicitly trust that certificate.
+Because users do not navigate to the gateway port directly, the browser never
+shows its usual untrusted-certificate warning page. The only visible symptom is
+a vague message such as "Unable to fetch pipelines." The actual cause appears
+only in the browser developer console, where it shows a failed connection to the
+gateway URL.
+
+To resolve this, open the gateway URL directly in your browser (for example,
+`https://nodes.platform.example`) and accept the security exception. After
+accepting the certificate, reload the platform UI.
+
+Alternatively, set `TENZIR_PLATFORM_USE_INTERNAL_WS_PROXY=true` to route
+gateway traffic through the UI backend. The browser then only needs to trust
+the UI certificate, not the gateway certificate.
+:::
+
 #### Platform API
 
 To enable TLS serving for the Platform API, mount the certificate into the
