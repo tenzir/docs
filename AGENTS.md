@@ -65,13 +65,15 @@ Each index page has two locations that need updating:
 
    ````mdx
    <ReferenceCard title="function_name" description="Brief description." href="/reference/functions/function_name">
- 
+
    ```tql
    function_name(arg)
-  ```
+   ````
 
-  </ReferenceCard>
-  ````
+```
+
+</ReferenceCard>
+```
 
 Entries should be ordered alphabetically within their category section.
 
@@ -82,7 +84,6 @@ for live preview during development.
 
 Only use `bun run build` when you actually need to inspect build artifacts.
 Output goes to `dist/`.
-
 
 ### Generated Content
 
