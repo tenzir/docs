@@ -260,6 +260,18 @@ fixtures: [node]
 timeout: 30
 ```
 
+Adding `min_jobs` ensures the suite only starts when enough workers are available:
+
+```yaml
+# tests/pubsub/test.yaml — parallel with minimum worker requirement
+suite:
+  name: parallel-pubsub
+  mode: parallel
+  min_jobs: 2
+fixtures: [node]
+timeout: 30
+```
+
 The `mode` field controls how members execute:
 
 - `sequential` (default): members run one after another in lexicographic order.
@@ -267,6 +279,14 @@ The `mode` field controls how members execute:
   same fixture lifecycle. Fixture assertions are serialized to maintain
   correctness. Use this when tests are independent and can safely share fixtures
   at the same time.
+
+The optional `min_jobs` key (positive integer) declares how many concurrent
+workers a parallel suite needs for correct execution. When set, the run fails
+immediately if `--jobs` is lower than `min_jobs`, and it also fails at runtime
+if the suite cannot reserve at least that many workers under slot contention.
+Use this for suites whose members must run concurrently (for example,
+publisher/subscriber pairs). The harness also warns when a parallel suite has
+more tests than available jobs, since not all members can run at once.
 
 The plain string form (`suite: smoke-http`) is equivalent to
 `suite: {name: smoke-http, mode: sequential}`.
