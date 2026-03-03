@@ -1,6 +1,6 @@
 # Content
 
-This directory includes the primary documentation content.
+The `docs/` directory includes the primary documentation content.
 
 ## Linking conventions
 
