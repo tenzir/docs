@@ -22,6 +22,9 @@ Tenzir supports reading syslog messages in both the standardized "Syslog Protoco
 ([RFC 5424](https://tools.ietf.org/html/rfc5424)), and the older "BSD syslog Protocol" format
 ([RFC 3164](https://tools.ietf.org/html/rfc3164)).
 
+It also accepts common Check Point structured-data variants, including
+`key:"value"` parameters, semicolon separators, and messages with no SD-ID.
+
 Depending on the syslog format, the result can be different.
 Here's an example of a syslog message in RFC 5424 format:
 
@@ -153,6 +156,45 @@ load_tcp "0.0.0.0:514" {
 
 Use `octet_counting=true` to require the prefix or `octet_counting=false` to
 disable auto-detection entirely.
+
+### Parse Check Point structured data variants
+
+Some Check Point exports use a structured-data dialect that differs from RFC 5424. `read_syslog` supports common variants such as `key:"value"`
+parameters, semicolon separators, and records that omit the SD-ID.
+
+When an SD-ID is missing, Tenzir stores the parameters under
+`structured_data.checkpoint_2620`:
+
+```txt title="checkpoint.txt"
+<134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:"Accept"; conn_direction:"Incoming"; flags:"8667398"]
+```
+
+```tql title="Pipeline"
+from_file "checkpoint.txt" {
+  read_syslog
+}
+```
+
+```tql
+{
+  facility: 16,
+  severity: 6,
+  version: 1,
+  timestamp: 2026-02-25T08:14:51Z,
+  hostname: "fwmgt",
+  app_name: "CheckPoint",
+  process_id: "10024",
+  message_id: null,
+  structured_data: {
+    checkpoint_2620: {
+      action: "Accept",
+      conn_direction: "Incoming",
+      flags: 8667398,
+    },
+  },
+  message: null,
+}
+```
 
 ### Preserve the original message
 
