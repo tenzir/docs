@@ -3,26 +3,24 @@ title: Configure your agent
 description: Optimize your AI agent for working with Tenzir projects
 ---
 
-After [installing the MCP server](/guides/ai-workbench/install-mcp-server), you can
-further optimize your AI agent for Tenzir development workflows. This guide
+Optimize your AI agent for Tenzir development workflows. This guide
 covers project-level configuration that enhances the development experience.
 
 :::note[Why we recommend Claude Code]
 Tenzir uses Claude Code internally and recommends it for TQL development. The
 [Tenzir Claude Marketplace](https://github.com/tenzir/claude-plugins) bundles
 authoritative procedural knowledge—skills, slash commands, and hooks that encode
-how we write code, documentation, and changelogs. Other AI agents can use the
-MCP server for basic TQL assistance, but they lack this curated workflow
-integration. We support them to give you choice, though team bandwidth limits
-what we can maintain out of the box.
+how we write code, documentation, and changelogs. We support other agents to
+give you choice, though team bandwidth limits what we can maintain out of the
+box.
 :::
 
 ## Claude Code
 
 Claude Code supports a [plugin
 marketplace](https://docs.claudecode.dev/plugin-marketplace) that provides
-custom skills, slash commands, and MCP servers tailored for specific
-development workflows. The [Tenzir Claude
+custom skills and slash commands tailored for specific development
+workflows. The [Tenzir Claude
 Marketplace](https://github.com/tenzir/claude-plugins) includes plugins for TQL development,
 documentation writing, and changelog management.
 
@@ -36,7 +34,6 @@ Claude Code automatically prompts them to enable the configured plugins.
 {
   "permissions": {
     "allow": [
-      "mcp__plugin_tql_tenzir",
       "Read",
       "Edit",
       "Write",
@@ -94,43 +91,7 @@ Plugins](/guides/ai-workbench/use-claude-plugins).
 | `git@tenzir`       | Developers | Git workflows with Tenzir-specific commit messages |
 | `changelog@tenzir` | Developers | Changelog management following Tenzir conventions  |
 
-## Cursor
-
-Configure the Tenzir MCP server in `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "tenzir": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": ["tenzir-mcp@latest"],
-      "env": {}
-    }
-  }
-}
-```
-
-## VS Code with Copilot
-
-VS Code with GitHub Copilot supports MCP servers starting with version 1.102.
-
-### MCP configuration
-
-Create `.vscode/mcp.json` in your project root:
-
-```json
-{
-  "servers": {
-    "tenzir": {
-      "command": "uvx",
-      "args": ["tenzir-mcp@latest"]
-    }
-  }
-}
-```
-
-### TQL extension
+## VS Code
 
 Install the [TQL extension](https://github.com/tenzir/vscode-tql) for syntax
 highlighting and language support.
