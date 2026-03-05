@@ -6,90 +6,15 @@ description: Optimize your AI agent for working with Tenzir projects
 Optimize your AI agent for Tenzir development workflows. This guide
 covers project-level configuration that enhances the development experience.
 
-:::note[Why we recommend Claude Code]
-Tenzir uses Claude Code internally and recommends it for TQL development. The
-[Tenzir Claude Marketplace](https://github.com/tenzir/claude-plugins) bundles
-authoritative procedural knowledge—skills, slash commands, and hooks that encode
-how we write code, documentation, and changelogs. We support other agents to
-give you choice, though team bandwidth limits what we can maintain out of the
-box.
-:::
+## Team setup
 
-## Claude Code
-
-Claude Code supports a [plugin
-marketplace](https://docs.claudecode.dev/plugin-marketplace) that provides
-custom skills and slash commands tailored for specific development
-workflows. The [Tenzir Claude
-Marketplace](https://github.com/tenzir/claude-plugins) includes plugins for TQL development,
-documentation writing, and changelog management.
-
-### Team setup
-
-For team projects, configure `.claude/settings.json` to share the marketplace
-and plugins with all contributors. When team members trust the project folder,
-Claude Code automatically prompts them to enable the configured plugins.
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "NotebookEdit",
-      "WebFetch",
-      "WebSearch",
-      "Skill",
-      "SlashCommand",
-      "ExitPlanMode"
-    ]
-  },
-  "extraKnownMarketplaces": {
-    "tenzir": {
-      "source": {
-        "source": "github",
-        "repo": "tenzir/claude-plugins"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "tql@tenzir": true,
-    "formatter@tenzir": true,
-    "git@tenzir": true,
-    "changelog@tenzir": true
-  }
-}
-```
+For team projects, keep agent configuration in version control so contributors
+share the same defaults for permissions, tools, and workflow behavior.
 
 :::tip[Bash permissions]
-`Bash` is intentionally omitted from the shared configuration. If you want to
-allow shell access, add it to your personal `settings.local.json`, which is
-typically gitignored:
-
-```json
-{
-  "permissions": {
-    "allow": ["Bash"]
-  }
-}
-```
-
+If you want to allow shell access, add `Bash` to your personal agent settings
+file (which is typically gitignored).
 :::
-
-### Recommended plugins
-
-For detailed plugin usage with example prompts and workflows, see [Use Claude
-Plugins](/guides/ai-workbench/use-claude-plugins).
-
-| Plugin             | Audience   | Description                                        |
-| ------------------ | ---------- | -------------------------------------------------- |
-| `tql@tenzir`       | Users      | Write TQL pipelines with live documentation        |
-| `ocsf@tenzir`      | Users      | Navigate OCSF schema for event normalization       |
-| `docs@tenzir`      | Users      | Query Tenzir documentation interactively           |
-| `formatter@tenzir` | Developers | Automatic code formatting using Tenzir guidelines  |
-| `git@tenzir`       | Developers | Git workflows with Tenzir-specific commit messages |
-| `changelog@tenzir` | Developers | Changelog management following Tenzir conventions  |
 
 ## VS Code
 
@@ -103,5 +28,5 @@ the [TQL extension](https://github.com/tenzir/zed-tql) for syntax highlighting.
 
 ## Next steps
 
-- [Use Claude plugins](/guides/ai-workbench/use-claude-plugins) for TQL, OCSF,
-  and documentation assistance
+- [Use documentation skill](/guides/ai-workbench/use-documentation-skill) for
+  portable documentation access across agents

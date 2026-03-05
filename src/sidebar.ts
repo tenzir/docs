@@ -73,7 +73,6 @@ export const guides = [
         items: [
           { label: "Overview", link: "guides/ai-workbench" },
           "guides/ai-workbench/configure-your-agent",
-          "guides/ai-workbench/use-claude-plugins",
           "guides/ai-workbench/use-documentation-skill",
         ],
       },
@@ -318,10 +317,6 @@ export const reference = [
       {
         label: "Ship Framework",
         link: "reference/ship-framework",
-      },
-      {
-        label: "Claude Marketplace",
-        link: "reference/claude-plugins",
       },
     ],
     "wrench",
