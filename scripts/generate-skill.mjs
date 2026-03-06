@@ -1,275 +1,486 @@
 #!/usr/bin/env node
 
 /**
- * Generates the full Tenzir Agent Skill with progressive disclosure.
+ * Generates progressive-disclosure Agent Skills from built markdown output in dist/.
  *
  * Output structure:
  *   tenzir/
- *   ├── SKILL.md           # Condensed sitemap with first-paragraph excerpts
- *   ├── guides/            # Full documentation hierarchy
+ *   ├── SKILL.md
+ *   ├── guides/
  *   ├── tutorials/
  *   └── ...
  *
- * Requires:
- *   - dist/ directory with sitemap.md (run 'bun run build:full')
- *
- * The enhanced sitemap.md now contains:
- *   - YAML frontmatter
- *   - Section descriptions
- *   - Page descriptions (first paragraphs)
- *   - H2/H3 bullet lists (internal structure)
- *
- * This script:
- *   - Rewrites URLs to relative paths
- *   - Filters depth per section (Reference stops at level 3)
- *   - Strips H2/H3 bullet lists (keeps only headings + descriptions)
- *   - Copies markdown files for offline access
+ *   ocsf/
+ *   ├── SKILL.md
+ *   ├── index.md
+ *   ├── introduction.md
+ *   └── ...
  */
 
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-const SKILL_NAME = "tenzir";
+const SITE_URL = "https://docs.tenzir.com/";
+const OCSF_ROOT = "reference/ocsf";
 
-// Max heading level to include per section
-// ## = level 2 (section header), ### = level 3, #### = level 4
-// "2 levels" means ### + #### (levels 3-4), "1 level" means ### only (level 3)
+// Reference stays intentionally shallow in the main skill because operators,
+// functions, and OCSF each have their own progressive disclosure.
 const SECTION_MAX_LEVEL = {
-  Guides: 4, // 2 levels: ### categories + #### children
-  Tutorials: 4, // 2 levels
-  Explanations: 4, // 2 levels
-  Integrations: 4, // 2 levels
-  Reference: 3, // 1 level: ### only (has its own progressive disclosure)
+  Guides: 4,
+  Tutorials: 4,
+  Explanations: 4,
+  Integrations: 4,
+  Reference: 3,
 };
 
-function rewriteLink(text) {
+const SKILL_TARGETS = [
+  {
+    name: "tenzir",
+    description: "Data pipeline engine for security teams",
+    includeSourcePath(sourcePath) {
+      return !isOcsfSourcePath(sourcePath);
+    },
+    mapSourcePath(sourcePath) {
+      return sourcePath;
+    },
+  },
+  {
+    name: "ocsf",
+    description: "Open Cybersecurity Schema Framework reference",
+    includeSourcePath(sourcePath) {
+      return isOcsfSourcePath(sourcePath);
+    },
+    mapSourcePath(sourcePath) {
+      if (sourcePath === `${OCSF_ROOT}.md`) return "index.md";
+      if (sourcePath.startsWith(`${OCSF_ROOT}/`)) {
+        return sourcePath.slice(`${OCSF_ROOT}/`.length);
+      }
+      return null;
+    },
+  },
+];
+
+function isOcsfSourcePath(sourcePath) {
   return (
-    text
-      // Remove absolute URL prefix
-      .replace(/https?:\/\/docs\.tenzir\.com\//g, "")
-      // Remove llms.txt preamble line
-      .replace(/^> Documentation index:.*\n\n?/gm, "")
-      // Convert /path links to relative (in markdown link syntax)
-      .replace(/\]\(\//g, "](")
+    sourcePath === `${OCSF_ROOT}.md` || sourcePath.startsWith(`${OCSF_ROOT}/`)
   );
 }
 
 function getHeadingLevel(line) {
-  const match = line.match(/^(#{2,6})\s/);
+  const match = line.match(/^(#{1,6})\s/);
   return match ? match[1].length : 0;
 }
 
-function extractSectionName(line) {
-  const linkMatch = line.match(/^#{2,6}\s+\[([^\]]+)\]/);
+function extractHeadingText(line) {
+  const linkMatch = line.match(/^#{1,6}\s+\[([^\]]+)\]/);
   if (linkMatch) return linkMatch[1];
 
-  const plainMatch = line.match(/^#{2,6}\s+(.+)$/);
-  if (plainMatch) return plainMatch[1];
+  const plainMatch = line.match(/^#{1,6}\s+(.+)$/);
+  return plainMatch ? plainMatch[1] : null;
+}
 
-  return null;
+function extractHeadingHref(line) {
+  const match = line.match(/^#{1,6}\s+\[[^\]]+\]\(([^)]+)\)/);
+  return match ? match[1] : null;
+}
+
+function normalizeRelativePath(filePath) {
+  return filePath.split(path.sep).join("/");
+}
+
+function toSourceMarkdownPath(href) {
+  if (!href) return null;
+
+  let normalized = href;
+  if (normalized.startsWith(SITE_URL)) {
+    normalized = `/${normalized.slice(SITE_URL.length)}`;
+  }
+
+  if (!normalized.startsWith("/")) return null;
+
+  const pathPart = normalized.slice(1).split("#")[0].split("?")[0];
+  return pathPart.endsWith(".md") ? pathPart : null;
+}
+
+function getNodeSourcePath(node) {
+  return toSourceMarkdownPath(extractHeadingHref(node.heading ?? ""));
 }
 
 function isBulletLine(line) {
   return line.startsWith("- ") || line.startsWith("  - ");
 }
 
-function validateMarkdownFilesExist(sitemapPath, distPath) {
-  const sitemap = fs.readFileSync(sitemapPath, "utf-8");
-  const lines = sitemap.split("\n");
+function trimBlankLines(lines) {
+  let start = 0;
+  let end = lines.length;
 
-  // Extract first page link to check if .md files exist
-  for (const line of lines) {
-    const match = line.match(/\]\((https?:\/\/docs\.tenzir\.com\/[^)]+\.md)\)/);
-    if (match) {
-      const relativePath = match[1].replace(
-        /https?:\/\/docs\.tenzir\.com\//,
-        "",
-      );
-      const filePath = path.join(distPath, relativePath);
-      return fs.existsSync(filePath);
-    }
-  }
-  return false;
+  while (start < end && lines[start]?.trim() === "") start++;
+  while (end > start && lines[end - 1]?.trim() === "") end--;
+
+  return lines.slice(start, end);
 }
 
-/**
- * Generate SKILL.md from enhanced sitemap.md
- *
- * The sitemap contains:
- * - Intro text
- * - Section descriptions
- * - Page descriptions (first paragraphs)
- * - H2/H3 bullet lists
- *
- * This function:
- * - Adds YAML frontmatter required by agentskills spec
- * - Rewrites URLs to relative paths
- * - Filters depth per section
- * - Strips H2/H3 bullet lists (keeps headings + descriptions)
- */
-function generateSkillMd(sitemapPath) {
-  const sitemap = fs.readFileSync(sitemapPath, "utf-8");
-  const lines = sitemap.split("\n");
+function hasMeaningfulContent(lines) {
+  return lines.some((line) => line.trim() !== "" && !isBulletLine(line));
+}
 
-  const output = [];
-  let currentSection = null;
-  let maxDepth = 0;
-  const seenSections = new Set();
-  let skipUntilNextHeading = false;
+function parseHeadingTree(markdown) {
+  const root = {
+    heading: null,
+    level: 0,
+    contentLines: [],
+    children: [],
+  };
+  const stack = [root];
 
-  for (const line of lines) {
-    // Skip bullet lists (H2/H3 internal structure)
-    if (isBulletLine(line)) continue;
-
+  for (const line of markdown.split("\n")) {
     const level = getHeadingLevel(line);
-
-    // Handle non-heading lines
     if (level === 0) {
-      // Skip content following filtered headings
-      if (skipUntilNextHeading) continue;
-
-      // Rewrite URLs in any line
-      output.push(rewriteLink(line));
+      stack.at(-1).contentLines.push(line);
       continue;
     }
 
-    // Reset skip flag when we hit any heading
-    skipUntilNextHeading = false;
-
-    // Level 2: section headers (## Guides, ## Reference, etc.)
-    if (level === 2) {
-      const sectionName = extractSectionName(line);
-
-      if (!sectionName || seenSections.has(sectionName)) continue;
-      if (!SECTION_MAX_LEVEL[sectionName]) continue;
-
-      seenSections.add(sectionName);
-      currentSection = sectionName;
-      maxDepth = SECTION_MAX_LEVEL[sectionName];
-
-      output.push(rewriteLink(line));
-      continue;
+    while (stack.at(-1).level >= level) {
+      stack.pop();
     }
 
-    if (!currentSection) continue;
-
-    // Filter by depth - skip this heading AND its content
-    if (level > maxDepth) {
-      skipUntilNextHeading = true;
-      continue;
-    }
-
-    const processedLine = rewriteLink(line);
-    if (output.includes(processedLine)) continue;
-
-    output.push(processedLine);
+    const node = {
+      heading: line,
+      level,
+      contentLines: [],
+      children: [],
+    };
+    stack.at(-1).children.push(node);
+    stack.push(node);
   }
 
-  // Clean up: remove consecutive blank lines
-  let result = output.join("\n");
-  result = result.replace(/\n{3,}/g, "\n\n");
+  return root;
+}
 
-  // Add YAML frontmatter required by agentskills spec
-  const frontmatter = `---
-name: tenzir
-description: Data pipeline engine for security teams
+function filterNode(node, { includeSourcePath, maxDepth }) {
+  if (node.level > maxDepth) return null;
+
+  const sourcePath = getNodeSourcePath(node);
+  if (sourcePath && !includeSourcePath(sourcePath)) return null;
+
+  const children = node.children
+    .map((child) => filterNode(child, { includeSourcePath, maxDepth }))
+    .filter(Boolean);
+
+  if (
+    !children.length &&
+    !hasMeaningfulContent(node.contentLines) &&
+    !sourcePath
+  ) {
+    return null;
+  }
+
+  return {
+    ...node,
+    children,
+  };
+}
+
+function findNodeBySourcePath(node, sourcePath) {
+  if (getNodeSourcePath(node) === sourcePath) return node;
+
+  for (const child of node.children) {
+    const match = findNodeBySourcePath(child, sourcePath);
+    if (match) return match;
+  }
+
+  return null;
+}
+
+function rewriteLinkDestination(href, target, fromPath) {
+  if (
+    !href ||
+    href.startsWith("#") ||
+    href.startsWith("mailto:") ||
+    href.startsWith("tel:")
+  ) {
+    return href;
+  }
+
+  let normalized = href;
+  if (normalized.startsWith(SITE_URL)) {
+    normalized = `/${normalized.slice(SITE_URL.length)}`;
+  }
+
+  if (!normalized.startsWith("/")) {
+    return href;
+  }
+
+  const hashIndex = normalized.indexOf("#");
+  const queryIndex = normalized.indexOf("?");
+  const suffixIndex =
+    hashIndex > -1 && queryIndex > -1
+      ? Math.min(hashIndex, queryIndex)
+      : hashIndex > -1
+        ? hashIndex
+        : queryIndex > -1
+          ? queryIndex
+          : normalized.length;
+
+  const pathname = normalized.slice(0, suffixIndex);
+  const suffix = normalized.slice(suffixIndex);
+  const sourcePath = pathname.slice(1);
+
+  if (!sourcePath.endsWith(".md")) {
+    return `${SITE_URL}${sourcePath}${suffix}`;
+  }
+
+  if (!target.includeSourcePath(sourcePath)) {
+    return `${SITE_URL}${sourcePath}${suffix}`;
+  }
+
+  const mappedPath = target.mapSourcePath(sourcePath);
+  if (!mappedPath) {
+    return `${SITE_URL}${sourcePath}${suffix}`;
+  }
+
+  const fromDir =
+    path.posix.dirname(fromPath) === "." ? "" : path.posix.dirname(fromPath);
+  const relative =
+    path.posix.relative(fromDir || ".", mappedPath) || mappedPath;
+  return `${relative}${suffix}`;
+}
+
+function rewriteLinks(text, target, fromPath) {
+  return text.replace(
+    /(!?\[[^\]]*]\()([^)]+)(\))/g,
+    (_match, prefix, href, suffix) => {
+      return `${prefix}${rewriteLinkDestination(href, target, fromPath)}${suffix}`;
+    },
+  );
+}
+
+function rewriteContent(text, target, fromPath) {
+  return rewriteLinks(
+    text.replace(/^> Documentation index:.*\n?/gm, ""),
+    target,
+    fromPath,
+  );
+}
+
+function renderNode(
+  node,
+  target,
+  { levelOffset = 0, fromPath = "SKILL.md" } = {},
+) {
+  const lines = [];
+
+  if (node.heading) {
+    const level = Math.max(1, Math.min(6, node.level + levelOffset));
+    const headingText = rewriteContent(node.heading, target, fromPath).replace(
+      /^#{1,6}/,
+      "#".repeat(level),
+    );
+    lines.push(headingText, "");
+  }
+
+  const contentLines = trimBlankLines(
+    node.contentLines
+      .filter((line) => !isBulletLine(line))
+      .map((line) => rewriteContent(line, target, fromPath)),
+  );
+  if (contentLines.length > 0) {
+    lines.push(...contentLines, "");
+  }
+
+  for (const child of node.children) {
+    const renderedChild = renderNode(child, target, { levelOffset, fromPath });
+    if (renderedChild) {
+      lines.push(renderedChild);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function createFrontmatter(target) {
+  return `---
+name: ${target.name}
+description: ${target.description}
 ---
 
 `;
-  return frontmatter + result;
 }
 
-function copyMarkdownFiles(srcDir, destDir) {
-  if (!fs.existsSync(srcDir)) return 0;
+function generateTenzirSkillMd(sitemapRoot, target) {
+  const titleNode = sitemapRoot.children.find((child) => child.level === 1);
+  if (!titleNode) {
+    throw new Error("Could not find the sitemap title in dist/sitemap.md.");
+  }
 
-  let count = 0;
-  const entries = fs.readdirSync(srcDir, { withFileTypes: true });
+  const filteredTitleNode = {
+    ...titleNode,
+    children: titleNode.children
+      .map((section) => {
+        const sectionName = extractHeadingText(section.heading ?? "");
+        const maxDepth = sectionName ? SECTION_MAX_LEVEL[sectionName] : null;
+        if (!maxDepth) return null;
+        return filterNode(section, {
+          includeSourcePath: target.includeSourcePath,
+          maxDepth,
+        });
+      })
+      .filter(Boolean),
+  };
+
+  return `${createFrontmatter(target)}${renderNode(filteredTitleNode, target).replace(/\n{3,}/g, "\n\n")}`;
+}
+
+function generateOcsfSkillMd(sitemapRoot, target) {
+  const ocsfNode = findNodeBySourcePath(sitemapRoot, `${OCSF_ROOT}.md`);
+  if (!ocsfNode) {
+    throw new Error("Could not find the OCSF section in dist/sitemap.md.");
+  }
+
+  const renderedOcsfNode = renderNode(ocsfNode, target, {
+    levelOffset: -2,
+    fromPath: "SKILL.md",
+  }).replace(/\n{3,}/g, "\n\n");
+
+  const intro = [
+    "# OCSF Documentation Map",
+    "",
+    "Open Cybersecurity Schema Framework reference extracted from the Tenzir documentation.",
+    "",
+  ].join("\n");
+
+  return `${createFrontmatter(target)}${intro}${renderedOcsfNode}`;
+}
+
+function collectMarkdownFiles(dir, rootDir = dir) {
+  const files = [];
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    const srcPath = path.join(srcDir, entry.name);
-    const destPath = path.join(destDir, entry.name);
-
+    const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      fs.mkdirSync(destPath, { recursive: true });
-      count += copyMarkdownFiles(srcPath, destPath);
-    } else if (entry.name.endsWith(".md")) {
-      // Copy and rewrite URLs
-      let content = fs.readFileSync(srcPath, "utf-8");
-      content = rewriteLink(content);
-      fs.writeFileSync(destPath, content);
-      count++;
+      files.push(...collectMarkdownFiles(fullPath, rootDir));
+      continue;
     }
+
+    if (!entry.name.endsWith(".md")) continue;
+
+    files.push(normalizeRelativePath(path.relative(rootDir, fullPath)));
+  }
+
+  return files;
+}
+
+function writeSkillFiles(distPath, outputDir, target, sourcePaths) {
+  let count = 0;
+
+  for (const sourcePath of sourcePaths) {
+    const destPath = target.mapSourcePath(sourcePath);
+    if (!destPath) continue;
+
+    const sourceFile = path.join(distPath, sourcePath);
+    const destFile = path.join(outputDir, destPath);
+    const content = fs.readFileSync(sourceFile, "utf-8");
+    const rewritten = rewriteContent(content, target, destPath);
+
+    fs.mkdirSync(path.dirname(destFile), { recursive: true });
+    fs.writeFileSync(destFile, rewritten);
+    count++;
   }
 
   return count;
 }
 
-function removeEmptyDirs(dir) {
-  if (!fs.existsSync(dir)) return;
+function fmt(n) {
+  return n.toLocaleString("en-US");
+}
 
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+export function buildSkills({ cwd = process.cwd() } = {}) {
+  const distPath = path.join(cwd, "dist");
+  const sitemapPath = path.join(distPath, "sitemap.md");
 
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      removeEmptyDirs(path.join(dir, entry.name));
+  if (!fs.existsSync(distPath)) {
+    throw new Error(
+      "dist/ directory not found. Run 'bun run build:full' first.",
+    );
+  }
+
+  if (!fs.existsSync(sitemapPath)) {
+    throw new Error(
+      "dist/sitemap.md not found. Run 'bun run build:full' first.",
+    );
+  }
+
+  const sitemap = fs.readFileSync(sitemapPath, "utf-8");
+  const sitemapRoot = parseHeadingTree(sitemap);
+  const markdownFiles = collectMarkdownFiles(distPath).filter(
+    (filePath) => filePath !== "sitemap.md",
+  );
+
+  const results = [];
+
+  for (const target of SKILL_TARGETS) {
+    const outputDir = path.join(cwd, target.name);
+    const sourcePaths = markdownFiles.filter((filePath) =>
+      target.includeSourcePath(filePath),
+    );
+
+    if (sourcePaths.length === 0) {
+      throw new Error(
+        `No markdown files found for the '${target.name}' skill.`,
+      );
     }
+
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true });
+    }
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    const skillMd =
+      target.name === "tenzir"
+        ? generateTenzirSkillMd(sitemapRoot, target)
+        : generateOcsfSkillMd(sitemapRoot, target);
+    const skillPath = path.join(outputDir, "SKILL.md");
+    fs.writeFileSync(skillPath, skillMd);
+
+    const fileCount = writeSkillFiles(distPath, outputDir, target, sourcePaths);
+    const tokens = Math.round(skillMd.length / 4);
+
+    console.warn(
+      `Generated ${target.name}/SKILL.md (${fmt(skillMd.length)} chars, ~${fmt(tokens)} tokens)`,
+    );
+    console.warn(`Copied ${fmt(fileCount)} markdown files to ${target.name}/`);
+    console.warn(`Validate with: skills-ref validate ${target.name}\n`);
+
+    results.push({
+      name: target.name,
+      outputDir,
+      fileCount,
+      tokens,
+    });
   }
 
-  // Check again after recursive cleanup
-  const remaining = fs.readdirSync(dir);
-  if (remaining.length === 0) {
-    fs.rmdirSync(dir);
+  return results;
+}
+
+function main() {
+  const results = buildSkills();
+  for (const result of results) {
+    console.warn(`Skill ready at: ${result.outputDir}/`);
   }
 }
 
-// Main
-const cwd = process.cwd();
-const distPath = path.join(cwd, "dist");
-const sitemapPath = path.join(distPath, "sitemap.md");
-const outputDir = path.join(cwd, SKILL_NAME);
-const contentDir = outputDir;
-
-// Check prerequisites
-if (!fs.existsSync(distPath)) {
-  console.error(`Error: dist/ directory not found`);
-  console.error("Run 'bun run build:full' first.");
-  process.exit(1);
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  try {
+    main();
+  } catch (error) {
+    console.error(
+      `Error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    process.exit(1);
+  }
 }
-
-if (!fs.existsSync(sitemapPath)) {
-  console.error(`Error: dist/sitemap.md not found`);
-  console.error("Run 'bun run build:full' first.");
-  process.exit(1);
-}
-
-// Check that per-page markdown files exist
-if (!validateMarkdownFilesExist(sitemapPath, distPath)) {
-  console.error(`Error: Per-page markdown files not found in dist/`);
-  console.error("Run 'bun run build:full' first to generate them.");
-  process.exit(1);
-}
-
-// Clean and create output directory
-if (fs.existsSync(outputDir)) {
-  fs.rmSync(outputDir, { recursive: true });
-}
-fs.mkdirSync(contentDir, { recursive: true });
-
-// Generate SKILL.md from enhanced sitemap
-const skillMd = generateSkillMd(sitemapPath);
-const skillPath = path.join(outputDir, "SKILL.md");
-fs.writeFileSync(skillPath, skillMd);
-
-const tokens = Math.round(skillMd.length / 4);
-const fmt = (n) => n.toLocaleString("en-US");
-console.warn(
-  `Generated ${SKILL_NAME}/SKILL.md (${fmt(skillMd.length)} chars, ~${fmt(tokens)} tokens)`,
-);
-
-// Copy and rewrite reference files
-const fileCount = copyMarkdownFiles(distPath, contentDir);
-removeEmptyDirs(contentDir);
-
-console.warn(`Copied ${fmt(fileCount)} markdown files to ${SKILL_NAME}/`);
-console.warn(`\nSkill ready at: ${outputDir}/`);
-console.warn(`Validate with: skills-ref validate ${SKILL_NAME}`);
