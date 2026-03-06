@@ -612,6 +612,7 @@ function generateMdxContent(
 
   const frontmatter = `---
 title: "${project.name} ${release.version}"
+pagefind: false
 sidebar:
   label: "${label}"${topicLine}
 ---
@@ -869,6 +870,7 @@ function generateYearTimelineContent(year, entries) {
 
   return `---
 title: "${year}"
+pagefind: false
 sidebar:
   label: "${year}"
 topic: changelog-timeline
@@ -1454,6 +1456,7 @@ function generateIndexContent(
   return `---
 title: ${name}
 description: "${description || ""}"
+pagefind: false
 sidebar:
   hidden: true${topicLine}
 tableOfContents: false
@@ -1770,6 +1773,7 @@ async function syncChangelog(newsRepoPath) {
   const timelineIndexContent = `---
 title: Timeline
 description: "A chronological view of all changes across all Tenzir projects."
+pagefind: false
 sidebar:
   hidden: true
 topic: changelog-timeline
@@ -1821,6 +1825,7 @@ order. Use the toggle to include unreleased changes that are in development.
   const landingContent = `---
 title: Changelog
 template: splash
+pagefind: false
 ---
 
 import LinkCard from '@components/LinkCard.astro';
