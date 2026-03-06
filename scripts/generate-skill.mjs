@@ -21,7 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-const SITE_URL = "https://docs.tenzir.com/";
+const DOCS_URL_PREFIX = /^https?:\/\/docs\.tenzir\.com/;
 const OCSF_ROOT = "reference/ocsf";
 
 // Reference stays intentionally shallow in the main skill because operators,
@@ -89,13 +89,15 @@ function normalizeRelativePath(filePath) {
   return filePath.split(path.sep).join("/");
 }
 
+function normalizeDocsHref(href) {
+  if (!href) return href;
+  return href.replace(DOCS_URL_PREFIX, "");
+}
+
 function toSourceMarkdownPath(href) {
   if (!href) return null;
 
-  let normalized = href;
-  if (normalized.startsWith(SITE_URL)) {
-    normalized = `/${normalized.slice(SITE_URL.length)}`;
-  }
+  const normalized = normalizeDocsHref(href);
 
   if (!normalized.startsWith("/")) return null;
 
@@ -203,10 +205,7 @@ function rewriteLinkDestination(href, target, fromPath) {
     return href;
   }
 
-  let normalized = href;
-  if (normalized.startsWith(SITE_URL)) {
-    normalized = `/${normalized.slice(SITE_URL.length)}`;
-  }
+  const normalized = normalizeDocsHref(href);
 
   if (!normalized.startsWith("/")) {
     return href;
@@ -228,16 +227,16 @@ function rewriteLinkDestination(href, target, fromPath) {
   const sourcePath = pathname.slice(1);
 
   if (!sourcePath.endsWith(".md")) {
-    return `${SITE_URL}${sourcePath}${suffix}`;
+    return href;
   }
 
   if (!target.includeSourcePath(sourcePath)) {
-    return `${SITE_URL}${sourcePath}${suffix}`;
+    return null;
   }
 
   const mappedPath = target.mapSourcePath(sourcePath);
   if (!mappedPath) {
-    return `${SITE_URL}${sourcePath}${suffix}`;
+    return null;
   }
 
   const fromDir =
@@ -249,9 +248,13 @@ function rewriteLinkDestination(href, target, fromPath) {
 
 function rewriteLinks(text, target, fromPath) {
   return text.replace(
-    /(!?\[[^\]]*]\()([^)]+)(\))/g,
-    (_match, prefix, href, suffix) => {
-      return `${prefix}${rewriteLinkDestination(href, target, fromPath)}${suffix}`;
+    /(!?)\[([^\]]*)\]\(([^)]+)\)/g,
+    (_match, bang, label, href) => {
+      const rewrittenHref = rewriteLinkDestination(href, target, fromPath);
+      if (rewrittenHref === null) {
+        return bang ? `![${label}]` : label;
+      }
+      return `${bang}[${label}](${rewrittenHref})`;
     },
   );
 }

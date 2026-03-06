@@ -23,27 +23,27 @@ try {
       "",
       "Tenzir helps security teams process data.",
       "",
-      "## [Guides](https://docs.tenzir.com/guides.md)",
+      "## [Guides](http://docs.tenzir.com/guides.md)",
       "",
       "Practical guides.",
       "",
-      "### [Use OCSF](https://docs.tenzir.com/guides/use-ocsf.md)",
+      "### [Use OCSF](http://docs.tenzir.com/guides/use-ocsf.md)",
       "",
       "Learn how to work with the schema.",
       "",
       "- Contents",
       "",
-      "## [Reference](https://docs.tenzir.com/reference.md)",
+      "## [Reference](http://docs.tenzir.com/reference.md)",
       "",
       "Reference material.",
       "",
       "### Standards",
       "",
-      "#### [OCSF](https://docs.tenzir.com/reference/ocsf.md)",
+      "#### [OCSF](http://docs.tenzir.com/reference/ocsf.md)",
       "",
       "The OCSF reference.",
       "",
-      "##### [Introduction](https://docs.tenzir.com/reference/ocsf/introduction.md)",
+      "##### [Introduction](http://docs.tenzir.com/reference/ocsf/introduction.md)",
       "",
       "Start here.",
       "",
@@ -58,7 +58,7 @@ try {
       "",
       "> Documentation index: https://docs.tenzir.com/llms.txt",
       "",
-      "See [OCSF](/reference/ocsf.md) and [Introduction](/reference/ocsf/introduction.md).",
+      "See [Guides](/guides.md), [OCSF](/reference/ocsf.md), and [Introduction](/reference/ocsf/introduction.md).",
       "",
     ].join("\n"),
   );
@@ -104,6 +104,7 @@ try {
   assert(!tenzirSkill.includes("reference/ocsf"));
   assert(!tenzirSkill.includes("#### [OCSF]"));
   assert(!tenzirSkill.includes("### Standards"));
+  assert(tenzirSkill.includes("### [Use OCSF](guides/use-ocsf.md)"));
 
   const ocsfSkill = fs.readFileSync(
     path.join(tempRoot, "ocsf/SKILL.md"),
@@ -120,13 +121,11 @@ try {
     "utf-8",
   );
   assert(!tenzirGuide.includes("Documentation index:"));
+  assert(tenzirGuide.includes("[Guides](../guides.md)"));
+  assert(!tenzirGuide.includes("[OCSF]("));
+  assert(!tenzirGuide.includes("[Introduction]("));
   assert(
-    tenzirGuide.includes("[OCSF](https://docs.tenzir.com/reference/ocsf.md)"),
-  );
-  assert(
-    tenzirGuide.includes(
-      "[Introduction](https://docs.tenzir.com/reference/ocsf/introduction.md)",
-    ),
+    tenzirGuide.includes("See [Guides](../guides.md), OCSF, and Introduction."),
   );
 
   const ocsfIndex = fs.readFileSync(
@@ -135,11 +134,8 @@ try {
   );
   assert(!ocsfIndex.includes("Documentation index:"));
   assert(ocsfIndex.includes("[Introduction](introduction.md)"));
-  assert(
-    ocsfIndex.includes(
-      "[Use OCSF](https://docs.tenzir.com/guides/use-ocsf.md)",
-    ),
-  );
+  assert(!ocsfIndex.includes("[Use OCSF]("));
+  assert(ocsfIndex.includes("Related guide: Use OCSF."));
 
   const ocsfIntroduction = fs.readFileSync(
     path.join(tempRoot, "ocsf/introduction.md"),
