@@ -259,7 +259,7 @@ jobs:
       - name: Build skill
         run: |
           bun run build:skill
-          tar -czf tenzir-skill.tar.gz -C skills tenzir-docs
+          tar -czf tenzir-docs-skill.tar.gz -C skills tenzir-docs
           tar -czf ocsf-skill.tar.gz -C skills ocsf
 
       - name: Install uv
@@ -294,13 +294,13 @@ jobs:
             **Download:**
             - 📦 [`tenzir-docs.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.tar.gz): Structured directory of markdown files
             - 📄 [`tenzir-docs.md`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.md): Single file with proper heading hierarchy
-            - 🤖 [`tenzir-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-skill.tar.gz): Tenzir [Agent Skill](https://agentskills.io) without the OCSF reference
+            - 🤖 [`tenzir-docs-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs-skill.tar.gz): Tenzir [Agent Skill](https://agentskills.io) without the OCSF reference
             - 🤖 [`ocsf-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/ocsf-skill.tar.gz): Dedicated OCSF [Agent Skill](https://agentskills.io) rooted at the OCSF reference
 
             *Auto-generated on ${{ env.TIMESTAMP }} from commit [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})*
           files: |
             tenzir-docs.tar.gz
             tenzir-docs.md
-            tenzir-skill.tar.gz
+            tenzir-docs-skill.tar.gz
             ocsf-skill.tar.gz
           make_latest: true
