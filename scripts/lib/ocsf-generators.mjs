@@ -172,7 +172,7 @@ export function formatAttribute(attrName, attrData, versionSlug, options = {}) {
 export function generateFrontmatter({ title, description, sidebarLabel }) {
   // Escape quotes in all string values
   const escapedTitle = title.replace(/"/g, '\\"');
-  const lines = ["---", `title: "${escapedTitle}"`];
+  const lines = ["---", `title: "${escapedTitle}"`, "pagefind: false"];
   if (description) {
     const escapedDesc = description.replace(/"/g, '\\"');
     lines.push(`description: "${escapedDesc}"`);
@@ -1277,6 +1277,7 @@ export function generateArticlesIndex(articles) {
   return `---
 title: "OCSF Articles"
 description: "In-depth articles about using the Open Cybersecurity Schema Framework."
+pagefind: false
 sidebar:
   label: "Articles"
 ---
@@ -1351,6 +1352,7 @@ export function generateMainIndex(versionStats) {
   return `---
 title: OCSF
 description: Reference documentation for the Open Cybersecurity Schema Framework (OCSF).
+pagefind: false
 ---
 
 import { CardGrid } from "@astrojs/starlight/components";
