@@ -109,9 +109,12 @@ Some content is auto-generated and excluded from linting:
   `bun run generate:ocsf:all` for all versions. Fetches schema from schema.ocsf.io
   and articles from ocsf/ocsf-docs. Generated files: `src/content/docs/reference/ocsf/`,
   `src/sidebar-ocsf.generated.ts`, `src/ocsf-version.mjs`.
-- **Agent Skill**: Run `bun run build:skill` to generate the Tenzir agent skill.
-  Requires `bun run build:full` first to generate per-page markdown files in `dist/`.
-  Generated files: `tenzir-skill/SKILL.md`, `tenzir-skill/<doc-hierarchy>/`.
+- **Agent Skills**: Run `bun run build:skill` to generate the `tenzir/` and
+  `ocsf/` agent skills. Requires `bun run build:full` first to generate
+  per-page markdown files in `dist/`. Generated files: `tenzir/SKILL.md`,
+  `tenzir/<doc-hierarchy>/`, `ocsf/SKILL.md`, `ocsf/<ocsf-doc-hierarchy>/`.
+  Run `bun run test:skill-generation` after changing the skill generator or
+  skill content splitting logic.
 
 ### Linting
 
