@@ -259,8 +259,8 @@ jobs:
       - name: Build skill
         run: |
           bun run build:skill
-          tar -czf tenzir-skill.tar.gz tenzir
-          tar -czf ocsf-skill.tar.gz ocsf
+          tar -czf tenzir-skill.tar.gz -C skills tenzir-docs
+          tar -czf ocsf-skill.tar.gz -C skills ocsf
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -268,7 +268,8 @@ jobs:
       - name: Validate skill
         run: |
           uv tool install git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref
-          skills-ref validate tenzir
+          cd skills
+          skills-ref validate tenzir-docs
           skills-ref validate ocsf
 
       - name: Delete existing release assets

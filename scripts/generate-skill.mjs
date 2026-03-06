@@ -4,17 +4,17 @@
  * Generates progressive-disclosure Agent Skills from built markdown output in dist/.
  *
  * Output structure:
- *   tenzir/
- *   ├── SKILL.md
- *   ├── guides/
- *   ├── tutorials/
- *   └── ...
- *
- *   ocsf/
- *   ├── SKILL.md
- *   ├── index.md
- *   ├── introduction.md
- *   └── ...
+ *   skills/
+ *   ├── tenzir/
+ *   │   ├── SKILL.md
+ *   │   ├── guides/
+ *   │   ├── tutorials/
+ *   │   └── ...
+ *   └── ocsf/
+ *       ├── SKILL.md
+ *       ├── index.md
+ *       ├── introduction.md
+ *       └── ...
  */
 
 import fs from "node:fs";
@@ -36,7 +36,7 @@ const SECTION_MAX_LEVEL = {
 
 const SKILL_TARGETS = [
   {
-    name: "tenzir",
+    name: "tenzir-docs",
     description: "Data pipeline engine for security teams",
     includeSourcePath(sourcePath) {
       return !isOcsfSourcePath(sourcePath);
@@ -423,8 +423,10 @@ export function buildSkills({ cwd = process.cwd() } = {}) {
 
   const results = [];
 
+  const skillsDir = path.join(cwd, "skills");
+
   for (const target of SKILL_TARGETS) {
-    const outputDir = path.join(cwd, target.name);
+    const outputDir = path.join(skillsDir, target.name);
     const sourcePaths = markdownFiles.filter((filePath) =>
       target.includeSourcePath(filePath),
     );
@@ -441,7 +443,7 @@ export function buildSkills({ cwd = process.cwd() } = {}) {
     fs.mkdirSync(outputDir, { recursive: true });
 
     const skillMd =
-      target.name === "tenzir"
+      target.name === "tenzir-docs"
         ? generateTenzirSkillMd(sitemapRoot, target)
         : generateOcsfSkillMd(sitemapRoot, target);
     const skillPath = path.join(outputDir, "SKILL.md");
@@ -451,10 +453,14 @@ export function buildSkills({ cwd = process.cwd() } = {}) {
     const tokens = Math.round(skillMd.length / 4);
 
     console.warn(
-      `Generated ${target.name}/SKILL.md (${fmt(skillMd.length)} chars, ~${fmt(tokens)} tokens)`,
+      `Generated skills/${target.name}/SKILL.md (${fmt(skillMd.length)} chars, ~${fmt(tokens)} tokens)`,
     );
-    console.warn(`Copied ${fmt(fileCount)} markdown files to ${target.name}/`);
-    console.warn(`Validate with: skills-ref validate ${target.name}\n`);
+    console.warn(
+      `Copied ${fmt(fileCount)} markdown files to skills/${target.name}/`,
+    );
+    console.warn(
+      `Validate with: (cd skills && skills-ref validate ${target.name})\n`,
+    );
 
     results.push({
       name: target.name,

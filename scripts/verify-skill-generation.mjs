@@ -87,27 +87,31 @@ try {
 
   buildSkills({ cwd: tempRoot });
 
-  assert(fs.existsSync(path.join(tempRoot, "tenzir/SKILL.md")));
-  assert(fs.existsSync(path.join(tempRoot, "ocsf/SKILL.md")));
+  assert(fs.existsSync(path.join(tempRoot, "skills/tenzir-docs/SKILL.md")));
+  assert(fs.existsSync(path.join(tempRoot, "skills/ocsf/SKILL.md")));
 
-  assert(!fs.existsSync(path.join(tempRoot, "tenzir/reference/ocsf.md")));
-  assert(!fs.existsSync(path.join(tempRoot, "tenzir/reference/ocsf")));
-  assert(fs.existsSync(path.join(tempRoot, "ocsf/index.md")));
-  assert(fs.existsSync(path.join(tempRoot, "ocsf/introduction.md")));
-  assert(!fs.existsSync(path.join(tempRoot, "ocsf/reference")));
+  assert(
+    !fs.existsSync(path.join(tempRoot, "skills/tenzir-docs/reference/ocsf.md")),
+  );
+  assert(
+    !fs.existsSync(path.join(tempRoot, "skills/tenzir-docs/reference/ocsf")),
+  );
+  assert(fs.existsSync(path.join(tempRoot, "skills/ocsf/index.md")));
+  assert(fs.existsSync(path.join(tempRoot, "skills/ocsf/introduction.md")));
+  assert(!fs.existsSync(path.join(tempRoot, "skills/ocsf/reference")));
 
   const tenzirSkill = fs.readFileSync(
-    path.join(tempRoot, "tenzir/SKILL.md"),
+    path.join(tempRoot, "skills/tenzir-docs/SKILL.md"),
     "utf-8",
   );
-  assert(tenzirSkill.includes("name: tenzir"));
+  assert(tenzirSkill.includes("name: tenzir-docs"));
   assert(!tenzirSkill.includes("reference/ocsf"));
   assert(!tenzirSkill.includes("#### [OCSF]"));
   assert(!tenzirSkill.includes("### Standards"));
   assert(tenzirSkill.includes("### [Use OCSF](guides/use-ocsf.md)"));
 
   const ocsfSkill = fs.readFileSync(
-    path.join(tempRoot, "ocsf/SKILL.md"),
+    path.join(tempRoot, "skills/ocsf/SKILL.md"),
     "utf-8",
   );
   assert(ocsfSkill.includes("name: ocsf"));
@@ -117,7 +121,7 @@ try {
   assert(!ocsfSkill.includes("reference/ocsf"));
 
   const tenzirGuide = fs.readFileSync(
-    path.join(tempRoot, "tenzir/guides/use-ocsf.md"),
+    path.join(tempRoot, "skills/tenzir-docs/guides/use-ocsf.md"),
     "utf-8",
   );
   assert(!tenzirGuide.includes("Documentation index:"));
@@ -129,7 +133,7 @@ try {
   );
 
   const ocsfIndex = fs.readFileSync(
-    path.join(tempRoot, "ocsf/index.md"),
+    path.join(tempRoot, "skills/ocsf/index.md"),
     "utf-8",
   );
   assert(!ocsfIndex.includes("Documentation index:"));
@@ -138,7 +142,7 @@ try {
   assert(ocsfIndex.includes("Related guide: Use OCSF."));
 
   const ocsfIntroduction = fs.readFileSync(
-    path.join(tempRoot, "ocsf/introduction.md"),
+    path.join(tempRoot, "skills/ocsf/introduction.md"),
     "utf-8",
   );
   assert(ocsfIntroduction.includes("[Overview](index.md)"));
