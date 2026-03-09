@@ -11,6 +11,7 @@ permissions:
   pages: write
   id-token: write
   pull-requests: write # needed for commenting on PRs
+  actions: write
 
 concurrency:
   group: "pages-${{ github.ref }}"
@@ -35,9 +36,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Verify skill generation
-        run: bun run test:skill-generation
-
       - name: Restore Astro cache
         uses: actions/cache@v4
         with:
@@ -46,75 +44,11 @@ jobs:
           restore-keys: |
             astro-${{ runner.os }}-
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
       - name: Generate changelog
         run: bun run generate:changelog
 
       - name: Generate Claude plugins
         run: bun run generate:claude-plugins
-
-      - name: Build OCSF schemas
-        id: ocsf
-        uses: ./.github/actions/build-ocsf
-        with:
-          include-dev: ${{ github.event_name != 'pull_request' }}
-          latest-only: ${{ github.event_name == 'pull_request' }}
-
-      # MDX cache key differs from schema cache: includes docs repo and local scripts
-      # (schema cache in build-ocsf action only tracks schema tags and export script)
-      - name: Compute OCSF MDX cache key
-        id: ocsf-mdx-key
-        run: |
-          # We trust ocsf/ocsf-docs repository as it's the official OCSF documentation source
-          DOCS_SHA=$(git ls-remote https://github.com/ocsf/ocsf-docs.git HEAD | cut -c1-16)
-          # Hash exported schemas - fail explicitly if directory is empty (no fallback)
-          SCHEMAS_HASH=$(find "${{ steps.ocsf.outputs.schemas-dir }}" -name "*.json" -print0 | \
-            xargs -0 sha256sum 2>/dev/null | sort | sha256sum | cut -c1-32)
-          if [[ -z "$SCHEMAS_HASH" || "$SCHEMAS_HASH" == "e3b0c44298fc1c149afbf4c8996fb924"* ]]; then
-            echo "::error::No schema files found in ${{ steps.ocsf.outputs.schemas-dir }}"
-            exit 1
-          fi
-          echo "schemas-hash=${SCHEMAS_HASH}" >> "$GITHUB_OUTPUT"
-          # PR cache key includes 'latest' to avoid conflicts with main
-          PREFIX=${{ github.event_name == 'pull_request' && 'ocsf-mdx-latest' || 'ocsf-mdx' }}
-          echo "key=${PREFIX}-${SCHEMAS_HASH}-${DOCS_SHA}-${{ hashFiles('scripts/sync-ocsf.mjs', 'scripts/lib/ocsf-*.mjs') }}" >> "$GITHUB_OUTPUT"
-
-      # restore-keys allows partial match when only docs/scripts change but schemas are same
-      - name: Restore OCSF MDX cache
-        id: ocsf-mdx-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            src/content/docs/reference/ocsf
-            src/sidebar-ocsf.generated.ts
-            src/ocsf-version.mjs
-          key: ${{ steps.ocsf-mdx-key.outputs.key }}
-          restore-keys: |
-            ${{ github.event_name == 'pull_request' && 'ocsf-mdx-latest-' || 'ocsf-mdx-' }}${{ steps.ocsf-mdx-key.outputs.schemas-hash }}-
-
-      # Depends on: ocsf.outputs.schemas-dir (from build-ocsf action)
-      - name: Generate OCSF reference
-        if: steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
-        env:
-          OCSF_LOCAL_DIR: ${{ steps.ocsf.outputs.schemas-dir }}
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            bun run generate:ocsf
-          else
-            bun run generate:ocsf:all
-          fi
-
-      - name: Save OCSF MDX cache
-        if: steps.ocsf-mdx-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            src/content/docs/reference/ocsf
-            src/sidebar-ocsf.generated.ts
-            src/ocsf-version.mjs
-          key: ${{ steps.ocsf-mdx-key.outputs.key }}
 
       - name: Generate Excalidraw SVGs
         run: bun run generate:excalidraw
@@ -161,7 +95,8 @@ jobs:
 
       # The upload-pages-artifact action filters to web-servable content only
       # (HTML, CSS, JS, images), stripping raw .md files. The Release job needs
-      # these markdown files to build the agent skill, so we upload them separately.
+      # these markdown files to publish the markdown bundles, so we upload them
+      # separately.
       # Note: The glob pattern roots at dist/, so files are stored without the
       # dist/ prefix and must be downloaded to dist/ in the Release job.
       - name: Upload markdown files for release
@@ -215,11 +150,6 @@ jobs:
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
       - name: Create tarball bundle
         run: |
           mkdir -p bundle
@@ -256,22 +186,6 @@ jobs:
             done
           } > tenzir-docs.md
 
-      - name: Build skill
-        run: |
-          bun run build:skill
-          tar -czf tenzir-docs-skill.tar.gz -C skills tenzir-docs
-          tar -czf ocsf-skill.tar.gz -C skills ocsf
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Validate skill
-        run: |
-          uv tool install git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref
-          cd skills
-          skills-ref validate tenzir-docs
-          skills-ref validate ocsf
-
       - name: Delete existing release assets
         run: |
           gh release view latest --json assets -q '.assets[].name' 2>/dev/null | while read -r asset; do
@@ -294,13 +208,26 @@ jobs:
             **Download:**
             - 📦 [`tenzir-docs.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.tar.gz): Structured directory of markdown files
             - 📄 [`tenzir-docs.md`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs.md): Single file with proper heading hierarchy
-            - 🤖 [`tenzir-docs-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/tenzir-docs-skill.tar.gz): Tenzir [Agent Skill](https://agentskills.io) without the OCSF reference
-            - 🤖 [`ocsf-skill.tar.gz`](https://github.com/tenzir/docs/releases/download/latest/ocsf-skill.tar.gz): Dedicated OCSF [Agent Skill](https://agentskills.io) rooted at the OCSF reference
 
             *Auto-generated on ${{ env.TIMESTAMP }} from commit [`${{ github.sha }}`](https://github.com/tenzir/docs/commit/${{ github.sha }})*
           files: |
             tenzir-docs.tar.gz
             tenzir-docs.md
-            tenzir-docs-skill.tar.gz
-            ocsf-skill.tar.gz
           make_latest: true
+
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          owner: tenzir
+
+      - name: Trigger skills rebuild
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run sync-docs-skill.yaml \
+            --repo tenzir/skills \
+            --field docs_tag=latest \
+            --field docs_sha="${{ github.sha }}"

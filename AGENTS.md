@@ -105,17 +105,6 @@ Some content is auto-generated and excluded from linting:
   `/llms.txt` (documentation map with page descriptions and headings),
   `/llms-full.txt` (complete documentation bundle), and per-page `.md` files.
   These outputs are for LLM consumption and not tracked in git.
-- **OCSF Reference**: Run `bun run generate:ocsf` for latest version or
-  `bun run generate:ocsf:all` for all versions. Fetches schema from schema.ocsf.io
-  and articles from ocsf/ocsf-docs. Generated files: `src/content/docs/reference/ocsf/`,
-  `src/sidebar-ocsf.generated.ts`, `src/ocsf-version.mjs`.
-- **Agent Skills**: Run `bun run build:skill` to generate the
-  `skills/tenzir-docs/` and `skills/ocsf/` agent skills. Requires `bun run
-build:full` first to generate per-page markdown files in `dist/`. Generated
-  files: `skills/tenzir-docs/SKILL.md`,
-  `skills/tenzir-docs/<doc-hierarchy>/`, `skills/ocsf/SKILL.md`,
-  `skills/ocsf/<ocsf-doc-hierarchy>/`. Run `bun run test:skill-generation`
-  after changing the skill generator or skill content splitting logic.
 
 ### Linting
 

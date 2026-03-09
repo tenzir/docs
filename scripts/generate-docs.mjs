@@ -2,7 +2,6 @@
 /**
  * Generate a single markdown file with full documentation content.
  *
- * This script is used by `build:skill` to create the agent skill documentation bundle.
  * For the sitemap, use the build-time generated `/sitemap.md` route instead.
  *
  * Usage: generate-docs.mjs [--output <file>]
@@ -411,30 +410,6 @@ async function generateDocsBundle() {
         label: "Claude Marketplace",
         items: claudePlugins,
       });
-    }
-  }
-
-  // Add OCSF reference from generated sidebar (if it exists).
-  const ocsfSidebarPath = path.join(
-    process.cwd(),
-    "src/sidebar-ocsf.generated.ts",
-  );
-  try {
-    const ocsfContent = await fs.readFile(ocsfSidebarPath, "utf-8");
-    const ocsfMatch = ocsfContent.match(
-      /export const ocsfSidebar = (\{[\s\S]*?\});/,
-    );
-    if (ocsfMatch) {
-      const ocsfSidebar = new Function(`return ${ocsfMatch[1]}`)();
-      const ocsfDocs = await processSidebarItem(ocsfSidebar, docsRoot);
-      if (ocsfDocs) {
-        sections.reference.push(ocsfDocs);
-      }
-    }
-  } catch (error) {
-    // Skip if file doesn't exist (not generated yet), but warn on other errors
-    if (error.code !== "ENOENT") {
-      console.warn(`Warning: Failed to process OCSF sidebar: ${error.message}`);
     }
   }
 

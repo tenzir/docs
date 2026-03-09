@@ -4,8 +4,8 @@ description: Access Tenzir documentation as an Agent Skill for any compatible AI
 ---
 
 This guide shows you how to use the Tenzir documentation as an Agent Skill.
-You'll learn how to download the skill artifact, understand its structure, and
-configure it with your AI agent.
+You'll learn where to install it, understand its structure, and configure it
+with your AI agent.
 
 ## What is an Agent Skill?
 
@@ -14,9 +14,10 @@ knowledge that AI agents can use. Skills provide structured documentation with
 progressive disclosure, letting agents load a condensed overview first and drill
 into details only when needed.
 
-Tenzir publishes its documentation as an Agent Skill with each release. This
-gives any skill-compatible agent immediate access to deployment guides, TQL
-reference, operator documentation, and integration examples.
+Tenzir publishes its documentation skill through
+[`tenzir/skills`](https://github.com/tenzir/skills). This gives any
+skill-compatible agent access to deployment guides, TQL reference, operator
+documentation, and integration examples.
 
 ### Comparison with other options
 
@@ -29,24 +30,19 @@ reference, operator documentation, and integration examples.
 Use the Agent Skill when your agent supports the specification but lacks MCP
 support, or when you want documentation without executing pipelines.
 
-## Download the skill
+## Install the skill
 
-Download `tenzir-skill.tar.gz` from the
-[latest release](https://github.com/tenzir/docs/releases/latest):
-
-```bash
-curl -LO https://github.com/tenzir/docs/releases/latest/download/tenzir-skill.tar.gz
-tar xzf tenzir-skill.tar.gz
-```
-
-This extracts a `tenzir/` directory with the skill contents.
+Use [`tenzir/skills`](https://github.com/tenzir/skills) as the primary install
+surface for the published documentation skill. Follow the installation
+instructions in that repository, then point your agent at the installed
+`tenzir-docs/` directory.
 
 ## Skill structure
 
 The skill uses progressive disclosure to optimize context usage:
 
 ```
-tenzir/
+tenzir-docs/
 ├── SKILL.md        # Condensed sitemap with excerpts (~8,500 tokens)
 ├── guides/         # Full documentation by category
 ├── tutorials/
@@ -64,10 +60,6 @@ tenzir/
 The documentation hierarchy sits alongside `SKILL.md` at the root level. Your
 agent can follow links from `SKILL.md` to load specific pages as needed.
 
-Every release is validated in CI using
-[skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref)
-to ensure the skill conforms to the Agent Skills specification.
-
 ## Configure your agent
 
 Configuration varies by agent. See the
@@ -76,7 +68,7 @@ detailed instructions on adding skills to different AI agents.
 
 The general approach is:
 
-1. Point your agent to the `tenzir/` directory as a skill source
+1. Point your agent to the `tenzir-docs/` directory as a skill source
 2. The agent reads `SKILL.md` first for an overview
 3. When the agent needs details, it follows relative links to specific pages
 
@@ -87,17 +79,17 @@ Add the skill path to your project's `CLAUDE.md`:
 ```markdown
 ## Available skills
 
-Load the Tenzir documentation skill from `path/to/tenzir-skill/SKILL.md` when
+Load the Tenzir documentation skill from `path/to/tenzir-docs/SKILL.md` when
 answering questions about TQL, operators, or Tenzir deployment.
 ```
 
 ### Example: Generic skill loading
 
 If your agent supports the Agent Skills specification, configure it to load
-from the extracted directory:
+from the installed directory:
 
 ```
-skill_path: ./tenzir
+skill_path: ./tenzir-docs
 ```
 
 ## Next steps
