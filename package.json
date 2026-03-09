@@ -8,11 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "generate": "bun run generate:changelog && bun run generate:claude-plugins && bun run generate:ocsf && bun run generate:excalidraw",
+    "generate": "bun run generate:changelog && bun run generate:claude-plugins && bun run generate:excalidraw",
     "generate:changelog": "node scripts/sync-changelog.mjs",
     "generate:claude-plugins": "node scripts/sync-claude-plugins.mjs",
-    "generate:ocsf": "node scripts/sync-ocsf.mjs",
-    "generate:ocsf:all": "node scripts/sync-ocsf.mjs --all",
     "generate:docs-bundle": "node scripts/generate-docs.mjs",
     "generate:excalidraw": "node scripts/generate-excalidraw-svgs.mjs",
     "generate:excalidraw:placeholders": "node scripts/generate-placeholder-svgs.mjs",
@@ -25,10 +23,8 @@
     "lint:prettier": "prettier --check '**/*.{md,mdx}'",
     "lint:prettier:fix": "prettier --write '**/*.{md,mdx}'",
     "test:inline-partials": "bun run scripts/verify-inline-partials.ts",
-    "test:skill-generation": "node scripts/verify-skill-generation.mjs",
     "build:linkcheck": "CHECK_LINKS=true bun run build",
     "build:full": "bun run generate && CHECK_LINKS=true LLMS_TXT=true bun run build",
-    "build:skill": "node scripts/generate-skill.mjs",
     "lint:fix": "bun run lint:markdown:fix && bun run lint:biome:fix && bun run lint:prettier:fix"
   },
   "dependencies": {
