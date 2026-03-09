@@ -21,11 +21,9 @@ control batching, which otherwise is controlled automatically by Tenzir's
 underlying pipeline execution engine. Use with caution!
 :::
 
-:::note[Multiple schemas]
-The operator maintains separate buffers for each distinct schema. Each buffer
-has independent timeout tracking and fills until reaching the `limit`, at which
-point it flushes immediately.
-:::
+Note that the operator maintains separate buffers for each distinct schema. Each
+buffer has independent timeout tracking and fills until reaching the `limit`, at
+which point it flushes immediately.
 
 ### `limit: int (optional)`
 
