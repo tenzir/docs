@@ -33,6 +33,11 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
