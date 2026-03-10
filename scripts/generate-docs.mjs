@@ -420,6 +420,7 @@ async function generateDocsBundle() {
     }
   }
 
+  output = `${output.trimEnd()}\n`;
   await fs.writeFile(outputPath, output);
   console.log(`Generated ${outputPath} (${totalDocs} pages)`);
 }
