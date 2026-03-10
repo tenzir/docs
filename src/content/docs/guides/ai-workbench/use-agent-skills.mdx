@@ -1,0 +1,136 @@
+---
+title: Use agent skills
+description: Access Tenzir documentation as an Agent Skill for any compatible AI agent
+---
+
+This guide shows you how to install and manage Tenzir's agent skills. You'll
+learn how to add skills globally or per project, install individual skills, and
+keep them up to date.
+
+Tenzir publishes agent skills in the
+[`tenzir/skills`](https://github.com/tenzir/skills) repository.
+
+:::note[Agent Skills]
+[Agent Skills](https://agentskills.io) is an open specification for packaging
+knowledge that AI agents can use. Skills provide structured documentation with
+progressive disclosure, letting agents load a condensed overview first and drill
+into details only when needed.
+:::
+
+## Install skills
+
+Tenzir skills are managed with the
+[`skills`](https://github.com/vercel-labs/skills) CLI, which supports 40+
+coding agents including Claude Code, Cursor, Codex, GitHub Copilot, and more.
+
+### Install all skills
+
+Install all Tenzir skills into the current project:
+
+```bash
+npx skills add tenzir/skills
+```
+
+The CLI auto-detects which coding agents you have installed and prompts you
+to select targets.
+
+### Install individual skills
+
+Use the `--skill` flag to install specific skills:
+
+```bash
+npx skills add tenzir/skills --skill ocsf
+npx skills add tenzir/skills --skill tenzir-docs
+```
+
+You can also combine multiple skills in one command:
+
+```bash
+npx skills add tenzir/skills --skill ocsf --skill tenzir-docs
+```
+
+### Choose the installation scope
+
+Skills support two installation scopes:
+
+| Scope       | Flag        | Location            | Use case                                            |
+| ----------- | ----------- | ------------------- | --------------------------------------------------- |
+| **Project** | _(default)_ | `./<agent>/skills/` | Committed with your project, shared with your team. |
+| **Global**  | `-g`        | `~/<agent>/skills/` | Available across all projects on your machine.      |
+
+Install globally so skills are available everywhere:
+
+```bash
+npx skills add -g tenzir/skills
+```
+
+Install a specific skill globally:
+
+```bash
+npx skills add -g tenzir/skills --skill ocsf
+```
+
+### Target specific agents
+
+To install skills for specific agents only, use the `-a` flag:
+
+```bash
+npx skills add tenzir/skills -a pi
+npx skills add tenzir/skills -a claude-code -a cursor -a codex
+```
+
+## Manage skills
+
+### List installed skills
+
+```bash
+npx skills list
+```
+
+Filter by scope or agent:
+
+```bash
+npx skills list -g
+npx skills list -a pi
+```
+
+### Check for updates
+
+```bash
+npx skills check
+```
+
+### Update skills
+
+```bash
+npx skills update
+```
+
+### Remove skills
+
+Remove interactively:
+
+```bash
+npx skills remove
+```
+
+Remove a specific skill:
+
+```bash
+npx skills remove ocsf
+```
+
+Remove all installed Tenzir skills:
+
+```bash
+npx skills remove --all
+```
+
+## Discover more skills
+
+Browse the community skill directory at [skills.sh](https://skills.sh) or
+search from the command line:
+
+```bash
+npx skills find
+```

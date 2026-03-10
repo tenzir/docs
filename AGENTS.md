@@ -90,12 +90,13 @@ Output goes to `dist/`.
 Some content is auto-generated and excluded from linting:
 
 - **Changelog**: Run `bun run generate:changelog` to fetch from `tenzir/news` repo.
-  Generated files: `src/content/docs/changelog/`, `src/sidebar-changelog.ts`.
-  The stub file `src/content/docs/changelog/index.mdx` is tracked but should not
-  show as modified locally. Run this once after cloning:
-  ```bash
-  git update-index --skip-worktree src/content/docs/changelog/index.mdx
-  ```
+  The generator only publishes projects listed in `src/changelog-projects.json`,
+  which is the authoritative source for changelog project inclusion, ordering,
+  and metadata. Generated files: `src/content/docs/changelog/`,
+  `src/changelog-landing.generated.ts`, `src/sidebar-changelog.generated.ts`,
+  and `src/unified-timeline-data.generated.ts`. The tracked
+  `src/content/docs/changelog/index.mdx` page is a stable shell and should not
+  change during local builds.
 - **Excalidraw Diagrams**: Run `bun run generate:excalidraw` to convert `.excalidraw`
   source files to SVG. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
   The remark plugin inlines the corresponding `foo.excalidraw.svg` directly into
@@ -105,6 +106,9 @@ Some content is auto-generated and excluded from linting:
   `/llms.txt` (documentation map with page descriptions and headings),
   `/llms-full.txt` (complete documentation bundle), and per-page `.md` files.
   These outputs are for LLM consumption and not tracked in git.
+- **Agent Skill**: Run `bun run build:skill` to generate the Tenzir agent skill.
+  Requires `bun run build:full` first to generate per-page markdown files in `dist/`.
+  Generated files: `tenzir-skill/SKILL.md`, `tenzir-skill/<doc-hierarchy>/`.
 
 ### Linting
 

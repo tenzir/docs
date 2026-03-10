@@ -72,10 +72,7 @@ export const guides = [
         collapsed: true,
         items: [
           { label: "Overview", link: "guides/ai-workbench" },
-          "guides/ai-workbench/install-mcp-server",
-          "guides/ai-workbench/configure-your-agent",
-          "guides/ai-workbench/use-claude-plugins",
-          "guides/ai-workbench/use-documentation-skill",
+          "guides/ai-workbench/use-agent-skills",
         ],
       },
     ],
@@ -225,6 +222,7 @@ export const guides = [
         label: "Development",
         collapsed: true,
         items: [
+          "guides/development/setup-syntax-highlighting",
           "guides/development/build-from-source",
           "guides/development/write-a-node-plugin",
         ],
@@ -319,14 +317,6 @@ export const reference = [
       {
         label: "Ship Framework",
         link: "reference/ship-framework",
-      },
-      {
-        label: "MCP Server",
-        link: "reference/mcp-server",
-      },
-      {
-        label: "Claude Marketplace",
-        link: "reference/claude-plugins",
       },
     ],
     "wrench",

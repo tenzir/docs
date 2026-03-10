@@ -289,9 +289,12 @@ async function extractAndProcess(name, content, docsRoot) {
   const arrayContent = match[1];
 
   // Auto-stub all imported/declared variables to avoid ReferenceError
-  const variables = extractSidebarVariables(content);
+  const variables = extractSidebarVariables(content).filter(
+    (variable) => variable !== "section",
+  );
   const stubs = variables.map((v) => `const ${v} = null;`).join("\n    ");
   const wrappedCode = `
+    const section = (label, items, icon) => ({ label, items, icon });
     ${stubs}
     return [${arrayContent}];
   `;
@@ -347,10 +350,9 @@ async function generateDocsBundle() {
     ),
   };
 
-  // Add operators, functions, and claude-plugins by walking directories
+  // Add operators and functions by walking directories
   const operatorsDir = path.join(docsRoot, "reference/operators");
   const functionsDir = path.join(docsRoot, "reference/functions");
-  const claudePluginsDir = path.join(docsRoot, "reference/claude-plugins");
 
   const operators = await walkDirectory(
     operatorsDir,
@@ -362,16 +364,10 @@ async function generateDocsBundle() {
     "reference/functions",
     docsRoot,
   );
-  const claudePlugins = await walkDirectory(
-    claudePluginsDir,
-    "reference/claude-plugins",
-    docsRoot,
-  );
 
   // Sort alphabetically
   operators.sort((a, b) => a.title.localeCompare(b.title));
   functions.sort((a, b) => a.title.localeCompare(b.title));
-  claudePlugins.sort((a, b) => a.title.localeCompare(b.title));
 
   // Remove original Operators/Functions entries from sidebar (will be replaced with expanded versions)
   sections.reference = sections.reference.filter(
@@ -395,24 +391,6 @@ async function generateDocsBundle() {
       items: functions,
     });
   }
-  if (claudePlugins.length > 0) {
-    // Find and replace the Claude Marketplace entry with expanded version
-    const marketplaceIdx = sections.reference.findIndex(
-      (item) => item.path === "reference/claude-plugins",
-    );
-    if (marketplaceIdx !== -1) {
-      sections.reference.splice(marketplaceIdx, 1, {
-        label: "Claude Marketplace",
-        items: claudePlugins,
-      });
-    } else {
-      sections.reference.push({
-        label: "Claude Marketplace",
-        items: claudePlugins,
-      });
-    }
-  }
-
   // Generate output
   const now = new Date().toISOString().replace(/\.\d{3}Z$/, " UTC");
   let output = `# Tenzir Documentation
@@ -442,6 +420,7 @@ async function generateDocsBundle() {
     }
   }
 
+  output = `${output.trimEnd()}\n`;
   await fs.writeFile(outputPath, output);
   console.log(`Generated ${outputPath} (${totalDocs} pages)`);
 }
