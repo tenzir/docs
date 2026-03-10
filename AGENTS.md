@@ -105,6 +105,9 @@ Some content is auto-generated and excluded from linting:
   `/llms.txt` (documentation map with page descriptions and headings),
   `/llms-full.txt` (complete documentation bundle), and per-page `.md` files.
   These outputs are for LLM consumption and not tracked in git.
+- **Agent Skill**: Run `bun run build:skill` to generate the Tenzir agent skill.
+  Requires `bun run build:full` first to generate per-page markdown files in `dist/`.
+  Generated files: `tenzir-skill/SKILL.md`, `tenzir-skill/<doc-hierarchy>/`.
 
 ### Linting
 
