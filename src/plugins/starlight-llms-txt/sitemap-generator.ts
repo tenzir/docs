@@ -13,6 +13,7 @@ import {
 // Changelog topics
 import { changelogTopics } from "../../sidebar-changelog.generated";
 import { entryToSimpleMarkdown } from "./entry-to-markdown";
+import { extractDescription } from "./excerpt-utils";
 import type { SidebarItem } from "./types";
 import { ensureTrailingSlash, getSiteTitle, isDefaultLocale } from "./utils";
 
@@ -63,53 +64,6 @@ interface SidebarGroup {
   link?: string;
   description?: string | null;
   items: (DocEntry | SidebarGroup)[];
-}
-
-/**
- * Extract the first paragraph from markdown content.
- */
-function extractDescription(markdown: string): string | null {
-  const lines = markdown.split("\n");
-  const paragraph: string[] = [];
-
-  for (const line of lines) {
-    // Skip headings
-    if (line.startsWith("#")) break;
-    // Skip code blocks
-    if (line.startsWith("```")) break;
-    // Skip lists
-    if (line.startsWith("- ") || line.startsWith("* ")) break;
-    if (/^\d+\.\s/.test(line)) break;
-    // Skip images
-    if (line.startsWith("![")) break;
-    // Skip components/HTML
-    if (line.startsWith("<")) break;
-    // Skip blockquotes
-    if (line.startsWith(">")) continue;
-    // Skip admonitions
-    if (line.startsWith(":::")) continue;
-
-    // Skip empty lines before content
-    if (paragraph.length === 0 && line.trim() === "") continue;
-
-    // End of paragraph
-    if (line.trim() === "" && paragraph.length > 0) break;
-
-    paragraph.push(line.trim());
-  }
-
-  if (paragraph.length === 0) return null;
-
-  let text = paragraph.join(" ");
-  // Strip markdown links [text](url) -> text
-  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
-  // Strip bold/italic
-  text = text.replace(/\*\*([^*]+)\*\*/g, "$1");
-  text = text.replace(/\*([^*]+)\*/g, "$1");
-  // Strip inline code
-  text = text.replace(/`([^`]+)`/g, "$1");
-
-  return text.trim() || null;
 }
 
 /**
