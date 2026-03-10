@@ -40,10 +40,7 @@ Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
  * These are index pages linking to many individual items (operators,
  * functions, plugins) rather than narrative content with useful headings.
  */
-const REFERENCE_INDEX_PATHS = [
-  "reference/operators",
-  "reference/functions",
-];
+const REFERENCE_INDEX_PATHS = ["reference/operators", "reference/functions"];
 
 interface HeadingNode {
   text: string;
