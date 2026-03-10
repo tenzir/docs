@@ -90,7 +90,9 @@ Output goes to `dist/`.
 Some content is auto-generated and excluded from linting:
 
 - **Changelog**: Run `bun run generate:changelog` to fetch from `tenzir/news` repo.
-  Generated files: `src/content/docs/changelog/`,
+  The generator only publishes projects listed in `src/changelog-projects.json`,
+  which is the authoritative source for changelog project inclusion, ordering,
+  and metadata. Generated files: `src/content/docs/changelog/`,
   `src/changelog-landing.generated.ts`, `src/sidebar-changelog.generated.ts`,
   and `src/unified-timeline-data.generated.ts`. The tracked
   `src/content/docs/changelog/index.mdx` page is a stable shell and should not

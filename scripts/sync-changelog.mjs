@@ -1539,27 +1539,34 @@ async function syncChangelog(newsRepoPath) {
 
   console.log(`Syncing from: ${newsRepoPath}`);
 
-  // Read all projects and sort by order in changelog-projects.json
+  // Only generate projects that are configured in src/changelog-projects.json.
+  // The JSON file is the authoritative source for project ordering and metadata.
   const configOrder = Object.keys(changelogProjects);
-  const excludedProjectIds = new Set(["claude-plugins"]);
+  const configuredProjectIds = new Set(configOrder);
   const discoveredProjects = await readProjects(newsRepoPath);
-  const excludedProjects = discoveredProjects.filter((project) =>
-    excludedProjectIds.has(project.id),
+  const skippedProjects = discoveredProjects.filter(
+    (project) => !configuredProjectIds.has(project.id),
   );
-  const projects = discoveredProjects.filter(
-    (project) => !excludedProjectIds.has(project.id),
+  const projects = discoveredProjects.filter((project) =>
+    configuredProjectIds.has(project.id),
   );
-  projects.sort((a, b) => {
-    const orderA = configOrder.indexOf(a.id);
-    const orderB = configOrder.indexOf(b.id);
-    return (
-      (orderA === -1 ? Infinity : orderA) - (orderB === -1 ? Infinity : orderB)
-    );
-  });
-  console.log(`Found ${projects.length} projects\n`);
-  if (excludedProjects.length > 0) {
+  const missingConfiguredProjects = configOrder.filter(
+    (projectId) => !projects.some((project) => project.id === projectId),
+  );
+
+  projects.sort(
+    (a, b) => configOrder.indexOf(a.id) - configOrder.indexOf(b.id),
+  );
+
+  console.log(`Found ${projects.length} configured projects\n`);
+  if (skippedProjects.length > 0) {
     console.log(
-      `Skipping excluded projects: ${excludedProjects.map((p) => p.id).join(", ")}\n`,
+      `Skipping unconfigured projects: ${skippedProjects.map((p) => p.id).join(", ")}\n`,
+    );
+  }
+  if (missingConfiguredProjects.length > 0) {
+    console.log(
+      `Configured but missing from news repo: ${missingConfiguredProjects.join(", ")}\n`,
     );
   }
 
