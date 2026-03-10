@@ -289,9 +289,12 @@ async function extractAndProcess(name, content, docsRoot) {
   const arrayContent = match[1];
 
   // Auto-stub all imported/declared variables to avoid ReferenceError
-  const variables = extractSidebarVariables(content);
+  const variables = extractSidebarVariables(content).filter(
+    (variable) => variable !== "section",
+  );
   const stubs = variables.map((v) => `const ${v} = null;`).join("\n    ");
   const wrappedCode = `
+    const section = (label, items, icon) => ({ label, items, icon });
     ${stubs}
     return [${arrayContent}];
   `;
