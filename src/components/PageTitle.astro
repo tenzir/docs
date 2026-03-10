@@ -26,14 +26,18 @@ const weightConfig = getSearchWeight(starlightRoute.id);
 const pagefindType = weightConfig?.metadata?.type;
 const pagefindWeight = weightConfig?.weight;
 
-// Build h1 attributes
+// Build h1 attributes.
+// Always set a weight so title matches outrank body text across all pages.
+// Operator pages get 100, guides 50, uncategorized pages get the base of 10.
+const BASE_H1_WEIGHT = 10;
 const h1Attrs: Record<string, any> = {
   id: PAGE_TITLE_ID,
   "data-pagefind-meta": "title",
+  "data-pagefind-weight":
+    pagefindWeight !== undefined
+      ? pagefindWeight * BASE_H1_WEIGHT
+      : BASE_H1_WEIGHT,
 };
-if (pagefindWeight !== undefined) {
-  h1Attrs["data-pagefind-weight"] = pagefindWeight * 100000;
-}
 
 // Helper to capitalize slug segments as fallback
 function formatSlug(slug: string): string {
