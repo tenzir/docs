@@ -43,7 +43,6 @@ Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
 const REFERENCE_INDEX_PATHS = [
   "reference/operators",
   "reference/functions",
-  "reference/claude-plugins",
 ];
 
 interface HeadingNode {
