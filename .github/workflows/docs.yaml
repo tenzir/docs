@@ -152,41 +152,13 @@ jobs:
         run: |
           [ -f dist/.md ] && mv dist/.md dist/index.md || true
 
-      - name: Create tarball bundle
+      - name: Generate markdown bundles
         run: |
-          mkdir -p bundle
-
-          # Copy all .md files preserving structure (except sitemap)
-          rsync -a --include='*/' --include='*.md' --exclude='sitemap.md' --exclude='*' dist/ bundle/
-
-          # Copy sitemap with relative URLs and strip timestamp
-          sed -e 's|https://docs.tenzir.com/||g' -e '/^> Last updated:/d' dist/sitemap.md > bundle/sitemap.md
-
-          # Create tarball
-          tar -czf tenzir-docs.tar.gz -C bundle .
-
-      - name: Generate single-file bundle
-        run: |
-          {
-            echo "# Tenzir Documentation"
-            echo ""
-            echo "> Auto-generated from https://docs.tenzir.com"
-            echo ""
-
-            # Process files by section, demoting headings
-            for section in guides tutorials explanations reference integrations; do
-              if [ -d "bundle/$section" ]; then
-                echo "# ${section^}"
-                echo ""
-                find "bundle/$section" -name '*.md' -type f | sort | while read -r file; do
-                  sed 's/^#/##/' "$file"
-                  echo ""
-                  echo "---"
-                  echo ""
-                done
-              fi
-            done
-          } > tenzir-docs.md
+          node scripts/generate-docs.mjs \
+            --input dist \
+            --bundle-dir bundle \
+            --output tenzir-docs.md \
+            --tarball tenzir-docs.tar.gz
 
       - name: Delete existing release assets
         run: |

@@ -24,6 +24,7 @@ const seeAlsoComponents: Record<string, string> = {
   Guide: "/guides/",
   Tutorial: "/tutorials/",
   Explanation: "/explanations/",
+  Integration: "/integrations/",
 };
 
 export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {

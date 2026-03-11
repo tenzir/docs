@@ -141,14 +141,16 @@ export default defineConfig({
                 //errorOnInvalidHashes: false,
                 //errorOnLocalLinks: false,
                 // Validate See Also component links (Op, Fn, Guide, Tutorial,
-                // Explanation). The remark-see-also-links plugin extracts the
-                // slot content and adds it as a data-href attribute.
+                // Explanation, Integration). The remark-see-also-links plugin
+                // extracts the slot content and adds it as a data-href
+                // attribute.
                 components: [
                   ["Op", "data-href"],
                   ["Fn", "data-href"],
                   ["Guide", "data-href"],
                   ["Tutorial", "data-href"],
                   ["Explanation", "data-href"],
+                  ["Integration", "data-href"],
                 ],
                 exclude: [
                   // Legacy API path that redirects to correct locations
