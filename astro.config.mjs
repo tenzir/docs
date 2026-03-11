@@ -17,6 +17,7 @@ import {
 import { topicPaths, topics } from "./src/topics";
 import { generateRedirects } from "./src/utils/redirects.mjs";
 import { rehypeBaseLinks } from "./src/utils/rehype-base-links";
+import { rehypeHeadingWeights } from "./src/utils/rehype-heading-weights";
 import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
 import { remarkInlinePartials } from "./src/utils/remark-inline-partials";
 import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
@@ -115,9 +116,9 @@ export default defineConfig({
         // always.
         ranking: {
           pageLength: 0.1, // default: 0.1
-          termFrequency: 0.1, // default: 0.1
-          termSaturation: 0.1, // default: 2
-          termSimilarity: 9, // default: 9
+          termFrequency: 0, // default: 0.1
+          termSaturation: 2, // default: 2
+          termSimilarity: 0, // default: 9
         },
       },
       plugins: [
@@ -211,6 +212,7 @@ export default defineConfig({
       remarkSeeAlsoLinks,
     ],
     rehypePlugins: [
+      rehypeHeadingWeights,
       [rehypeBaseLinks, { base }],
       [
         rehypeExternalLinks,
