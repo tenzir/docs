@@ -1,3 +1,4 @@
+import fsSync from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import type {
@@ -20,6 +21,19 @@ type VitePlugin = NonNullable<ViteUserConfig["plugins"]>[number];
 
 interface SharedSiteNavigationData {
   sections: ResolvedSiteNavigationSection[];
+}
+
+interface GeneratedChangelogTopic {
+  id: string;
+  label: string;
+  link: string;
+  icon?: string;
+  items: SidebarItems;
+}
+
+interface GeneratedChangelogNavigation {
+  topics: GeneratedChangelogTopic[];
+  paths: Record<string, string[]>;
 }
 
 export default function starlightSiteNavigation(
@@ -114,14 +128,32 @@ function resolveChildrenSource(
     case undefined:
       return [];
     case "changelogProjects":
-      return Object.keys(changelogProjects).map((projectId) => ({
-        label: humanizeProjectId(projectId),
-        link: `/changelog/${projectId}`,
-        paths: [`/changelog/${projectId}`, `/changelog/${projectId}/**`],
-      }));
+      return resolveChangelogChildren();
     default:
       throw new Error(`Unknown site navigation children source: ${source}`);
   }
+}
+
+function resolveChangelogChildren(): SiteNavigationSectionConfig[] {
+  const generated = loadGeneratedChangelogNavigation();
+  if (generated) {
+    return generated.topics.map((topic) => ({
+      label: topic.label,
+      link: normalizeLink(topic.link),
+      icon: topic.icon,
+      sidebar: topic.items,
+      paths: (generated.paths[topic.id] ?? [topic.link]).map(
+        normalizePathPattern,
+      ),
+    }));
+  }
+
+  return Object.keys(changelogProjects).map((projectId) => ({
+    label: humanizeProjectId(projectId),
+    link: `/changelog/${projectId}`,
+    icon: changelogProjects[projectId as keyof typeof changelogProjects]?.icon,
+    paths: [`/changelog/${projectId}`, `/changelog/${projectId}/**`],
+  }));
 }
 
 function humanizeProjectId(projectId: string) {
@@ -129,6 +161,53 @@ function humanizeProjectId(projectId: string) {
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+let cachedGeneratedChangelogNavigation:
+  | GeneratedChangelogNavigation
+  | null
+  | undefined;
+
+function loadGeneratedChangelogNavigation() {
+  if (cachedGeneratedChangelogNavigation !== undefined) {
+    return cachedGeneratedChangelogNavigation;
+  }
+
+  const generatedPath = fileURLToPath(
+    new URL("../../sidebar-changelog.generated.ts", import.meta.url),
+  );
+  if (!fsSync.existsSync(generatedPath)) {
+    cachedGeneratedChangelogNavigation = null;
+    return cachedGeneratedChangelogNavigation;
+  }
+
+  const source = fsSync.readFileSync(generatedPath, "utf-8");
+  const topics = extractJsonExport<GeneratedChangelogTopic[]>(
+    source,
+    "changelogTopics",
+  );
+  const paths = extractJsonExport<Record<string, string[]>>(
+    source,
+    "changelogTopicPaths",
+  );
+
+  cachedGeneratedChangelogNavigation = {
+    topics,
+    paths,
+  };
+  return cachedGeneratedChangelogNavigation;
+}
+
+function extractJsonExport<T>(source: string, exportName: string): T {
+  const match = source.match(
+    new RegExp(`export const ${exportName} = ([\\s\\S]*?);\\n`),
+  );
+  if (!match) {
+    throw new Error(
+      `Failed to read ${exportName} from sidebar-changelog.generated.ts. Re-run bun run generate:changelog.`,
+    );
+  }
+  return JSON.parse(match[1]) as T;
 }
 
 function resolveSidebar({
