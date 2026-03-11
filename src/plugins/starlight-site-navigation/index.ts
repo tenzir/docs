@@ -117,6 +117,7 @@ function resolveChildrenSource(
       return Object.keys(changelogProjects).map((projectId) => ({
         label: humanizeProjectId(projectId),
         link: `/changelog/${projectId}`,
+        paths: [`/changelog/${projectId}`, `/changelog/${projectId}/**`],
       }));
     default:
       throw new Error(`Unknown site navigation children source: ${source}`);

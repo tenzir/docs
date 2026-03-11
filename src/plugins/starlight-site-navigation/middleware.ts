@@ -29,10 +29,6 @@ export const onRequest = defineRouteMiddleware((context) => {
     if (isLastPage(starlightRoute.sidebar, id)) {
       pagination.next = undefined;
     }
-  } else if (activeSection) {
-    starlightRoute.sidebar = [];
-    pagination.prev = undefined;
-    pagination.next = undefined;
   }
 
   context.locals.siteNavigation = getRouteData(config.sections, activeSection);
