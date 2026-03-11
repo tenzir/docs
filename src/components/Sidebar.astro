@@ -66,9 +66,11 @@ const dropdownItems = useDropdown
   </ul>
 )}
 
-<SidebarPersister>
-  <SidebarSublist sublist={sidebar} />
-</SidebarPersister>
+{!useDropdown && (
+  <SidebarPersister>
+    <SidebarSublist sublist={sidebar} />
+  </SidebarPersister>
+)}
 
 <div class="md:sl-hidden">
   <MobileMenuFooter />
