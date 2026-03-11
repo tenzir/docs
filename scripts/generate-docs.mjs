@@ -189,6 +189,11 @@ async function main() {
   await ensureDir(absoluteBundleDir);
 
   const copied = await copyMarkdownBundle(absoluteInputDir, absoluteBundleDir);
+  if (copied === 0) {
+    throw new Error(
+      `No per-page markdown files found in ${absoluteInputDir}.\nBuild the site first with LLMS_TXT enabled so per-page markdown is generated.`,
+    );
+  }
 
   await ensureDir(path.dirname(absoluteOutputFile));
   await generateSingleFile(absoluteBundleDir, absoluteOutputFile);
