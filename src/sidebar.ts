@@ -321,14 +321,6 @@ export const reference = [
     ],
     "wrench",
   ),
-  section(
-    "Workflows",
-    [
-      "reference/workflows/create-parser-package",
-      "reference/workflows/create-ocsf-mapping",
-    ],
-    "list-checks",
-  ),
 ];
 
 export const integrations = [
