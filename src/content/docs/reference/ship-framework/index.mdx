@@ -139,6 +139,53 @@ subdirectory as the project root when running from a parent directory that
 contains one. This _package mode_ lets you run commands from either the package
 root or the `changelog/` directory without repeating `--root`.
 
+The `init` command is the exception for `--config`: it always writes
+`config.yaml` in standalone mode and therefore does not accept an explicit
+config path.
+
+### init
+
+Create the initial changelog scaffold.
+
+```text
+tenzir-ship init [options]
+```
+
+| Option                 | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| `--yes`                | Initialize without interactive prompts                    |
+| `--package`            | Force package mode using `package.yaml` metadata          |
+| `--standalone`         | Force standalone mode with `config.yaml`                  |
+| `--id <id>`            | Project identifier for standalone mode                    |
+| `--name <text>`        | Project display name for standalone mode                  |
+| `--description <text>` | Project description for standalone mode                   |
+| `--repository <slug>`  | GitHub repository slug (`owner/repo`) for standalone mode |
+
+Without `--root`, `init` creates `./changelog` by default. If you run it from
+inside an empty `changelog/` directory, it initializes the current directory
+instead of nesting another `changelog/` below it. In standalone mode, the
+interactive defaults come from the surrounding workspace directory, even when
+you pass `--root changelog` explicitly.
+
+Standalone mode writes `config.yaml` and creates `unreleased/`. Package mode
+requires `package.yaml` next to the changelog directory, reuses the package
+metadata, and only creates the directories needed for changelog content.
+Existing projects are never overwritten: `init` fails with an explicit error if
+`config.yaml`, `unreleased/`, or `releases/` already exist in the target.
+
+Examples:
+
+```sh
+# Interactive standalone setup
+uvx tenzir-ship init
+
+# Non-interactive standalone setup
+uvx tenzir-ship init --yes --id my-project --name "My Project"
+
+# Package-aware setup from a repository root with package.yaml
+uvx tenzir-ship init --package
+```
+
 ### show
 
 Display changelog entries in multiple views.
@@ -244,11 +291,12 @@ tenzir-ship add [options]
 | `--web`                | Open prefilled GitHub file creation URL      |
 
 The command prompts for any information you do not pass explicitly. The first
-invocation scaffolds the project automatically, creating a `changelog/`
+invocation can scaffold the project automatically, creating a `changelog/`
 subdirectory with `config.yaml` and `unreleased/`. When you provide an explicit
 `--root` flag, the CLI uses that directory directly instead of creating a
-subdirectory. The CLI names entry files using the slugified title (e.g.,
-`my-feature.md`).
+subdirectory. Prefer `tenzir-ship init` when you want to set up the changelog
+workspace without creating an entry. The CLI names entry files using the
+slugified title (e.g., `my-feature.md`).
 
 By default, the CLI infers the primary author from environment variables
 (`TENZIR_CHANGELOG_AUTHOR`, `GH_USERNAME`) or the GitHub CLI (`gh api user`).
@@ -874,7 +922,8 @@ When `modules` is configured, `tenzir-ship validate` checks:
   either omits `component` or uses an allowed label.
 - **Configuration not found** – Ensure `config.yaml` exists in the changelog
   root or `package.yaml` sits next to the `changelog/` directory. Run
-  `tenzir-ship add` once to scaffold the configuration.
+  `tenzir-ship init` to scaffold the workspace, or let `tenzir-ship add`
+  bootstrap it while creating the first entry.
 - **Version bump fails** – Bump flags read the latest release manifest on disk.
   Create an initial release with an explicit version before using
   `--patch/--minor/--major`.
