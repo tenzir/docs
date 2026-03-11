@@ -29,6 +29,7 @@ const builtInComponents: StarlightLinksValidatorOptions["components"] = [
   ["LinkCard", "href"],
 ];
 
+const ignoredLinkProtocols = new Set(["mailto:", "sms:", "tel:"]);
 const data: ValidationData = new Map();
 
 export const remarkStarlightLinksValidator: Plugin<
@@ -122,45 +123,15 @@ export const remarkStarlightLinksValidator: Plugin<
             break;
           }
 
-          case "mdxJsxFlowElement": {
-            for (const attribute of node.attributes) {
-              if (isMdxIdAttribute(attribute)) {
-                fileHeadings.push(attribute.value);
-              }
-            }
-
-            if (!node.name) {
-              break;
-            }
-
-            const componentProp = linkComponents[node.name];
-            if (node.name !== "a" && !componentProp) {
-              break;
-            }
-
-            for (const attribute of node.attributes) {
-              if (
-                attribute.type !== "mdxJsxAttribute" ||
-                attribute.name !== (componentProp ?? "href") ||
-                typeof attribute.value !== "string"
-              ) {
-                continue;
-              }
-
-              const link = getLinkToValidate(attribute.value, config);
-              if (link) {
-                fileLinks.push(link);
-              }
-            }
-            break;
-          }
-
+          case "mdxJsxFlowElement":
           case "mdxJsxTextElement": {
-            for (const attribute of node.attributes) {
-              if (isMdxIdAttribute(attribute)) {
-                fileHeadings.push(attribute.value);
-              }
-            }
+            extractMdxJsxData(
+              node,
+              fileHeadings,
+              fileLinks,
+              linkComponents,
+              config,
+            );
             break;
           }
 
@@ -217,6 +188,10 @@ function getLinkToValidate(
 ): Link | undefined {
   const linkToValidate: Link = { raw: link };
 
+  if (hasIgnoredProtocol(link)) {
+    return undefined;
+  }
+
   if (!isAbsoluteUrl(link)) {
     return linkToValidate;
   }
@@ -258,6 +233,14 @@ function getValidationDataId(base: string, id: string, pageSlug?: string) {
   return id;
 }
 
+function hasIgnoredProtocol(link: string) {
+  try {
+    return ignoredLinkProtocols.has(new URL(link).protocol);
+  } catch {
+    return false;
+  }
+}
+
 function normalizeId(base: string, srcDir: URL, filePath: string) {
   const path = nodePath
     .relative(nodePath.join(fileURLToPath(srcDir), "content/docs"), filePath)
@@ -283,6 +266,47 @@ function isMdxIdAttribute(
     attribute.name === "id" &&
     typeof attribute.value === "string"
   );
+}
+
+function extractMdxJsxData(
+  node: {
+    name?: string | null;
+    attributes: Array<MdxJsxAttribute | MdxJsxExpressionAttribute>;
+  },
+  fileHeadings: string[],
+  fileLinks: Link[],
+  linkComponents: Record<string, string>,
+  config: StarlightLinksValidatorRemarkConfig,
+) {
+  for (const attribute of node.attributes) {
+    if (isMdxIdAttribute(attribute)) {
+      fileHeadings.push(attribute.value);
+    }
+  }
+
+  if (!node.name) {
+    return;
+  }
+
+  const componentProp = linkComponents[node.name];
+  if (node.name !== "a" && !componentProp) {
+    return;
+  }
+
+  for (const attribute of node.attributes) {
+    if (
+      attribute.type !== "mdxJsxAttribute" ||
+      attribute.name !== (componentProp ?? "href") ||
+      typeof attribute.value !== "string"
+    ) {
+      continue;
+    }
+
+    const link = getLinkToValidate(attribute.value, config);
+    if (link) {
+      fileLinks.push(link);
+    }
+  }
 }
 
 function extractFrontmatterLinks(
