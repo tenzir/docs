@@ -17,7 +17,26 @@ from adding your first entry to publishing a release on GitHub.
 
 ## Quick start
 
-Create your first changelog entry to scaffold the project:
+Initialize the changelog project:
+
+```sh
+uvx tenzir-ship init
+```
+
+The `init` command scaffolds a `changelog/` subdirectory for standalone
+projects, writes `config.yaml`, and creates `unreleased/`. In repositories that
+already expose `package.yaml` next to `changelog/`, the CLI switches to package
+mode automatically and reuses the package `id` and `name` without creating an
+extra config file.
+
+For non-interactive setup, pass `--yes`. Standalone mode requires an explicit
+project identifier:
+
+```sh
+uvx tenzir-ship init --yes --id my-project
+```
+
+Then create your first changelog entry:
 
 ```sh
 uvx tenzir-ship add
@@ -25,15 +44,9 @@ uvx tenzir-ship add
 
 The wizard will guide you through the process of creating a new changelog entry.
 It will ask you for the title, type, and description of the change, as well as
-the author.
-
-The first invocation creates a `changelog/` subdirectory with `config.yaml` and
-`unreleased/`, inferring sensible defaults from the parent directory name—no
-separate bootstrap step required. When you provide an explicit `--root` flag,
-the CLI uses that directory directly instead of creating a subdirectory.
-Changelog projects that already expose `package.yaml` next to their `changelog/`
-directory reuse the package `id` and `name` automatically, so the CLI creates no
-extra files.
+the author. The first invocation of `add` can still bootstrap a missing
+changelog automatically, but `init` is the clearer entry point when you only
+want to set up the workspace.
 
 View the current changelog for your working tree:
 
