@@ -6,8 +6,8 @@ import starlight from "@astrojs/starlight";
 import { defineConfig, passthroughImageService } from "astro/config";
 import rehypeExternalLinks from "rehype-external-links";
 import { bundledLanguages } from "shiki";
+import starlightLinksValidator from "starlight-links-validator";
 import starlightOpenAPI from "starlight-openapi";
-import starlightLinksValidator from "./src/plugins/starlight-links-validator/index.ts";
 import starlightLlmsTxt from "./src/plugins/starlight-llms-txt/index.ts";
 import starlightSiteNavigation from "./src/plugins/starlight-site-navigation/index.ts";
 import {
@@ -194,6 +194,8 @@ export default defineConfig({
                   ["Integration", "data-href"],
                 ],
                 exclude: [
+                  // Non-HTTP schemes like mailto: are not internal page links.
+                  "mailto:*",
                   // Legacy API path that redirects to correct locations
                   "/api/",
                   // Redirect to Discord server; handled by redirects.mjs
