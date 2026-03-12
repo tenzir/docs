@@ -11,9 +11,9 @@ Syslog-based systems for ingesting or exporting logs.
 Syslog support in Tenzir is powered by two components:
 
 - <Op>read_syslog</Op>: a parser that turns
-unstructured Syslog messages into structured events.
+  unstructured Syslog messages into structured events.
 - <Op>write_syslog</Op>: a printer that
-transforms structured events into compliant Syslog messages.
+  transforms structured events into compliant Syslog messages.
 
 Together, these building blocks enable round-trip Syslog processing.
 
@@ -22,7 +22,6 @@ Together, these building blocks enable round-trip Syslog processing.
 ### Create a Syslog Server
 
 To receive Syslog messages on a UDP socket, use
-
 <Op>from_udp</Op>:
 
 ```tql
@@ -32,7 +31,6 @@ publish "syslog"
 ```
 
 To use TCP instead of UDP, use <Op>load_tcp</Op> with
-
 <Op>read_syslog</Op>:
 
 ```tql
@@ -70,7 +68,6 @@ line, you'll get this output:
 ```
 
 Note that the `content` field is just a big string. Parse it with
-
 <Fn>parse_cef</Fn>:
 
 ```tql
@@ -163,7 +160,6 @@ prefixed with its length in bytes:
 Here, `65` is the byte count of the syslog message that follows.
 
 Tenzir auto-detects octet-counted messages in both
-
 <Op>read_syslog</Op> for streaming input and
 <Fn>parse_syslog</Fn> for parsing individual
 strings. Use the `octet_counting` parameter to require or disable this behavior.
@@ -180,7 +176,6 @@ When a record omits the SD-ID, Tenzir stores the parsed parameters under
 ## Emit Events as Syslog
 
 Tenzir also supports **creating** Syslog messages from structured events via
-
 <Op>write_syslog</Op>.
 
 Here's a basic example that emits a single Syslog line over UDP:

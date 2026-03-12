@@ -72,11 +72,11 @@ This pipeline consists of three operators:
 Let's break it down:
 
 1. <Op>from</Op>: A void-to-events input operator that
-reads events from a URI.
+   reads events from a URI.
 2. <Op>where</Op>: An events-to-events transformation
-operator that filters events matching a predicate.
+   operator that filters events matching a predicate.
 3. <Op>to</Op>: An events-to-void output operator the writes
-to the specified URI.
+   to the specified URI.
 
 The <Op>from</Op> and <Op>to</Op>
 operators perform a bit "magic" in that they also infer the format of the data
@@ -98,15 +98,15 @@ Here, we use a separate set of operators that go through bytes explicitly. Let's
 break it down as well:
 
 1. <Op>load_kafka</Op>: A void-to-events input
-operator that reads from a Kafka topic.
+   operator that reads from a Kafka topic.
 2. <Op>read_ndjson</Op>: An bytes-to-events
-transformation operator (aka. _parser_) that reads newline-delimited JSON.
+   transformation operator (aka. _parser_) that reads newline-delimited JSON.
 3. <Op>select</Op>: An events-to-events transformation
-operator that selects specific fields from events.
+   operator that selects specific fields from events.
 4. <Op>write_yaml</Op>: An events-to-bytes
-transformation operator that turns events to YAML foramt.
+   transformation operator that turns events to YAML foramt.
 5. <Op>save_zmq</Op>: A bytes-to-void output
-operator that writes bytes to a ZeroMQ socket.
+   operator that writes bytes to a ZeroMQ socket.
 
 ### Line continuation
 

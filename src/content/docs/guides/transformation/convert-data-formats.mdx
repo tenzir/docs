@@ -10,7 +10,6 @@ functions.
 ## Print to JSON
 
 JSON is the most common data exchange format. Use
-
 <Fn>print_json</Fn> to convert any data to JSON
 strings:
 
@@ -49,7 +48,6 @@ that accepts bytes](/reference/operators/#outputs).
 :::
 
 The <Fn>print_json</Fn> function has
-
 <Op>write_json</Op> as sibling operator to format
 the entire event stream as JSON:
 
@@ -184,7 +182,6 @@ Charlie,35,LA
 ## Print to TSV and SSV
 
 For tab-separated and space-separated values, use
-
 <Fn>print_tsv</Fn> and
 <Fn>print_ssv</Fn>:
 
@@ -223,7 +220,6 @@ record.id record.name record.status
 ```
 
 Note the additional double quotes with
-
 <Op>write_ssv</Op> because space is overloaded as
 field separator.
 
@@ -242,7 +238,6 @@ record.id record.name record.status
 ## Print to custom-separated values
 
 If none of the existing \*SV formats meet your needs, the
-
 <Fn>print_xsv</Fn> function to customize field
 separator, list separator, and what to render for absent values:
 
@@ -258,7 +253,6 @@ pipe_separated = item.print_xsv(field_separator=" ⏸︎ ",
 ```
 
 And for the entire event stream via
-
 <Op>write_xsv</Op>:
 
 ```tql
@@ -285,7 +279,6 @@ A001 ⏸︎ Widget ⏸︎ 9.99 ⏸︎ 42 ⌘ 84 ⏸︎ ∅
 ## Print to YAML
 
 Convert data to YAML format with
-
 <Fn>print_yaml</Fn>:
 
 ```tql
@@ -310,7 +303,6 @@ yaml = config.print_yaml()
 ```
 
 Turn the entire event stream into a YAML document stream via
-
 <Op>write_yaml</Op>:
 
 ```tql
@@ -344,7 +336,6 @@ config:
 ## Print key-value pairs
 
 Convert records to key-value format with
-
 <Fn>print_kv</Fn>:
 
 ```tql
@@ -378,7 +369,6 @@ kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
 ### CEF (Common Event Format)
 
 Print security events in CEF format with
-
 <Fn>print_cef</Fn>:
 
 ```tql
@@ -410,7 +400,6 @@ cef = extension.print_cef(
 
 :::tip[Turn print functions into write operators]
 There's no `write_cef` sibling operator, but you use a combination of
-
 <Op>select</Op> and
 <Op>write_lines</Op>. For example:
 
@@ -422,7 +411,6 @@ write_lines
 ```
 
 You could now add <Op>save_file</Op> or use
-
 <Op>write_lines</Op> as printing pipeline in
 <Op>to</Op>.
 :::
