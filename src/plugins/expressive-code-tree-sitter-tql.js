@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import {
   definePlugin,
   InlineStyleAnnotation,
@@ -16,21 +16,17 @@ import { highlightYamlFrontmatter } from "./yaml-frontmatter.js";
 
 // Initialize web-tree-sitter (WASM-based, no native compilation required).
 await Parser.init();
-const wasmPath = fileURLToPath(
-  new URL(
-    "../../node_modules/tree-sitter-tql/tree-sitter-tql.wasm",
-    import.meta.url,
-  ),
+const treeSitterTqlRoot = resolve(
+  process.cwd(),
+  "node_modules/tree-sitter-tql",
 );
+const wasmPath = resolve(treeSitterTqlRoot, "tree-sitter-tql.wasm");
 const TQL = await Language.load(wasmPath);
 const parser = new Parser();
 parser.setLanguage(TQL);
 
 const highlightQuerySource = readFileSync(
-  new URL(
-    "../../node_modules/tree-sitter-tql/queries/tql/highlights.scm",
-    import.meta.url,
-  ),
+  resolve(treeSitterTqlRoot, "queries/tql/highlights.scm"),
   "utf8",
 );
 const highlightQuery = new Query(TQL, highlightQuerySource);
