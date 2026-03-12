@@ -39,14 +39,17 @@ results. Orient the reader to the document type and what they'll gain.
 3. **Complete sentences before lists**: Don't end the paragraph with a colon.
 4. **Be specific**: Include key terms readers might search for.
 
-## See Also sections and cross-references
+## Semantic cross-references and See Also sections
 
-See Also sections help users discover related documentation. When editing any
-documentation page, consider adding or updating these links.
+Semantic components such as `<Op>` and `<Fn>` create consistent inline links to
+related documentation. You can use them inline in prose or in a See Also
+section. When editing any documentation page, consider adding or updating these
+links.
 
-### Required Imports
+### Imports
 
-Add imports after the frontmatter based on what you need:
+These components are auto-imported when you use them in `.mdx` files. You can
+still import them explicitly if you prefer.
 
 ```mdx
 import Op from '@components/see-also/Op.astro';
@@ -55,9 +58,10 @@ import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 import Explanation from '@components/see-also/Explanation.astro';
 import Integration from '@components/see-also/Integration.astro';
+import Reference from '@components/see-also/Reference.astro';
 ```
 
-### Component Usage
+### Component usage
 
 | Component       | Purpose                    | Example                                              |
 | --------------- | -------------------------- | ---------------------------------------------------- |
@@ -67,6 +71,17 @@ import Integration from '@components/see-also/Integration.astro';
 | `<Tutorial>`    | Link to tutorial           | `<Tutorial>learn-idiomatic-tql</Tutorial>`           |
 | `<Explanation>` | Link to explanation        | `<Explanation>language/operators</Explanation>`      |
 | `<Integration>` | Link to integration        | `<Integration>kafka</Integration>`                   |
+| `<Reference>`   | Link to a reference page   | `<Reference>test-framework</Reference>`              |
+
+### Inline usage
+
+Use these components directly in sentences when they help readers jump to the
+relevant reference:
+
+```mdx
+Use <Op>where</Op> with <Fn>count</Fn> to filter events before you aggregate
+results.
+```
 
 ### See Also Format
 
@@ -80,6 +95,7 @@ Use a bullet list with one component per line:
 - <Guide>category/guide-slug</Guide>
 - <Tutorial>tutorial-slug</Tutorial>
 - <Explanation>category/explanation-slug</Explanation>
+- <Reference>reference-slug</Reference>
 - <Integration>vendor/integration-slug</Integration>
 ```
 
@@ -92,7 +108,8 @@ Maintain this order within See Also sections:
 3. Guides (`<Guide>`)
 4. Tutorials (`<Tutorial>`)
 5. Explanations (`<Explanation>`)
-6. Integrations (`<Integration>`)
+6. References (`<Reference>`)
+7. Integrations (`<Integration>`)
 
 ### Reciprocal Cross-References
 
@@ -126,6 +143,6 @@ When adding See Also links, look in these directories for related content:
 
 Link to content that helps users understand or apply the operator/function.
 
-### File Extension
+### File extension
 
-Pages using See Also components must use the `.mdx` extension.
+Pages using semantic components must use the `.mdx` extension.
