@@ -75,7 +75,8 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
       const slug = mdastToString(node).trim();
       if (!slug) return;
 
-      const path = slug.replace(/::/g, "/");
+      const target = normalizeSemanticTarget(node.name, slug);
+      const path = target.replace(/::/g, "/");
       const href = `${semanticComponents[node.name].hrefPrefix}${path}`;
 
       node.attributes = node.attributes || [];
@@ -114,6 +115,16 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
 
 const isSemanticComponent = (name: string): name is SemanticComponentName =>
   Object.hasOwn(semanticComponents, name);
+
+const normalizeSemanticTarget = (
+  componentName: SemanticComponentName,
+  slug: string,
+): string => {
+  if (componentName === "Fn") {
+    return slug.replace(/\(\)$/, "");
+  }
+  return slug;
+};
 
 const importPattern =
   /^\s*import\s+([A-Za-z_$][\w$]*)\s+from\s+["']([^"']+)["'];?/gm;

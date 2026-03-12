@@ -7,7 +7,7 @@ Operator statements perform various actions on data streams.
 Each operator statement can be thought of as a modular unit that processes data
 and can be combined with other operators to create complex dataflows.
 
-[Statements](/reference/statements) provide control and structure with
+<Reference>statements</Reference> provide control and structure with
 bindings, operators, assignments, and control-flow primitives.
 
 ## Operator
@@ -71,14 +71,14 @@ This pipeline consists of three operators:
 
 Let's break it down:
 
-1. [`from`](/reference/operators/from): A void-to-events input operator that
-   reads events from a URI.
-2. [`where`](/reference/operators/where): An events-to-events transformation
-   operator that filters events matching a predicate.
-3. [`to`](/reference/operators/to): An events-to-void output operator the writes
-   to the specified URI.
+1. <Op>from</Op>: A void-to-events input operator that
+reads events from a URI.
+2. <Op>where</Op>: An events-to-events transformation
+operator that filters events matching a predicate.
+3. <Op>to</Op>: An events-to-void output operator the writes
+to the specified URI.
 
-The [`from`](/reference/operators/from) and [`to`](/reference/operators/to)
+The <Op>from</Op> and <Op>to</Op>
 operators perform a bit "magic" in that they also infer the format of the data
 being read or written, i.e., JSON due to the `.json` extension and Parquet due
 to the `.parquet` extension. You can also write the specific operators for these
@@ -97,16 +97,16 @@ save_zmq "tcp://1.2.3.4"
 Here, we use a separate set of operators that go through bytes explicitly. Let's
 break it down as well:
 
-1. [`load_kafka`](/reference/operators/load_kafka): A void-to-events input
-   operator that reads from a Kafka topic.
-2. [`read_ndjson`](/reference/operators/read_ndjson): An bytes-to-events
-   transformation operator (aka. _parser_) that reads newline-delimited JSON.
-3. [`select`](/reference/operators/select): An events-to-events transformation
-   operator that selects specific fields from events.
-4. [`write_yaml`](/reference/operators/write_yaml): An events-to-bytes
-   transformation operator that turns events to YAML foramt.
-5. [`save_zmq`](/reference/operators/save_zmq): A bytes-to-void output
-   operator that writes bytes to a ZeroMQ socket.
+1. <Op>load_kafka</Op>: A void-to-events input
+operator that reads from a Kafka topic.
+2. <Op>read_ndjson</Op>: An bytes-to-events
+transformation operator (aka. _parser_) that reads newline-delimited JSON.
+3. <Op>select</Op>: An events-to-events transformation
+operator that selects specific fields from events.
+4. <Op>write_yaml</Op>: An events-to-bytes
+transformation operator that turns events to YAML foramt.
+5. <Op>save_zmq</Op>: A bytes-to-void output
+operator that writes bytes to a ZeroMQ socket.
 
 ### Line continuation
 
@@ -146,7 +146,7 @@ risk_score = bytes / 1Ki * severity_weight
 ```
 
 When you write an assignment outside an explicit operator context, it implicitly
-uses the [`set`](/reference/operators/set) operator:
+uses the <Op>set</Op> operator:
 
 ```tql
 severity = "high"

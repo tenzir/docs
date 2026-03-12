@@ -11,7 +11,8 @@ matching.
 ## Parse JSON
 
 The most common parsing task is extracting JSON from string fields. Use
-[`parse_json()`](/reference/functions/parse_json):
+
+<Fn>parse_json</Fn>:
 
 ```tql
 from {message: r#"{"user": "alice", "action": "login"}"#}
@@ -51,7 +52,7 @@ action = data.action
 
 ## Extract key-value pairs
 
-Many logs use key-value formats. [`parse_kv()`](/reference/functions/parse_kv)
+Many logs use key-value formats. <Fn>parse_kv</Fn>
 handles these automatically:
 
 ```tql
@@ -98,7 +99,7 @@ TQL provides parsers for various tabular formats within string fields.
 
 ### CSV
 
-Use [`parse_csv()`](/reference/functions/parse_csv):
+Use <Fn>parse_csv</Fn>:
 
 ```tql
 from {line: "alice,30,engineer,SF"}
@@ -119,7 +120,7 @@ record = line.parse_csv(header=["name", "age", "role", "location"])
 
 ### TSV (tab-separated)
 
-Use [`parse_tsv()`](/reference/functions/parse_tsv):
+Use <Fn>parse_tsv</Fn>:
 
 ```tql
 from {line: "alice\t30\tengineer"}
@@ -139,7 +140,7 @@ record = line.parse_tsv(header=["name", "age", "role"])
 
 ### SSV (space-separated)
 
-Use [`parse_ssv()`](/reference/functions/parse_ssv):
+Use <Fn>parse_ssv</Fn>:
 
 ```tql
 from {line: "alice 30 engineer"}
@@ -159,7 +160,7 @@ record = line.parse_ssv(header=["name", "age", "role"])
 
 ### Custom delimiters
 
-Use [`parse_xsv()`](/reference/functions/parse_xsv) for arbitrary delimiters:
+Use <Fn>parse_xsv</Fn> for arbitrary delimiters:
 
 ```tql
 from {line: "alice|30|engineer|SF"}
@@ -185,7 +186,7 @@ record = line.parse_xsv(
 
 ## Parse YAML
 
-Use [`parse_yaml()`](/reference/functions/parse_yaml) for YAML content:
+Use <Fn>parse_yaml</Fn> for YAML content:
 
 ```tql
 from {config: "user: alice\nrole: admin\npermissions:\n  - read\n  - write"}
@@ -208,7 +209,7 @@ data = config.parse_yaml()
 
 ## Parse XML
 
-Use [`parse_xml()`](/reference/functions/parse_xml) with an XPath expression to
+Use <Fn>parse_xml</Fn> with an XPath expression to
 extract elements from XML strings:
 
 ```tql
@@ -234,7 +235,7 @@ the prefix.
 
 ## Parse Windows Event Logs
 
-Use [`parse_winlog()`](/reference/functions/parse_winlog) for Windows Event Log
+Use <Fn>parse_winlog</Fn> for Windows Event Log
 XML. It preserves the standard Windows event structure with `System` and
 `EventData` sections:
 
@@ -279,7 +280,7 @@ event = xml.parse_winlog()
 
 ## Parse Syslog
 
-Use [`parse_syslog()`](/reference/functions/parse_syslog) for RFC 5424 and
+Use <Fn>parse_syslog</Fn> for RFC 5424 and
 RFC 3164 syslog messages:
 
 ```tql
@@ -304,7 +305,7 @@ syslog = line.parse_syslog()
 
 ## Parse CEF
 
-Use [`parse_cef()`](/reference/functions/parse_cef) for Common Event Format
+Use <Fn>parse_cef</Fn> for Common Event Format
 logs from security tools:
 
 ```tql
@@ -333,7 +334,7 @@ event = log.parse_cef()
 
 ## Parse LEEF
 
-Use [`parse_leef()`](/reference/functions/parse_leef) for Log Event Extended
+Use <Fn>parse_leef</Fn> for Log Event Extended
 Format (IBM QRadar):
 
 ```tql
@@ -360,7 +361,7 @@ event = log.parse_leef()
 
 ## Parse timestamps
 
-The [`time()`](/reference/functions/time) function auto-parses many common
+The <Fn>time</Fn> function auto-parses many common
 timestamp formats without requiring a format string:
 
 ```tql
@@ -390,7 +391,7 @@ timestamp = ts.time()
 }
 ```
 
-For non-standard formats, use [`parse_time()`](/reference/functions/parse_time)
+For non-standard formats, use <Fn>parse_time</Fn>
 with an explicit format string:
 
 ```tql
@@ -420,7 +421,7 @@ Common format specifiers:
 
 ## Parse with Grok patterns
 
-For complex formats, [`parse_grok()`](/reference/functions/parse_grok) provides
+For complex formats, <Fn>parse_grok</Fn> provides
 powerful pattern matching:
 
 ```tql

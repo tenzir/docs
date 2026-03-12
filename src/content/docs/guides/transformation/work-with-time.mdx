@@ -34,7 +34,7 @@ earlier = timestamp - 2h
 
 ## Get the current time
 
-Use [`now()`](/reference/functions/now) to get the current timestamp:
+Use <Fn>now</Fn> to get the current timestamp:
 
 ```tql
 from {
@@ -54,12 +54,13 @@ today = current_time.round(1d)
 ## Parse time from strings
 
 TQL offers two functions for parsing timestamps from strings:
-[`time()`](/reference/functions/time) for automatic format detection and
-[`parse_time()`](/reference/functions/parse_time) for custom formats.
+
+<Fn>time</Fn> for automatic format detection and
+<Fn>parse_time</Fn> for custom formats.
 
 ### Automatic parsing with `time()`
 
-The [`time()`](/reference/functions/time) function automatically recognizes many
+The <Fn>time</Fn> function automatically recognizes many
 common timestamp formats:
 
 ```tql
@@ -84,7 +85,7 @@ unix_epoch = unix_epoch.time()
 }
 ```
 
-The [`time()`](/reference/functions/time) function also supports relative time
+The <Fn>time</Fn> function also supports relative time
 expressions:
 
 ```tql
@@ -99,7 +100,8 @@ from {
 ### Custom formats with `parse_time()`
 
 For timestamps in non-standard formats, use
-[`parse_time()`](/reference/functions/parse_time) with an explicit format
+
+<Fn>parse_time</Fn> with an explicit format
 string:
 
 ```tql
@@ -133,15 +135,15 @@ Common format specifiers:
 
 ### When to use which
 
-- **[`time()`](/reference/functions/time)**: Use for ISO 8601 timestamps, Unix
+- **<Fn>time</Fn>**: Use for ISO 8601 timestamps, Unix
   epochs (with `@` prefix), or relative time expressions. No format string
   needed.
-- **[`parse_time()`](/reference/functions/parse_time)**: Use for custom formats
+- **<Fn>parse_time</Fn>**: Use for custom formats
   like Apache logs, US date formats, or any non-standard timestamp layout.
 
 ## Format time to strings
 
-Convert timestamps to custom string formats with [`format_time()`](/reference/functions/format_time):
+Convert timestamps to custom string formats with <Fn>format_time</Fn>:
 
 ```tql
 from {event_time: 2024-01-15T10:30:45.123456}
@@ -163,7 +165,7 @@ log_format = event_time.format_time("%d/%b/%Y:%H:%M:%S")
 
 ## Extract time components
 
-Get individual parts of a timestamp using [`year()`](/reference/functions/year), [`month()`](/reference/functions/month), [`day()`](/reference/functions/day), [`hour()`](/reference/functions/hour), [`minute()`](/reference/functions/minute), and [`second()`](/reference/functions/second):
+Get individual parts of a timestamp using <Fn>year</Fn>, <Fn>month</Fn>, <Fn>day</Fn>, <Fn>hour</Fn>, <Fn>minute</Fn>, and <Fn>second</Fn>:
 
 ```tql
 from {timestamp: 2024-01-15T10:30:45.123456}
@@ -251,7 +253,7 @@ nanoseconds = duration.count_nanoseconds()
 
 ### Convert between time units
 
-Use [`months()`](/reference/functions/months) to create month-based durations:
+Use <Fn>months</Fn> to create month-based durations:
 
 ```tql
 from {
@@ -386,7 +388,7 @@ TQL supports both parsing and generating Unix timestamps.
 
 ### Parse Unix timestamps
 
-For string inputs, use [`time()`](/reference/functions/time) with the `@`
+For string inputs, use <Fn>time</Fn> with the `@`
 prefix:
 
 ```tql
@@ -409,7 +411,7 @@ parsed_fractional = unix_fractional.time()
 
 ### Convert numeric timestamps
 
-For numeric inputs, use [`from_epoch()`](/reference/functions/from_epoch) with
+For numeric inputs, use <Fn>from_epoch</Fn> with
 the appropriate time unit:
 
 ```tql
@@ -436,7 +438,7 @@ from_micros = unix_micros.microseconds().from_epoch()
 
 ### Convert back to Unix timestamp
 
-Use [`since_epoch()`](/reference/functions/since_epoch) to get the duration
+Use <Fn>since_epoch</Fn> to get the duration
 since the Unix epoch:
 
 ```tql
@@ -554,8 +556,9 @@ syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
 
 When working with historical data, you often need to replay events with their
 original timing or adjust timestamps for analysis. TQL provides two operators
-for this: [`delay`](/reference/operators/delay) and
-[`timeshift`](/reference/operators/timeshift).
+for this: <Op>delay</Op> and
+
+<Op>timeshift</Op>.
 
 ### Adjust timestamps with timeshift
 
@@ -633,7 +636,7 @@ between emitting them.
 
 ### Combine with periodic generation
 
-Use [`every`](/reference/operators/every) to generate events periodically, then
+Use <Op>every</Op> to generate events periodically, then
 replay them with modified timing:
 
 ```tql

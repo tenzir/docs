@@ -6,15 +6,16 @@ import Op from "@components/see-also/Op.astro";
 import Guide from "@components/see-also/Guide.astro";
 
 This guide shows you how to connect pipelines using
-[`publish`](/reference/operators/publish) and
-[`subscribe`](/reference/operators/subscribe) operators. You'll learn to split
+
+<Op>publish</Op> and
+<Op>subscribe</Op> operators. You'll learn to split
 event streams for parallel processing and merge multiple sources into a single
 pipeline.
 
 ## How publish/subscribe works
 
-The [`publish`](/reference/operators/publish) operator sends events to a named
-channel (topic) on a node. The [`subscribe`](/reference/operators/subscribe)
+The <Op>publish</Op> operator sends events to a named
+channel (topic) on a node. The <Op>subscribe</Op>
 operator receives events from that channel. Multiple subscribers
 can receive the same events, and multiple publishers can write to the same
 topic.
@@ -141,8 +142,9 @@ to_kafka "all-priority-events"
 
 ## Combining with fork
 
-Use [`fork`](/reference/operators/fork) with
-[`publish`](/reference/operators/publish) to send copies of events while
+Use <Op>fork</Op> with
+
+<Op>publish</Op> to send copies of events while
 continuing the main pipeline:
 
 ```tql

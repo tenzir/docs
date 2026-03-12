@@ -18,7 +18,7 @@ from_udp endpoint:string, [resolve_hostnames=bool], [binary=bool]
 Listens for UDP datagrams on the specified endpoint and outputs each datagram as
 a structured event containing the data and peer information.
 
-Unlike [`load_udp`](/reference/operators/load_udp), which outputs raw bytes,
+Unlike <Op>load_udp</Op>, which outputs raw bytes,
 `from_udp` produces structured events with metadata about the sender.
 
 ### `endpoint: string`
@@ -26,7 +26,8 @@ Unlike [`load_udp`](/reference/operators/load_udp), which outputs raw bytes,
 The address to listen on. Must be of the format: `[udp://]host:port`.
 
 Use `0.0.0.0` as the host to accept datagrams on all interfaces. The
-[`nics`](/reference/operators/nics) operator lists all available interfaces.
+
+<Op>nics</Op> operator lists all available interfaces.
 
 ### `resolve_hostnames = bool (optional)`
 

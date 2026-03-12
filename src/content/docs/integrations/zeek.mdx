@@ -151,7 +151,8 @@ zeek-cut id.orig_h id.resp_h < conn.log
 ```
 
 The list of arguments to `zeek-cut` are the column names of the log. The
-[`select`](/reference/operators/select) operator performs the equivalent in
+
+<Op>select</Op> operator performs the equivalent in
 Tenzir after we parse the logs as Zeek TSV:
 
 ```bash
@@ -168,7 +169,8 @@ cat *.log | tenzir 'read_zeek_tsv | select id.orig_h id.resp_h'
 ### Generate Zeek TSV from arbitrary data
 
 You can render any data as Zeek TSV log using
-[`write_zeek_tsv`](/reference/operators/write_zeek_tsv):
+
+<Op>write_zeek_tsv</Op>:
 
 For example, this is how you create a filtered version of a Zeek conn.log:
 

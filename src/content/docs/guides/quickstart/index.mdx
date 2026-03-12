@@ -94,9 +94,10 @@ export
 taste
 ```
 
-This pipelines does the following: [`export`](/reference/operators/export)
+This pipelines does the following: <Op>export</Op>
 references all data in the node's edge storage, and
-[`taste`](/reference/operators/taste) samples 10 events of every unique schema.
+
+<Op>taste</Op> samples 10 events of every unique schema.
 You'll now see Explorer filling up with events.
 
 ![Getting a taste](./demo-node-export-taste.png)
@@ -109,7 +110,7 @@ have at least one input and one output. Otherwise data would leak somewhere! So
 what's happening?
 
 If you don't write an output operator in the Explorer, the platform
-auto-completes the [`serve`](/reference/operators/serve) operator, turning your
+auto-completes the <Op>serve</Op> operator, turning your
 pipeline into a tiny REST API, so that platform can extract events from it and
 show them to you in the browser.
 :::
@@ -215,18 +216,17 @@ set @name = "flow"
 
 A few notes:
 
-- The [`set`](/reference/operators/set) operator performs an assignment and
+- The <Op>set</Op> operator performs an assignment and
   creates new fields.
 - Because `set` is _the_ most frequently used operator, it is "implied" and you
   just write `x = y` instead of `set x = y`. We generally recommend doing so and
   write it out only out for didactic reasons.
 - You can use `set` to assign schema names, e.g., `@name = "new-schema-name"`.
-- [`select`](/reference/operators/select) selects the fields to keep, but also
-  supports an assignment to rename the new field in one shot.
+- <Op>select</Op> selects the fields to keep, but also supports an assignment
+to rename the new field in one shot.
 - As you can see in the `select` operator (Suricata tab) above, TQL
-  expressions have [functions](/reference/functions) like
-  [`to_lower`](/reference/functions/to_lower), which makes working with values a
-  breeze.
+  expressions have [functions](/reference/functions) like <Fn>to_lower</Fn>,
+  which makes working with values a breeze.
 
 ![Reshaping Suricata flow logs](./demo-node-reshape-flow.png)
 
@@ -244,8 +244,9 @@ can route it to multiple destinations.
 
 To this end, nodes have a publish/subscribe feature, allowing you to efficiently
 connect pipelines using static topics (and very soon dynamic routes). The
-[`publish`](/reference/operators/publish) and
-[`subscribe`](/reference/operators/subscribe) operators are all you need for
+
+<Op>publish</Op> and
+<Op>subscribe</Op> operators are all you need for
 this. The typical pipeline pattern for composable pipelines looks like this:
 
 ```tql
@@ -305,7 +306,7 @@ After you give the pipeline a name (or leave it blank for a dummy name), click
 
 Now that you've deployed one pipeline with two topics as its "interface," you
 can direct data to it from other pipelines. For example, you can create a
-pipeline that accepts logs via [Syslog](/integrations/syslog) and forwards them
+pipeline that accepts logs via <Integration>syslog</Integration> and forwards them
 to the transformation pipeline. Then you can write two more pipelines that each
 take a subset to implement split-routing scenario.
 

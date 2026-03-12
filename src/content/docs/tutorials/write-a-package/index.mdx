@@ -140,8 +140,9 @@ You may notice that this shape is a lot more verbose than the original event.
 Don't worry, it is absolutely normal when upgrading your raw data to a
 semantically richer representation like OCSF. You can always trim the feed down
 again later, either automatically with our
-[`ocsf::trim`](/reference/operators/ocsf/trim) operator or manually by
-[`drop`](/reference/operators/drop)ping fields. But while the data
+
+<Op>ocsf::trim</Op> operator or manually by
+<Op>drop</Op>ping fields. But while the data
 is in motion, the additional semantics unlock generic analytics when the context
 of the original source is long gone.
 :::
@@ -178,8 +179,7 @@ them more flexible with parameterized operators that accept positional and named
 arguments, just like built-in operators.
 
 For example, an operator that tags events with threat metadata could accept
-a configurable confidence level and source name. See [Add
-operators](/guides/packages/add-operators) for the full parameter reference,
+a configurable confidence level and source name. See <Guide>packages/add-operators</Guide> for the full parameter reference,
 including supported types and examples.
 
 ## Add deployable pipelines
@@ -187,13 +187,12 @@ including supported types and examples.
 With our operators in place, we can now create deployable pipelines. Packages
 that include pipelines execute on installation, which is useful for background
 tasks like periodic data fetching. To ship a pipeline as a template that users
-must explicitly enable, add `disabled: true` to the frontmatter. See [Add
-pipelines](/guides/packages/add-pipelines) for all frontmatter options.
+must explicitly enable, add `disabled: true` to the frontmatter. See <Guide>packages/add-pipelines</Guide> for all frontmatter options.
 
 The `sslbl::fetch` operator just downloads the blacklist entries once. But the
 remote data source changes periodically, and we want to always work with the
 latest version. So we turn the one-shot download into a continuous data feed
-using the [`every`](/reference/operators/every) operator:
+using the <Op>every</Op> operator:
 
 ```tql title="sslbl/pipelines/publish-as-ocsf.tql"
 ---
@@ -213,8 +212,8 @@ publish "ocsf"
 ```
 
 This is a closed pipeline, meaning, it has an input operator
-([`every`](/reference/operators/every)) and an output operator
-([`publish`](/reference/operators/publish)). The pipeline produces a new OCSF
+(<Op>every</Op>) and an output operator
+(<Op>publish</Op>). The pipeline produces a new OCSF
 Inventory Info event every hour and publishes it to the `ocsf` topic so that
 other pipelines in the same node can consume it. This is a best-practice design
 pattern to expose data that you may reuse multiple times.
@@ -294,7 +293,7 @@ context::update "sslbl", key=value
 ```
 
 Define the input in `package.yaml` with a default value, then users can override
-it during installation. See [Configure inputs](/guides/packages/configure-inputs)
+it during installation. See <Guide>packages/configure-inputs</Guide>
 for the full templating guide.
 
 ## Test your package
@@ -360,9 +359,7 @@ Add a `test.yaml` file to a subdirectory that represents the suite:
 
 </FileTree>
 
-The suite updates the lookup table and verifies the expected values. See [Test
-packages](/guides/packages/test-packages) for suite configuration and [Add
-contexts](/guides/packages/add-contexts) for context-specific testing patterns.
+The suite updates the lookup table and verifies the expected values. See <Guide>packages/test-packages</Guide> for suite configuration and <Guide>packages/add-contexts</Guide> for context-specific testing patterns.
 
 ## Add a changelog
 
@@ -377,8 +374,7 @@ From the package directory, create a new entry with
 uvx tenzir-ship add
 ```
 
-The interactive wizard guides you through the process. See [Maintain a
-changelog](/guides/packages/maintain-a-changelog) for the full release workflow.
+The interactive wizard guides you through the process. See <Guide>packages/maintain-a-changelog</Guide> for the full release workflow.
 
 ## Share and contribute
 

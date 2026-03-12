@@ -70,7 +70,8 @@ C:\Program Files\Winlogbeat> Start-Service winlogbeat
 #### Run a Tenzir pipeline
 
 Now consume the data via a Tenzir pipeline using the
-[Elasticsearch](/integrations/elasticsearch)/[OpenSearch](/integrations/opensearch) integration
+
+<Integration>elasticsearch</Integration>/<Integration>opensearch</Integration> integration
 that mimics a bulk ingest endpoint:
 
 ```tql
@@ -114,7 +115,7 @@ Bit to monitor.
 
 #### Run a Tenzir pipeline
 
-Use the [`from_fluent_bit`](/reference/operators/from_fluent_bit) source
+Use the <Op>from_fluent_bit</Op> source
 operator with the [Forward
 input](https://docs.fluentbit.io/manual/pipeline/inputs/forward):
 
@@ -586,7 +587,8 @@ spinning up a server that listens at `tcp://10.0.0.1:1514`.
 ### Run a Tenzir pipeline
 
 Accept the logs sent with the configuration above into Tenzir via
-[TCP](/integrations/tcp):
+
+<Integration>tcp</Integration>:
 
 ```tql
 load_tcp "10.0.0.1:1514" {
@@ -598,7 +600,8 @@ publish "wec"
 ## Parse Windows Event Log XML
 
 When receiving Windows Event Log data in its native XML format, use
-[`parse_winlog`](/reference/functions/parse_winlog) to convert the XML into
+
+<Fn>parse_winlog</Fn> to convert the XML into
 structured records. This function is optimized for the [Windows XML Event Log
 format](https://learn.microsoft.com/en-us/windows/win32/wes/eventschema-schema)
 and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.

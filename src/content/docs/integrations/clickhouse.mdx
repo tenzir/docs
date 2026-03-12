@@ -13,7 +13,8 @@ Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
 protocol using the official
 [clickhouse-cpp](https://github.com/ClickHouse/clickhouse-cpp) library. Tenzir
 communicates with ClickHouse via the host and port you specify in the
-[`to_clickhouse`](/reference/operators/to_clickhouse) operator. This means:
+
+<Op>to_clickhouse</Op> operator. This means:
 
 - **Network**: Tenzir and ClickHouse can run on the same machine (using
   `localhost`) or on different machines in the same network. You just need to
@@ -85,7 +86,8 @@ Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
 pipelines).
 
 You can find out more about how to configure TLS on the
-[`to_clickhouse`](/reference/operators/to_clickhouse) documentation and the
+
+<Op>to_clickhouse</Op> documentation and the
 [Clickhouse SSL-TLS configuration
 guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
 
@@ -100,12 +102,12 @@ ocsf::cast
 to_clickhouse table="ocsf.network_activity", primary=timestamp, tls=false
 ```
 
-When creating a table, the [`to_clickhouse`](/reference/operators/to_clickhouse)
+When creating a table, the <Op>to_clickhouse</Op>
 operator uses the first event to determine the schema. You must take care that
 there are no untyped nulls in this event, as the operator cannot transmit
 those.
 
-In this example, we use the [`ocsf::cast`](/reference/operators/ocsf/cast)
+In this example, we use the <Op>ocsf::cast</Op>
 operator, which will automatically align events with the correct OCSF schema,
 giving all fields the correct types and adding all fields that should be in
 `ocsf.network_activity`. This ensures that we create a complete table without

@@ -3,8 +3,9 @@ title: Fetch via HTTP and APIs
 ---
 
 This guide shows you how to fetch data from HTTP APIs using the
-[`from_http`](/reference/operators/from_http) and
-[`http`](/reference/operators/http) operators. You'll learn to make GET
+
+<Op>from_http</Op> and
+<Op>http</Op> operators. You'll learn to make GET
 requests, handle authentication, and implement pagination for large result sets.
 
 ## Basic API Requests
@@ -145,7 +146,8 @@ from_http "https://api.example.com/data", headers={
 ```
 
 Headers help you authenticate with APIs and specify request formats. Use the
-[`secret`](/reference/functions/secret) function to retrieve sensitive
+
+<Fn>secret</Fn> function to retrieve sensitive
 API tokens, as in the above example.
 
 ### TLS and Security
@@ -264,7 +266,7 @@ Link: <https://api.example.com/items?page=2>; rel="next"
 Relative URLs in the `Link` header are resolved against the request URL, so both
 absolute and relative pagination links work correctly.
 
-The same approach works with the [`http`](/reference/operators/http) operator:
+The same approach works with the <Op>http</Op> operator:
 
 ```tql
 from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
@@ -316,9 +318,10 @@ latency = now() - date
 ```
 
 The above example parses the `Date` header from the HTTP response via
-[`parse_time`](/reference/functions/parse_time) into a timestamp and then
+
+<Fn>parse_time</Fn> into a timestamp and then
 compares it to the current wallclock time using the
-[`now`](/reference/functions/now) function.
+<Fn>now</Fn> function.
 
 Nit: `%T` is a shortcut for `%H:%M:%S`.
 

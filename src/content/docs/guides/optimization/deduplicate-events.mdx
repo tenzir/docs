@@ -2,7 +2,7 @@
 title: Deduplicate events
 ---
 
-The [`deduplicate`](/reference/operators/deduplicate) operator
+The <Op>deduplicate</Op> operator
 provides a powerful mechanism to remove duplicate events in a pipeline.
 
 There are numerous use cases for deduplication, such as reducing noise,
@@ -202,9 +202,10 @@ such as ongoing scanning attempts or noisy sensors.
    events for your use case. Too few fields may drop important events; too many
    may not deduplicate effectively.
 
-2. **Consider order**: The [`deduplicate`](/reference/operators/deduplicate)
+2. **Consider order**: The <Op>deduplicate</Op>
    operator keeps the _first_ occurrence. If you need the latest, consider using
-   [`reverse`](/reference/operators/reverse) first:
+
+   <Op>reverse</Op> first:
 
    ```tql
    reverse | deduplicate user | reverse
@@ -215,8 +216,8 @@ such as ongoing scanning attempts or noisy sensors.
    on your threat detection windows.
 
 4. **Combine with other operators**: Often you'll want to filter
-   ([`where`](/reference/operators/where)) or transform
-   ([`set`](/reference/operators/set)) data before deduplication to normalize
+   (<Op>where</Op>) or transform
+   (<Op>set</Op>) data before deduplication to normalize
    keys:
 
    ```tql

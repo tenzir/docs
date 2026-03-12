@@ -32,14 +32,14 @@ cap_name = name.capitalize()
 
 Functions explained:
 
-- [`to_lower()`](/reference/functions/to_lower) - Converts all characters to
-  lowercase
-- [`to_upper()`](/reference/functions/to_upper) - Converts all characters to
-  uppercase
-- [`to_title()`](/reference/functions/to_title) - Capitalizes first letter of
-  each word
-- [`capitalize()`](/reference/functions/capitalize) - Capitalizes only the first
-  letter
+- <Fn>to_lower</Fn> - Converts all characters to
+lowercase
+- <Fn>to_upper</Fn> - Converts all characters to
+uppercase
+- <Fn>to_title</Fn> - Capitalizes first letter of
+each word
+- <Fn>capitalize</Fn> - Capitalizes only the first
+letter
 
 ## Trim whitespace
 
@@ -69,10 +69,10 @@ no_suffix = suffix.trim_end()
 
 Functions:
 
-- [`trim()`](/reference/functions/trim) - Removes whitespace from both ends
-- [`trim_start()`](/reference/functions/trim_start) - Removes whitespace from
-  beginning
-- [`trim_end()`](/reference/functions/trim_end) - Removes whitespace from end
+- <Fn>trim</Fn> - Removes whitespace from both ends
+- <Fn>trim_start</Fn> - Removes whitespace from
+beginning
+- <Fn>trim_end</Fn> - Removes whitespace from end
 
 ## Split and join strings
 
@@ -110,7 +110,7 @@ rejoined = parts.join("-")
 
 ### Split with regular expressions
 
-Use [`split_regex()`](/reference/functions/split_regex) for complex splitting:
+Use <Fn>split_regex</Fn> for complex splitting:
 
 ```tql
 from {text: "error:42|warning:7|info:125"}
@@ -157,7 +157,7 @@ filled = template.replace("{name}", "Alice").replace("{place}", "Tenzir")
 
 ### Pattern-based replacement
 
-Use [`replace_regex()`](/reference/functions/replace_regex) for complex
+Use <Fn>replace_regex</Fn> for complex
 replacements:
 
 ```tql
@@ -209,10 +209,10 @@ is_pdf = file.ends_with(".pdf")
 
 Pattern matching functions:
 
-- [`match_regex()`](/reference/functions/match_regex) - Test against regular
-  expression
-- [`starts_with()`](/reference/functions/starts_with) - Check string prefix
-- [`ends_with()`](/reference/functions/ends_with) - Check string suffix
+- <Fn>match_regex</Fn> - Test against regular
+expression
+- <Fn>starts_with</Fn> - Check string prefix
+- <Fn>ends_with</Fn> - Check string suffix
 
 ## Validate string content
 
@@ -252,17 +252,17 @@ has_upper = name.is_title()
 
 Validation functions:
 
-- [`is_numeric()`](/reference/functions/is_numeric) - Contains only digits
-- [`is_alpha()`](/reference/functions/is_alpha) - Contains only letters
-- [`is_alnum()`](/reference/functions/is_alnum) - Contains only letters and
-  digits
-- [`is_lower()`](/reference/functions/is_lower) - All cased characters are
-  lowercase
-- [`is_upper()`](/reference/functions/is_upper) - All cased characters are
-  uppercase
-- [`is_title()`](/reference/functions/is_title) - String is in title case
-- [`is_printable()`](/reference/functions/is_printable) - Contains only
-  printable characters
+- <Fn>is_numeric</Fn> - Contains only digits
+- <Fn>is_alpha</Fn> - Contains only letters
+- <Fn>is_alnum</Fn> - Contains only letters and
+digits
+- <Fn>is_lower</Fn> - All cased characters are
+lowercase
+- <Fn>is_upper</Fn> - All cased characters are
+uppercase
+- <Fn>is_title</Fn> - String is in title case
+- <Fn>is_printable</Fn> - Contains only
+printable characters
 
 ## Measure string properties
 
@@ -296,17 +296,17 @@ directory = path.parent_dir()
 
 String property functions:
 
-- [`length_chars()`](/reference/functions/length_chars) - Count Unicode
-  characters
-- [`length_bytes()`](/reference/functions/length_bytes) - Count bytes
-- [`reverse()`](/reference/functions/reverse) - Reverse character order
-- [`file_name()`](/reference/functions/file_name) - Extract filename from path
-- [`parent_dir()`](/reference/functions/parent_dir) - Extract directory from
-  path
+- <Fn>length_chars</Fn> - Count Unicode
+characters
+- <Fn>length_bytes</Fn> - Count bytes
+- <Fn>reverse</Fn> - Reverse character order
+- <Fn>file_name</Fn> - Extract filename from path
+- <Fn>parent_dir</Fn> - Extract directory from
+path
 
 ## Extract substrings
 
-Use [`slice()`](/reference/functions/slice) to extract portions of strings:
+Use <Fn>slice</Fn> to extract portions of strings:
 
 ```tql
 from {
@@ -360,8 +360,9 @@ decoded = encoded.decode_base64()
 
 ### Hex encoding
 
-Use [`encode_hex()`](/reference/functions/encode_hex) and
-[`decode_hex()`](/reference/functions/decode_hex):
+Use <Fn>encode_hex</Fn> and
+
+<Fn>decode_hex</Fn>:
 
 ```tql
 from {data: "Hello", hex_string: "48656c6c6f"}
@@ -398,12 +399,12 @@ decoded = encoded.decode_url()
 
 Encoding functions:
 
-- [`encode_base64()`](/reference/functions/encode_base64) /
-  [`decode_base64()`](/reference/functions/decode_base64)
-- [`encode_hex()`](/reference/functions/encode_hex) /
-  [`decode_hex()`](/reference/functions/decode_hex)
-- [`encode_url()`](/reference/functions/encode_url) /
-  [`decode_url()`](/reference/functions/decode_url)
+- <Fn>encode_base64</Fn> /
+<Fn>decode_base64</Fn>
+- <Fn>encode_hex</Fn> /
+<Fn>decode_hex</Fn>
+- <Fn>encode_url</Fn> /
+<Fn>decode_url</Fn>
 
 ## Pad strings
 
@@ -429,9 +430,9 @@ padded_code = code.pad_end(10, "-")
 
 Padding functions:
 
-- [`pad_start()`](/reference/functions/pad_start) - Add characters to the
-  beginning
-- [`pad_end()`](/reference/functions/pad_end) - Add characters to the end
+- <Fn>pad_start</Fn> - Add characters to the
+beginning
+- <Fn>pad_end</Fn> - Add characters to the end
 
 ## Read file contents
 
@@ -448,7 +449,7 @@ hostname = file_contents("/etc/hostname")
 }
 ```
 
-The [`file_contents()`](/reference/functions/file_contents) function reads the
+The <Fn>file_contents</Fn> function reads the
 entire file as a string. The file path must be a constant expression. Use with caution on large files.
 
 ## Practical examples
@@ -549,17 +550,17 @@ xxh3 = data.hash_xxh3()
 
 Hash functions:
 
-- [`hash_md5()`](/reference/functions/hash_md5) - MD5 digest (128-bit)
-- [`hash_sha1()`](/reference/functions/hash_sha1) - SHA-1 digest (160-bit)
-- [`hash_sha224()`](/reference/functions/hash_sha224) - SHA-224 digest
-- [`hash_sha256()`](/reference/functions/hash_sha256) - SHA-256 digest
-- [`hash_sha384()`](/reference/functions/hash_sha384) - SHA-384 digest
-- [`hash_sha512()`](/reference/functions/hash_sha512) - SHA-512 digest
-- [`hash_sha3_224()`](/reference/functions/hash_sha3_224) - SHA3-224 digest
-- [`hash_sha3_256()`](/reference/functions/hash_sha3_256) - SHA3-256 digest
-- [`hash_sha3_384()`](/reference/functions/hash_sha3_384) - SHA3-384 digest
-- [`hash_sha3_512()`](/reference/functions/hash_sha3_512) - SHA3-512 digest
-- [`hash_xxh3()`](/reference/functions/hash_xxh3) - XXH3 digest (fast, 64-bit)
+- <Fn>hash_md5</Fn> - MD5 digest (128-bit)
+- <Fn>hash_sha1</Fn> - SHA-1 digest (160-bit)
+- <Fn>hash_sha224</Fn> - SHA-224 digest
+- <Fn>hash_sha256</Fn> - SHA-256 digest
+- <Fn>hash_sha384</Fn> - SHA-384 digest
+- <Fn>hash_sha512</Fn> - SHA-512 digest
+- <Fn>hash_sha3_224</Fn> - SHA3-224 digest
+- <Fn>hash_sha3_256</Fn> - SHA3-256 digest
+- <Fn>hash_sha3_384</Fn> - SHA3-384 digest
+- <Fn>hash_sha3_512</Fn> - SHA3-512 digest
+- <Fn>hash_xxh3</Fn> - XXH3 digest (fast, 64-bit)
 
 ### Create unique identifiers
 
@@ -613,7 +614,7 @@ Process network data with specialized security functions:
 
 ### Generate Community IDs
 
-Use [`community_id()`](/reference/functions/community_id) to create standardized
+Use <Fn>community_id</Fn> to create standardized
 flow hashes:
 
 ```tql
@@ -646,7 +647,7 @@ flow_id = community_id(
 
 ### Anonymize IP addresses
 
-Use [`encrypt_cryptopan()`](/reference/functions/encrypt_cryptopan) for
+Use <Fn>encrypt_cryptopan</Fn> for
 consistent IP anonymization:
 
 ```tql

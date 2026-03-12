@@ -17,7 +17,8 @@ suffices to write a sequence of transformations because Tenzir automatically
 adds a JSON input operator at the beginning and TQL output operator at the end.
 In the [web inteface](/guides/basic-usage/run-pipelines/#in-the-platform),
 auto-completetion takes place with an output operator: The web app appends
-[`serve`](/reference/operators/serve) to turn the dataflow into a REST API,
+
+<Op>serve</Op> to turn the dataflow into a REST API,
 allowing your browser to access it by routing the data through the platform.
 :::
 
@@ -86,21 +87,23 @@ semantics. You define subpipelines syntactically within a block of curly braces
 
 There are three types of subpipelines based on what they expect and produce:
 
-1. **Closed subpipelines** (void-to-void): Complete programs that run
-   independently, used by operators like [`every`](/reference/operators/every)
-   and [`subscribe`](/reference/operators/subscribe).
+1.  **Closed subpipelines** (void-to-void): Complete programs that run
+    independently, used by operators like <Op>every</Op>
+    and <Op>subscribe</Op>.
 
-2. **Parsing subpipelines** (bytes-to-events): Transform raw bytes into
-   structured events, used by input operators like
-   [`from_file`](/reference/operators/from_file) and
-   [`from_http`](/reference/operators/from_http).
+2.  **Parsing subpipelines** (bytes-to-events): Transform raw bytes into
+    structured events, used by input operators like
 
-3. **Printing subpipelines** (events-to-bytes): Transform structured events into
-   raw bytes, used by output operators like [`to`](/reference/operators/to).
+          <Op>from_file</Op> and
+
+    <Op>from_http</Op>.
+
+3.  **Printing subpipelines** (events-to-bytes): Transform structured events into
+    raw bytes, used by output operators like <Op>to</Op>.
 
 ### Closed subpipelines
 
-The [`every`](/reference/operators/every) operator executes a closed subpipeline
+The <Op>every</Op> operator executes a closed subpipeline
 at regular intervals:
 
 ```tql
@@ -113,8 +116,9 @@ every 1h {
 
 ### Parsing subpipelines
 
-Input operators like [`from_file`](/reference/operators/from_file) or
-[`from_http`](/reference/operators/from_http) that read raw bytes use parsing
+Input operators like <Op>from_file</Op> or
+
+<Op>from_http</Op> that read raw bytes use parsing
 subpipelines to convert bytes into events. This pattern separates _where_ data
 comes from (the outer operator) from _how_ it's parsed (the subpipeline):
 
@@ -143,8 +147,9 @@ from_file "data.json"  // Automatically uses read_json
 ```
 
 Operators that produce events directly, like
-[`from_kafka`](/reference/operators/from_kafka) or
-[`from_udp`](/reference/operators/from_udp), don't take a parsing subpipeline
+
+<Op>from_kafka</Op> or
+<Op>from_udp</Op>, don't take a parsing subpipeline
 because the data format is inherent to the source.
 
 ## Comments
@@ -211,17 +216,17 @@ Understanding operator behavior helps write efficient pipelines:
 
 **Streaming operators** process events incrementally:
 
-- [`where`](/reference/operators/where): Filters one event at a time
-- [`select`](/reference/operators/select): Transforms fields immediately
-- [`drop`](/reference/operators/drop): Removes fields as events flow
+- <Op>where</Op>: Filters one event at a time
+- <Op>select</Op>: Transforms fields immediately
+- <Op>drop</Op>: Removes fields as events flow
 
 **Blocking operators** need all input before producing output:
 
-- [`sort`](/reference/operators/sort): Must see all events to order them
-- [`summarize`](/reference/operators/summarize): Aggregates across the entire
-  stream
-- [`reverse`](/reference/operators/reverse): Needs complete input to reverse
-  order
+- <Op>sort</Op>: Must see all events to order them
+- <Op>summarize</Op>: Aggregates across the entire
+stream
+- <Op>reverse</Op>: Needs complete input to reverse
+order
 
  Efficient: streaming operations first:
 
@@ -265,7 +270,8 @@ age = current_time - timestamp      // Runtime calculation
 ### Network transparency
 
 TQL pipelines can span network boundaries seamlessly. For example, the
-[`import`](/reference/operators/import) operator implicitly performs a network
+
+<Op>import</Op> operator implicitly performs a network
 connection based on where it runs. If the `tenzir` binary executes the pipeline,
 the executor establishesa transparent network connection. If the pipeline runs
 within a node, the executor passes the data directly to the next operator in the

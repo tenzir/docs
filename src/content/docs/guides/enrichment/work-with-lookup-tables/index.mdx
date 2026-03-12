@@ -22,12 +22,13 @@ Lookup tables are particularly powerful for:
 ## Create a lookup table
 
 You can create a lookup table with the
-[`context::create_lookup_table`](/reference/operators/context/create_lookup_table)
+
+<Op>context::create_lookup_table</Op>
 operator as a pipeline, or interactively in the platform.
 
 ### Create a lookup table from a pipeline
 
-The [`context::create_lookup_table`](/reference/operators/context/create_lookup_table)
+The <Op>context::create_lookup_table</Op>
 operator creates a new, empty lookup table:
 
 ```tql
@@ -76,7 +77,7 @@ import { Steps } from "@astrojs/starlight/components";
 
 ## Show all available lookup tables
 
-Use the [`context::list`](/reference/operators/context/list) operator to
+Use the <Op>context::list</Op> operator to
 retrieve all contexts in your node:
 
 ```tql
@@ -125,7 +126,7 @@ where name.match_regex("[T|t]hreat")
 
 ## Delete a lookup table
 
-Use the [`context::remove`](/reference/operators/context/remove) operator to
+Use the <Op>context::remove</Op> operator to
 delete a lookup table:
 
 ```tql
@@ -136,7 +137,7 @@ This permanently deletes the specified lookup table and its persisted data.
 
 ## Perform lookups
 
-Use the [`context::enrich`](/reference/operators/context/enrich) operator to
+Use the <Op>context::enrich</Op> operator to
 enrich events with data from a lookup table.
 
 ### Perform a point lookup
@@ -359,7 +360,7 @@ Compound keys enable sophisticated matching based on multiple fields.
 
 ## Add/overwrite entries in lookup table
 
-Use the [`context::update`](/reference/operators/context/update) operator to
+Use the <Op>context::update</Op> operator to
 add or update entries. This is ideal for maintaining dynamic threat
 intelligence or asset inventory:
 
@@ -395,7 +396,7 @@ context::update "user_logins", key=user, value={
 
 Timeouts are essential for managing the lifecycle of threat intelligence and
 maintaining fresh context. You can set expiration timeouts on lookup table
-entries using the [`context::update`](/reference/operators/context/update)
+entries using the <Op>context::update</Op>
 operator:
 
 Most IoCs have a short half-life. Automatically expire stale entries:
@@ -465,7 +466,7 @@ The three timeout types work together:
 
 ## Remove entries from a lookup table
 
-Use the [`context::erase`](/reference/operators/context/erase) operator to
+Use the <Op>context::erase</Op> operator to
 remove specific entries, useful for allowlisting, removing false positives, or
 cleaning up outdated data:
 
@@ -509,7 +510,7 @@ context::erase "temp_indicators", key=indicator
 
 ## Show entries in a lookup table
 
-Use the [`context::inspect`](/reference/operators/context/inspect) operator to
+Use the <Op>context::inspect</Op> operator to
 view and analyze the contents of a lookup table:
 
 ```tql
@@ -574,7 +575,7 @@ or asset information in lookup tables.
 
 ### Basic periodic updates
 
-Use the [`every`](/reference/operators/every) operator to schedule regular API
+Use the <Op>every</Op> operator to schedule regular API
 polls that update a lookup table:
 
 ```tql
@@ -609,7 +610,7 @@ context::update "blocklist",
 
 ### Export lookup table state
 
-Use the [`context::save`](/reference/operators/context/save) operator to create
+Use the <Op>context::save</Op> operator to create
 backups or migrate lookup tables between nodes:
 
 Backup critical threat intelligence:
@@ -637,7 +638,7 @@ every 1d {
 
 ### Import lookup table state
 
-Use the [`context::load`](/reference/operators/context/load) operator to
+Use the <Op>context::load</Op> operator to
 restore lookup tables from backups or migrate data:
 
 ```tql

@@ -329,11 +329,11 @@ from {
 
 ### Secret
 
-[Secrets](/explanations/secrets) protect sensitive values like authentication
+<Explanation>secrets</Explanation> protect sensitive values like authentication
 tokens and passwords. The `secret` type contains only a secret's name, not its
 actual value, which is resolved asynchronously when needed.
 
-Create secrets using the [`secret`](/reference/functions/secret) function or
+Create secrets using the <Fn>secret</Fn> function or
 pass string literals directly to operators that accept secrets:
 
 ```tql
@@ -666,7 +666,8 @@ drop old_field
 ```
 
 In addition to the `move` keyword, there exists a
-[`move`](/reference/operators/move) operator that is a convenient alternative
+
+<Op>move</Op> operator that is a convenient alternative
 when relocating multiple fields. For example, this
 sequence of assignments with the `move` keyword:
 
@@ -676,7 +677,7 @@ y = move bar
 z = move baz
 ```
 
-can be rewritten succinctly with the [`move`](/reference/operators/move)
+can be rewritten succinctly with the <Op>move</Op>
 operator:
 
 ```tql
@@ -687,7 +688,7 @@ move x=foo, y=bar, z=baz
 
 - Only usable in expression position (right side of `=`)
 - Only works with fields, not arbitrary expressions
-- Different from the [`move`](/reference/operators/move) operator that is a
+- Different from the <Op>move</Op> operator that is a
   statement
   :::
 

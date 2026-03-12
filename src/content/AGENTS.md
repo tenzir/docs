@@ -4,12 +4,14 @@ The `docs/` directory includes the primary documentation content.
 
 ## Linking conventions
 
-Always wrap operator and function names in markdown links, even when mentioned
-multiple times in the same document. Use backticks with the link:
-[`publish`](/reference/operators/publish), [`round`](/reference/functions/round).
+In `.mdx` pages, prefer semantic components for inline cross-references to
+operators, functions, and other documentation pages:
+`<Op>publish</Op>`, `<Fn>round</Fn>`,
+`<Guide>node-setup/tune-performance</Guide>`,
+`<Integration>kafka</Integration>`.
 
-When first introducing a technology that has an `/integrations` page, link to it
-in the text: [Kafka](/integrations/kafka), [Splunk](/integrations/splunk).
+Use plain markdown links only when you need custom link text, emphasis, or a
+specific anchor target.
 
 ## Consecutive code blocks
 
