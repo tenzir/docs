@@ -2,79 +2,59 @@
 import MobileMenuFooter from "virtual:starlight/components/MobileMenuFooter";
 import { Badge } from "@astrojs/starlight/components";
 import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
+import { pathWithBase } from "@utils/base";
 import changelogProjects from "../changelog-projects.json";
-import { childTopics, dropdownTopics, topicParents } from "../topics.ts";
 import { getIconComponent } from "../utils/icon-registry";
 import SidebarSublist from "./SidebarSublist.astro";
 import TopicDropdown from "./TopicDropdown.astro";
 
-const { topics } = Astro.locals.starlightSidebarTopics;
+const { activePrimarySection, sectionSwitcherSections } =
+  Astro.locals.siteNavigation;
 const { sidebar } = Astro.locals.starlightRoute;
 
-// Look up color by topic link (handles various formats: "changelog/tenzir", "/changelog/tenzir/", etc.)
-const getTopicColor = (link: string | undefined): string | undefined => {
+const getSectionColor = (link: string | undefined): string | undefined => {
   if (!link) return undefined;
-  // Normalize: remove leading/trailing slashes
   const normalized = link.replace(/^\/|\/$/g, "");
   if (!normalized.startsWith("changelog/")) return undefined;
   const projectId = normalized.slice("changelog/".length);
   return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
 };
 
-// Find the current topic (may be undefined on non-topic pages)
-const currentTopic = topics.find((topic) => topic.isCurrent);
-
-// If current is a root → show its children
-// If current is a child → show its siblings
-const currentLabel = currentTopic?.label || "";
-const parentLabel = topicParents[currentLabel];
-const rootLabel = parentLabel ?? currentLabel;
-
-// Get the list of child topic labels (could be empty)
-const sidebarTopicLabels = childTopics(rootLabel);
-const sidebarTopics = topics.filter((t) =>
-  sidebarTopicLabels.includes(t.label),
-);
-
-// Check if this root topic uses a dropdown
-const useDropdown = dropdownTopics.has(rootLabel);
-
-// Prepare dropdown data - look up colors from changelog-projects.json since
-// starlight-sidebar-topics doesn't pass through custom properties
+const useDropdown = !!activePrimarySection?.dropdown;
 const dropdownItems = useDropdown
-  ? sidebarTopics.map((t) => ({
-      label: t.label,
-      link: t.link,
-      icon: t.icon,
-      color: getTopicColor(t.link),
-      isCurrent: t.isCurrent,
+  ? sectionSwitcherSections.map((section) => ({
+      label: section.label,
+      link: section.link,
+      icon: typeof section.icon === "string" ? section.icon : undefined,
+      color: getSectionColor(section.link),
+      isCurrent: section.isCurrent,
     }))
   : [];
 ---
 
 {useDropdown && dropdownItems.length > 0 ? (
   <TopicDropdown items={dropdownItems} />
-) : sidebarTopics.length > 0 && (
+) : sectionSwitcherSections.length > 0 && (
   <ul class="starlight-sidebar-topics">
     {
-      sidebarTopics.map((topic) => {
-        const iconName = typeof topic.icon === 'string' ? topic.icon : topic.icon?.name;
+      sectionSwitcherSections.map((section) => {
+        const iconName = typeof section.icon === 'string' ? section.icon : section.icon?.name;
         const IconComponent = iconName ? getIconComponent(iconName) : undefined;
         return (
           <li>
-            <a href={topic.link} class:list={{ 'starlight-sidebar-topics-current': topic.isCurrent }}>
+            <a href={pathWithBase(section.link)} class:list={{ 'starlight-sidebar-topics-current': section.isCurrent }}>
               {IconComponent && (
-                <div class="starlight-sidebar-topics-icon" data-color={getTopicColor(topic.link)}>
+                <div class="starlight-sidebar-topics-icon" data-color={getSectionColor(section.link)}>
                   <IconComponent />
                 </div>
               )}
               <div>
-                {topic.label}
-                {topic.badge && (
+                {section.label}
+                {section.badge && (
                   <Badge
                     class="starlight-sidebar-topics-badge"
-                    text={topic.badge.text}
-                    variant={topic.badge.variant}
+                    text={section.badge.text}
+                    variant={section.badge.variant}
                   />
                 )}
               </div>

@@ -1,9 +1,10 @@
 ---
 import { Icon } from "@astrojs/starlight/components";
+import { pathWithBase } from "@utils/base";
 
 /**
- * Dropdown component for selecting topics.
- * Used in the sidebar when a root topic is configured to use dropdown mode.
+ * Dropdown component for selecting sibling navigation sections.
+ * Used in the sidebar when the active primary section is configured to use dropdown mode.
  */
 interface Props {
   items: Array<{
@@ -50,7 +51,7 @@ const currentItem = items.find((item) => item.isCurrent) || items[0];
     {items.map((item) => (
       <li role="option" aria-selected={item.isCurrent ? "true" : "false"}>
         <a
-          href={item.link}
+          href={pathWithBase(item.link)}
           class:list={['topic-dropdown-item', { 'is-current': item.isCurrent }]}
         >
           {item.icon && (

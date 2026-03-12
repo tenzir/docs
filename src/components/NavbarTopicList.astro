@@ -1,57 +1,20 @@
 ---
 import { pathWithBase } from "@utils/base";
-import { childTopics, rootTopics, topicParents } from "../topics.ts";
 
-const { topics: sidebarTopics } = Astro.locals.starlightSidebarTopics;
-
-// Find the current topic
-const currentTopic = sidebarTopics.find((topic) => topic.isCurrent);
-
-// Build navbar topics: always show the root topics
-const navbarTopics = rootTopics();
-
-// Get the current page path for fallback matching (e.g., "/changelog" or "/integrations/kafka")
-const currentPath = Astro.url.pathname.replace(/\/$/, "");
-
-// Determine if a given topic is "current" or an ancestor of the current one
-function isTopicCurrentOrAncestor(label: string): boolean {
-  // If we have a current topic from sidebar topics, use hierarchy matching
-  if (currentTopic) {
-    if (label === currentTopic.label) return true;
-    let cursor = currentTopic.label;
-    while (cursor) {
-      const parent = topicParents[cursor];
-      if (parent === label) return true;
-      cursor = parent;
-    }
-    return false;
-  }
-
-  // Fallback: match by URL path prefix (for splash pages without sidebar topics)
-  const topic = navbarTopics.find((t) => t.label === label);
-  if (!topic) return false;
-
-  // Handle root path
-  if (topic.link === "/" || topic.link === "") {
-    return currentPath === "" || currentPath === "/";
-  }
-
-  const topicPath = `/${topic.link}`;
-  return currentPath === topicPath || currentPath.startsWith(`${topicPath}/`);
-}
+const { primarySections } = Astro.locals.siteNavigation;
 ---
 
-{navbarTopics.length > 0 && (
+{primarySections.length > 0 && (
   <nav>
     <ul>
       {
-      navbarTopics.map((topic) => (
+      primarySections.map((section) => (
       <li>
         <a
-          href={pathWithBase(topic.link)}
-          aria-current={isTopicCurrentOrAncestor(topic.label) ? 'page' : undefined}
+          href={pathWithBase(section.link)}
+          aria-current={section.isActive ? 'page' : undefined}
           >
-          {topic.label}
+          {section.label}
         </a>
       </li>
       ))
