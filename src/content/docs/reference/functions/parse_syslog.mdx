@@ -166,6 +166,43 @@ output = input.parse_syslog()
 Use `octet_counting=true` to require the prefix or `octet_counting=false` to
 disable auto-detection.
 
+### Parse RFC 3164 messages with structured data
+
+Some legacy syslog emitters prepend structured-data blocks to the message
+content. The function extracts them into a `structured_data` field and stores
+the remaining text in `content`:
+
+```tql
+from {
+  input: r#"<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed"#,
+}
+output = input.parse_syslog()
+```
+
+```tql
+{
+  input: "<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed",
+  output: {
+    facility: 20,
+    severity: 6,
+    timestamp: "2026-02-11T18:01:45.587Z",
+    hostname: "myhost",
+    app_name: "Hostd",
+    process_id: "2099494",
+    structured_data: {
+      "Originator@6876": {
+        sub: "Vimsvc.TaskManager",
+        opID: "23d59ade",
+      },
+    },
+    content: "Task Completed",
+  },
+}
+```
+
+If the leading brackets don't contain valid structured data, the parser leaves
+the content intact and omits the `structured_data` field.
+
 ## See Also
 
 - <Op>read_syslog</Op>

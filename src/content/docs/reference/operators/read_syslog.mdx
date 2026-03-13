@@ -77,6 +77,37 @@ With this input, the parser will produce the following output, with the schema n
 }
 ```
 
+Some RFC 3164 emitters prepend structured-data blocks to the message content
+using syntax similar to RFC 5424. When the parser detects valid structured data
+at the start of the content field, it extracts the key-value pairs into a
+`structured_data` field and stores the remaining text in `content`. These events
+use the schema name `syslog.rfc3164.structured`:
+
+```
+<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed
+```
+
+```tql
+{
+  facility: 20,
+  severity: 6,
+  timestamp: "2026-02-11T18:01:45.587Z",
+  hostname: "myhost",
+  app_name: "Hostd",
+  process_id: "2099494",
+  structured_data: {
+    "Originator@6876": {
+      sub: "Vimsvc.TaskManager",
+      opID: "23d59ade",
+    },
+  },
+  content: "Task Completed",
+}
+```
+
+If the leading brackets don't contain valid structured data, the parser leaves
+the content intact and uses the regular `syslog.rfc3164` schema.
+
 import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
 ### `octet_counting = bool (optional)`
@@ -193,6 +224,37 @@ from_file "checkpoint.txt" {
     },
   },
   message: null,
+}
+```
+
+### Parse RFC 3164 messages with structured data
+
+Some legacy syslog emitters, such as VMware ESXi, prepend structured-data
+blocks to the message content. The parser extracts them automatically:
+
+```tql title="Pipeline"
+from {
+  line: r#"<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed"#,
+}
+write_lines
+read_syslog
+```
+
+```tql
+{
+  facility: 20,
+  severity: 6,
+  timestamp: "2026-02-11T18:01:45.587Z",
+  hostname: "myhost",
+  app_name: "Hostd",
+  process_id: "2099494",
+  structured_data: {
+    "Originator@6876": {
+      sub: "Vimsvc.TaskManager",
+      opID: "23d59ade",
+    },
+  },
+  content: "Task Completed",
 }
 ```
 
