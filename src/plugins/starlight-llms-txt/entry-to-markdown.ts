@@ -138,6 +138,17 @@ const htmlToMarkdownPipeline = unified()
       });
     };
   })
+  .use(function removeInlineSemanticIcons() {
+    return (tree) => {
+      // Remove decorative semantic-reference icons such as the `fn` badge shown
+      // before links rendered by components like <Fn> and <Op>. In the markdown
+      // bundle, these should serialize as plain links only.
+      remove(tree, (_node) => {
+        const node = _node as Parameters<typeof matches>[1];
+        return matches(".inline-icon-wrapper", node);
+      });
+    };
+  })
   .use(function addMarkdownExtensionToInternalLinks() {
     // Extensions that should not get .md appended
     const skipExtensions =
