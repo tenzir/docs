@@ -1,6 +1,6 @@
 ---
 import { pathWithBase } from "@utils/base";
-import CodeIcon from "../icons/CodeIcon.astro";
+import OperatorIcon from "../icons/OperatorIcon.astro";
 
 const name = Astro.slots.has("default")
   ? (await Astro.slots.render("default")).trim()
@@ -10,4 +10,4 @@ const path = name.replace(/::/g, "/");
 const href = pathWithBase(`/reference/operators/${path}`);
 ---
 
-<span class="inline-icon-wrapper" data-tooltip="Operator"><CodeIcon class="inline-icon op-icon" /></span><a href={href}><code>{name}</code></a>
+<span class="inline-icon-wrapper" data-tooltip="Operator"><OperatorIcon class="inline-icon op-icon" /></span><a href={href}><code>{name}</code></a>
