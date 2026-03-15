@@ -1,19 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import { pathWithBase } from "@utils/base";
-import { resolvePageTitle } from "@utils/page-title";
+import { resolveLinkedPageTitle } from "@utils/page-title";
 import IntegrationIcon from "../icons/IntegrationIcon.astro";
-
-// Build lookup map for page titles
-const allDocs = await getCollection("docs");
-const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 
 const path = Astro.slots.has("default")
   ? (await Astro.slots.render("default")).trim()
   : "";
 const href = pathWithBase(`/integrations/${path}`);
-
-const title = resolvePageTitle(docsMap, "integrations", path);
+const title = await resolveLinkedPageTitle("integrations", path);
 ---
 
-<a href={href} class="semantic-link" data-tooltip="Integration"><IntegrationIcon class="inline-icon" />{title}</a>
+<a href={href} class="semantic-link"><IntegrationIcon class="inline-icon" />{title}</a>

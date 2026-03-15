@@ -1,7 +1,7 @@
 ---
-import { getCollection } from "astro:content";
 import type { Props } from "@astrojs/starlight/props";
 import { pathWithBase } from "@utils/base";
+import { formatSlug, getDocsMap } from "@utils/page-title";
 import { getSearchWeight } from "../search-weights";
 
 // PAGE_TITLE_ID is just '_top' in Starlight
@@ -9,8 +9,7 @@ const PAGE_TITLE_ID = "_top";
 
 // Build a lookup map of all docs entries to avoid getEntry warnings for
 // non-existent pages
-const allDocs = await getCollection("docs");
-const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
+const docsMap = await getDocsMap();
 
 // Get the current path segments, stripping the base path for subdirectory deployments
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -33,14 +32,6 @@ const h1Attrs: Record<string, any> = {
 };
 if (pagefindWeight !== undefined) {
   h1Attrs["data-pagefind-weight"] = pagefindWeight * 100000;
-}
-
-// Helper to capitalize slug segments as fallback
-function formatSlug(slug: string): string {
-  return slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 }
 
 // Build custom crumbs array with page titles

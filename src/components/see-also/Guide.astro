@@ -1,19 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import { pathWithBase } from "@utils/base";
-import { resolvePageTitle } from "@utils/page-title";
+import { resolveLinkedPageTitle } from "@utils/page-title";
 import GuideIcon from "../icons/GuideIcon.astro";
-
-// Build lookup map for page titles
-const allDocs = await getCollection("docs");
-const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
 
 const path = Astro.slots.has("default")
   ? (await Astro.slots.render("default")).trim()
   : "";
 const href = pathWithBase(`/guides/${path}`);
-
-const title = resolvePageTitle(docsMap, "guides", path);
+const title = await resolveLinkedPageTitle("guides", path);
 ---
 
-<a href={href} class="semantic-link" data-tooltip="Guide"><GuideIcon class="inline-icon" />{title}</a>
+<a href={href} class="semantic-link"><GuideIcon class="inline-icon" />{title}</a>

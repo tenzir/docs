@@ -1,9 +1,11 @@
-import type { CollectionEntry } from "astro:content";
+import { type CollectionEntry, getCollection } from "astro:content";
 
 type DocsEntry = CollectionEntry<"docs">;
 type DocsMap = Map<string, DocsEntry>;
 
 const GENERIC_TITLES = new Set(["Overview", "Introduction"]);
+
+let docsMapPromise: Promise<DocsMap> | undefined;
 
 export function formatSlug(slug: string): string {
   return slug
@@ -12,6 +14,13 @@ export function formatSlug(slug: string): string {
       i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word,
     )
     .join(" ");
+}
+
+export function getDocsMap(): Promise<DocsMap> {
+  docsMapPromise ??= getCollection("docs").then(
+    (entries) => new Map(entries.map((entry) => [entry.id, entry])),
+  );
+  return docsMapPromise;
 }
 
 export function resolvePageTitle(
@@ -37,4 +46,11 @@ export function resolvePageTitle(
   // Fall back to formatting the last path segment
   const lastSegment = path.split("/").pop() ?? path;
   return formatSlug(lastSegment);
+}
+
+export async function resolveLinkedPageTitle(
+  collection: string,
+  path: string,
+): Promise<string> {
+  return resolvePageTitle(await getDocsMap(), collection, path);
 }
