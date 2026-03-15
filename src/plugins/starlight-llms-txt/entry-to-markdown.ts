@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { remove } from "unist-util-remove";
+import { visit } from "unist-util-visit";
 import { getNonMarkdownPaths } from "../../utils/redirects.mjs";
 
 const astroContainer = await experimental_AstroContainer.create({
@@ -143,9 +144,12 @@ const htmlToMarkdownPipeline = unified()
       // Remove decorative semantic-reference icons such as the `fn` badge shown
       // before links rendered by components like <Fn> and <Op>. In the markdown
       // bundle, these should serialize as plain links only.
-      remove(tree, (_node) => {
-        const node = _node as Parameters<typeof matches>[1];
-        return matches(".inline-icon-wrapper", node);
+      // The icons live inside `.semantic-link` anchors as `.inline-icon` children.
+      visit(tree, "element", (node: any) => {
+        if (!matches("a.semantic-link", node)) return;
+        node.children = node.children.filter(
+          (child: any) => !matches(".inline-icon", child),
+        );
       });
     };
   })
