@@ -60,6 +60,23 @@ const semanticComponents = {
 
 type SemanticComponentName = keyof typeof semanticComponents;
 
+// Pre-compute import AST nodes once at module load so we don't spin up a full
+// remark+MDX parser for every file that uses semantic components.
+const mdxParser = remark().use(remarkMdx);
+const importNodeCache = new Map<SemanticComponentName, MdxjsEsm>();
+for (const [name, spec] of Object.entries(semanticComponents) as [
+  SemanticComponentName,
+  SemanticComponentSpec,
+][]) {
+  const parsed = mdxParser.parse(
+    `import ${name} from '${spec.importPath}';`,
+  ) as Root;
+  const node = parsed.children.find(
+    (child): child is MdxjsEsm => child.type === "mdxjsEsm",
+  );
+  if (node) importNodeCache.set(name, node);
+}
+
 export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
   const usedComponents = new Set<SemanticComponentName>();
 
@@ -75,8 +92,7 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
       const slug = mdastToString(node).trim();
       if (!slug) return;
 
-      const target = normalizeSemanticTarget(node.name, slug);
-      const path = target.replace(/::/g, "/");
+      const path = slug.replace(/::/g, "/");
       const href = `${semanticComponents[node.name].hrefPrefix}${path}`;
 
       node.attributes = node.attributes || [];
@@ -103,7 +119,10 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
   );
   if (missingComponents.length === 0) return;
 
-  const importNodes = createImportNodes(missingComponents);
+  const importNodes = missingComponents
+    .map((name) => importNodeCache.get(name))
+    .filter((node): node is MdxjsEsm => node !== undefined)
+    .map((node) => structuredClone(node));
   if (importNodes.length === 0) return;
 
   const insertIndex = tree.children.findIndex(
@@ -115,16 +134,6 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
 
 const isSemanticComponent = (name: string): name is SemanticComponentName =>
   Object.hasOwn(semanticComponents, name);
-
-const normalizeSemanticTarget = (
-  componentName: SemanticComponentName,
-  slug: string,
-): string => {
-  if (componentName === "Fn") {
-    return slug.replace(/\(\)$/, "");
-  }
-  return slug;
-};
 
 const importPattern =
   /^\s*import\s+([A-Za-z_$][\w$]*)\s+from\s+["']([^"']+)["'];?/gm;
@@ -144,20 +153,4 @@ function collectSemanticImports(tree: Root): Set<SemanticComponentName> {
   }
 
   return imports;
-}
-
-function createImportNodes(
-  componentNames: SemanticComponentName[],
-): MdxjsEsm[] {
-  const source = componentNames
-    .map(
-      (componentName) =>
-        `import ${componentName} from '${semanticComponents[componentName].importPath}';`,
-    )
-    .join("\n");
-  const parsed = remark().use(remarkMdx).parse(source) as Root;
-
-  return parsed.children.filter(
-    (child): child is MdxjsEsm => child.type === "mdxjsEsm",
-  );
 }

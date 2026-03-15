@@ -66,7 +66,7 @@ export const iconComponents: Record<IconName, IconComponent> = {
   component: ComponentIcon,
   concept: ConceptIcon,
   contribute: ContributeIcon,
-  data: ArchitectureIcon,
+  data: ArchitectureIcon, // alias: reuses the layers icon for data-oriented sections
   explanation: ExplanationIcon,
   function: FunctionIcon,
   guide: GuideIcon,
