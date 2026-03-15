@@ -6,7 +6,7 @@ This guide shows you how to parse binary data formats into structured events.
 You'll learn to work with columnar formats like Parquet and Feather, packet
 captures in PCAP format, Tenzir's native Bitz format, and compressed data.
 
-The examples use [`from_file`](/reference/operators/from_file) with a
+The examples use <Op>from_file</Op> with a
 [parsing subpipeline](/reference/programs#parsing-subpipelines) to illustrate
 each technique.
 
@@ -34,7 +34,7 @@ Parquet files often come from cloud storage:
 from_file "s3://datalake/events/*.parquet"
 ```
 
-The [`from_file`](/reference/operators/from_file) operator automatically detects
+The <Op>from_file</Op> operator automatically detects
 Parquet format from the file extension.
 
 ## Feather
@@ -48,12 +48,12 @@ from_file "data.feather" {
 }
 ```
 
-Use [`read_feather`](/reference/operators/read_feather) to parse Feather files.
+Use <Op>read_feather</Op> to parse Feather files.
 
 ## PCAP
 
 [PCAP](https://wiki.wireshark.org/Development/LibpcapFileFormat) is the standard
-format for packet captures. Use [`read_pcap`](/reference/operators/read_pcap) to
+format for packet captures. Use <Op>read_pcap</Op> to
 parse captured packets:
 
 ```tql
@@ -68,7 +68,7 @@ from_file "capture.pcap" {
 
 Use `from_nic` to parse directly from a live interface. TQL furhter comes with light-weight packet processing functions. For
 example, you can extract protocol headers from raw packet data using the
-[`decapsulate`](/reference/functions/decapsulate) function:
+<Fn>decapsulate</Fn> function:
 
 ```tql
 from_file "capture.pcap" {
@@ -84,7 +84,7 @@ packet = decapsulate(this)
 ## Bitz
 
 Bitz is Tenzir's native columnar format, optimized for schema-rich security
-data. Use [`read_bitz`](/reference/operators/read_bitz) to parse it:
+data. Use <Op>read_bitz</Op> to parse it:
 
 ```tql
 from_file "archive.bitz" {
@@ -95,7 +95,7 @@ from_file "archive.bitz" {
 ## Compressed data
 
 Binary formats often come compressed. The
-[`from_file`](/reference/operators/from_file) operator automatically detects
+<Op>from_file</Op> operator automatically detects
 compression based on file extensions like `.gz`, `.zst`, `.bz2`, `.lz4`, and
 `.br`:
 
@@ -108,13 +108,13 @@ When automatic detection doesn't apply (e.g., custom extensions or chained
 formats), use explicit decompression operators in the parsing subpipeline. These
 are bytes-to-bytes operators, so they must appear before the parser:
 
-| Format    | Operator                                                      |
-| --------- | ------------------------------------------------------------- |
-| Gzip      | [`decompress_gzip`](/reference/operators/decompress_gzip)     |
-| Zstandard | [`decompress_zstd`](/reference/operators/decompress_zstd)     |
-| Bzip2     | [`decompress_bz2`](/reference/operators/decompress_bz2)       |
-| LZ4       | [`decompress_lz4`](/reference/operators/decompress_lz4)       |
-| Brotli    | [`decompress_brotli`](/reference/operators/decompress_brotli) |
+| Format    | Operator                   |
+| --------- | -------------------------- |
+| Gzip      | <Op>decompress_gzip</Op>   |
+| Zstandard | <Op>decompress_zstd</Op>   |
+| Bzip2     | <Op>decompress_bz2</Op>    |
+| LZ4       | <Op>decompress_lz4</Op>    |
+| Brotli    | <Op>decompress_brotli</Op> |
 
 Example with explicit decompression:
 

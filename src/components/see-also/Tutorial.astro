@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 import { pathWithBase } from "@utils/base";
 import { resolvePageTitle } from "@utils/page-title";
-import GraduationCapIcon from "../icons/GraduationCapIcon.astro";
+import TutorialIcon from "../icons/TutorialIcon.astro";
 
 // Build lookup map for page titles
 const allDocs = await getCollection("docs");
@@ -16,4 +16,4 @@ const href = pathWithBase(`/tutorials/${path}`);
 const title = resolvePageTitle(docsMap, "tutorials", path);
 ---
 
-<span class="inline-icon-wrapper" data-tooltip="Tutorial"><GraduationCapIcon class="inline-icon" /></span><a href={href}>{title}</a>
+<span class="inline-icon-wrapper" data-tooltip="Tutorial"><TutorialIcon class="inline-icon" /></span><a href={href}>{title}</a>

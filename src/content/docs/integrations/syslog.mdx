@@ -10,9 +10,9 @@ Syslog-based systems for ingesting or exporting logs.
 
 Syslog support in Tenzir is powered by two components:
 
-- [`read_syslog`](/reference/operators/read_syslog): a parser that turns
+- <Op>read_syslog</Op>: a parser that turns
   unstructured Syslog messages into structured events.
-- [`write_syslog`](/reference/operators/write_syslog): a printer that
+- <Op>write_syslog</Op>: a printer that
   transforms structured events into compliant Syslog messages.
 
 Together, these building blocks enable round-trip Syslog processing.
@@ -22,7 +22,7 @@ Together, these building blocks enable round-trip Syslog processing.
 ### Create a Syslog Server
 
 To receive Syslog messages on a UDP socket, use
-[`from_udp`](/reference/operators/from_udp):
+<Op>from_udp</Op>:
 
 ```tql
 from_udp "0.0.0.0:514"
@@ -30,8 +30,8 @@ this = data.parse_syslog()
 publish "syslog"
 ```
 
-To use TCP instead of UDP, use [`load_tcp`](/reference/operators/load_tcp) with
-[`read_syslog`](/reference/operators/read_syslog):
+To use TCP instead of UDP, use <Op>load_tcp</Op> with
+<Op>read_syslog</Op>:
 
 ```tql
 load_tcp "0.0.0.0:514" {
@@ -52,7 +52,7 @@ message that includes CEF:
 Nov 13 16:00:02 host123 FOO: CEF:0|FORCEPOINT|Firewall|6.6.1|78002|TLS connection state|0|deviceExternalId=Master FW node 1 dvc=10.1.1.40 dvchost=10.1.1.40 msg=TLS: Couldn't establish TLS connection (11, N/A) deviceFacility=Management rt=Jan 17 2020 08:52:09
 ```
 
-When you throw [`read_syslog`](/reference/operators/read_syslog) at this
+When you throw <Op>read_syslog</Op> at this
 line, you'll get this output:
 
 ```tql title="sample.syslog"
@@ -68,7 +68,7 @@ line, you'll get this output:
 ```
 
 Note that the `content` field is just a big string. Parse it with
-[`parse_cef`](/reference/functions/parse_cef):
+<Fn>parse_cef</Fn>:
 
 ```tql
 from_file "/tmp/sample.syslog" {
@@ -160,8 +160,8 @@ prefixed with its length in bytes:
 Here, `65` is the byte count of the syslog message that follows.
 
 Tenzir auto-detects octet-counted messages in both
-[`read_syslog`](/reference/operators/read_syslog) for streaming input and
-[`parse_syslog`](/reference/functions/parse_syslog) for parsing individual
+<Op>read_syslog</Op> for streaming input and
+<Fn>parse_syslog</Fn> for parsing individual
 strings. Use the `octet_counting` parameter to require or disable this behavior.
 
 ### RFC 3164 messages with structured data
@@ -184,7 +184,7 @@ When a record omits the SD-ID, Tenzir stores the parsed parameters under
 ## Emit Events as Syslog
 
 Tenzir also supports **creating** Syslog messages from structured events via
-[`write_syslog`](/reference/operators/write_syslog).
+<Op>write_syslog</Op>.
 
 Here's a basic example that emits a single Syslog line over UDP:
 
@@ -247,6 +247,6 @@ Output:
 <165>1 2003-10-11T22:14:15.000000Z mymachineexamplecom evntslog - ID47 [exampleSDID@32473 iut="5" eventSource="Applic\\ation" eventID="1011"][examplePriority@32473 class="high"]
 ```
 
-The [`write_syslog`](/reference/operators/write_syslog) operator converts
+The <Op>write_syslog</Op> operator converts
 the `structured_data` field into a valid [RFC
 5424](https://datatracker.ietf.org/doc/html/rfc5424) structured block.

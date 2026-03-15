@@ -108,7 +108,7 @@ be hard to learn, read, and modify, even for experts. Some of the key
 limitations include:
 
 - **Rigid Clause Order**: SQL's fixed structure (e.g., `SELECT ... FROM ... WHERE
-...`) forces users to think in an "inside-out" manner that doesn’t match the
+  ...`) forces users to think in an "inside-out" manner that doesn’t match the
   natural flow of data transformations. This often leads to complex subqueries
   and redundant clauses.
 - **Complex Subqueries**: Expressing multi-level aggregations or intermediate
@@ -174,8 +174,8 @@ data analysis.
 Tenzir does not rely on a third-party database.
 
 Tenzir nodes include a light-weight storage engine on top of Feather or Parquet
-files, accessible via the [`import`](/reference/operators/import) and
-[`export`](/reference/operators/export) operators.
+files, accessible via the <Op>import</Op> and
+<Op>export</Op> operators.
 
 The storage engine comes with a catalog that tracks schema meta data and a thin
 layer of indexing to accelerate queries.
@@ -216,17 +216,13 @@ import { Steps } from "@astrojs/starlight/components";
 3. **Fluent Bit**. Sometimes we can compensate for the lack of an existing
    integration by going through one level of indirection. Tenzir ships with all
    of Fluent Bit's [inputs][fluentbit-inputs] and [outputs][fluentbit-outputs],
-   because the Fluent Bit library is baked into every Tenzir binary. Use the
-   [`from_fluent_bit`](/reference/operators/from_fluent_bit) operator to
-   get events in via Fluent Bit and the
-   [`to_fluent_bit`](/reference/operators/to_fluent_bit)
-   operator to send events via Fluent Bit.
+   because the Fluent Bit library is baked into every Tenzir binary. Use Fluent
+   Bit with <Op>from_fluent_bit</Op> to get events in and
+   <Op>to_fluent_bit</Op> to send events out.
 4. **Escape Hatches**. As last resort, you can bring in Shell and Python scripts
-   to make up for native support for _X_. The
-   [`shell`](/reference/operators/shell) operator brings byte streams via
-   standard input and output into a pipeline, and the
-   [`python`](/reference/operators/python) operator allows you to perform
-   arbitrary event-to-event transformation using the full power of Python.
+   to make up for native support for _X_. Use <Op>shell</Op> to bring byte
+   streams via standard input and output into a pipeline, and use
+   <Op>python</Op> for arbitrary event-to-event transformation in Python.
 5. **Community**. Still unlucky? Then please let us know in our friendly
    [Discord server](/discord). Perhaps we are already working on an integration
    for _X_ or it is somewhere on the roadmap. If you're feeling adventurous and

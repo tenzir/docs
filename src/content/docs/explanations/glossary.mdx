@@ -67,7 +67,7 @@ pipelines.
 ## Destination
 
 An pipeline ending with an [output](#output) operator preceded by a
-[`subscribe`](/reference/operators/subscribe) input operator.
+<Op>subscribe</Op> input operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
 
@@ -76,8 +76,8 @@ An pipeline ending with an [output](#output) operator preceded by a
 The indexed storage that pipelines can use at the [node](#node). Every node has
 a light-weight storage engine for importing and exporting events. You must mount
 the storage into the node such that it can be used from [pipelines](#pipeline)
-using the [`import`](/reference/operators/import) and
-[`export`](/reference/operators/export) [operators](#operator). The storage
+using the <Op>import</Op> and
+<Op>export</Op> [operators](#operator). The storage
 cengine comes with a [catalog](#catalog) that tracks [partitions](#partition)
 and keeps sparse [indexes](#index) to accelerate historical queries.
 
@@ -152,7 +152,7 @@ A connector that acquires bytes.
 
 A loader is the dual to a [saver](#saver). It has a no input and only performs a
 side effect that acquires bytes. Use a loader implicitly with the
-[`from`](/reference/operators/from) operator or explicitly with the `load_*`
+<Op>from</Op> operator or explicitly with the `load_*`
 operators.
 
 - Learn more about [pipelines](/explanations/pipeline)
@@ -166,14 +166,14 @@ listens on TCP port 5158.
 
 - [Deploy a node](/guides/node-setup/provision-a-node)
 - Use the [REST API](/reference/node/api) to manage a node
-- [Import into a node](/guides/edge-storage/import-into-a-node)
-- [Export from a node](/guides/edge-storage/export-from-a-node)
+- <Guide>edge-storage/import-into-a-node</Guide>
+- <Guide>edge-storage/export-from-a-node</Guide>
 
 ## Metrics
 
 Runtime statistics about the node and pipeline execution.
 
-- [Collect metrics](/guides/analytics/collect-metrics)
+- <Guide>analytics/collect-metrics</Guide>
 
 ## OCSF
 
@@ -181,7 +181,7 @@ The [Open Cybersecurity Schema Framework (OCSF)](https://schema.ocsf.io) is a
 cross-vendor schema for security event data. Our [community library](#library)
 contains packages that map data sources to OCSF.
 
-- [Map data to OCSF](/tutorials/map-data-to-ocsf)
+- <Tutorial>map-data-to-ocsf</Tutorial>
 
 ## Operator
 
@@ -220,7 +220,7 @@ A collection of [pipelines](#pipeline) and [contexts](#context).
 A bytes-to-events operator.
 
 A parser is the dual to a [printer](#printer). You use a parser implicitly in
-the [`from`](/reference/operators/from) operator, or via the `read_*`
+the <Op>from</Op> operator, or via the `read_*`
 operators. There exist also [functions](#function) for applying parsers to
 string values.
 
@@ -257,7 +257,7 @@ An events-to-bytes operator.
 A [format](#format) that translates events into bytes.
 
 A printer is the dual to a [parser](#parser). Use a parser implicitly in the
-[`to`](/reference/operators/to) operator.
+<Op>to</Op> operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
 - See available [operators for printing](/reference/operators#printing)
@@ -269,7 +269,7 @@ A [connector](#connector) that emits bytes.
 
 A saver is the dual to a [loader](#loader). It has a no output and only performs
 a side effect that emits bytes. Use a saver implicitly with the
-[`to`](/reference/operators/to) operator or explicitly with the `save_*`
+<Op>to</Op> operator or explicitly with the `save_*`
 operators.
 
 - Learn more about [pipelines](/explanations/pipeline)
@@ -284,7 +284,7 @@ A top-level record type of an event.
 ## Source
 
 An pipeline starting with an [input](#input) operator followed by a
-[`publish`](/reference/operators/publish) output operator.
+<Op>publish</Op> output operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
 

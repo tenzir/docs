@@ -23,7 +23,7 @@ export const guides = [
         ],
       },
     ],
-    "lightbulb",
+    "explanation",
   ),
   section(
     "Setup",
@@ -76,7 +76,7 @@ export const guides = [
         ],
       },
     ],
-    "gear",
+    "setup",
   ),
   section(
     "Work with Data",
@@ -171,7 +171,7 @@ export const guides = [
         ],
       },
     ],
-    "layers",
+    "data",
   ),
   section(
     "Build",
@@ -228,7 +228,7 @@ export const guides = [
         ],
       },
     ],
-    "heart",
+    "contribute",
   ),
 ];
 
@@ -240,9 +240,9 @@ export const tutorials = [
       "tutorials/write-a-package",
       "tutorials/map-data-to-ocsf",
     ],
-    "code",
+    "language",
   ),
-  section("Analytics", ["tutorials/plot-data-with-charts"], "chart-bar"),
+  section("Analytics", ["tutorials/plot-data-with-charts"], "analytics"),
 ];
 
 export const explanations = [
@@ -255,7 +255,7 @@ export const explanations = [
       "explanations/platform",
       "explanations/language",
     ],
-    "layers",
+    "architecture",
   ),
   section(
     "Concepts",
@@ -265,13 +265,9 @@ export const explanations = [
       "explanations/enrichment",
       "explanations/packages",
     ],
-    "puzzle-piece",
+    "concept",
   ),
-  section(
-    "Help",
-    ["explanations/glossary", "explanations/faqs"],
-    "circle-help",
-  ),
+  section("Help", ["explanations/glossary", "explanations/faqs"], "help"),
 ];
 
 export const reference = [
@@ -285,7 +281,7 @@ export const reference = [
       { label: "Operators", link: "reference/operators" },
       { label: "Functions", link: "reference/functions" },
     ],
-    "code",
+    "language",
   ),
   section(
     "Components",
@@ -305,7 +301,7 @@ export const reference = [
         ],
       },
     ],
-    "cube",
+    "component",
   ),
   section(
     "Tools",
@@ -319,7 +315,7 @@ export const reference = [
         link: "reference/ship-framework",
       },
     ],
-    "wrench",
+    "tools",
   ),
 ];
 
@@ -360,7 +356,7 @@ export const integrations = [
         ],
       },
     ],
-    "cube",
+    "component",
   ),
   section(
     "Messaging",
@@ -370,7 +366,7 @@ export const integrations = [
       "integrations/kafka",
       "integrations/zeromq",
     ],
-    "plug",
+    "integration",
   ),
   section(
     "Protocols",
@@ -384,7 +380,7 @@ export const integrations = [
       "integrations/tcp",
       "integrations/udp",
     ],
-    "layers",
+    "data",
   ),
   section(
     "Data Tools",
@@ -396,7 +392,7 @@ export const integrations = [
       "integrations/snowflake",
       "integrations/splunk",
     ],
-    "chart-bar",
+    "analytics",
   ),
   section(
     "Security Tools",
@@ -407,6 +403,6 @@ export const integrations = [
       "integrations/zeek",
       "integrations/zscaler",
     ],
-    "shield",
+    "security",
   ),
 ];

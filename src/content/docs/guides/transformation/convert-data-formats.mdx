@@ -10,7 +10,7 @@ functions.
 ## Print to JSON
 
 JSON is the most common data exchange format. Use
-[`print_json()`](/reference/functions/print_json) to convert any data to JSON
+<Fn>print_json</Fn> to convert any data to JSON
 strings:
 
 ```tql
@@ -47,8 +47,8 @@ _bytes_ instead of events. As such, you need to pair it with an [output operator
 that accepts bytes](/reference/operators/#outputs).
 :::
 
-The [`print_json()`](/reference/functions/print_json) function has
-[`write_json`](/reference/operators/write_json) as sibling operator to format
+The <Fn>print_json</Fn> function has
+<Op>write_json</Op> as sibling operator to format
 the entire event stream as JSON:
 
 ```
@@ -81,7 +81,7 @@ write_json
 
 ### Print newline-delimited JSON
 
-For streaming data, use [`print_ndjson()`](/reference/functions/print_ndjson):
+For streaming data, use <Fn>print_ndjson</Fn>:
 
 ```tql
 from {
@@ -114,7 +114,7 @@ ndjson = events.print_ndjson()
 }
 ```
 
-And with the [`write_ndjson`](/reference/operators/write_ndjson) dual:
+And with the <Op>write_ndjson</Op> dual:
 
 ```tql
 from {
@@ -133,7 +133,7 @@ write_ndjson
 
 ## Print to CSV
 
-Convert tabular data to CSV with [`print_csv()`](/reference/functions/print_csv):
+Convert tabular data to CSV with <Fn>print_csv</Fn>:
 
 ```tql
 from {name: "Alice", age: 30, city: "NYC"},
@@ -163,7 +163,7 @@ csv_data = this.print_csv()
 }
 ```
 
-You get an extra header with [`write_csv`](/reference/operators/write_csv) dual:
+You get an extra header with <Op>write_csv</Op> dual:
 
 ```tql
 from {name: "Alice", age: 30, city: "NYC"},
@@ -182,8 +182,8 @@ Charlie,35,LA
 ## Print to TSV and SSV
 
 For tab-separated and space-separated values, use
-[`print_tsv()`](/reference/functions/print_tsv) and
-[`print_ssv()`](/reference/functions/print_ssv):
+<Fn>print_tsv</Fn> and
+<Fn>print_ssv</Fn>:
 
 ```tql
 from {
@@ -205,7 +205,7 @@ ssv = record.print_ssv()
 }
 ```
 
-With [`write_tsv`](/reference/operators/write_tsv):
+With <Op>write_tsv</Op>:
 
 ```tql
 from {
@@ -220,7 +220,7 @@ record.id record.name record.status
 ```
 
 Note the additional double quotes with
-[`write_ssv`](/reference/operators/write_ssv) because space is overloaded as
+<Op>write_ssv</Op> because space is overloaded as
 field separator.
 
 ```tql
@@ -238,10 +238,10 @@ record.id record.name record.status
 ## Print to custom-separated values
 
 If none of the existing \*SV formats meet your needs, the
-[`print_xsv()`](/reference/functions/print_xsv) function to customize field
+<Fn>print_xsv</Fn> function to customize field
 separator, list separator, and what to render for absent values:
 
-Use [`print_xsv()`](/reference/functions/print_xsv) for custom separators:
+Use <Fn>print_xsv</Fn> for custom separators:
 
 ```tql
 from {
@@ -253,7 +253,7 @@ pipe_separated = item.print_xsv(field_separator=" ⏸︎ ",
 ```
 
 And for the entire event stream via
-[`write_xsv`](/reference/operators/write_xsv):
+<Op>write_xsv</Op>:
 
 ```tql
 {
@@ -279,7 +279,7 @@ A001 ⏸︎ Widget ⏸︎ 9.99 ⏸︎ 42 ⌘ 84 ⏸︎ ∅
 ## Print to YAML
 
 Convert data to YAML format with
-[`print_yaml()`](/reference/functions/print_yaml):
+<Fn>print_yaml</Fn>:
 
 ```tql
 from {
@@ -303,7 +303,7 @@ yaml = config.print_yaml()
 ```
 
 Turn the entire event stream into a YAML document stream via
-[`write_yaml`](/reference/operators/write_yaml):
+<Op>write_yaml</Op>:
 
 ```tql
 from {
@@ -336,7 +336,7 @@ config:
 ## Print key-value pairs
 
 Convert records to key-value format with
-[`print_kv()`](/reference/functions/print_kv):
+<Fn>print_kv</Fn>:
 
 ```tql
 from {
@@ -369,7 +369,7 @@ kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
 ### CEF (Common Event Format)
 
 Print security events in CEF format with
-[`print_cef()`](/reference/functions/print_cef):
+<Fn>print_cef</Fn>:
 
 ```tql
 from {
@@ -400,8 +400,8 @@ cef = extension.print_cef(
 
 :::tip[Turn print functions into write operators]
 There's no `write_cef` sibling operator, but you use a combination of
-[`select`](/reference/operators/select) and
-[`write_lines`](/reference/operators/write_lines). For example:
+<Op>select</Op> and
+<Op>write_lines</Op>. For example:
 
 ```tql
 from { ... }
@@ -410,14 +410,14 @@ select cef
 write_lines
 ```
 
-You could now add [`save_file`](/reference/operators/save_file) or use
-[`write_lines`](/reference/operators/write_lines) as printing pipeline in
-[`to`](/reference/operators/to).
+You could now add <Op>save_file</Op> or use
+<Op>write_lines</Op> as printing pipeline in
+<Op>to</Op>.
 :::
 
 ### LEEF (Log Event Extended Format)
 
-Print in IBM QRadar's LEEF format with [`print_leef()`](/reference/functions/print_leef):
+Print in IBM QRadar's LEEF format with <Fn>print_leef</Fn>:
 
 ```tql
 from {

@@ -78,7 +78,7 @@ avoid dealing with tabs and spaces in the snippet above.
 ### Step 1: Parse the input
 
 We first parse the log file into a structured form so that we can work with the
-individual fields. The [`read_zeek_tsv`](/reference/operators/read_zeek_tsv)
+individual fields. The <Op>read_zeek_tsv</Op>
 operator parses the above structure out of the box:
 
 ```sh
@@ -280,7 +280,7 @@ Let's unpack this:
    in the source event, (1) map it, and (2) remove it. Ideally, use the `move`
    keyword to perform (1) and (2) together, e.g., `ocsf.x = move source.y`. If
    a field needs to be used multiple times in the same expression, use the
-   [`drop`](/reference/operators/drop) afterwards.
+   <Op>drop</Op> afterwards.
 3. The assignment `this = {...ocsf, unmapped: zeek}` means that we move all
    fields from the `ocsf` record into the top-level record (`this`), and at the
    same time add a new field `unmapped` that contains everything that we didn't
@@ -289,8 +289,7 @@ Let's unpack this:
    `unmapped` catch-all record and you can tweak your mapping later.
 4. We drop null fields from `unmapped` to keep the output clean.
 5. We keep the mapping terse by only mapping the `*_[u]id` field and relying on
-   [`ocsf::derive`](/reference/operators/ocsf/derive) to auto-populate the
-   corresponding sibling fields.
+   <Op>ocsf::derive</Op> to auto-populate the corresponding sibling fields.
 6. We give the event a new schema name so that we can easily filter by its shape
    in further pipelines.
 
@@ -317,7 +316,7 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 ```
 
 Note that computing the field `type_uid` requires simple arithmetic. You can
-rely on [`ocsf::derive`](/reference/operators/ocsf/derive) to populate sibling
+rely on <Op>ocsf::derive</Op> to populate sibling
 fields—an optimization to write more concise mappings. This would simplify the
 above snippet to:
 
@@ -448,10 +447,7 @@ Here's what happens here:
   `proto` field (e.g., `tcp`) and uses it as an index into a static record
   `$proto_nums`. Add a `?` at the end to avoid warnings when the lookup returns
   `null`, and use the inline `else` expression for the fallback value.
-- To check whether we have an IPv4 or an IPv6 connection, we call
-  [`is_v6()`](/reference/functions/is_v6) on the IPs of the connection record.
-  TQL comes with numerous other domain-specific
-  [functions](/reference/functions) that make mapping security data a breeze.
+- Use <Fn>is_v6</Fn> on the connection IPs to identify IPv6 connections.
 
 #### Putting it together
 
@@ -476,7 +472,7 @@ the mapping to OCSF.
 
 We've addressed data _onboarding_ by reading a log file and decomposing the
 unstructured Zeek TSV contents into a structured record. The built-in
-[`read_zeek_tsv`](/reference/operators/read_zeek_tsv) operator made this
+<Op>read_zeek_tsv</Op> operator made this
 trivial. But it often requires a lot more elbow grease to get there. Check out
 our extensive [guide on parsing string fields](/guides/parsing/parse-string-fields)
 for more details.
@@ -667,7 +663,7 @@ Perfect. Now proceed with all log types and you have production-grade package.
 
 After you have fleshed out the complete package, [install
 it](/guides/packages/install-a-package), either interactively via
-[`package::add`](/reference/operators/package/add), or IaC-style by putting it
+<Op>package::add</Op>, or IaC-style by putting it
 into a git repo and pointing the config option `tenzir.package-dirs` to it.
 
 :::tip[Tenzir Community Library]

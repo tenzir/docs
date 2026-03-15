@@ -4,7 +4,7 @@ title: Aggregate and summarize data
 
 Aggregation transforms streams of events into meaningful summaries. Whether
 you're calculating statistics, counting occurrences, or finding extremes, the
-[`summarize`](/reference/operators/summarize) operator combined with aggregation
+<Op>summarize</Op> operator combined with aggregation
 functions provides powerful data analysis capabilities.
 
 ## Understanding the summarize operator
@@ -18,9 +18,8 @@ summarize <aggregation>, <aggregation>, ..., <group>, <group>, ...
 
 Where:
 
-- Aggregations are expressions like [`sum()`](/reference/functions/sum),
-  [`count()`](/reference/functions/count),
-  [`mean()`](/reference/functions/mean), etc.
+- Aggregations are expressions like <Fn>sum</Fn>, <Fn>count</Fn>,
+  <Fn>mean</Fn>, etc.
 - Groups are field names to group by
 
 ## Basic aggregations
@@ -30,8 +29,8 @@ Start with fundamental aggregation functions on event streams.
 ### Count events
 
 Count total events and unique values with
-[`count()`](/reference/functions/count) and
-[`count_distinct()`](/reference/functions/count_distinct):
+<Fn>count</Fn> and
+<Fn>count_distinct</Fn>:
 
 ```tql
 from {product: "apple", price: 100, category: "fruit"},
@@ -72,7 +71,7 @@ summarize total_revenue = sum(price * quantity), avg_price = mean(price), total_
 
 ### Min and max
 
-Find extreme values with [`min()`](/reference/functions/min) and [`max()`](/reference/functions/max):
+Find extreme values with <Fn>min</Fn> and <Fn>max</Fn>:
 
 ```tql
 from {sensor: "A", temperature: 72, timestamp: 2024-01-15T10:00:00},
@@ -168,7 +167,7 @@ Use statistical aggregation functions for deeper analysis.
 
 ### Percentiles and median
 
-Calculate distribution statistics with [`quantile()`](/reference/functions/quantile):
+Calculate distribution statistics with <Fn>quantile</Fn>:
 
 ```tql
 from {endpoint: "/api/users", latency: 120},
@@ -200,8 +199,8 @@ summarize p50 = quantile(latency, q=0.5),
 
 ### Standard deviation and variance
 
-Measure data spread with [`stddev()`](/reference/functions/stddev) and
-[`variance()`](/reference/functions/variance):
+Measure data spread with <Fn>stddev</Fn> and
+<Fn>variance</Fn>:
 
 ```tql
 from {server: "web1", cpu: 45},
@@ -234,9 +233,9 @@ summarize avg_cpu = mean(cpu),
 ### Mode and distinct values
 
 Find most common values and collect unique values with
-[`mode()`](/reference/functions/mode),
-[`distinct()`](/reference/functions/distinct), and
-[`count_if()`](/reference/functions/count_if):
+<Fn>mode</Fn>,
+<Fn>distinct</Fn>, and
+<Fn>count_if</Fn>:
 
 ```tql
 from {user: "alice", browser: "chrome", action: "login"},
@@ -264,8 +263,8 @@ summarize most_common_browser = mode(browser),
 ### Value frequencies and entropy
 
 Analyze value distributions with
-[`value_counts()`](/reference/functions/value_counts)
-and [`entropy()`](/reference/functions/entropy):
+<Fn>value_counts</Fn>
+and <Fn>entropy</Fn>:
 
 ```tql
 from {category: "A", value: 10},
@@ -299,8 +298,8 @@ summarize frequencies = value_counts(category),
 
 ## Collecting values
 
-Use [`collect()`](/reference/functions/collect) and
-[`distinct()`](/reference/functions/distinct) to gather values:
+Use <Fn>collect</Fn> and
+<Fn>distinct</Fn> to gather values:
 
 ```tql
 from {user: "alice", action: "login", timestamp: 2024-01-15T10:00:00},
@@ -333,7 +332,7 @@ summarize all_actions = collect(action),
 
 ### First and last values
 
-Get boundary values with [`first()`](/reference/functions/first) and [`last()`](/reference/functions/last):
+Get boundary values with <Fn>first</Fn> and <Fn>last</Fn>:
 
 ```tql
 from {sensor: "temp1", reading: 72, time: 2024-01-15T09:00:00},
@@ -401,7 +400,7 @@ summarize dept, team, members=collect(member)
 
 ## Boolean aggregations
 
-Use [`all()`](/reference/functions/all) and [`any()`](/reference/functions/any) for boolean checks:
+Use <Fn>all</Fn> and <Fn>any</Fn> for boolean checks:
 
 ```tql
 from {test: "unit", passed: true, duration: 45},

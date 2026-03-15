@@ -6,13 +6,13 @@ This guide shows you how to parse text streams into structured events. You'll
 learn to split byte streams on newlines or custom delimiters, and parse
 line-based formats like JSON lines, CSV, TSV, key-value pairs, Syslog, and CEF.
 
-The examples use [`from_file`](/reference/operators/from_file) with a
+The examples use <Op>from_file</Op> with a
 [parsing subpipeline](/reference/programs#parsing-subpipelines) to illustrate
 each technique.
 
 ## Split on newlines
 
-Use [`read_lines`](/reference/operators/read_lines) to split a byte stream on
+Use <Op>read_lines</Op> to split a byte stream on
 newline characters. Given this input file:
 
 ```txt title="app.log"
@@ -43,7 +43,7 @@ from "tcp://0.0.0.0:9000" {
 
 ## Split on custom delimiters
 
-Use [`read_delimited`](/reference/operators/read_delimited) when records use
+Use <Op>read_delimited</Op> when records use
 separators other than newlines. Given this input file:
 
 ```txt title="records.dat"
@@ -117,7 +117,7 @@ from_file "windows_events.xml" {
 this = data.parse_winlog()
 ```
 
-See [Windows Event Logs](/integrations/microsoft/windows-event-logs) for a
+See <Integration>microsoft/windows-event-logs</Integration> for a
 complete example.
 
 ## Line-based structured formats
@@ -134,7 +134,7 @@ Given this input file with dotted keys:
 {"ts": "2024-01-15T10:30:46Z", "id.orig_h": "192.168.1.101", "id.orig_p": 52312, "id.resp_h": "93.184.216.34", "id.resp_p": 80}
 ```
 
-Use [`read_ndjson`](/reference/operators/read_ndjson) with `unflatten_separator`
+Use <Op>read_ndjson</Op> with `unflatten_separator`
 to convert dotted keys into nested records:
 
 ```tql
@@ -148,7 +148,7 @@ from_file "conn.jsonl" {
 {ts: 2024-01-15T10:30:46Z, id: {orig_h: 192.168.1.101, orig_p: 52312, resp_h: 93.184.216.34, resp_p: 80}}
 ```
 
-For regular JSON arrays or objects, use [`read_json`](/reference/operators/read_json)
+For regular JSON arrays or objects, use <Op>read_json</Op>
 instead.
 
 ### CSV / TSV / SSV / XSV
@@ -162,7 +162,7 @@ id,name,email,role
 3,carol,carol@example.com,user
 ```
 
-Use [`read_csv`](/reference/operators/read_csv) to parse the file with automatic
+Use <Op>read_csv</Op> to parse the file with automatic
 header detection:
 
 ```tql
@@ -178,9 +178,9 @@ from_file "users.csv" {
 ```
 
 For tab-separated or space-separated data, use
-[`read_tsv`](/reference/operators/read_tsv) or
-[`read_ssv`](/reference/operators/read_ssv). For custom delimiters, use
-[`read_xsv`](/reference/operators/read_xsv).
+<Op>read_tsv</Op> or
+<Op>read_ssv</Op>. For custom delimiters, use
+<Op>read_xsv</Op>.
 
 ### Key-value pairs (KV)
 
@@ -192,7 +192,7 @@ name=bob age=25
 name=carol age=35
 ```
 
-Use [`read_kv`](/reference/operators/read_kv) to parse each line as key-value
+Use <Op>read_kv</Op> to parse each line as key-value
 pairs:
 
 ```tql
@@ -216,7 +216,7 @@ CEF:0|Security|IDS|1.0|100|Intrusion detected|7|src=192.168.1.100 dst=10.0.0.1 s
 CEF:0|Security|IDS|1.0|101|Malware found|9|src=192.168.1.101 dst=10.0.0.2 spt=12345 dpt=80
 ```
 
-Use [`read_cef`](/reference/operators/read_cef) to parse security events:
+Use <Op>read_cef</Op> to parse security events:
 
 ```tql
 from_file "events.cef" {
@@ -229,7 +229,7 @@ from_file "events.cef" {
 {cef_version: 0, device_vendor: "Security", device_product: "IDS", device_version: "1.0", signature_id: "101", name: "Malware found", severity: "9", extension: {src: 192.168.1.101, dst: 10.0.0.2, spt: 12345, dpt: 80}}
 ```
 
-For IBM QRadar logs, use [`read_leef`](/reference/operators/read_leef).
+For IBM QRadar logs, use <Op>read_leef</Op>.
 
 ### Syslog messages
 
@@ -240,7 +240,7 @@ Given this input file:
 <11>Jan 15 10:30:46 myhost app[1234]: Error occurred
 ```
 
-Use [`read_syslog`](/reference/operators/read_syslog) to parse each line:
+Use <Op>read_syslog</Op> to parse each line:
 
 ```tql
 from_file "syslog.txt" {

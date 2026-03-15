@@ -277,7 +277,7 @@ When normalizing data (e.g., to OCSF format):
 
 When dealing with data that uses placeholder values like `"-"`, `"N/A"`, or
 empty strings to represent null, use the
-[`replace`](/reference/operators/replace) operator to normalize them instead of
+<Op>replace</Op> operator to normalize them instead of
 writing conditional logic.
 
 ✅ Clear and composable approach:
@@ -320,13 +320,13 @@ drop_null_fields
 ```
 
 :::note[Operator vs. function]
-Don't confuse the [`replace`](/reference/operators/replace) operator with the
-[`replace`](/reference/functions/replace) function:
+Don't confuse the <Op>replace</Op> operator with the
+<Fn>replace</Fn> function:
 
 - **Operator**: Replaces entire values across all fields in events (e.g.,
   replace all `"-"` with `null`)
 - **Function**: Replaces substrings within a string (e.g., `"hello".replace("l",
-"r")` → `"herro"`)
+  "r")` → `"herro"`)
 
   :::
 
@@ -717,7 +717,7 @@ Only use `assert` when you specifically want warnings for violated conditions.
 
 ### Treat warnings as errors with `strict`
 
-The [`strict`](/reference/operators/strict) operator escalates all warnings to
+The <Op>strict</Op> operator escalates all warnings to
 errors within its scope, stopping the pipeline when data quality issues occur.
 
 ✅ Use `strict` for critical data processing:
