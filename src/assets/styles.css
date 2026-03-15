@@ -2039,40 +2039,36 @@ starlight-tabs [role="tabpanel"] > :last-child {
   padding-inline: 0.2em;
 }
 
-/* Icon list - icons replace bullets (auto-detected via :has) */
-ul:has(> li > .semantic-link) {
-  list-style: none;
-  padding-left: 0;
-}
-
-ul:has(> li > .semantic-link) > li {
+/* Semantic-link list items use the icon as their marker without affecting
+   neighboring plain-text bullets in mixed lists. */
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) {
   position: relative;
-  padding-left: 1.5em;
+  list-style: none;
   line-height: 1.75;
 }
 
-ul:has(> li > .semantic-link) > li > .semantic-link > .inline-icon {
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .inline-icon {
   display: inline;
   position: absolute;
-  left: 0;
+  left: -1.25em;
   top: 0.35em;
   color: var(--tnz-neutral-600);
 }
 
 :root[data-theme="dark"]
   ul:has(> li > .semantic-link)
-  > li
+  > li:has(> .semantic-link)
   > .semantic-link
   > .inline-icon {
   color: var(--tnz-neutral-500);
 }
 
-ul:has(> li > .semantic-link) > li > .semantic-link > svg.inline-icon {
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > svg.inline-icon {
   width: 14px;
   height: 14px;
 }
 
-ul:has(> li > .semantic-link) > li > .semantic-link > .fn-icon {
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .fn-icon {
   font-family: var(--tnz-font-mono);
   font-size: 12px;
   font-weight: 700;

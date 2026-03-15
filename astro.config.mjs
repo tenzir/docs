@@ -30,19 +30,19 @@ const siteNavigation = [
     children: [
       {
         label: "Guides",
-        icon: "compass",
+        icon: "guide",
       },
       {
         label: "Tutorials",
-        icon: "graduation-cap",
+        icon: "tutorial",
       },
       {
         label: "Explanations",
-        icon: "lightbulb",
+        icon: "explanation",
       },
       {
         label: "Reference",
-        icon: "book",
+        icon: "reference",
         paths: [
           "/reference/node/api",
           "/reference/node/api/**",
@@ -56,7 +56,7 @@ const siteNavigation = [
   },
   {
     label: "Integrations",
-    icon: "puzzle-piece",
+    icon: "integration",
   },
   {
     label: "Changelog",
