@@ -33,7 +33,7 @@ client.add(
     title="API entry",
     entry_type="feature",
     description="Body text",
-    co_authors=["claude"],
+    co_authors=["codex"],
 )
 
 # Show entries using scope tokens as identifiers
@@ -48,6 +48,11 @@ bare_version = client.release_version(bare=True)  # Returns "1.0.0"
 # Publish defaults to latest release
 client.release_publish(create_tag=True, assume_yes=True)
 ```
+
+Version identifiers passed to `show()` must match existing release directories in
+`releases/<version>/`. The method validates identifiers against release manifests
+on disk. Scope tokens like `"unreleased"`, `"released"`, and `"latest"` work
+without corresponding directories.
 
 For advanced scenarios, reuse `tenzir_ship.create_cli_context` and call
 the helper functions from `tenzir_ship.cli` directly.
@@ -134,6 +139,53 @@ subdirectory as the project root when running from a parent directory that
 contains one. This _package mode_ lets you run commands from either the package
 root or the `changelog/` directory without repeating `--root`.
 
+The `init` command is the exception for `--config`: it always writes
+`config.yaml` in standalone mode and therefore does not accept an explicit
+config path.
+
+### init
+
+Create the initial changelog scaffold.
+
+```text
+tenzir-ship init [options]
+```
+
+| Option                 | Description                                               |
+| ---------------------- | --------------------------------------------------------- |
+| `--yes`                | Initialize without interactive prompts                    |
+| `--package`            | Force package mode using `package.yaml` metadata          |
+| `--standalone`         | Force standalone mode with `config.yaml`                  |
+| `--id <id>`            | Project identifier for standalone mode                    |
+| `--name <text>`        | Project display name for standalone mode                  |
+| `--description <text>` | Project description for standalone mode                   |
+| `--repository <slug>`  | GitHub repository slug (`owner/repo`) for standalone mode |
+
+Without `--root`, `init` creates `./changelog` by default. If you run it from
+inside an empty `changelog/` directory, it initializes the current directory
+instead of nesting another `changelog/` below it. In standalone mode, the
+interactive defaults come from the surrounding workspace directory, even when
+you pass `--root changelog` explicitly.
+
+Standalone mode writes `config.yaml` and creates `unreleased/`. Package mode
+requires `package.yaml` next to the changelog directory, reuses the package
+metadata, and only creates the directories needed for changelog content.
+Existing projects are never overwritten: `init` fails with an explicit error if
+`config.yaml`, `unreleased/`, or `releases/` already exist in the target.
+
+Examples:
+
+```sh
+# Interactive standalone setup
+uvx tenzir-ship init
+
+# Non-interactive standalone setup
+uvx tenzir-ship init --yes --id my-project --name "My Project"
+
+# Package-aware setup from a repository root with package.yaml
+uvx tenzir-ship init --package
+```
+
 ### show
 
 Display changelog entries in multiple views.
@@ -182,6 +234,11 @@ tenzir-ship show unreleased
 # Show released entries, filtering to specific versions
 tenzir-ship show released v1.0.0 v1.1.0
 ```
+
+Version identifiers must match an existing release version exactly. The CLI
+resolves versions by checking for a corresponding release manifest in
+`releases/<version>/`. Matching is case-insensitive, so `v1.0.0` and `V1.0.0`
+both resolve to the same release if it exists.
 
 The table view (default) lists entries with ID, title, type, project, PRs, and
 authors. Row numbers count backward from the newest entry, so `#1` always
@@ -234,11 +291,12 @@ tenzir-ship add [options]
 | `--web`                | Open prefilled GitHub file creation URL      |
 
 The command prompts for any information you do not pass explicitly. The first
-invocation scaffolds the project automatically, creating a `changelog/`
+invocation can scaffold the project automatically, creating a `changelog/`
 subdirectory with `config.yaml` and `unreleased/`. When you provide an explicit
 `--root` flag, the CLI uses that directory directly instead of creating a
-subdirectory. The CLI names entry files using the slugified title (e.g.,
-`my-feature.md`).
+subdirectory. Prefer `tenzir-ship init` when you want to set up the changelog
+workspace without creating an entry. The CLI names entry files using the
+slugified title (e.g., `my-feature.md`).
 
 By default, the CLI infers the primary author from environment variables
 (`TENZIR_CHANGELOG_AUTHOR`, `GH_USERNAME`) or the GitHub CLI (`gh api user`).
@@ -269,9 +327,25 @@ tenzir-ship release create [version] [options]
 | `--explicit-links`    | Render @mentions and PR refs as explicit Markdown links    |
 | `--date <YYYY-MM-DD>` | Override release date                                      |
 
+When creating a release, the command also updates version fields in detected
+package manifest files (`package.json`, `pyproject.toml`, `project.toml`,
+`Cargo.toml`). See the [version bumping configuration](#version-bumping) for
+details.
+
 The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
 into `entries/`. It performs a dry run by default. When the release already
-exists, the CLI appends additional unreleased entries.
+exists, the CLI appends additional unreleased entries. If no changelog entries
+are available, the command still succeeds when you provide `--intro` or
+`--intro-file`, creating an intro-only release. This is useful for
+re-publishing after yanking a package or retrying a failed publish workflow.
+Without either entries or intro text, the command fails with an error.
+
+By default, `release create` also updates common package-manager version files
+to the created release version (without the optional `v` prefix). In `auto`
+mode, the CLI discovers `package.json`, `pyproject.toml`, `project.toml`, and
+`Cargo.toml` in the changelog root and, when running from `changelog/`, in the
+parent directory. Configure this behavior under `release.version_bump_mode` and
+`release.version_files`.
 
 ### release version
 
@@ -520,13 +594,64 @@ components:
   operators: Built-in pipeline operators
 release:
   commit_message: "Release {version}"
+  version_bump_mode: auto
+  version_files:
+    - ../python/pyproject.toml
 ```
 
 The `release` block supports:
 
-| Field            | Default             | Description                                       |
-| ---------------- | ------------------- | ------------------------------------------------- |
-| `commit_message` | `Release {version}` | Template for `--commit` flag; `{version}` expands |
+| Field               | Default             | Description                                              |
+| ------------------- | ------------------- | -------------------------------------------------------- |
+| `commit_message`    | `Release {version}` | Template for `--commit` flag; `{version}` expands        |
+| `version_bump_mode` | `auto`              | `auto` to detect and update version files, `off` to skip |
+| `version_files`     | `[]`                | Explicit list of paths to version files to update        |
+
+### Version bumping
+
+During `release create`, tenzir-ship can automatically update version fields in
+package manifest files. By default (`version_bump_mode: auto`), it searches the
+project root for `package.json`, `pyproject.toml`, `project.toml`, and
+`Cargo.toml` files and updates their version fields to match the release version.
+
+#### Auto-detection behavior
+
+In auto mode, files without a static version field are skipped gracefully:
+
+- **pyproject.toml**: Updates `[project].version`. Falls back to
+  `[tool.poetry].version` when `[project]` has `dynamic = ["version"]` or is
+  absent. Skips files where neither section has a static version.
+- **Cargo.toml**: Updates `[package].version`. Falls back to
+  `[workspace.package].version` for workspace root manifests. Skips files
+  where neither section has a version field.
+- **package.json**: Updates the top-level `version` field. Skips files without
+  one.
+- **project.toml**: Same behavior as `pyproject.toml`.
+
+#### Explicit version files
+
+To specify exactly which files to update, use `version_files`:
+
+```yaml
+release:
+  version_files:
+    - ../pyproject.toml
+    - ../Cargo.toml
+```
+
+Explicitly configured files use strict validation: the command fails if the file
+exists but has no recognizable version field, preventing silent misconfiguration.
+Auto-detected files skip silently instead.
+
+#### Disabling version bumping
+
+Set `version_bump_mode: off` to disable version file updates entirely.
+
+#### Downgrade prevention
+
+Version files are only updated when the release version is equal to or newer
+than the latest existing release. Editing an older release does not downgrade
+version fields in manifest files.
 
 The `omit_pr` and `omit_author` options suppress PR numbers and author
 attribution in generated entries. When enabled, the CLI skips auto-detection and
@@ -740,7 +865,7 @@ entries since the previous parent release gets a section showing:
 ## Git Plugin v1.1.0
 
 - 🚀 Add commit message templates — *@alice*
-- 🐞 Fix branch detection — *@bob and @claude*
+- 🐞 Fix branch detection — *@bob and @codex*
 
 ## Docs Plugin v1.2.0
 
@@ -797,11 +922,16 @@ When `modules` is configured, `tenzir-ship validate` checks:
   either omits `component` or uses an allowed label.
 - **Configuration not found** – Ensure `config.yaml` exists in the changelog
   root or `package.yaml` sits next to the `changelog/` directory. Run
-  `tenzir-ship add` once to scaffold the configuration.
+  `tenzir-ship init` to scaffold the workspace, or let `tenzir-ship add`
+  bootstrap it while creating the first entry.
 - **Version bump fails** – Bump flags read the latest release manifest on disk.
   Create an initial release with an explicit version before using
   `--patch/--minor/--major`.
+- **Version file update fails** – In `release.version_bump_mode: auto`, the
+  CLI must parse every detected/configured version file. Use supported files
+  (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) or set
+  `release.version_bump_mode: off` and handle updates in your workflow script.
 
 ## Further reading
 
-- [Maintain a changelog](/guides/packages/maintain-a-changelog)
+- <Guide>packages/maintain-a-changelog</Guide>

@@ -1,19 +1,13 @@
 ---
-import { getCollection } from "astro:content";
 import { pathWithBase } from "@utils/base";
-import { resolvePageTitle } from "@utils/page-title";
-import LightbulbIcon from "../icons/LightbulbIcon.astro";
-
-// Build lookup map for page titles
-const allDocs = await getCollection("docs");
-const docsMap = new Map(allDocs.map((entry) => [entry.id, entry]));
+import { resolveLinkedPageTitle } from "@utils/page-title";
+import ExplanationIcon from "../icons/ExplanationIcon.astro";
 
 const path = Astro.slots.has("default")
   ? (await Astro.slots.render("default")).trim()
   : "";
 const href = pathWithBase(`/explanations/${path}`);
-
-const title = resolvePageTitle(docsMap, "explanations", path);
+const title = await resolveLinkedPageTitle("explanations", path);
 ---
 
-<span class="inline-icon-wrapper" data-tooltip="Explanation"><LightbulbIcon class="inline-icon" /></span><a href={href}>{title}</a>
+<a href={href} class="semantic-link"><ExplanationIcon class="inline-icon" />{title}</a>

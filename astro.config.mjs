@@ -8,13 +8,12 @@ import rehypeExternalLinks from "rehype-external-links";
 import { bundledLanguages } from "shiki";
 import starlightLinksValidator from "starlight-links-validator";
 import starlightOpenAPI from "starlight-openapi";
-import starlightSidebarTopics from "starlight-sidebar-topics";
 import starlightLlmsTxt from "./src/plugins/starlight-llms-txt/index.ts";
+import starlightSiteNavigation from "./src/plugins/starlight-site-navigation/index.ts";
 import {
   nodeAPISidebarGroup,
   platformAPISidebarGroup,
 } from "./src/sidebar-shared-groups.ts";
-import { topicPaths, topics } from "./src/topics";
 import { generateRedirects } from "./src/utils/redirects.mjs";
 import { rehypeBaseLinks } from "./src/utils/rehype-base-links";
 import { remarkExcalidrawLinks } from "./src/utils/remark-excalidraw-links";
@@ -24,6 +23,48 @@ import { remarkSeeAlsoLinks } from "./src/utils/remark-see-also-links";
 const checkLinks = !!process.env.CHECK_LINKS;
 const llmsTxt = !!process.env.LLMS_TXT;
 const isProd = process.env.NODE_ENV === "production";
+const siteNavigation = [
+  {
+    label: "Docs",
+    link: "/",
+    children: [
+      {
+        label: "Guides",
+        icon: "guide",
+      },
+      {
+        label: "Tutorials",
+        icon: "tutorial",
+      },
+      {
+        label: "Explanations",
+        icon: "explanation",
+      },
+      {
+        label: "Reference",
+        icon: "reference",
+        paths: [
+          "/reference/node/api",
+          "/reference/node/api/**",
+          "/reference/platform/api",
+          "/reference/platform/api/**",
+          "/reference/functions/**",
+          "/reference/operators/**",
+        ],
+      },
+    ],
+  },
+  {
+    label: "Integrations",
+    icon: "integration",
+  },
+  {
+    label: "Changelog",
+    dropdown: true,
+    paths: ["/changelog", "/changelog/**"],
+    childrenFrom: "changelogProjects",
+  },
+];
 
 // Parse --base from CLI args (Astro passes it but config runs before resolution)
 const baseArg = process.argv.find((arg) => arg.startsWith("--base="));
@@ -140,17 +181,21 @@ export default defineConfig({
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
                 //errorOnLocalLinks: false,
-                // Validate See Also component links (Op, Fn, Guide, Tutorial,
-                // Explanation). The remark-see-also-links plugin extracts the
-                // slot content and adds it as a data-href attribute.
+                // Validate semantic cross-reference component links. The
+                // remark-see-also-links plugin extracts the slot content and
+                // adds it as a data-href attribute.
                 components: [
                   ["Op", "data-href"],
                   ["Fn", "data-href"],
                   ["Guide", "data-href"],
                   ["Tutorial", "data-href"],
                   ["Explanation", "data-href"],
+                  ["Reference", "data-href"],
+                  ["Integration", "data-href"],
                 ],
                 exclude: [
+                  // Non-HTTP schemes like mailto: are not internal page links.
+                  "mailto:*",
                   // Legacy API path that redirects to correct locations
                   "/api/",
                   // Redirect to Discord server; handled by redirects.mjs
@@ -189,7 +234,7 @@ export default defineConfig({
             },
           },
         ]),
-        starlightSidebarTopics(topics, { topics: topicPaths }),
+        starlightSiteNavigation(siteNavigation),
       ],
     }),
   ],

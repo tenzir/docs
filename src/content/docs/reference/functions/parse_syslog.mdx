@@ -4,9 +4,6 @@ category: Parsing
 example: 'string.parse_syslog()'
 ---
 
-import Op from '@components/see-also/Op.astro';
-import Integration from '@components/see-also/Integration.astro';
-
 Parses a string as a Syslog message.
 
 ```tql
@@ -124,8 +121,84 @@ output = input.parse_syslog()
 }
 ```
 
+### Parse Check Point structured data variants
+
+Some Check Point exports use a structured-data dialect that differs from RFC 5424. Tenzir supports the common variants, including `key:"value"` parameters,
+semicolon separators, and records that omit the SD-ID.
+
+When an SD-ID is missing, Tenzir stores the parameters under
+`structured_data.checkpoint_2620`:
+
+```tql
+from {
+  input: r#"<134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:"Accept"; conn_direction:"Incoming"; flags:"8667398"]"#,
+}
+output = input.parse_syslog()
+```
+
+```tql
+{
+  input: "<134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:\"Accept\"; conn_direction:\"Incoming\"; flags:\"8667398\"]",
+  output: {
+    facility: 16,
+    severity: 6,
+    version: 1,
+    timestamp: 2026-02-25T08:14:51Z,
+    hostname: "fwmgt",
+    app_name: "CheckPoint",
+    process_id: "10024",
+    message_id: null,
+    structured_data: {
+      checkpoint_2620: {
+        action: "Accept",
+        conn_direction: "Incoming",
+        flags: 8667398,
+      },
+    },
+    message: null,
+  },
+}
+```
+
 Use `octet_counting=true` to require the prefix or `octet_counting=false` to
 disable auto-detection.
+
+### Parse RFC 3164 messages with structured data
+
+Some legacy syslog emitters prepend structured-data blocks to the message
+content. The function extracts them into a `structured_data` field and stores
+the remaining text in `content`:
+
+```tql
+from {
+  input: r#"<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed"#,
+}
+output = input.parse_syslog()
+```
+
+```tql
+{
+  input: "<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed",
+  output: {
+    facility: 20,
+    severity: 6,
+    timestamp: "2026-02-11T18:01:45.587Z",
+    hostname: "myhost",
+    app_name: "Hostd",
+    process_id: "2099494",
+    structured_data: {
+      "Originator@6876": {
+        sub: "Vimsvc.TaskManager",
+        opID: "23d59ade",
+      },
+    },
+    content: "Task Completed",
+  },
+}
+```
+
+If the leading brackets don't contain valid structured data, the parser leaves
+the content intact and omits the `structured_data` field.
 
 ## See Also
 

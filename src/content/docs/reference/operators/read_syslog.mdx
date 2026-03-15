@@ -4,10 +4,6 @@ category: Parsing
 example: 'read_syslog'
 ---
 
-import Op from '@components/see-also/Op.astro';
-import Fn from '@components/see-also/Fn.astro';
-import Integration from '@components/see-also/Integration.astro';
-
 Parses an incoming Syslog stream into events.
 
 ```tql
@@ -21,6 +17,9 @@ read_syslog [octet_counting=bool, raw_message=field, merge=bool, raw=bool, schem
 Tenzir supports reading syslog messages in both the standardized "Syslog Protocol" format
 ([RFC 5424](https://tools.ietf.org/html/rfc5424)), and the older "BSD syslog Protocol" format
 ([RFC 3164](https://tools.ietf.org/html/rfc3164)).
+
+It also accepts common Check Point structured-data variants, including
+`key:"value"` parameters, semicolon separators, and messages with no SD-ID.
 
 Depending on the syslog format, the result can be different.
 Here's an example of a syslog message in RFC 5424 format:
@@ -73,6 +72,37 @@ With this input, the parser will produce the following output, with the schema n
   "content": "Freeform message"
 }
 ```
+
+Some RFC 3164 emitters prepend structured-data blocks to the message content
+using syntax similar to RFC 5424. When the parser detects valid structured data
+at the start of the content field, it extracts the key-value pairs into a
+`structured_data` field and stores the remaining text in `content`. These events
+use the schema name `syslog.rfc3164.structured`:
+
+```
+<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed
+```
+
+```tql
+{
+  facility: 20,
+  severity: 6,
+  timestamp: "2026-02-11T18:01:45.587Z",
+  hostname: "myhost",
+  app_name: "Hostd",
+  process_id: "2099494",
+  structured_data: {
+    "Originator@6876": {
+      sub: "Vimsvc.TaskManager",
+      opID: "23d59ade",
+    },
+  },
+  content: "Task Completed",
+}
+```
+
+If the leading brackets don't contain valid structured data, the parser leaves
+the content intact and uses the regular `syslog.rfc3164` schema.
 
 import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
 
@@ -153,6 +183,76 @@ load_tcp "0.0.0.0:514" {
 
 Use `octet_counting=true` to require the prefix or `octet_counting=false` to
 disable auto-detection entirely.
+
+### Parse Check Point structured data variants
+
+Some Check Point exports use a structured-data dialect that differs from RFC 5424. `read_syslog` supports common variants such as `key:"value"`
+parameters, semicolon separators, and records that omit the SD-ID.
+
+When an SD-ID is missing, Tenzir stores the parameters under
+`structured_data.checkpoint_2620`:
+
+```txt title="checkpoint.txt"
+<134>1 2026-02-25T08:14:51Z fwmgt CheckPoint 10024 - [action:"Accept"; conn_direction:"Incoming"; flags:"8667398"]
+```
+
+```tql title="Pipeline"
+from_file "checkpoint.txt" {
+  read_syslog
+}
+```
+
+```tql
+{
+  facility: 16,
+  severity: 6,
+  version: 1,
+  timestamp: 2026-02-25T08:14:51Z,
+  hostname: "fwmgt",
+  app_name: "CheckPoint",
+  process_id: "10024",
+  message_id: null,
+  structured_data: {
+    checkpoint_2620: {
+      action: "Accept",
+      conn_direction: "Incoming",
+      flags: 8667398,
+    },
+  },
+  message: null,
+}
+```
+
+### Parse RFC 3164 messages with structured data
+
+Some legacy syslog emitters, such as VMware ESXi, prepend structured-data
+blocks to the message content. The parser extracts them automatically:
+
+```tql title="Pipeline"
+from {
+  line: r#"<166>2026-02-11T18:01:45.587Z myhost Hostd[2099494]: [Originator@6876 sub=Vimsvc.TaskManager opID=23d59ade] Task Completed"#,
+}
+write_lines
+read_syslog
+```
+
+```tql
+{
+  facility: 20,
+  severity: 6,
+  timestamp: "2026-02-11T18:01:45.587Z",
+  hostname: "myhost",
+  app_name: "Hostd",
+  process_id: "2099494",
+  structured_data: {
+    "Originator@6876": {
+      sub: "Vimsvc.TaskManager",
+      opID: "23d59ade",
+    },
+  },
+  content: "Task Completed",
+}
+```
 
 ### Preserve the original message
 

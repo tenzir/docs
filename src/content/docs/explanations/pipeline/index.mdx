@@ -79,14 +79,14 @@ does not matter. Similar to predicate pushdown, Tenzir operators support
 _ordering pushdown_ to signal to upstream operators that the event order only
 matters intra-schema but not inter-schema. In this case the operator
 transparently "demultiplex" a heterogeneous event stream into N homogeneous
-streams. The [`sort`](/reference/operators/sort) operator is an example of such
+streams. The <Op>sort</Op> operator is an example of such
 an operator; it pushes its ordering requirements upstream, allowing parsers to
 efficiently create multiple streams events in parallel.
 
 ![Multi-schema Example](./multi-schema-example.svg)
 
 Some operators only work with exactly one instance per schema internally, such
-as [`write_csv`](/reference/operators/write_csv), which first writes a
+as <Op>write_csv</Op>, which first writes a
 header and then all subsequent rows have to adhere to the emitted schema. Such
 operators cannot handle events with changing schemas.
 
@@ -113,7 +113,7 @@ Each Tenzir Node includes a lightweight **edge storage** engine for efficient
 local data persistence. You interact with this storage engine using just two
 dedicated operators to store and retrieve data. The retrievial goes much beyond replay.
 
-A naive interpretation would be that [`export`](/reference/operators/export)
+A naive interpretation would be that <Op>export</Op>
 first retrieves all its data, which subsequent operators then filter. However,
 Tenzir actively optimizes this process using **predicate pushdown**. Before a
 pipeline runs, Tenzir pushes filter conditions from later stages down to the

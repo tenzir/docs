@@ -10,17 +10,16 @@ select specific fields from your data.
 
 Before we dive in, it's important to understand a key distinction in TQL:
 
-- **Operators** like [`where`](/reference/operators/where),
-  [`select`](/reference/operators/select), and [`drop`](/reference/operators/drop)
-  work on entire event streams
-- **Functions** like [`starts_with()`](/reference/functions/starts_with) or
-  mathematical comparisons work on individual values within events
+- **Operators** like <Op>where</Op>, <Op>select</Op>, and <Op>drop</Op> work on
+  entire event streams.
+- **Functions** like <Fn>starts_with</Fn> or mathematical comparisons work on
+  individual values within events.
 
 You'll see both in action throughout this guide.
 
 ## Filter events with conditions
 
-Use the [`where`](/reference/operators/where) operator to keep only events that
+Use the <Op>where</Op> operator to keep only events that
 match specific conditions.
 
 ### Basic filtering
@@ -58,7 +57,7 @@ where status == 200 and size > 1000
 {status: 200, path: "/home", size: 2048}
 ```
 
-You can also use `or` and `not` with functions like [`starts_with()`](/reference/functions/starts_with):
+You can also use `or` and `not` with functions like <Fn>starts_with</Fn>:
 
 ```tql
 from {status: 200, path: "/api/users"},
@@ -75,7 +74,7 @@ where status == 200 or not path.starts_with("/api/m")
 ### Using functions in filters
 
 Functions work on values to create more sophisticated filters. For example,
-[`ends_with()`](/reference/functions/ends_with) checks string suffixes:
+<Fn>ends_with</Fn> checks string suffixes:
 
 ```tql
 from {user: "alice", email: "alice@example.com"},
@@ -92,7 +91,7 @@ where email.ends_with("example.com")
 ### Filtering with patterns
 
 Match patterns using regular expressions with
-[`match_regex()`](/reference/functions/match_regex):
+<Fn>match_regex</Fn>:
 
 ```tql
 from {log: "Error: Connection timeout"},
@@ -108,7 +107,7 @@ where log.match_regex("Error:")
 
 ## Select specific fields
 
-The [`select`](/reference/operators/select) operator lets you pick which fields
+The <Op>select</Op> operator lets you pick which fields
 to keep in your output.
 
 ### Basic field selection
@@ -144,6 +143,10 @@ select name=first_name, age=years
 
 Here `first_name` becomes `name` and `years` becomes `age` in the output.
 
+Note that `select` restricts the output to only the listed fields. If you want
+to rename fields while keeping everything else, use an assignment with
+[`move`](/reference/expressions/#moving-fields) instead.
+
 ### Computing new fields
 
 Create new fields with expressions during selection:
@@ -161,7 +164,7 @@ select price, tax=price * tax_rate, total=price * (1 + tax_rate)
 
 ## Remove unwanted fields
 
-The [`drop`](/reference/operators/drop) operator removes specified fields,
+The <Op>drop</Op> operator removes specified fields,
 keeping everything else.
 
 ### Basic field removal
@@ -196,11 +199,11 @@ drop internal_id, debug
 
 ## Add computed fields
 
-Use the [`set`](/reference/operators/set) operator to override existing fields
+Use the <Op>set</Op> operator to override existing fields
 and add new fields without removing existing ones.
 
 :::tip[Implied operator]
-The [`set`](/reference/operators/set) operator is _implied_, i.e., you can omit
+The <Op>set</Op> operator is _implied_, i.e., you can omit
 it to keep your pipeline definitions terse. In other words, it suffices to write
 an assignment in the form `x = y` instead of `set x = y`.
 :::
@@ -261,6 +264,41 @@ This is distinctively different from an existing field with a null value, which
 does not elicit a warning.
 :::
 
+## Rename fields
+
+TQL has no dedicated `rename` operator. Instead, use the
+[`move`](/reference/expressions/#moving-fields) keyword in an assignment to
+relocate a value from one field to another, removing the original:
+
+```tql
+from {first_name: "alice", years: 30, city: "NYC"},
+     {first_name: "bob", years: 25, city: "SF"}
+name = move first_name
+age = move years
+```
+
+```tql
+{city: "NYC", name: "alice", age: 30}
+{city: "SF", name: "bob", age: 25}
+```
+
+Unlike <Op>select</Op>, which restricts the output to only the
+listed fields, an assignment with `move` preserves all other fields.
+
+### Renaming into nested fields
+
+You can move fields into nested structures:
+
+```tql
+from {src_ip: 1.2.3.4, src_port: 443}
+src.ip = move src_ip
+src.port = move src_port
+```
+
+```tql
+{src: {ip: 1.2.3.4, port: 443}}
+```
+
 ## Combining operations
 
 Real-world pipelines often combine multiple operations:
@@ -280,26 +318,26 @@ select method, path, duration = duration_ms.milliseconds()
 
 ## Best practices
 
-1. **Filter early**: Apply [`where`](/reference/operators/where) conditions as
+1. **Filter early**: Apply <Op>where</Op> conditions as
    early as possible to reduce the amount of data flowing through your pipeline.
 
-2. **Select only what you need**: Use [`select`](/reference/operators/select) to
+2. **Select only what you need**: Use <Op>select</Op> to
    keep only necessary fields, especially when dealing with large events.
 
 3. **Choose the right operator**:
-   - Use [`select`](/reference/operators/select) when you want to restrict the
+   - Use <Op>select</Op> when you want to restrict the
      output to specific fields.
-   - Use [`drop`](/reference/operators/drop) when you want to remove a few
+   - Use <Op>drop</Op> when you want to remove a few
      fields from many.
-   - Use [`set`](/reference/operators/set) when you want to add/override fields
+   - Use <Op>set</Op> when you want to add/override fields
      without changing existing ones.
+   - Use an assignment with `move` when you want to rename fields without
+     affecting the rest of the event.
 
-4. **Understand null handling**: The [`where`](/reference/operators/where)
+4. **Understand null handling**: The <Op>where</Op>
    operator skips events where the condition evaluates to null or false. Use the
    question mark operator (`?`) to suppress warnings when accessing fields that
    may not exist.
-
-import Guide from "@components/see-also/Guide.astro";
 
 ## See also
 

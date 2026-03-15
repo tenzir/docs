@@ -4,10 +4,6 @@ category: Detection
 example: 'sigma "/tmp/rules/"'
 ---
 
-import Op from '@components/see-also/Op.astro';
-import Guide from '@components/see-also/Guide.astro';
-import Reference from '@components/see-also/Reference.astro';
-
 Filter the input with Sigma rules and output matching events.
 
 ```tql
@@ -26,7 +22,7 @@ operator discards all events that do not match the provided rules.
 
 For each rule, the operator transpiles the YAML into an
 [expression](/reference/expressions) and instantiates a
-[`where`](/reference/operators/where) operator, followed by assignments to
+<Op>where</Op> operator, followed by assignments to
 generate an output. Here's how the transpilation works. The Sigma rule YAML
 format requires a `detection` attribute that includes a map of named
 sub-expression called _search identifiers_. In addition, `detection` must

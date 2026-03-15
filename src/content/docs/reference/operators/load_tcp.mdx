@@ -4,14 +4,11 @@ category: Inputs/Bytes
 example: 'load_tcp "0.0.0.0:8090" { read_json }'
 ---
 
-import Op from '@components/see-also/Op.astro';
-import Integration from '@components/see-also/Integration.astro';
-
 Loads bytes from a TCP or TLS connection.
 
 ```tql
-load_tcp endpoint:string, [parallel=int, peer_field=field, tls=record,
-                           max_buffered_chunks=int { … }]
+load_tcp endpoint:string, [parallel=int, peer_field=field, resolve_hostnames=bool,
+                           tls=record, max_buffered_chunks=int { … }]
 ```
 
 ## Description
@@ -36,7 +33,16 @@ import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 Write a record with the fields `ip`, `port`, and `hostname` resembling the peer
 endpoint of the respective TCP connection into the specified field at the end of
-the nested pipeline.
+the nested pipeline. The `hostname` field is only populated when
+`resolve_hostnames` is enabled.
+
+### `resolve_hostnames = bool (optional)`
+
+Resolve the peer's IP address to a hostname via reverse DNS lookup and populate
+the `hostname` field in the peer record (see `peer_field`). When disabled, the
+`hostname` field is omitted.
+
+Defaults to `false`.
 
 <TLSOptions tls_default="false"/>
 
