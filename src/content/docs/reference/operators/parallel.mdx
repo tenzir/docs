@@ -12,9 +12,9 @@ parallel [jobs:int] [, route_by=any] { … }
 
 ## Description
 
-The [`parallel`](/reference/operators/parallel) operator distributes incoming
-events across multiple parallel instances of a subpipeline. Each event is
-processed by exactly one worker.
+The <Op>parallel</Op> operator distributes incoming events across multiple
+parallel instances of a subpipeline. Each event is processed by exactly one
+worker.
 
 Use this operator to parallelize CPU-intensive transformations or I/O-bound
 operations that would otherwise bottleneck on a single thread.
@@ -47,8 +47,7 @@ the number of available CPU cores.
 An expression evaluated per event to determine which worker processes it. Events
 with the same `route_by` value are always sent to the same worker. This
 guarantees that related events are grouped together, which is required for
-stateful subpipelines like [`deduplicate`](/reference/operators/deduplicate) or
-[`summarize`](/reference/operators/summarize).
+stateful subpipelines like <Op>deduplicate</Op> or <Op>summarize</Op>.
 
 Cannot be used when `parallel` is used as a source operator.
 
