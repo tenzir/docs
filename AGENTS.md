@@ -17,65 +17,29 @@ for Tenzir (https://tenzir.com).
 - Sidebar: manually managed in `/src/sidebar.ts`. Add new pages here.
 - Topics: `/src/topics.yaml` defines the navigation topic hierarchy.
 
-## Partials
+## Agent references
 
-Import reusable content from `/src/partials/`:
+Keep additional agent guidance in `.agents/` at the repository root instead of
+nested `AGENTS.md` files. Read the relevant reference before you edit that area.
 
-```mdx
-import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
-
-<ParsingOptions />
-```
-
-Partials are inlined during Markdown processing, so their headings participate
-in the page TOC and automatic anchor links. Only default imports that resolve
-inside `/src/partials/` are inlined; other component imports behave normally.
-
-After changing partials or the inline-partials pipeline, run `bun run
-test:inline-partials` to confirm headings are inlined and props substitutions
-match TOC text.
-
-## Updating Reference index pages
-
-When adding, removing, or renaming function or operator reference pages, update
-the corresponding index page.
-
-Locations:
-
-| Reference Type | Index Page                                 |
-| -------------- | ------------------------------------------ |
-| Functions      | `src/content/docs/reference/functions.mdx` |
-| Operators      | `src/content/docs/reference/operators.mdx` |
-
-Each index page has two locations that need updating:
-
-1. **Frontmatter list**: The YAML `functions:` or `operators:` array at the top
-   of the file. Add/remove/update the entry with `name`, `description`,
-   `example`, and `path` fields.
-
-   ```yaml
-   - name: 'function_name'
-     description: 'Brief description of what it does.'
-     example: 'function_name(arg)'
-     path: 'reference/functions/function_name'
-   ```
-
-2. **CardGrid section**: The corresponding `<ReferenceCard>` in the appropriate
-   category section. Match the format of existing cards.
-
-   ````mdx
-   <ReferenceCard title="function_name" description="Brief description." href="/reference/functions/function_name">
-
-   ```tql
-   function_name(arg)
-   ````
-
-```
-
-</ReferenceCard>
-```
-
-Entries should be ordered alphabetically within their category section.
+- [`.agents/references/content.md`](.agents/references/content.md): read when
+  editing pages under `src/content/docs/`. Covers content authoring rules,
+  including semantic cross-references such as `<Op>where</Op>`,
+  `<Fn>count</Fn>`, `<Guide>data-shaping/filter-and-select-data</Guide>`, and
+  See Also sections. In `.mdx` pages, prefer these semantic links over plain
+  markdown links unless you need custom link text, emphasis, or a specific
+  anchor target.
+- [`.agents/references/components.md`](.agents/references/components.md): read
+  when editing or creating files under `src/components/`. Covers Starlight
+  built-in components, custom wrappers, and usage guidance.
+- [`.agents/references/partials.md`](.agents/references/partials.md): read when
+  editing files under `src/partials/`. Covers partial authoring and the
+  inline-partials pipeline.
+- [`.agents/references/reference-index-pages.md`](.agents/references/reference-index-pages.md):
+  read when adding, removing, or renaming pages under
+  `src/content/docs/reference/functions/` or
+  `src/content/docs/reference/operators/`. Covers how to update function and
+  operator index pages.
 
 ## Workflow
 
