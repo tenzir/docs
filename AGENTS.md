@@ -23,12 +23,11 @@ Keep additional agent guidance in `.agents/` at the repository root instead of
 nested `AGENTS.md` files. Read the relevant reference before you edit that area.
 
 - [`.agents/references/content.md`](.agents/references/content.md): read when
-  editing pages under `src/content/docs/`. Covers content authoring rules,
-  including semantic cross-references such as `<Op>where</Op>`,
-  `<Fn>count</Fn>`, `<Guide>data-shaping/filter-and-select-data</Guide>`, and
-  See Also sections. In `.mdx` pages, prefer these semantic links over plain
-  markdown links unless you need custom link text, emphasis, or a specific
-  anchor target.
+  editing pages under `src/content/docs/`. Covers content authoring rules and
+  semantic components (`<Op>`, `<Fn>`, `<Guide>`, etc.) for cross-references
+  in inline prose and See Also sections. In `.mdx` pages, prefer these
+  semantic components over plain markdown links unless you need custom link
+  text, emphasis, or a specific anchor target.
 - [`.agents/references/components.md`](.agents/references/components.md): read
   when editing or creating files under `src/components/`. Covers Starlight
   built-in components, custom wrappers, and usage guidance.

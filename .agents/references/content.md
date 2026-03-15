@@ -41,17 +41,15 @@ results. Orient the reader to the document type and what they'll gain.
 3. **Complete sentences before lists**: Don't end the paragraph with a colon.
 4. **Be specific**: Include key terms readers might search for.
 
-## Semantic cross-references and See Also sections
+## Semantic components
 
-Semantic components such as `<Op>` and `<Fn>` create consistent inline links to
-related documentation. You can use them inline in prose or in a See Also
-section. When editing any documentation page, consider adding or updating these
-links.
+Semantic components like `<Op>`, `<Fn>`, and `<Guide>` create cross-reference
+links with a type icon and auto-resolved title. Use them inline in prose and in
+See Also sections. When editing any documentation page, consider adding or
+updating these links.
 
-### Imports
-
-These components are auto-imported when you use them in `.mdx` files. You can
-still import them explicitly if you prefer.
+These components are auto-imported in `.mdx` files. You can still import them
+explicitly if you prefer:
 
 ```mdx
 import Op from '@components/see-also/Op.astro';
@@ -63,7 +61,7 @@ import Integration from '@components/see-also/Integration.astro';
 import Reference from '@components/see-also/Reference.astro';
 ```
 
-### Component usage
+### Available components
 
 | Component       | Purpose                    | Example                                              |
 | --------------- | -------------------------- | ---------------------------------------------------- |
@@ -77,7 +75,7 @@ import Reference from '@components/see-also/Reference.astro';
 
 ### Inline usage
 
-Use these components directly in sentences when they help readers jump to the
+Use semantic components directly in sentences to help readers jump to the
 relevant reference:
 
 ```mdx
@@ -85,7 +83,7 @@ Use <Op>where</Op> with <Fn>count</Fn> to filter events before you aggregate
 results.
 ```
 
-### See Also Format
+### See Also sections
 
 Use a bullet list with one component per line:
 
@@ -101,8 +99,6 @@ Use a bullet list with one component per line:
 - <Integration>vendor/integration-slug</Integration>
 ```
 
-### Ordering
-
 Maintain this order within See Also sections:
 
 1. Operators (`<Op>`)
@@ -113,7 +109,7 @@ Maintain this order within See Also sections:
 6. References (`<Reference>`)
 7. Integrations (`<Integration>`)
 
-### Reciprocal Cross-References
+### Reciprocal cross-references
 
 When editing guides, tutorials, or explanations that link to operators or
 functions, update the reference pages to include reciprocal See Also links.
@@ -135,13 +131,13 @@ Example: If `guides/data-shaping/filter-and-select-data.mdx` uses `where`,
 - <Guide>data-shaping/filter-and-select-data</Guide>
 ```
 
-### Finding Relevant Content
+### Finding related content
 
 When adding See Also links, look in these directories for related content:
 
-- `src/content/docs/guides/` - How-to guides for common tasks
-- `src/content/docs/tutorials/` - Step-by-step learning tutorials
-- `src/content/docs/explanations/` - Conceptual explanations
+- `src/content/docs/guides/` — How-to guides for common tasks
+- `src/content/docs/tutorials/` — Step-by-step learning tutorials
+- `src/content/docs/explanations/` — Conceptual explanations
 
 Link to content that helps users understand or apply the operator/function.
 
