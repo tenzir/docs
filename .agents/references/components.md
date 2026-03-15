@@ -1,7 +1,3 @@
----
-paths: src/components/**/*
----
-
 # Starlight Components
 
 Starlight provides built-in components for common documentation patterns. Prefer

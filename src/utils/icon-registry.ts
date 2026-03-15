@@ -7,75 +7,80 @@
  * - Section icons (in SidebarSublist.astro, encoded in badge classes as "icon-<name>")
  */
 
-import BookIcon from "../components/icons/BookIcon.astro";
-import ChartBarIcon from "../components/icons/ChartBarIcon.astro";
-import CircleHelpIcon from "../components/icons/CircleHelpIcon.astro";
-import CodeIcon from "../components/icons/CodeIcon.astro";
-import CompassIcon from "../components/icons/CompassIcon.astro";
-import CubeIcon from "../components/icons/CubeIcon.astro";
-import FnIcon from "../components/icons/FnIcon.astro";
-import GearIcon from "../components/icons/GearIcon.astro";
-import GraduationCapIcon from "../components/icons/GraduationCapIcon.astro";
-import HeartIcon from "../components/icons/HeartIcon.astro";
-import LayersIcon from "../components/icons/LayersIcon.astro";
-import LightbulbIcon from "../components/icons/LightbulbIcon.astro";
-import ListChecksIcon from "../components/icons/ListChecksIcon.astro";
+import AnalyticsIcon from "../components/icons/AnalyticsIcon.astro";
+import ArchitectureIcon from "../components/icons/ArchitectureIcon.astro";
+import ComponentIcon from "../components/icons/ComponentIcon.astro";
+import ConceptIcon from "../components/icons/ConceptIcon.astro";
+import ContributeIcon from "../components/icons/ContributeIcon.astro";
+import ExplanationIcon from "../components/icons/ExplanationIcon.astro";
+import FunctionIcon from "../components/icons/FunctionIcon.astro";
+import GuideIcon from "../components/icons/GuideIcon.astro";
+import HelpIcon from "../components/icons/HelpIcon.astro";
+import IntegrationIcon from "../components/icons/IntegrationIcon.astro";
+import LanguageIcon from "../components/icons/LanguageIcon.astro";
+import OperatorIcon from "../components/icons/OperatorIcon.astro";
 import PackageIcon from "../components/icons/PackageIcon.astro";
-import PlugIcon from "../components/icons/PlugIcon.astro";
-import PuzzlePieceIcon from "../components/icons/PuzzlePieceIcon.astro";
-import ShieldIcon from "../components/icons/ShieldIcon.astro";
-import WrenchIcon from "../components/icons/WrenchIcon.astro";
+import ReferenceIcon from "../components/icons/ReferenceIcon.astro";
+import SecurityIcon from "../components/icons/SecurityIcon.astro";
+import SetupIcon from "../components/icons/SetupIcon.astro";
+import TestingIcon from "../components/icons/TestingIcon.astro";
+import ToolsIcon from "../components/icons/ToolsIcon.astro";
+import TutorialIcon from "../components/icons/TutorialIcon.astro";
 
 /**
  * Valid icon names that can be used in the sidebar.
  */
 export type IconName =
-  | "book"
-  | "chart-bar"
-  | "circle-help"
-  | "code"
-  | "compass"
-  | "cube"
-  | "fn"
-  | "gear"
-  | "graduation-cap"
-  | "heart"
-  | "layers"
-  | "lightbulb"
-  | "list-checks"
+  | "analytics"
+  | "architecture"
+  | "component"
+  | "concept"
+  | "contribute"
+  | "data"
+  | "explanation"
+  | "function"
+  | "guide"
+  | "help"
+  | "integration"
+  | "language"
+  | "operator"
   | "package"
-  | "plug"
-  | "puzzle-piece"
-  | "shield"
-  | "wrench";
+  | "reference"
+  | "security"
+  | "setup"
+  | "testing"
+  | "tools"
+  | "tutorial";
 
 /**
  * Icon component type - all icon components have the same interface.
  */
-export type IconComponent = typeof BookIcon;
+export type IconComponent = typeof ReferenceIcon;
 
 /**
  * Registry mapping icon names to their Astro components.
  */
 export const iconComponents: Record<IconName, IconComponent> = {
-  book: BookIcon,
-  "chart-bar": ChartBarIcon,
-  "circle-help": CircleHelpIcon,
-  code: CodeIcon,
-  compass: CompassIcon,
-  cube: CubeIcon,
-  fn: FnIcon,
-  gear: GearIcon,
-  "graduation-cap": GraduationCapIcon,
-  heart: HeartIcon,
-  layers: LayersIcon,
-  lightbulb: LightbulbIcon,
+  analytics: AnalyticsIcon,
+  architecture: ArchitectureIcon,
+  component: ComponentIcon,
+  concept: ConceptIcon,
+  contribute: ContributeIcon,
+  data: ArchitectureIcon, // alias: reuses the layers icon for data-oriented sections
+  explanation: ExplanationIcon,
+  function: FunctionIcon,
+  guide: GuideIcon,
+  help: HelpIcon,
+  integration: IntegrationIcon,
+  language: LanguageIcon,
+  operator: OperatorIcon,
   package: PackageIcon,
-  "list-checks": ListChecksIcon,
-  plug: PlugIcon,
-  "puzzle-piece": PuzzlePieceIcon,
-  shield: ShieldIcon,
-  wrench: WrenchIcon,
+  reference: ReferenceIcon,
+  security: SecurityIcon,
+  setup: SetupIcon,
+  testing: TestingIcon,
+  tools: ToolsIcon,
+  tutorial: TutorialIcon,
 };
 
 /**

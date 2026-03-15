@@ -4,9 +4,6 @@ category: Inputs/Bytes
 example: 'load_google_cloud_pubsub project_id="my-project"'
 ---
 
-import Op from '@components/see-also/Op.astro';
-import Integration from '@components/see-also/Integration.astro';
-
 Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.
 
 ```tql
@@ -22,7 +19,7 @@ The connector tries to retrieve the appropriate credentials using Google's
 
 :::caution[Deprecated]
 `load_google_cloud_pubsub` is deprecated. Use
-[`from_google_cloud_pubsub`](/reference/operators/from_google_cloud_pubsub),
+<Op>from_google_cloud_pubsub</Op>,
 which preserves event boundaries and supports attaching metadata.
 :::
 
@@ -45,7 +42,7 @@ The default value is `0s`.
 
 ## URI support & integration with `from`
 
-The `load_google_cloud_pubsub` operator can also be used from the [`from`](/reference/operators/from)
+The `load_google_cloud_pubsub` operator can also be used from the <Op>from</Op>
 operator. For this, the `gcps://` scheme can be used. The URI is then translated:
 
 ```tql

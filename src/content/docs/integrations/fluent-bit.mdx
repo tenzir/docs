@@ -4,9 +4,9 @@ title: Fluent Bit
 
 [Fluent Bit](https://fluentbit.io) is a an open source observability
 pipeline. Tenzir embeds Fluent Bit, exposing all its [inputs][inputs] via
-[`from_fluent_bit`](/reference/operators/from_fluent_bit) and
+<Op>from_fluent_bit</Op> and
 [outputs][outputs] via
-[`to_fluent_bit`](/reference/operators/to_fluent_bit)
+<Op>to_fluent_bit</Op>
 
 This makes Tenzir effectively a superset of Fluent Bit.
 
@@ -36,14 +36,14 @@ An invocation of the `fluent-bit` commandline utility
 fluent-bit -o input_plugin -p key1=value1 -p key2=value2 -p…
 ```
 
-translates to Tenzir's [`from_fluent_bit`](/reference/operators/from_fluent_bit)
+translates to Tenzir's <Op>from_fluent_bit</Op>
 operator as follows:
 
 ```tql
 from_fluent_bit "input_plugin", options={key1: value1, key2: value2, …}
 ```
 
-with the [`to_fluent_bit`](/reference/operators/to_fluent_bit) operator working
+with the <Op>to_fluent_bit</Op> operator working
 exactly analogous.
 
 ## Examples
@@ -71,7 +71,7 @@ from_fluent_bit "splunk", options = {port: 8088}
 ```
 
 :::tip
-Use the dedicated [`to_splunk` operator](/reference/operators/to_splunk)
+Use the dedicated <Op>to_splunk</Op> operator
 to send events to a Splunk HEC.
 :::
 

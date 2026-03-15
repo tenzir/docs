@@ -2019,80 +2019,59 @@ starlight-tabs [role="tabpanel"] > :last-child {
   color: var(--tnz-neutral-500);
 }
 
-/* Inline icons with tooltip */
-.inline-icon-wrapper {
+/* Semantic cross-reference links (Op, Fn, Guide, etc.) */
+.semantic-link {
+  text-decoration: none;
+}
+
+.semantic-link:hover {
+  text-decoration: underline;
+}
+
+/* Hide icons in inline prose. They are shown only in See Also lists. */
+.semantic-link .inline-icon {
+  display: none;
+}
+
+/* Tighten code padding inside semantic links so there's no gap before
+   surrounding punctuation (e.g., the colon in "<Op>from</Op>: …"). */
+.semantic-link code {
+  padding-inline: 0.2em;
+}
+
+/* Semantic-link list items use the icon as their marker without affecting
+   neighboring plain-text bullets in mixed lists. */
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  margin-right: var(--tnz-space-1);
-}
-
-.inline-icon-wrapper::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: 50%;
-  bottom: 100%;
-  transform: translateX(-50%);
-  padding: 2px 6px;
-  background: var(--tnz-neutral-800);
-  color: var(--tnz-neutral-400);
-  font-size: 10px;
-  border-radius: 3px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-  margin-bottom: 2px;
-}
-
-.inline-icon-wrapper:hover::after {
-  opacity: 1;
-}
-
-:root[data-theme="light"] .inline-icon-wrapper::after {
-  background: var(--tnz-neutral-200);
-  color: var(--tnz-neutral-500);
-}
-
-.inline-icon {
-  display: inline;
-  vertical-align: middle;
-  color: var(--tnz-neutral-600);
-  position: relative;
-  top: 1px;
-}
-
-:root[data-theme="light"] .inline-icon {
-  color: var(--tnz-neutral-600);
-}
-
-.fn-icon {
-  font-family: var(--tnz-font-mono);
-  font-size: 12px;
-  font-weight: 700;
-  top: 3px;
-}
-
-.op-icon {
-  top: 3px;
-}
-
-/* Icon list - icons replace bullets (auto-detected via :has) */
-ul:has(> li > .inline-icon-wrapper) {
   list-style: none;
-  padding-left: 0;
-}
-
-ul:has(> li > .inline-icon-wrapper) > li {
-  position: relative;
-  padding-left: 1.5em;
   line-height: 1.75;
 }
 
-ul:has(> li > .inline-icon-wrapper) .inline-icon-wrapper {
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .inline-icon {
+  display: inline;
   position: absolute;
-  left: 0;
+  left: -1.25em;
   top: 0.35em;
+  color: var(--tnz-neutral-600);
+}
+
+:root[data-theme="dark"]
+  ul:has(> li > .semantic-link)
+  > li:has(> .semantic-link)
+  > .semantic-link
+  > .inline-icon {
+  color: var(--tnz-neutral-500);
+}
+
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > svg.inline-icon {
+  width: 14px;
+  height: 14px;
+}
+
+ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .fn-icon {
+  font-family: var(--tnz-font-mono);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /* Sidebar AI icon for Workflows group headers */

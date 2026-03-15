@@ -10,18 +10,18 @@ data, and control event ordering using TQL operators.
 
 The operators in this guide work on entire event streams:
 
-- [`head`](/reference/operators/head) and [`tail`](/reference/operators/tail) - Get events from the beginning or end
-- [`slice`](/reference/operators/slice) - Extract a specific range of events
-- [`taste`](/reference/operators/taste) - Sample events by schema
-- [`reverse`](/reference/operators/reverse) - Invert the order of events
-- [`sample`](/reference/operators/sample) - Randomly sample events
+- <Op>head</Op> and <Op>tail</Op> - Get events from the beginning or end
+- <Op>slice</Op> - Extract a specific range of events
+- <Op>taste</Op> - Sample events by schema
+- <Op>reverse</Op> - Invert the order of events
+- <Op>sample</Op> - Randomly sample events
 
 These operators maintain state between events, unlike functions that work on
 individual values.
 
 ## Get events from the beginning
 
-Use the [`head`](/reference/operators/head) operator to get the first N events
+Use the <Op>head</Op> operator to get the first N events
 from a stream.
 
 ### Basic usage
@@ -45,7 +45,7 @@ head 3
 
 ### Default behavior
 
-Without an argument, [`head`](/reference/operators/head) returns all events:
+Without an argument, <Op>head</Op> returns all events:
 
 ```tql
 from {id: 1, value: "first"},
@@ -62,7 +62,7 @@ head
 
 ## Get events from the end
 
-Use the [`tail`](/reference/operators/tail) operator to get the last N events.
+Use the <Op>tail</Op> operator to get the last N events.
 
 ### Basic usage
 
@@ -82,14 +82,14 @@ tail 2
 ```
 
 :::caution[Performance consideration]
-The [`tail`](/reference/operators/tail) operator must consume all input before producing output, making it
-memory-intensive for large streams. Use [`head`](/reference/operators/head) when possible for better
+The <Op>tail</Op> operator must consume all input before producing output, making it
+memory-intensive for large streams. Use <Op>head</Op> when possible for better
 performance.
 :::
 
 ## Slice event streams
 
-The [`slice`](/reference/operators/slice) operator provides fine-grained control
+The <Op>slice</Op> operator provides fine-grained control
 over which events to extract.
 
 ### Extract a range
@@ -140,7 +140,7 @@ slice begin=2, end=10, stride=3
 
 ## Sample events by schema
 
-The [`taste`](/reference/operators/taste) operator samples events based on their
+The <Op>taste</Op> operator samples events based on their
 structure, giving you examples of different data shapes in your stream.
 
 ### Get schema examples
@@ -187,7 +187,7 @@ taste 2
 
 ## Reverse event order
 
-Use the [`reverse`](/reference/operators/reverse) operator to invert the order
+Use the <Op>reverse</Op> operator to invert the order
 of events in a stream:
 
 ```tql
@@ -204,13 +204,13 @@ reverse
 ```
 
 :::caution[Memory usage]
-Like [`tail`](/reference/operators/tail), the [`reverse`](/reference/operators/reverse) operator must buffer all input before producing
+Like <Op>tail</Op>, the <Op>reverse</Op> operator must buffer all input before producing
 output. Use with caution on large streams.
 :::
 
 ## Time-based sampling
 
-Use the [`sample`](/reference/operators/sample) operator to sample events based
+Use the <Op>sample</Op> operator to sample events based
 on time intervals:
 
 ### Sample by duration
@@ -259,12 +259,10 @@ head 2
 
 ## Best practices
 
-1. **Prefer `head` over `tail`**: [`head`](/reference/operators/head) stops processing once it has enough events, while [`tail`](/reference/operators/tail) must process everything.
-2. **Use `taste` for exploration**: When working with unfamiliar data, [`taste`](/reference/operators/taste) quickly shows you the different schemas present.
-3. **Be mindful of memory**: Operators like [`tail`](/reference/operators/tail) and [`reverse`](/reference/operators/reverse) buffer all input, which can consume significant memory for large streams.
-4. **Combine with filters**: Use [`where`](/reference/operators/where) before slicing operators to reduce the amount of data processed.
-
-import Guide from "@components/see-also/Guide.astro";
+1. **Prefer `head` over `tail`**: <Op>head</Op> stops processing once it has enough events, while <Op>tail</Op> must process everything.
+2. **Use `taste` for exploration**: When working with unfamiliar data, <Op>taste</Op> quickly shows you the different schemas present.
+3. **Be mindful of memory**: Operators like <Op>tail</Op> and <Op>reverse</Op> buffer all input, which can consume significant memory for large streams.
+4. **Combine with filters**: Use <Op>where</Op> before slicing operators to reduce the amount of data processed.
 
 ## See also
 

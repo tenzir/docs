@@ -30,19 +30,19 @@ const siteNavigation = [
     children: [
       {
         label: "Guides",
-        icon: "compass",
+        icon: "guide",
       },
       {
         label: "Tutorials",
-        icon: "graduation-cap",
+        icon: "tutorial",
       },
       {
         label: "Explanations",
-        icon: "lightbulb",
+        icon: "explanation",
       },
       {
         label: "Reference",
-        icon: "book",
+        icon: "reference",
         paths: [
           "/reference/node/api",
           "/reference/node/api/**",
@@ -56,7 +56,7 @@ const siteNavigation = [
   },
   {
     label: "Integrations",
-    icon: "puzzle-piece",
+    icon: "integration",
   },
   {
     label: "Changelog",
@@ -181,16 +181,16 @@ export default defineConfig({
               starlightLinksValidator({
                 //errorOnInvalidHashes: false,
                 //errorOnLocalLinks: false,
-                // Validate See Also component links (Op, Fn, Guide, Tutorial,
-                // Explanation, Integration). The remark-see-also-links plugin
-                // extracts the slot content and adds it as a data-href
-                // attribute.
+                // Validate semantic cross-reference component links. The
+                // remark-see-also-links plugin extracts the slot content and
+                // adds it as a data-href attribute.
                 components: [
                   ["Op", "data-href"],
                   ["Fn", "data-href"],
                   ["Guide", "data-href"],
                   ["Tutorial", "data-href"],
                   ["Explanation", "data-href"],
+                  ["Reference", "data-href"],
                   ["Integration", "data-href"],
                 ],
                 exclude: [

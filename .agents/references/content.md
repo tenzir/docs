@@ -4,12 +4,14 @@ The `docs/` directory includes the primary documentation content.
 
 ## Linking conventions
 
-Always wrap operator and function names in markdown links, even when mentioned
-multiple times in the same document. Use backticks with the link:
-[`publish`](/reference/operators/publish), [`round`](/reference/functions/round).
+In `.mdx` pages, prefer semantic components for inline cross-references to
+operators, functions, and other documentation pages:
+`<Op>publish</Op>`, `<Fn>round</Fn>`,
+`<Guide>node-setup/tune-performance</Guide>`,
+`<Integration>kafka</Integration>`.
 
-When first introducing a technology that has an `/integrations` page, link to it
-in the text: [Kafka](/integrations/kafka), [Splunk](/integrations/splunk).
+Use plain markdown links only when you need custom link text, emphasis, or a
+specific anchor target.
 
 ## Consecutive code blocks
 
@@ -39,14 +41,15 @@ results. Orient the reader to the document type and what they'll gain.
 3. **Complete sentences before lists**: Don't end the paragraph with a colon.
 4. **Be specific**: Include key terms readers might search for.
 
-## See Also sections and cross-references
+## Semantic components
 
-See Also sections help users discover related documentation. When editing any
-documentation page, consider adding or updating these links.
+Semantic components like `<Op>`, `<Fn>`, and `<Guide>` create cross-reference
+links with a type icon and auto-resolved title. Use them inline in prose and in
+See Also sections. When editing any documentation page, consider adding or
+updating these links.
 
-### Required Imports
-
-Add imports after the frontmatter based on what you need:
+These components are auto-imported in `.mdx` files. You can still import them
+explicitly if you prefer:
 
 ```mdx
 import Op from '@components/see-also/Op.astro';
@@ -55,9 +58,10 @@ import Guide from '@components/see-also/Guide.astro';
 import Tutorial from '@components/see-also/Tutorial.astro';
 import Explanation from '@components/see-also/Explanation.astro';
 import Integration from '@components/see-also/Integration.astro';
+import Reference from '@components/see-also/Reference.astro';
 ```
 
-### Component Usage
+### Available components
 
 | Component       | Purpose                    | Example                                              |
 | --------------- | -------------------------- | ---------------------------------------------------- |
@@ -67,8 +71,19 @@ import Integration from '@components/see-also/Integration.astro';
 | `<Tutorial>`    | Link to tutorial           | `<Tutorial>learn-idiomatic-tql</Tutorial>`           |
 | `<Explanation>` | Link to explanation        | `<Explanation>language/operators</Explanation>`      |
 | `<Integration>` | Link to integration        | `<Integration>kafka</Integration>`                   |
+| `<Reference>`   | Link to a reference page   | `<Reference>test-framework</Reference>`              |
 
-### See Also Format
+### Inline usage
+
+Use semantic components directly in sentences to help readers jump to the
+relevant reference:
+
+```mdx
+Use <Op>where</Op> with <Fn>count</Fn> to filter events before you aggregate
+results.
+```
+
+### See Also sections
 
 Use a bullet list with one component per line:
 
@@ -80,10 +95,9 @@ Use a bullet list with one component per line:
 - <Guide>category/guide-slug</Guide>
 - <Tutorial>tutorial-slug</Tutorial>
 - <Explanation>category/explanation-slug</Explanation>
+- <Reference>reference-slug</Reference>
 - <Integration>vendor/integration-slug</Integration>
 ```
-
-### Ordering
 
 Maintain this order within See Also sections:
 
@@ -92,9 +106,10 @@ Maintain this order within See Also sections:
 3. Guides (`<Guide>`)
 4. Tutorials (`<Tutorial>`)
 5. Explanations (`<Explanation>`)
-6. Integrations (`<Integration>`)
+6. References (`<Reference>`)
+7. Integrations (`<Integration>`)
 
-### Reciprocal Cross-References
+### Reciprocal cross-references
 
 When editing guides, tutorials, or explanations that link to operators or
 functions, update the reference pages to include reciprocal See Also links.
@@ -116,16 +131,16 @@ Example: If `guides/data-shaping/filter-and-select-data.mdx` uses `where`,
 - <Guide>data-shaping/filter-and-select-data</Guide>
 ```
 
-### Finding Relevant Content
+### Finding related content
 
 When adding See Also links, look in these directories for related content:
 
-- `src/content/docs/guides/` - How-to guides for common tasks
-- `src/content/docs/tutorials/` - Step-by-step learning tutorials
-- `src/content/docs/explanations/` - Conceptual explanations
+- `src/content/docs/guides/` — How-to guides for common tasks
+- `src/content/docs/tutorials/` — Step-by-step learning tutorials
+- `src/content/docs/explanations/` — Conceptual explanations
 
 Link to content that helps users understand or apply the operator/function.
 
-### File Extension
+### File extension
 
-Pages using See Also components must use the `.mdx` extension.
+Pages using semantic components must use the `.mdx` extension.
