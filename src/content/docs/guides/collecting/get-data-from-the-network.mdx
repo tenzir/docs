@@ -8,16 +8,16 @@ capture raw packets from network interfaces.
 
 ## TCP sockets
 
-The [Transmission Control Protocol (TCP)](/integrations/tcp) provides reliable,
-ordered byte streams. Use TCP when you need guaranteed delivery and message
-ordering.
+<Integration>tcp</Integration> provides reliable, ordered byte streams. Use TCP
+when you need guaranteed delivery and message ordering.
 
 ### Listen for connections
 
-Start a TCP server that accepts incoming connections:
+Use <Op>accept_tcp</Op> to start a TCP server that accepts incoming
+connections:
 
 ```tql
-from "tcp://0.0.0.0:9000" {
+accept_tcp "0.0.0.0:9000" {
   read_json
 }
 ```
@@ -27,10 +27,10 @@ pipeline to convert incoming bytes to events.
 
 ### Connect to a remote server
 
-Act as a TCP client by connecting to an existing server:
+Use <Op>from_tcp</Op> to connect to an existing server:
 
 ```tql
-from "tcp://192.168.1.100:9000", connect=true {
+from_tcp "192.168.1.100:9000" {
   read_json
 }
 ```
@@ -40,7 +40,7 @@ from "tcp://192.168.1.100:9000", connect=true {
 Secure your TCP connections with TLS by passing a `tls` record:
 
 ```tql
-from "tcp://0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
+accept_tcp "0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```
@@ -56,9 +56,8 @@ For production TLS configuration, including mutual TLS and cipher settings, see
 
 ## UDP sockets
 
-The [User Datagram Protocol (UDP)](/integrations/udp) is a connectionless
-protocol ideal for high-volume, loss-tolerant data like syslog messages or
-metrics.
+<Integration>udp</Integration> is a connectionless protocol ideal for
+high-volume, loss-tolerant data like syslog messages or metrics.
 
 ### Receive UDP datagrams
 
@@ -99,8 +98,8 @@ this = {
 
 ## Packet capture
 
-Capture raw network packets from a [network interface card (NIC)](/integrations/nic)
-for deep packet inspection or network forensics.
+Capture raw network packets with <Integration>nic</Integration> for deep
+packet inspection or network forensics.
 
 ### List available interfaces
 

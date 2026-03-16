@@ -1,102 +1,78 @@
 ---
 title: from_tcp
-category: Inputs/Bytes
-example: 'from_tcp "0.0.0.0:8090" { read_json }'
+category: Inputs/Events
+example: 'from_tcp "example.org:4000" { read_json }'
 ---
 
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
 
-Listens for incoming TCP connections and reads bytes from each connection.
+Connects to a remote TCP or TLS endpoint and receives events.
 
 ```tql
-from_tcp endpoint:string, [tls=record] { … }
+from_tcp endpoint:string, [tls=record, { … }]
 ```
 
 ## Description
 
-The `from_tcp` operator binds to the given endpoint, accepts incoming TCP
-connections, and reads bytes from each connection. Each connection spawns a
-sub-pipeline that processes the incoming byte stream independently.
+Connects to the specified TCP endpoint as a client and reads bytes from the
+connection, running them through an optional nested pipeline.
 
-The sub-pipeline has access to a `$peer` variable containing the remote address
-information of the connected client.
+If the connection fails, the operator retries with exponential backoff.
 
 ### `endpoint: string`
 
-The endpoint at which the server will listen. Must be of the form
-`[tcp://]<hostname>:<port>`. Use the hostname `0.0.0.0` to accept connections on
-all interfaces.
+The remote endpoint to connect to. Must be of the form
+`[tcp://]<hostname>:<port>`.
+
+### `tls = record (optional)`
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
-<TLSOptions tls_default="false"/>
+<TLSOptions/>
 
-### `{ … }`
+### `{ … } (optional)`
 
-The pipeline to run for each individual TCP connection. Inside the pipeline, the
-`$peer` variable is available as a record with the following fields:
+The pipeline to run for the TCP connection. Use this to parse the incoming byte
+stream into events, for instance `{ read_json }`.
 
-| Field  | Type    | Description                           |
-| :----- | :------ | :------------------------------------ |
-| `ip`   | `ip`    | The IP address of the connected peer  |
-| `port` | `int64` | The port number of the connected peer |
+Inside the pipeline, the `$peer` variable is available as a record with the
+following fields:
+
+| Field  | Type    | Description                        |
+| :----- | :------ | :--------------------------------- |
+| `ip`   | `ip`    | The IP address of the remote peer  |
+| `port` | `int64` | The port number of the remote peer |
 
 ## Examples
 
-### Listen for incoming JSON over TCP
-
-Listen on all network interfaces, parsing each individual connection as JSON:
+### Connect to a remote server and read JSON
 
 ```tql
-from_tcp "0.0.0.0:8090" {
+from_tcp "example.org:4000" {
   read_json
 }
 ```
 
-### Log the peer address of each connection
+### Connect with TLS
 
 ```tql
-from_tcp "0.0.0.0:8090" {
-  read_json
-  this.client_ip = $peer.ip
-}
-```
-
-### Listen with TLS enabled
-
-Accept TLS-encrypted connections on localhost:
-
-```tql
-from_tcp "127.0.0.1:4000", tls={certfile: "key_and_cert.pem", keyfile: "key_and_cert.pem"} {
+from_tcp "example.org:4443", tls={} {
   read_json
 }
 ```
 
-This example may use a self-signed certificate that can be generated like this:
-
-```bash
-openssl req -x509 -newkey rsa:2048 -keyout key_and_cert.pem -out key_and_cert.pem -days 365 -nodes
-```
-
-You can test the endpoint locally by issuing a TLS connection:
-
-```bash
-openssl s_client 127.0.0.1:4000
-```
-
-### Listen with mutual TLS (mTLS) authentication
-
-Require clients to present valid certificates signed by a trusted CA:
+### Connect with TLS and a custom CA certificate
 
 ```tql
-from_tcp "0.0.0.0:4000", tls={certfile: "server.pem", keyfile: "server-key.pem", client_ca: "ca.pem", require_client_cert: true} {
+from_tcp "example.org:4443", tls={cacert: "ca.pem"} {
   read_json
 }
 ```
 
 ## See Also
 
-- <Op>load_tcp</Op>
-- <Op>save_tcp</Op>
+- <Op>to_tcp</Op>
+- <Op>accept_tcp</Op>
+- <Op>serve_tcp</Op>
 - <Integration>tcp</Integration>
