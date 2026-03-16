@@ -18,28 +18,28 @@ The URL schemes `tcp://` and `tcps://` dispatch to <Op>load_tcp</Op> and <Op>sav
 
 ## Connecting to remote endpoints
 
-Use [`from_tcp`](/reference/operators/from_tcp) to connect to a remote TCP
-endpoint as a client and read data from it, or
-[`to_tcp`](/reference/operators/to_tcp) to send data to a remote endpoint. Both
+Use <Op>from_tcp</Op> to connect to a remote TCP endpoint as a client and read
+data from it, or <Op>to_tcp</Op> to send data to a remote endpoint. Both
 operators reconnect automatically with exponential backoff on connection failure.
 
 ## Accepting incoming connections
 
-Use [`accept_tcp`](/reference/operators/accept_tcp) to listen on a local
-endpoint and accept incoming TCP connections. Each connection spawns a nested
-pipeline that processes the incoming byte stream independently.
+Use <Op>accept_tcp</Op> to listen on a local endpoint and accept incoming TCP
+connections. Each connection spawns a nested pipeline that processes the
+incoming byte stream independently.
 
 ## Serving data to clients
 
-Use [`serve_tcp`](/reference/operators/serve_tcp) to start a TCP server that
-broadcasts pipeline output to all connected clients. A nested pipeline
-serializes events into bytes before sending.
+Use <Op>serve_tcp</Op> to start a TCP server that broadcasts pipeline output to
+all connected clients. A nested pipeline serializes events into bytes before
+sending.
 
-See the [Get data from the network](/guides/collecting/get-data-from-the-network/)
-guide for practical examples.
+See <Guide>collecting/get-data-from-the-network</Guide> for practical examples.
 
 ## SSL/TLS
 
 All TCP operators support TLS via the `tls` option. Pass an empty record
 (`tls={}`) for defaults, or provide specific options like `certfile` and
+`keyfile`.
+ like `certfile` and
 `keyfile`.
