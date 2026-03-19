@@ -41,11 +41,17 @@ client.show(identifiers=["unreleased"], view="markdown", explicit_links=True)
 client.show(identifiers=["v1.0.0"], release_mode=True, view="markdown")
 client.show(identifiers=["released"], release_mode=True, view="json")
 
-# Get the latest version
+# Get the latest stable version
 version = client.release_version()  # Returns "v1.0.0"
 bare_version = client.release_version(bare=True)  # Returns "1.0.0"
 
-# Publish defaults to latest release
+# Create or continue a release candidate
+client.release_create(release_candidate=True, assume_yes=True)
+
+# Promote the latest release candidate to stable
+client.release_create(assume_yes=True)
+
+# Publish defaults to the latest release (stable or RC)
 client.release_publish(create_tag=True, assume_yes=True)
 ```
 
@@ -64,9 +70,11 @@ the helper functions from `tenzir_ship.cli` directly.
 - **Entry** – A changelog consists of entries. Each entry uses one of four
   hard-coded types: `breaking`, `feature`, `bugfix`, or `change`.
 - **Unreleased bucket** – Pending entries live in `unreleased/` until you move
-  them to a release.
-- **Release** – Versioned milestone under `releases/<version>/` containing
-  `manifest.yaml`, `notes.md`, and archived entry files in `entries/`.
+  them to a stable release. Release candidates snapshot this queue without
+  consuming it.
+- **Release** – A stable or release-candidate milestone under
+  `releases/<version>/` containing `manifest.yaml`, `notes.md`, and archived
+  entry files in `entries/`.
 - **Configuration file** – Settings live in `config.yaml` by default, or you can
   store them in `package.yaml` alongside the `changelog/` directory.
   `config.yaml` takes precedence when both exist.
@@ -219,7 +227,7 @@ argument:
 | `all`        | All entries (released and unreleased) — the default |
 | `unreleased` | Only unreleased entries                             |
 | `released`   | Only released entries                               |
-| `latest`     | Only entries from the latest release                |
+| `latest`     | Only entries from the latest stable release         |
 
 You can combine a scope token with version identifiers (except `all`, which
 must be used alone):
@@ -239,6 +247,9 @@ Version identifiers must match an existing release version exactly. The CLI
 resolves versions by checking for a corresponding release manifest in
 `releases/<version>/`. Matching is case-insensitive, so `v1.0.0` and `V1.0.0`
 both resolve to the same release if it exists.
+
+The `latest` scope ignores release candidates. It resolves to the newest stable
+release and fails until the project has at least one stable release.
 
 The table view (default) lists entries with ID, title, type, project, PRs, and
 authors. Row numbers count backward from the newest entry, so `#1` always
@@ -315,10 +326,11 @@ tenzir-ship release create [version] [options]
 
 | Option                | Description                                                |
 | --------------------- | ---------------------------------------------------------- |
-| `version`             | Release version (e.g., `v1.0.0`)                           |
-| `--patch`             | Bump patch version from latest release                     |
-| `--minor`             | Bump minor version from latest release                     |
-| `--major`             | Bump major version from latest release                     |
+| `version`             | Exact release version override (for example `v1.0.0`)      |
+| `--patch`             | Manual patch bump override from the latest stable release  |
+| `--minor`             | Manual minor bump override from the latest stable release  |
+| `--major`             | Manual major bump override from the latest stable release  |
+| `--rc`                | Create or continue a release-candidate series              |
 | `--yes`               | Commit changes (default is dry run)                        |
 | `--title <text>`      | Custom title for release heading                           |
 | `--intro <text>`      | Inline intro text (mutually exclusive with `--intro-file`) |
@@ -332,13 +344,27 @@ package manifest files (`package.json`, `pyproject.toml`, `project.toml`,
 `Cargo.toml`). See the [version bumping configuration](#version-bumping) for
 details.
 
-The command renders `notes.md`, updates `manifest.yaml`, and moves entry files
-into `entries/`. It performs a dry run by default. When the release already
-exists, the CLI appends additional unreleased entries. If no changelog entries
-are available, the command still succeeds when you provide `--intro` or
-`--intro-file`, creating an intro-only release. This is useful for
-re-publishing after yanking a package or retrying a failed publish workflow.
-Without either entries or intro text, the command fails with an error.
+For stable releases, the default and preferred workflow is to omit both the
+manual bump flags and an explicit `version`. `tenzir-ship` auto-bumps from the
+unreleased entry types. Use `--patch`, `--minor`, or `--major` only when the
+automatic detection is not the right fit. Pass an explicit stable `version`
+only as a rare exact override, for example to re-cut a failed tagged release or
+to match an externally dictated version.
+
+If an outstanding release candidate exists, the same version-less stable
+command promotes the latest RC to its matching stable release automatically.
+
+The command renders `notes.md`, updates `manifest.yaml`, and writes entry
+snapshots into `entries/`. Stable releases consume matching entry files from
+`unreleased/`. Release candidates created with `--rc` copy the current
+unreleased queue without consuming it, so you can iterate on `-rc.N` releases
+before promoting one to stable. It performs a dry run by default. When the
+release already exists, the CLI refreshes metadata and synchronizes the selected
+entries. If no changelog entries are available, the command still succeeds when
+you provide `--intro` or `--intro-file`, creating an intro-only release. This
+is useful for re-publishing after yanking a package or retrying a failed
+publish workflow. Without either entries or intro text, the command fails with
+an error.
 
 By default, `release create` also updates common package-manager version files
 to the created release version (without the optional `v` prefix). In `auto`
@@ -347,9 +373,47 @@ mode, the CLI discovers `package.json`, `pyproject.toml`, `project.toml`, and
 parent directory. Configure this behavior under `release.version_bump_mode` and
 `release.version_files`.
 
+#### Release candidates
+
+Create or continue a release candidate with:
+
+```sh
+tenzir-ship release create --rc --yes
+```
+
+`tenzir-ship` infers the stable base from the current unreleased changes and
+existing release history. Re-running `release create --rc` for the same base
+increments the matching `-rc.N` series instead of consuming unreleased entries.
+To override the inferred base, prefer a manual bump such as `--minor`. Pass an
+explicit stable `version` only when you need an exact base.
+
+When you are ready to ship the stable release, rerun the normal stable command
+without `--rc`:
+
+```sh
+tenzir-ship release create --yes
+```
+
+If an outstanding RC exists, this promotes the latest candidate automatically.
+
+#### After an RC exists
+
+Once a release-candidate series exists, keep the workflow on that series:
+
+```sh
+# Continue the RC series
+tenzir-ship release create --rc --yes
+
+# Promote the latest RC to stable
+tenzir-ship release create --yes
+```
+
+Avoid explicit stable versions and manual bump flags while an RC is
+outstanding. They add room for mistakes and the CLI rejects them.
+
 ### release version
 
-Print the latest released version.
+Print the latest stable released version.
 
 ```text
 tenzir-ship release version [options]
@@ -359,11 +423,12 @@ tenzir-ship release version [options]
 | -------- | -------------------------------- |
 | `--bare` | Print version without `v` prefix |
 
-Use this command in scripts to query the current version without parsing
-output from other commands:
+Use this command in scripts to query the current stable version without parsing
+output from other commands. The command ignores release candidates and fails
+until the project has at least one stable release:
 
 ```sh
-# Get the latest version
+# Get the latest stable version
 tenzir-ship release version
 # Output: v1.2.0
 
@@ -385,10 +450,10 @@ tenzir-ship release publish [version] [options]
 
 | Option             | Description                                             |
 | ------------------ | ------------------------------------------------------- |
-| `version`          | Release version (defaults to latest)                    |
+| `version`          | Release version (defaults to the latest release)        |
 | `--yes`            | Skip confirmation prompts                               |
 | `--draft`          | Mark as draft                                           |
-| `--prerelease`     | Mark as prerelease                                      |
+| `--prerelease`     | Force a GitHub prerelease                               |
 | `--no-latest`      | Prevent GitHub from marking as latest release           |
 | `--tag`            | Create and push annotated Git tag                       |
 | `--commit`         | Commit staged changes before tagging (requires `--tag`) |
@@ -397,7 +462,9 @@ tenzir-ship release publish [version] [options]
 The command reads project metadata from `config.yaml` or `package.yaml` for the
 repository slug and uses `notes.md` as the release body. Projects without a
 `repository` field cannot publish—this is intentional for changelogs that track
-changes without producing GitHub releases (e.g., modules in a workspace).
+changes without producing GitHub releases (e.g., modules in a workspace). When
+you omit `version`, the command resolves the latest release manifest by version,
+including release candidates.
 
 #### How it works
 
@@ -437,7 +504,8 @@ The `release publish` command executes the following steps:
      and title.
    - If the release doesn't exist, runs `gh release create` with the version
      tag, release notes from `notes.md`, and optional `--draft`, `--prerelease`,
-     or `--latest=false` flags.
+     or `--latest=false` flags. Release-candidate tags automatically add
+     `--prerelease` and `--latest=false`.
 
 9. **Confirm and execute**: Unless `--yes` is provided, prompts for confirmation
    before running the `gh` command. Shows the exact action (`gh release create`
@@ -476,15 +544,15 @@ A full release workflow with commit and tag:
 
 ```sh
 # 1. Create the release (generates manifest.yaml and notes.md)
-tenzir-ship release create --minor --yes
+tenzir-ship release create --yes
 
 # 2. Review the generated notes
-tenzir-ship show --release --markdown
+tenzir-ship show latest --release --markdown
 
 # 3. Stage release files
 git add changelog/releases/
 
-# 4. Publish with commit and tag (defaults to latest release)
+# 4. Publish with commit and tag (defaults to the latest release)
 tenzir-ship release publish --commit --tag --yes
 ```
 
@@ -495,12 +563,43 @@ Alternatively, commit manually to customize the message using `release version`:
 git add changelog/releases/
 git commit -m "Release $(tenzir-ship release version)"
 
-# 4. Publish (defaults to latest release)
+# 4. Publish (defaults to the latest release)
 tenzir-ship release publish --tag --yes
 ```
 
 Both workflows are version-agnostic after step 1. The `release publish` command
-defaults to the latest release when no version is specified.
+defaults to the latest release when no version is specified. That means the
+same version-less publish command works after both stable releases and release
+candidates.
+
+When you publish `vX.Y.Z-rc.N`, `tenzir-ship` automatically marks the GitHub
+release as a prerelease and prevents GitHub from treating it as the latest
+release. Use `--prerelease` only when you intentionally want to publish a
+stable version as a preview release.
+
+#### GitHub Actions release workflow
+
+For a complete `.github/workflows/release.yaml` wrapper example that calls
+`tenzir/ship/.github/workflows/reusable-release.yaml@<version>`, see the guide
+for [maintaining a changelog](/guides/packages/maintain-a-changelog). That
+wrapper mirrors the CLI release flow. Alongside the required `intro` and
+optional `title`, it accepts these release-shape inputs:
+
+| Input                | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `bump`               | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
+| `version`            | Rare exact stable version override                            |
+| `rc`                 | Create or continue the release-candidate series               |
+
+Use `rc: true` for iterative release-candidate builds.
+
+For normal stable releases, prefer leaving both `bump` and `version` unset so
+the workflow auto-resolves the release version from the changelog.
+
+If an outstanding RC exists, that same version-less workflow promotes the
+latest candidate automatically. Once an RC exists, either keep using `rc: true`
+to continue that series or run the stable workflow without `rc` to promote the
+latest candidate.
 
 ### validate
 
@@ -924,9 +1023,10 @@ When `modules` is configured, `tenzir-ship validate` checks:
   root or `package.yaml` sits next to the `changelog/` directory. Run
   `tenzir-ship init` to scaffold the workspace, or let `tenzir-ship add`
   bootstrap it while creating the first entry.
-- **Version bump fails** – Bump flags read the latest release manifest on disk.
-  Create an initial release with an explicit version before using
-  `--patch/--minor/--major`.
+- **Version bump fails** – Bump flags resolve from the latest stable release on
+  disk. Create an initial stable release with an explicit version before using
+  `--patch/--minor/--major`. If a release candidate is already outstanding,
+  continue that series with `--rc` or promote it with `release create`.
 - **Version file update fails** – In `release.version_bump_mode: auto`, the
   CLI must parse every detected/configured version file. Use supported files
   (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) or set
