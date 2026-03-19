@@ -335,8 +335,6 @@ tenzir-ship release create [version] [options]
 | `--minor`             | Manual minor bump override from the latest stable release  |
 | `--major`             | Manual major bump override from the latest stable release  |
 | `--rc`                | Create or continue a release-candidate series              |
-| `--from <version>`    | Promote the specified release candidate into a stable tag  |
-| `--current-unreleased` | Create a stable release from the current unreleased queue |
 | `--yes`               | Commit changes (default is dry run)                        |
 | `--title <text>`      | Custom title for release heading                           |
 | `--intro <text>`      | Inline intro text (mutually exclusive with `--intro-file`) |
@@ -402,19 +400,20 @@ tenzir-ship release create --yes
 
 If an outstanding RC exists, this promotes the latest candidate automatically.
 
-#### Promote or bypass a release candidate
+#### After an RC exists
 
-After release candidates exist for a stable target, you must choose whether to
-promote a candidate snapshot exactly or cut the stable release from the current
-unreleased queue:
+Once a release-candidate series exists, keep the workflow on that series:
 
 ```sh
-# Promote the exact release-candidate snapshot
-tenzir-ship release create v1.2.3 --from v1.2.3-rc.2 --yes
+# Continue the RC series
+tenzir-ship release create --rc --yes
 
-# Ignore existing release candidates and use the current unreleased queue
-tenzir-ship release create --current-unreleased --yes
+# Promote the latest RC to stable
+tenzir-ship release create --yes
 ```
+
+Avoid explicit stable versions and manual bump flags while an RC is
+outstanding. They add room for mistakes and the CLI rejects them.
 
 ### release version
 
@@ -591,21 +590,16 @@ release-shape inputs:
 | `bump`               | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
 | `version`            | Rare exact stable version override                            |
 | `rc`                 | Create or continue the release-candidate series               |
-| `source-release`     | Promote the specified release candidate into a stable target  |
-| `current-unreleased` | Create a stable release from the current unreleased queue     |
 
-Use `rc: true` for iterative release-candidate builds, `version` together with
-`source-release` to promote an exact candidate, and `version` together with
-`current-unreleased: true` when you need to bypass existing candidate
-snapshots.
+Use `rc: true` for iterative release-candidate builds.
 
 For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
 
 If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. Add `current-unreleased: true` only when you
-want to bypass that candidate snapshot and cut the stable release from the
-current unreleased queue instead.
+latest candidate automatically. Once an RC exists, either keep using `rc: true`
+to continue that series or run the stable workflow without `rc` to promote the
+latest candidate.
 
 ### validate
 
@@ -1031,9 +1025,8 @@ When `modules` is configured, `tenzir-ship validate` checks:
   bootstrap it while creating the first entry.
 - **Version bump fails** – Bump flags resolve from the latest stable release on
   disk. Create an initial stable release with an explicit version before using
-  `--patch/--minor/--major`. If release candidates already exist for the target
-  stable version, promote one with `--from` or bypass them with
-  `--current-unreleased`.
+  `--patch/--minor/--major`. If a release candidate is already outstanding,
+  continue that series with `--rc` or promote it with `release create`.
 - **Version file update fails** – In `release.version_bump_mode: auto`, the
   CLI must parse every detected/configured version file. Use supported files
   (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) or set

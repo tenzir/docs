@@ -295,30 +295,22 @@ need an exact base:
 uvx tenzir-ship release create v5.4.0 --rc --yes
 ```
 
-### Promote or bypass an existing release candidate
+### Promote an existing release candidate
 
-Once release candidates exist for a stable target, choose one of these stable
-release flows:
+Once release candidates exist for a stable target, keep the workflow on that
+series:
 
 ```sh
+# Continue the RC series
+uvx tenzir-ship release create --rc --yes
+
 # Promote the latest release candidate automatically
 uvx tenzir-ship release create --yes
-
-# Promote the exact release-candidate snapshot
-uvx tenzir-ship release create v5.4.0 \
-  --from v5.4.0-rc.2 \
-  --yes
-
-# Ignore existing release candidates and use the current unreleased queue
-uvx tenzir-ship release create \
-  --current-unreleased \
-  --yes
 ```
 
-Use the plain version-less command as the default follow-up to `--rc`. Use
-`--from` only when the stable release must match a specific tested candidate
-exactly. Use `--current-unreleased` when you want to cut the stable release
-from the current backlog instead of the latest RC snapshot.
+Use the plain version-less command as the default follow-up to `--rc`. Avoid
+explicit stable versions and manual bump flags while an RC is outstanding. They
+add room for mistakes, and the CLI rejects them.
 
 ### Export release notes
 
@@ -407,23 +399,14 @@ gh workflow run release.yaml \
   -f rc=true
 ```
 
-Promote an exact candidate by pairing `version` with `source-release`:
+When an RC is already outstanding, trigger the same workflow without `rc` to
+promote the latest candidate automatically:
 
 ```sh
 gh workflow run release.yaml \
-  -f intro="Ship the tested candidate." \
+  -f intro="Ship the latest release candidate." \
   -f title="Stable release" \
-  -f version=v5.4.0 \
-  -f source-release=v5.4.0-rc.2
-```
-
-Bypass existing candidates with `current-unreleased`:
-
-```sh
-gh workflow run release.yaml \
-  -f intro="Ship the current backlog." \
-  -f title="Stable release" \
-  -f current-unreleased=true
+  # no rc flag here
 ```
 
 :::note[Terminology]
