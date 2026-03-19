@@ -392,7 +392,60 @@ stable releases and RCs.
 
 ### Trigger the bundled GitHub Actions workflow
 
-The repository's `release.yaml` workflow mirrors the CLI options. Use `rc: true`
+If you want to cut releases from GitHub Actions, start by adding a workflow
+file to your repository:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: false
+        default: auto
+        type: choice
+        options:
+          - auto
+          - minor
+          - patch
+          - major
+      version:
+        description: Explicit stable version override
+        required: false
+        type: string
+      rc:
+        description: Create or continue the release-candidate series
+        required: false
+        default: false
+        type: boolean
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title
+        required: false
+        type: string
+
+jobs:
+  release:
+    uses: tenzir/ship/.github/workflows/reusable-release.yaml@<version>
+    with:
+      bump: ${{ inputs.bump }}
+      version: ${{ inputs.version }}
+      rc: ${{ inputs.rc }}
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+    secrets: inherit
+```
+
+Replace `<version>` with the `tenzir-ship` release tag you want to pin to, for
+example `v1.5.0`. Add the advanced inputs from the reference page only when
+your repository needs them.
+
+That `release.yaml` wrapper mirrors the CLI options. Use `rc: true`
 to create or continue a release-candidate series:
 
 ```sh
