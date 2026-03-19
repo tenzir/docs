@@ -357,6 +357,9 @@ automatic detection is not the right fit. Pass an explicit stable `version`
 only as a rare exact override, for example to re-cut a failed tagged release or
 to match an externally dictated version.
 
+If an outstanding release candidate exists, the same version-less stable
+command promotes the latest RC to its matching stable release automatically.
+
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
 `unreleased/`. Release candidates created with `--rc` copy the current
@@ -390,6 +393,15 @@ increments the matching `-rc.N` series instead of consuming unreleased entries.
 To override the inferred base, prefer a manual bump such as `--minor`. Pass an
 explicit stable `version` only when you need an exact base.
 
+When you are ready to ship the stable release, rerun the normal stable command
+without `--rc`:
+
+```sh
+tenzir-ship release create --yes
+```
+
+If an outstanding RC exists, this promotes the latest candidate automatically.
+
 #### Promote or bypass a release candidate
 
 After release candidates exist for a stable target, you must choose whether to
@@ -401,7 +413,7 @@ unreleased queue:
 tenzir-ship release create v1.2.3 --from v1.2.3-rc.2 --yes
 
 # Ignore existing release candidates and use the current unreleased queue
-tenzir-ship release create v1.2.3 --current-unreleased --yes
+tenzir-ship release create --current-unreleased --yes
 ```
 
 ### release version
@@ -589,6 +601,11 @@ snapshots.
 
 For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
+
+If an outstanding RC exists, that same version-less workflow promotes the
+latest candidate automatically. Add `current-unreleased: true` only when you
+want to bypass that candidate snapshot and cut the stable release from the
+current unreleased queue instead.
 
 ### validate
 

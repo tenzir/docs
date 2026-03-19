@@ -301,20 +301,24 @@ Once release candidates exist for a stable target, choose one of these stable
 release flows:
 
 ```sh
+# Promote the latest release candidate automatically
+uvx tenzir-ship release create --yes
+
 # Promote the exact release-candidate snapshot
 uvx tenzir-ship release create v5.4.0 \
   --from v5.4.0-rc.2 \
   --yes
 
 # Ignore existing release candidates and use the current unreleased queue
-uvx tenzir-ship release create v5.4.0 \
+uvx tenzir-ship release create \
   --current-unreleased \
   --yes
 ```
 
-Use `--from` when the stable release must match a tested candidate exactly. Use
-`--current-unreleased` when you want to cut the stable release from the current
-backlog instead.
+Use the plain version-less command as the default follow-up to `--rc`. Use
+`--from` only when the stable release must match a specific tested candidate
+exactly. Use `--current-unreleased` when you want to cut the stable release
+from the current backlog instead of the latest RC snapshot.
 
 ### Export release notes
 
@@ -419,7 +423,6 @@ Bypass existing candidates with `current-unreleased`:
 gh workflow run release.yaml \
   -f intro="Ship the current backlog." \
   -f title="Stable release" \
-  -f version=v5.4.0 \
   -f current-unreleased=true
 ```
 
