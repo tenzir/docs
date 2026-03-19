@@ -579,60 +579,11 @@ stable version as a preview release.
 
 #### GitHub Actions release workflow
 
-To expose the bundled release workflow in your own repository, add a small
-wrapper file such as:
-
-```yaml title=".github/workflows/release.yaml"
-name: Release
-
-on:
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: Version bump type
-        required: false
-        default: auto
-        type: choice
-        options:
-          - auto
-          - minor
-          - patch
-          - major
-      version:
-        description: Explicit stable version override
-        required: false
-        type: string
-      rc:
-        description: Create or continue the release-candidate series
-        required: false
-        default: false
-        type: boolean
-      intro:
-        description: 1-2 sentence release introduction
-        required: true
-        type: string
-      title:
-        description: User-facing release title
-        required: false
-        type: string
-
-jobs:
-  release:
-    uses: tenzir/ship/.github/workflows/reusable-release.yaml@<version>
-    with:
-      bump: ${{ inputs.bump }}
-      version: ${{ inputs.version }}
-      rc: ${{ inputs.rc }}
-      intro: ${{ inputs.intro }}
-      title: ${{ inputs.title }}
-    secrets: inherit
-```
-
-Replace `<version>` with the `tenzir-ship` release tag you want to pin to.
-
-That `.github/workflows/release.yaml` wrapper mirrors the CLI release flow.
-Alongside the required `intro` and optional `title`, it accepts these
-release-shape inputs:
+For a complete `.github/workflows/release.yaml` wrapper example that calls
+`tenzir/ship/.github/workflows/reusable-release.yaml@<version>`, see the guide
+for [maintaining a changelog](/guides/packages/maintain-a-changelog). That
+wrapper mirrors the CLI release flow. Alongside the required `intro` and
+optional `title`, it accepts these release-shape inputs:
 
 | Input                | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
