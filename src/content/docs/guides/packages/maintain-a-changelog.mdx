@@ -204,18 +204,19 @@ and publish to GitHub.
 Preview the release before committing changes:
 
 ```sh
-uvx tenzir-ship release create v5.4.0
+uvx tenzir-ship release create
 ```
 
 The command shows which entries will be included and performs a dry run. When
 the summary looks good, re-run with `--yes` to commit the changes:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 --yes
+uvx tenzir-ship release create --yes
 ```
 
-This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
-`notes.md`, and updates `manifest.yaml`.
+This auto-bumps the version from the unreleased entry types, creates
+`releases/<resolved-version>/`, generates `notes.md`, and updates
+`manifest.yaml`.
 
 The `--patch`, `--minor`, and `--major` shortcuts resolve from the latest
 stable release. The same stable-only rule applies to `show latest`,
@@ -244,10 +245,21 @@ uvx tenzir-ship release create --minor --yes
 uvx tenzir-ship release create --major --yes
 ```
 
+Use these manual bump flags only when the automatic detection is not the right
+fit for the release.
+
+Pass an explicit stable version only as a rare exact override, for example when
+you need to re-cut a failed tagged release or match an externally dictated
+version:
+
+```sh
+uvx tenzir-ship release create v5.4.0 --yes
+```
+
 Add an inline intro summary:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 \
+uvx tenzir-ship release create \
   --intro "Major stability improvements." \
   --yes
 ```
@@ -255,7 +267,7 @@ uvx tenzir-ship release create v5.4.0 \
 Alternatively, provide intro content from a file:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 \
+uvx tenzir-ship release create \
   --intro-file intro.md \
   --yes
 ```

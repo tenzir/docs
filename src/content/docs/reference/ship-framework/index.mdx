@@ -330,10 +330,10 @@ tenzir-ship release create [version] [options]
 
 | Option                | Description                                                |
 | --------------------- | ---------------------------------------------------------- |
-| `version`             | Release version (for example `v1.0.0` or `v1.0.0-rc.1`)    |
-| `--patch`             | Bump patch version from latest stable release              |
-| `--minor`             | Bump minor version from latest stable release              |
-| `--major`             | Bump major version from latest stable release              |
+| `version`             | Exact release version override (for example `v1.0.0`)      |
+| `--patch`             | Manual patch bump override from the latest stable release  |
+| `--minor`             | Manual minor bump override from the latest stable release  |
+| `--major`             | Manual major bump override from the latest stable release  |
 | `--rc`                | Create or continue a release-candidate series              |
 | `--from <version>`    | Promote the specified release candidate into a stable tag  |
 | `--current-unreleased` | Create a stable release from the current unreleased queue |
@@ -349,6 +349,13 @@ When creating a release, the command also updates version fields in detected
 package manifest files (`package.json`, `pyproject.toml`, `project.toml`,
 `Cargo.toml`). See the [version bumping configuration](#version-bumping) for
 details.
+
+For stable releases, the default and preferred workflow is to omit both the
+manual bump flags and an explicit `version`. `tenzir-ship` auto-bumps from the
+unreleased entry types. Use `--patch`, `--minor`, or `--major` only when the
+automatic detection is not the right fit. Pass an explicit stable `version`
+only as a rare exact override, for example to re-cut a failed tagged release or
+to match an externally dictated version.
 
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
@@ -530,7 +537,7 @@ A full release workflow with commit and tag:
 
 ```sh
 # 1. Create the release (generates manifest.yaml and notes.md)
-tenzir-ship release create --minor --yes
+tenzir-ship release create --yes
 
 # 2. Review the generated notes
 tenzir-ship show latest --release --markdown
@@ -569,8 +576,8 @@ release-shape inputs:
 
 | Input                | Description                                                   |
 | -------------------- | ------------------------------------------------------------- |
-| `bump`               | Optional stable bump (`auto`, `patch`, `minor`, or `major`)   |
-| `version`            | Exact stable version override                                 |
+| `bump`               | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
+| `version`            | Rare exact stable version override                            |
 | `rc`                 | Create or continue the release-candidate series               |
 | `source-release`     | Promote the specified release candidate into a stable target  |
 | `current-unreleased` | Create a stable release from the current unreleased queue     |
@@ -579,6 +586,9 @@ Use `rc: true` for iterative release-candidate builds, `version` together with
 `source-release` to promote an exact candidate, and `version` together with
 `current-unreleased: true` when you need to bypass existing candidate
 snapshots.
+
+For normal stable releases, prefer leaving both `bump` and `version` unset so
+the workflow auto-resolves the release version from the changelog.
 
 ### validate
 
