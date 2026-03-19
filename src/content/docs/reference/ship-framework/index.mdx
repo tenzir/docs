@@ -48,14 +48,10 @@ bare_version = client.release_version(bare=True)  # Returns "1.0.0"
 # Create or continue a release candidate
 client.release_create(release_candidate=True, assume_yes=True)
 
-# Promote an exact release candidate to stable
-client.release_create(
-    version="v1.0.0",
-    source_release="v1.0.0-rc.1",
-    assume_yes=True,
-)
+# Promote the latest release candidate to stable
+client.release_create(assume_yes=True)
 
-# Publish defaults to the latest stable release
+# Publish defaults to the latest release (stable or RC)
 client.release_publish(create_tag=True, assume_yes=True)
 ```
 
@@ -454,7 +450,7 @@ tenzir-ship release publish [version] [options]
 
 | Option             | Description                                             |
 | ------------------ | ------------------------------------------------------- |
-| `version`          | Release version (defaults to the latest stable release) |
+| `version`          | Release version (defaults to the latest release)        |
 | `--yes`            | Skip confirmation prompts                               |
 | `--draft`          | Mark as draft                                           |
 | `--prerelease`     | Force a GitHub prerelease                               |
@@ -467,8 +463,8 @@ The command reads project metadata from `config.yaml` or `package.yaml` for the
 repository slug and uses `notes.md` as the release body. Projects without a
 `repository` field cannot publish—this is intentional for changelogs that track
 changes without producing GitHub releases (e.g., modules in a workspace). When
-you omit `version`, the command resolves the latest stable release. Release
-candidates never replace this default.
+you omit `version`, the command resolves the latest release manifest by version,
+including release candidates.
 
 #### How it works
 
@@ -556,7 +552,7 @@ tenzir-ship show latest --release --markdown
 # 3. Stage release files
 git add changelog/releases/
 
-# 4. Publish with commit and tag (defaults to the latest stable release)
+# 4. Publish with commit and tag (defaults to the latest release)
 tenzir-ship release publish --commit --tag --yes
 ```
 
@@ -567,12 +563,14 @@ Alternatively, commit manually to customize the message using `release version`:
 git add changelog/releases/
 git commit -m "Release $(tenzir-ship release version)"
 
-# 4. Publish (defaults to the latest stable release)
+# 4. Publish (defaults to the latest release)
 tenzir-ship release publish --tag --yes
 ```
 
 Both workflows are version-agnostic after step 1. The `release publish` command
-defaults to the latest stable release when no version is specified.
+defaults to the latest release when no version is specified. That means the
+same version-less publish command works after both stable releases and release
+candidates.
 
 When you publish `vX.Y.Z-rc.N`, `tenzir-ship` automatically marks the GitHub
 release as a prerelease and prevents GitHub from treating it as the latest

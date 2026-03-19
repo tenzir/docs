@@ -220,7 +220,8 @@ This auto-bumps the version from the unreleased entry types, creates
 
 The `--patch`, `--minor`, and `--major` shortcuts resolve from the latest
 stable release. The same stable-only rule applies to `show latest`,
-`release version`, and `release publish` when you omit the version argument.
+and `release version`. In contrast, `release publish` without a version targets
+the latest release, including release candidates.
 
 By default, `release create` also updates common package-manager version files
 (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) when present
@@ -361,19 +362,19 @@ This resolves the newest stable release only. Release candidates never replace
 Publish directly from the changelog project using the CLI:
 
 ```sh
-uvx tenzir-ship release publish v5.4.0 --yes
+uvx tenzir-ship release publish --yes
 ```
 
 Include tagging and pushing via the CLI:
 
 ```sh
-uvx tenzir-ship release publish v5.4.0 --tag --yes
+uvx tenzir-ship release publish --tag --yes
 ```
 
-If you omit the version, `tenzir-ship` publishes the latest stable release:
+If you do pass a version, `tenzir-ship` publishes that exact release:
 
 ```sh
-uvx tenzir-ship release publish --yes
+uvx tenzir-ship release publish v5.4.0 --yes
 ```
 
 Draft or prerelease variants:
@@ -385,7 +386,9 @@ uvx tenzir-ship release publish v5.4.0 --prerelease --yes
 
 When you publish `vX.Y.Z-rc.N`, `tenzir-ship` automatically creates a GitHub
 prerelease and prevents GitHub from marking it as the latest release. You don't
-need to add `--prerelease` or `--no-latest` for RC tags.
+need to add `--prerelease` or `--no-latest` for RC tags. Because version-less
+publish now targets the latest release, the same command works after both
+stable releases and RCs.
 
 ### Trigger the bundled GitHub Actions workflow
 
