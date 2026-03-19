@@ -217,6 +217,10 @@ uvx tenzir-ship release create v5.4.0 --yes
 This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
 `notes.md`, and updates `manifest.yaml`.
 
+The `--patch`, `--minor`, and `--major` shortcuts resolve from the latest
+stable release. The same stable-only rule applies to `show latest`,
+`release version`, and `release publish` when you omit the version argument.
+
 By default, `release create` also updates common package-manager version files
 (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) when present
 in the changelog root or, for `changelog/` projects, in the parent directory.
@@ -259,6 +263,47 @@ uvx tenzir-ship release create v5.4.0 \
 The intro file can include Markdown links, call-outs, or image references. The
 command embeds its content in `manifest.yaml` and includes it in `notes.md`.
 
+### Create a release candidate
+
+Create or continue a release candidate with:
+
+```sh
+uvx tenzir-ship release create --rc --yes
+```
+
+This snapshots the current `unreleased/` queue into a `vX.Y.Z-rc.N` release
+without consuming those entry files. You can re-run the command to continue the
+same RC series while you iterate on the release.
+
+To steer the inferred base version, prefer a manual bump such as
+`release create --rc --minor`. Pass an explicit stable version only when you
+need an exact base:
+
+```sh
+uvx tenzir-ship release create v5.4.0 --rc --yes
+```
+
+### Promote or bypass an existing release candidate
+
+Once release candidates exist for a stable target, choose one of these stable
+release flows:
+
+```sh
+# Promote the exact release-candidate snapshot
+uvx tenzir-ship release create v5.4.0 \
+  --from v5.4.0-rc.2 \
+  --yes
+
+# Ignore existing release candidates and use the current unreleased queue
+uvx tenzir-ship release create v5.4.0 \
+  --current-unreleased \
+  --yes
+```
+
+Use `--from` when the stable release must match a tested candidate exactly. Use
+`--current-unreleased` when you want to cut the stable release from the current
+backlog instead.
+
 ### Export release notes
 
 Export release notes for a specific version:
@@ -282,7 +327,7 @@ uvx tenzir-ship show v5.4.0 --release --compact --markdown
 Preview unreleased entries as if they were already released:
 
 ```sh
-uvx tenzir-ship show --release --markdown
+uvx tenzir-ship show unreleased --release --markdown
 ```
 
 Export all releases in a single invocation for batch processing:
@@ -293,6 +338,15 @@ uvx tenzir-ship show all --release --json
 
 This exports every release as a JSON array, useful for documentation sync
 scripts that need all release data at once.
+
+To render the latest stable release without spelling out the version, use:
+
+```sh
+uvx tenzir-ship show latest --release --markdown
+```
+
+This resolves the newest stable release only. Release candidates never replace
+`latest`.
 
 ### Publish to GitHub
 
@@ -308,11 +362,53 @@ Include tagging and pushing via the CLI:
 uvx tenzir-ship release publish v5.4.0 --tag --yes
 ```
 
+If you omit the version, `tenzir-ship` publishes the latest stable release:
+
+```sh
+uvx tenzir-ship release publish --yes
+```
+
 Draft or prerelease variants:
 
 ```sh
 uvx tenzir-ship release publish v5.4.0 --draft --yes
 uvx tenzir-ship release publish v5.4.0 --prerelease --yes
+```
+
+When you publish `vX.Y.Z-rc.N`, `tenzir-ship` automatically creates a GitHub
+prerelease and prevents GitHub from marking it as the latest release. You don't
+need to add `--prerelease` or `--no-latest` for RC tags.
+
+### Trigger the bundled GitHub Actions workflow
+
+The repository's `release.yaml` workflow mirrors the CLI options. Use `rc: true`
+to create or continue a release-candidate series:
+
+```sh
+gh workflow run release.yaml \
+  -f intro="Preview the upcoming release." \
+  -f title="Release candidate" \
+  -f rc=true
+```
+
+Promote an exact candidate by pairing `version` with `source-release`:
+
+```sh
+gh workflow run release.yaml \
+  -f intro="Ship the tested candidate." \
+  -f title="Stable release" \
+  -f version=v5.4.0 \
+  -f source-release=v5.4.0-rc.2
+```
+
+Bypass existing candidates with `current-unreleased`:
+
+```sh
+gh workflow run release.yaml \
+  -f intro="Ship the current backlog." \
+  -f title="Stable release" \
+  -f version=v5.4.0 \
+  -f current-unreleased=true
 ```
 
 :::note[Terminology]
