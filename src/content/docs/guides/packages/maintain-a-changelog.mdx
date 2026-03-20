@@ -285,8 +285,9 @@ uvx tenzir-ship release create --rc --yes
 ```
 
 This snapshots the current `unreleased/` queue into a `vX.Y.Z-rc.N` release
-without consuming those entry files. You can re-run the command to continue the
-same RC series while you iterate on the release.
+without consuming those entry files. Each new `-rc.N` supersedes the previous
+RC snapshot for that stable target, so the active candidate stays cumulative
+while old RC manifests do not remain in release history.
 
 To steer the inferred base version, prefer a manual bump such as
 `release create --rc --minor`. Pass an explicit stable version only when you
@@ -309,9 +310,16 @@ uvx tenzir-ship release create --rc --yes
 uvx tenzir-ship release create --yes
 ```
 
-Use the plain version-less command as the default follow-up to `--rc`. Avoid
-explicit stable versions and manual bump flags while an RC is outstanding. They
-add room for mistakes, and the CLI rejects them.
+The RC workflow has three outcomes only:
+
+- Run `release create --rc` to continue the current RC series.
+- Run `release create` without a version or bump flag to promote the active RC.
+- Run `release create <new-version>` or a manual bump flag to leave the RC
+  cycle and ship a different stable release instead.
+
+Promoting to stable closes the RC cycle and removes that cycle's
+`vX.Y.Z-rc.N` manifests from `releases/`. An explicit version matching the
+active RC base is rejected, and manual bump flags never promote the active RC.
 
 ### Export release notes
 
@@ -455,15 +463,17 @@ gh workflow run release.yaml \
   -f rc=true
 ```
 
-When an RC is already outstanding, trigger the same workflow without `rc` to
-promote the latest candidate automatically:
+When an RC is already outstanding, trigger the same workflow without `rc`,
+`bump`, or `version` to promote the latest candidate automatically:
 
 ```sh
 gh workflow run release.yaml \
   -f intro="Ship the latest release candidate." \
-  -f title="Stable release" \
-  # no rc flag here
+  -f title="Stable release"
 ```
+
+To leave the RC cycle and ship a different stable release instead, pass that
+new explicit version, such as `v5.4.1` or `v5.5.0`.
 
 :::note[Terminology]
 We use the verb "publish" in prose even though the GitHub CLI subcommand to

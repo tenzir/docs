@@ -353,6 +353,10 @@ to match an externally dictated version.
 
 If an outstanding release candidate exists, the same version-less stable
 command promotes the latest RC to its matching stable release automatically.
+This is the only promotion path for the active RC. If you need to leave the RC
+cycle and ship a different stable release instead, pass a new explicit version
+such as `v1.2.4`, `v1.3.0`, or `v2.0.0`. An explicit version matching the
+active RC base is rejected.
 
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
@@ -384,8 +388,10 @@ tenzir-ship release create --rc --yes
 `tenzir-ship` infers the stable base from the current unreleased changes and
 existing release history. Re-running `release create --rc` for the same base
 increments the matching `-rc.N` series instead of consuming unreleased entries.
-To override the inferred base, prefer a manual bump such as `--minor`. Pass an
-explicit stable `version` only when you need an exact base.
+Each new `-rc.N` supersedes the previous RC snapshot for that stable target, so
+only the active candidate remains in release history. To override the inferred
+base, prefer a manual bump such as `--minor`. Pass an explicit stable `version`
+only when you need an exact base.
 
 When you are ready to ship the stable release, rerun the normal stable command
 without `--rc`:
@@ -408,8 +414,16 @@ tenzir-ship release create --rc --yes
 tenzir-ship release create --yes
 ```
 
-Avoid explicit stable versions and manual bump flags while an RC is
-outstanding. They add room for mistakes and the CLI rejects them.
+The RC workflow has three outcomes only:
+
+- Run `release create --rc` to continue the current RC series.
+- Run `release create` without a version or bump flag to promote the active RC.
+- Run `release create <new-version>` or a manual bump flag to leave the RC
+  cycle and ship a different stable release instead.
+
+Promoting to stable closes the RC cycle and removes that cycle's
+`vX.Y.Z-rc.N` manifests from `releases/`. An explicit version matching the
+active RC base is rejected, and manual bump flags never promote the active RC.
 
 ### release version
 
@@ -585,11 +599,11 @@ for [maintaining a changelog](/guides/packages/maintain-a-changelog). That
 wrapper mirrors the CLI release flow. Alongside the required `intro` and
 optional `title`, it accepts these release-shape inputs:
 
-| Input                | Description                                                   |
-| -------------------- | ------------------------------------------------------------- |
-| `bump`               | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
-| `version`            | Rare exact stable version override                            |
-| `rc`                 | Create or continue the release-candidate series               |
+| Input     | Description                                                          |
+| --------- | -------------------------------------------------------------------- |
+| `bump`    | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
+| `version` | Rare exact stable version override                                   |
+| `rc`      | Create or continue the release-candidate series                      |
 
 Use `rc: true` for iterative release-candidate builds.
 
@@ -597,9 +611,11 @@ For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
 
 If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. Once an RC exists, either keep using `rc: true`
-to continue that series or run the stable workflow without `rc` to promote the
-latest candidate.
+latest candidate automatically. This is the only promotion path for the active
+RC. To leave the RC cycle and ship a different stable release instead, set
+`version` to a new stable target. Once an RC exists, either keep using
+`rc: true` to continue that series or run the stable workflow without `rc`,
+`bump`, or `version` to promote the latest candidate.
 
 ### validate
 
