@@ -353,6 +353,8 @@ to match an externally dictated version.
 
 If an outstanding release candidate exists, the same version-less stable
 command promotes the latest RC to its matching stable release automatically.
+If you need an exact override, pass the explicit stable version that matches the
+active RC base to keep using that promotion path.
 
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
@@ -384,8 +386,10 @@ tenzir-ship release create --rc --yes
 `tenzir-ship` infers the stable base from the current unreleased changes and
 existing release history. Re-running `release create --rc` for the same base
 increments the matching `-rc.N` series instead of consuming unreleased entries.
-To override the inferred base, prefer a manual bump such as `--minor`. Pass an
-explicit stable `version` only when you need an exact base.
+Each new `-rc.N` supersedes the previous RC snapshot for that stable target, so
+only the active candidate remains in release history. To override the inferred
+base, prefer a manual bump such as `--minor`. Pass an explicit stable `version`
+only when you need an exact base.
 
 When you are ready to ship the stable release, rerun the normal stable command
 without `--rc`:
@@ -406,10 +410,17 @@ tenzir-ship release create --rc --yes
 
 # Promote the latest RC to stable
 tenzir-ship release create --yes
+
+# Or promote the exact stable version that matches the active RC base
+tenzir-ship release create v1.2.3 --yes
 ```
 
-Avoid explicit stable versions and manual bump flags while an RC is
-outstanding. They add room for mistakes and the CLI rejects them.
+Use the version-less command as the default follow-up to `--rc`. If you must
+pass an explicit stable version, use the active RC's stable base so the
+promotion reuses the RC snapshot. Promoting to stable closes the RC cycle and
+removes that cycle's `vX.Y.Z-rc.N` manifests from `releases/`. Avoid manual
+bump flags while an RC is outstanding because they start a different stable
+resolution path instead of promoting the active candidate.
 
 ### release version
 
@@ -585,11 +596,11 @@ for [maintaining a changelog](/guides/packages/maintain-a-changelog). That
 wrapper mirrors the CLI release flow. Alongside the required `intro` and
 optional `title`, it accepts these release-shape inputs:
 
-| Input                | Description                                                   |
-| -------------------- | ------------------------------------------------------------- |
-| `bump`               | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
-| `version`            | Rare exact stable version override                            |
-| `rc`                 | Create or continue the release-candidate series               |
+| Input     | Description                                                          |
+| --------- | -------------------------------------------------------------------- |
+| `bump`    | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
+| `version` | Rare exact stable version override                                   |
+| `rc`      | Create or continue the release-candidate series                      |
 
 Use `rc: true` for iterative release-candidate builds.
 
@@ -597,9 +608,11 @@ For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
 
 If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. Once an RC exists, either keep using `rc: true`
-to continue that series or run the stable workflow without `rc` to promote the
-latest candidate.
+latest candidate automatically. You can also set `version` to the active RC's
+stable base to keep using the same promotion snapshot when you need an exact
+override. Once an RC exists, either keep using `rc: true` to continue that
+series or run the stable workflow without `rc` to promote the latest
+candidate.
 
 ### validate
 

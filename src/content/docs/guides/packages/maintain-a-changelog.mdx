@@ -285,8 +285,9 @@ uvx tenzir-ship release create --rc --yes
 ```
 
 This snapshots the current `unreleased/` queue into a `vX.Y.Z-rc.N` release
-without consuming those entry files. You can re-run the command to continue the
-same RC series while you iterate on the release.
+without consuming those entry files. Each new `-rc.N` supersedes the previous
+RC snapshot for that stable target, so the active candidate stays cumulative
+while old RC manifests do not remain in release history.
 
 To steer the inferred base version, prefer a manual bump such as
 `release create --rc --minor`. Pass an explicit stable version only when you
@@ -307,11 +308,17 @@ uvx tenzir-ship release create --rc --yes
 
 # Promote the latest release candidate automatically
 uvx tenzir-ship release create --yes
+
+# Or promote the exact stable version that matches the active RC base
+uvx tenzir-ship release create v5.4.0 --yes
 ```
 
-Use the plain version-less command as the default follow-up to `--rc`. Avoid
-explicit stable versions and manual bump flags while an RC is outstanding. They
-add room for mistakes, and the CLI rejects them.
+Use the plain version-less command as the default follow-up to `--rc`. If you
+must pass an explicit stable version, use the active RC's stable base so the
+promotion reuses the RC snapshot. Promoting to stable closes the RC cycle and
+removes that cycle's `vX.Y.Z-rc.N` manifests from `releases/`. Avoid manual
+bump flags while an RC is outstanding because they start a different stable
+resolution path instead of promoting the active candidate.
 
 ### Export release notes
 
@@ -456,13 +463,19 @@ gh workflow run release.yaml \
 ```
 
 When an RC is already outstanding, trigger the same workflow without `rc` to
-promote the latest candidate automatically:
+promote the latest candidate automatically. If you need an exact override, set
+`version` to the active RC's stable base:
 
 ```sh
 gh workflow run release.yaml \
   -f intro="Ship the latest release candidate." \
-  -f title="Stable release" \
-  # no rc flag here
+  -f title="Stable release"
+
+# Exact same-base promotion
+gh workflow run release.yaml \
+  -f version="v5.4.0" \
+  -f intro="Ship the latest release candidate." \
+  -f title="Stable release"
 ```
 
 :::note[Terminology]
