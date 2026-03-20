@@ -353,8 +353,8 @@ to match an externally dictated version.
 
 If an outstanding release candidate exists, the same version-less stable
 command promotes the latest RC to its matching stable release automatically.
-If you need an exact override, pass the explicit stable version that matches the
-active RC base to keep using that promotion path.
+If you need to leave the RC cycle and ship a different stable release instead,
+pass that new explicit version.
 
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
@@ -410,17 +410,14 @@ tenzir-ship release create --rc --yes
 
 # Promote the latest RC to stable
 tenzir-ship release create --yes
-
-# Or promote the exact stable version that matches the active RC base
-tenzir-ship release create v1.2.3 --yes
 ```
 
-Use the version-less command as the default follow-up to `--rc`. If you must
-pass an explicit stable version, use the active RC's stable base so the
-promotion reuses the RC snapshot. Promoting to stable closes the RC cycle and
-removes that cycle's `vX.Y.Z-rc.N` manifests from `releases/`. Avoid manual
-bump flags while an RC is outstanding because they start a different stable
-resolution path instead of promoting the active candidate.
+Use the version-less command as the default follow-up to `--rc`. Promoting to
+stable closes the RC cycle and removes that cycle's `vX.Y.Z-rc.N` manifests
+from `releases/`. If you need to leave the RC cycle and ship a different stable
+release instead, pass that new explicit version. Avoid manual bump flags when
+you mean to promote the active RC because promotion only happens through the
+version-less command.
 
 ### release version
 
@@ -608,11 +605,10 @@ For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
 
 If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. You can also set `version` to the active RC's
-stable base to keep using the same promotion snapshot when you need an exact
-override. Once an RC exists, either keep using `rc: true` to continue that
-series or run the stable workflow without `rc` to promote the latest
-candidate.
+latest candidate automatically. To leave the RC cycle and ship a different
+stable release instead, set `version` to that new stable target. Once an RC
+exists, either keep using `rc: true` to continue that series or run the stable
+workflow without `rc` to promote the latest candidate.
 
 ### validate
 

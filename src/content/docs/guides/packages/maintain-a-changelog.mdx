@@ -308,17 +308,14 @@ uvx tenzir-ship release create --rc --yes
 
 # Promote the latest release candidate automatically
 uvx tenzir-ship release create --yes
-
-# Or promote the exact stable version that matches the active RC base
-uvx tenzir-ship release create v5.4.0 --yes
 ```
 
-Use the plain version-less command as the default follow-up to `--rc`. If you
-must pass an explicit stable version, use the active RC's stable base so the
-promotion reuses the RC snapshot. Promoting to stable closes the RC cycle and
-removes that cycle's `vX.Y.Z-rc.N` manifests from `releases/`. Avoid manual
-bump flags while an RC is outstanding because they start a different stable
-resolution path instead of promoting the active candidate.
+Use the plain version-less command as the default follow-up to `--rc`.
+Promoting to stable closes the RC cycle and removes that cycle's
+`vX.Y.Z-rc.N` manifests from `releases/`. If you need to leave the RC cycle and
+ship a different stable release instead, pass that new explicit version, such
+as `v5.4.1` or `v5.5.0`. Avoid manual bump flags when you mean to promote the
+active RC because promotion only happens through the version-less command.
 
 ### Export release notes
 
@@ -463,20 +460,16 @@ gh workflow run release.yaml \
 ```
 
 When an RC is already outstanding, trigger the same workflow without `rc` to
-promote the latest candidate automatically. If you need an exact override, set
-`version` to the active RC's stable base:
+promote the latest candidate automatically:
 
 ```sh
 gh workflow run release.yaml \
   -f intro="Ship the latest release candidate." \
   -f title="Stable release"
-
-# Exact same-base promotion
-gh workflow run release.yaml \
-  -f version="v5.4.0" \
-  -f intro="Ship the latest release candidate." \
-  -f title="Stable release"
 ```
+
+To leave the RC cycle and ship a different stable release instead, pass that
+new explicit version, such as `v5.4.1` or `v5.5.0`.
 
 :::note[Terminology]
 We use the verb "publish" in prose even though the GitHub CLI subcommand to
