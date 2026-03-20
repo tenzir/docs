@@ -310,12 +310,16 @@ uvx tenzir-ship release create --rc --yes
 uvx tenzir-ship release create --yes
 ```
 
-Use the plain version-less command as the default follow-up to `--rc`.
+The RC workflow has three outcomes only:
+
+- Run `release create --rc` to continue the current RC series.
+- Run `release create` without a version or bump flag to promote the active RC.
+- Run `release create <new-version>` or a manual bump flag to leave the RC
+  cycle and ship a different stable release instead.
+
 Promoting to stable closes the RC cycle and removes that cycle's
-`vX.Y.Z-rc.N` manifests from `releases/`. If you need to leave the RC cycle and
-ship a different stable release instead, pass that new explicit version, such
-as `v5.4.1` or `v5.5.0`. Avoid manual bump flags when you mean to promote the
-active RC because promotion only happens through the version-less command.
+`vX.Y.Z-rc.N` manifests from `releases/`. An explicit version matching the
+active RC base is rejected, and manual bump flags never promote the active RC.
 
 ### Export release notes
 
@@ -459,8 +463,8 @@ gh workflow run release.yaml \
   -f rc=true
 ```
 
-When an RC is already outstanding, trigger the same workflow without `rc` to
-promote the latest candidate automatically:
+When an RC is already outstanding, trigger the same workflow without `rc`,
+`bump`, or `version` to promote the latest candidate automatically:
 
 ```sh
 gh workflow run release.yaml \

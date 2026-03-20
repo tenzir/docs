@@ -353,8 +353,10 @@ to match an externally dictated version.
 
 If an outstanding release candidate exists, the same version-less stable
 command promotes the latest RC to its matching stable release automatically.
-If you need to leave the RC cycle and ship a different stable release instead,
-pass that new explicit version.
+This is the only promotion path for the active RC. If you need to leave the RC
+cycle and ship a different stable release instead, pass a new explicit version
+such as `v1.2.4`, `v1.3.0`, or `v2.0.0`. An explicit version matching the
+active RC base is rejected.
 
 The command renders `notes.md`, updates `manifest.yaml`, and writes entry
 snapshots into `entries/`. Stable releases consume matching entry files from
@@ -412,12 +414,16 @@ tenzir-ship release create --rc --yes
 tenzir-ship release create --yes
 ```
 
-Use the version-less command as the default follow-up to `--rc`. Promoting to
-stable closes the RC cycle and removes that cycle's `vX.Y.Z-rc.N` manifests
-from `releases/`. If you need to leave the RC cycle and ship a different stable
-release instead, pass that new explicit version. Avoid manual bump flags when
-you mean to promote the active RC because promotion only happens through the
-version-less command.
+The RC workflow has three outcomes only:
+
+- Run `release create --rc` to continue the current RC series.
+- Run `release create` without a version or bump flag to promote the active RC.
+- Run `release create <new-version>` or a manual bump flag to leave the RC
+  cycle and ship a different stable release instead.
+
+Promoting to stable closes the RC cycle and removes that cycle's
+`vX.Y.Z-rc.N` manifests from `releases/`. An explicit version matching the
+active RC base is rejected, and manual bump flags never promote the active RC.
 
 ### release version
 
@@ -605,10 +611,11 @@ For normal stable releases, prefer leaving both `bump` and `version` unset so
 the workflow auto-resolves the release version from the changelog.
 
 If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. To leave the RC cycle and ship a different
-stable release instead, set `version` to that new stable target. Once an RC
-exists, either keep using `rc: true` to continue that series or run the stable
-workflow without `rc` to promote the latest candidate.
+latest candidate automatically. This is the only promotion path for the active
+RC. To leave the RC cycle and ship a different stable release instead, set
+`version` to a new stable target. Once an RC exists, either keep using
+`rc: true` to continue that series or run the stable workflow without `rc`,
+`bump`, or `version` to promote the latest candidate.
 
 ### validate
 
