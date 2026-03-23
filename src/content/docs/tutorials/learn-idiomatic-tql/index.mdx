@@ -249,6 +249,18 @@ if initiated {
 }
 ```
 
+When the source field is only needed as the condition and not used elsewhere,
+wrap a `move` in parentheses to consume and test it in a single expression —
+no separate `drop` required:
+
+```tql
+connection_info = {
+  direction_id:    2 if (move raw.initiated)  else 1,
+  protocol_ver_id: 6 if (move raw.is_ipv6)    else 4,
+}
+// raw.initiated and raw.is_ipv6 are already consumed — no drop needed
+```
+
 The ternary form is appropriate *only for genuinely binary choices*. The moment
 you need a third branch, switch to a record constant lookup:
 
