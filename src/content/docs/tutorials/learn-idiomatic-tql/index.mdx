@@ -222,6 +222,55 @@ Use parentheses only when they clarify precedence in complex expressions:
 where (a > 1 and b < 2) or c == 3
 ```
 
+### Use inline ternary for simple binary choices
+
+TQL supports `value if condition else other` as an inline expression. Use it
+when a field takes exactly one of two values based on a single boolean.
+
+✅ Clean and self-documenting:
+
+```tql
+connection = {
+  direction: 2 if initiated else 1,   // Outbound / Inbound
+  protocol_ver: 6 if is_ipv6 else 4,  // IPv6 / IPv4
+  status: 1 if success else 2,        // Success / Failure
+}
+```
+
+❌ Unnecessarily verbose for a binary choice:
+
+```tql
+connection = {
+  direction: 1,  // default
+  ...
+}
+if initiated {
+  connection.direction = 2
+}
+```
+
+When the source field is only needed as the condition and not used elsewhere,
+wrap a `move` in parentheses to consume and test it in a single expression —
+no separate `drop` required:
+
+```tql
+connection_info = {
+  direction_id: 2 if (move raw.initiated) else 1,
+  protocol_ver_id: 6 if (move raw.is_ipv6) else 4,
+}
+// raw.initiated and raw.is_ipv6 are already consumed — no drop needed
+```
+
+The ternary form is appropriate _only for genuinely binary choices_. The moment
+you need a third branch, switch to if/else chains or preferably a
+[record constant lookup](#use-record-constants-for-mappings-instead-of-if-else-chains):
+
+```tql
+// Three or more enum-like outcomes → record constant
+let $protocols = { tcp: 6, udp: 17, icmp: 1 }
+protocol_num = $protocols[proto]? else 255
+```
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
@@ -277,6 +326,7 @@ When normalizing data (e.g., to OCSF format):
 
 When dealing with data that uses placeholder values like `"-"`, `"N/A"`, or
 empty strings to represent null, use the
+
 <Op>replace</Op> operator to normalize them instead of
 writing conditional logic.
 
@@ -320,15 +370,11 @@ drop_null_fields
 ```
 
 :::note[Operator vs. function]
-Don't confuse the <Op>replace</Op> operator with the
-<Fn>replace</Fn> function:
+Don't confuse the <Op>replace</Op> operator with the <Fn>replace</Fn> function:
 
-- **Operator**: Replaces entire values across all fields in events (e.g.,
-  replace all `"-"` with `null`)
-- **Function**: Replaces substrings within a string (e.g., `"hello".replace("l",
-  "r")` → `"herro"`)
-
-  :::
+- **Operator**: Replaces entire values across all fields in events (e.g., replace all `"-"` with `null`)
+- **Function**: Replaces substrings within a string (e.g., `"hello".replace("l", "r")` → `"herro"`)
+:::
 
 ### Use meaningful names for computed fields
 
