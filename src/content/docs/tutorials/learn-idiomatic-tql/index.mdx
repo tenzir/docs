@@ -227,7 +227,7 @@ where (a > 1 and b < 2) or c == 3
 TQL supports `value if condition else other` as an inline expression. Use it
 when a field takes exactly one of two values based on a single boolean.
 
-✅ Idiomatic — clean and self-documenting:
+✅ Clean and self-documenting:
 
 ```tql
 connection = {
@@ -261,11 +261,12 @@ connection_info = {
 // raw.initiated and raw.is_ipv6 are already consumed — no drop needed
 ```
 
-The ternary form is appropriate *only for genuinely binary choices*. The moment
-you need a third branch, switch to a record constant lookup:
+The ternary form is appropriate _only for genuinely binary choices_. The moment
+you need a third branch, switch to if/else chains or preferably a
+[record constant lookup](#use-record-constants-for-mappings-instead-of-if-else-chains):
 
 ```tql
-// Three or more outcomes → record constant
+// Three or more enum-like outcomes → record constant
 let $protocols = { tcp: 6, udp: 17, icmp: 1 }
 protocol_num = $protocols[proto]? else 255
 ```
@@ -325,6 +326,7 @@ When normalizing data (e.g., to OCSF format):
 
 When dealing with data that uses placeholder values like `"-"`, `"N/A"`, or
 empty strings to represent null, use the
+
 <Op>replace</Op> operator to normalize them instead of
 writing conditional logic.
 
@@ -369,12 +371,13 @@ drop_null_fields
 
 :::note[Operator vs. function]
 Don't confuse the <Op>replace</Op> operator with the
+
 <Fn>replace</Fn> function:
 
 - **Operator**: Replaces entire values across all fields in events (e.g.,
   replace all `"-"` with `null`)
 - **Function**: Replaces substrings within a string (e.g., `"hello".replace("l",
-  "r")` → `"herro"`)
+"r")` → `"herro"`)
 
   :::
 
