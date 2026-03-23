@@ -231,9 +231,9 @@ when a field takes exactly one of two values based on a single boolean.
 
 ```tql
 connection = {
-  direction:    2 if initiated else 1, // Outbound / Inbound
-  protocol_ver: 6 if is_ipv6 else 4,   // IPv6 / IPv4
-  status:       1 if success else 2,   // Success / Failure
+  direction: 2 if initiated else 1,   // Outbound / Inbound
+  protocol_ver: 6 if is_ipv6 else 4,  // IPv6 / IPv4
+  status: 1 if success else 2,        // Success / Failure
 }
 ```
 
@@ -255,8 +255,8 @@ no separate `drop` required:
 
 ```tql
 connection_info = {
-  direction_id:    2 if (move raw.initiated) else 1,
-  protocol_ver_id: 6 if (move raw.is_ipv6)   else 4,
+  direction_id: 2 if (move raw.initiated) else 1,
+  protocol_ver_id: 6 if (move raw.is_ipv6) else 4,
 }
 // raw.initiated and raw.is_ipv6 are already consumed — no drop needed
 ```
