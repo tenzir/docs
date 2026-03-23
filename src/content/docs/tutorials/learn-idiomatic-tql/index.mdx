@@ -222,6 +222,42 @@ Use parentheses only when they clarify precedence in complex expressions:
 where (a > 1 and b < 2) or c == 3
 ```
 
+### Use inline ternary for simple binary choices
+
+TQL supports `value if condition else other` as an inline expression. Use it
+when a field takes exactly one of two values based on a single boolean.
+
+✅ Idiomatic — clean and self-documenting:
+
+```tql
+connection = {
+  direction:    2 if initiated else 1, // Outbound / Inbound
+  protocol_ver: 6 if is_ipv6 else 4,   // IPv6 / IPv4
+  status:       1 if success else 2,   // Success / Failure
+}
+```
+
+❌ Unnecessarily verbose for a binary choice:
+
+```tql
+connection = {
+  direction: 1,  // default
+  ...
+}
+if initiated {
+  connection.direction = 2
+}
+```
+
+The ternary form is appropriate *only for genuinely binary choices*. The moment
+you need a third branch, switch to a record constant lookup:
+
+```tql
+// Three or more outcomes → record constant
+let $protocols = { tcp: 6, udp: 17, icmp: 1 }
+protocol_num = $protocols[proto]? else 255
+```
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
