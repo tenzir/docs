@@ -271,6 +271,37 @@ let $protocols = { tcp: 6, udp: 17, icmp: 1 }
 protocol_num = $protocols[proto]? else 255
 ```
 
+### Use `in` for multi-value membership tests
+
+When a condition checks whether a field matches one of several values, `in`
+with a list is cleaner than a chain of `or` comparisons. This works anywhere
+you write a condition, such as `where` or `if`.
+
+✅ Idiomatic:
+
+```tql
+if event_code in ["4624", "4625", "4648"] {
+  // ...
+}
+```
+
+When the list grows, move it to a named constant:
+
+```tql
+let $logon_eids = ["4624", "4625", "4648"]
+if event_code in $logon_eids {
+  // ...
+}
+```
+
+❌ Verbose:
+
+```tql
+if event_code == "4624" or event_code == "4625" or event_code == "4648" {
+  // ...
+}
+```
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
