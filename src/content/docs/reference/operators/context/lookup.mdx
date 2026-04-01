@@ -1,0 +1,126 @@
+---
+title: context::lookup
+category: Contexts
+example: 'context::lookup "ctx", key=src_ip'
+---
+
+Performs live filtering of the import feed using a context and translates
+context updates into historical queries.
+
+```tql
+context::lookup name:string, key=field|list, [into=field, yield=field,
+                separate=bool, live=bool, retro=bool, parallel=int]
+```
+
+## Description
+
+The `lookup` operator performs two actions simultaneously:
+
+1. Translate context updates into historical queries
+2. Filter all data newly ingested into the node against any context updates
+
+These two operations combined offer *unified matching*, i.e., automated retro
+matching by turning context updates into historical queries, and live matching
+with a context on the import feed.
+
+The diagram below illustrates how the operator works:
+
+![lookup](lookup.excalidraw)
+
+### `name: string`
+
+The name of the context to lookup with.
+
+### `key = field|list`
+
+A field, or list of fields to use for matching.
+
+### `into = field (optional)`
+
+The name of the field in which to store the context's enrichment.
+
+Defaults to the name of the context.
+
+### `separate = bool (optional)`
+
+When multiple fields are provided, duplicate the event for every provided field
+and enrich them individually.
+
+When using the option, the context moves from `<into>.<field...>` to
+`<into>` in the resulting event.
+
+### `live = bool (optional)`
+
+Enables live lookup for incoming events.
+
+By default, both retro and live lookups are enabled. Specifying either `retro=true`
+or `live=true` explicitly disables the other.
+
+### `retro = bool (optional)`
+
+Enables retrospective lookups for previously imported events. The `lookup`
+operator will then apply a context after a context update.
+
+By default, both retro and live lookups are enabled. Specifying either `retro=true`
+or `live=true` explicitly disables the other.
+
+### `yield = field (optional)`
+
+Provide a field into the context object to use as the context instead. If the
+key does not exist within the context, a `null` value is used instead.
+
+### `parallel = int (optional)`
+
+The number of partitions to open in parallel for retrospective lookups. This
+number directly correlates with memory usage and performance of the `lookup`
+operator.
+
+Defaults to `3`.
+
+## Examples
+
+### Apply context to incoming and historical events
+
+Apply the context `feodo` to incoming `suricata.flow` events as well as retro-match
+any historical event to context updates:
+
+```tql
+context::lookup "feodo", key=src_ip
+where @name == "suricata.flow"
+```
+
+### Apply context to incoming events
+
+Apply the context `feodo` to incoming `suricata.flow` events. In this example,
+only events that are freshly imported will be matched against the `fedo` context.
+
+```tql
+context::lookup "feodo", key=src_ip, live=true
+where @name == "suricata.flow"
+```
+
+### Apply context to historical events
+
+Apply the context `feodo` to historical `suricata.flow` events with every update
+to `feodo`. In this example, on any `context::update` to the `fedo` context,
+historical data persisted in the node will be retro-matched against the update.
+
+```tql
+context::lookup "feodo", key=src_ip, retro=true
+where @name == "suricata.flow"
+```
+
+## See Also
+
+- <Op>context::create_bloom_filter</Op>
+- <Op>context::create_geoip</Op>
+- <Op>context::create_lookup_table</Op>
+- <Op>context::enrich</Op>
+- <Op>context::inspect</Op>
+- <Op>context::list</Op>
+- <Op>context::load</Op>
+- <Op>context::remove</Op>
+- <Op>context::reset</Op>
+- <Op>context::save</Op>
+- <Op>context::update</Op>
+- <Guide>enrichment/work-with-lookup-tables</Guide>
