@@ -591,32 +591,6 @@ release as a prerelease and prevents GitHub from treating it as the latest
 release. Use `--prerelease` only when you intentionally want to publish a
 stable version as a preview release.
 
-#### GitHub Actions release workflow
-
-For a complete `.github/workflows/release.yaml` wrapper example that calls
-`tenzir/ship/.github/workflows/reusable-release.yaml@<version>`, see the guide
-for [maintaining a changelog](/guides/packages/maintain-a-changelog). That
-wrapper mirrors the CLI release flow. Alongside the required `intro` and
-optional `title`, it accepts these release-shape inputs:
-
-| Input     | Description                                                          |
-| --------- | -------------------------------------------------------------------- |
-| `bump`    | Optional stable bump override (`auto`, `patch`, `minor`, or `major`) |
-| `version` | Rare exact stable version override                                   |
-| `rc`      | Create or continue the release-candidate series                      |
-
-Use `rc: true` for iterative release-candidate builds.
-
-For normal stable releases, prefer leaving both `bump` and `version` unset so
-the workflow auto-resolves the release version from the changelog.
-
-If an outstanding RC exists, that same version-less workflow promotes the
-latest candidate automatically. This is the only promotion path for the active
-RC. To leave the RC cycle and ship a different stable release instead, set
-`version` to a new stable target. Once an RC exists, either keep using
-`rc: true` to continue that series or run the stable workflow without `rc`,
-`bump`, or `version` to promote the latest candidate.
-
 ### validate
 
 Run structural checks across entry files, release manifests, and exported
@@ -671,6 +645,153 @@ tenzir-ship stats --json
 
 The JSON output includes the project root path, parent project statistics, and
 an array of module statistics when modules are configured.
+
+## Reusable GitHub Actions workflow
+
+The [`tenzir/ship`](https://github.com/tenzir/ship) repository ships a reusable
+release workflow at `.github/workflows/release.yaml`. External repositories can
+call it directly to automate changelog-based releases. Pin the workflow to a
+released tag or full commit SHA instead of a moving branch name. Replace
+`<pinned-ref>` with the immutable ref you want to consume.
+
+For a practical example of wiring this workflow into your own repository, see
+the guide for [maintaining a changelog](/guides/packages/maintain-a-changelog).
+
+### Default mode
+
+By default, the workflow uses the caller repository's built-in `GITHUB_TOKEN`.
+No Tenzir-specific secrets are required. Grant at least `contents: write` on the
+calling job, and add any extra token scopes that your hooks need.
+
+```yaml
+jobs:
+  release:
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    permissions:
+      contents: write
+    with:
+      intro: This release improves parser coverage and fixes packaging.
+      bump: auto
+```
+
+### Workflow inputs
+
+The workflow accepts the following inputs:
+
+#### Release inputs
+
+| Input             | Type    | Required | Default | Description                                                         |
+| ----------------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
+| `intro`           | string  | yes      |         | 1–2 sentence release introduction                                   |
+| `title`           | string  | no       |         | User-facing release title (auto-generated when empty)               |
+| `bump`            | string  | no       | `""`    | Version bump type: `auto`, `major`, `minor`, or `patch`             |
+| `version`         | string  | no       | `""`    | Explicit stable release version (for example `v1.2.3`)              |
+| `rc`              | boolean | no       | `false` | Create or continue the release-candidate series                     |
+| `changelog-root`  | string  | no       | `.`     | Project root for `--root` flag                                      |
+| `git-add-paths`   | string  | no       | `""`    | Space-separated extra paths to stage before publish                 |
+
+#### Hook inputs
+
+| Input          | Type   | Required | Default | Description                                                      |
+| -------------- | ------ | -------- | ------- | ---------------------------------------------------------------- |
+| `pre-create`   | string | no       | `""`    | Shell script for quality gates (runs before `release create`)    |
+| `post-create`  | string | no       | `""`    | Shell script for version bumping (runs after `release create`)   |
+| `pre-publish`  | string | no       | `""`    | Shell script that runs after create and before publish            |
+| `post-publish` | string | no       | `""`    | Shell script that runs after publish and branch updates           |
+
+Hooks run inline in the release job. Use `pre-create` for quality gates and
+`post-create` to update version files or generated artifacts. Use `pre-publish`
+and `post-publish` for steps that depend on the resolved version.
+
+The `pre-publish` and `post-publish` hooks have access to these environment
+variables:
+
+| Variable          | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| `CHANGELOG_ROOT`  | Project root from `changelog-root` input                        |
+| `RELEASE_VERSION` | Created release version tag (for example `v1.2.3`)              |
+| `IS_LATEST`       | Whether the release is latest (`true` or `false`, post-publish) |
+| `GH_TOKEN`        | Resolved auth token                                             |
+
+#### Release control inputs
+
+| Input                              | Type    | Required | Default | Description                                                  |
+| ---------------------------------- | ------- | -------- | ------- | ------------------------------------------------------------ |
+| `skip-publish`                     | boolean | no       | `false` | Create and prepare release but skip publish, tag, and push   |
+| `publish-no-latest-on-non-main`    | boolean | no       | `false` | Pass `--no-latest` on non-main branch releases               |
+| `copy-release-to-main-on-non-main` | boolean | no       | `false` | Copy release manifests back to `main` for non-main releases  |
+| `update-latest-branch-on-main`     | boolean | no       | `false` | Force-update the `latest` branch when releasing from `main`  |
+
+#### Auth inputs
+
+| Input             | Type    | Required | Default                                                  | Description                                                |
+| ----------------- | ------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------- |
+| `github_app_id`   | string  | no       | `""`                                                     | GitHub App ID used to mint a repository-scoped token       |
+| `use_push_token`  | boolean | no       | `false`                                                  | Use `push_token` secret instead of the default token       |
+| `git_user_name`   | string  | no       | `github-actions[bot]`                                    | Git author name used for release commits                   |
+| `git_user_email`  | string  | no       | `41898282+github-actions[bot]@users.noreply.github.com`  | Git author email used for release commits                  |
+
+#### Signing inputs
+
+| Input          | Type    | Required | Default | Description                                          |
+| -------------- | ------- | -------- | ------- | ---------------------------------------------------- |
+| `sign_commits` | boolean | no       | `false` | Sign commits when a GPG key is provided              |
+| `sign_tags`    | boolean | no       | `false` | Sign tags when a GPG key is provided                 |
+
+### Workflow secrets
+
+| Secret                   | Required | Description                                  |
+| ------------------------ | -------- | -------------------------------------------- |
+| `push_token`             | no       | Token override when `use_push_token` is set  |
+| `github_app_private_key` | no       | Private key for GitHub App token generation  |
+| `gpg_private_key`        | no       | GPG key material for signing                 |
+
+### Workflow outputs
+
+| Output       | Description                                          |
+| ------------ | ---------------------------------------------------- |
+| `version`    | Created release version tag (for example `v1.2.3`)   |
+| `is_latest`  | Whether the release should be treated as latest      |
+
+### Auth modes
+
+The workflow resolves authentication in this order:
+
+1. **GitHub App token** — when `github_app_id` and `github_app_private_key` are
+   set. Use this for repository-scoped bot automation with a short-lived token.
+2. **Push token** — when `use_push_token: true` and `push_token` are set. Use
+   this when you want to supply your own token for checkout, pushes, or
+   publishing.
+3. **Default `GITHUB_TOKEN`** — the caller repository's built-in token. Use
+   this when the workflow only needs to update the current repository.
+
+Use `GITHUB_TOKEN` when you only need to update the current repository. Use
+`use_push_token: true` with `push_token`, or use a GitHub App token, when you
+need pushes or tags created by the workflow to trigger downstream automation.
+
+### Auth and signing example
+
+```yaml
+jobs:
+  release:
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    permissions:
+      contents: write
+    with:
+      intro: This release improves parser coverage and fixes packaging.
+      github_app_id: ${{ vars.MY_GITHUB_APP_ID }}
+      git_user_name: release-bot
+      git_user_email: release-bot@example.com
+      sign_commits: true
+      sign_tags: true
+      skip-publish: true
+    secrets:
+      github_app_private_key: ${{ secrets.MY_GITHUB_APP_PRIVATE_KEY }}
+      gpg_private_key: ${{ secrets.MY_GPG_PRIVATE_KEY }}
+```
+
+To use a static token instead of a GitHub App, replace the App settings with
+`use_push_token: true` and pass `push_token` in `secrets:`.
 
 ## Configuration
 
