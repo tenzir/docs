@@ -439,7 +439,7 @@ on:
 
 jobs:
   release:
-    uses: tenzir/ship/.github/workflows/reusable-release.yaml@<version>
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
     with:
       bump: ${{ inputs.bump }}
       version: ${{ inputs.version }}
@@ -449,9 +449,9 @@ jobs:
     secrets: inherit
 ```
 
-Replace `<version>` with the `tenzir-ship` release tag you want to pin to, for
-example `v1.5.0`. Add the advanced inputs from the reference page only when
-your repository needs them.
+Replace `<pinned-ref>` with a released tag or full commit SHA, for example
+`v1.6.1`. Add the advanced inputs from the
+<Reference>ship-framework</Reference> only when your repository needs them.
 
 That `release.yaml` wrapper mirrors the CLI options. Use `rc: true`
 to create or continue a release-candidate series:
