@@ -475,6 +475,133 @@ gh workflow run release.yaml \
 To leave the RC cycle and ship a different stable release instead, pass that
 new explicit version, such as `v5.4.1` or `v5.5.0`.
 
+#### Plain setup
+
+The simplest configuration uses the caller repository's `GITHUB_TOKEN` and
+chains a publish job that checks out the tagged release:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title (auto-generated if omitted)
+        required: false
+        type: string
+
+jobs:
+  release:
+    name: Create GitHub release
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    permissions:
+      contents: write
+    with:
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+
+  publish:
+    name: Publish package to npm
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ needs.release.outputs.version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish to npm
+        run: npm publish
+```
+
+The `publish` job uses `needs.release.outputs.version` to check out the exact
+tag created by the release workflow. Replace the npm steps with whatever
+publish logic your project needs.
+
+#### Signed setup with GitHub App
+
+When you need signed commits and tags or want pushes to trigger downstream
+workflows, use a GitHub App token with GPG signing. A pre-validation job
+catches missing secrets early:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title (auto-generated if omitted)
+        required: false
+        type: string
+
+jobs:
+  validate-release-config:
+    name: Validate release workflow configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release configuration
+        env:
+          TENZIR_GITHUB_APP_ID: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          TENZIR_GITHUB_APP_PRIVATE_KEY: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          TENZIR_BOT_GPG_SIGNING_KEY: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+        run: |
+          if [ -z "$TENZIR_GITHUB_APP_ID" ]; then
+            echo "::error::Repository variable 'TENZIR_GITHUB_APP_ID' must be set."
+            exit 1
+          fi
+          if [ -z "$TENZIR_GITHUB_APP_PRIVATE_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_GITHUB_APP_PRIVATE_KEY' must be set."
+            exit 1
+          fi
+          if [ -z "$TENZIR_BOT_GPG_SIGNING_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_BOT_GPG_SIGNING_KEY' must be set."
+            exit 1
+          fi
+
+  release:
+    name: Create GitHub release
+    needs: validate-release-config
+    permissions:
+      contents: write
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    with:
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+      github_app_id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+      git_user_name: tenzir-bot
+      git_user_email: engineering@tenzir.com
+      sign_commits: true
+      sign_tags: true
+    secrets:
+      github_app_private_key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+      gpg_private_key: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+```
+
+The validation job fails fast with clear error messages before the release job
+attempts to mint a token or import a GPG key. See the
+<Reference>ship-framework</Reference> for the full list of auth and signing
+inputs.
+
 :::note[Terminology]
 We use the verb "publish" in prose even though the GitHub CLI subcommand to
 create a release is `gh release create`. If you created a draft first, you can
