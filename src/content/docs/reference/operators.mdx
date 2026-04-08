@@ -359,6 +359,10 @@ operators:
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
     path: 'reference/operators/from_http'
+  - name: 'from_zmq'
+    description: 'Connects to a remote ZeroMQ publisher and receives events.'
+    example: 'from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }'
+    path: 'reference/operators/from_zmq'
   - name: 'from_stdin'
     description: 'Reads and parses events from standard input.'
     example: 'from_stdin { read_json }'
@@ -631,6 +635,10 @@ operators:
     description: 'Parses an incoming `Zeek TSV` stream into events.'
     example: 'read_zeek_tsv'
     path: 'reference/operators/read_zeek_tsv'
+  - name: 'accept_zmq'
+    description: 'Listens on a ZeroMQ endpoint and receives events.'
+    example: 'accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }'
+    path: 'reference/operators/accept_zmq'
   - name: 'save_amqp'
     description: 'Saves a byte stream via AMQP messages.'
     example: 'save_amqp'
@@ -711,6 +719,10 @@ operators:
     description: 'Sends events to the Microsoft Azure Logs Ingestion API.'
     example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
     path: 'reference/operators/to_azure_log_analytics'
+  - name: 'to_zmq'
+    description: 'Connects to a remote ZeroMQ subscriber endpoint and sends events.'
+    example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"'
+    path: 'reference/operators/to_zmq'
   - name: 'to_clickhouse'
     description: 'Sends events to a ClickHouse table.'
     example: 'to_clickhouse table="my_table"'
@@ -731,6 +743,10 @@ operators:
     description: 'Sends unstructured events to a Google SecOps Chronicle instance.'
     example: 'to_google_secops …'
     path: 'reference/operators/to_google_secops'
+  - name: 'serve_zmq'
+    description: 'Listens on a ZeroMQ endpoint and sends events.'
+    example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"'
+    path: 'reference/operators/serve_zmq'
   - name: 'to_hive'
     description: 'Writes events to a URI using hive partitioning.'
     example: 'to_hive "s3://…", partition_by=[x]'
@@ -2195,6 +2211,14 @@ from_http "0.0.0.0:8080"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_zmq" description="Connects to a remote ZeroMQ publisher and receives events." href="/reference/operators/from_zmq">
+
+```tql
+from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
 
 ```tql
@@ -2255,6 +2279,14 @@ from_udp "0.0.0.0:8090"
 
 ```tql
 from_velociraptor subscribe="Windows"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_zmq" description="Listens on a ZeroMQ endpoint and receives events." href="/reference/operators/accept_zmq">
+
+```tql
+accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
 ```
 
 </ReferenceCard>
@@ -2509,6 +2541,14 @@ to_azure_log_analytics tenant_id="...", workspace_id="..."
 
 </ReferenceCard>
 
+<ReferenceCard title="to_zmq" description="Connects to a remote ZeroMQ subscriber endpoint and sends events." href="/reference/operators/to_zmq">
+
+```tql
+to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
 
 ```tql
@@ -2545,6 +2585,14 @@ to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
 
 ```tql
 to_google_secops …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="serve_zmq" description="Listens on a ZeroMQ endpoint and sends events." href="/reference/operators/serve_zmq">
+
+```tql
+serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
 ```
 
 </ReferenceCard>
