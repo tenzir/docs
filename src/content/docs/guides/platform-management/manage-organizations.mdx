@@ -2,12 +2,15 @@
 title: Manage organizations
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 This guide shows you how to create, configure, and delete organizations in
 the Tenzir Platform. You'll learn how to perform these tasks through both the
-web app and the CLI.
+web and the CLI.
 
 :::note[Availability]
-Organizations require the **Professional Edition** or higher. See
+As a feature preview, organizations are currently available to all users. In the
+future, they will require the **Professional Edition** or higher. See
 [tenzir.com/pricing](https://tenzir.com/pricing) for details.
 :::
 
@@ -16,11 +19,14 @@ Organizations require the **Professional Edition** or higher. See
 Each user can belong to at most one organization. When you create an
 organization, you automatically become its first admin.
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
-{/* screenshot: organization creation dialog */}
+Click **Create Organization** in the sidebar and enter a name for your
+organization.
 
-### CLI
+</TabItem>
+<TabItem label="CLI">
 
 ```sh
 tenzir-platform org create "Acme Corp"
@@ -28,16 +34,19 @@ tenzir-platform org create "Acme Corp"
 
 The command outputs the new organization's ID.
 
+</TabItem>
+</Tabs>
+
 ## View organization details
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 Navigate to **Organizations** in the sidebar to see your organization's
 overview, including the name, member count, and creation date.
 
-{/* screenshot: organization overview page showing name, members count */}
-
-### CLI
+</TabItem>
+<TabItem label="CLI">
 
 ```sh
 tenzir-platform org info
@@ -46,20 +55,26 @@ tenzir-platform org info
 This displays the organization name, ID, number of members, and pending
 invitations. Only admins can see pending invitations.
 
+</TabItem>
+</Tabs>
+
 ## Update organization settings
 
 Admins can change the organization name and icon.
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 Click the organization name on the organization page to edit it inline. You
 can also update the icon URL in the settings section.
 
-{/* screenshot: inline name editing on org page */}
+</TabItem>
+<TabItem label="CLI">
 
-### CLI
+Organization settings can currently only be updated through the web.
 
-Organization settings can currently only be updated through the web app.
+</TabItem>
+</Tabs>
 
 ## Delete an organization
 
@@ -70,19 +85,22 @@ workspaces** and their contents. This action cannot be undone.
 
 Only admins can delete an organization.
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 Scroll to the **Danger Zone** at the bottom of the organization page and click
 **Delete Organization**. A confirmation dialog asks you to confirm before
 proceeding.
 
-{/* screenshot: delete confirmation dialog */}
-
-### CLI
+</TabItem>
+<TabItem label="CLI">
 
 ```sh
 tenzir-platform org delete
 ```
+
+</TabItem>
+</Tabs>
 
 ## See Also
 

@@ -2,6 +2,8 @@
 title: Manage organization workspaces
 ---
 
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
 This guide shows you how to create, view, and delete workspaces that belong to
 an organization. You'll learn the difference between personal and organization
 workspaces and how access control works for shared workspaces.
@@ -15,23 +17,21 @@ Workspaces can be owned by either a user or an organization:
 - **Organization workspaces** are owned by the organization and accessible to
   all organization members.
 
-The workspace switcher in the web app groups workspaces by their owning
+The workspace switcher in the web groups workspaces by their owning
 organization, making it easy to navigate between them.
-
-{/* screenshot: workspace switcher showing org-grouped workspaces */}
 
 ## Create a workspace
 
 Only organization admins can create new workspaces under an organization.
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 On the organization page, find the **Workspaces** section and click
 **New Workspace**. Enter a name and confirm.
 
-{/* screenshot: workspace list on org page with create button */}
-
-### CLI
+</TabItem>
+<TabItem label="CLI">
 
 ```sh
 tenzir-platform org create-workspace --name="Production"
@@ -40,17 +40,25 @@ tenzir-platform org create-workspace --name="Production"
 If you omit `--name`, the platform generates a name based on the current
 timestamp.
 
+</TabItem>
+</Tabs>
+
 ## View organization workspaces
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 The **Workspaces** section on the organization page lists all workspaces owned
 by the organization. Click a workspace to navigate to it.
 
-### CLI
+</TabItem>
+<TabItem label="CLI">
 
 Use `tenzir-platform org info` to see the number of workspaces in your
-organization. Individual workspace management is available through the web app.
+organization. Individual workspace management is available through the web.
+
+</TabItem>
+</Tabs>
 
 ## Delete a workspace
 
@@ -61,26 +69,34 @@ dashboards. This action cannot be undone.
 
 Only organization admins can delete organization-owned workspaces.
 
-### Web app
+<Tabs>
+<TabItem label="Web">
 
 On the organization page, click the delete button next to the workspace you
 want to remove. Confirm the deletion in the dialog.
 
 :::note
 Workspaces created through static configuration files cannot be deleted through
-the web app or CLI. They must be removed from the configuration file instead.
+the web or CLI. They must be removed from the configuration file instead.
 See <Guide>platform-management/configure-workspaces</Guide> for details.
 :::
 
+</TabItem>
+</Tabs>
+
 ## Access control
 
-All members of an organization automatically have access to the
-organization's workspaces. You can further restrict access using auth rules
+When you create a workspace through the organization page, all organization
+members automatically have access to it. This is different from workspaces
+created through static configuration files, where admins must explicitly
+configure access rules.
+
+You can further restrict access to organization workspaces using auth rules
 that require a specific organization role. For example, you can create a
 workspace that only organization admins can access.
 
-For advanced access control configuration, see
-<Guide>platform-management/configure-workspaces</Guide>.
+For advanced access control configuration, including manually configured
+workspaces, see <Guide>platform-management/configure-workspaces</Guide>.
 
 ## See Also
 
