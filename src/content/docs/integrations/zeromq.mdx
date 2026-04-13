@@ -12,7 +12,7 @@ connect mode.
 
 Use the IP address `0.0.0.0` to listen on all available network interfaces.
 
-The event-oriented ZeroMQ operators are:
+The new executor provides event-oriented ZeroMQ operators:
 
 - <Op>from_zmq</Op>: Connects as a `SUB` socket and receives events.
 - <Op>accept_zmq</Op>: Binds a `SUB` socket and receives events.
@@ -31,14 +31,6 @@ operating before the subscriber. To avoid data loss due to such races, pass
 `monitor=true` on <Op>to_zmq</Op>, <Op>serve_zmq</Op>, or the legacy
 <Op>save_zmq</Op> operator to wait until at least one remote peer has connected
 on TCP transports.
-
-:::tip[URL Support]
-The URL scheme `zmq://` dispatches to
-<Op>from_zmq</Op> and
-<Op>to_zmq</Op> for URL-style use via <Op>from</Op> and <Op>to</Op>.
-Use <Op>accept_zmq</Op> and <Op>serve_zmq</Op> when Tenzir should bind the
-endpoint.
-:::
 
 ## Examples
 

@@ -91,14 +91,14 @@ If no scheme is present, the connector attempts to save to the local filesystem.
 | `ftp`, `ftps`                      | <Op>save_ftp</Op>                | `to "ftp://example.com/file.json"`             |
 | `gs`                               | <Op>save_gcs</Op>                | `to "gs://bucket/object.json"`                 |
 | `http`, `https`                    | <Op>save_http</Op>               | `to "http://example.com/file.json"`            |
-| `inproc`                           | <Op>to_zmq</Op>                  | `to "inproc://worker", encoding="json", prefix="alerts/"` |
+| `inproc`                           | <Op>save_zmq</Op>                | `to "inproc://worker" { write_json }`       |
 | `kafka`                            | <Op>save_kafka</Op>              | `to "kafka://topic" { write_json }`            |
 | `opensearch`                       | <Op>to_opensearch</Op>           | `to "opensearch://…`                           |
 | `s3`                               | <Op>save_s3</Op>                 | `to "s3://bucket/file.json"`                   |
 | `sqs`                              | <Op>save_sqs</Op>                | `to "sqs://my-queue" { write_json }`           |
 | `tcp`                              | <Op>save_tcp</Op>                | `to "tcp://127.0.0.1:56789" { write_json }`    |
 | `udp`                              | <Op>save_udp</Op>                | `to "udp://127.0.0.1:56789" { write_json }`    |
-| `zmq`                              | <Op>to_zmq</Op>                  | `to "zmq://127.0.0.1:56789", encoding="json", prefix="alerts/"` |
+| `zmq`                              | <Op>save_zmq</Op>                | `to "zmq://127.0.0.1:56789" { write_json }` |
 | `smtp`, `smtps`, `mailto`, `email` | <Op>save_email</Op>              | `to "smtp://john@example.com"`                 |
 
 Please see the respective operator pages for details on the URI's locator format.
