@@ -21,15 +21,16 @@ from_mysql [uri=string], [table=string], [sql=string], [show=string],
 The `from_mysql` operator reads data from a MySQL database. You can query data
 using a table name, raw SQL, or retrieve database metadata.
 
-The operator supports three query modes that are mutually exclusive:
+The operator supports three primary query modes:
 
-1. **Table mode**: Read all rows from a table using the `table` parameter
-2. **SQL mode**: Execute a custom SQL query using the `sql` parameter
-3. **Show mode**: List tables or columns using the `show` parameter
+1. **Table mode**: Read all rows from a table using the `table` parameter.
+2. **SQL mode**: Execute a custom SQL query using the `sql` parameter.
+3. **Show mode**: List database metadata using the `show` parameter.
+   When `show="columns"`, also set `table` to the table name.
 
-Internal metadata queries (such as resolving tracking columns for live mode) use
-MySQL prepared statements to prevent SQL injection through user-provided table
-and column names.
+Internal metadata queries, such as resolving tracking columns for live mode,
+validate user-provided table and column names against a safe list and use MySQL
+prepared statements to safely bind values.
 
 ### `uri = string (optional)`
 
@@ -45,8 +46,8 @@ parameters.
 
 ### `table = string (optional)`
 
-The name of the table to read from. This is mutually exclusive with `sql` and
-`show`.
+The name of the table to read from. This is mutually exclusive with `sql`.
+When `show="columns"`, set `table` to the table name.
 
 ### `sql = string (optional)`
 
@@ -60,7 +61,8 @@ from_mysql sql=r"SELECT id, name FROM users WHERE active = 1"
 
 ### `show = string (optional)`
 
-Retrieve database metadata. This is mutually exclusive with `table` and `sql`.
+Retrieve database metadata. This is mutually exclusive with `sql`.
+When `show="columns"`, set `table` to the table name.
 
 Supported values:
 

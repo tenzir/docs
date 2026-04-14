@@ -363,6 +363,10 @@ operators:
     description: 'Reads and parses events from standard input.'
     example: 'from_stdin { read_json }'
     path: 'reference/operators/from_stdin'
+  - name: 'from_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and receives events.'
+    example: 'from_tcp "example.org:4000" { read_json }'
+    path: 'reference/operators/from_tcp'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
@@ -2199,6 +2203,16 @@ from_http "0.0.0.0:8080"
 
 ```tql
 from_stdin { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_tcp" description="Connects to a remote TCP or TLS endpoint and receives events." href="/reference/operators/from_tcp">
+
+```tql
+from_tcp "example.org:4000" {
+  read_json
+}
 ```
 
 </ReferenceCard>
