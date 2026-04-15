@@ -137,6 +137,15 @@ accept_http "0.0.0.0:8443",
 }
 ```
 
+### Capture all request metadata
+
+```tql
+accept_http "0.0.0.0:8443" {
+  read_json
+  metadata = $request
+}
+```
+
 ## See Also
 
 - <Op>from_http</Op>
