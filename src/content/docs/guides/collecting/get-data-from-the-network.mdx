@@ -166,16 +166,12 @@ The `community_id` field provides a
 [Community ID](https://github.com/corelight/community-id-spec) hash for
 correlating network flows across different tools.
 
-### Filter captured packets
+### Filter by BPF expression
 
-Filter captured traffic after parsing:
+Use a Berkeley Packet Filter (BPF) expression to drop unwanted traffic before Tenzir parses packets:
 
 ```tql
-from_nic "eth0" {
-  read_pcap
-}
-packet = decapsulate(this)
-where packet.tcp.dst_port? == 443
+from_nic "eth0", filter="tcp port 443"
 ```
 
 ### Read PCAP files

@@ -7,7 +7,7 @@ example: 'from_nic "eth0"'
 This reference documents the `from_nic` operator. You'll learn how to capture live packets from a network interface in neo pipelines and how to customize packet parsing.
 
 ```tql
-from_nic iface:string, [snaplen=int] { … }
+from_nic iface:string, [snaplen=int, filter=string] { … }
 ```
 
 ## Description
@@ -16,7 +16,7 @@ The `from_nic` operator captures packets with libpcap and forwards them as event
 
 If you omit the optional pipeline, `from_nic` uses <Op>read_pcap</Op> by default. Provide a pipeline when you want to change how the captured PCAP byte stream is parsed. The pipeline must accept bytes and return events.
 
-To narrow the traffic, filter the resulting packet events in TQL after parsing. `from_nic` does not currently expose a BPF filter argument.
+Use `filter` to apply a Berkeley Packet Filter (BPF) expression before Tenzir parses packets. This lets libpcap drop unwanted traffic early.
 
 ### `iface: string`
 
@@ -29,6 +29,12 @@ Sets the snapshot length of captured packets.
 This value is an upper bound on the packet size. Packets larger than this size get truncated to `snaplen` bytes.
 
 Defaults to `262144`.
+
+### `filter = string (optional)`
+
+Applies a Berkeley Packet Filter (BPF) expression to the capture.
+
+The filter runs in libpcap before Tenzir parses packets. Use the same filter syntax as `tcpdump`, for example `tcp port 443` or `host 10.0.0.1`.
 
 ### `{ … } (optional)`
 
@@ -58,12 +64,10 @@ from_nic "en1" {
 }
 ```
 
-### Filter HTTPS traffic after parsing
+### Capture only HTTPS traffic
 
 ```tql
-from_nic "en1"
-packet = decapsulate(this)
-where packet.tcp.dst_port? == 443
+from_nic "en1", filter="tcp port 443"
 ```
 
 ### Write a live capture to a PCAP file
