@@ -4,7 +4,7 @@ category: Inputs/Bytes
 example: 'load_nic "eth0"'
 ---
 
-This reference documents the `load_nic` operator. You'll learn how to capture raw PCAP bytes from a network interface and when to use <Op>from_nic</Op> instead.
+Captures raw PCAP bytes from a network interface.
 
 [pcap-rfc]: https://datatracker.ietf.org/doc/id/draft-gharris-opsawg-pcap-00.html
 
@@ -18,7 +18,7 @@ The `load_nic` operator uses libpcap to acquire packets from a network interface
 
 The first captured packet also triggers emission of a PCAP file header so downstream operators can treat the packet stream as a valid PCAP capture file.
 
-In neo pipelines, prefer <Op>from_nic</Op> when you want packet events directly. It defaults to <Op>read_pcap</Op> and removes the extra parsing step from the pipeline.
+Use <Op>read_pcap</Op> to parse the emitted PCAP byte stream into packet events.
 
 ### `iface: str`
 
