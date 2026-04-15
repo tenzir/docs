@@ -28,7 +28,7 @@ metadata.
 ### `url: string`
 
 The endpoint to listen on. Must have the form `<host>:<port>`. Use `0.0.0.0` to
-accept connections on all interfaces.
+accept connections on all interfaces. IPv6 addresses are not supported.
 
 ### `responses = record (optional)`
 
@@ -49,13 +49,15 @@ Requests to an unspecified endpoint are responded with HTTP Status `200 OK`.
 
 ### `max_request_size = int (optional)`
 
-The maximum size of an incoming request to accept.
+The maximum size of an incoming request to accept. Requests that exceed this
+limit are rejected with HTTP `413 Content Too Large`.
 
 Defaults to `10MiB`.
 
 ### `max_connections = int (optional)`
 
-The maximum number of simultaneous incoming connections to accept.
+The maximum number of simultaneous incoming connections to accept. Connections
+that exceed this limit are rejected with HTTP `503 Service Unavailable`.
 
 Defaults to `10`.
 
@@ -74,7 +76,7 @@ The pipeline to run for each incoming HTTP request. Inside the pipeline, the
 | `query`    | `record` | The query parameters of the request. |
 | `path`     | `string` | The path requested.                  |
 | `fragment` | `string` | The URI fragment of the request.     |
-| `method`   | `string` | The HTTP method of the request.      |
+| `method`   | `string` | The HTTP method of the request (lowercase, e.g. `"post"`). |
 | `version`  | `string` | The HTTP version of the request.     |
 | `body`     | `blob`   | The raw request body.                |
 
@@ -103,7 +105,7 @@ Use the `$request` variable to filter or route requests:
 ```tql
 accept_http "0.0.0.0:8080" {
   read_json
-  where $request.path == "/events" and $request.method == "POST"
+  where $request.path == "/events" and $request.method == "post"
 }
 ```
 

@@ -34,7 +34,11 @@ If neither the URL nor the HTTP headers provide enough information, you can expl
 
 ### `url: string`
 
-URL to connect to.
+URL to connect to. Both `http://` and `https://` schemes are supported. If the
+scheme is omitted, `https://` is assumed.
+
+The URL is resolved as a [secret](/explanations/secrets), so you can pass a
+secret name to avoid hardcoding sensitive URLs.
 
 import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
 
@@ -51,6 +55,11 @@ skipped and an error is emitted.
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
+
+### Migration from `server=true`
+
+The `server=true` flag is no longer supported. Use <Op>accept_http</Op> to
+listen for incoming HTTP requests.
 
 ### `{ … } (optional)`
 
