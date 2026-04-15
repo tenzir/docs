@@ -204,18 +204,24 @@ and publish to GitHub.
 Preview the release before committing changes:
 
 ```sh
-uvx tenzir-ship release create v5.4.0
+uvx tenzir-ship release create
 ```
 
 The command shows which entries will be included and performs a dry run. When
 the summary looks good, re-run with `--yes` to commit the changes:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 --yes
+uvx tenzir-ship release create --yes
 ```
 
-This moves entries from `unreleased/` to `releases/v5.4.0/entries/`, generates
-`notes.md`, and updates `manifest.yaml`.
+This auto-bumps the version from the unreleased entry types, creates
+`releases/<resolved-version>/`, generates `notes.md`, and updates
+`manifest.yaml`.
+
+The `--patch`, `--minor`, and `--major` shortcuts resolve from the latest
+stable release. The same stable-only rule applies to `show latest`,
+and `release version`. In contrast, `release publish` without a version targets
+the latest release, including release candidates.
 
 By default, `release create` also updates common package-manager version files
 (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) when present
@@ -240,10 +246,21 @@ uvx tenzir-ship release create --minor --yes
 uvx tenzir-ship release create --major --yes
 ```
 
+Use these manual bump flags only when the automatic detection is not the right
+fit for the release.
+
+Pass an explicit stable version only as a rare exact override, for example when
+you need to re-cut a failed tagged release or match an externally dictated
+version:
+
+```sh
+uvx tenzir-ship release create v5.4.0 --yes
+```
+
 Add an inline intro summary:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 \
+uvx tenzir-ship release create \
   --intro "Major stability improvements." \
   --yes
 ```
@@ -251,13 +268,58 @@ uvx tenzir-ship release create v5.4.0 \
 Alternatively, provide intro content from a file:
 
 ```sh
-uvx tenzir-ship release create v5.4.0 \
+uvx tenzir-ship release create \
   --intro-file intro.md \
   --yes
 ```
 
 The intro file can include Markdown links, call-outs, or image references. The
 command embeds its content in `manifest.yaml` and includes it in `notes.md`.
+
+### Create a release candidate
+
+Create or continue a release candidate with:
+
+```sh
+uvx tenzir-ship release create --rc --yes
+```
+
+This snapshots the current `unreleased/` queue into a `vX.Y.Z-rc.N` release
+without consuming those entry files. Each new `-rc.N` supersedes the previous
+RC snapshot for that stable target, so the active candidate stays cumulative
+while old RC manifests do not remain in release history.
+
+To steer the inferred base version, prefer a manual bump such as
+`release create --rc --minor`. Pass an explicit stable version only when you
+need an exact base:
+
+```sh
+uvx tenzir-ship release create v5.4.0 --rc --yes
+```
+
+### Promote an existing release candidate
+
+Once release candidates exist for a stable target, keep the workflow on that
+series:
+
+```sh
+# Continue the RC series
+uvx tenzir-ship release create --rc --yes
+
+# Promote the latest release candidate automatically
+uvx tenzir-ship release create --yes
+```
+
+The RC workflow has three outcomes only:
+
+- Run `release create --rc` to continue the current RC series.
+- Run `release create` without a version or bump flag to promote the active RC.
+- Run `release create <new-version>` or a manual bump flag to leave the RC
+  cycle and ship a different stable release instead.
+
+Promoting to stable closes the RC cycle and removes that cycle's
+`vX.Y.Z-rc.N` manifests from `releases/`. An explicit version matching the
+active RC base is rejected, and manual bump flags never promote the active RC.
 
 ### Export release notes
 
@@ -282,7 +344,7 @@ uvx tenzir-ship show v5.4.0 --release --compact --markdown
 Preview unreleased entries as if they were already released:
 
 ```sh
-uvx tenzir-ship show --release --markdown
+uvx tenzir-ship show unreleased --release --markdown
 ```
 
 Export all releases in a single invocation for batch processing:
@@ -294,18 +356,33 @@ uvx tenzir-ship show all --release --json
 This exports every release as a JSON array, useful for documentation sync
 scripts that need all release data at once.
 
+To render the latest stable release without spelling out the version, use:
+
+```sh
+uvx tenzir-ship show latest --release --markdown
+```
+
+This resolves the newest stable release only. Release candidates never replace
+`latest`.
+
 ### Publish to GitHub
 
 Publish directly from the changelog project using the CLI:
 
 ```sh
-uvx tenzir-ship release publish v5.4.0 --yes
+uvx tenzir-ship release publish --yes
 ```
 
 Include tagging and pushing via the CLI:
 
 ```sh
-uvx tenzir-ship release publish v5.4.0 --tag --yes
+uvx tenzir-ship release publish --tag --yes
+```
+
+If you do pass a version, `tenzir-ship` publishes that exact release:
+
+```sh
+uvx tenzir-ship release publish v5.4.0 --yes
 ```
 
 Draft or prerelease variants:
@@ -314,6 +391,216 @@ Draft or prerelease variants:
 uvx tenzir-ship release publish v5.4.0 --draft --yes
 uvx tenzir-ship release publish v5.4.0 --prerelease --yes
 ```
+
+When you publish `vX.Y.Z-rc.N`, `tenzir-ship` automatically creates a GitHub
+prerelease and prevents GitHub from marking it as the latest release. You don't
+need to add `--prerelease` or `--no-latest` for RC tags. Because version-less
+publish now targets the latest release, the same command works after both
+stable releases and RCs.
+
+### Trigger the bundled GitHub Actions workflow
+
+If you want to cut releases from GitHub Actions, start by adding a workflow
+file to your repository:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: false
+        default: auto
+        type: choice
+        options:
+          - auto
+          - minor
+          - patch
+          - major
+      version:
+        description: Explicit stable version override
+        required: false
+        type: string
+      rc:
+        description: Create or continue the release-candidate series
+        required: false
+        default: false
+        type: boolean
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title
+        required: false
+        type: string
+
+jobs:
+  release:
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    with:
+      bump: ${{ inputs.bump }}
+      version: ${{ inputs.version }}
+      rc: ${{ inputs.rc }}
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+    secrets: inherit
+```
+
+Replace `<pinned-ref>` with a released tag or full commit SHA, for example
+`v1.6.1`. Add the advanced inputs from the
+<Reference>ship-framework</Reference> only when your repository needs them.
+
+That `release.yaml` wrapper mirrors the CLI options. Use `rc: true`
+to create or continue a release-candidate series:
+
+```sh
+gh workflow run release.yaml \
+  -f intro="Preview the upcoming release." \
+  -f title="Release candidate" \
+  -f rc=true
+```
+
+When an RC is already outstanding, trigger the same workflow without `rc`,
+`bump`, or `version` to promote the latest candidate automatically:
+
+```sh
+gh workflow run release.yaml \
+  -f intro="Ship the latest release candidate." \
+  -f title="Stable release"
+```
+
+To leave the RC cycle and ship a different stable release instead, pass that
+new explicit version, such as `v5.4.1` or `v5.5.0`.
+
+#### Plain setup
+
+The simplest configuration uses the caller repository's `GITHUB_TOKEN` and
+chains a publish job that checks out the tagged release:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release and Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title (auto-generated if omitted)
+        required: false
+        type: string
+
+jobs:
+  release:
+    name: Create GitHub release
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    permissions:
+      contents: write
+    with:
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+
+  publish:
+    name: Publish package to npm
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v6
+        with:
+          ref: refs/tags/${{ needs.release.outputs.version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish to npm
+        run: npm publish
+```
+
+The `publish` job uses `needs.release.outputs.version` to check out the exact
+tag created by the release workflow. Replace the npm steps with whatever
+publish logic your project needs.
+
+#### Signed setup with GitHub App
+
+When you need signed commits and tags or want pushes to trigger downstream
+workflows, use a GitHub App token with GPG signing. A pre-validation job
+catches missing secrets early:
+
+```yaml title=".github/workflows/release.yaml"
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      intro:
+        description: 1-2 sentence release introduction
+        required: true
+        type: string
+      title:
+        description: User-facing release title (auto-generated if omitted)
+        required: false
+        type: string
+
+jobs:
+  validate-release-config:
+    name: Validate release workflow configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate release configuration
+        env:
+          TENZIR_GITHUB_APP_ID: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          TENZIR_GITHUB_APP_PRIVATE_KEY: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          TENZIR_BOT_GPG_SIGNING_KEY: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+        run: |
+          if [ -z "$TENZIR_GITHUB_APP_ID" ]; then
+            echo "::error::Repository variable 'TENZIR_GITHUB_APP_ID' must be set."
+            exit 1
+          fi
+          if [ -z "$TENZIR_GITHUB_APP_PRIVATE_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_GITHUB_APP_PRIVATE_KEY' must be set."
+            exit 1
+          fi
+          if [ -z "$TENZIR_BOT_GPG_SIGNING_KEY" ]; then
+            echo "::error::Repository secret 'TENZIR_BOT_GPG_SIGNING_KEY' must be set."
+            exit 1
+          fi
+
+  release:
+    name: Create GitHub release
+    needs: validate-release-config
+    permissions:
+      contents: write
+    uses: tenzir/ship/.github/workflows/release.yaml@<pinned-ref>
+    with:
+      intro: ${{ inputs.intro }}
+      title: ${{ inputs.title }}
+      github_app_id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+      git_user_name: tenzir-bot
+      git_user_email: engineering@tenzir.com
+      sign_commits: true
+      sign_tags: true
+    secrets:
+      github_app_private_key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+      gpg_private_key: ${{ secrets.TENZIR_BOT_GPG_SIGNING_KEY }}
+```
+
+The validation job fails fast with clear error messages before the release job
+attempts to mint a token or import a GPG key. See the
+<Reference>ship-framework</Reference> for the full list of auth and signing
+inputs.
 
 :::note[Terminology]
 We use the verb "publish" in prose even though the GitHub CLI subcommand to
