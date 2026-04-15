@@ -451,10 +451,6 @@ operators:
     description: 'Loads bytes from a TCP or TLS connection.'
     example: 'load_tcp "0.0.0.0:8090" { read_json }'
     path: 'reference/operators/load_tcp'
-  - name: 'load_udp'
-    description: 'Loads bytes from a UDP socket.'
-    example: 'load_udp "0.0.0.0:8090"'
-    path: 'reference/operators/load_udp'
   - name: 'load_zmq'
     description: 'Receives ZeroMQ messages.'
     example: 'load_zmq'
@@ -691,13 +687,9 @@ operators:
     description: 'Saves bytes to a TCP or TLS connection.'
     example: 'save_tcp "0.0.0.0:8090", tls=true'
     path: 'reference/operators/save_tcp'
-  - name: 'save_udp'
-    description: 'Saves bytes to a UDP socket.'
-    example: 'save_udp "0.0.0.0:8090"'
-    path: 'reference/operators/save_udp'
   - name: 'to_udp'
     description: 'Sends one UDP datagram per input event.'
-    example: 'to_udp "127.0.0.1:514", message=this'
+    example: 'to_udp "127.0.0.1:514"'
     path: 'reference/operators/to_udp'
   - name: 'save_zmq'
     description: 'Sends bytes as ZeroMQ messages.'
@@ -2138,14 +2130,6 @@ load_tcp "0.0.0.0:8090" { read_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="load_udp" description="Loads bytes from a UDP socket." href="/reference/operators/load_udp">
-
-```tql
-load_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
 
 ```tql
@@ -2494,18 +2478,10 @@ save_tcp "0.0.0.0:8090", tls=true
 
 </ReferenceCard>
 
-<ReferenceCard title="save_udp" description="Saves bytes to a UDP socket." href="/reference/operators/save_udp">
-
-```tql
-save_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
 
 ```tql
-to_udp "127.0.0.1:514", message=this
+to_udp "127.0.0.1:514"
 ```
 
 </ReferenceCard>
