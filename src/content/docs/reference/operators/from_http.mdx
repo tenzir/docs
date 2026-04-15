@@ -1,25 +1,27 @@
 ---
 title: from_http
 category: Inputs/Events
-example: 'from_http "0.0.0.0:8080"'
+example: 'from_http "https://example.com/api"'
 ---
 
-Sends and receives HTTP/1.1 requests.
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Sends an HTTP/1.1 request and returns the response as events.
 
 ```tql
 from_http url:string, [method=string, body=record|string|blob, encode=string,
-          headers=record, metadata_field=field, error_field=field,
-          paginate=record->string|string, paginate_delay=duration,
-          connection_timeout=duration, max_retry_count=int,
-          retry_delay=duration, tls=record]
-from_http url:string, server=true, [metadata_field=field, responses=record,
-          max_request_size=int, max_connections=int, tls=record]
+          headers=record, error_field=field, paginate=string,
+          paginate_delay=duration, connection_timeout=duration,
+          max_retry_count=int, retry_delay=duration, tls=record]
+          { … }
 ```
 
 ## Description
 
-The `from_http` operator issues HTTP requests or spins up an HTTP/1.1 server on
-a given address and forwards received requests as events.
+The `from_http` operator issues an HTTP request and returns the response as
+events.
 
 :::tip[Format and Compression Inference]
 
@@ -32,86 +34,46 @@ If neither the URL nor the HTTP headers provide enough information, you can expl
 
 ### `url: string`
 
-URL to listen on or to connect to.
+URL to connect to. Both `http://` and `https://` schemes are supported. If the
+scheme is omitted, `https://` is assumed.
 
-Must have the form `<host>:<port>` when `server=true`.
+The URL is resolved as a [secret](/explanations/secrets), so you can pass a
+secret name to avoid hardcoding sensitive URLs.
 
 import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
 
 <HTTPClientOptions />
-
-### `metadata_field = field (optional)`
-
-Field to insert metadata into when using the parsing pipeline.
-
-The response metadata (when using the client mode) has the following schema:
-
-| Field     | Type     | Description                           |
-| :-------- | :------- | :------------------------------------ |
-| `code`    | `uint64` | The HTTP status code of the response. |
-| `headers` | `record` | The response headers.                 |
-
-The request metadata (when using the server mode) has the following schema:
-
-| Field      | Type     | Description                          |
-| :--------- | :------- | :----------------------------------- |
-| `headers`  | `record` | The request headers.                 |
-| `query`    | `record` | The query parameters of the request. |
-| `path`     | `string` | The path requested.                  |
-| `fragment` | `string` | The URI fragment of the request.     |
-| `method`   | `string` | The HTTP method of the request.      |
-| `version`  | `string` | The HTTP version of the request.     |
 
 ### `error_field = field (optional)`
 
 Field to insert the response body for HTTP error responses (status codes not in the 2xx or 3xx range).
 
 When set, any HTTP response with a status code outside the 200–399 range will
-have its body stored in this field as a `blob`. Otherwise, error responses,
-alongside the original event, are skipped and an error is emitted.
-
-### `server = bool (optional)`
-
-Whether to spin up an HTTP server or act as an HTTP client.
-
-Defaults to `false`, i.e., the HTTP client.
-
-### `responses = record (optional)`
-
-Specify custom responses for endpoints on the server. For example,
-
-```tql
-responses = {
-  "/resource/create": { code: 200, content_type: "text/html", body: "Created!" },
-  "/resource/delete": { code: 401, content_type: "text/html", body: "Unauthorized!" }
-}
-```
-
-creates two special routes on the server with different responses.
-
-Requests to an unspecified endpoint are responded with HTTP Status `200 OK`.
-
-### `max_request_size = int (optional)`
-
-The maximum size of an incoming request to accept.
-
-Defaults to `10MiB`.
-
-### `max_connections = int (optional)`
-
-The maximum number of simultaneous incoming connections to accept.
-
-Defaults to `10`.
+have its body stored in this field as a `blob`. Otherwise, error responses are
+skipped and an error is emitted.
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
+
+### Migration from `server=true`
+
+The `server=true` flag is no longer supported. Use <Op>accept_http</Op> to
+listen for incoming HTTP requests.
 
 ### `{ … } (optional)`
 
 A pipeline that receives the response body as bytes, allowing parsing per
 request. This is especially useful in scenarios where the response body can be
 parsed into multiple events.
+
+Inside the pipeline, the `$response` variable is available as a record with the
+following fields:
+
+| Field     | Type     | Description                           |
+| :-------- | :------- | :------------------------------------ |
+| `code`    | `uint64` | The HTTP status code of the response. |
+| `headers` | `record` | The response headers.                 |
 
 If not provided, the operator will attempt to infer the parsing operator from
 the `Content-Type` header. Should this inference fail (e.g., unsupported or
@@ -149,17 +111,26 @@ head 1
 }
 ```
 
-### Paginate with a Lambda
-
-Use the `paginate` parameter with a lambda to extract the next page URL from the
-response body:
+### Send a POST request with JSON body
 
 ```tql
-from_http "https://api.example.com/data", paginate=(x => x.next_url?)
+from_http "https://httpbin.org/post", body={key: "value"}, encode="json" {
+  read_json
+}
 ```
 
-This sends a GET request to the initial URL and evaluates the `x.next_url` field
-in the response to determine the next URL for subsequent requests.
+### Access response metadata
+
+Use the `$response` variable inside a parsing pipeline to access the HTTP
+response code and headers:
+
+```tql
+from_http "https://example.com/api", method="put" {
+  read_json
+  where $response.code == 200
+  response = $response
+}
+```
 
 ### Paginate via Link Headers
 
@@ -185,44 +156,12 @@ from_http "https://api.example.com/data", max_retry_count=3, retry_delay=2s
 
 This tries up to 3 times, waiting 2 seconds between each retry.
 
-### Listen on port 8080
-
-Spin up a server with:
-
-```tql
-from_http "0.0.0.0:8080", server=true, metadata_field=metadata
-```
-
-Send a request to the HTTP endpoint via `curl`:
-
-```sh
-echo '{"key": "value"}' | gzip | curl localhost:8080 --data-binary @- -H 'Content-Encoding: gzip' -H 'Content-Type: application/json'
-```
-
-Observe the request in the Tenzir pipeline, parsed and decompressed:
-
-```tql
-{
-  key: "value",
-  metadata: {
-    headers: {
-      Host: "localhost:8080",
-      "User-Agent": "curl/8.13.0",
-      Accept: "*/*",
-      "Content-Encoding": "gzip",
-      "Content-Length": "37",
-      "Content-Type": "application/json",
-    },
-    path: "/",
-    method: "post",
-    version: "HTTP/1.1",
-  },
-}
-```
-
 ## See Also
 
+- <Op>accept_http</Op>
 - <Op>http</Op>
+- <Op>to_http</Op>
+- <Op>serve_http</Op>
 - <Op>serve</Op>
 - <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Guide>enrichment/enrich-with-threat-intel</Guide>

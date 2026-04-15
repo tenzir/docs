@@ -1,0 +1,93 @@
+---
+title: Expose data as a server
+---
+
+import Op from '@components/see-also/Op.astro';
+
+This guide shows you how to make pipeline data available to external consumers
+by spinning up servers. You'll learn to stream events over HTTP and configure
+server endpoints for different use cases.
+
+## Spin up an HTTP server
+
+Use [`serve_http`](/reference/operators/serve_http) at the end of a pipeline to
+start an HTTP server that streams events as NDJSON to connected clients:
+
+```tql
+from_file "example.yaml"
+serve_http "0.0.0.0:8080"
+```
+
+Any HTTP client connecting to `http://host:8080/` receives a continuous NDJSON
+stream. Each event is JSON-encoded on a single line, separated by newlines:
+
+```bash
+curl http://localhost:8080/
+```
+
+```json
+{"timestamp":"2025-01-15T10:30:00Z","src_ip":"192.168.1.100","event":"login"}
+{"timestamp":"2025-01-15T10:30:01Z","src_ip":"10.0.0.50","event":"file_access"}
+```
+
+Multiple clients can connect simultaneously — each receives a copy of every
+event.
+
+### Custom path and method
+
+By default, clients connect with a GET request to `/`. Customize both:
+
+```tql
+from_file "alerts.json"
+serve_http "0.0.0.0:9090", path="/alerts", method="post"
+```
+
+Clients must now POST to `/alerts` to receive the stream. Requests to other
+paths return a `404` response.
+
+### Health check endpoints
+
+Production deployments often need health check endpoints for load balancers
+or monitoring. Use the `responses` option to serve static content alongside
+the event stream:
+
+```tql
+subscribe "my-topic"
+serve_http "0.0.0.0:8080",
+  responses={
+    "/health": {code: 200, content_type: "text/plain", body: "ok"},
+    "/ready": {code: 200, content_type: "application/json", body: "{\"status\":\"ready\"}"},
+  }
+```
+
+Clients hitting `/health` or `/ready` get the static response immediately.
+Clients connecting to `/` (the default stream path) receive the event stream.
+
+### Connection limits
+
+Control the maximum number of simultaneous client connections:
+
+```tql
+from_file "data.csv"
+serve_http "0.0.0.0:8080", max_connections=10
+```
+
+Connections beyond the limit are rejected with a `503` response.
+
+### TLS encryption
+
+Serve data over HTTPS by providing TLS certificates:
+
+```tql
+from_file "secret.json"
+serve_http "0.0.0.0:8443",
+  tls={
+    certfile: "/path/to/cert.pem",
+    keyfile: "/path/to/key.pem",
+  }
+```
+
+## See Also
+
+- <Op>serve_http</Op>
+- <Op>to_http</Op>
