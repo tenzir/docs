@@ -4,7 +4,7 @@ category: Inputs/Bytes
 example: 'load_nic "eth0"'
 ---
 
-Loads bytes from a network interface card (NIC).
+This reference documents the `load_nic` operator. You'll learn how to capture raw PCAP bytes from a network interface and when to use <Op>from_nic</Op> instead.
 
 [pcap-rfc]: https://datatracker.ietf.org/doc/id/draft-gharris-opsawg-pcap-00.html
 
@@ -14,11 +14,11 @@ load_nic iface:str, [snaplen=int, emit_file_headers=bool]
 
 ## Description
 
-The `load_nic` operator uses libpcap to acquire packets from a network interface and
-packs them into blocks of bytes that represent PCAP packet records.
+The `load_nic` operator uses libpcap to acquire packets from a network interface and packs them into blocks of bytes that represent PCAP packet records.
 
-The received first packet triggers also emission of PCAP file header such that
-downstream operators can treat the packet stream as valid PCAP capture file.
+The first captured packet also triggers emission of a PCAP file header so downstream operators can treat the packet stream as a valid PCAP capture file.
+
+In neo pipelines, prefer <Op>from_nic</Op> when you want packet events directly. It defaults to <Op>read_pcap</Op> and removes the extra parsing step from the pipeline.
 
 ### `iface: str`
 
@@ -28,8 +28,7 @@ The interface to load bytes from.
 
 Sets the snapshot length of the captured packets.
 
-This value is an upper bound on the packet size. Packets larger than this size
-get truncated to `snaplen` bytes.
+This value is an upper bound on the packet size. Packets larger than this size get truncated to `snaplen` bytes.
 
 Defaults to `262144`.
 
@@ -37,17 +36,19 @@ Defaults to `262144`.
 
 Creates PCAP file headers for every flushed batch.
 
-The operator emits chunk of bytes that represent a stream of packets.
-When setting `emit_file_headers` every chunk gets its own PCAP file header, as
-opposed to just the very first. This yields a continuous stream of concatenated
-PCAP files.
+The operator emits chunks of bytes that represent a stream of packets. When setting `emit_file_headers`, every chunk gets its own PCAP file header instead of only the very first one. This yields a continuous stream of concatenated PCAP files.
 
-Our <Op>read_pcap</Op> operator can handle such concatenated traces, and
-optionally re-emit thes file headers as separate events.
+Our <Op>read_pcap</Op> operator can handle such concatenated traces and optionally re-emit those file headers as separate events.
 
 ## Examples
 
-### Read PCAP packets from `eth0`
+### Load raw PCAP bytes from `eth0`
+
+```tql
+load_nic "eth0"
+```
+
+### Parse packets from `eth0`
 
 ```tql
 load_nic "eth0"
@@ -58,13 +59,12 @@ read_pcap
 
 ```tql
 load_nic "en0"
-read_pcap
-write_pcap
 save_file "trace.pcap"
 ```
 
 ## See Also
 
+- <Op>from_nic</Op>
 - <Op>nics</Op>
 - <Op>read_pcap</Op>
 - <Op>write_pcap</Op>
