@@ -14,8 +14,9 @@ from_nic iface:string, [snaplen=int] { … }
 
 The `from_nic` operator captures packets with libpcap and forwards them as events.
 
-If you omit the optional pipeline, `from_nic` uses <Op>read_pcap</Op> by default.
-Provide a pipeline when you want to change how the captured PCAP byte stream is parsed. The pipeline must accept bytes and return events.
+If you omit the optional pipeline, `from_nic` uses <Op>read_pcap</Op> by default. Provide a pipeline when you want to change how the captured PCAP byte stream is parsed. The pipeline must accept bytes and return events.
+
+To narrow the traffic, filter the resulting packet events in TQL after parsing. `from_nic` does not currently expose a BPF filter argument.
 
 ### `iface: string`
 
@@ -55,6 +56,14 @@ from_nic "en1"
 from_nic "en1" {
   read_pcap emit_file_headers=true
 }
+```
+
+### Filter HTTPS traffic after parsing
+
+```tql
+from_nic "en1"
+packet = decapsulate(this)
+where packet.tcp.dst_port? == 443
 ```
 
 ### Write a live capture to a PCAP file

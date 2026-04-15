@@ -166,15 +166,16 @@ The `community_id` field provides a
 [Community ID](https://github.com/corelight/community-id-spec) hash for
 correlating network flows across different tools.
 
-### Filter by BPF expression
+### Filter captured packets
 
-Apply Berkeley Packet Filter (BPF) expressions to capture only specific
-traffic:
+Filter captured traffic after parsing:
 
 ```tql
-from_nic filter="tcp port 443", "eth0" {
+from_nic "eth0" {
   read_pcap
 }
+packet = decapsulate(this)
+where packet.tcp.dst_port? == 443
 ```
 
 ### Read PCAP files
