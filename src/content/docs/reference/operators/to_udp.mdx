@@ -10,7 +10,7 @@ import Op from '@components/see-also/Op.astro';
 Sends one UDP datagram per input event.
 
 ```tql
-to_udp endpoint:str, [message=string|blob|record|null]
+to_udp endpoint:str, [message=string|blob|record]
 ```
 
 ## Description
@@ -22,7 +22,7 @@ Sends one UDP datagram per input event to a fixed remote UDP endpoint.
 The address of the remote endpoint. Must be of the format `host:port`. The
 optional `udp://` prefix is accepted but not required.
 
-### `message = string|blob|record|null (optional)`
+### `message = string|blob|record (optional)`
 
 An expression that is evaluated once per input event and must produce one of
 the following types:
