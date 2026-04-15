@@ -695,6 +695,10 @@ operators:
     description: 'Saves bytes to a UDP socket.'
     example: 'save_udp "0.0.0.0:8090"'
     path: 'reference/operators/save_udp'
+  - name: 'to_udp'
+    description: 'Sends one UDP datagram per input event.'
+    example: 'to_udp "127.0.0.1:514", message=this'
+    path: 'reference/operators/to_udp'
   - name: 'save_zmq'
     description: 'Sends bytes as ZeroMQ messages.'
     example: 'save_zmq'
@@ -2494,6 +2498,14 @@ save_tcp "0.0.0.0:8090", tls=true
 
 ```tql
 save_udp "0.0.0.0:8090"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
+
+```tql
+to_udp "127.0.0.1:514", message=this
 ```
 
 </ReferenceCard>
