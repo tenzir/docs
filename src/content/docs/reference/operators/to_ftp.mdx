@@ -1,0 +1,77 @@
+---
+title: to_ftp
+category: Outputs/Events
+example: 'to_ftp "ftp.example.org/events.ndjson" { write_ndjson }'
+---
+
+Prints events to bytes and uploads them via FTP or FTPS.
+
+```tql
+to_ftp url:string, [tls=record] { … }
+```
+
+## Description
+
+The `to_ftp` operator sends events to an FTP or FTPS server.
+
+The required subpipeline receives events and must return bytes.
+
+### `url: string`
+
+The URL to upload to. You can omit the `ftp://` scheme.
+
+### `tls = record (optional)`
+
+TLS configuration.
+
+By default, `ftps://` enables TLS and `ftp://` does not. If you omit the
+scheme, the operator assumes `ftp://`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions />
+
+### `{ … }`
+
+A required printing subpipeline.
+
+The subpipeline receives events and must return bytes. For example, use
+<Op>write_ndjson</Op> to serialize events as newline-delimited JSON.
+
+## Examples
+
+### Upload events as NDJSON
+
+Use <Op>write_ndjson</Op> to serialize each event as one JSON object per line
+before uploading it.
+
+```tql
+from {
+  x: 42,
+  y: "foo",
+}
+to_ftp "ftp://user:pass@ftp.example.org/events.ndjson" {
+  write_ndjson
+}
+```
+
+### Upload compressed NDJSON
+
+Add <Op>compress gzip</Op> to the printing subpipeline when you want to upload
+compressed output.
+
+```tql
+from {
+  x: 42,
+  y: "foo",
+}
+to_ftp "ftp://user:pass@ftp.example.org/events.ndjson.gz" {
+  write_ndjson
+  compress gzip
+}
+```
+
+## See Also
+
+- <Op>from_ftp</Op>
+- <Integration>ftp</Integration>

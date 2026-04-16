@@ -343,6 +343,10 @@ operators:
     description: 'Reads one or multiple files from a filesystem.'
     example: 'from_file "s3://data/**.json"'
     path: 'reference/operators/from_file'
+  - name: 'from_ftp'
+    description: 'Downloads bytes via FTP and parses them with a subpipeline.'
+    example: 'from_ftp "ftp.example.org/events.ndjson" { read_ndjson }'
+    path: 'reference/operators/from_ftp'
   - name: 'from_fluent_bit'
     description: 'Receives events via Fluent Bit.'
     example: 'from_fluent_bit "opentelemetry"'
@@ -395,10 +399,6 @@ operators:
     description: 'Loads the contents of the file at `path` as a byte stream.'
     example: 'load_file "/tmp/data.json"'
     path: 'reference/operators/load_file'
-  - name: 'load_ftp'
-    description: 'Loads a byte stream via FTP.'
-    example: 'load_ftp "ftp.example.org"'
-    path: 'reference/operators/load_ftp'
   - name: 'load_gcs'
     description: 'Loads bytes from a Google Cloud Storage object.'
     example: 'load_gcs "gs://bucket/object.json"'
@@ -635,10 +635,6 @@ operators:
     description: 'Writes a byte stream to a file.'
     example: 'save_file "/tmp/out.json"'
     path: 'reference/operators/save_file'
-  - name: 'save_ftp'
-    description: 'Saves a byte stream via FTP.'
-    example: 'save_ftp "ftp.example.org"'
-    path: 'reference/operators/save_ftp'
   - name: 'save_gcs'
     description: 'Saves bytes to a Google Cloud Storage object.'
     example: 'save_gcs "gs://bucket/object.json"'
@@ -707,6 +703,10 @@ operators:
     description: 'Sends events via Fluent Bit.'
     example: 'to_fluent_bit "elasticsearch" …'
     path: 'reference/operators/to_fluent_bit'
+  - name: 'to_ftp'
+    description: 'Prints events to bytes and uploads them via FTP.'
+    example: 'to_ftp "ftp.example.org/events.ndjson" { write_ndjson }'
+    path: 'reference/operators/to_ftp'
   - name: 'to_google_cloud_logging'
     description: 'Sends events to Google Cloud Logging.'
     example: 'to_google_cloud_logging …'
@@ -2018,14 +2018,6 @@ load_file "/tmp/data.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="load_ftp" description="Loads a byte stream via FTP." href="/reference/operators/load_ftp">
-
-```tql
-load_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
 
 ```tql
@@ -2139,6 +2131,14 @@ from_azure_blob_storage "abfs://container/data/**.json"
 
 ```tql
 from_file "s3://data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_ftp" description="Downloads bytes via FTP and parses them with a subpipeline." href="/reference/operators/from_ftp">
+
+```tql
+from_ftp "ftp.example.org/events.ndjson" { read_ndjson }
 ```
 
 </ReferenceCard>
@@ -2356,14 +2356,6 @@ save_file "/tmp/out.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="save_ftp" description="Saves a byte stream via FTP." href="/reference/operators/save_ftp">
-
-```tql
-save_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
 
 ```tql
@@ -2485,6 +2477,14 @@ to_clickhouse table="my_table"
 
 ```tql
 to_fluent_bit "elasticsearch" …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_ftp" description="Prints events to bytes and uploads them via FTP." href="/reference/operators/to_ftp">
+
+```tql
+to_ftp "ftp.example.org/events.ndjson" { write_ndjson }
 ```
 
 </ReferenceCard>

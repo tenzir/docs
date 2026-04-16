@@ -1,0 +1,68 @@
+---
+title: from_ftp
+category: Inputs/Events
+example: 'from_ftp "ftp.example.org/events.ndjson" { read_ndjson }'
+---
+
+Downloads bytes via FTP or FTPS and parses them with a subpipeline.
+
+```tql
+from_ftp url:string, [tls=record] { … }
+```
+
+## Description
+
+The `from_ftp` operator downloads bytes from an FTP or FTPS server and forwards
+them to the required subpipeline.
+
+### `url: string`
+
+The URL to request from. You can omit the `ftp://` scheme.
+
+### `tls = record (optional)`
+
+TLS configuration.
+
+By default, `ftps://` enables TLS and `ftp://` does not. If you omit the
+scheme, the operator assumes `ftp://`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions />
+
+### `{ … }`
+
+A required parsing subpipeline.
+
+The subpipeline receives the downloaded body as bytes and must return events.
+For example, use <Op>read_ndjson</Op> to parse newline-delimited JSON.
+
+## Examples
+
+### Download NDJSON from an FTP server
+
+Use <Op>read_ndjson</Op> when the remote file already contains
+newline-delimited JSON.
+
+```tql
+from_ftp "ftp://user:pass@ftp.example.org/events.ndjson" {
+  read_ndjson
+}
+```
+
+### Download gzipped JSON and decompress it explicitly
+
+Decompress the downloaded bytes before parsing them when the remote file is
+stored as gzip-compressed JSON.
+
+```tql
+from_ftp "ftp://user:pass@ftp.example.org/events.json.gz" {
+  decompress gzip
+  read_json
+}
+```
+
+## See Also
+
+- <Op>to_ftp</Op>
+- <Integration>ftp</Integration>

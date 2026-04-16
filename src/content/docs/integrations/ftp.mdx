@@ -4,7 +4,9 @@ title: FTP
 
 Tenzir supports the [File Transfer Protocol
 (FTP)](https://en.wikipedia.org/wiki/File_Transfer_Protocol), both downloading
-and uploading files.
+and uploading files. Use <Op>from_ftp</Op> to download bytes and parse them
+with a subpipeline, and use <Op>to_ftp</Op> to print events with a subpipeline
+and upload the result.
 
 ![FTP](ftp.svg)
 
@@ -12,28 +14,33 @@ FTP consists of two separate TCP connections, one control and one data
 connection. This can be tricky for some firewalls and may require special
 attention.
 
-:::tip[URL Support]
-The URL schemes `ftp://` and `ftps://` dispatch to
-<Op>load_ftp</Op> and
-<Op>save_ftp</Op> for seamless URL-style use via
-<Op>from</Op> and
-<Op>to</Op>.
-:::
-
 ## Examples
 
-### Download a file from an FTP server
+These examples use the direct FTP operators with explicit parsing and printing
+subpipelines.
+
+### Download and parse a file from an FTP server
+
+Use <Op>from_ftp</Op> with <Op>read_ndjson</Op> to turn the downloaded bytes
+into events.
 
 ```tql
-from "ftp://user:pass@ftp.example.org/path/to/file.json"
+from_ftp "ftp://user:pass@ftp.example.org/path/to/file.ndjson" {
+  read_ndjson
+}
 ```
 
 ### Upload events to an FTP server
+
+Use <Op>to_ftp</Op> with <Op>write_ndjson</Op> to serialize events before
+uploading them.
 
 ```tql
 from {
   x: 42,
   y: "foo",
 }
-to "ftp://user:pass@ftp.example.org/a/b/c/events.json.gz"
+to_ftp "ftp://user:pass@ftp.example.org/a/b/c/events.ndjson" {
+  write_ndjson
+}
 ```
