@@ -8,7 +8,7 @@ This reference documents the `yara` operator. You'll learn how to apply YARA
 rules to a byte stream and what match records it emits.
 
 ```tql
-yara rule:list<string>, [compiled_rules=bool, fast_scan=bool]
+yara rule:string|list<string>, [compiled_rules=bool, fast_scan=bool]
 ```
 
 ## Description
@@ -33,11 +33,11 @@ It buffers the full input in memory and runs the YARA scan when the input ends.
 This lets matches span chunk boundaries, but it also means the operator is only
 suitable for finite byte streams.
 
-### `rule: list<string>`
+### `rule: string | list<string>`
 
-The path to the YARA rule or rules.
+The path to one YARA rule or a list of rule paths.
 
-If the path is a directory, the operator attempts to recursively add all
+If a path is a directory, the operator attempts to recursively add all
 contained files as YARA rules.
 
 ### `compiled_rules = bool (optional)`
