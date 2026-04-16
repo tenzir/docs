@@ -335,6 +335,10 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_tcp'
+    description: 'Accepts incoming TCP or TLS connections and yields events.'
+    example: 'accept_tcp "0.0.0.0:8090" { read_json }'
+    path: 'reference/operators/accept_tcp'
   - name: 'from'
     description: 'Obtains events from an URI, inferring the source, compression and format.'
     example: 'from "data.json"'
@@ -2154,6 +2158,14 @@ load_zmq
 ### Events
 
 <CardGrid>
+
+<ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
+
+```tql
+accept_tcp "0.0.0.0:8090" { read_json }
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
 
