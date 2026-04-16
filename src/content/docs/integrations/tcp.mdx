@@ -26,7 +26,9 @@ operators reconnect automatically with exponential backoff on connection failure
 
 Use <Op>accept_tcp</Op> to listen on a local endpoint and accept incoming TCP
 connections. Each connection spawns a nested pipeline that processes the
-incoming byte stream independently.
+incoming byte stream independently. Inside that pipeline, `$peer.ip` and
+`$peer.port` describe the connected client. Set `resolve_hostnames=true` to
+also expose `$peer.hostname` from reverse DNS.
 
 ## Serving data to clients
 

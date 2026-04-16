@@ -23,7 +23,9 @@ accept_tcp "0.0.0.0:9000" {
 ```
 
 This listens on all interfaces (`0.0.0.0`) on port 9000. Specify a parsing
-pipeline to convert incoming bytes to events.
+pipeline to convert incoming bytes to events. Inside the nested pipeline,
+`$peer.ip` and `$peer.port` identify the connecting client. Set
+`resolve_hostnames=true` to also expose `$peer.hostname` from reverse DNS.
 
 ### Connect to a remote server
 
