@@ -52,14 +52,16 @@ Enable fast matching mode.
 
 ## Examples
 
-The example below shows how you can apply YARA rules to a finite byte stream.
+The example below shows how you can scan a file with YARA rules.
 
-### Scan a finite byte stream
+### Scan a file
 
-Scan a byte stream with a set of YARA rules:
+Scan a file with a set of YARA rules:
 
 ```tql
-yara "rule.yara"
+from_file "evil.exe" {
+  yara "rule.yara"
+}
 ```
 
 :::note[Chunking and copies]
