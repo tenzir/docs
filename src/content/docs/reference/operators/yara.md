@@ -52,25 +52,20 @@ Enable fast matching mode.
 
 ## Examples
 
-The examples below show how you can scan a single file and how you can create a
-simple rule scanning service.
+The example below shows how you can apply YARA rules to a finite byte stream.
 
-### Perform one-shot scanning of files
+### Scan a finite byte stream
 
-Scan a file with a set of YARA rules:
+Scan a byte stream with a set of YARA rules:
 
 ```tql
-load_file "evil.exe", mmap=true
 yara "rule.yara"
 ```
 
-:::note[Memory mapping optimization]
-The `mmap` flag is an optimization that constructs a single chunk of bytes
-instead of a stream of byte chunks. Without `mmap=true`,
-[`load_file`](/reference/operators/load_file) produces multiple byte chunks and
-feeds them to the `yara` operator. This still works because `yara` buffers the
-full input in memory before scanning, but `mmap=true` avoids the extra copy and
-usually performs better.
+:::note[Chunking and copies]
+If the upstream delivers one contiguous chunk of bytes, `yara` can scan it
+without an extra copy. If the upstream splits the data across multiple chunks,
+`yara` buffers and joins them before scanning.
 :::
 
 :::caution[Finite inputs only]
