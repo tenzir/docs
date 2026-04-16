@@ -4,8 +4,7 @@ category: Detection
 example: 'yara "/path/to/rules"'
 ---
 
-This reference documents the `yara` operator. You'll learn how to apply YARA
-rules to a byte stream and what match records it emits.
+Executes YARA rules on byte streams.
 
 ```tql
 yara rule:string|list<string>, [compiled_rules=bool, fast_scan=bool]
