@@ -10,7 +10,8 @@ import Integration from '@components/see-also/Integration.astro';
 Listens for incoming TCP or TLS connections and receives events.
 
 ```tql
-accept_tcp endpoint:string, [max_connections=int, tls=record, { … }]
+accept_tcp endpoint:string, [max_connections=int, resolve_hostnames=bool,
+                           tls=record, { … }]
 ```
 
 ## Description
@@ -35,6 +36,16 @@ connections beyond this limit are rejected.
 
 Defaults to `128`.
 
+### `resolve_hostnames = bool (optional)`
+
+Perform reverse DNS lookups for accepted peers and expose the result as
+`$peer.hostname` inside the nested pipeline.
+
+When enabled, the `hostname` field exists on `$peer` and is `null` if no PTR
+record is available. When disabled, the `hostname` field is omitted.
+
+Defaults to `false`.
+
 ### `{ … } (optional)`
 
 The pipeline to run for each individual TCP connection. If none is specified, no
@@ -46,10 +57,11 @@ pipeline that parses the individual connection streams into events, for instance
 Inside the pipeline, the `$peer` variable is available as a record with the
 following fields:
 
-| Field  | Type    | Description                           |
-| :----- | :------ | :------------------------------------ |
-| `ip`   | `ip`    | The IP address of the connected peer  |
-| `port` | `int64` | The port number of the connected peer |
+| Field      | Type    | Description                                                                                                                    |
+| :--------- | :------ | :----------------------------------------------------------------------------------------------------------------------------- |
+| `ip`       | `ip`    | The IP address of the connected peer.                                                                                          |
+| `port`     | `int64` | The port number of the connected peer.                                                                                         |
+| `hostname` | `string` | The reverse-DNS hostname of the connected peer. This field exists only when `resolve_hostnames=true` and is `null` when no hostname is available. |
 
 ## Examples
 
@@ -66,6 +78,15 @@ accept_tcp "0.0.0.0:8090" {
 ```tql
 accept_tcp "0.0.0.0:514" {
   read_syslog
+}
+```
+
+### Enrich events with peer hostnames
+
+```tql
+accept_tcp "0.0.0.0:514", resolve_hostnames=true {
+  read_syslog
+  collector = $peer
 }
 ```
 
