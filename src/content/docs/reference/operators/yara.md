@@ -59,15 +59,16 @@ The example below shows how you can scan a file with YARA rules.
 Scan a file with a set of YARA rules:
 
 ```tql
-from_file "evil.exe" {
+from_file "evil.exe", mmap=true {
   yara "rule.yara"
 }
 ```
 
-:::note[Chunking and copies]
-If the upstream delivers one contiguous chunk of bytes, `yara` can scan it
-without an extra copy. If the upstream splits the data across multiple chunks,
-`yara` buffers and joins them before scanning.
+:::note[Memory mapping optimization]
+When reading from a local file, `from_file ..., mmap=true` uses `mmap(2)` so
+`yara` can scan one contiguous chunk without an extra copy. Without
+`mmap=true`, `from_file` may deliver multiple chunks; `yara` still works
+because it buffers and joins the full input before scanning.
 :::
 
 :::caution[Finite inputs only]
