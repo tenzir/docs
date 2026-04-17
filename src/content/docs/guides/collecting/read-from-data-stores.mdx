@@ -17,8 +17,7 @@ Use `table=...` when you want to fetch all rows from a table.
 Read a ClickHouse table:
 
 ```tql
-from_clickhouse table="events",
-                database="security",
+from_clickhouse table="security.events",
                 host="clickhouse.example.com",
                 password=secret("CLICKHOUSE_PASSWORD"),
                 tls=false
@@ -71,8 +70,7 @@ Both operators can return metadata instead of table rows.
 List ClickHouse tables in a database:
 
 ```tql
-from_clickhouse show="tables",
-                database="security",
+from_clickhouse sql="SHOW TABLES FROM security",
                 host="clickhouse.example.com",
                 password=secret("CLICKHOUSE_PASSWORD"),
                 tls=false
@@ -90,7 +88,9 @@ from_mysql table="users",
 ```
 
 Use metadata queries when you want to discover available tables, inspect a
-schema, or validate assumptions before you run a larger pipeline.
+schema, or validate assumptions before you run a larger pipeline. In
+ClickHouse, prefer regular SQL such as `SHOW`, `DESCRIBE`, or queries against
+system catalogs.
 
 ## Poll for new rows from MySQL
 
