@@ -4,7 +4,7 @@ import type { StarlightIcon } from "@astrojs/starlight/components/Icons";
 import type { HTMLAttributes } from "astro/types";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
-import { pathWithBase } from "../utils/base";
+import { hrefWithBase } from "../utils/base";
 
 interface Props extends Omit<HTMLAttributes<"a">, "title"> {
   title: string;
@@ -38,11 +38,7 @@ if (description) {
   renderedDescription = String(result).replace(/^<p>|<\/p>\s*$/g, "");
 }
 
-// Apply base URL to internal links (starting with / but not //)
-const resolvedHref =
-  typeof href === "string" && href.startsWith("/") && !href.startsWith("//")
-    ? pathWithBase(href)
-    : href;
+const resolvedHref = hrefWithBase(href);
 ---
 
 <div class="link-card">

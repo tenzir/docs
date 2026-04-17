@@ -1,4 +1,6 @@
 ---
+import { hrefWithBase } from "../utils/base";
+
 export interface Props {
   title: string;
   description: string;
@@ -6,14 +8,21 @@ export interface Props {
 }
 
 const { title, description, href } = Astro.props;
+const resolvedHref = hrefWithBase(href);
+
+const isExternalLink = (href: string) =>
+  href.startsWith("//") || /^[a-z][a-z0-9+.-]*:/i.test(href);
 
 // Simple markdown to HTML conversion for inline elements
 function renderMarkdown(text: string): string {
   return text
-    .replace(
-      /\[([^\]]+)\]\(([^)]+)\)/g,
-      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
-    )
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, href) => {
+      const resolvedDescriptionHref = hrefWithBase(href) ?? href;
+      const externalLinkAttrs = isExternalLink(href)
+        ? ' target="_blank" rel="noopener noreferrer"'
+        : "";
+      return `<a href="${resolvedDescriptionHref}"${externalLinkAttrs}>${label}</a>`;
+    })
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>");
@@ -24,7 +33,7 @@ const renderedDescription = renderMarkdown(description);
 
 <div class="reference-card">
   <div class="reference-card-header">
-    <a href={href} class="reference-card-title-link">
+    <a href={resolvedHref} class="reference-card-title-link">
       <h3 class="reference-card-title">{title}</h3>
     </a>
   </div>
