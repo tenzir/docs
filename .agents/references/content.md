@@ -23,23 +23,30 @@ blocks to separate them visually.
 ## First paragraph guidelines
 
 The first paragraph of every doc appears in AI skill summaries and search
-results. Orient the reader to the document type and what they'll gain.
+results. Make it self-contained and specific. Use the explicit patterns below
+to choose the intro style.
 
 **Pattern by document type:**
 
-| Type        | Pattern                          | Example                                           |
-| ----------- | -------------------------------- | ------------------------------------------------- |
-| Guide       | "This guide shows you how to..." | "This guide shows you how to fetch data from..."  |
-| Tutorial    | "This tutorial teaches you..."   | "This tutorial teaches you to write idiomatic..." |
-| Explanation | "This page explains..."          | "This page explains TQL's type system..."         |
-| Reference   | "This reference documents..."    | "This reference documents configuration..."       |
+| Type               | Pattern                                | Example                                           |
+| ------------------ | -------------------------------------- | ------------------------------------------------- |
+| Guide              | "This guide shows you how to..."       | "This guide shows you how to fetch data from..."  |
+| Tutorial           | "This tutorial teaches you..."         | "This tutorial teaches you to write idiomatic..." |
+| Explanation        | "This page explains..."                | "This page explains TQL's type system..."         |
+| Reference overview | Short factual description of the topic | "These settings configure the Tenzir Platform."   |
+| Reference entry    | Short direct description of behavior   | "Retrieves the length of a list."                 |
 
 **Rules:**
 
-1. **State the document type**: Help readers know they're in the right place.
-2. **Explain what they'll learn or achieve**: Add "You'll learn..." or similar.
-3. **Complete sentences before lists**: Don't end the paragraph with a colon.
-4. **Be specific**: Include key terms readers might search for.
+1. **Use document-type cues for narrative docs**: Guides, tutorials, and
+   explanations lead with the document type and reader outcome.
+2. **Use synopsis lines for reference docs**: Operator, function, and similar
+   reference entries begin with a single sentence that states what the thing
+   does.
+3. **Use factual summaries for reference overviews**: Overview pages open with
+   a short sentence that states what the page covers.
+4. **Write complete sentences before lists**: End the paragraph as a sentence.
+5. **Include key terms**: Use words readers might search for.
 
 ## Semantic components
 
