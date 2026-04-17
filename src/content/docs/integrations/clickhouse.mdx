@@ -13,7 +13,7 @@ Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
 protocol using the official
 [clickhouse-cpp](https://github.com/ClickHouse/clickhouse-cpp) library. Tenzir
 communicates with ClickHouse via the host and port you specify in the
-<Op>to_clickhouse</Op> operator. This means:
+<Op>from_clickhouse</Op> and <Op>to_clickhouse</Op> operators. This means:
 
 - **Network**: Tenzir and ClickHouse can run on the same machine (using
   `localhost`) or on different machines in the same network. You just need to
@@ -84,10 +84,31 @@ These examples assume that the ClickHouse server is running on the same host as
 Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
 pipelines).
 
-You can find out more about how to configure TLS on the
-<Op>to_clickhouse</Op> documentation and the
-[Clickhouse SSL-TLS configuration
+You can find out more about how to configure TLS in the
+<Op>from_clickhouse</Op> and <Op>to_clickhouse</Op> references and the
+[ClickHouse SSL/TLS configuration
 guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
+
+### Read data from ClickHouse
+
+Tenzir can also query an existing ClickHouse table and return the result as
+events:
+
+```tql
+from_clickhouse table="my_table", tls=false
+```
+
+You can also run custom SQL queries:
+
+```tql
+from_clickhouse sql="SELECT * FROM my_table WHERE severity >= 3", tls=false
+```
+
+To inspect column metadata, query the table schema instead:
+
+```tql
+from_clickhouse show="columns", table="my_table", tls=false
+```
 
 ### 1. Easy Mode: Automatic table creation
 
