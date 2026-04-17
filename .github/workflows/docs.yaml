@@ -78,11 +78,18 @@ jobs:
               --base "${{ steps.pages.outputs.base_path }}"
           fi
 
-      - name: Save PR number
+      - name: Save PR preview metadata
         if: github.event_name == 'pull_request'
         run: |
           mkdir -p pr
-          echo ${{ github.event.pull_request.number }} > pr/number
+          echo '${{ github.event.pull_request.number }}' > pr/number
+          echo '${{ github.sha }}' > pr/sha
+          cat > dist/__preview.json <<EOF
+          {
+            "pr": ${{ github.event.pull_request.number }},
+            "sha": "${{ github.sha }}"
+          }
+          EOF
 
       - name: Upload PR artifact
         if: github.event_name == 'pull_request'
