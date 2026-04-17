@@ -6,17 +6,17 @@ example: 'from_clickhouse table="my_table"'
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
-This reference documents the `from_clickhouse` operator. You'll learn how to read table rows, run SQL queries, and inspect metadata in ClickHouse.
+This reference documents the `from_clickhouse` operator. You'll learn how to read table rows, run SQL queries, and inspect ClickHouse metadata through SQL.
 
 ```tql
-from_clickhouse [table=string, sql=string, show=string, database=string,
+from_clickhouse [table=string, sql=string,
                  host=string, port=int, user=string, password=string,
-                 tls=record]
+                 tls=bool|record]
 ```
 
 ## Description
 
-Use exactly one of `table`, `sql`, or `show`.
+Use exactly one of `table` or `sql`.
 
 Currently, `from_clickhouse` is available only with the new pipeline executor.
 Run it with `tenzir --neo` until it is available in the legacy executor.
@@ -38,23 +38,8 @@ A custom SQL query to execute.
 Use this mode when you want ClickHouse to filter, project, sort, or cast data
 before Tenzir reads it.
 
-### `show = string`
-
-Shows ClickHouse metadata instead of table rows.
-
-Supported values are:
-
-- `"tables"`: Lists tables in the selected database and yields events with the
-  fields `database` and `table`.
-- `"columns"`: Lists columns for `table` and yields events with the fields
-  `name` and `type`.
-
-### `database = string (optional)`
-
-The database to use for unqualified table names.
-
-This argument also filters `show="tables"` to one database. If you specify
-both `database` and a database-qualified `table`, they must match.
+For metadata queries such as `SHOW TABLES`, `DESCRIBE TABLE`, or queries
+against `system.tables` and `system.columns`, use `sql`.
 
 ### `host = string (optional)`
 
@@ -128,13 +113,13 @@ from_clickhouse sql="SELECT * FROM events WHERE severity >= 3 ORDER BY time DESC
 ### List tables in the current database
 
 ```tql
-from_clickhouse show="tables", tls=false
+from_clickhouse sql="SHOW TABLES", tls=false
 ```
 
 ### Show the columns for a table
 
 ```tql
-from_clickhouse show="columns", table="events", tls=false
+from_clickhouse sql="DESCRIBE TABLE events", tls=false
 ```
 
 ## See Also
