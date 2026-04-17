@@ -1,0 +1,132 @@
+---
+title: serve_http
+category: Outputs/Events
+example: 'serve_http "0.0.0.0:8080"'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Starts an HTTP server that streams events as NDJSON to connected clients.
+
+```tql
+serve_http url:string, [path=string, method=string, responses=record,
+           max_connections=int, tls=record]
+```
+
+## Description
+
+The `serve_http` operator starts an HTTP server and streams pipeline events as
+[NDJSON](https://github.com/ndjson/ndjson-spec) to any HTTP client that
+connects. Each connected client receives a copy of every event.
+
+The operator waits for at least one client to connect before delivering data.
+When the pipeline finishes, the server shuts down and all client connections are
+closed.
+
+Clients that connect to a path other than the stream path, or use the wrong HTTP
+method, receive a `404` or `405` response respectively. Use the `responses`
+option to serve static content on additional paths, such as health checks.
+
+### `url: string`
+
+The endpoint to listen on. Must have the form `<host>:<port>`. Use `0.0.0.0` to
+accept connections on all interfaces.
+
+### `path = string (optional)`
+
+The URL path that clients connect to for the event stream.
+
+Defaults to `"/"`.
+
+### `method = string (optional)`
+
+The HTTP method that clients must use to connect to the stream.
+
+Defaults to `"GET"`.
+
+### `responses = record (optional)`
+
+Serve fixed responses on auxiliary paths that are separate from the event stream.
+This is useful for health checks or status endpoints. For example:
+
+```tql
+responses={
+  "/health": {code: 200, content_type: "text/plain", body: "ok"},
+}
+```
+
+Clients hitting `/health` receive the static `body` defined here, while clients
+connecting to the stream path receive the live NDJSON event stream from the
+pipeline.
+
+Each route must be a record with `code`, `content_type`, and `body` fields. The
+stream path itself cannot appear in `responses`.
+
+### `max_connections = int (optional)`
+
+The maximum number of simultaneous client connections to accept.
+
+Defaults to `128`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+## Examples
+
+### Stream events to HTTP clients
+
+Serve events on port 8080. Any HTTP client connecting to `http://host:8080/`
+receives the events as NDJSON:
+
+```tql
+export
+serve_http "0.0.0.0:8080"
+```
+
+Connect with `curl`:
+
+```bash
+curl http://localhost:8080/
+```
+
+### Serve on a custom path and method
+
+Require clients to POST to `/events`:
+
+```tql
+export
+serve_http "0.0.0.0:8080", path="/events", method="post"
+```
+
+### Add a health check endpoint
+
+Expose a health endpoint alongside the event stream:
+
+```tql
+export
+serve_http "0.0.0.0:8080",
+  responses={
+    "/health": {code: 200, content_type: "text/plain", body: "ok"},
+  }
+```
+
+### Serve over HTTPS
+
+```tql
+export
+serve_http "0.0.0.0:8443",
+  tls={
+    certfile: "/path/to/cert.pem",
+    keyfile: "/path/to/key.pem",
+  }
+```
+
+## See Also
+
+- <Op>accept_http</Op>
+- <Op>to_http</Op>
+- <Guide>routing/expose-data-as-server</Guide>
+- <Integration>http</Integration>

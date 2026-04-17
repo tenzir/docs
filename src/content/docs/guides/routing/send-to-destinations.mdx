@@ -68,8 +68,8 @@ to_opensearch "https://opensearch.example.com:9200",
 
 ### Cloud services
 
-Route events to cloud destinations like [Amazon SQS](/integrations/amazon/sqs)
-and [Google Cloud Pub/Sub](/integrations/google/cloud-pubsub).
+Route events to cloud destinations like <Integration>amazon/sqs</Integration>
+and <Integration>google/cloud-pubsub</Integration>.
 
 Send to SQS:
 
@@ -116,8 +116,7 @@ save_file "s3://bucket/logs/events.jsonl"
 Send NDJSON over <Integration>tcp</Integration>:
 
 ```tql
-write_json
-save_tcp "collector.example.com:5044"
+to_tcp "collector.example.com:5044" { write_json }
 ```
 
 ## Expression-based serialization

@@ -335,6 +335,10 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_tcp'
+    description: 'Accepts incoming TCP or TLS connections and yields events.'
+    example: 'accept_tcp "0.0.0.0:8090" { read_json }'
+    path: 'reference/operators/accept_tcp'
   - name: 'from'
     description: 'Obtains events from an URI, inferring the source, compression and format.'
     example: 'from "data.json"'
@@ -363,14 +367,30 @@ operators:
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
     path: 'reference/operators/from_http'
+  - name: 'from_stdin'
+    description: 'Reads and parses events from standard input.'
+    example: 'from_stdin { read_json }'
+    path: 'reference/operators/from_stdin'
+  - name: 'from_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and receives events.'
+    example: 'from_tcp "example.org:4000" { read_json }'
+    path: 'reference/operators/from_tcp'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
     path: 'reference/operators/from_kafka'
+  - name: 'from_mysql'
+    description: 'Reads events from a MySQL database.'
+    example: 'from_mysql table="users", host="db.example.com", database="mydb"'
+    path: 'reference/operators/from_mysql'
   - name: 'from_nats'
     description: 'Consumes messages from a NATS JetStream subject.'
     example: 'from_nats "alerts" { read_json }'
     path: 'reference/operators/from_nats'
+  - name: 'from_nic'
+    description: 'Captures packets from a network interface and outputs events.'
+    example: 'from_nic "eth0"'
+    path: 'reference/operators/from_nic'
   - name: 'from_opensearch'
     description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
@@ -607,6 +627,10 @@ operators:
     description: 'Parses an incoming Syslog stream into events.'
     example: 'read_syslog'
     path: 'reference/operators/read_syslog'
+  - name: 'read_tql'
+    description: 'Parses an incoming byte stream of TQL-formatted records into events.'
+    example: 'read_tql'
+    path: 'reference/operators/read_tql'
   - name: 'read_tsv'
     description: 'Read TSV (Tab-Separated Values) from a byte stream.'
     example: 'read_tsv auto_expand=true'
@@ -693,7 +717,7 @@ operators:
     path: 'reference/operators/sigma'
   - name: 'yara'
     description: 'Executes YARA rules on byte streams.'
-    example: 'yara "/path/to/rules", blockwise=true'
+    example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
   - name: 'to'
     description: 'Saves to an URI, inferring the destination, compression and format.'
@@ -1057,7 +1081,7 @@ sigma "/tmp/rules/"
 <ReferenceCard title="yara" description="Executes YARA rules on byte streams." href="/reference/operators/yara">
 
 ```tql
-yara "/path/to/rules", blockwise=true
+yara "/path/to/rules"
 ```
 
 </ReferenceCard>
@@ -1794,6 +1818,14 @@ read_syslog
 
 </ReferenceCard>
 
+<ReferenceCard title="read_tql" description="Parses an incoming byte stream of TQL-formatted records into events." href="/reference/operators/read_tql">
+
+```tql
+read_tql
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="read_tsv" description="Read TSV (Tab-Separated Values) from a byte stream." href="/reference/operators/read_tsv">
 
 ```tql
@@ -2139,6 +2171,14 @@ load_zmq
 
 <CardGrid>
 
+<ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
+
+```tql
+accept_tcp "0.0.0.0:8090" { read_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
 
 ```tql
@@ -2195,10 +2235,36 @@ from_http "0.0.0.0:8080"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
+
+```tql
+from_stdin { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_tcp" description="Connects to a remote TCP or TLS endpoint and receives events." href="/reference/operators/from_tcp">
+
+```tql
+from_tcp "example.org:4000" {
+  read_json
+}
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_kafka" description="Receives events from an Apache Kafka topic." href="/reference/operators/from_kafka">
 
 ```tql
 from_kafka "logs"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_mysql" description="Reads events from a MySQL database." href="/reference/operators/from_mysql">
+
+```tql
+from_mysql table="users", host="db.example.com", database="mydb"
 ```
 
 </ReferenceCard>
@@ -2211,6 +2277,13 @@ from_nats "alerts" { read_json }
 
 </ReferenceCard>
 
+<ReferenceCard title="from_nic" description="Captures packets from a network interface and outputs events." href="/reference/operators/from_nic">
+
+```tql
+from_nic "eth0"
+```
+
+</ReferenceCard>
 <ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
 
 ```tql

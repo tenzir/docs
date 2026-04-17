@@ -221,10 +221,8 @@ configuration:
 Import the logs via TCP:
 
 ```tql
-load_tcp "127.0.0.1:4000",
-  tls=true,
-  certfile="key_and_cert.pem",
-  keyfile="key_and_cert.pem" {
+accept_tcp "127.0.0.1:4000",
+  tls={certfile: "key_and_cert.pem", keyfile: "key_and_cert.pem"} {
     read_json
   }
 import
@@ -251,7 +249,7 @@ configuration to publish to the `nxlog` topic:
 </Output>
 ```
 
-Then use our [Kafka integration](/integrations/kafka) to read from the topic:
+Then use <Integration>kafka</Integration> to read from the topic:
 
 ```tql
 from_kafka "nxlog"
@@ -589,7 +587,7 @@ Accept the logs sent with the configuration above into Tenzir via
 <Integration>tcp</Integration>:
 
 ```tql
-load_tcp "10.0.0.1:1514" {
+accept_tcp "10.0.0.1:1514" {
   read_json
 }
 publish "wec"
@@ -618,7 +616,7 @@ Security monitoring often focuses on specific event types. Filter for logon
 events (Event ID 4624) and failed logon attempts (Event ID 4625):
 
 ```tql
-load_tcp "10.0.0.1:1514" {
+accept_tcp "10.0.0.1:1514" {
   read_delimited "</Event>\n", include_separator=true
 }
 this = data.parse_winlog()
@@ -631,7 +629,7 @@ The `EventData` section contains event-specific fields. For a successful logon
 event, extract the relevant information:
 
 ```tql
-load_tcp "10.0.0.1:1514" {
+accept_tcp "10.0.0.1:1514" {
   read_delimited "</Event>\n", include_separator=true
 }
 this = data.parse_winlog()

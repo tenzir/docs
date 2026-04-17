@@ -9,44 +9,33 @@ packages at the top to native protocol connectors at the core.
 
 ## Packages
 
-<Explanation>packages</Explanation> are 1-click deployable integrations that deliver instant value.
-They bundle pipelines, [enrichment contexts](/explanations/enrichment/), and
-configurations for common security tools like Splunk, CrowdStrike, Elastic,
-SentinelOne, Palo Alto, and many more.
+<Explanation>packages</Explanation> are 1-click deployable integrations that
+deliver instant value. They bundle pipelines,
+<Explanation>enrichment</Explanation>, and configurations for common security
+tools like Splunk, CrowdStrike, Elastic, SentinelOne, Palo Alto, and many more.
 
-Browse our freely available [package library on
-GitHub](https://github.com/tenzir/library).
+Browse our freely available [package library on GitHub](https://github.com/tenzir/library). You can also use <Guide>ai-workbench/use-agent-skills</Guide> to generate custom packages with AI assistance.
 
 ## Core Integrations
 
 Core integrations are native connectors to the ecosystem, enabling
 communication over numerous protocols and APIs:
 
-- **Cloud storage**: <Integration>amazon/s3</Integration>,
-  [GCS](/integrations/google/cloud-storage),
-  <Integration>microsoft/azure-blob-storage</Integration>
-- **Message queues**: <Integration>kafka</Integration>,
-  <Integration>nats</Integration>, <Integration>amazon/sqs</Integration>,
-  <Integration>amqp</Integration>
-- **Databases**: <Integration>snowflake</Integration>,
-  <Integration>clickhouse</Integration>
-- **Network protocols**: <Integration>tcp</Integration>, <Integration>udp</Integration>,
-  <Integration>http</Integration>, <Integration>syslog</Integration>
+- **Cloud storage**: <Integration>amazon/s3</Integration>, <Integration>google/cloud-storage</Integration>, <Integration>microsoft/azure-blob-storage</Integration>
+- **Message queues**: <Integration>kafka</Integration>, <Integration>nats</Integration>, <Integration>amazon/sqs</Integration>, <Integration>amqp</Integration>
+- **Databases**: <Integration>snowflake</Integration>, <Integration>clickhouse</Integration>, <Integration>mysql</Integration>
+- **Network protocols**: <Integration>tcp</Integration>, <Integration>udp</Integration>, <Integration>http</Integration>, <Integration>syslog</Integration>
 
 Under the hood, core integrations use a C++ plugin abstraction to provide an
 [operator](/reference/operators/), [function](/reference/functions/), or
 [context](/explanations/enrichment/) that you can use in TQL to directly
 interface with the respective resource, such as a TCP socket or cloud storage
-bucket. We typically implement this functionality using the respective SDK, such as the
-[AWS SDK](https://aws.amazon.com/sdk-for-cpp/), [Google Cloud
+bucket. We typically implement this functionality using the respective SDK, such
+as the [AWS SDK](https://aws.amazon.com/sdk-for-cpp/), [Google Cloud
 SDK](https://cloud.google.com/cpp), or
 [librdkafka](https://github.com/confluentinc/librdkafka), though some
 integrations require a custom implementation.
 
-:::note[Dedicated Operators]
-For some applications, we provide a **dedicated operator** that dramatically
-simplifies the user experience. For example,
-<Op>to_splunk</Op> and
-<Op>from_opensearch</Op> offer a
-streamlined interface compared to composing generic HTTP or protocol operators.
+:::note[Dedicated operators]
+For some applications, we provide a **dedicated operator** that dramatically simplifies the user experience. For example, <Op>to_splunk</Op> and <Op>from_opensearch</Op> offer a streamlined interface compared to composing generic HTTP or protocol operators.
 :::
