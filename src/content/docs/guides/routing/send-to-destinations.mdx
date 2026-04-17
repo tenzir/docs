@@ -13,7 +13,8 @@ operators accept expressions for flexible serialization.
 
 ### Message brokers
 
-Send events to message brokers like <Integration>kafka</Integration>.
+Send events to message brokers like <Integration>kafka</Integration> and
+<Integration>nats</Integration>.
 
 Send to Kafka with automatic JSON formatting:
 
@@ -31,6 +32,16 @@ to_kafka "events", message=this.print_json()
 
 The `message` parameter accepts any expression that evaluates to a string or
 blob.
+
+Send to NATS JetStream:
+
+```tql
+subscribe "security-events"
+to_nats "alerts", message=this.print_json()
+```
+
+The NATS server must have a JetStream stream that captures the subject you
+publish to.
 
 ### Analytics platforms
 

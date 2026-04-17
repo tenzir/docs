@@ -4,8 +4,8 @@ title: Read from message brokers
 
 This guide shows you how to receive events from message brokers using TQL.
 You'll learn to subscribe to topics and queues from Apache Kafka (including
-Amazon MSK), AMQP-based brokers (like RabbitMQ), Amazon SQS, and Google Cloud
-Pub/Sub.
+Amazon MSK), NATS JetStream, AMQP-based brokers (like RabbitMQ), Amazon SQS,
+and Google Cloud Pub/Sub.
 
 ## Apache Kafka
 
@@ -61,6 +61,37 @@ from_kafka "events", group_id="tenzir-ingest"
 from_kafka "security-logs",
   options={"bootstrap.servers": "my-cluster.kafka.us-east-1.amazonaws.com:9098"},
   aws_iam={region: "us-east-1"}
+```
+
+## NATS JetStream
+
+<Integration>nats</Integration> is a messaging system for services, edge
+deployments, and cloud-native applications. Use <Op>from_nats</Op> to consume
+messages from JetStream subjects.
+
+### Consume from a subject
+
+```tql
+from_nats "alerts", durable="tenzir-alerts" {
+  read_json
+}
+```
+
+The NATS server must have a JetStream stream that captures the subject you
+consume from.
+
+### Preserve message metadata
+
+Use dollar-variables inside the parsing subpipeline to copy NATS metadata into
+events:
+
+```tql
+from_nats "alerts" {
+  read_json
+  nats_subject = $subject
+  nats_stream = $stream
+  nats_sequence = $stream_sequence
+}
 ```
 
 ## AMQP (RabbitMQ)
@@ -125,6 +156,7 @@ content. Parse it to extract structured data.
 
 - <Guide>parsing/parse-string-fields</Guide>
 - <Integration>kafka</Integration>
+- <Integration>nats</Integration>
 - <Integration>amqp</Integration>
 - <Integration>amazon/sqs</Integration>
 - <Integration>google/cloud-pubsub</Integration>

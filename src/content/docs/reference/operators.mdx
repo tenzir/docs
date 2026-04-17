@@ -367,6 +367,10 @@ operators:
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
     path: 'reference/operators/from_kafka'
+  - name: 'from_nats'
+    description: 'Consumes messages from a NATS JetStream subject.'
+    example: 'from_nats "alerts" { read_json }'
+    path: 'reference/operators/from_nats'
   - name: 'from_opensearch'
     description: 'Receives events via Opensearch Bulk API.'
     example: 'from_opensearch'
@@ -731,6 +735,10 @@ operators:
     description: 'Sends messages to an Apache Kafka topic.'
     example: 'to_kafka "topic", message=this.print_json()'
     path: 'reference/operators/to_kafka'
+  - name: 'to_nats'
+    description: 'Publishes messages to a NATS JetStream subject.'
+    example: 'to_nats "alerts", message=this.print_json()'
+    path: 'reference/operators/to_nats'
   - name: 'to_opensearch'
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
@@ -2195,6 +2203,14 @@ from_kafka "logs"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_nats" description="Consumes messages from a NATS JetStream subject." href="/reference/operators/from_nats">
+
+```tql
+from_nats "alerts" { read_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
 
 ```tql
@@ -2537,6 +2553,14 @@ to_hive "s3://…", partition_by=[x]
 
 ```tql
 to_kafka "topic", message=this.print_json()
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_nats" description="Publishes messages to a NATS JetStream subject." href="/reference/operators/to_nats">
+
+```tql
+to_nats "alerts", message=this.print_json()
 ```
 
 </ReferenceCard>

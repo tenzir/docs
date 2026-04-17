@@ -61,11 +61,19 @@ pagination patterns and advanced configurations.
 
 ### Message brokers
 
-Subscribe to topics or queues from Apache Kafka, AMQP, Amazon SQS, and Google
-Cloud Pub/Sub:
+Subscribe to topics or queues from Apache Kafka, NATS, AMQP, Amazon SQS, and
+Google Cloud Pub/Sub:
 
 ```tql
 from_kafka "security-events", offset="end"
+```
+
+For NATS JetStream, consume from a subject with a parsing subpipeline:
+
+```tql
+from_nats "alerts" {
+  read_json
+}
 ```
 
 See the [message broker guide](/guides/collecting/read-from-message-brokers)
