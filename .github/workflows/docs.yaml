@@ -83,7 +83,7 @@ jobs:
         run: |
           jq -n \
             --argjson pr '${{ github.event.pull_request.number }}' \
-            --arg sha '${{ github.sha }}' \
+            --arg sha '${{ github.event.pull_request.head.sha }}' \
             '{pr: $pr, sha: $sha}' > dist/__preview.json
 
       - name: Upload PR artifact
