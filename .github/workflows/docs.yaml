@@ -81,6 +81,9 @@ jobs:
       - name: Write PR preview marker
         if: github.event_name == 'pull_request'
         run: |
+          mkdir -p pr
+          printf '%s\n' '${{ github.event.pull_request.number }}' > pr/number
+          printf '%s\n' '${{ github.event.pull_request.head.sha }}' > pr/sha
           jq -n \
             --argjson pr '${{ github.event.pull_request.number }}' \
             --arg sha '${{ github.event.pull_request.head.sha }}' \
@@ -91,7 +94,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pr-preview
-          path: dist
+          path: |
+            dist
+            pr
           retention-days: 1
 
       - name: Upload artifact
