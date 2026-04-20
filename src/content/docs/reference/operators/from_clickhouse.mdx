@@ -10,7 +10,7 @@ This reference documents the `from_clickhouse` operator. You'll learn how to rea
 
 ```tql
 from_clickhouse [table=string, sql=string,
-                 host=string, port=int, user=string, password=string,
+                 uri=string | (host=string, port=int, user=string, password=string),
                  tls=bool|record]
 ```
 
@@ -18,15 +18,31 @@ from_clickhouse [table=string, sql=string,
 
 Use exactly one of `table` or `sql`.
 
+Use either `uri` or the explicit connection arguments `host`, `port`, `user`,
+and `password`.
+
 Currently, `from_clickhouse` is available only with the new pipeline executor.
 Run it with `tenzir --neo` until it is available in the legacy executor.
+
+### `uri = string (optional)`
+
+A ClickHouse connection URI in the format:
+
+```text
+clickhouse://[user[:password]@]host[:port][/database]
+```
+
+When present, the URI supplies the connection endpoint and optionally the
+current database.
+
+Use `tls` separately to control TLS.
 
 ### `table = string`
 
 The table to read from.
 
 You can qualify the table as `<database>.<table>`. If you omit the database,
-ClickHouse uses the current database.
+ClickHouse uses the current database selected by the URI or server defaults.
 
 Use this mode when you want to read a whole table and preserve named tuple
 fields from the table schema.
@@ -47,11 +63,15 @@ The hostname for the ClickHouse server.
 
 Defaults to `"localhost"`.
 
+Mutually exclusive with `uri`.
+
 ### `port = int (optional)`
 
 The port for the ClickHouse server.
 
 Defaults to `9000` without TLS and `9440` with TLS.
+
+Mutually exclusive with `uri`.
 
 ### `user = string (optional)`
 
@@ -59,11 +79,15 @@ The user to use for authentication.
 
 Defaults to `"default"`.
 
+Mutually exclusive with `uri`.
+
 ### `password = string (optional)`
 
 The password for the given user.
 
 Defaults to `""`.
+
+Mutually exclusive with `uri`.
 
 <TLSOptions tls_default="true" />
 
@@ -101,6 +125,14 @@ table back yields `uint64` unless the ClickHouse column type is `Bool`.
 
 ```tql
 from_clickhouse table="events", tls=false
+```
+
+### Use a connection URI
+
+```tql
+from_clickhouse uri="clickhouse://default:secret@clickhouse.example.com:9000/security",
+                table="events",
+                tls=false
 ```
 
 ### Run a filtered SQL query
