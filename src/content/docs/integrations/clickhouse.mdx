@@ -141,6 +141,10 @@ to_clickhouse uri="clickhouse://default:secret@localhost:9000/default",
               tls=false
 ```
 
+When the URI includes a database and `table` is unqualified, Tenzir writes to
+that database. In `mode="create"` and `mode="create_append"`, Tenzir also
+creates the selected database if needed.
+
 When creating a table, the <Op>to_clickhouse</Op>
 operator uses the first event to determine the schema. You must take care that
 there are no untyped nulls in this event, as the operator cannot transmit
