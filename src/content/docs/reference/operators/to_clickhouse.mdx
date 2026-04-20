@@ -7,9 +7,9 @@ example: 'to_clickhouse table="my_table"'
 Sends events to a ClickHouse table.
 
 ```tql
-to_clickhouse table=string, [host=string, port=int, user=string, password=string,
-                             mode=string, primary=field, database=string,
-                             tls=record]
+to_clickhouse table=string,
+              [uri=string | (host=string, port=int, user=string, password=string)],
+              [mode=string, primary=field, tls=bool|record]
 ```
 
 ## Description
@@ -21,8 +21,21 @@ The name of the table you want to write to.
 This can be a dynamic expression, allowing you to automatically write to different
 tables based on the data.
 
-The `<database>.<table>` notation can be used to also specify a table. If no `<database>`,
-is provided, `"default"` will be used.
+The `<database>.<table>` notation can be used to also specify a table. If no `<database>`
+is provided, ClickHouse uses the current database selected by the URI or server defaults.
+
+### `uri = string (optional)`
+
+A ClickHouse connection URI in the format:
+
+```text
+clickhouse://[user[:password]@]host[:port][/database]
+```
+
+When present, the URI supplies the connection endpoint and optionally the
+current database.
+
+Use `tls` separately to control TLS.
 
 ### `host = string (optional)`
 
@@ -30,11 +43,15 @@ The hostname for the ClickHouse server.
 
 Defaults to `"localhost"`.
 
+Mutually exclusive with `uri`.
+
 ### `port = int (optional)`
 
 The port for the ClickHouse server.
 
 Defaults to `9000` without TLS and `9440` with TLS.
+
+Mutually exclusive with `uri`.
 
 ### `user = string (optional)`
 
@@ -42,11 +59,15 @@ The user to use for authentication.
 
 Defaults to `"default"`.
 
+Mutually exclusive with `uri`.
+
 ### `password = string (optional)`
 
 The password for the given user.
 
 Defaults to `""`.
+
+Mutually exclusive with `uri`.
 
 ### `mode = string (optional)`
 
@@ -151,6 +172,16 @@ the first event, an error is raised.
 ```tql
 from "my_file.csv"
 to_clickhouse table="my_table", tls=false
+```
+
+### Use a connection URI
+
+```tql
+from "my_file.csv"
+to_clickhouse uri="clickhouse://default:secret@clickhouse.example.com:9000/security",
+              table="alerts",
+              primary=time,
+              tls=false
 ```
 
 ### Send OCSF data to ClickHouse

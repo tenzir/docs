@@ -12,8 +12,9 @@ database. It lets you run real-time analytics with SQL queries.
 Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
 protocol using the official
 [clickhouse-cpp](https://github.com/ClickHouse/clickhouse-cpp) library. Tenzir
-communicates with ClickHouse via the host and port you specify in the
-<Op>from_clickhouse</Op> and <Op>to_clickhouse</Op> operators. This means:
+communicates with ClickHouse via the connection details you specify in the
+<Op>from_clickhouse</Op> and <Op>to_clickhouse</Op> operators, either through a
+ClickHouse URI or through explicit host and port settings. This means:
 
 - **Network**: Tenzir and ClickHouse can run on the same machine (using
   `localhost`) or on different machines in the same network. You just need to
@@ -92,10 +93,18 @@ guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
 ### Read data from ClickHouse
 
 Tenzir can also query an existing ClickHouse table and return the result as
-events:
+structured events:
 
 ```tql
 from_clickhouse table="my_table", tls=false
+```
+
+You can also connect through a URI:
+
+```tql
+from_clickhouse uri="clickhouse://default:secret@localhost:9000/default",
+                table="my_table",
+                tls=false
 ```
 
 You can also run custom SQL queries:
@@ -119,6 +128,17 @@ schema. For example, to ingest OCSF network activity data:
 from "ocsf_network_activity.json"
 ocsf::cast encode_variants=true, null_fill=true
 to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time, tls=false
+```
+
+A URI works here as well:
+
+```tql
+from "ocsf_network_activity.json"
+ocsf::cast encode_variants=true, null_fill=true
+to_clickhouse uri="clickhouse://default:secret@localhost:9000/default",
+              table="ocsf_events",
+              primary=time,
+              tls=false
 ```
 
 When creating a table, the <Op>to_clickhouse</Op>
