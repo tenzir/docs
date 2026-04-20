@@ -22,7 +22,7 @@ This can be a dynamic expression, allowing you to automatically write to differe
 tables based on the data.
 
 The `<database>.<table>` notation can be used to also specify a table. If no `<database>`
-is provided, ClickHouse uses the current database selected by the URI or server defaults.
+is provided, Tenzir writes to the database selected by the URI, if any, or the server default.
 
 ### `uri = string (optional)`
 
@@ -34,6 +34,10 @@ clickhouse://[user[:password]@]host[:port][/database]
 
 When present, the URI supplies the connection endpoint and optionally the
 current database.
+
+If the URI includes `/database` and `table` is unqualified, Tenzir writes to
+that database. In `mode="create"` and `mode="create_append"`, Tenzir also
+creates the selected database if it does not exist yet.
 
 Use `tls` separately to control TLS.
 
@@ -183,6 +187,8 @@ to_clickhouse uri="clickhouse://default:secret@clickhouse.example.com:9000/secur
               primary=time,
               tls=false
 ```
+
+This writes to `security.alerts`.
 
 ### Send OCSF data to ClickHouse
 
