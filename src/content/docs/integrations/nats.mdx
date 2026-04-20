@@ -14,9 +14,8 @@ publish messages.
 ### Consume JSON messages from a subject
 
 ```tql
-from_nats "alerts", durable="tenzir-alerts" {
-  read_json
-}
+from_nats "alerts", durable="tenzir-alerts"
+this = string(message).parse_json()
 ```
 
 The NATS server must have a JetStream stream that captures the subject you
@@ -36,9 +35,7 @@ from_nats "alerts",
   url="tls://nats.example.com:4222",
   auth={token: secret("NATS_TOKEN")},
   tls={}
-{
-  read_json
-}
+this = string(message).parse_json()
 ```
 
 ## See Also

@@ -1,7 +1,7 @@
 ---
 title: from_nats
 category: Inputs/Events
-example: 'from_nats "alerts" { read_json }'
+example: 'from_nats "alerts"'
 ---
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
@@ -10,18 +10,24 @@ Consumes messages from a NATS JetStream subject.
 
 ```tql
 from_nats subject:string, [url=secret, durable=string, count=int, tls=record,
-          auth=record, _batch_size=int, _queue_capacity=int] { … }
+          auth=record, metadata_field=field, _batch_size=int,
+          _queue_capacity=int, _batch_timeout=duration]
 ```
 
 ## Description
 
 The `from_nats` operator consumes messages from a NATS JetStream subject. The
-operator passes each message payload as bytes to the subpipeline, then
-acknowledges the message after the subpipeline finishes successfully.
+operator produces one event per NATS message with a `message` field of type
+`blob`. It acknowledges messages after the events were pushed downstream.
 
 The NATS server must have a JetStream stream that captures the subject you
 consume from. The operator uses the default URL `nats://localhost:4222` unless
 you provide `url` or configure `plugins.nats.url`.
+
+Durable consumers must use explicit acknowledgments. If `from_nats` creates the
+durable consumer, it configures the consumer with explicit acknowledgments. If a
+durable consumer already exists with a different acknowledgment policy, the
+operator exits with an error.
 
 ### `subject: string`
 
@@ -43,6 +49,25 @@ The durable consumer name to use for the JetStream subscription.
 
 Exit successfully after consuming `count` messages.
 
+### `metadata_field = field (optional)`
+
+The field that receives a record with NATS message metadata.
+
+The metadata record contains these fields:
+
+| Field               | Type           | Description                                      |
+| :------------------ | :------------- | :----------------------------------------------- |
+| `subject`           | `string`       | The message subject.                             |
+| `reply`             | `string`       | The reply subject, or `null` when absent.        |
+| `headers`           | `record`       | NATS headers as `list<string>` values.           |
+| `stream`            | `string`       | The JetStream stream name, or `null` when absent. |
+| `consumer`          | `string`       | The JetStream consumer name, or `null` when absent. |
+| `stream_sequence`   | `uint64`       | The stream sequence number.                      |
+| `consumer_sequence` | `uint64`       | The consumer sequence number.                    |
+| `num_delivered`     | `uint64`       | The message delivery count.                      |
+| `num_pending`       | `uint64`       | The number of pending messages for the consumer. |
+| `timestamp`         | `time`         | The JetStream message timestamp.                 |
+
 ### `auth = record (optional)`
 
 Authentication settings for the NATS connection. Each value can be a string or a
@@ -61,49 +86,44 @@ Supported authentication records are:
 
 <TLSOptions />
 
-NATS uses the standard Tenzir `tls` record. The nats.c library does not expose a
+NATS uses the standard Tenzir `tls` record. The nats.c library doesn't expose a
 minimum TLS version setting, so `tls.min_version` is accepted for record
 compatibility but ignored with a warning.
 
-### `{ … }`
+### `_batch_size = int (optional)`
 
-The parsing subpipeline that receives each NATS message payload as bytes.
+The maximum number of messages to emit in one batch.
 
-Inside the subpipeline, `from_nats` exposes the following metadata as
-dollar-variables:
+### `_queue_capacity = int (optional)`
 
-| Variable             | Type     | Description                                        |
-| :------------------- | :------- | :------------------------------------------------- |
-| `$subject`           | `string` | The message subject.                               |
-| `$reply`             | `string` | The reply subject, or `null` when absent.          |
-| `$headers`           | `record` | NATS headers as `list<string>` values.             |
-| `$stream`            | `string` | The JetStream stream name, or `null` when absent.  |
-| `$consumer`          | `string` | The JetStream consumer name, or `null` when absent. |
-| `$stream_sequence`   | `uint64` | The stream sequence number.                        |
-| `$consumer_sequence` | `uint64` | The consumer sequence number.                      |
-| `$num_delivered`     | `uint64` | The message delivery count.                        |
-| `$num_pending`       | `uint64` | The number of pending messages for the consumer.   |
-| `$timestamp`         | `time`   | The JetStream message timestamp.                   |
+The maximum number of received messages to queue before applying backpressure.
+
+### `_batch_timeout = duration (optional)`
+
+The maximum time to wait before emitting a partial batch.
 
 ## Examples
+
+### Consume messages
+
+```tql
+from_nats "alerts"
+```
 
 ### Consume JSON messages
 
 ```tql
-from_nats "alerts" {
-  read_json
-}
+from_nats "alerts"
+this = string(message).parse_json()
 ```
 
-### Preserve NATS metadata
+### Collect NATS metadata
 
 ```tql
-from_nats "alerts", durable="tenzir-alerts" {
-  read_json
-  nats_subject = $subject
-  nats_stream = $stream
-  nats_sequence = $stream_sequence
-}
+from_nats "alerts", durable="tenzir-alerts", metadata_field=nats
+parsed = string(message).parse_json()
+nats_subject = nats.subject
+nats_stream_sequence = nats.stream_sequence
 ```
 
 ### Connect with token authentication and TLS
@@ -113,9 +133,7 @@ from_nats "alerts",
   url="tls://nats.example.com:4222",
   auth={token: secret("NATS_TOKEN")},
   tls={}
-{
-  read_json
-}
+this = string(message).parse_json()
 ```
 
 ## See Also

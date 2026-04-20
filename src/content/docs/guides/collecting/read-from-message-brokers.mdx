@@ -72,9 +72,8 @@ messages from JetStream subjects.
 ### Consume from a subject
 
 ```tql
-from_nats "alerts", durable="tenzir-alerts" {
-  read_json
-}
+from_nats "alerts", durable="tenzir-alerts"
+this = string(message).parse_json()
 ```
 
 The NATS server must have a JetStream stream that captures the subject you
@@ -82,16 +81,14 @@ consume from.
 
 ### Preserve message metadata
 
-Use dollar-variables inside the parsing subpipeline to copy NATS metadata into
-events:
+Use `metadata_field` to copy NATS metadata into events:
 
 ```tql
-from_nats "alerts" {
-  read_json
-  nats_subject = $subject
-  nats_stream = $stream
-  nats_sequence = $stream_sequence
-}
+from_nats "alerts", metadata_field=nats
+this = string(message).parse_json()
+nats_subject = nats.subject
+nats_stream = nats.stream
+nats_sequence = nats.stream_sequence
 ```
 
 ## AMQP (RabbitMQ)
