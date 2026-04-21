@@ -62,6 +62,9 @@ export const guides = [
         label: "Platform Management",
         collapsed: true,
         items: [
+          "guides/platform-management/manage-organizations",
+          "guides/platform-management/manage-organization-members",
+          "guides/platform-management/manage-organization-workspaces",
           "guides/platform-management/configure-workspaces",
           "guides/platform-management/configure-dashboards",
           "guides/platform-management/use-ephemeral-nodes",

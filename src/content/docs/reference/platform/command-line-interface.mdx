@@ -5,7 +5,8 @@ sidebar:
 ---
 
 The Tenzir Platform command-line interface (CLI) allows you to interact with
-the Tenzir Platform from the command line to manage workspaces and nodes.
+the Tenzir Platform from the command line to manage organizations, workspaces,
+and nodes.
 
 ## Installation
 
@@ -70,21 +71,115 @@ for the CLI share the prefix `TENZIR_PLATFORM_CLI_`.
 
 ```text
 tenzir-platform auth login
-tenzir-platform workspace list
-tenzir-platform workspace select <workspace_id>
+tenzir-platform workspace list [--json]
+tenzir-platform workspace select <workspace>
+tenzir-platform workspace create [--name=<name>]
+tenzir-platform workspace rename <name>
 ```
 
 ### Description
 
 The `tenzir-platform auth login` command authenticates you with the platform.
 
-The `tenzir-platform workspace list` command shows all workspaces available to
-you. The `tenzir-platform workspace select` command selects a workspace for
-subsequent operations.
+- `tenzir-platform workspace list` shows all workspaces available to you. Use
+  `--json` for machine-readable output.
+- `tenzir-platform workspace select` selects a workspace for subsequent
+  operations.
+- `tenzir-platform workspace create` creates a new personal workspace. If
+  `--name` is omitted, the platform generates a name with a timestamp. To
+  create an organization-owned workspace, use
+  `tenzir-platform org create-workspace` instead.
+- `tenzir-platform workspace rename` renames the currently selected workspace.
 
-#### `<workspace_id>`
+#### `<workspace>`
 
-The unique ID of the workspace, as shown in `tenzir-platform workspace list`.
+A workspace ID (e.g., `t-abcd1234`), a workspace name, or a numeric index from
+`tenzir-platform workspace list`.
+
+## Manage Organizations
+
+### Synopsis
+
+```text
+tenzir-platform org create <name>
+tenzir-platform org delete
+tenzir-platform org info
+tenzir-platform org create-workspace [--name=<name>]
+tenzir-platform org invite [--role=<role>] [--label=<label>]
+tenzir-platform org list-invitations
+tenzir-platform org revoke-invitation <invitation_id>
+```
+
+### Description
+
+The following commands manage organizations. Each user can belong to at most one
+organization. Members of an organization gain access to all organization-owned
+workspaces by default.
+
+- `tenzir-platform org create` creates a new organization with the given display
+  name. You become its first admin.
+- `tenzir-platform org delete` permanently deletes your organization along with
+  all of its workspaces and their contents. Only organization admins can run
+  this command. This action cannot be undone.
+- `tenzir-platform org info` shows the organization name, member count, and
+  number of pending invitations.
+- `tenzir-platform org create-workspace` creates a workspace owned by your
+  organization. Only organization admins can run this command. If `--name` is
+  omitted, the platform generates a name with a timestamp.
+- `tenzir-platform org invite` creates an invitation token for your
+  organization. Share the token with the invitee so they can join. Invitations
+  expire after 7 days.
+- `tenzir-platform org list-invitations` lists all invitations for your
+  organization with their status, role, and label.
+- `tenzir-platform org revoke-invitation` revokes a pending invitation.
+
+#### `<name>`
+
+The display name for the organization.
+
+#### `--role=<role>`
+
+The role to assign to the invited member. Either `admin` or `member`. Defaults
+to `member`.
+
+#### `--label=<label>`
+
+A human-readable description to help track the invitation.
+
+#### `<invitation_id>`
+
+The unique ID of the invitation, as shown in `tenzir-platform org invite` or
+`tenzir-platform org list-invitations`.
+
+## Manage Workspace Invitations
+
+### Synopsis
+
+```text
+tenzir-platform workspace invite [--label=<label>]
+tenzir-platform workspace list-invitations
+tenzir-platform workspace revoke-invitation <invitation_id>
+```
+
+### Description
+
+Workspace admins can invite users directly to a specific workspace, independent
+of organization membership. Invitations expire after 7 days.
+
+- `tenzir-platform workspace invite` creates an invitation token for the
+  currently selected workspace. Share the token with the invitee.
+- `tenzir-platform workspace list-invitations` lists all invitations for the
+  currently selected workspace with their status and label.
+- `tenzir-platform workspace revoke-invitation` revokes a pending invitation.
+
+#### `--label=<label>`
+
+A human-readable description to help track the invitation.
+
+#### `<invitation_id>`
+
+The unique ID of the invitation, as shown in `tenzir-platform workspace invite`
+or `tenzir-platform workspace list-invitations`.
 
 ## Manage Nodes
 
