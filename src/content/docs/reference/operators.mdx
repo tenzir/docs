@@ -387,10 +387,10 @@ operators:
     description: 'Captures packets from a network interface and outputs events.'
     example: 'from_nic "eth0"'
     path: 'reference/operators/from_nic'
-  - name: 'from_opensearch'
-    description: 'Receives events via Opensearch Bulk API.'
-    example: 'from_opensearch'
-    path: 'reference/operators/from_opensearch'
+  - name: 'accept_opensearch'
+    description: 'Accepts incoming OpenSearch Bulk API requests and forwards them as events.'
+    example: 'accept_opensearch "0.0.0.0:9200"'
+    path: 'reference/operators/accept_opensearch'
   - name: 'from_s3'
     description: 'Reads one or multiple files from Amazon S3.'
     example: 'from_s3 "s3://my-bucket/data/**.json"'
@@ -2268,10 +2268,11 @@ from_nic "eth0"
 ```
 
 </ReferenceCard>
-<ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
+
+<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
 
 ```tql
-from_opensearch
+accept_opensearch "0.0.0.0:9200"
 ```
 
 </ReferenceCard>

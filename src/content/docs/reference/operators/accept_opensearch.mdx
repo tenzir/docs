@@ -1,0 +1,86 @@
+---
+title: accept_opensearch
+category: Inputs/Events
+example: 'accept_opensearch "0.0.0.0:9200"'
+---
+
+Accepts incoming OpenSearch Bulk API requests and forwards them as events.
+
+```tql
+accept_opensearch [url:string, keep_actions=bool, max_request_size=int,
+                   tls=record]
+```
+
+## Description
+
+The `accept_opensearch` operator starts an OpenSearch-compatible HTTP server and
+accepts bulk ingestion requests on `/_bulk`.
+
+For each bulk request, the operator buffers the request body in memory, up to
+`max_request_size`, optionally decompresses it based on the HTTP
+`Content-Encoding` header, parses the NDJSON payload, and emits the resulting
+records as events.
+
+By default, the operator drops OpenSearch action objects such as
+`{"create": ...}` and emits only the document records. To keep the action
+objects, set `keep_actions=true`.
+
+The operator also responds to `GET /` with a minimal OpenSearch-compatible info
+response so that basic health checks and client probes succeed.
+
+### `url: string (optional)`
+
+The endpoint to listen on.
+
+Use the form `host:port`, `[host]:port`, `http://host:port`, or
+`https://host:port`.
+
+Defaults to `"0.0.0.0:9200"`.
+
+### `keep_actions = bool (optional)`
+
+Whether to keep action objects such as `{"create": ...}`.
+
+Defaults to `false`.
+
+### `max_request_size = int (optional)`
+
+The maximum size of an incoming request to accept.
+
+Requests that exceed this limit are rejected with HTTP `413 Content Too Large`.
+
+Defaults to `10MiB`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+## Examples
+
+### Listen on port 8080
+
+```tql
+accept_opensearch "0.0.0.0:8080"
+```
+
+### Keep action objects in the output
+
+```tql
+accept_opensearch keep_actions=true
+```
+
+### Accept HTTPS requests with TLS
+
+```tql
+accept_opensearch "0.0.0.0:8443",
+                  tls={
+                    certfile: "/path/to/cert.pem",
+                    keyfile: "/path/to/key.pem",
+                  }
+```
+
+## See Also
+
+- <Op>to_opensearch</Op>
+- <Integration>opensearch</Integration>
+- <Integration>elasticsearch</Integration>
