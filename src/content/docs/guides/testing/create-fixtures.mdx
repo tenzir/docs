@@ -122,8 +122,8 @@ def mysql():
     # ...
 ```
 
-By default this causes a test failure. To convert it into a skip, add a
-structured `skip` entry to the suite's `test.yaml`:
+By default this causes a test failure. To convert a suite fixture failure into a
+skip, add a structured `skip` entry to the suite's `test.yaml`:
 
 ```yaml
 suite: mysql-integration
@@ -136,6 +136,20 @@ The harness marks every test in the suite as skipped and includes the exception
 message in the output. This opt-in design keeps suites failing loudly by
 default — you only suppress the failure for environments where the missing
 dependency is expected.
+
+If one test selects the fixture directly, put the same skip mapping in that
+test's frontmatter instead:
+
+```yaml
+---
+fixtures: [mysql]
+skip:
+  on: fixture-unavailable
+---
+```
+
+An unavailable fixture then skips only that test. Frontmatter does not control
+suite fixture setup because suite fixtures start before any member test runs.
 
 ## Use container runtime helpers
 
