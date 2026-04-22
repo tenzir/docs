@@ -37,7 +37,7 @@ Send to NATS JetStream:
 
 ```tql
 subscribe "security-events"
-to_nats "alerts", message=this.print_json()
+to_nats "alerts"
 ```
 
 The NATS server must have a JetStream stream that captures the subject you
@@ -125,10 +125,10 @@ Destination operators use expressions for flexible message formatting:
 
 ### Serialize the entire event
 
-Serialize as JSON (the default for most operators):
+Use the default event serialization:
 
 ```tql
-to_kafka "events", message=this.print_json()
+to_kafka "events"
 ```
 
 Serialize as compact JSON without nulls:
@@ -156,7 +156,7 @@ to_kafka "metrics", message=f"{host}: {metric_name}={value}"
 Route events to different destinations based on content:
 
 ```tql
-to_kafka f"events.{event_type}", message=this.print_json()
+to_kafka f"events.{event_type}"
 ```
 
 ## See also

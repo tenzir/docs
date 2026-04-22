@@ -85,7 +85,7 @@ Use `metadata_field` to copy NATS metadata into events:
 
 ```tql
 from_nats "alerts", metadata_field=nats
-this = string(message).parse_json()
+parsed = string(message).parse_json()
 nats_subject = nats.subject
 nats_stream = nats.stream
 nats_sequence = nats.stream_sequence

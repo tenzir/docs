@@ -25,8 +25,11 @@ consume from.
 
 ```tql
 subscribe "alerts"
-to_nats "alerts", message=this.print_json()
+to_nats "alerts"
 ```
+
+By default, <Op>to_nats</Op> serializes each event with
+`this.print_ndjson()`.
 
 ### Connect to a secured NATS server
 
