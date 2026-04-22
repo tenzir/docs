@@ -335,6 +335,14 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_http'
+    description: 'Accepts incoming HTTP requests and forwards them as events.'
+    example: 'accept_http "0.0.0.0:8080" { read_json }'
+    path: 'reference/operators/accept_http'
+  - name: 'accept_opensearch'
+    description: 'Accepts incoming OpenSearch Bulk API requests and forwards them as events.'
+    example: 'accept_opensearch "0.0.0.0:9200"'
+    path: 'reference/operators/accept_opensearch'
   - name: 'accept_tcp'
     description: 'Accepts incoming TCP or TLS connections and yields events.'
     example: 'accept_tcp "0.0.0.0:8090" { read_json }'
@@ -387,10 +395,6 @@ operators:
     description: 'Captures packets from a network interface and outputs events.'
     example: 'from_nic "eth0"'
     path: 'reference/operators/from_nic'
-  - name: 'from_opensearch'
-    description: 'Receives events via Opensearch Bulk API.'
-    example: 'from_opensearch'
-    path: 'reference/operators/from_opensearch'
   - name: 'from_s3'
     description: 'Reads one or multiple files from Amazon S3.'
     example: 'from_s3 "s3://my-bucket/data/**.json"'
@@ -2163,6 +2167,22 @@ load_zmq
 
 <CardGrid>
 
+<ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
+
+```tql
+accept_http "0.0.0.0:8080" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
+
+```tql
+accept_opensearch "0.0.0.0:9200"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
 
 ```tql
@@ -2265,13 +2285,6 @@ from_mysql table="users", host="db.example.com", database="mydb"
 
 ```tql
 from_nic "eth0"
-```
-
-</ReferenceCard>
-<ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
-
-```tql
-from_opensearch
 ```
 
 </ReferenceCard>
