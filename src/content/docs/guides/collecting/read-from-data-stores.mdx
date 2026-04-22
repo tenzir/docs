@@ -1,0 +1,149 @@
+---
+title: Read from data stores
+---
+
+This guide shows you how to read from external data stores with TQL. You'll learn how to read full tables, push filters into SQL, inspect metadata, and stream new rows from MySQL.
+
+Today, this guide focuses on <Op>from_mysql</Op> and <Op>from_clickhouse</Op>. As Tenzir adds more data store integrations, the same patterns will apply.
+
+:::note
+`from_clickhouse` currently requires the new pipeline executor. Run pipelines that use it with `tenzir --neo`.
+:::
+
+## Read a full table
+
+Use `table=...` when you want to fetch all rows from a table.
+
+Read a ClickHouse table:
+
+```tql
+from_clickhouse table="security.events",
+                host="clickhouse.example.com",
+                password=secret("CLICKHOUSE_PASSWORD"),
+                tls=false
+```
+
+Or use a ClickHouse URI:
+
+```tql
+from_clickhouse uri="clickhouse://default:secret@clickhouse.example.com:9000/security",
+                table="events",
+                tls=false
+```
+
+Read a MySQL table:
+
+```tql
+from_mysql table="users",
+           host="mysql.example.com",
+           user="tenzir",
+           password=secret("MYSQL_PASSWORD"),
+           database="identity"
+```
+
+Use this mode when you want Tenzir to treat the table as the source of truth and
+apply filtering later in the pipeline.
+
+## Push filters and projections into SQL
+
+Use `sql=...` when the data store should do the filtering, sorting, or column
+selection before Tenzir receives the rows.
+
+Filter in ClickHouse:
+
+```tql
+from_clickhouse sql="SELECT time, host, severity, message FROM events WHERE severity >= 3 ORDER BY time DESC",
+                host="clickhouse.example.com",
+                password=secret("CLICKHOUSE_PASSWORD"),
+                tls=false
+```
+
+Filter in MySQL:
+
+```tql
+from_mysql sql="SELECT id, user, last_login FROM users WHERE active = 1 ORDER BY last_login DESC",
+           host="mysql.example.com",
+           user="tenzir",
+           password=secret("MYSQL_PASSWORD"),
+           database="identity"
+```
+
+This pattern reduces network traffic and lets you use the source system's query
+planner and indexes.
+
+## Inspect metadata
+
+Both operators can return metadata instead of table rows.
+
+List ClickHouse tables in a database:
+
+```tql
+from_clickhouse sql="SHOW TABLES FROM security",
+                host="clickhouse.example.com",
+                password=secret("CLICKHOUSE_PASSWORD"),
+                tls=false
+```
+
+Show the columns of a MySQL table:
+
+```tql
+from_mysql table="users",
+           show="columns",
+           host="mysql.example.com",
+           user="tenzir",
+           password=secret("MYSQL_PASSWORD"),
+           database="identity"
+```
+
+Use metadata queries when you want to discover available tables, inspect a
+schema, or validate assumptions before you run a larger pipeline. In
+ClickHouse, prefer regular SQL such as `SHOW`, `DESCRIBE`, or queries against
+system catalogs.
+
+## Poll for new rows from MySQL
+
+MySQL supports a live polling mode for tables with a monotonically increasing
+integer tracking column.
+
+```tql
+from_mysql table="audit_log",
+           live=true,
+           tracking_column="id",
+           host="mysql.example.com",
+           user="tenzir",
+           password=secret("MYSQL_PASSWORD"),
+           database="security"
+where severity == "high"
+```
+
+Use this mode when you want to turn a database table into a continuously polled
+event source.
+
+`from_clickhouse` does not currently provide a comparable live mode. It runs a
+query, emits the result, and then finishes.
+
+## Shape rows after reading
+
+Both operators produce structured events, so you can transform the result right
+away.
+
+```tql
+from_clickhouse sql="SELECT host, severity, message FROM events",
+                host="clickhouse.example.com",
+                password=secret("CLICKHOUSE_PASSWORD"),
+                tls=false
+where severity >= 3
+message = message.upper()
+```
+
+This lets you treat database rows like any other event stream in Tenzir.
+
+## See also
+
+- <Guide>collecting/read-from-message-brokers</Guide>
+- <Guide>transformation/filter-and-select-data</Guide>
+- <Guide>routing/send-to-destinations</Guide>
+- <Op>from_clickhouse</Op>
+- <Op>from_mysql</Op>
+- <Integration>clickhouse</Integration>
+- <Integration>mysql</Integration>

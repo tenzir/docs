@@ -89,6 +89,7 @@ export const guides = [
           "guides/collecting/read-and-watch-files",
           "guides/collecting/fetch-via-http-and-apis",
           "guides/collecting/read-from-message-brokers",
+          "guides/collecting/read-from-data-stores",
           "guides/collecting/get-data-from-the-network",
         ],
       },

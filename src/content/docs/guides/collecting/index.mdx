@@ -71,6 +71,17 @@ from_kafka "security-events", offset="end"
 See the [message broker guide](/guides/collecting/read-from-message-brokers)
 for broker-specific configurations.
 
+### Data stores
+
+Query external data stores such as MySQL and ClickHouse:
+
+```tql
+from_clickhouse sql="SELECT * FROM events WHERE severity >= 3", tls=false
+```
+
+See the [data store guide](/guides/collecting/read-from-data-stores) for table
+reads, SQL pushdown, metadata inspection, and live MySQL polling.
+
 ### Network data
 
 Receive data over TCP or UDP sockets, or capture packets from network
@@ -98,5 +109,6 @@ connections.
 - <Guide>collecting/read-and-watch-files</Guide>
 - <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Guide>collecting/read-from-message-brokers</Guide>
+- <Guide>collecting/read-from-data-stores</Guide>
 - <Guide>collecting/get-data-from-the-network</Guide>
 - <Guide>routing/send-to-destinations</Guide>

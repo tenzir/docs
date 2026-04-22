@@ -1,0 +1,161 @@
+---
+title: from_clickhouse
+category: Inputs/Events
+example: 'from_clickhouse table="my_table"'
+---
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+This reference documents the `from_clickhouse` operator. You'll learn how to read table rows, run SQL queries, and inspect ClickHouse metadata through SQL.
+
+```tql
+from_clickhouse [table=string, sql=string,
+                 uri=string | (host=string, port=int, user=string, password=string),
+                 tls=bool|record]
+```
+
+## Description
+
+Use exactly one of `table` or `sql`.
+
+Use either `uri` or the explicit connection arguments `host`, `port`, `user`,
+and `password`.
+
+Currently, `from_clickhouse` is available only with the new pipeline executor.
+Run it with `tenzir --neo` until it is available in the legacy executor.
+
+### `uri = string (optional)`
+
+A ClickHouse connection URI in the format:
+
+```text
+clickhouse://[user[:password]@]host[:port][/database]
+```
+
+When present, the URI supplies the connection endpoint and optionally the
+current database.
+
+Use `tls` separately to control TLS.
+
+### `table = string`
+
+The table to read from.
+
+You can qualify the table as `<database>.<table>`. If you omit the database,
+ClickHouse uses the current database selected by the URI or server defaults.
+
+Use this mode when you want to read a whole table and preserve named tuple
+fields from the table schema.
+
+### `sql = string`
+
+A custom SQL query to execute.
+
+Use this mode when you want ClickHouse to filter, project, sort, or cast data
+before Tenzir reads it.
+
+For metadata queries such as `SHOW TABLES`, `DESCRIBE TABLE`, or queries
+against `system.tables` and `system.columns`, use `sql`.
+
+### `host = string (optional)`
+
+The hostname for the ClickHouse server.
+
+Defaults to `"localhost"`.
+
+Mutually exclusive with `uri`.
+
+### `port = int (optional)`
+
+The port for the ClickHouse server.
+
+Defaults to `9000` without TLS and `9440` with TLS.
+
+Mutually exclusive with `uri`.
+
+### `user = string (optional)`
+
+The user to use for authentication.
+
+Defaults to `"default"`.
+
+Mutually exclusive with `uri`.
+
+### `password = string (optional)`
+
+The password for the given user.
+
+Defaults to `""`.
+
+Mutually exclusive with `uri`.
+
+<TLSOptions tls_default="true" />
+
+## Types
+
+Tenzir maps ClickHouse types to Tenzir types as follows:
+
+| ClickHouse                                        | Tenzir    | Comment                                        |
+| :------------------------------------------------ | :-------- | :--------------------------------------------- |
+| `Bool`                                            | `bool`    |                                                |
+| `Int8`, `Int16`, `Int32`, `Int64`                 | `int64`   |                                                |
+| `UInt8`, `UInt16`, `UInt32`, `UInt64`             | `uint64`  |                                                |
+| `Float32`, `Float64`                              | `double`  |                                                |
+| `String`, `FixedString(N)`                        | `string`  |                                                |
+| `UUID`                                            | `string`  | Emitted as canonical UUID text.                |
+| `Enum8`, `Enum16`                                 | `string`  | Emitted as the enum label.                     |
+| `Decimal`, `Decimal32`, `Decimal64`, `Decimal128` | `string`  | Emitted as decimal text to preserve precision. |
+| `Date`, `Date32`, `DateTime`, `DateTime64`        | `time`    |                                                |
+| `IPv4`, `IPv6`                                    | `ip`      |                                                |
+| `Tuple(...)`                                      | `record`  |                                                |
+| `Array(T)`                                        | `list<T>` |                                                |
+| `Array(UInt8)`                                    | `blob`    |                                                |
+| `Nullable(T)`                                     | `T`       | Null values stay null.                         |
+
+`Map(...)` is not currently supported. Cast unsupported columns in `sql` or
+omit them from the query result.
+
+Some ClickHouse types are not perfect inverses of <Op>to_clickhouse</Op>. For
+example, <Op>to_clickhouse</Op> writes `bool` as `UInt8`, so reading the same
+table back yields `uint64` unless the ClickHouse column type is `Bool`.
+
+## Examples
+
+### Read all rows from a table
+
+```tql
+from_clickhouse table="events", tls=false
+```
+
+### Use a connection URI
+
+```tql
+from_clickhouse uri="clickhouse://default:secret@clickhouse.example.com:9000/security",
+                table="events",
+                tls=false
+```
+
+### Run a filtered SQL query
+
+```tql
+from_clickhouse sql="SELECT * FROM events WHERE severity >= 3 ORDER BY time DESC",
+                tls=false
+```
+
+### List tables in the current database
+
+```tql
+from_clickhouse sql="SHOW TABLES", tls=false
+```
+
+### Show the columns for a table
+
+```tql
+from_clickhouse sql="DESCRIBE TABLE events", tls=false
+```
+
+## See Also
+
+- <Op>to_clickhouse</Op>
+- <Guide>collecting/read-from-data-stores</Guide>
+- <Integration>clickhouse</Integration>
