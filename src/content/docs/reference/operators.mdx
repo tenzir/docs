@@ -763,6 +763,10 @@ operators:
     description: 'Writes events to a URI using hive partitioning.'
     example: 'to_hive "s3://…", partition_by=[x]'
     path: 'reference/operators/to_hive'
+  - name: 'to_http'
+    description: 'Sends events as HTTP requests to a webhook or API endpoint.'
+    example: 'to_http "https://example.com/webhook"'
+    path: 'reference/operators/to_http'
   - name: 'to_kafka'
     description: 'Sends messages to an Apache Kafka topic.'
     example: 'to_kafka "topic", message=this.print_json()'
@@ -783,6 +787,10 @@ operators:
     description: 'Sends events to a Splunk HTTP Event Collector (HEC).'
     example: 'to_splunk "localhost:8088", …'
     path: 'reference/operators/to_splunk'
+  - name: 'to_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and sends events.'
+    example: 'to_tcp "collector.example.com:5044" { write_json }'
+    path: 'reference/operators/to_tcp'
   - name: 'write_bitz'
     description: 'Writes events in *BITZ* format.'
     example: 'write_bitz'
@@ -2643,6 +2651,14 @@ to_hive "s3://…", partition_by=[x]
 
 </ReferenceCard>
 
+<ReferenceCard title="to_http" description="Sends events as HTTP requests to a webhook or API endpoint." href="/reference/operators/to_http">
+
+```tql
+to_http "https://example.com/webhook"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
 
 ```tql
@@ -2679,6 +2695,14 @@ to_snowflake account_identifier="…
 
 ```tql
 to_splunk "localhost:8088", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_tcp" description="Connects to a remote TCP or TLS endpoint and sends events." href="/reference/operators/to_tcp">
+
+```tql
+to_tcp "collector.example.com:5044" { write_json }
 ```
 
 </ReferenceCard>
