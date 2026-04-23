@@ -389,6 +389,7 @@ export const integrations = [
     "Data Tools",
     [
       "integrations/clickhouse",
+      "integrations/databricks",
       "integrations/elasticsearch",
       "integrations/graylog",
       "integrations/opensearch",
