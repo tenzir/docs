@@ -711,6 +711,14 @@ operators:
     description: 'Sends bytes as ZeroMQ messages.'
     example: 'save_zmq'
     path: 'reference/operators/save_zmq'
+  - name: 'serve_http'
+    description: 'Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.'
+    example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
+    path: 'reference/operators/serve_http'
+  - name: 'serve_tcp'
+    description: 'Listens for incoming TCP connections and sends events to all connected clients.'
+    example: 'serve_tcp "0.0.0.0:8090" { write_json }'
+    path: 'reference/operators/serve_tcp'
   - name: 'sigma'
     description: 'Filter the input with Sigma rules and output matching events.'
     example: 'sigma "/tmp/rules/"'
@@ -2546,6 +2554,22 @@ save_zmq
 ### Events
 
 <CardGrid>
+
+<ReferenceCard title="serve_http" description="Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients." href="/reference/operators/serve_http">
+
+```tql
+serve_http "0.0.0.0:8080" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="serve_tcp" description="Listens for incoming TCP connections and sends events to all connected clients." href="/reference/operators/serve_tcp">
+
+```tql
+serve_tcp "0.0.0.0:8090" { write_json }
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
 
