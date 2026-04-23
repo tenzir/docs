@@ -14,14 +14,14 @@ Use the IP address `0.0.0.0` to listen on all available network interfaces.
 
 ## Examples
 
-Use <Op>from_udp</Op> to receive UDP datagrams as
+Use <Op>accept_udp</Op> to receive UDP datagrams as
 structured events containing message data and peer information. Use <Op>to_udp</Op>
 to send one UDP datagram per event directly from structured data.
 
 ### Receive syslog messages over UDP
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 ```
 

@@ -4,13 +4,10 @@ category: Outputs/Events
 example: 'to_udp "127.0.0.1:514"'
 ---
 
-import Integration from '@components/see-also/Integration.astro';
-import Op from '@components/see-also/Op.astro';
-
 Sends one UDP datagram per input event.
 
 ```tql
-to_udp endpoint:string, [message=string|blob|record]
+to_udp endpoint:string, [message=any]
 ```
 
 ## Description
@@ -22,10 +19,10 @@ Sends one UDP datagram per input event to a fixed remote UDP endpoint.
 The address of the remote endpoint. Must be of the format `host:port`. The
 optional `udp://` prefix is accepted but not required.
 
-### `message = string|blob|record (optional)`
+### `message = any (optional)`
 
-An expression that is evaluated once per input event and must produce one of
-the following types:
+An expression that is evaluated once per input event. The result must produce
+one of the following types:
 
 - `string` values are sent as UTF-8 bytes.
 - `blob` values are sent verbatim.
@@ -54,5 +51,5 @@ to_udp "127.0.0.1:514"
 
 ## See Also
 
-- <Op>from_udp</Op>
+- <Op>accept_udp</Op>
 - <Integration>udp</Integration>

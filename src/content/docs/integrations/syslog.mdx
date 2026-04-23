@@ -22,10 +22,10 @@ Together, these building blocks enable round-trip Syslog processing.
 ### Create a Syslog Server
 
 To receive Syslog messages on a UDP socket, use
-<Op>from_udp</Op>:
+<Op>accept_udp</Op>:
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 publish "syslog"
 ```
