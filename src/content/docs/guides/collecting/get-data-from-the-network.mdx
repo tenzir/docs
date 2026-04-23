@@ -61,11 +61,11 @@ high-volume, loss-tolerant data like syslog messages or metrics.
 
 ### Receive UDP datagrams
 
-Use <Op>from_udp</Op> to receive UDP messages as
+Use <Op>accept_udp</Op> to receive UDP messages as
 structured events:
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 ```
 
 Each datagram becomes an event with `data` (the message content) and `peer`
@@ -76,7 +76,7 @@ Each datagram becomes an event with `data` (the message content) and `peer`
 A common pattern is receiving syslog over UDP:
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 ```
 
@@ -85,7 +85,7 @@ this = data.parse_syslog()
 Include the sender's IP address and collection timestamp in your events:
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 syslog = data.parse_syslog()
 this = {
   ...syslog,

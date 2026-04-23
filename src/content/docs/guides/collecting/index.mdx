@@ -13,7 +13,7 @@ TQL provides two types of input operators:
 a [subpipeline](/reference/programs/#parsing-subpipelines).
 
 - **Direct event operators** like <Op>from_kafka</Op>
-  and <Op>from_udp</Op> produce structured events
+  and <Op>accept_udp</Op> produce structured events
   directly without an intermediate byte stream.
 
 :::caution[Migration note]
@@ -78,7 +78,7 @@ interfaces:
 
 ```tql
 // UDP syslog receiver
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 
 // TCP with TLS
 from "tcp://0.0.0.0:8443", tls=true
