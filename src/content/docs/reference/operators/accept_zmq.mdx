@@ -1,0 +1,82 @@
+---
+title: accept_zmq
+category: Inputs/Events
+example: 'accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Listens on a ZeroMQ endpoint and receives events.
+
+```tql
+accept_zmq endpoint:string, [prefix=string, keep_prefix=bool, { … }]
+```
+
+## Description
+
+Binds a ZeroMQ `SUB` socket to the specified endpoint and receives messages that
+match the configured subscription prefix.
+
+Use `accept_zmq` when Tenzir should own the listening endpoint. This matches the
+naming used by other transport operators such as <Op>accept_tcp</Op>, even
+though ZeroMQ itself calls this binding rather than accepting.
+
+As with <Op>from_zmq</Op>, the `prefix` option uses ZeroMQ's raw subscription
+filtering. When `keep_prefix=false`, the operator strips the matched prefix
+before handing the remaining bytes to the nested pipeline.
+
+### `endpoint: string`
+
+The endpoint to listen on, for example `tcp://0.0.0.0:5555`, `ipc://path`, or
+`inproc://name`.
+
+### `prefix = string (optional)`
+
+A constant subscription prefix to install on the `SUB` socket.
+
+The expression must evaluate to a string before the operator starts receiving
+messages. It cannot depend on event fields.
+
+Defaults to the empty string, which subscribes to all messages.
+
+### `keep_prefix = bool (optional)`
+
+Whether to keep the matched prefix in the bytes that are passed to the nested
+pipeline.
+
+Defaults to `false`.
+
+### `{ … } (optional)`
+
+The pipeline to run for incoming message payloads. It receives bytes and must
+produce events, for example `{ read_json }` or `{ read_syslog }`.
+
+If you omit the nested pipeline, the operator emits one event per message with a
+single field `message` containing the message payload as a `blob`.
+
+## Examples
+
+### Listen for JSON messages
+
+```tql
+accept_zmq "tcp://0.0.0.0:5555" {
+  read_json
+}
+```
+
+### Listen with a subscription prefix
+
+```tql
+accept_zmq "tcp://0.0.0.0:5555", prefix="suricata/" {
+  read_suricata
+}
+```
+
+## See Also
+
+- <Op>from_zmq</Op>
+- <Op>to_zmq</Op>
+- <Op>serve_zmq</Op>
+- <Op>load_zmq</Op>
+- <Integration>zeromq</Integration>
