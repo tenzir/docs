@@ -25,13 +25,19 @@ Defaults to the current working directory.
 
 Recursively list files in subdirectories.
 
+When recursive traversal reaches a child directory that can't be opened because
+of file permissions, `files` emits a warning, skips that directory's children,
+and continues with the remaining directories. The initial `dir` must still be
+readable.
+
 ### `follow_symlinks = bool (optional)`
 
 Follow directory symlinks.
 
 ### `skip_permission_denied = bool (optional)`
 
-Skip directories that would otherwise result in permission denied errors.
+Skip the initial directory if it can't be opened because of file permissions.
+Recursive traversal skips unreadable child directories by default.
 
 ## Schemas
 
@@ -94,7 +100,7 @@ summarize total_size=sum(file_size)
 ### Find all named pipes in `/tmp`
 
 ```tql
-files "/tmp", recurse=true, skip_permission_denied=true
+files "/tmp", recurse=true
 where type == "fifo"
 ```
 
