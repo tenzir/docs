@@ -8,7 +8,7 @@ Converts an expression to a subnet value.
 
 ```tql
 subnet(x:string|ip|subnet) -> subnet
-subnet(x:string|ip, prefix:int) -> subnet
+subnet(x:string|ip|subnet, prefix:int) -> subnet
 ```
 
 ## Description
@@ -34,11 +34,12 @@ The subnet to return unchanged.
 
 ### `prefix: int`
 
-The CIDR prefix length for a plain IP address. IPv4 prefixes must be in the
-range `0` to `32`, and IPv6 prefixes must be in the range `0` to `128`.
+The CIDR prefix length for a plain IP address or subnet network address. IPv4
+prefixes must be in the range `0` to `32`, and IPv6 prefixes must be in the
+range `0` to `128`.
 
-Use `prefix` with plain IP values. Strings that already contain CIDR notation
-return `null` when you also provide `prefix`.
+Use `prefix` with plain IP values or existing subnet values. Strings that
+already contain CIDR notation return `null` when you also provide `prefix`.
 
 ## Examples
 
