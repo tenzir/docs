@@ -735,6 +735,10 @@ operators:
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
     path: 'reference/operators/to_amazon_security_lake'
+  - name: 'to_azure_blob_storage'
+    description: 'Writes events to one or multiple blobs in Azure Blob Storage.'
+    example: 'to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_azure_blob_storage'
   - name: 'to_azure_log_analytics'
     description: 'Sends events to the Microsoft Azure Logs Ingestion API.'
     example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
@@ -743,6 +747,10 @@ operators:
     description: 'Sends events to a ClickHouse table.'
     example: 'to_clickhouse table="my_table"'
     path: 'reference/operators/to_clickhouse'
+  - name: 'to_file'
+    description: 'Writes events to one or multiple files on a filesystem.'
+    example: 'to_file "/tmp/out.json" { write_ndjson }'
+    path: 'reference/operators/to_file'
   - name: 'to_fluent_bit'
     description: 'Sends events via Fluent Bit.'
     example: 'to_fluent_bit "elasticsearch" …'
@@ -755,6 +763,10 @@ operators:
     description: 'Publishes events to a Google Cloud Pub/Sub topic.'
     example: 'to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text'
     path: 'reference/operators/to_google_cloud_pubsub'
+  - name: 'to_google_cloud_storage'
+    description: 'Writes events to one or multiple objects in Google Cloud Storage.'
+    example: 'to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_google_cloud_storage'
   - name: 'to_google_secops'
     description: 'Sends unstructured events to a Google SecOps Chronicle instance.'
     example: 'to_google_secops …'
@@ -775,6 +787,10 @@ operators:
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
     path: 'reference/operators/to_opensearch'
+  - name: 'to_s3'
+    description: 'Writes events to one or multiple objects in Amazon S3.'
+    example: 'to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_s3'
   - name: 'to_sentinelone_data_lake'
     description: 'Sends security events to SentinelOne Singularity Data Lake via REST API.'
     example: 'to_sentinelone_data_lake "https://…", …'
@@ -2595,6 +2611,14 @@ to_amazon_security_lake "s3://…"
 
 </ReferenceCard>
 
+<ReferenceCard title="to_azure_blob_storage" description="Writes events to one or multiple blobs in Azure Blob Storage." href="/reference/operators/to_azure_blob_storage">
+
+```tql
+to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_azure_log_analytics" description="Sends events to the Microsoft Azure Logs Ingestion API." href="/reference/operators/to_azure_log_analytics">
 
 ```tql
@@ -2607,6 +2631,14 @@ to_azure_log_analytics tenant_id="...", workspace_id="..."
 
 ```tql
 to_clickhouse table="my_table"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_file" description="Writes events to one or multiple files on a filesystem." href="/reference/operators/to_file">
+
+```tql
+to_file "/tmp/out.json" { write_ndjson }
 ```
 
 </ReferenceCard>
@@ -2631,6 +2663,14 @@ to_google_cloud_logging …
 
 ```tql
 to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_storage" description="Writes events to one or multiple objects in Google Cloud Storage." href="/reference/operators/to_google_cloud_storage">
+
+```tql
+to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }
 ```
 
 </ReferenceCard>
@@ -2671,6 +2711,14 @@ to_kafka "topic", message=this.print_json()
 
 ```tql
 to_opensearch "localhost:9200", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_s3" description="Writes events to one or multiple objects in Amazon S3." href="/reference/operators/to_s3">
+
+```tql
+to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }
 ```
 
 </ReferenceCard>
