@@ -10,7 +10,7 @@ Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
 
 ```tql
 to_splunk url:string, hec_token=string,
-          [endpoint=string, event=any, host=string, source=string,
+          [event=any, raw=string, host=string, source=string,
           sourcetype=expr, index=expr, time=expr, fields=record,
           include_nulls=bool, max_content_length=int, buffer_timeout=duration,
           compress=bool, tls=record]
@@ -22,8 +22,8 @@ The `to_splunk` operator sends events to a Splunk [HTTP Event Collector
 (HEC)][hec].
 
 By default, the operator sends events to the HEC event endpoint, renders incoming
-events as JSON, and uses the `_json` source type. Use `endpoint="raw"` to send
-raw string events to the HEC raw endpoint.
+events as JSON, and uses the `_json` source type. Use `raw=...` to send raw
+string events to the HEC raw endpoint.
 
 The operator accumulates multiple events before sending them as a single
 message to the HEC endpoint. You can control the maximum message size via the
@@ -40,25 +40,26 @@ The [HEC
 token](https://docs.splunk.com/Documentation/Splunk/9.3.1/Data/UsetheHTTPEventCollector#Create_an_Event_Collector_token_on_Splunk_Cloud_Platform)
 for authentication.
 
-### `endpoint = string (optional)`
-
-The HEC endpoint to use. Supported values are `event` and `raw`.
-
-With `endpoint="event"`, `to_splunk` sends JSON envelopes to
-`/services/collector/event`. This is the default.
-
-With `endpoint="raw"`, `to_splunk` sends plain string events to
-`/services/collector/raw`. The `event` expression must evaluate to a `string`.
-The operator separates multiple events in one request with newlines.
-
 ### `event = any (optional)`
 
 The event to send.
 
-With `endpoint="event"`, this can be any value that Tenzir can render as JSON.
-With `endpoint="raw"`, this must evaluate to a `string`.
+This can be any value that Tenzir can render as JSON. The operator sends it in
+the `event` key of the top-level HEC envelope to `/services/collector/event`.
 
 Defaults to `this`, meaning the entire incoming event is sent.
+
+This option is mutually exclusive with `raw`.
+
+### `raw = string (optional)`
+
+The raw event text to send.
+
+When set, `to_splunk` sends plain string events to `/services/collector/raw`.
+The `raw` expression must evaluate to a `string`. The operator separates
+multiple events in one request with newlines.
+
+This option is mutually exclusive with `event`.
 
 ### `host = string (optional)`
 
@@ -74,9 +75,6 @@ An optional expression for [Splunk's
 `sourcetype`](https://docs.splunk.com/Splexicon:Sourcetype) that evaluates to a
 `string`. You can use this to set the `sourcetype` per event, by providing a
 field instead of a string.
-
-With `endpoint="event"`, the event itself is passed as a JSON value in the
-`event` key of the top-level object that is sent.
 
 Defaults to `_json`.
 
@@ -98,14 +96,14 @@ timestamp in seconds. Strings are not accepted. If the expression evaluates to
 an invalid value for a row, the operator emits a warning and omits `time` for
 that row or raw request.
 
-With `endpoint="event"`, the timestamp becomes the top-level HEC `time` field
-for each event. With `endpoint="raw"`, the timestamp becomes a request-level
-query parameter for the raw endpoint.
+When you send HEC event envelopes, the timestamp becomes the top-level HEC
+`time` field for each event. With `raw=...`, the timestamp becomes a
+request-level query parameter for the raw endpoint.
 
 ### `fields = record (optional)`
 
-An optional expression for indexed HEC fields. This option is only supported
-with `endpoint="event"`.
+An optional expression for indexed HEC fields. This option is not supported with
+`raw=...`.
 
 The expression must evaluate to a flat record whose values are strings or lists
 of strings. Invalid field values are omitted with a warning. The fields are sent
@@ -192,8 +190,7 @@ from {
 }
 to_splunk "https://localhost:8088",
   hec_token=secret("splunk-hec-token"),
-  endpoint="raw",
-  event=line,
+  raw=line,
   source=source,
   sourcetype="linux_secure"
 ```
