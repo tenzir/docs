@@ -365,6 +365,7 @@ export const integrations = [
       "integrations/amqp",
       "integrations/fluent-bit",
       "integrations/kafka",
+      "integrations/nats",
       "integrations/zeromq",
     ],
     "integration",

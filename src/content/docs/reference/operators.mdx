@@ -391,6 +391,10 @@ operators:
     description: 'Reads events from a MySQL database.'
     example: 'from_mysql table="users", host="db.example.com", database="mydb"'
     path: 'reference/operators/from_mysql'
+  - name: 'from_nats'
+    description: 'Consumes messages from a NATS JetStream subject.'
+    example: 'from_nats "alerts"'
+    path: 'reference/operators/from_nats'
   - name: 'from_nic'
     description: 'Captures packets from a network interface and outputs events.'
     example: 'from_nic "eth0"'
@@ -769,8 +773,12 @@ operators:
     path: 'reference/operators/to_http'
   - name: 'to_kafka'
     description: 'Sends messages to an Apache Kafka topic.'
-    example: 'to_kafka "topic", message=this.print_json()'
+    example: 'to_kafka "topic"'
     path: 'reference/operators/to_kafka'
+  - name: 'to_nats'
+    description: 'Publishes messages to a NATS JetStream subject.'
+    example: 'to_nats "alerts"'
+    path: 'reference/operators/to_nats'
   - name: 'to_opensearch'
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
@@ -2297,6 +2305,14 @@ from_mysql table="users", host="db.example.com", database="mydb"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_nats" description="Consumes messages from a NATS JetStream subject." href="/reference/operators/from_nats">
+
+```tql
+from_nats "alerts"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_nic" description="Captures packets from a network interface and outputs events." href="/reference/operators/from_nic">
 
 ```tql
@@ -2662,7 +2678,15 @@ to_http "https://example.com/webhook"
 <ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
 
 ```tql
-to_kafka "topic", message=this.print_json()
+to_kafka "topic"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_nats" description="Publishes messages to a NATS JetStream subject." href="/reference/operators/to_nats">
+
+```tql
+to_nats "alerts"
 ```
 
 </ReferenceCard>
