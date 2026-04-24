@@ -1,0 +1,103 @@
+---
+title: serve_http
+category: Outputs/Events
+example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.
+
+```tql
+serve_http endpoint:string, [max_connections=int, tls=record] { … }
+```
+
+## Description
+
+The `serve_http` operator starts an HTTP server and broadcasts the bytes from a
+nested pipeline to all connected clients. Input events flow through the nested
+pipeline, which must produce bytes such as NDJSON, JSON, or plain text.
+
+Clients connect with a `GET` request and receive a continuous HTTP response
+body. Each client only receives bytes produced after it connects. The operator
+does not buffer output for future clients.
+
+Use the nested pipeline to choose the wire format. For example,
+<Op>write_ndjson</Op> emits `application/x-ndjson`, and <Op>write_lines</Op>
+emits `text/plain`. If the nested pipeline does not set a content type,
+`serve_http` falls back to `application/octet-stream`.
+
+Slow clients may be disconnected when they cannot keep up with the producer.
+When the input pipeline finishes, the server closes all active responses and
+stops accepting new connections.
+
+### `endpoint: string`
+
+The endpoint to listen on. Use `host:port`, `[host]:port`, `http://host:port`,
+or `https://host:port`. Use `0.0.0.0` to accept connections on all interfaces.
+
+### `max_connections = int (optional)`
+
+The maximum number of simultaneous client connections to accept. Additional
+connections wait until a slot becomes available.
+
+Defaults to `128`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+### `{ … }`
+
+The nested pipeline that serializes input events into bytes. It must produce
+bytes as output, for example `{ write_ndjson }`, `{ write_json }`, or
+`{ write_lines }`.
+
+## Examples
+
+### Stream NDJSON over HTTP
+
+```tql
+export
+serve_http "0.0.0.0:8080" {
+  write_ndjson
+}
+```
+
+Connect with `curl`:
+
+```bash
+curl http://localhost:8080/
+```
+
+### Stream plain text lines
+
+```tql
+export
+serve_http "0.0.0.0:8080" {
+  write_lines
+}
+```
+
+### Serve over HTTPS
+
+```tql
+export
+serve_http "0.0.0.0:8443",
+  tls={
+    certfile: "/path/to/cert.pem",
+    keyfile: "/path/to/key.pem",
+  } {
+  write_ndjson
+}
+```
+
+## See Also
+
+- <Op>accept_http</Op>
+- <Op>serve_tcp</Op>
+- <Op>to_http</Op>
+- <Guide>routing/expose-data-as-server</Guide>
+- <Integration>http</Integration>

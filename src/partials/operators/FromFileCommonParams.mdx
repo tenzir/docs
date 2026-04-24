@@ -42,3 +42,17 @@ current time. Files older than this duration will be skipped.
 Pipeline to use for parsing the file. By default, this pipeline is derived from
 the path of the file, and will not only handle parsing but also decompression if
 applicable.
+
+Inside the subpipeline, the `$file` variable is available as a record with the
+following fields:
+
+| Field   | Type     | Description                              |
+| :------ | :------- | :--------------------------------------- |
+| `path`  | `string` | The absolute path of the file being read |
+| `mtime` | `time`   | The last modification time of the file   |
+
+For example, to add the source path to each event:
+
+```tql
+source = $file.path
+```

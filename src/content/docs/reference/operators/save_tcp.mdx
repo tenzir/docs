@@ -4,6 +4,14 @@ category: Outputs/Bytes
 example: 'save_tcp "0.0.0.0:8090", tls=true'
 ---
 
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+:::caution[Deprecated]
+Use <Op>to_tcp</Op> for client connections or <Op>serve_tcp</Op> for server
+connections instead.
+:::
+
 Saves bytes to a TCP or TLS connection.
 
 ```tql
@@ -33,7 +41,7 @@ of a numeric port.
 The amount of time to wait before attempting to reconnect in case a connection
 attempt fails and the error is deemed recoverable. Defaults to `30s`.
 
-### `max_retry_count = int (optional)
+### `max_retry_count = int (optional)`
 
 The number of retries to attempt in case of connection errors before
 transitioning into the error state. Defaults to `10`.
@@ -62,5 +70,6 @@ save_tcp "127.0.0.1:4000", tls=true, skip_peer_verification=true
 
 ## See Also
 
+- <Op>from_tcp</Op>
 - <Op>load_tcp</Op>
 - <Integration>tcp</Integration>
