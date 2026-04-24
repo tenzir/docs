@@ -1,7 +1,7 @@
 ---
-title: from_gcs
+title: from_google_cloud_storage
 category: Inputs/Events
-example: 'from_gcs "gs://my-bucket/data/**.json"'
+example: 'from_google_cloud_storage "gs://my-bucket/data/**.json"'
 ---
 
 import FromFileCommonParams from '@partials/operators/FromFileCommonParams.mdx';
@@ -9,13 +9,13 @@ import FromFileCommonParams from '@partials/operators/FromFileCommonParams.mdx';
 Reads one or multiple files from Google Cloud Storage.
 
 ```tql
-from_gcs url:string, [anonymous=bool, watch=bool, remove=bool,
+from_google_cloud_storage url:string, [anonymous=bool, watch=bool, remove=bool,
   rename=string->string, max_age=duration] { … }
 ```
 
 ## Description
 
-The `from_gcs` operator reads files from Google Cloud Storage, with support for
+The `from_google_cloud_storage` operator reads files from Google Cloud Storage, with support for
 glob patterns, automatic format detection, and file monitoring.
 
 By default, authentication is handled by Google's Application Default
@@ -56,19 +56,19 @@ Defaults to `false`.
 ### Read every JSON file from a bucket
 
 ```tql
-from_gcs "gs://my-bucket/data/**.json"
+from_google_cloud_storage "gs://my-bucket/data/**.json"
 ```
 
 ### Read CSV files from a public bucket
 
 ```tql
-from_gcs "gs://public-dataset/data.csv", anonymous=true
+from_google_cloud_storage "gs://public-dataset/data.csv", anonymous=true
 ```
 
 ### Read Zeek logs continuously
 
 ```tql
-from_gcs "gs://logs/zeek/**.log", watch=true {
+from_google_cloud_storage "gs://logs/zeek/**.log", watch=true {
   read_zeek_tsv
 }
 ```
@@ -76,7 +76,7 @@ from_gcs "gs://logs/zeek/**.log", watch=true {
 ### Add source path to events
 
 ```tql
-from_gcs "gs://data-bucket/**.json" {
+from_google_cloud_storage "gs://data-bucket/**.json" {
   read_json
   source_file = $file.path
 }
@@ -85,7 +85,7 @@ from_gcs "gs://data-bucket/**.json" {
 ### Read Suricata EVE JSON logs with custom parsing
 
 ```tql
-from_gcs "gs://security-logs/suricata/**.json" {
+from_google_cloud_storage "gs://security-logs/suricata/**.json" {
   read_suricata
 }
 ```
