@@ -5,17 +5,20 @@ title: Expose data as a server
 import Op from '@components/see-also/Op.astro';
 
 This guide shows you how to make pipeline data available to external consumers
-by spinning up servers. You'll learn to stream events over HTTP and configure
-server endpoints for different use cases.
+by starting an HTTP server. You'll learn how to stream serialized pipeline
+output to HTTP clients, pick a wire format, and configure connection limits and
+TLS.
 
 ## Spin up an HTTP server
 
-Use [`serve_http`](/reference/operators/serve_http) at the end of a pipeline to
-start an HTTP server that streams events as NDJSON to connected clients:
+Use <Op>serve_http</Op> at the end of a pipeline to start an HTTP server. The
+nested pipeline chooses how to serialize your events:
 
 ```tql
 from_file "example.yaml"
-serve_http "0.0.0.0:8080"
+serve_http "0.0.0.0:8080" {
+  write_ndjson
+}
 ```
 
 Any HTTP client connecting to `http://host:8080/` receives a continuous NDJSON
@@ -30,38 +33,38 @@ curl http://localhost:8080/
 {"timestamp":"2025-01-15T10:30:01Z","src_ip":"10.0.0.50","event":"file_access"}
 ```
 
-Multiple clients can connect simultaneously — each receives a copy of every
-event.
+Multiple clients can connect simultaneously. Each connected client receives a
+copy of the bytes produced after it connects.
 
-### Custom path and method
+### Choose a wire format
 
-By default, clients connect with a GET request to `/`. Customize both:
+Use the nested pipeline to control the response body format and content type.
+For example, use <Op>write_lines</Op> to stream plain text instead of NDJSON:
+
+```tql
+from_file "alerts.txt"
+serve_http "0.0.0.0:8080" {
+  write_lines
+}
+```
+
+You can also add filters or transforms before the printer:
 
 ```tql
 from_file "alerts.json"
-serve_http "0.0.0.0:9090", path="/alerts", method="post"
+where severity == "high"
+serve_http "0.0.0.0:8080" {
+  write_ndjson
+}
 ```
 
-Clients must now POST to `/alerts` to receive the stream. Requests to other
-paths return a `404` response.
+### Understand delivery semantics
 
-### Health check endpoints
+`serve_http` does not buffer output for future clients. A client only receives
+bytes produced after it connects.
 
-Production deployments often need health check endpoints for load balancers
-or monitoring. Use the `responses` option to serve static content alongside
-the event stream:
-
-```tql
-subscribe "my-topic"
-serve_http "0.0.0.0:8080",
-  responses={
-    "/health": {code: 200, content_type: "text/plain", body: "ok"},
-    "/ready": {code: 200, content_type: "application/json", body: "{\"status\":\"ready\"}"},
-  }
-```
-
-Clients hitting `/health` or `/ready` get the static response immediately.
-Clients connecting to `/` (the default stream path) receive the event stream.
+If a client cannot keep up with the producer, Tenzir may disconnect it to keep
+memory usage bounded.
 
 ### Connection limits
 
@@ -69,10 +72,12 @@ Control the maximum number of simultaneous client connections:
 
 ```tql
 from_file "data.csv"
-serve_http "0.0.0.0:8080", max_connections=10
+serve_http "0.0.0.0:8080", max_connections=10 {
+  write_ndjson
+}
 ```
 
-Connections beyond the limit are rejected with a `503` response.
+Additional clients wait until a connection slot becomes available.
 
 ### TLS encryption
 
@@ -84,10 +89,13 @@ serve_http "0.0.0.0:8443",
   tls={
     certfile: "/path/to/cert.pem",
     keyfile: "/path/to/key.pem",
-  }
+  } {
+  write_ndjson
+}
 ```
 
 ## See Also
 
 - <Op>serve_http</Op>
+- <Op>serve_tcp</Op>
 - <Op>to_http</Op>
