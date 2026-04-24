@@ -10,7 +10,8 @@ Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
 
 ```tql
 to_splunk url:string, hec_token=string,
-          [event=any, host=string, source=string, sourcetype=expr, index=expr,
+          [endpoint=string, event=any, host=string, source=string,
+          sourcetype=expr, index=expr, time=expr, fields=record,
           include_nulls=bool, max_content_length=int, buffer_timeout=duration,
           compress=bool, tls=record]
 ```
@@ -20,8 +21,9 @@ to_splunk url:string, hec_token=string,
 The `to_splunk` operator sends events to a Splunk [HTTP Event Collector
 (HEC)][hec].
 
-The source type defaults to `_json` and the operator renders incoming events as
-JSON. You can specify a different source type via the `sourcetype` option.
+By default, the operator sends events to the HEC event endpoint, renders incoming
+events as JSON, and uses the `_json` source type. Use `endpoint="raw"` to send
+raw string events to the HEC raw endpoint.
 
 The operator accumulates multiple events before sending them as a single
 message to the HEC endpoint. You can control the maximum message size via the
@@ -38,11 +40,25 @@ The [HEC
 token](https://docs.splunk.com/Documentation/Splunk/9.3.1/Data/UsetheHTTPEventCollector#Create_an_Event_Collector_token_on_Splunk_Cloud_Platform)
 for authentication.
 
+### `endpoint = string (optional)`
+
+The HEC endpoint to use. Supported values are `event` and `raw`.
+
+With `endpoint="event"`, `to_splunk` sends JSON envelopes to
+`/services/collector/event`. This is the default.
+
+With `endpoint="raw"`, `to_splunk` sends plain string events to
+`/services/collector/raw`. The `event` expression must evaluate to a `string`.
+The operator separates multiple events in one request with newlines.
+
 ### `event = any (optional)`
 
 The event to send.
 
-Defaults to `this`, meaning the entire event is sent.
+With `endpoint="event"`, this can be any value that Tenzir can render as JSON.
+With `endpoint="raw"`, this must evaluate to a `string`.
+
+Defaults to `this`, meaning the entire incoming event is sent.
 
 ### `host = string (optional)`
 
@@ -59,8 +75,8 @@ An optional expression for [Splunk's
 `string`. You can use this to set the `sourcetype` per event, by providing a
 field instead of a string.
 
-Regardless of the chosen `sourcetype`, the event itself is passed as a json object
-in `event` key of level object that is sent.
+With `endpoint="event"`, the event itself is passed as a JSON value in the
+`event` key of the top-level object that is sent.
 
 Defaults to `_json`.
 
@@ -71,7 +87,29 @@ An optional expression for the [Splunk
 
 If you do not provide this option, Splunk will use the default index.
 
-**NB**: HEC silently drops events with an invalid `index`.
+Note that HEC silently drops events with an invalid `index`.
+
+### `time = expr (optional)`
+
+An optional expression for the event timestamp.
+
+The expression can evaluate to a Tenzir `time` or a non-negative numeric epoch
+timestamp in seconds. Strings are not accepted. If the expression evaluates to
+an invalid value for a row, the operator emits a warning and omits `time` for
+that row or raw request.
+
+With `endpoint="event"`, the timestamp becomes the top-level HEC `time` field
+for each event. With `endpoint="raw"`, the timestamp becomes a request-level
+query parameter for the raw endpoint.
+
+### `fields = record (optional)`
+
+An optional expression for indexed HEC fields. This option is only supported
+with `endpoint="event"`.
+
+The expression must evaluate to a flat record whose values are strings or lists
+of strings. Invalid field values are omitted with a warning. The fields are sent
+as top-level HEC `fields` metadata and are not copied into the event payload.
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
@@ -84,8 +122,9 @@ operator drops all null values to save space.
 
 ### `max_content_length = int (optional)`
 
-The maximum size of the message uncompressed body in bytes. A message may consist of multiple events.
-If a single event is larger than this limit, it is dropped and a warning is emitted.
+The maximum size of the message uncompressed body in bytes. A message may
+consist of multiple events. If a single event is larger than this limit, it is
+dropped and a warning is emitted.
 
 This corresponds with Splunk's
 [`max_content_length`](https://docs.splunk.com/Documentation/Splunk/9.3.1/Admin/Limitsconf#.5Bhttp_input.5D)
@@ -118,12 +157,58 @@ read_json
 to_splunk "https://localhost:8088", hec_token=secret("splunk-hec-token")
 ```
 
-### Data Dependent Splunk framing
+### Set the Splunk event time
+
+```tql
+from {
+  message: "login succeeded",
+  observed_at: 2026-04-24T08:30:00Z,
+}
+to_splunk "https://localhost:8088",
+  hec_token=secret("splunk-hec-token"),
+  time=observed_at
+```
+
+### Add indexed HEC fields
+
+```tql
+from {
+  message: "login succeeded",
+  user: "alice",
+  tags: ["prod", "vpn"],
+}
+to_splunk "https://localhost:8088",
+  hec_token=secret("splunk-hec-token"),
+  event={message: message},
+  fields={user: user, tags: tags}
+```
+
+### Send raw events
+
+```tql
+from {
+  line: "Apr 24 08:30:00 host sshd[123]: Accepted publickey for alice",
+  source: "secure.log",
+}
+to_splunk "https://localhost:8088",
+  hec_token=secret("splunk-hec-token"),
+  endpoint="raw",
+  event=line,
+  source=source,
+  sourcetype="linux_secure"
+```
+
+Raw endpoint metadata such as `host`, `source`, `sourcetype`, `index`, and
+`time` applies to the whole HEC request. When one of these values changes, the
+operator flushes the current request and starts a new one.
+
+### Data-Dependent Splunk Framing
 
 By default, the `to_splunk` operator sends the entire event as the `event` field
 to the HEC, together with any optional Splunk "frame" fields such as `host`,
-`source`, `sourcetype` and `index`. These special properties can be set using
-the operators respective arguments, with an expression that is evaluated per event.
+`source`, `sourcetype`, and `index`. Set these special properties with the
+operator's respective arguments, using an expression that is evaluated per
+event.
 
 However, this means that these special properties may be transmitted as both part
 of `event` and as part of the Splunk frame. This can be especially undesirable
