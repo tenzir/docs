@@ -11,7 +11,7 @@ Reads one or multiple files from Amazon S3.
 
 ```tql
 from_s3 url:string, [anonymous=bool, aws_iam=record, watch=bool,
-  remove=bool, rename=string->string, path_field=field, max_age=duration] { … }
+  remove=bool, rename=string->string, max_age=duration] { … }
 ```
 
 ## Description
@@ -98,7 +98,10 @@ from_s3 "s3://input-bucket/**.json",
 ### Add source path to events
 
 ```tql
-from_s3 "s3://data-bucket/**.json", path_field=source_file
+from_s3 "s3://data-bucket/**.json" {
+  read_json
+  source_file = $file.path
+}
 ```
 
 ### Read Zeek logs with anonymous access

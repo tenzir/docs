@@ -10,7 +10,7 @@ Reads one or multiple files from Google Cloud Storage.
 
 ```tql
 from_gcs url:string, [anonymous=bool, watch=bool, remove=bool,
-  rename=string->string, path_field=field, max_age=duration] { … }
+  rename=string->string, max_age=duration] { … }
 ```
 
 ## Description
@@ -76,7 +76,10 @@ from_gcs "gs://logs/zeek/**.log", watch=true {
 ### Add source path to events
 
 ```tql
-from_gcs "gs://data-bucket/**.json", path_field=source_file
+from_gcs "gs://data-bucket/**.json" {
+  read_json
+  source_file = $file.path
+}
 ```
 
 ### Read Suricata EVE JSON logs with custom parsing
