@@ -7,8 +7,9 @@ integration tests for pipelines, fixtures, and custom runners. Use this page as
 a reference for concepts, configuration, and CLI details. For step-by-step
 walkthroughs, see the guides for [running tests](/guides/testing/run-tests),
 [writing tests](/guides/testing/write-tests),
-[creating fixtures](/guides/testing/create-fixtures), and
-[adding custom runners](/guides/testing/add-custom-runners).
+[creating fixtures](/guides/testing/create-fixtures),
+[adding custom runners](/guides/testing/add-custom-runners), and
+[configuring project hooks](/guides/testing/configure-project-hooks).
 
 ## Install
 
@@ -35,6 +36,8 @@ uvx tenzir-test --help
 - **Test** – Any supported file under `tests/`; frontmatter controls execution.
 - **Runner** – Named strategy that executes a test (`tenzir`, `python`, custom
   entries).
+- **Hook** – Project-level Python callback registered under `hooks/` or
+  `hooks.py` and invoked at stable lifecycle points.
 - **Fixture** – Reusable environment provider registered under `fixtures/` and
   requested via frontmatter.
 - **Suite** – Directory-owned group of tests that share fixtures. Declare it
@@ -59,6 +62,8 @@ A typical project layout looks like this:
 ```text
 project-root/
 ├── fixtures/
+│   └── __init__.py
+├── hooks/
 │   └── __init__.py
 ├── inputs/
 │   └── sample.ndjson
@@ -185,6 +190,9 @@ Useful options:
   specs (`--fixture 'kafka: {port: 9092}'`). When provided, positional TEST
   arguments are not allowed. See the [run fixtures](/guides/testing/run-fixtures)
   guide.
+- `--no-hooks`: Disable project hook loading and invocation. Use this when you
+  need to recover from a broken hook or compare behavior without hook side
+  effects.
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
@@ -545,6 +553,27 @@ TENZIR_BINARY=/opt/tenzir/bin/tenzir \
 TENZIR_NODE_BINARY=/opt/tenzir/bin/tenzir-node \
 uvx tenzir-test --root tests --update
 ```
+
+## Hooks
+
+Hooks are Python callbacks in `hooks/__init__.py` or `hooks.py` at the project
+root. They can run at invocation, project, and test lifecycle points. The
+harness doesn't load hooks from nested test directories.
+
+Available events:
+
+| Event            | When it runs                                                               |
+| ---------------- | -------------------------------------------------------------------------- |
+| `startup`        | Once per invocation, before settings and binary discovery.                  |
+| `shutdown`       | Once before the invocation exits normally.                                  |
+| `project_start`  | Before the harness starts executing a root project or satellite.            |
+| `project_finish` | After the harness finishes a root project or satellite.                     |
+| `test_start`     | Before a logical test starts. Static skips don't trigger this event.        |
+| `test_finish`    | After the final outcome for passed, failed, skipped, and parse-error tests. |
+| `test_failure`   | After `test_finish` for failed tests, before `TENZIR_TMP_DIR` cleanup.      |
+
+For examples and lifecycle details, see the
+[configure project hooks](/guides/testing/configure-project-hooks) guide.
 
 ## Runners
 
@@ -1102,6 +1131,8 @@ walks through the full implementation.
   `--keep`).
 - `TENZIR_TEST_DEBUG` – Enable debug logging and verbose output (equivalent to
   `--debug`).
+- `TENZIR_TEST_DISABLE_HOOKS` – Disable project hook loading and invocation
+  (equivalent to `--no-hooks`).
 
 ### Binary resolution
 
