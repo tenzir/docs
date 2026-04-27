@@ -1,0 +1,90 @@
+---
+title: group
+category: Analyze
+example: 'group collector { to_tcp $group { write_ndjson } }'
+---
+
+This reference documents the `group` operator, which runs a subpipeline for
+each group key.
+
+```tql
+group over:any { ... }
+```
+
+## Description
+
+The `group` operator evaluates `over` for every input event and routes each
+event to a subpipeline for the resulting key. Use this when a subpipeline needs
+a per-key constant argument, such as a destination endpoint, or when each key
+needs its own long-lived subpipeline instance.
+
+Events with the same key use the same subpipeline for the full input stream, so
+stateful operators and destinations inside the subpipeline keep separate state
+per group.
+
+The order of events within each group is preserved.
+
+Inside the subpipeline, `$group` contains the current group key as a constant.
+
+:::note[High group counts]
+Each distinct key creates a subpipeline. Use this operator with care when the
+input can contain many unique keys.
+:::
+
+### `over: any`
+
+The expression that computes the group key for each event.
+
+### `{ ... }`
+
+The subpipeline to run for each group. The subpipeline may either:
+
+- Produce events as output.
+- End with a sink.
+
+The subpipeline must not produce bytes as output.
+
+## Examples
+
+### Open one TCP stream per group
+
+Send events to the TCP endpoint stored in `collector`. Each collector value
+gets one long-lived <Op>to_tcp</Op> subpipeline:
+
+```tql
+group collector {
+  to_tcp $group {
+    write_ndjson
+  }
+}
+```
+
+### Use a computed destination as the group key
+
+Build an endpoint from event fields and use the resulting string as a constant
+argument inside each subpipeline:
+
+```tql
+endpoint = f"{collector_host}:5044"
+group endpoint {
+  to_tcp $group {
+    write_json
+  }
+}
+```
+
+### Write one file per group
+
+Write each tenant to a separate file by passing the group key to a sink that
+requires a constant path:
+
+```tql
+group tenant {
+  to_file f"/var/log/tenzir/{$group}.ndjson"
+}
+```
+
+## See Also
+
+- <Op>parallel</Op>
+- <Op>summarize</Op>
