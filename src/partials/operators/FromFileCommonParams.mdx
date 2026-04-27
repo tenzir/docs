@@ -25,13 +25,6 @@ The operator automatically creates any intermediate directories required for the
 target path. If the target path ends with a trailing slash (`/`), the original
 filename will be automatically appended to create the final path.
 
-### `path_field = field (optional)`
-
-This makes the operator insert the path to the file where an event originated
-from before emitting it.
-
-By default, paths will not be inserted into the outgoing events.
-
 ### `max_age = duration (optional)`
 
 Only process files that were modified within the specified duration from the
@@ -51,8 +44,11 @@ following fields:
 | `path`  | `string` | The absolute path of the file being read |
 | `mtime` | `time`   | The last modification time of the file   |
 
-For example, to add the source path to each event:
+For example, to attach the source path to each event:
 
 ```tql
-source = $file.path
+from_file "/data/*.json" {
+  read_json
+  source = $file.path
+}
 ```
