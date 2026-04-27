@@ -507,6 +507,10 @@ operators:
     description: 'Executes a system command and hooks its stdin and stdout into the pipeline.'
     example: 'shell "echo hello"'
     path: 'reference/operators/shell'
+  - name: 'group'
+    description: 'Runs a subpipeline for each group key.'
+    example: 'group collector { to_tcp $group { write_ndjson } }'
+    path: 'reference/operators/group'
   - name: 'rare'
     description: 'Shows the least common values.'
     example: 'rare auth.token'
@@ -821,6 +825,14 @@ Tenzir comes with a wide range of built-in pipeline operators.
 ## Analyze
 
 <CardGrid>
+
+<ReferenceCard title="group" description="Runs a subpipeline for each group key." href="/reference/operators/group">
+
+```tql
+group collector { to_tcp $group { write_ndjson } }
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="rare" description="Shows the least common values." href="/reference/operators/rare">
 
