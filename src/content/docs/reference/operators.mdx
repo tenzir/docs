@@ -255,6 +255,10 @@ operators:
     description: 'Shows the current version.'
     example: 'version'
     path: 'reference/operators/version'
+  - name: 'anonymize'
+    description: 'Generates synthetic events with the same schemas as the input events.'
+    example: 'anonymize count=1000, fully_random=true'
+    path: 'reference/operators/anonymize'
   - name: 'dns_lookup'
     description: 'Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses.'
     example: 'dns_lookup ip_address, result=dns_info'
@@ -1539,6 +1543,14 @@ unordered { read_ndjson }
 ## Modify
 
 <CardGrid>
+
+<ReferenceCard title="anonymize" description="Generates synthetic events with the same schemas as the input events." href="/reference/operators/anonymize">
+
+```tql
+anonymize count=1000, fully_random=true
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="dns_lookup" description="Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses." href="/reference/operators/dns_lookup">
 
