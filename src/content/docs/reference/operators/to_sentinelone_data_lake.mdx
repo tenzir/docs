@@ -8,7 +8,7 @@ Sends security events to SentinelOne Singularity Data Lake via REST API.
 
 ```tql
 to_sentinelone_data_lake url:string, token=string,
-                        [session_info=record, timeout=duration]
+                         [session_info=record, timeout=duration, tls=record]
 ```
 
 ## Description
@@ -41,6 +41,8 @@ according to this table:
 
 The ingest URL for the Data Lake.
 
+The URL must start with `https://`.
+
 :::info
 Please note that using the wrong ingestion endpoint, such as an incorrect region,
 may silently fail, as the SentinelOne API responds with 200 OK, even for some
@@ -67,6 +69,13 @@ The delay after which events are sent, even if this results in fewer events
 sent per message.
 
 Defaults to `1min`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="true"/>
+
+For SentinelOne endpoints that use a private CA, set
+`tls={cacert: "/path/to/ca.pem"}`.
 
 ## Examples
 
