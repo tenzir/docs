@@ -263,6 +263,31 @@ from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
 http url, paginate="link"
 ```
 
+### [OData](https://www.oasis-open.org/standard/odata-v4-01-os/) pagination
+
+Some APIs return an OData collection envelope with records in a top-level
+`value` array and the next page URL in `@odata.nextLink`. Microsoft Graph uses
+this pagination shape for many collection endpoints. Use `paginate="odata"` with
+<Op>from_http</Op> to unpack the envelope and follow the next link
+automatically:
+
+```tql
+from_http "https://graph.microsoft.com/v1.0/users",
+  headers={
+    "Authorization": "Bearer " + secret("MICROSOFT_GRAPH_TOKEN"),
+    "ConsistencyLevel": "eventual",
+  },
+  paginate="odata" {
+  read_json
+}
+```
+
+The operator emits each object from the top-level `value` array as an event. It
+follows a top-level string `@odata.nextLink` as an opaque URL, so you do not need
+to inspect or rebuild query parameters such as `$skiptoken`. Pagination stops
+when the response omits `@odata.nextLink` or when the field is not a string.
+Follow-up requests use `GET` and reuse the configured request headers.
+
 ### Lambda-Based Pagination
 
 The [`http`](/reference/operators/http) operator additionally supports
@@ -390,6 +415,6 @@ Follow these practices for reliable and efficient API integration:
    performance.
 7. **Leverage automatic format inference**. Use descriptive file extensions in
    URLs when possible to enable automatic format and compression detection.
-8. **Prefer link pagination when available**. Use `paginate="link"` for APIs
-   that support RFC 8288 `Link` headers instead of writing custom lambda
-   expressions.
+8. **Prefer built-in pagination modes when available**. Use `paginate="link"`
+   for APIs that support RFC 8288 `Link` headers or `paginate="odata"` for
+   OData collection envelopes instead of writing custom lambda expressions.

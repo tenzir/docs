@@ -18,3 +18,17 @@ export function pathWithBase(path: NonNullable<string>): string {
   }
   return `${stripTrailingSlash(base)}/${path}`;
 }
+
+/**
+ * Apply Astro's configured base path to internal absolute hrefs.
+ * Leaves external, protocol-relative, anchor, and relative hrefs unchanged.
+ */
+export function hrefWithBase(href: string): string;
+export function hrefWithBase(href: undefined): undefined;
+export function hrefWithBase(href: string | undefined): string | undefined {
+  return typeof href === "string" &&
+    href.startsWith("/") &&
+    !href.startsWith("//")
+    ? pathWithBase(href)
+    : href;
+}

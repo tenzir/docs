@@ -1,0 +1,110 @@
+---
+title: Manage organizations
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This guide shows you how to create, configure, and delete organizations in
+the Tenzir Platform. You'll learn how to perform these tasks through both the
+web and the CLI.
+
+:::note[Availability]
+As a feature preview, organizations are currently available to all users. In the
+future, they will require the **Professional Edition** or higher. See
+[tenzir.com/pricing](https://tenzir.com/pricing) for details.
+:::
+
+## Create an organization
+
+Each user can belong to at most one organization. When you create an
+organization, you automatically become its first admin.
+
+<Tabs>
+<TabItem label="Web">
+
+Click **Create Organization** in your user profile and enter a name for your
+organization.
+
+</TabItem>
+<TabItem label="CLI">
+
+```sh
+tenzir-platform org create "Acme Corp"
+```
+
+The command outputs the new organization's ID.
+
+</TabItem>
+</Tabs>
+
+## View organization details
+
+<Tabs>
+<TabItem label="Web">
+
+Navigate to **Organizations** from your user profile, or click on the
+organization name in the workspace switcher to see your organization's overview,
+including the name, member count, and creation date.
+
+</TabItem>
+<TabItem label="CLI">
+
+```sh
+tenzir-platform org info
+```
+
+This displays the organization name, ID, number of members, and pending
+invitations. Only organization admins can see pending invitations.
+
+</TabItem>
+</Tabs>
+
+## Update organization settings
+
+Admins can change the organization name and icon.
+
+<Tabs>
+<TabItem label="Web">
+
+Click the organization name on the organization page to edit it inline. You
+can also update the icon URL in the settings section.
+
+</TabItem>
+<TabItem label="CLI">
+
+Organization settings can currently only be updated through the web.
+
+</TabItem>
+</Tabs>
+
+## Delete an organization
+
+:::caution[Destructive action]
+Deleting an organization permanently removes it along with **all of its
+workspaces** and their contents. This action cannot be undone.
+:::
+
+Only admins can delete an organization.
+
+<Tabs>
+<TabItem label="Web">
+
+Scroll to the **Danger Zone** at the bottom of the organization page and click
+**Delete Organization**. A confirmation dialog asks you to confirm before
+proceeding.
+
+</TabItem>
+<TabItem label="CLI">
+
+```sh
+tenzir-platform org delete
+```
+
+</TabItem>
+</Tabs>
+
+## See Also
+
+- <Guide>platform-management/manage-organization-members</Guide>
+- <Guide>platform-management/manage-organization-workspaces</Guide>
+- <Explanation>platform</Explanation>

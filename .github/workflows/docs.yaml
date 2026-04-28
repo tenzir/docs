@@ -78,11 +78,16 @@ jobs:
               --base "${{ steps.pages.outputs.base_path }}"
           fi
 
-      - name: Save PR number
+      - name: Write PR preview marker
         if: github.event_name == 'pull_request'
         run: |
           mkdir -p pr
-          echo ${{ github.event.pull_request.number }} > pr/number
+          printf '%s\n' '${{ github.event.pull_request.number }}' > pr/number
+          printf '%s\n' '${{ github.event.pull_request.head.sha }}' > pr/sha
+          jq -n \
+            --argjson pr '${{ github.event.pull_request.number }}' \
+            --arg sha '${{ github.event.pull_request.head.sha }}' \
+            '{pr: $pr, sha: $sha}' > dist/__preview.json
 
       - name: Upload PR artifact
         if: github.event_name == 'pull_request'

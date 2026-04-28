@@ -11,20 +11,54 @@ There exist three primary entities in the platform:
 
 1. **Users**: Authenticated by an Identity Provider (IdP)
 2. **Organizations**: Manage billing/license, members, and workspaces
-3. **Workspace**: A logical grouping of nodes, secrets, and dashboards.
+3. **Workspaces**: A logical grouping of nodes, secrets, and dashboards.
 
 The diagram below illustrates their relationship.
 
 ![Platform Components](./platform-components.svg)
 
-A user inside an organization is called a **member**. The organization
-configures what members have access to what workspaces.
+### Users
+
+A **user** is an individual account authenticated by an external Identity
+Provider (IdP). Users can own personal workspaces directly or join an
+organization to collaborate with others.
+
+### Organizations
+
+An **organization** groups users under a shared entity for team collaboration.
+Organizations manage billing, licenses, members, and workspaces. A user inside
+an organization is called a **member**.
+
+Each user can belong to at most one organization. This single-organization
+constraint simplifies access control and ensures a clear ownership model.
+
+Organizations have two roles:
+
+- **Admin**: Full control over the organization, including managing members,
+  invitations, workspaces, and organization settings.
+- **Member**: Can view organization details and access organization-owned
+  workspaces, but cannot make administrative changes.
+
+The creator of an organization automatically becomes its first admin.
 
 :::note[Organizations]
 Organizations are not available in the free **Community Edition**. Please see
 [tenzir.com/pricing](https://tenzir.com/pricing) for a detailed
 feature comparison.
 :::
+
+### Workspaces
+
+A **workspace** is a logical grouping of nodes, secrets, and dashboards.
+Workspaces can be owned by a user (personal workspaces) or by an organization
+(shared workspaces). When an organization owns a workspace, all organization
+members automatically gain access to it.
+
+For details on managing these entities, see the platform management guides:
+
+- <Guide>platform-management/manage-organizations</Guide>
+- <Guide>platform-management/manage-organization-members</Guide>
+- <Guide>platform-management/manage-organization-workspaces</Guide>
 
 ## Data Model
 

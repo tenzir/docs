@@ -11,7 +11,7 @@ Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
 ```tql
 to_splunk url:string, hec_token=string,
           [event=any, host=string, source=string, sourcetype=expr, index=expr,
-          print_nulls=bool, max_content_length=int, buffer_timeout=duration,
+          include_nulls=bool, max_content_length=int, buffer_timeout=duration,
           compress=bool, tls=record]
 ```
 
@@ -26,7 +26,7 @@ JSON. You can specify a different source type via the `sourcetype` option.
 The operator accumulates multiple events before sending them as a single
 message to the HEC endpoint. You can control the maximum message size via the
 `max_content_length` and the timeout before sending all accumulated events via
-the `send_timeout` option.
+the `buffer_timeout` option.
 
 ### `url: string`
 

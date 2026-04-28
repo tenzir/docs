@@ -4,15 +4,11 @@
  * This ensures links work correctly in PR preview deployments with non-root base paths.
  */
 import { LinkButton as StarlightLinkButton } from "@astrojs/starlight/components";
-import { pathWithBase } from "../utils/base";
+import { hrefWithBase } from "../utils/base";
 
 const { href, ...rest } = Astro.props;
 
-// Apply base URL to internal links (starting with / but not //)
-const resolvedHref =
-  typeof href === "string" && href.startsWith("/") && !href.startsWith("//")
-    ? pathWithBase(href)
-    : href;
+const resolvedHref = hrefWithBase(href);
 ---
 
 <StarlightLinkButton href={resolvedHref} {...rest}>
