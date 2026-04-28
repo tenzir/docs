@@ -203,6 +203,7 @@ export const guides = [
           "guides/testing/run-fixtures",
           "guides/testing/create-fixtures",
           "guides/testing/add-custom-runners",
+          "guides/testing/configure-project-hooks",
         ],
       },
     ],
