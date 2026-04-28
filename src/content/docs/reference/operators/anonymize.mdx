@@ -1,0 +1,132 @@
+---
+title: anonymize
+category: Modify
+example: 'anonymize count=1000, fully_random=true'
+---
+
+Generates synthetic events with the same schemas as the input events.
+
+```tql
+anonymize [sample=int, count=int, fully_random=bool, seed=int]
+```
+
+## Description
+
+The `anonymize` operator samples input events to learn which schemas are present,
+then replaces the input with generated events for those schemas. The generated
+events keep the observed schema names and field types, but their values are
+synthetic.
+
+By default, `anonymize` uses aggregate statistics from the sampled values when
+generating output. It preserves null rates, list lengths, numeric ranges, time
+and duration ranges, boolean and enum frequencies, string and blob lengths and
+byte frequencies, IP address family frequencies, and subnet family and prefix
+length frequencies.
+
+Set `fully_random=true` to ignore the sampled value distributions and generate
+broad random values for each field instead. This keeps the input schemas and
+schema proportions, but it doesn't keep column-level value characteristics.
+
+For streams with multiple schemas, the operator distributes the generated events
+across schemas according to the relative number of sampled rows per schema. The
+last schema receives any remaining events after rounding.
+
+Use `seed` when you need reproducible output for tests, demos, or documentation.
+Without `seed`, the operator uses a random seed.
+
+### `sample = int (optional)`
+
+The number of input events to sample before generating output.
+
+The operator may consume more than this number if the final input batch crosses
+the threshold.
+
+Defaults to `100`.
+
+### `count = int (optional)`
+
+The total number of generated output events.
+
+Defaults to `100`.
+
+### `fully_random = bool (optional)`
+
+Controls whether generated values use the sampled value distributions.
+
+When `false`, the operator derives aggregate statistics from sampled columns and
+draws generated values from those distributions. This is the default.
+
+When `true`, the operator ignores sampled values and generates broad random
+values for each type.
+
+### `seed = int (optional)`
+
+The seed for deterministic generation.
+
+When omitted, the operator chooses a random seed.
+
+:::note[Reproducibility]
+The seed only guarantees identical output when the input events arrive in the
+same order, have the same values, and the operator version is unchanged.
+:::
+
+## Examples
+
+### Generate events from sampled distributions
+
+```tql
+from {
+  status: "aa",
+  bytes: 1000,
+  verdict: true,
+  tags: ["x"],
+}, {
+  status: "zz",
+  bytes: 2000,
+  verdict: false,
+  tags: ["y", "z"],
+}
+anonymize count=1, fully_random=false, seed=3
+```
+
+```tql
+{
+  status: "az",
+  bytes: 1346,
+  verdict: false,
+  tags: [
+    "y",
+  ],
+}
+```
+
+### Generate fully random values
+
+```tql
+from {
+  src_ip: 10.0.0.1,
+  bytes: 1024,
+  msg: "connected",
+}
+anonymize count=2, fully_random=true, seed=1
+```
+
+```tql
+// Output varies with the seed and operator version.
+{
+  src_ip: 34.34.115.5,
+  bytes: 1288452476385911040,
+  msg: "IWn",
+}
+{
+  src_ip: 89.233.120.19,
+  bytes: 2494575675009433616,
+  msg: "psXDqrUCsthheR",
+}
+```
+
+## See Also
+
+- <Op>sample</Op>
+- <Op>taste</Op>
+- <Guide>optimization/slice-and-sample-data</Guide>
