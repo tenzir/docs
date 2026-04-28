@@ -1,0 +1,182 @@
+---
+title: Configure project hooks
+---
+
+This guide shows you how to configure `tenzir-test` project hooks for setup and
+cleanup tasks that belong next to your tests. You'll learn how to select local
+Tenzir binaries before discovery, set project-scoped environment variables, and
+collect artifacts from failed tests.
+
+## Prerequisites
+
+- A `tenzir-test` project with a `tests/` directory.
+- Python code in the project can import `tenzir_test`.
+
+## Choose a hook location
+
+Create a `hooks/` package at the project root:
+
+```sh
+mkdir -p hooks
+touch hooks/__init__.py
+```
+
+The harness also supports a single `hooks.py` file at the project root. Use one
+form per project and keep hooks at the project root. The harness doesn't load
+hooks from nested directories such as `tests/foo/hooks/`.
+
+## Select local Tenzir binaries before discovery
+
+Use a `startup` hook when your project needs to choose `tenzir` and
+`tenzir-node` before the harness resolves executables. This is useful when you
+run tests against a local build instead of the binaries available on `PATH`.
+
+Add the following hook to `hooks/__init__.py`:
+
+```python
+import subprocess
+from pathlib import Path
+
+from tenzir_test import hooks
+
+
+@hooks.startup
+def use_local_tenzir_build(ctx):
+    # Use ctx.root to resolve paths from the invocation root.
+    build_script = ctx.root / "scripts" / "build.sh"
+
+    # Run helper commands with ctx.env so earlier hook changes apply.
+    build_dir = Path(
+        subprocess.check_output(
+            [build_script, "--print-build-dir"],
+            cwd=ctx.root,
+            env=ctx.env,
+            text=True,
+        ).strip()
+    )
+    if not build_dir.is_absolute():
+        build_dir = ctx.root / build_dir
+
+    # ctx.path is a plain list that becomes PATH after the hook returns.
+    bin_dir = build_dir / "bin"
+    ctx.path.insert(0, str(bin_dir))
+
+    # Mutate ctx.env for variables that tenzir-test should apply globally.
+    ctx.env["TENZIR_BINARY"] = str(bin_dir / "tenzir")
+    ctx.env["TENZIR_NODE_BINARY"] = str(bin_dir / "tenzir-node")
+
+    # Use ctx.debug to emit optional diagnostics only in debug mode.
+    if ctx.debug:
+        print(f"using Tenzir binaries from {bin_dir}")
+```
+
+This example uses the `ctx` object to:
+
+- Resolve project-local paths with `ctx.root`.
+- Run a helper command with `subprocess.check_output()` and `ctx.env`.
+- Update `PATH` by editing the plain `ctx.path` list.
+- Set global environment variables through `ctx.env`.
+- Print extra details only when `ctx.debug` is enabled.
+
+Run the tests as usual:
+
+```sh
+uvx tenzir-test
+```
+
+The `startup` hook runs before settings and binary discovery. Changes to
+`ctx.env`, `ctx.path`, `TENZIR_BINARY`, and `TENZIR_NODE_BINARY` affect the
+whole invocation. To keep path handling predictable, edit `ctx.path` instead of
+`ctx.env["PATH"]`.
+
+## Set environment variables for one project
+
+Use `project_start` for environment values that should apply only to tests in
+the current project:
+
+```python
+from tenzir_test import hooks
+
+
+@hooks.project_start
+def configure_project(ctx):
+    ctx.env["TENZIR_TEST_DATASET"] = ctx.project.root.name
+```
+
+The mapping in `ctx.env` and the list in `ctx.path` are project-scoped.
+Mutations apply to tests in that project and don't leak into the next project in
+a multi-project run.
+
+## Collect failed-test artifacts
+
+Use `test_failure` to copy files from the per-test scratch directory before the
+harness removes it:
+
+```python
+import shutil
+
+from tenzir_test import hooks
+
+
+@hooks.test_failure
+def save_failure_artifacts(ctx):
+    if ctx.tmp_dir is None:
+        return
+    relative_test = ctx.test.relative_to(ctx.project.root).with_suffix("")
+    target = ctx.project.root / ".tenzir-test-failures" / relative_test
+    shutil.copytree(ctx.tmp_dir, target, dirs_exist_ok=True)
+    print(f"saved failure artifacts to {target}")
+```
+
+This hook runs after `test_finish` and only for final failures. It doesn't run
+for intermediate retry attempts.
+
+## Understand hook ordering
+
+For multi-project runs, root hooks wrap satellite hooks:
+
+- Start events run from outer to inner: root, then satellite.
+- Finish and failure events run from inner to outer: satellite, then root.
+
+For a satellite test, the order is:
+
+```text
+root.project_start
+satellite.project_start
+root.test_start
+satellite.test_start
+run test
+satellite.test_finish
+root.test_finish
+satellite.test_failure  # failed tests only
+root.test_failure       # failed tests only
+satellite.project_finish
+root.project_finish
+```
+
+A root invocation runs only the root `startup` hook, even when it selects
+satellites. A satellite `startup` hook runs only when that satellite is the
+invocation root.
+
+## Disable hooks during recovery
+
+If a hook prevents the harness from starting, disable hooks for one invocation:
+
+```sh
+uvx tenzir-test --no-hooks
+```
+
+You can use the environment variable equivalent in scripts or CI:
+
+```sh
+TENZIR_TEST_DISABLE_HOOKS=1 uvx tenzir-test
+```
+
+## Next steps
+
+- Use `shutdown` to emit final telemetry or clean up resources created during
+  `startup`.
+- Use `test_start` and `test_finish` to record per-test timing or status in an
+  external system.
+- Review the [test framework reference](/reference/test-framework/) for the full
+  event list and CLI options.
