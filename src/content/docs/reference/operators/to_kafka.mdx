@@ -1,7 +1,7 @@
 ---
 title: to_kafka
 category: Outputs/Events
-example: 'to_kafka "topic", message=this.print_json()'
+example: 'to_kafka "topic"'
 ---
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
@@ -39,7 +39,7 @@ The Kafka topic to send messages to.
 
 An expression that evaluates to the message content for each row.
 
-Defaults to `this.print_json()` when not specified.
+Defaults to `this.print_ndjson()` when not specified.
 
 ### `key = string (optional)`
 
@@ -83,15 +83,10 @@ to_kafka "events"
 
 This pipeline subscribes to security alerts, filters for high-severity events,
 selects relevant fields, and sends them to Kafka as JSON. Each event is
-automatically formatted using `this.print_json()`, producing messages like:
+automatically formatted using `this.print_ndjson()`, producing messages like:
 
 ```json
-{
-  "timestamp": "2024-03-15T10:30:00.000000",
-  "source_ip": "192.168.1.100",
-  "alert_type": "brute_force",
-  "details": "Multiple failed login attempts detected"
-}
+{"timestamp":"2024-03-15T10:30:00.000000","source_ip":"192.168.1.100","alert_type":"brute_force","details":"Multiple failed login attempts detected"}
 ```
 
 ### Send JSON-formatted events with explicit message
