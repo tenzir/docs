@@ -56,14 +56,17 @@ each {
 
 ### Run a per-event sink
 
-When the subpipeline ends with a sink, `each` itself becomes a sink. Write a
-separate file for each tenant referenced in the input:
+When the subpipeline ends with a sink, `each` itself becomes a sink. Use this
+to write a separate output file per tenant in the input:
 
 ```tql
 from {tenant: "alpha"}, {tenant: "beta"}
 each {
-  subscribe f"events.{$this.tenant}"
-  to f"out/{$this.tenant}.json"
+  from {tenant: $this.tenant, status: "ok"},
+       {tenant: $this.tenant, status: "fail"}
+  to_file f"out/{$this.tenant}.json" {
+    write_ndjson
+  }
 }
 ```
 
