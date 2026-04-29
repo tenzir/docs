@@ -207,6 +207,10 @@ operators:
     description: 'Discards all incoming events.'
     example: 'discard'
     path: 'reference/operators/discard'
+  - name: 'each'
+    description: 'Spawns a subpipeline for every incoming event, with the event bound to `$this`.'
+    example: 'each { from $this }'
+    path: 'reference/operators/each'
   - name: 'every'
     description: 'Runs a pipeline periodically at a fixed interval.'
     example: 'every 10s { summarize sum(amount) }'
@@ -1354,6 +1358,14 @@ delay ts, speed=2.5
 
 ```tql
 discard
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="each" description="Spawns a subpipeline for every incoming event, with the event bound to `$this`." href="/reference/operators/each">
+
+```tql
+each { from $this }
 ```
 
 </ReferenceCard>
