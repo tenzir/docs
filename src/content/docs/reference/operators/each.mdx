@@ -16,47 +16,29 @@ The `each` operator runs a fresh subpipeline for every incoming event. The
 record of the current event is bound to `$this` inside the subpipeline, so the
 subpipeline can parametrize its behavior on a per-event basis.
 
-The subpipeline must be a source: it takes no input from `each` and instead
-produces its own events (or sinks them itself). Outputs of all running
-subpipelines are merged into the operator's output stream and may interleave.
-
-Up to `parallel` subpipelines run concurrently. Excess events queue and start
-as soon as a slot frees.
+The subpipeline takes no input from `each`. It either emits events—which are
+forwarded as the operator's output—or ends with a sink, in which case `each`
+itself becomes a sink. The subpipeline must not produce bytes.
 
 ### `parallel = int (optional)`
 
 The maximum number of subpipelines that may run concurrently. Must be at least
-`1`.
+`1`. Excess events queue and start as soon as a slot frees.
 
 Defaults to `10`.
 
 ### `{ … }`
 
-The subpipeline to spawn for each event. Must be a source. The subpipeline may
-either produce events—which are forwarded as the operator's output—or end with
-a sink, in which case `each` itself becomes a sink.
-
-The subpipeline must not produce bytes.
+The subpipeline to spawn for each event. Must start with a source.
 
 Inside the subpipeline, `$this` refers to the record of the current input
 event.
 
 ## Examples
 
-### Re-emit each input event
-
-Use `from $this` to convert each incoming event into a one-event subpipeline:
-
-```tql
-from {name: "alice"}, {name: "bob"}
-each {
-  from $this
-}
-```
-
 ### Parametrize a subpipeline with the event
 
-Filter a fixed dataset using a threshold from the input event:
+Filter a fixed dataset using a threshold taken from the input event:
 
 ```tql
 from {threshold: 3}, {threshold: 7}
@@ -72,27 +54,16 @@ each {
 {x: 10}
 ```
 
-### Limit concurrency
+### Run a per-event sink
 
-Run at most four subpipelines at the same time:
-
-```tql
-subscribe "jobs"
-each parallel=4 {
-  load_http $this.url
-  read_json
-}
-```
-
-### Sink output inside the subpipeline
-
-When the subpipeline ends with a sink, `each` itself becomes a sink:
+When the subpipeline ends with a sink, `each` itself becomes a sink. Write a
+separate file for each tenant referenced in the input:
 
 ```tql
-from {x: 1}, {x: 2}, {x: 3}
+from {tenant: "alpha"}, {tenant: "beta"}
 each {
-  from $this
-  discard
+  subscribe f"events.{$this.tenant}"
+  to f"out/{$this.tenant}.json"
 }
 ```
 
