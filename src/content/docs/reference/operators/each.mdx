@@ -20,6 +20,10 @@ The subpipeline takes no input from `each`. It either emits events—which are
 forwarded as the operator's output—or ends with a sink, in which case `each`
 itself becomes a sink. The subpipeline must not produce bytes.
 
+Use `each` for per-event jobs, such as running a lookup, export, or sink whose
+source depends on the incoming event. For keyed streams that should keep one
+subpipeline alive per key, use <Op>group</Op> instead.
+
 ### `parallel = int (optional)`
 
 The maximum number of subpipelines that may run concurrently. Must be at least
@@ -36,22 +40,38 @@ event.
 
 ## Examples
 
-### Parametrize a subpipeline with the event
+### Run a lookup per event
 
-Filter a fixed dataset using a threshold taken from the input event:
+Use fields from the input event to parametrize a source subpipeline. This
+example treats the input as investigation cases and searches a historical event
+set for matching source IPs:
 
 ```tql
-from {threshold: 3}, {threshold: 7}
-each {
-  from {x: 1}, {x: 5}, {x: 10}
-  where x > $this.threshold
+from {case_id: "C-1", ip: "10.0.0.5"},
+     {case_id: "C-2", ip: "10.0.0.7"}
+each parallel=4 {
+  from {ts: 2024-01-01T10:00:00, src_ip: "10.0.0.5", action: "login"},
+       {ts: 2024-01-01T10:02:00, src_ip: "10.0.0.8", action: "scan"},
+       {ts: 2024-01-01T10:05:00, src_ip: "10.0.0.7", action: "download"}
+  where src_ip == $this.ip
+  case_id = $this.case_id
 }
+sort case_id, ts
 ```
 
 ```tql
-{x: 5}
-{x: 10}
-{x: 10}
+{
+  ts: 2024-01-01T10:00:00.000000,
+  src_ip: "10.0.0.5",
+  action: "login",
+  case_id: "C-1",
+}
+{
+  ts: 2024-01-01T10:05:00.000000,
+  src_ip: "10.0.0.7",
+  action: "download",
+  case_id: "C-2",
+}
 ```
 
 ### Run a per-event sink
@@ -64,7 +84,7 @@ from {tenant: "alpha"}, {tenant: "beta"}
 each {
   from {tenant: $this.tenant, status: "ok"},
        {tenant: $this.tenant, status: "fail"}
-  to_file f"out/{$this.tenant}.json" {
+  to_file f"/tmp/tenzir/{$this.tenant}.json" {
     write_ndjson
   }
 }
@@ -75,4 +95,6 @@ each {
 - <Op>cron</Op>
 - <Op>every</Op>
 - <Op>fork</Op>
+- <Op>group</Op>
 - <Op>parallel</Op>
+- <Guide>routing/fan-out-with-subpipelines</Guide>
