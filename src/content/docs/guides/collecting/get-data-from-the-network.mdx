@@ -56,6 +56,22 @@ uv run --with trustme python -m trustme
 For production TLS configuration, including mutual TLS and cipher settings, see
 <Guide>node-setup/configure-tls</Guide>.
 
+### Accept plaintext and TLS on one port
+
+Use TLS auto-detection when you need to migrate clients from plaintext TCP to
+TLS without changing the listening port:
+
+```tql
+accept_tcp "0.0.0.0:514",
+           tls={certfile: "cert.pem", keyfile: "key.pem"},
+           auto_detect_tls=true {
+  read_syslog
+}
+```
+
+With `auto_detect_tls=true`, <Op>accept_tcp</Op> accepts both plaintext clients
+and clients that start with a TLS ClientHello on the same endpoint.
+
 ## UDP sockets
 
 <Integration>udp</Integration> is a connectionless protocol ideal for
