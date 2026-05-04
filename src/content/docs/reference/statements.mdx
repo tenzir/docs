@@ -261,6 +261,8 @@ In this example, events with any other `record_type` continue downstream without
 a `record_family` field. Branch pipelines follow the same output type rules as
 `if` branches.
 
+### Record patterns
+
 Record patterns match record values structurally. Listed fields must exist and
 match their nested patterns. Without `..`, the pattern is exact and rejects extra
 fields. With `..`, extra fields are ignored.
@@ -279,6 +281,8 @@ match this {
 }
 ```
 
+### Range patterns
+
 Range patterns use `lower..upper` and include both bounds.
 
 ```tql
@@ -294,6 +298,8 @@ match status {
   }
 }
 ```
+
+### Bindings
 
 Bindings capture matched values for use in the arm pipeline. A binding name must
 be unique within an arm. If the same `$name` exists as an outer `let` binding,
