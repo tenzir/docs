@@ -216,3 +216,47 @@ if src_ip.is_private() {
   zone = "external"
 }
 ```
+
+## `match`
+
+The `match` statement routes events by comparing one expression against literal
+patterns. Tenzir evaluates the expression once for each input batch, checks the
+arms from top to bottom, and sends each event to the first matching arm.
+
+```tql
+match action {
+  "accept", "allow" => {
+    verdict = "allowed"
+  }
+  "deny", "drop" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+Each arm contains one or more comma-separated patterns followed by a pipeline in
+braces. Patterns must be literal constants, such as strings, numbers, booleans,
+`null`, durations, times, IP addresses, or subnets. A negative numeric literal,
+such as `-1`, is also valid.
+
+Use `_` as a wildcard fallback for all remaining events. The wildcard must be
+the only pattern in its arm and must be the final arm. If you omit the wildcard,
+events that don't match any arm pass through unchanged.
+
+```tql
+match record_type {
+  "A", "AAAA" => {
+    record_family = "address"
+  }
+  "CNAME", "DNAME" => {
+    record_family = "alias"
+  }
+}
+```
+
+In this example, events with any other `record_type` continue downstream without
+a `record_family` field. Branch pipelines follow the same output type rules as
+`if` branches.

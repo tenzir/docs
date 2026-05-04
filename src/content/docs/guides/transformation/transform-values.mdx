@@ -251,6 +251,81 @@ link_local3 = addr3.is_link_local()
 }
 ```
 
+## Classify values with `match`
+
+Use [`match`](/reference/statements/#match) when you need to assign different
+values for a fixed set of known inputs. A `match` statement compares a field
+against literal patterns from top to bottom and runs the first matching branch.
+
+### Normalize firewall actions
+
+Firewall and network devices often use vendor-specific action names. Normalize
+them into a shared verdict before routing or aggregating the events:
+
+```tql
+from {vendor: "fortinet", action: "accept", src_ip: 10.0.0.5},
+     {vendor: "paloalto", action: "deny", src_ip: 203.0.113.10},
+     {vendor: "checkpoint", action: "drop", src_ip: 192.168.1.20},
+     {vendor: "custom", action: "reset", src_ip: 198.51.100.7}
+match action {
+  "accept", "allow", "pass" => {
+    verdict = "allowed"
+  }
+  "deny", "drop", "block" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+```tql
+{vendor: "fortinet", action: "accept", src_ip: 10.0.0.5, verdict: "allowed"}
+{vendor: "paloalto", action: "deny", src_ip: 203.0.113.10, verdict: "blocked"}
+{vendor: "checkpoint", action: "drop", src_ip: 192.168.1.20, verdict: "blocked"}
+{vendor: "custom", action: "reset", src_ip: 198.51.100.7, verdict: "unknown"}
+```
+
+### Group DNS record types
+
+You can list multiple patterns in one branch. This is useful for grouping DNS
+record types before you summarize, route, or inspect the records further:
+
+```tql
+from {query: "example.com", record_type: "A"},
+     {query: "example.com", record_type: "AAAA"},
+     {query: "example.com", record_type: "MX"},
+     {query: "example.com", record_type: "TXT"}
+match record_type {
+  "A", "AAAA" => {
+    record_family = "address"
+  }
+  "CNAME", "DNAME" => {
+    record_family = "alias"
+  }
+  "MX", "SRV", "SVCB", "HTTPS" => {
+    record_family = "service_discovery"
+  }
+  "TXT", "SPF", "DKIM", "DMARC" => {
+    record_family = "policy"
+  }
+  _ => {
+    record_family = "other"
+  }
+}
+```
+
+```tql
+{query: "example.com", record_type: "A", record_family: "address"}
+{query: "example.com", record_type: "AAAA", record_family: "address"}
+{query: "example.com", record_type: "MX", record_family: "service_discovery"}
+{query: "example.com", record_type: "TXT", record_family: "policy"}
+```
+
+If you omit the wildcard branch, events that don't match any branch pass
+through unchanged. Use that behavior when you only want to enrich known cases.
+
 ## Basic string operations
 
 Transform strings with simple operations to clean and standardize your data.
