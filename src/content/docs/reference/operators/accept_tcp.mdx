@@ -11,7 +11,7 @@ Listens for incoming TCP or TLS connections and receives events.
 
 ```tql
 accept_tcp endpoint:string, [max_connections=int, resolve_hostnames=bool,
-                           tls=record { … }]
+                           tls=record, auto_detect_tls=bool { … }]
 ```
 
 ## Description
@@ -28,6 +28,17 @@ The endpoint to listen on. Must be of the form `[tcp://]<hostname>:<port>`. Use
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions/>
+
+### `auto_detect_tls = bool (optional)`
+
+Accept plaintext and TLS clients on the same endpoint.
+
+When enabled, `accept_tcp` reads the first bytes from each client. Connections
+that start with a TLS ClientHello use the configured TLS settings. Other
+connections continue as plaintext, and the bytes read during detection are
+forwarded to the nested pipeline.
+
+You must also set `tls` to enable TLS. Defaults to `false`.
 
 ### `max_connections = int (optional)`
 
@@ -97,6 +108,19 @@ accept_tcp "0.0.0.0:4443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```
+
+### Accept plaintext and TLS clients on one endpoint
+
+```tql
+accept_tcp "0.0.0.0:514",
+           tls={certfile: "cert.pem", keyfile: "key.pem"},
+           auto_detect_tls=true {
+  read_syslog
+}
+```
+
+Use this mode when you migrate clients from plaintext TCP to TLS and need to
+keep one listening port during the transition.
 
 ## See Also
 
