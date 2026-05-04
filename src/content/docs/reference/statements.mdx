@@ -216,3 +216,99 @@ if src_ip.is_private() {
   zone = "external"
 }
 ```
+
+## `match`
+
+The `match` statement routes events by comparing one expression against
+patterns. Tenzir evaluates the expression once for each input batch, checks the
+arms from top to bottom, and sends each event to the first matching arm.
+
+```tql
+match action {
+  "accept" | "allow" => {
+    verdict = "allowed"
+  }
+  "deny" | "drop" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+Use `|` to list multiple alternatives for the same arm. Each arm contains one or
+more patterns followed by a pipeline in braces. Constant patterns include
+strings, numbers, booleans, `null`, durations, times, IP addresses, and subnets.
+A negative numeric literal, such as `-1`, is also valid.
+
+Use `_` as a wildcard fallback for all remaining events. The wildcard must be
+the only pattern in its arm and must be the final arm. If you omit the wildcard,
+events that don't match any arm pass through unchanged.
+
+```tql
+match record_type {
+  "A" | "AAAA" => {
+    record_family = "address"
+  }
+  "CNAME" | "DNAME" => {
+    record_family = "alias"
+  }
+}
+```
+
+In this example, events with any other `record_type` continue downstream without
+a `record_family` field. Branch pipelines follow the same output type rules as
+`if` branches.
+
+### Record patterns
+
+Record patterns match record values structurally. Listed fields must exist and
+match their nested patterns. Without `..`, the pattern is exact and rejects extra
+fields. With `..`, extra fields are ignored.
+
+```tql
+match this {
+  {action: "allow", dst_port: 80..443, ..} => {
+    verdict = "web allow"
+  }
+  {action: "deny"} => {
+    verdict = "exact deny record"
+  }
+  {..} => {
+    verdict = "other record"
+  }
+}
+```
+
+### Range patterns
+
+Range patterns use `lower..upper` and include both bounds.
+
+```tql
+match status {
+  200..299 => {
+    class = "success"
+  }
+  400..499 => {
+    class = "client error"
+  }
+  500..599 => {
+    class = "server error"
+  }
+}
+```
+
+### Bindings
+
+Bindings capture matched values for use in the arm pipeline. A binding name must
+be unique within an arm. If the same `$name` exists as an outer `let` binding,
+`match` treats it as a constant pattern instead.
+
+```tql
+match this {
+  {src: {ip: $ip, ..}, dst: {port: 443, ..}, ..} => {
+    remote_ip = $ip
+  }
+}
+```

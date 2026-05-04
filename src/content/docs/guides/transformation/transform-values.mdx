@@ -251,6 +251,215 @@ link_local3 = addr3.is_link_local()
 }
 ```
 
+## Classify values with `match`
+
+Use [`match`](/reference/statements/#match) when a transformation depends on a
+small set of cases. A `match` statement checks patterns from top to bottom and
+runs the first matching branch. Patterns can be constants, alternatives, ranges,
+records, or bindings.
+
+### Normalize firewall actions
+
+Firewall and network devices often use vendor-specific action names. Use `|` to
+put equivalent values in the same branch and normalize them into a shared
+verdict before routing or aggregating the events:
+
+```tql
+from {vendor: "fortinet", action: "accept", src_ip: 10.0.0.5},
+     {vendor: "paloalto", action: "deny", src_ip: 203.0.113.10},
+     {vendor: "checkpoint", action: "drop", src_ip: 192.168.1.20},
+     {vendor: "custom", action: "reset", src_ip: 198.51.100.7}
+match action {
+  "accept" | "allow" | "pass" => {
+    verdict = "allowed"
+  }
+  "deny" | "drop" | "block" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+```tql
+{
+  vendor: "fortinet",
+  action: "accept",
+  src_ip: 10.0.0.5,
+  verdict: "allowed",
+}
+{
+  vendor: "paloalto",
+  action: "deny",
+  src_ip: 203.0.113.10,
+  verdict: "blocked",
+}
+{
+  vendor: "checkpoint",
+  action: "drop",
+  src_ip: 192.168.1.20,
+  verdict: "blocked",
+}
+{
+  vendor: "custom",
+  action: "reset",
+  src_ip: 198.51.100.7,
+  verdict: "unknown",
+}
+```
+
+If you omit the wildcard branch, events that don't match any branch pass
+through unchanged. Use that behavior when you only want to enrich known cases.
+
+### Classify numeric ranges
+
+Range patterns use `lower..upper` and include both bounds. They're useful for
+bucketizing status codes, ports, scores, or severities:
+
+```tql
+from {status: 200},
+     {status: 204},
+     {status: 404},
+     {status: 503}
+match status {
+  200..299 => {
+    status_class = "success"
+  }
+  400..499 => {
+    status_class = "client_error"
+  }
+  500..599 => {
+    status_class = "server_error"
+  }
+  _ => {
+    status_class = "other"
+  }
+}
+```
+
+```tql
+{
+  status: 200,
+  status_class: "success",
+}
+{
+  status: 204,
+  status_class: "success",
+}
+{
+  status: 404,
+  status_class: "client_error",
+}
+{
+  status: 503,
+  status_class: "server_error",
+}
+```
+
+### Match records structurally
+
+Record patterns let you classify complete events or nested records without
+writing a long boolean expression. Fields listed in the pattern must exist. Add
+`..` when the input may contain extra fields that you want to ignore:
+
+```tql
+from {action: "allow", dst: {port: 443}, app: "https"},
+     {action: "allow", dst: {port: 22}, app: "ssh"},
+     {action: "deny", dst: {port: 443}, app: "https"}
+match this {
+  {action: "allow", dst: {port: 80..443, ..}, ..} => {
+    policy = "web_allowed"
+  }
+  {action: "deny", dst: {port: 443, ..}, ..} => {
+    policy = "web_blocked"
+  }
+  {..} => {
+    policy = "other"
+  }
+}
+```
+
+```tql
+{
+  action: "allow",
+  dst: {
+    port: 443,
+  },
+  app: "https",
+  policy: "web_allowed",
+}
+{
+  action: "allow",
+  dst: {
+    port: 22,
+  },
+  app: "ssh",
+  policy: "other",
+}
+{
+  action: "deny",
+  dst: {
+    port: 443,
+  },
+  app: "https",
+  policy: "web_blocked",
+}
+```
+
+Without `..`, a record pattern is exact. For example, `{action: "deny"}` only
+matches a record with exactly one field named `action`.
+
+### Capture values from matching records
+
+Use an unresolved `$name` in a pattern to bind the matched value for the branch
+pipeline. This is helpful when the condition and the transformation use the same
+nested value:
+
+```tql
+from {src: {ip: 1.2.3.4, port: 12345}, dst: {port: 443}},
+     {src: {ip: 5.6.7.8, port: 54321}, dst: {port: 80}}
+match this {
+  {src: {ip: $ip, ..}, dst: {port: 443, ..}, ..} => {
+    remote_ip = $ip
+    service = "https"
+  }
+  {src: {ip: $ip, ..}, dst: {port: 80, ..}, ..} => {
+    remote_ip = $ip
+    service = "http"
+  }
+}
+```
+
+```tql
+{
+  src: {
+    ip: 1.2.3.4,
+    port: 12345,
+  },
+  dst: {
+    port: 443,
+  },
+  remote_ip: 1.2.3.4,
+  service: "https",
+}
+{
+  src: {
+    ip: 5.6.7.8,
+    port: 54321,
+  },
+  dst: {
+    port: 80,
+  },
+  remote_ip: 5.6.7.8,
+  service: "http",
+}
+```
+
+A binding name must be unique within an arm. If the same `$name` exists as an
+outer `let` binding, `match` treats it as a constant pattern instead of creating
+a new binding.
+
 ## Basic string operations
 
 Transform strings with simple operations to clean and standardize your data.
