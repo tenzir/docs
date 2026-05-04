@@ -1,0 +1,58 @@
+---
+title: to_udp
+category: Outputs/Events
+example: 'to_udp "127.0.0.1:514"'
+---
+
+import Integration from '@components/see-also/Integration.astro';
+import Op from '@components/see-also/Op.astro';
+
+Sends one UDP datagram per input event.
+
+```tql
+to_udp endpoint:string, [message=string|blob|record]
+```
+
+## Description
+
+Sends one UDP datagram per input event to a fixed remote UDP endpoint.
+
+### `endpoint: string`
+
+The address of the remote endpoint. Must be of the format `host:port`. The
+optional `udp://` prefix is accepted but not required.
+
+### `message = string|blob|record (optional)`
+
+An expression that is evaluated once per input event and must produce one of
+the following types:
+
+- `string` values are sent as UTF-8 bytes.
+- `blob` values are sent verbatim.
+- `record` values are serialized as compact JSON.
+- `null` values are skipped with a warning.
+
+All other result types are ignored with a warning.
+
+If you omit `message`, the operator sends the whole event as compact JSON.
+
+## Examples
+
+Send a field as a UDP datagram:
+
+```tql
+from {message: "hello"}
+to_udp "127.0.0.1:514", message=message
+```
+
+Send the full event as compact JSON:
+
+```tql
+from {service: "dns", status: "ok"}
+to_udp "127.0.0.1:514"
+```
+
+## See Also
+
+- <Op>accept_udp</Op>
+- <Integration>udp</Integration>

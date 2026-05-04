@@ -1,13 +1,13 @@
 ---
-title: from_udp
+title: accept_udp
 category: Inputs/Events
-example: 'from_udp "0.0.0.0:8090"'
+example: 'accept_udp "0.0.0.0:8090"'
 ---
 
 Receives UDP datagrams and outputs structured events.
 
 ```tql
-from_udp endpoint:string, [resolve_hostnames=bool], [binary=bool]
+accept_udp endpoint:string, [resolve_hostnames=bool], [binary=bool]
 ```
 
 ## Description
@@ -15,8 +15,7 @@ from_udp endpoint:string, [resolve_hostnames=bool], [binary=bool]
 Listens for UDP datagrams on the specified endpoint and outputs each datagram as
 a structured event containing the data and peer information.
 
-Unlike <Op>load_udp</Op>, which outputs raw bytes,
-`from_udp` produces structured events with metadata about the sender.
+`accept_udp` produces structured events with metadata about the sender.
 
 ### `endpoint: string`
 
@@ -59,7 +58,7 @@ Each UDP datagram produces one event with the following structure:
 ### Receive UDP datagrams with sender information
 
 ```tql
-from_udp "0.0.0.0:1234"
+accept_udp "0.0.0.0:1234"
 ```
 
 This might output events like:
@@ -77,20 +76,19 @@ This might output events like:
 ### Parse JSON data from UDP datagrams
 
 ```tql
-from_udp "127.0.0.1:8080"
+accept_udp "127.0.0.1:8080"
 select data = data.parse_json()
 ```
 
 ### Filter by sender and decode data
 
 ```tql
-from_udp "0.0.0.0:9999"
+accept_udp "0.0.0.0:9999"
 where peer.ip == 192.168.1.100
 select data
 ```
 
 ## See Also
 
-- <Op>load_udp</Op>
-- <Op>save_udp</Op>
+- <Op>to_udp</Op>
 - <Integration>udp</Integration>

@@ -423,10 +423,10 @@ operators:
     description: 'Retrieves PowerQuery results from SentinelOne Singularity Data Lake.'
     example: 'from_sentinelone_data_lake "https://…", …'
     path: 'reference/operators/from_sentinelone_data_lake'
-  - name: 'from_udp'
+  - name: 'accept_udp'
     description: 'Receives UDP datagrams and outputs structured events.'
-    example: 'from_udp "0.0.0.0:8090"'
-    path: 'reference/operators/from_udp'
+    example: 'accept_udp "0.0.0.0:8090"'
+    path: 'reference/operators/accept_udp'
   - name: 'from_velociraptor'
     description: 'Submits VQL to a Velociraptor server and returns the response as events.'
     example: 'from_velociraptor subscribe="Windows"'
@@ -479,10 +479,6 @@ operators:
     description: 'Loads bytes from a TCP or TLS connection.'
     example: 'load_tcp "0.0.0.0:8090" { read_json }'
     path: 'reference/operators/load_tcp'
-  - name: 'load_udp'
-    description: 'Loads bytes from a UDP socket.'
-    example: 'load_udp "0.0.0.0:8090"'
-    path: 'reference/operators/load_udp'
   - name: 'load_zmq'
     description: 'Receives ZeroMQ messages.'
     example: 'load_zmq'
@@ -715,10 +711,10 @@ operators:
     description: 'Saves bytes to a TCP or TLS connection.'
     example: 'save_tcp "0.0.0.0:8090", tls=true'
     path: 'reference/operators/save_tcp'
-  - name: 'save_udp'
-    description: 'Saves bytes to a UDP socket.'
-    example: 'save_udp "0.0.0.0:8090"'
-    path: 'reference/operators/save_udp'
+  - name: 'to_udp'
+    description: 'Sends one UDP datagram per input event.'
+    example: 'to_udp "127.0.0.1:514"'
+    path: 'reference/operators/to_udp'
   - name: 'save_zmq'
     description: 'Sends bytes as ZeroMQ messages.'
     example: 'save_zmq'
@@ -2214,14 +2210,6 @@ load_tcp "0.0.0.0:8090" { read_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="load_udp" description="Loads bytes from a UDP socket." href="/reference/operators/load_udp">
-
-```tql
-load_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
 
 ```tql
@@ -2389,10 +2377,10 @@ from_sentinelone_data_lake "https://…", …
 
 </ReferenceCard>
 
-<ReferenceCard title="from_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/from_udp">
+<ReferenceCard title="accept_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/accept_udp">
 
 ```tql
-from_udp "0.0.0.0:8090"
+accept_udp "0.0.0.0:8090"
 ```
 
 </ReferenceCard>
@@ -2602,10 +2590,10 @@ save_tcp "0.0.0.0:8090", tls=true
 
 </ReferenceCard>
 
-<ReferenceCard title="save_udp" description="Saves bytes to a UDP socket." href="/reference/operators/save_udp">
+<ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
 
 ```tql
-save_udp "0.0.0.0:8090"
+to_udp "127.0.0.1:514"
 ```
 
 </ReferenceCard>
