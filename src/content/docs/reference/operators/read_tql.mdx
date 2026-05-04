@@ -1,0 +1,88 @@
+---
+title: read_tql
+category: Parsing
+example: 'read_tql'
+---
+
+import Op from '@components/see-also/Op.astro';
+
+Parses an incoming byte stream of TQL-formatted records into events.
+
+```tql
+read_tql [schema=string, selector=string, schema_only=bool,
+          merge=bool, raw=bool, unflatten_separator=string]
+```
+
+## Description
+
+Parses an incoming byte stream of TQL-formatted records into events. Each
+top-level record expression in the input becomes one event.
+
+The input format matches the output of <Op>write_tql</Op>. This makes
+`read_tql` useful for round-tripping data through TQL notation,
+reading TQL-formatted files, or processing data piped from other Tenzir
+pipelines.
+
+The parser supports all TQL literal types, including `null`, `bool`, `int64`,
+`double`, `string`, `duration`, `time`, `ip`, and `subnet`, as well as nested
+records and lists.
+
+import ParsingOptions from '@partials/operators/ParsingOptions.mdx';
+
+<ParsingOptions />
+
+## Examples
+
+### Read TQL records from a file
+
+```tql title="events.tql"
+{name: "Tenzir", version: 4}
+{name: "Suricata", version: 7}
+```
+
+```tql title="Pipeline"
+from_file "events.tql" {
+  read_tql
+}
+```
+
+```tql title="Output"
+{
+  name: "Tenzir",
+  version: 4,
+}
+{
+  name: "Suricata",
+  version: 7,
+}
+```
+
+### Read records with native types
+
+TQL notation supports types that JSON cannot represent natively, such as
+durations, timestamps, IP addresses, and subnets.
+
+```tql title="input.tql"
+{dur: 5s, ts: 2024-01-01T00:00:00.000000, addr: 192.168.1.1, net: 10.0.0.0/8}
+```
+
+```tql title="Pipeline"
+from_file "input.tql" {
+  read_tql
+}
+```
+
+```tql title="Output"
+{
+  dur: 5s,
+  ts: 2024-01-01T00:00:00Z,
+  addr: 192.168.1.1,
+  net: 10.0.0.0/8,
+}
+```
+
+## See Also
+
+- <Op>write_tql</Op>
+- <Op>read_json</Op>
+- <Op>read_ndjson</Op>

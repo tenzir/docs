@@ -207,6 +207,10 @@ operators:
     description: 'Discards all incoming events.'
     example: 'discard'
     path: 'reference/operators/discard'
+  - name: 'each'
+    description: 'Spawns a subpipeline for every incoming event, with the event bound to `$this`.'
+    example: 'each { from $this }'
+    path: 'reference/operators/each'
   - name: 'every'
     description: 'Runs a pipeline periodically at a fixed interval.'
     example: 'every 10s { summarize sum(amount) }'
@@ -215,6 +219,10 @@ operators:
     description: 'Executes a subpipeline with a copy of the input.'
     example: 'fork { to "copy.json" }'
     path: 'reference/operators/fork'
+  - name: 'group'
+    description: 'Routes events with the same key through the same subpipeline.'
+    example: 'group tenant { summarize count() }'
+    path: 'reference/operators/group'
   - name: 'load_balance'
     description: 'Routes the data to one of multiple subpipelines.'
     example: 'load_balance $over { publish $over }'
@@ -255,6 +263,10 @@ operators:
     description: 'Shows the current version.'
     example: 'version'
     path: 'reference/operators/version'
+  - name: 'anonymize'
+    description: 'Generates synthetic events with the same schemas as the input events.'
+    example: 'anonymize count=1000, fully_random=true'
+    path: 'reference/operators/anonymize'
   - name: 'dns_lookup'
     description: 'Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses.'
     example: 'dns_lookup ip_address, result=dns_info'
@@ -335,6 +347,18 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_http'
+    description: 'Accepts incoming HTTP requests and forwards them as events.'
+    example: 'accept_http "0.0.0.0:8080" { read_json }'
+    path: 'reference/operators/accept_http'
+  - name: 'accept_opensearch'
+    description: 'Accepts incoming OpenSearch Bulk API requests and forwards them as events.'
+    example: 'accept_opensearch "0.0.0.0:9200"'
+    path: 'reference/operators/accept_opensearch'
+  - name: 'accept_tcp'
+    description: 'Accepts incoming TCP or TLS connections and yields events.'
+    example: 'accept_tcp "0.0.0.0:8090" { read_json }'
+    path: 'reference/operators/accept_tcp'
   - name: 'from'
     description: 'Obtains events from an URI, inferring the source, compression and format.'
     example: 'from "data.json"'
@@ -347,30 +371,50 @@ operators:
     description: 'Reads one or multiple files from a filesystem.'
     example: 'from_file "s3://data/**.json"'
     path: 'reference/operators/from_file'
+  - name: 'from_ftp'
+    description: 'Downloads bytes via FTP and parses them with a subpipeline.'
+    example: 'from_ftp "ftp.example.org/events.ndjson" { read_ndjson }'
+    path: 'reference/operators/from_ftp'
   - name: 'from_fluent_bit'
     description: 'Receives events via Fluent Bit.'
     example: 'from_fluent_bit "opentelemetry"'
     path: 'reference/operators/from_fluent_bit'
-  - name: 'from_gcs'
-    description: 'Reads one or multiple files from Google Cloud Storage.'
-    example: 'from_gcs "gs://my-bucket/data/**.json"'
-    path: 'reference/operators/from_gcs'
   - name: 'from_google_cloud_pubsub'
     description: 'Subscribes to a Google Cloud Pub/Sub subscription and yields events.'
     example: 'from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"'
     path: 'reference/operators/from_google_cloud_pubsub'
+  - name: 'from_google_cloud_storage'
+    description: 'Reads one or multiple files from Google Cloud Storage.'
+    example: 'from_google_cloud_storage "gs://my-bucket/data/**.json"'
+    path: 'reference/operators/from_google_cloud_storage'
   - name: 'from_http'
     description: 'Sends and receives HTTP/1.1 requests.'
     example: 'from_http "0.0.0.0:8080"'
     path: 'reference/operators/from_http'
+  - name: 'from_stdin'
+    description: 'Reads and parses events from standard input.'
+    example: 'from_stdin { read_json }'
+    path: 'reference/operators/from_stdin'
+  - name: 'from_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and receives events.'
+    example: 'from_tcp "example.org:4000" { read_json }'
+    path: 'reference/operators/from_tcp'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
     path: 'reference/operators/from_kafka'
-  - name: 'from_opensearch'
-    description: 'Receives events via Opensearch Bulk API.'
-    example: 'from_opensearch'
-    path: 'reference/operators/from_opensearch'
+  - name: 'from_mysql'
+    description: 'Reads events from a MySQL database.'
+    example: 'from_mysql table="users", host="db.example.com", database="mydb"'
+    path: 'reference/operators/from_mysql'
+  - name: 'from_nats'
+    description: 'Consumes messages from a NATS JetStream subject.'
+    example: 'from_nats "alerts"'
+    path: 'reference/operators/from_nats'
+  - name: 'from_nic'
+    description: 'Captures packets from a network interface and outputs events.'
+    example: 'from_nic "eth0"'
+    path: 'reference/operators/from_nic'
   - name: 'from_s3'
     description: 'Reads one or multiple files from Amazon S3.'
     example: 'from_s3 "s3://my-bucket/data/**.json"'
@@ -399,10 +443,6 @@ operators:
     description: 'Loads the contents of the file at `path` as a byte stream.'
     example: 'load_file "/tmp/data.json"'
     path: 'reference/operators/load_file'
-  - name: 'load_ftp'
-    description: 'Loads a byte stream via FTP.'
-    example: 'load_ftp "ftp.example.org"'
-    path: 'reference/operators/load_ftp'
   - name: 'load_gcs'
     description: 'Loads bytes from a Google Cloud Storage object.'
     example: 'load_gcs "gs://bucket/object.json"'
@@ -603,6 +643,10 @@ operators:
     description: 'Parses an incoming Syslog stream into events.'
     example: 'read_syslog'
     path: 'reference/operators/read_syslog'
+  - name: 'read_tql'
+    description: 'Parses an incoming byte stream of TQL-formatted records into events.'
+    example: 'read_tql'
+    path: 'reference/operators/read_tql'
   - name: 'read_tsv'
     description: 'Read TSV (Tab-Separated Values) from a byte stream.'
     example: 'read_tsv auto_expand=true'
@@ -639,10 +683,6 @@ operators:
     description: 'Writes a byte stream to a file.'
     example: 'save_file "/tmp/out.json"'
     path: 'reference/operators/save_file'
-  - name: 'save_ftp'
-    description: 'Saves a byte stream via FTP.'
-    example: 'save_ftp "ftp.example.org"'
-    path: 'reference/operators/save_ftp'
   - name: 'save_gcs'
     description: 'Saves bytes to a Google Cloud Storage object.'
     example: 'save_gcs "gs://bucket/object.json"'
@@ -683,13 +723,21 @@ operators:
     description: 'Sends bytes as ZeroMQ messages.'
     example: 'save_zmq'
     path: 'reference/operators/save_zmq'
+  - name: 'serve_http'
+    description: 'Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.'
+    example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
+    path: 'reference/operators/serve_http'
+  - name: 'serve_tcp'
+    description: 'Listens for incoming TCP connections and sends events to all connected clients.'
+    example: 'serve_tcp "0.0.0.0:8090" { write_json }'
+    path: 'reference/operators/serve_tcp'
   - name: 'sigma'
     description: 'Filter the input with Sigma rules and output matching events.'
     example: 'sigma "/tmp/rules/"'
     path: 'reference/operators/sigma'
   - name: 'yara'
     description: 'Executes YARA rules on byte streams.'
-    example: 'yara "/path/to/rules", blockwise=true'
+    example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
   - name: 'to'
     description: 'Saves to an URI, inferring the destination, compression and format.'
@@ -699,6 +747,10 @@ operators:
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
     path: 'reference/operators/to_amazon_security_lake'
+  - name: 'to_azure_blob_storage'
+    description: 'Writes events to one or multiple blobs in Azure Blob Storage.'
+    example: 'to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_azure_blob_storage'
   - name: 'to_azure_log_analytics'
     description: 'Sends events to the Microsoft Azure Logs Ingestion API.'
     example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
@@ -707,10 +759,18 @@ operators:
     description: 'Sends events to a ClickHouse table.'
     example: 'to_clickhouse table="my_table"'
     path: 'reference/operators/to_clickhouse'
+  - name: 'to_file'
+    description: 'Writes events to one or multiple files on a filesystem.'
+    example: 'to_file "/tmp/out.json" { write_ndjson }'
+    path: 'reference/operators/to_file'
   - name: 'to_fluent_bit'
     description: 'Sends events via Fluent Bit.'
     example: 'to_fluent_bit "elasticsearch" …'
     path: 'reference/operators/to_fluent_bit'
+  - name: 'to_ftp'
+    description: 'Prints events to bytes and uploads them via FTP.'
+    example: 'to_ftp "ftp.example.org/events.ndjson" { write_ndjson }'
+    path: 'reference/operators/to_ftp'
   - name: 'to_google_cloud_logging'
     description: 'Sends events to Google Cloud Logging.'
     example: 'to_google_cloud_logging …'
@@ -719,6 +779,10 @@ operators:
     description: 'Publishes events to a Google Cloud Pub/Sub topic.'
     example: 'to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text'
     path: 'reference/operators/to_google_cloud_pubsub'
+  - name: 'to_google_cloud_storage'
+    description: 'Writes events to one or multiple objects in Google Cloud Storage.'
+    example: 'to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_google_cloud_storage'
   - name: 'to_google_secops'
     description: 'Sends unstructured events to a Google SecOps Chronicle instance.'
     example: 'to_google_secops …'
@@ -727,14 +791,26 @@ operators:
     description: 'Writes events to a URI using hive partitioning.'
     example: 'to_hive "s3://…", partition_by=[x]'
     path: 'reference/operators/to_hive'
+  - name: 'to_http'
+    description: 'Sends events as HTTP requests to a webhook or API endpoint.'
+    example: 'to_http "https://example.com/webhook"'
+    path: 'reference/operators/to_http'
   - name: 'to_kafka'
     description: 'Sends messages to an Apache Kafka topic.'
-    example: 'to_kafka "topic", message=this.print_json()'
+    example: 'to_kafka "topic"'
     path: 'reference/operators/to_kafka'
+  - name: 'to_nats'
+    description: 'Publishes messages to a NATS JetStream subject.'
+    example: 'to_nats "alerts"'
+    path: 'reference/operators/to_nats'
   - name: 'to_opensearch'
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
     path: 'reference/operators/to_opensearch'
+  - name: 'to_s3'
+    description: 'Writes events to one or multiple objects in Amazon S3.'
+    example: 'to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }'
+    path: 'reference/operators/to_s3'
   - name: 'to_sentinelone_data_lake'
     description: 'Sends security events to SentinelOne Singularity Data Lake via REST API.'
     example: 'to_sentinelone_data_lake "https://…", …'
@@ -747,6 +823,10 @@ operators:
     description: 'Sends events to a Splunk HTTP Event Collector (HEC).'
     example: 'to_splunk "localhost:8088", …'
     path: 'reference/operators/to_splunk'
+  - name: 'to_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and sends events.'
+    example: 'to_tcp "collector.example.com:5044" { write_json }'
+    path: 'reference/operators/to_tcp'
   - name: 'write_bitz'
     description: 'Writes events in *BITZ* format.'
     example: 'write_bitz'
@@ -1049,7 +1129,7 @@ sigma "/tmp/rules/"
 <ReferenceCard title="yara" description="Executes YARA rules on byte streams." href="/reference/operators/yara">
 
 ```tql
-yara "/path/to/rules", blockwise=true
+yara "/path/to/rules"
 ```
 
 </ReferenceCard>
@@ -1286,6 +1366,14 @@ discard
 
 </ReferenceCard>
 
+<ReferenceCard title="each" description="Spawns a subpipeline for every incoming event, with the event bound to `$this`." href="/reference/operators/each">
+
+```tql
+each { from $this }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="every" description="Runs a pipeline periodically at a fixed interval." href="/reference/operators/every">
 
 ```tql
@@ -1298,6 +1386,14 @@ every 10s { summarize sum(amount) }
 
 ```tql
 fork { to "copy.json" }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="group" description="Routes events with the same key through the same subpipeline." href="/reference/operators/group">
+
+```tql
+group tenant { summarize count() }
 ```
 
 </ReferenceCard>
@@ -1471,6 +1567,14 @@ unordered { read_ndjson }
 ## Modify
 
 <CardGrid>
+
+<ReferenceCard title="anonymize" description="Generates synthetic events with the same schemas as the input events." href="/reference/operators/anonymize">
+
+```tql
+anonymize count=1000, fully_random=true
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="dns_lookup" description="Performs DNS lookups to resolve IP addresses to hostnames or hostnames to IP addresses." href="/reference/operators/dns_lookup">
 
@@ -1786,6 +1890,14 @@ read_syslog
 
 </ReferenceCard>
 
+<ReferenceCard title="read_tql" description="Parses an incoming byte stream of TQL-formatted records into events." href="/reference/operators/read_tql">
+
+```tql
+read_tql
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="read_tsv" description="Read TSV (Tab-Separated Values) from a byte stream." href="/reference/operators/read_tsv">
 
 ```tql
@@ -2030,14 +2142,6 @@ load_file "/tmp/data.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="load_ftp" description="Loads a byte stream via FTP." href="/reference/operators/load_ftp">
-
-```tql
-load_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
 
 ```tql
@@ -2131,6 +2235,30 @@ load_zmq
 
 <CardGrid>
 
+<ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
+
+```tql
+accept_http "0.0.0.0:8080" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
+
+```tql
+accept_opensearch "0.0.0.0:9200"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
+
+```tql
+accept_tcp "0.0.0.0:8090" { read_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
 
 ```tql
@@ -2155,18 +2283,18 @@ from_file "s3://data/**.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="from_fluent_bit" description="Receives events via Fluent Bit." href="/reference/operators/from_fluent_bit">
+<ReferenceCard title="from_ftp" description="Downloads bytes via FTP and parses them with a subpipeline." href="/reference/operators/from_ftp">
 
 ```tql
-from_fluent_bit "opentelemetry"
+from_ftp "ftp.example.org/events.ndjson" { read_ndjson }
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="from_gcs" description="Reads one or multiple files from Google Cloud Storage." href="/reference/operators/from_gcs">
+<ReferenceCard title="from_fluent_bit" description="Receives events via Fluent Bit." href="/reference/operators/from_fluent_bit">
 
 ```tql
-from_gcs "gs://my-bucket/data/**.json"
+from_fluent_bit "opentelemetry"
 ```
 
 </ReferenceCard>
@@ -2179,10 +2307,36 @@ from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_google_cloud_storage" description="Reads one or multiple files from Google Cloud Storage." href="/reference/operators/from_google_cloud_storage">
+
+```tql
+from_google_cloud_storage "gs://my-bucket/data/**.json"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_http" description="Sends and receives HTTP/1.1 requests." href="/reference/operators/from_http">
 
 ```tql
 from_http "0.0.0.0:8080"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
+
+```tql
+from_stdin { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_tcp" description="Connects to a remote TCP or TLS endpoint and receives events." href="/reference/operators/from_tcp">
+
+```tql
+from_tcp "example.org:4000" {
+  read_json
+}
 ```
 
 </ReferenceCard>
@@ -2195,10 +2349,26 @@ from_kafka "logs"
 
 </ReferenceCard>
 
-<ReferenceCard title="from_opensearch" description="Receives events via Opensearch Bulk API." href="/reference/operators/from_opensearch">
+<ReferenceCard title="from_mysql" description="Reads events from a MySQL database." href="/reference/operators/from_mysql">
 
 ```tql
-from_opensearch
+from_mysql table="users", host="db.example.com", database="mydb"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_nats" description="Consumes messages from a NATS JetStream subject." href="/reference/operators/from_nats">
+
+```tql
+from_nats "alerts"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_nic" description="Captures packets from a network interface and outputs events." href="/reference/operators/from_nic">
+
+```tql
+from_nic "eth0"
 ```
 
 </ReferenceCard>
@@ -2368,14 +2538,6 @@ save_file "/tmp/out.json"
 
 </ReferenceCard>
 
-<ReferenceCard title="save_ftp" description="Saves a byte stream via FTP." href="/reference/operators/save_ftp">
-
-```tql
-save_ftp "ftp.example.org"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
 
 ```tql
@@ -2461,6 +2623,22 @@ save_zmq
 
 <CardGrid>
 
+<ReferenceCard title="serve_http" description="Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients." href="/reference/operators/serve_http">
+
+```tql
+serve_http "0.0.0.0:8080" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="serve_tcp" description="Listens for incoming TCP connections and sends events to all connected clients." href="/reference/operators/serve_tcp">
+
+```tql
+serve_tcp "0.0.0.0:8090" { write_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
 
 ```tql
@@ -2473,6 +2651,14 @@ to "output.json"
 
 ```tql
 to_amazon_security_lake "s3://…"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_azure_blob_storage" description="Writes events to one or multiple blobs in Azure Blob Storage." href="/reference/operators/to_azure_blob_storage">
+
+```tql
+to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }
 ```
 
 </ReferenceCard>
@@ -2493,10 +2679,26 @@ to_clickhouse table="my_table"
 
 </ReferenceCard>
 
+<ReferenceCard title="to_file" description="Writes events to one or multiple files on a filesystem." href="/reference/operators/to_file">
+
+```tql
+to_file "/tmp/out.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_fluent_bit" description="Sends events via Fluent Bit." href="/reference/operators/to_fluent_bit">
 
 ```tql
 to_fluent_bit "elasticsearch" …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_ftp" description="Prints events to bytes and uploads them via FTP." href="/reference/operators/to_ftp">
+
+```tql
+to_ftp "ftp.example.org/events.ndjson" { write_ndjson }
 ```
 
 </ReferenceCard>
@@ -2517,6 +2719,14 @@ to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
 
 </ReferenceCard>
 
+<ReferenceCard title="to_google_cloud_storage" description="Writes events to one or multiple objects in Google Cloud Storage." href="/reference/operators/to_google_cloud_storage">
+
+```tql
+to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
 
 ```tql
@@ -2533,10 +2743,26 @@ to_hive "s3://…", partition_by=[x]
 
 </ReferenceCard>
 
+<ReferenceCard title="to_http" description="Sends events as HTTP requests to a webhook or API endpoint." href="/reference/operators/to_http">
+
+```tql
+to_http "https://example.com/webhook"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
 
 ```tql
-to_kafka "topic", message=this.print_json()
+to_kafka "topic"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_nats" description="Publishes messages to a NATS JetStream subject." href="/reference/operators/to_nats">
+
+```tql
+to_nats "alerts"
 ```
 
 </ReferenceCard>
@@ -2545,6 +2771,14 @@ to_kafka "topic", message=this.print_json()
 
 ```tql
 to_opensearch "localhost:9200", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_s3" description="Writes events to one or multiple objects in Amazon S3." href="/reference/operators/to_s3">
+
+```tql
+to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }
 ```
 
 </ReferenceCard>
@@ -2569,6 +2803,14 @@ to_snowflake account_identifier="…
 
 ```tql
 to_splunk "localhost:8088", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_tcp" description="Connects to a remote TCP or TLS endpoint and sends events." href="/reference/operators/to_tcp">
+
+```tql
+to_tcp "collector.example.com:5044" { write_json }
 ```
 
 </ReferenceCard>

@@ -10,7 +10,7 @@ Reads one or multiple files from a filesystem.
 
 ```tql
 from_file url:string, [watch=bool, remove=bool, rename=string->string,
-          path_field=field, max_age=duration] { … }
+          max_age=duration, mmap=bool] { … }
 ```
 
 ## Description
@@ -34,6 +34,13 @@ included in the URI as query parameters are `region`, `scheme`,
 `retry_limit_seconds`.
 
 <FromFileCommonParams />
+
+### `mmap = bool (optional)`
+
+Uses memory-mapped I/O for reading files instead of regular reads. This can
+improve performance for large files.
+
+Defaults to `false`.
 
 The pipeline uses the same logic as <Op>from</Op>.
 

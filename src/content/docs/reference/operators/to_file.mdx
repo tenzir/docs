@@ -1,0 +1,99 @@
+---
+title: to_file
+category: Outputs/Events
+example: 'to_file "/tmp/out.json" { write_ndjson }'
+---
+
+import ToArrowFsCommonParams from '@partials/operators/ToArrowFsCommonParams.mdx';
+
+Writes events to one or multiple files on a filesystem.
+
+```tql
+to_file url:string, [max_size=int, timeout=duration,
+        partition_by=list<field>] { … }
+```
+
+## Description
+
+The `to_file` operator writes events to local filesystems, automatically
+opening new files when a rotation condition triggers. It supports hive-style
+partitioning through a `**` placeholder in the URL and per-partition unique
+filenames through a `{uuid}` placeholder.
+
+### `url: string`
+
+Path or URL identifying where files should be written.
+
+When `~` is the first character, it is substituted with the value of the
+`$HOME` environment variable. Relative paths are resolved against the current
+working directory.
+
+The path may contain two placeholders:
+
+- `**` marks the location where hive partition segments are inserted. When
+  present, `partition_by` must also be set, and vice versa.
+- `{uuid}` expands to a fresh UUIDv7 for every file. This is required when
+  partitioning or when rotation can produce multiple files, so that rotated
+  or per-partition files do not overwrite each other.
+
+<ToArrowFsCommonParams />
+
+## Examples
+
+### Write all events to a single NDJSON file
+
+```tql
+from {msg: "hello"}, {msg: "world"}
+to_file "/tmp/out.json" {
+  write_ndjson
+}
+```
+
+### Partition events by a field into separate files
+
+```tql
+from {region: "us", n: 1},
+     {region: "eu", n: 2},
+     {region: "us", n: 3}
+to_file "/tmp/events/**/data_{uuid}.json", partition_by=[region] {
+  write_ndjson
+}
+// Produces files under:
+//   /tmp/events/region=us/data_<uuid>.json
+//   /tmp/events/region=eu/data_<uuid>.json
+```
+
+### Partition by multiple fields
+
+```tql
+to_file "/tmp/events/**/data_{uuid}.parquet",
+  partition_by=[year, month] {
+  write_parquet
+}
+// Produces files under:
+//   /tmp/events/year=<year>/month=<month>/data_<uuid>.parquet
+```
+
+### Rotate files when they exceed a size
+
+```tql
+to_file "/tmp/logs/events_{uuid}.json", max_size=10M {
+  write_ndjson
+}
+```
+
+### Rotate files after a fixed duration
+
+```tql
+to_file "/tmp/logs/events_{uuid}.json", timeout=1min {
+  write_ndjson
+}
+```
+
+## See Also
+
+- <Op>from_file</Op>
+- <Op>save_file</Op>
+- <Op>to</Op>
+- <Op>to_hive</Op>
+- <Integration>file</Integration>

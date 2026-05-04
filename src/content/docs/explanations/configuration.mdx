@@ -141,8 +141,8 @@ Tenzir provides node-level TLS configuration that applies to all operators and
 connectors using TLS/HTTPS connections. These settings are used by operators
 that make outbound connections (e.g., <Op>to_opensearch</Op>,
 <Op>to_splunk</Op>, <Op>save_email</Op>)
-and those that accept inbound connections (e.g., <Op>load_tcp</Op>,
-<Op>save_tcp</Op>).
+and those that accept inbound connections (e.g., <Op>accept_tcp</Op>,
+<Op>serve_tcp</Op>).
 
 :::note[Use Only When Required]
 We do not recommend manually configuring TLS settings unless required for
@@ -192,9 +192,10 @@ configuration:
 - <Op>to_opensearch</Op>: Applies min version and ciphers to HTTPS connections
 - <Op>to_splunk</Op>: Applies min version and ciphers to Splunk HEC connections
 - <Op>save_email</Op>: Applies min version and ciphers to SMTP connections
-- <Op>load_tcp</Op>: Applies min version and ciphers to TLS server mode
-- <Op>save_tcp</Op>: Applies min version and ciphers to TLS client and server modes
-- <Op>from_opensearch</Op>: Applies min version and ciphers to HTTPS connections
+- <Op>accept_tcp</Op>: Applies min version and ciphers to TLS server mode
+- <Op>from_tcp</Op>: Applies min version and ciphers to TLS client mode
+- <Op>serve_tcp</Op>: Applies min version and ciphers to TLS server mode
+- <Op>accept_opensearch</Op>: Applies min version and ciphers to HTTPS connections
 
 ## Plugins
 

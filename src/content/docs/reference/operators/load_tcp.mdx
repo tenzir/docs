@@ -4,6 +4,14 @@ category: Inputs/Bytes
 example: 'load_tcp "0.0.0.0:8090" { read_json }'
 ---
 
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+:::caution[Deprecated]
+Use <Op>from_tcp</Op> for client connections or <Op>accept_tcp</Op> for server
+connections instead.
+:::
+
 Loads bytes from a TCP or TLS connection.
 
 ```tql
@@ -43,8 +51,6 @@ the `hostname` field in the peer record (see `peer_field`). When disabled, the
 `hostname` field is omitted.
 
 Defaults to `false`.
-
-<TLSOptions tls_default="false"/>
 
 <TLSOptions/>
 
@@ -138,5 +144,9 @@ openssl s_client -connect 127.0.0.1:4000 -cert client.pem -key client-key.pem -C
 
 ## See Also
 
+- <Op>from_tcp</Op>
+- <Op>to_tcp</Op>
+- <Op>accept_tcp</Op>
+- <Op>serve_tcp</Op>
 - <Op>save_tcp</Op>
 - <Integration>tcp</Integration>

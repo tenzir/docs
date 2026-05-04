@@ -4,7 +4,7 @@ category: Printing
 example: 'write_pcap'
 ---
 
-Transforms event stream to PCAP byte stream.
+Serializes packet events as a PCAP byte stream.
 
 ```tql
 write_pcap
@@ -12,9 +12,14 @@ write_pcap
 
 ## Description
 
-Transforms event stream to [PCAP][pcap-rfc] byte stream.
+The `write_pcap` operator transforms packet events into a [PCAP][pcap-rfc] byte stream.
 
 [pcap-rfc]: https://datatracker.ietf.org/doc/id/draft-gharris-opsawg-pcap-00.html
+[pcapng-rfc]: https://www.ietf.org/archive/id/draft-tuexen-opsawg-pcapng-05.html
+
+The operator accepts `pcap.packet` events. When present, it also uses `pcap.file_header` events emitted by <Op>read_pcap</Op> to preserve the original timestamp precision and byte order.
+
+If no `pcap.file_header` event is present, `write_pcap` generates a file header from the first packet's `linktype` and writes timestamps with nanosecond precision.
 
 The structured representation of packets has the `pcap.packet` schema:
 
@@ -22,30 +27,37 @@ The structured representation of packets has the `pcap.packet` schema:
 pcap.packet:
   record:
     - linktype: uint64
-    - time:
-        timestamp: time
+    - timestamp: time
     - captured_packet_length: uint64
     - original_packet_length: uint64
-    - data: string
+    - data: blob
 ```
 
 :::note[PCAPNG]
 The current implementation does _not_ support [PCAPNG][pcapng-rfc].
 :::
 
-[pcapng-rfc]: https://www.ietf.org/archive/id/draft-tuexen-opsawg-pcapng-05.html
-
 ## Examples
 
-### Write packet events as a PCAP file
+### Write a live capture to a PCAP file
 
 ```tql
-subscribe "packets"
+from_nic "en1"
 write_pcap
 save_file "/logs/packets.pcap"
 ```
 
+### Round-trip a PCAP file while preserving its file header
+
+```tql
+from_file "/tmp/trace.pcap" {
+  read_pcap emit_file_headers=true
+}
+write_pcap
+save_file "/tmp/trace-copy.pcap"
+```
+
 ## See Also
 
-- <Op>load_nic</Op>
+- <Op>from_nic</Op>
 - <Op>read_pcap</Op>

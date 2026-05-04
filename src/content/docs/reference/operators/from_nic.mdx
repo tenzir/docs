@@ -1,0 +1,86 @@
+---
+title: from_nic
+category: Inputs/Events
+example: 'from_nic "eth0"'
+---
+
+Captures packets from a network interface and outputs events.
+
+```tql
+from_nic iface:string, [snaplen=int, filter=string] { … }
+```
+
+## Description
+
+The `from_nic` operator captures packets with libpcap and forwards them as events.
+
+If you omit the optional pipeline, `from_nic` uses <Op>read_pcap</Op> by default. Provide a pipeline when you want to change how the captured PCAP byte stream is parsed. The pipeline must accept bytes and return events.
+
+Use `filter` to apply a Berkeley Packet Filter (BPF) expression before Tenzir parses packets. This lets libpcap drop unwanted traffic early.
+
+### `iface: string`
+
+The interface to capture packets from.
+
+### `snaplen = int (optional)`
+
+Sets the snapshot length of captured packets.
+
+This value is an upper bound on the packet size. Packets larger than this size get truncated to `snaplen` bytes.
+
+Defaults to `262144`.
+
+### `filter = string (optional)`
+
+Applies a Berkeley Packet Filter (BPF) expression to the capture.
+
+The filter runs in libpcap before Tenzir parses packets. Use the same filter syntax as `tcpdump`, for example `tcp port 443` or `host 10.0.0.1`.
+
+### `{ … } (optional)`
+
+An optional parsing pipeline for the captured PCAP byte stream.
+
+When omitted, `from_nic` defaults to:
+
+```tql
+{ read_pcap }
+```
+
+Provide a custom pipeline when you want to adjust parsing behavior, for example to re-emit PCAP file headers.
+
+## Examples
+
+### Capture packets from `en1`
+
+```tql
+from_nic "en1"
+```
+
+### Capture packets and re-emit file headers
+
+```tql
+from_nic "en1" {
+  read_pcap emit_file_headers=true
+}
+```
+
+### Capture only HTTPS traffic
+
+```tql
+from_nic "en1", filter="tcp port 443"
+```
+
+### Write a live capture to a PCAP file
+
+```tql
+from_nic "en1"
+write_pcap
+save_file "trace.pcap"
+```
+
+## See Also
+
+- <Op>nics</Op>
+- <Op>read_pcap</Op>
+- <Op>write_pcap</Op>
+- <Integration>nic</Integration>

@@ -1,0 +1,96 @@
+---
+title: to_google_cloud_storage
+category: Outputs/Events
+example: 'to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }'
+---
+
+import ToArrowFsCommonParams from '@partials/operators/ToArrowFsCommonParams.mdx';
+
+Writes events to one or multiple objects in Google Cloud Storage.
+
+```tql
+to_google_cloud_storage url:string, [anonymous=bool, max_size=int,
+                        timeout=duration, partition_by=list<field>] { … }
+```
+
+## Description
+
+The `to_google_cloud_storage` operator writes events to Google Cloud Storage,
+automatically opening new objects when a rotation condition triggers. It
+supports hive-style partitioning through a `**` placeholder in the URL and
+per-partition unique object names through a `{uuid}` placeholder.
+
+By default, authentication is handled by Google's Application Default
+Credentials (ADC) chain, which may read from multiple sources:
+
+- `GOOGLE_APPLICATION_CREDENTIALS` environment variable pointing to a service
+  account key file
+- User credentials from `gcloud auth application-default login`
+- Service account attached to the compute instance (Compute Engine, GKE)
+- Google Cloud SDK credentials
+
+### `url: string`
+
+URL identifying the Google Cloud Storage location where data should be written.
+
+The syntax is `gs://<bucket-name>/<full-path-to-object>(?<options>)`. The
+`<options>` are query parameters. Per the [Arrow
+documentation](https://arrow.apache.org/docs/r/articles/fs.html#connecting-directly-with-a-uri),
+the following options exist:
+
+> For GCS, the supported parameters are `scheme`, `endpoint_override`, and
+> `retry_limit_seconds`.
+
+The path portion may contain two placeholders:
+
+- `**` marks the location where hive partition segments are inserted. When
+  present, `partition_by` must also be set, and vice versa.
+- `{uuid}` expands to a fresh UUIDv7 for every object. This is required when
+  partitioning or when rotation can produce multiple objects, so that rotated
+  or per-partition objects do not overwrite each other.
+
+### `anonymous = bool (optional)`
+
+Use anonymous credentials instead of any configured authentication. This only
+works for publicly writable buckets.
+
+Defaults to `false`.
+
+<ToArrowFsCommonParams />
+
+## Examples
+
+### Write a single NDJSON object
+
+```tql
+to_google_cloud_storage "gs://my-bucket/events/out_{uuid}.json" {
+  write_ndjson
+}
+```
+
+### Partition events into Parquet objects by date
+
+```tql
+to_google_cloud_storage "gs://my-bucket/events/**/data_{uuid}.parquet",
+  partition_by=[year, month] {
+  write_parquet
+}
+```
+
+### Rotate to a new object every 100 MB
+
+```tql
+to_google_cloud_storage "gs://my-bucket/logs/events_{uuid}.json.gz",
+  max_size=100M {
+  write_ndjson
+  compress_gzip
+}
+```
+
+## See Also
+
+- <Op>from_google_cloud_storage</Op>
+- <Op>save_gcs</Op>
+- <Op>to_file</Op>
+- <Op>to_hive</Op>
+- <Integration>google/cloud-storage</Integration>

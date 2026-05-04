@@ -13,7 +13,8 @@ operators accept expressions for flexible serialization.
 
 ### Message brokers
 
-Send events to message brokers like <Integration>kafka</Integration>.
+Send events to message brokers like <Integration>kafka</Integration> and
+<Integration>nats</Integration>.
 
 Send to Kafka with automatic JSON formatting:
 
@@ -31,6 +32,16 @@ to_kafka "events", message=this.print_json()
 
 The `message` parameter accepts any expression that evaluates to a string or
 blob.
+
+Send to NATS JetStream:
+
+```tql
+subscribe "security-events"
+to_nats "alerts"
+```
+
+The NATS server must have a JetStream stream that captures the subject you
+publish to.
 
 ### Analytics platforms
 
@@ -57,8 +68,8 @@ to_opensearch "https://opensearch.example.com:9200",
 
 ### Cloud services
 
-Route events to cloud destinations like [Amazon SQS](/integrations/amazon/sqs)
-and [Google Cloud Pub/Sub](/integrations/google/cloud-pubsub).
+Route events to cloud destinations like <Integration>amazon/sqs</Integration>
+and <Integration>google/cloud-pubsub</Integration>.
 
 Send to SQS:
 
@@ -105,8 +116,7 @@ save_file "s3://bucket/logs/events.jsonl"
 Send NDJSON over <Integration>tcp</Integration>:
 
 ```tql
-write_json
-save_tcp "collector.example.com:5044"
+to_tcp "collector.example.com:5044" { write_json }
 ```
 
 ## Expression-based serialization
@@ -115,10 +125,10 @@ Destination operators use expressions for flexible message formatting:
 
 ### Serialize the entire event
 
-Serialize as JSON (the default for most operators):
+Use the default event serialization:
 
 ```tql
-to_kafka "events", message=this.print_json()
+to_kafka "events"
 ```
 
 Serialize as compact JSON without nulls:
@@ -146,7 +156,7 @@ to_kafka "metrics", message=f"{host}: {metric_name}={value}"
 Route events to different destinations based on content:
 
 ```tql
-to_kafka f"events.{event_type}", message=this.print_json()
+to_kafka f"events.{event_type}"
 ```
 
 ## See also

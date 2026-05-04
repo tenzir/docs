@@ -8,29 +8,31 @@ capture raw packets from network interfaces.
 
 ## TCP sockets
 
-The [Transmission Control Protocol (TCP)](/integrations/tcp) provides reliable,
-ordered byte streams. Use TCP when you need guaranteed delivery and message
-ordering.
+<Integration>tcp</Integration> provides reliable, ordered byte streams. Use TCP
+when you need guaranteed delivery and message ordering.
 
 ### Listen for connections
 
-Start a TCP server that accepts incoming connections:
+Use <Op>accept_tcp</Op> to start a TCP server that accepts incoming
+connections:
 
 ```tql
-from "tcp://0.0.0.0:9000" {
+accept_tcp "0.0.0.0:9000" {
   read_json
 }
 ```
 
 This listens on all interfaces (`0.0.0.0`) on port 9000. Specify a parsing
-pipeline to convert incoming bytes to events.
+pipeline to convert incoming bytes to events. Inside the nested pipeline,
+`$peer.ip` and `$peer.port` identify the connecting client. Set
+`resolve_hostnames=true` to also expose `$peer.hostname` from reverse DNS.
 
 ### Connect to a remote server
 
-Act as a TCP client by connecting to an existing server:
+Use <Op>from_tcp</Op> to connect to an existing server:
 
 ```tql
-from "tcp://192.168.1.100:9000", connect=true {
+from_tcp "192.168.1.100:9000" {
   read_json
 }
 ```
@@ -40,7 +42,7 @@ from "tcp://192.168.1.100:9000", connect=true {
 Secure your TCP connections with TLS by passing a `tls` record:
 
 ```tql
-from "tcp://0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
+accept_tcp "0.0.0.0:9443", tls={certfile: "cert.pem", keyfile: "key.pem"} {
   read_json
 }
 ```
@@ -54,11 +56,26 @@ uv run --with trustme python -m trustme
 For production TLS configuration, including mutual TLS and cipher settings, see
 <Guide>node-setup/configure-tls</Guide>.
 
+### Accept plaintext and TLS on one port
+
+Use TLS auto-detection when you need to migrate clients from plaintext TCP to
+TLS without changing the listening port:
+
+```tql
+accept_tcp "0.0.0.0:514",
+           tls={certfile: "cert.pem", keyfile: "key.pem"},
+           auto_detect_tls=true {
+  read_syslog
+}
+```
+
+With `auto_detect_tls=true`, <Op>accept_tcp</Op> accepts both plaintext clients
+and clients that start with a TLS ClientHello on the same endpoint.
+
 ## UDP sockets
 
-The [User Datagram Protocol (UDP)](/integrations/udp) is a connectionless
-protocol ideal for high-volume, loss-tolerant data like syslog messages or
-metrics.
+<Integration>udp</Integration> is a connectionless protocol ideal for
+high-volume, loss-tolerant data like syslog messages or metrics.
 
 ### Receive UDP datagrams
 
@@ -99,8 +116,8 @@ this = {
 
 ## Packet capture
 
-Capture raw network packets from a [network interface card (NIC)](/integrations/nic)
-for deep packet inspection or network forensics.
+Capture raw network packets with <Integration>nic</Integration> for deep
+packet inspection or network forensics.
 
 ### List available interfaces
 
@@ -169,13 +186,10 @@ correlating network flows across different tools.
 
 ### Filter by BPF expression
 
-Apply Berkeley Packet Filter (BPF) expressions to capture only specific
-traffic:
+Use a Berkeley Packet Filter (BPF) expression to drop unwanted traffic before Tenzir parses packets:
 
 ```tql
-from_nic filter="tcp port 443", "eth0" {
-  read_pcap
-}
+from_nic "eth0", filter="tcp port 443"
 ```
 
 ### Read PCAP files

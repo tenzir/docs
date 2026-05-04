@@ -97,8 +97,8 @@ just plain `json`.
 
 ### The pipeline argument & its relation to the loader
 
-Some loaders, such as the <Op>load_tcp</Op> operator, accept a sub-pipeline
-directly. If the selected loader accepts a sub-pipeline, the `from` operator
+Some loaders accept a sub-pipeline directly.
+If the selected loader accepts a sub-pipeline, the `from` operator
 will dispatch decompression and parsing into that sub-pipeline. If a an explicit
 pipeline argument is provided it is forwarded as-is. If the loader does not
 accept a sub-pipeline, the decompression and parsing steps are simply performed
@@ -138,15 +138,14 @@ load_tcp "tcp://0.0.0.0:12345", parallel=10 {
 | :-------------- | :------------------------------- | :---------------------------------------------- |
 | `abfs`,`abfss`  | <Op>load_azure_blob_storage</Op> | `from "abfs://path/to/file.json"`               |
 | `amqp`          | <Op>load_amqp</Op>               | `from "amqp://…`                                |
-| `elasticsearch` | <Op>from_opensearch</Op>         | `from "elasticsearch://1.2.3.4:9200`            |
+| `elasticsearch` | <Op>accept_opensearch</Op>      | `from "elasticsearch://1.2.3.4:9200`            |
 | `file`          | <Op>load_file</Op>               | `from "file://path/to/file.json"`               |
 | `fluent-bit`    | <Op>from_fluent_bit</Op>         | `from "fluent-bit://elasticsearch"`             |
-| `ftp`, `ftps`   | <Op>load_ftp</Op>                | `from "ftp://example.com/file.json"`            |
 | `gs`            | <Op>load_gcs</Op>                | `from "gs://bucket/object.json"`                |
 | `http`, `https` | <Op>load_http</Op>               | `from "http://example.com/file.json"`           |
 | `inproc`        | <Op>load_zmq</Op>                | `from "inproc://127.0.0.1:56789" { read_json }` |
 | `kafka`         | <Op>load_kafka</Op>              | `from "kafka://topic" { read_json }`            |
-| `opensearch`    | <Op>from_opensearch</Op>         | `from "opensearch://1.2.3.4:9200`               |
+| `opensearch`    | <Op>accept_opensearch</Op>      | `from "opensearch://1.2.3.4:9200`               |
 | `s3`            | <Op>load_s3</Op>                 | `from "s3://bucket/file.json"`                  |
 | `sqs`           | <Op>load_sqs</Op>                | `from "sqs://my-queue" { read_json }`           |
 | `tcp`           | <Op>load_tcp</Op>                | `from "tcp://127.0.0.1:13245" { read_json }`    |

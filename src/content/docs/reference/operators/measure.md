@@ -7,7 +7,7 @@ example: 'measure'
 Replaces the input with metrics describing the input.
 
 ```tql
-measure [real_time=bool, cumulative=bool]
+measure [cumulative=bool]
 ```
 
 ## Description
@@ -30,13 +30,6 @@ type tenzir.measure.bytes = record{
   bytes: uint64,
 }
 ```
-
-### `real_time = bool (optional)`
-
-Whether to emit metrics immediately with every batch, rather than buffering
-until the upstream operator stalls, i.e., is idle or waiting for further input.
-
-The is especially useful when `measure` should emit data without latency.
 
 ### `cumulative = bool (optional)`
 

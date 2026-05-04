@@ -1,0 +1,110 @@
+---
+title: to_azure_blob_storage
+category: Outputs/Events
+example: 'to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }'
+---
+
+import ToArrowFsCommonParams from '@partials/operators/ToArrowFsCommonParams.mdx';
+
+Writes events to one or multiple blobs in Azure Blob Storage.
+
+```tql
+to_azure_blob_storage url:string, [account_key=string, max_size=int,
+                     timeout=duration, partition_by=list<field>] { … }
+```
+
+## Description
+
+The `to_azure_blob_storage` operator writes events to Azure Blob Storage,
+automatically opening new blobs when a rotation condition triggers. It
+supports hive-style partitioning through a `**` placeholder in the URL and
+per-partition unique blob names through a `{uuid}` placeholder.
+
+By default, authentication is handled by the Azure SDK's credential chain which
+may read from multiple environment variables, such as:
+
+- `AZURE_TENANT_ID`
+- `AZURE_CLIENT_ID`
+- `AZURE_CLIENT_SECRET`
+- `AZURE_AUTHORITY_HOST`
+- `AZURE_CLIENT_CERTIFICATE_PATH`
+- `AZURE_FEDERATED_TOKEN_FILE`
+
+### `url: string`
+
+URL identifying the Azure Blob Storage location where data should be written.
+
+Supported URI formats:
+
+1. `abfs[s]://<account>.blob.core.windows.net[/<container>[/<path>]]`
+2. `abfs[s]://<container>@<account>.dfs.core.windows.net[/<path>]`
+3. `abfs[s]://[<account>@]<host>[.<domain>][:<port>][/<container>[/<path>]]`
+4. `abfs[s]://[<account>@]<container>[/<path>]`
+
+(1) and (2) are compatible with the Azure Data Lake Storage Gen2 URIs, (3) is
+for Azure Blob Storage compatible services including Azurite, and (4) is a
+shorter version of (1) and (2).
+
+The path portion may contain two placeholders:
+
+- `**` marks the location where hive partition segments are inserted. When
+  present, `partition_by` must also be set, and vice versa.
+- `{uuid}` expands to a fresh UUIDv7 for every blob. This is required when
+  partitioning or when rotation can produce multiple blobs, so that rotated
+  or per-partition blobs do not overwrite each other.
+
+:::tip[Authenticate with the Azure CLI]
+Run `az login` on the command-line to authenticate the current user with Azure's
+command-line arguments.
+:::
+
+### `account_key = string (optional)`
+
+Account key for authenticating with Azure Blob Storage.
+
+<ToArrowFsCommonParams />
+
+## Examples
+
+### Write a single NDJSON blob
+
+```tql
+to_azure_blob_storage "abfs://my-container/events/out_{uuid}.json" {
+  write_ndjson
+}
+```
+
+### Partition events into Parquet blobs by date
+
+```tql
+to_azure_blob_storage "abfs://my-container/events/**/data_{uuid}.parquet",
+  partition_by=[year, month] {
+  write_parquet
+}
+```
+
+### Write with explicit account key
+
+```tql
+to_azure_blob_storage "abfs://container/data/out_{uuid}.json",
+  account_key="your-account-key" {
+  write_ndjson
+}
+```
+
+### Rotate to a new blob every 5 minutes
+
+```tql
+to_azure_blob_storage "abfs://my-container/logs/events_{uuid}.json",
+  timeout=5min {
+  write_ndjson
+}
+```
+
+## See Also
+
+- <Op>from_azure_blob_storage</Op>
+- <Op>save_azure_blob_storage</Op>
+- <Op>to_file</Op>
+- <Op>to_hive</Op>
+- <Integration>microsoft/azure-blob-storage</Integration>
