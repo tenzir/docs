@@ -1,0 +1,76 @@
+---
+title: serve_zmq
+category: Outputs/Events
+example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Listens on a ZeroMQ endpoint and sends events.
+
+```tql
+serve_zmq endpoint:string, encoding=string, [prefix=string, monitor=bool]
+```
+
+## Description
+
+Binds a ZeroMQ `PUB` socket to the specified endpoint and publishes one message
+per input event.
+
+The operator serializes each event with the selected `encoding` and optionally
+prepends a prefix to the serialized bytes before publishing the message. This
+lets subscribers use ZeroMQ's native prefix filtering while keeping the event
+payload available to a `read_*` operator on the receiving side.
+
+Use `serve_zmq` when Tenzir should own the listening endpoint. This mirrors the
+transport-oriented naming used by operators such as <Op>serve_tcp</Op>.
+
+### `endpoint: string`
+
+The endpoint to listen on, for example `tcp://0.0.0.0:5555`, `ipc://path`, or
+`inproc://name`.
+
+### `encoding = string`
+
+The encoding to use when serializing input events into ZeroMQ message payloads.
+
+Use the same format names that you would otherwise select with a `write_*`
+operator, for example `json`, `ndjson`, `csv`, or `yaml`.
+
+### `prefix = string (optional)`
+
+An expression that evaluates to the prefix to prepend to each published
+message.
+
+This expression may depend on event fields. The operator evaluates it for every
+input event.
+
+### `monitor = bool (optional)`
+
+Waits for the first peer connection before publishing messages on TCP
+transports.
+
+## Examples
+
+### Listen and publish JSON
+
+```tql
+export
+serve_zmq "tcp://0.0.0.0:5555", encoding="json"
+```
+
+### Publish with a dynamic prefix
+
+```tql
+export
+serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
+```
+
+## See Also
+
+- <Op>to_zmq</Op>
+- <Op>from_zmq</Op>
+- <Op>accept_zmq</Op>
+- <Op>save_zmq</Op>
+- <Integration>zeromq</Integration>

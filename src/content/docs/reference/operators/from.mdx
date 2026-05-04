@@ -143,14 +143,14 @@ load_tcp "tcp://0.0.0.0:12345", parallel=10 {
 | `fluent-bit`    | <Op>from_fluent_bit</Op>         | `from "fluent-bit://elasticsearch"`             |
 | `gs`            | <Op>load_gcs</Op>                | `from "gs://bucket/object.json"`                |
 | `http`, `https` | <Op>load_http</Op>               | `from "http://example.com/file.json"`           |
-| `inproc`        | <Op>load_zmq</Op>                | `from "inproc://127.0.0.1:56789" { read_json }` |
+| `inproc`        | <Op>load_zmq</Op>                | `from "inproc://worker" { read_json }`     |
 | `kafka`         | <Op>load_kafka</Op>              | `from "kafka://topic" { read_json }`            |
 | `opensearch`    | <Op>accept_opensearch</Op>      | `from "opensearch://1.2.3.4:9200`               |
 | `s3`            | <Op>load_s3</Op>                 | `from "s3://bucket/file.json"`                  |
 | `sqs`           | <Op>load_sqs</Op>                | `from "sqs://my-queue" { read_json }`           |
 | `tcp`           | <Op>load_tcp</Op>                | `from "tcp://127.0.0.1:13245" { read_json }`    |
 | `udp`           | <Op>load_udp</Op>                | `from "udp://127.0.0.1:56789" { read_json }`    |
-| `zmq`           | <Op>load_zmq</Op>                | `from "zmq://127.0.0.1:56789" { read_json }`    |
+| `zmq`           | <Op>load_zmq</Op>                | `from "zmq://127.0.0.1:56789" { read_json }` |
 
 Please see the respective operator pages for details on the URI's locator format.
 
