@@ -18,7 +18,7 @@ enrich "sslbl",
   into=_tmp
 // Slap OSINT profile onto the event on match.
 if _tmp != null {
-  osint.add(move _tmp)
+  osint.add(take _tmp)
   metadata.profiles?.add("osint")
 } else {
   drop _tmp

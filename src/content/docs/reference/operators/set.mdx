@@ -18,8 +18,9 @@ exist, it is appended to the end. If the field name is a path such as
 `foo.bar.baz`, records for `foo` and `bar` will be created if they do not exist
 yet.
 
-Within assignments, the `move` keyword in front of a field causes a field to be
-removed from the input after evaluation.
+Within assignments, the `take` keyword in front of a field causes a field to be
+removed from the input after evaluation. The previous `move` expression keyword
+is deprecated.
 
 :::tip[Implied operator]
 The `set` operator is implied whenever a direct assignment is written. We
@@ -54,11 +55,11 @@ a = "Hello"
 {a: "Hello", b: 2}
 ```
 
-### Move a field
+### Take a field
 
 ```tql
 from {a: 1}
-b = move a
+b = take a
 ```
 
 ```tql

@@ -145,7 +145,7 @@ Here `first_name` becomes `name` and `years` becomes `age` in the output.
 
 Note that `select` restricts the output to only the listed fields. If you want
 to rename fields while keeping everything else, use an assignment with
-[`move`](/reference/expressions/#moving-fields) instead.
+[`take`](/reference/expressions/#taking-fields) instead.
 
 ### Computing new fields
 
@@ -267,14 +267,14 @@ does not elicit a warning.
 ## Rename fields
 
 TQL has no dedicated `rename` operator. Instead, use the
-[`move`](/reference/expressions/#moving-fields) keyword in an assignment to
+[`take`](/reference/expressions/#taking-fields) keyword in an assignment to
 relocate a value from one field to another, removing the original:
 
 ```tql
 from {first_name: "alice", years: 30, city: "NYC"},
      {first_name: "bob", years: 25, city: "SF"}
-name = move first_name
-age = move years
+name = take first_name
+age = take years
 ```
 
 ```tql
@@ -283,7 +283,7 @@ age = move years
 ```
 
 Unlike <Op>select</Op>, which restricts the output to only the
-listed fields, an assignment with `move` preserves all other fields.
+listed fields, an assignment with `take` preserves all other fields.
 
 ### Renaming into nested fields
 
@@ -291,8 +291,8 @@ You can move fields into nested structures:
 
 ```tql
 from {src_ip: 1.2.3.4, src_port: 443}
-src.ip = move src_ip
-src.port = move src_port
+src.ip = take src_ip
+src.port = take src_port
 ```
 
 ```tql
@@ -331,7 +331,7 @@ select method, path, duration = duration_ms.milliseconds()
      fields from many.
    - Use <Op>set</Op> when you want to add/override fields
      without changing existing ones.
-   - Use an assignment with `move` when you want to rename fields without
+   - Use an assignment with `take` when you want to rename fields without
      affecting the rest of the event.
 
 4. **Understand null handling**: The <Op>where</Op>

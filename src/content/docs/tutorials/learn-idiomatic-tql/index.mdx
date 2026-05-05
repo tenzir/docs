@@ -250,13 +250,13 @@ if initiated {
 ```
 
 When the source field is only needed as the condition and not used elsewhere,
-wrap a `move` in parentheses to consume and test it in a single expression —
+wrap a `take` in parentheses to consume and test it in a single expression —
 no separate `drop` required:
 
 ```tql
 connection_info = {
-  direction_id: 2 if (move raw.initiated) else 1,
-  protocol_ver_id: 6 if (move raw.is_ipv6) else 4,
+  direction_id: 2 if (take raw.initiated) else 1,
+  protocol_ver_id: 6 if (take raw.is_ipv6) else 4,
 }
 // raw.initiated and raw.is_ipv6 are already consumed — no drop needed
 ```
@@ -304,15 +304,15 @@ if event_code == "4624" or event_code == "4625" or event_code == "4648" {
 
 ## Field management
 
-### Use `move` expressions to prevent field duplication
+### Use `take` expressions to prevent field duplication
 
-✅ Clean field transfers with move:
+✅ Clean field transfers with `take`:
 
 ```tql
-// Moving fields during transformation
-normalized.src_ip = move raw.source_address
-normalized.dst_port = move raw.destination.port
-normalized.severity = move alert.level
+// Taking fields during transformation
+normalized.src_ip = take raw.source_address
+normalized.dst_port = take raw.destination.port
+normalized.severity = take alert.level
 ```
 
 ❌ Avoid copy-then-drop pattern:
@@ -326,10 +326,10 @@ drop raw.source_address, raw.destination.port, alert.level
 
 ### Be intentional about field preservation
 
-✅ Move fields that are transformed:
+✅ Take fields that are transformed:
 
 ```tql
-ocsf.activity_id = move http_methods[method]? else 99
+ocsf.activity_id = take http_methods[method]? else 99
 ```
 
 ✅ Drop only static metadata fields:
@@ -346,7 +346,7 @@ ocsf.src_ip = original.ip  // Bad: original.ip still exists
 
 When normalizing data (e.g., to OCSF format):
 
-- Use `move` for fields being transformed to prevent duplication
+- Use `take` for fields being transformed to prevent duplication
 - Ensure transformed values don't appear in both old and new locations
 - Only drop fields you're certain are constant across events
 - Verify no critical data ends up in `unmapped` fields
@@ -927,8 +927,8 @@ profile in `metadata.profiles` when your source data contains fields that:
 ```tql
 // Source has cloud-specific fields like account_id, region, zone
 ocsf.metadata.profiles = ["cloud"]
-ocsf.cloud.account.uid = move source.account_id
-ocsf.cloud.region = move source.region
+ocsf.cloud.account.uid = take source.account_id
+ocsf.cloud.region = take source.region
 ```
 
 ❌ Don't add profiles "just in case" or for redundant fields:

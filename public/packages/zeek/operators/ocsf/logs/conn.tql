@@ -13,8 +13,8 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurence attributes ---------------
 
-ocsf.time = move zeek.ts
-ocsf.duration = move zeek.duration
+ocsf.time = take zeek.ts
+ocsf.duration = take zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 
@@ -22,13 +22,13 @@ ocsf.start_time = ocsf.time
 
 ocsf.metadata = {
   log_name: "conn.log",
-  logged_time: move zeek._write_ts?,
+  logged_time: take zeek._write_ts?,
   product: {
     name: "Zeek",
     vendor_name: "Zeek",
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
-  uid: move zeek.uid,
+  uid: take zeek.uid,
   version: "1.6.0",
 }
 move ocsf.app_name = zeek.service
@@ -51,9 +51,9 @@ ocsf.dst_endpoint = {
   port: zeek.id.resp_p,
 }
 ocsf.connection_info = {
-  community_uid: move zeek.community_id?,
-  flag_history: move zeek.history,
-  protocol_name: move zeek.proto,
+  community_uid: take zeek.community_id?,
+  flag_history: take zeek.history,
+  protocol_name: take zeek.proto,
   protocol_num: $proto_nums[zeek.proto]? else -1
 }
 if zeek.id.orig_h.is_v6() or zeek.id.resp_h.is_v6() {
@@ -73,7 +73,7 @@ if zeek.local_orig != null and zeek.local_resp != null {
   }
 }
 drop zeek.local_orig, zeek.local_resp
-ocsf.status_code = move zeek.conn_state
+ocsf.status_code = take zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,

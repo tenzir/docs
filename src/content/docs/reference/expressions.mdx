@@ -641,41 +641,44 @@ from {
 select first_field = this[0]  // "Hello"
 ```
 
-### Moving Fields
+### Taking fields
 
-The `move` expression transfers a field's value and removes the original field
-in one atomic operation. Use the `move` keyword in front of a field to relocate
+The `take` expression transfers a field's value and removes the original field
+in one atomic operation. Use the `take` keyword in front of a field to relocate
 it as part of an assignment:
 
 ```tql
 from {foo: 1, bar: 2}
-qux = move bar + 2
+qux = take bar + 2
 ```
 
 ```tql
 {foo: 1, qux: 4}  // Note: bar is gone
 ```
 
-Use `move` in assignments to avoid separate delete operations:
+Use `take` in assignments to avoid separate delete operations:
 
 ```tql
 // Clean approach
-new_field = move old_field
+new_field = take old_field
 
 // Instead of verbose
 new_field = old_field
 drop old_field
 ```
 
-In addition to the `move` keyword, there exists a
+The previous `move` expression keyword is deprecated. Use `take` in new
+pipelines.
+
+In addition to the `take` keyword, there exists a
 <Op>move</Op> operator that is a convenient alternative
 when relocating multiple fields. For example, this
-sequence of assignments with the `move` keyword:
+sequence of assignments with the `take` keyword:
 
 ```tql
-x = move foo
-y = move bar
-z = move baz
+x = take foo
+y = take bar
+z = take baz
 ```
 
 can be rewritten succinctly with the <Op>move</Op>
@@ -689,6 +692,7 @@ move x=foo, y=bar, z=baz
 
 - Only usable in expression position (right side of `=`)
 - Only works with fields, not arbitrary expressions
+- Replaces the deprecated `move` expression keyword
 - Different from the <Op>move</Op> operator that is a
   statement
   :::
