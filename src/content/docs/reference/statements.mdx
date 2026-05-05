@@ -237,15 +237,16 @@ match action {
 ```
 
 Use `|` to list multiple alternatives for the same arm. Each arm contains one or
-more patterns followed by a pipeline in braces. Constant patterns include
-strings, numbers, booleans, `null`, durations, times, IP addresses, and subnets.
-A negative numeric literal, such as `-1`, is also valid.
+more patterns, an optional guard, and a pipeline in braces. Constant patterns
+include strings, numbers, booleans, `null`, durations, times, IP addresses, and
+subnets. A negative numeric literal, such as `-1`, is also valid.
 
 Use `_` as a wildcard fallback for all remaining events. The wildcard must be
-the only pattern in its arm and must be the final arm. A standalone binding, such
-as `$value`, also matches all remaining events and must be in the final arm. If
-you omit a wildcard or another irrefutable final arm, events that don't match any
-arm pass through unchanged.
+the only pattern in its arm and must be the final arm, unless the arm has a
+guard. A guarded wildcard can fail and later arms can still match. An unguarded
+standalone binding, such as `$value`, also matches all remaining events and must
+be in the final arm. If you omit a wildcard or another irrefutable final arm,
+events that don't match any arm pass through unchanged.
 
 ```tql
 match record_type {
@@ -261,6 +262,94 @@ match record_type {
 In this example, events with any other `record_type` continue downstream without
 a `record_family` field. Branch pipelines follow the same output type rules as
 `if` branches.
+
+### Guards
+
+Add `if` between the pattern list and `=>` to require an additional boolean
+condition. Tenzir evaluates patterns first. If a pattern matches, Tenzir
+evaluates the guard for that event. The arm only receives events where the guard
+is `true`; events where the guard is `false` or `null` continue to later arms.
+
+```tql
+match status {
+  500..599 | 429 if retries > 0 => {
+    action = "retry"
+  }
+  500..599 => {
+    action = "page"
+  }
+  _ => {
+    action = "ignore"
+  }
+}
+```
+
+Bindings from the matched pattern are available in the guard and in the arm
+pipeline:
+
+```tql
+match this {
+  {src: {ip: $ip, ..}, ..} if $ip.is_private() => {
+    zone = "internal"
+  }
+  {src: {ip: $ip, ..}, ..} => {
+    zone = "external"
+  }
+}
+```
+
+A guard expression must evaluate to `bool`. If it evaluates to another type,
+Tenzir emits a warning and treats the arm as not matching for those events.
+
+A wildcard arm with a guard is not a fallback for every remaining event:
+
+```tql
+match status {
+  _ if status == 404 => {
+    class = "not_found"
+  }
+  _ => {
+    class = "other"
+  }
+}
+```
+
+When you combine guarded alternatives with bindings, each alternative must bind
+the same names from the same matched paths. If the alternatives need different
+bindings, split them into separate guarded arms.
+
+### List patterns
+
+List patterns match list values structurally. Elements are matched in order.
+Without `..`, the list must have exactly the listed elements. With a trailing
+`..`, the list may contain additional trailing elements.
+
+```tql
+match tags {
+  ["prod", $service, ..] => {
+    environment = "production"
+    service = $service
+  }
+  [] => {
+    environment = "unknown"
+  }
+  [..] => {
+    environment = "other"
+  }
+}
+```
+
+You can nest list patterns anywhere a pattern is accepted:
+
+```tql
+match this {
+  {labels: ["prod", $service, ..], ..} => {
+    service = $service
+  }
+}
+```
+
+The `..` rest marker is only valid as the final list item.
 
 ### Record patterns
 
