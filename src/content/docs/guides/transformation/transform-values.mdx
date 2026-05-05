@@ -256,7 +256,7 @@ link_local3 = addr3.is_link_local()
 Use [`match`](/reference/statements/#match) when a transformation depends on a
 small set of cases. A `match` statement checks patterns from top to bottom and
 runs the first matching branch. Patterns can be constants, alternatives, ranges,
-records, or bindings.
+records, lists, or bindings. Guards add boolean conditions to matching branches.
 
 ### Normalize firewall actions
 
@@ -356,6 +356,137 @@ match status {
   status_class: "server_error",
 }
 ```
+
+### Add context with guards
+
+Use a guard when the same pattern needs different handling depending on another
+field. This is common for retry decisions: the status code tells you that a
+request failed, but the retry counter decides whether you should retry, page, or
+throttle.
+
+```tql
+from {service: "api", status: 503, attempts: 1, max_attempts: 3},
+     {service: "api", status: 503, attempts: 3, max_attempts: 3},
+     {service: "api", status: 429, attempts: 2, max_attempts: 2},
+     {service: "api", status: 404, attempts: 1, max_attempts: 3}
+match status {
+  500..599 | 429 if attempts < max_attempts => {
+    action = "retry"
+  }
+  500..599 => {
+    action = "page"
+  }
+  429 => {
+    action = "throttle"
+  }
+  _ => {
+    action = "ignore"
+  }
+}
+```
+
+```tql
+{
+  service: "api",
+  status: 503,
+  attempts: 1,
+  max_attempts: 3,
+  action: "retry",
+}
+{
+  service: "api",
+  status: 503,
+  attempts: 3,
+  max_attempts: 3,
+  action: "page",
+}
+{
+  service: "api",
+  status: 429,
+  attempts: 2,
+  max_attempts: 2,
+  action: "throttle",
+}
+{
+  service: "api",
+  status: 404,
+  attempts: 1,
+  max_attempts: 3,
+  action: "ignore",
+}
+```
+
+The guarded branch catches retryable server errors and rate limits only while
+attempts remain. When the guard is false, the event continues to the later arms,
+so exhausted `503` errors become pages and exhausted `429` errors become
+throttling signals.
+
+### Match ordered labels
+
+Use list patterns when a field stores ordered labels or tokens. This is useful
+when the first element describes the environment and a later element contains a
+value you want to keep.
+
+```tql
+from {id: 1, labels: ["prod", "checkout", "critical"]},
+     {id: 2, labels: ["prod", "search"]},
+     {id: 3, labels: ["dev", "checkout"]},
+     {id: 4, labels: []}
+match labels {
+  ["prod", $service, ..] => {
+    environment = "production"
+    service = $service
+  }
+  ["dev", $service, ..] => {
+    environment = "development"
+    service = $service
+  }
+  [] => {
+    environment = "unknown"
+  }
+}
+sort id
+```
+
+```tql
+{
+  id: 1,
+  labels: [
+    "prod",
+    "checkout",
+    "critical",
+  ],
+  environment: "production",
+  service: "checkout",
+}
+{
+  id: 2,
+  labels: [
+    "prod",
+    "search",
+  ],
+  environment: "production",
+  service: "search",
+}
+{
+  id: 3,
+  labels: [
+    "dev",
+    "checkout",
+  ],
+  environment: "development",
+  service: "checkout",
+}
+{
+  id: 4,
+  labels: [],
+  environment: "unknown",
+}
+```
+
+The trailing `..` lets the first event match even though it has an extra
+`"critical"` label. Without `..`, the pattern only matches lists with exactly
+the listed elements.
 
 ### Match records structurally
 
