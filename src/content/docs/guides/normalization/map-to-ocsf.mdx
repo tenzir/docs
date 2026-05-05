@@ -44,9 +44,9 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
 
-ocsf.time = take src.time_generated
-ocsf.start_time = take src.start
-ocsf.duration = take src.elapsed
+ocsf.time = move src.time_generated
+ocsf.start_time = move src.start
+ocsf.duration = move src.elapsed
 ocsf.end_time = ocsf.start_time + ocsf.duration if ocsf.duration != null
 
 // --- OCSF: context attributes -----------------
@@ -59,23 +59,23 @@ ocsf.metadata = {
     name: "NGFW",
     vendor_name: "Palo Alto Networks",
   },
-  uid: take src.sessionid,
+  uid: move src.sessionid,
   version: "1.7.0",
 }
-ocsf.app_name = take src.app
+ocsf.app_name = move src.app
 
 // --- OCSF: primary attributes -----------------
 
 // Primary attributes reflect the core semantic meaning of the event.
 
 ocsf.src_endpoint = {
-  ip: take src.src,
-  port: take src.sport,
+  ip: move src.src,
+  port: move src.sport,
 }
 
 ocsf.dst_endpoint = {
-  ip: take src.dst,
-  port: take src.dport,
+  ip: move src.dst,
+  port: move src.dport,
 }
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
@@ -108,10 +108,10 @@ ocsf::derive
 
 - **Isolate source data**: `this = { src: this }` prevents name clashes and
   makes unmapped field collection automatic.
-- **Use `take`**: Transfer fields with `take` to simultaneously assign and
-  remove from source, for example `ocsf.time = take src.time_generated`.
+- **Use `move`**: Transfer fields with `move` to simultaneously assign and
+  remove from source, for example `ocsf.time = move src.time_generated`.
 - **Only use `drop` for multi-use fields**: When a field appears in multiple
-  mappings, drop it after the last use. Prefer `take` and single assignments.
+  mappings, drop it after the last use. Prefer `move` and single assignments.
 - **Collect unmapped**: `this = {...ocsf, unmapped: src}` gathers any
   fields you didn't map.
 

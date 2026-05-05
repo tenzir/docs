@@ -216,8 +216,8 @@ ocsf.severity_id = 1
 
 // --- OCSF: occurrence attributes --------------
 
-ocsf.time = take zeek.ts // 👈 remove source field while mapping
-ocsf.duration = take zeek.duration
+ocsf.time = move zeek.ts // 👈 remove source field while mapping
+ocsf.duration = move zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 // ...fill out remaining occurrence attributes; add timezone_offset if known.
@@ -230,7 +230,7 @@ ocsf.metadata = {
     vendor_name: "Zeek",
   },
   profiles: [], // 👈 add profiles as needed, e.g., ["host", "network_proxy"]
-  uid: take zeek.uid,
+  uid: move zeek.uid,
   version: "1.7.0",
 }
 // ...fill out remaining context attributes.
@@ -277,8 +277,8 @@ Let's unpack this:
    the next steps. Because we are mapping Zeek logs, we chose `zeek` as a name
    to make the subsequent mappings almost self-explanatory.
 2. The main work takes place here. Our approach is structured: for every field
-   in the source event, (1) map it, and (2) remove it. Ideally, use the `take`
-   keyword to perform (1) and (2) together, e.g., `ocsf.x = take source.y`. If
+   in the source event, (1) map it, and (2) remove it. Ideally, use the `move`
+   keyword to perform (1) and (2) together, e.g., `ocsf.x = move source.y`. If
    a field needs to be used multiple times in the same expression, use the
    <Op>drop</Op> afterwards.
 3. The assignment `this = {...ocsf, unmapped: zeek}` means that we move all
@@ -337,8 +337,8 @@ The computed sibbling fields for `<field>_id` often have the pattern
 Let's tackle the occurrence group. These attributes are all about time.
 
 ```tql
-ocsf.time = take zeek.ts
-ocsf.duration = take zeek.duration
+ocsf.time = move zeek.ts
+ocsf.duration = move zeek.duration
 ocsf.end_time = ocsf.time + ocsf.duration
 ocsf.start_time = ocsf.time
 ```
@@ -355,17 +355,17 @@ The context attributes provide auxiliary information. Most notably, the
 ```tql
 ocsf.metadata = {
   log_name: "conn.log",
-  logged_time: take zeek._write_ts?,
+  logged_time: move zeek._write_ts?,
   product: {
     name: "Zeek",
     vendor_name: "Zeek",
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
-  uid: take zeek.uid,
+  uid: move zeek.uid,
   version: "1.6.0",
 }
 drop zeek._path? // implied in metadata.log_name
-ocsf.app_name = take zeek.service
+ocsf.app_name = move zeek.service
 ```
 
 We use `?` when accessing fields that are not always present, e.g.,
@@ -400,8 +400,8 @@ let $proto_nums = {
   ipv6: 41,
 }
 ocsf.connection_info = {
-  community_uid: take zeek.community_id?,
-  protocol_name: take zeek.proto,
+  community_uid: move zeek.community_id?,
+  protocol_name: move zeek.proto,
   protocol_num: $proto_nums[zeek.proto]? else -1
 }
 // If we cannot use static records, branch with if/else statements.
@@ -429,7 +429,7 @@ drop zeek.local_orig, zeek.local_resp
 // tutorial.
 ocsf.status_id = 99
 ocsf.status = "Other"
-ocsf.status_code = take zeek.conn_state
+ocsf.status_code = move zeek.conn_state
 ocsf.traffic = {
   bytes_in: zeek.resp_bytes,
   bytes_out: zeek.orig_bytes,
@@ -685,7 +685,7 @@ pipelines. You learned:
   OCSF-compliant records
 - How to package your mappings as reusable operators in a Tenzir package
 
-The key to successful OCSF mapping is systematic organization: take your source
+The key to successful OCSF mapping is systematic organization: move your source
 event into a dedicated field, map attributes group by group while removing
 source fields as you go, and collect any unmapped fields in a catch-all record.
 This approach ensures you don't miss any fields and makes your mappings easy to
