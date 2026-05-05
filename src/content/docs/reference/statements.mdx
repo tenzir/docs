@@ -243,8 +243,10 @@ strings, numbers, booleans, `null`, durations, times, IP addresses, and subnets.
 A negative numeric literal, such as `-1`, is also valid.
 
 Use `_` as a wildcard fallback for all remaining events. The wildcard must be
-the only pattern in its arm and must be the final arm. If you omit the wildcard,
-events that don't match any arm pass through unchanged.
+the only pattern in its arm and must be the final arm. A standalone binding, such
+as `$value`, also matches all remaining events and must be in the final arm. If
+you omit a wildcard or another irrefutable final arm, events that don't match any
+arm pass through unchanged.
 
 ```tql
 match record_type {
@@ -312,3 +314,7 @@ match this {
   }
 }
 ```
+
+Use a binding before you assign to the field it came from. Tenzir rejects arm
+pipelines that read a binding after assigning to the matched field, because that
+would make the binding depend on the mutation order inside the arm.
