@@ -488,6 +488,12 @@ The trailing `..` lets the first event match even though it has an extra
 `"critical"` label. Without `..`, the pattern only matches lists with exactly
 the listed elements.
 
+:::tip[Summary]
+List patterns are order-sensitive. If your input uses labels as an unordered
+set, normalize the list before matching. Use <Fn>distinct</Fn> to remove
+duplicates and <Fn>sort</Fn> to make the element order deterministic.
+:::
+
 ### Match records structurally
 
 Record patterns let you classify complete events or nested records without
