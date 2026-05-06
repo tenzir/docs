@@ -703,10 +703,6 @@ operators:
     description: 'Saves bytes to Amazon SQS queues.'
     example: 'save_sqs "sqs://tenzir"'
     path: 'reference/operators/save_sqs'
-  - name: 'save_stdout'
-    description: 'Writes a byte stream to standard output.'
-    example: 'save_stdout'
-    path: 'reference/operators/save_stdout'
   - name: 'save_tcp'
     description: 'Saves bytes to a TCP or TLS connection.'
     example: 'save_tcp "0.0.0.0:8090", tls=true'
@@ -819,6 +815,10 @@ operators:
     description: 'Sends events to a Splunk HTTP Event Collector (HEC).'
     example: 'to_splunk "localhost:8088", …'
     path: 'reference/operators/to_splunk'
+  - name: 'to_stdout'
+    description: 'Writes events to standard output.'
+    example: 'to_stdout'
+    path: 'reference/operators/to_stdout'
   - name: 'to_tcp'
     description: 'Connects to a remote TCP or TLS endpoint and sends events.'
     example: 'to_tcp "collector.example.com:5044" { write_json }'
@@ -2574,14 +2574,6 @@ save_sqs "sqs://tenzir"
 
 </ReferenceCard>
 
-<ReferenceCard title="save_stdout" description="Writes a byte stream to standard output." href="/reference/operators/save_stdout">
-
-```tql
-save_stdout
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="save_tcp" description="Saves bytes to a TCP or TLS connection." href="/reference/operators/save_tcp">
 
 ```tql
@@ -2791,6 +2783,14 @@ to_snowflake account_identifier="…
 
 ```tql
 to_splunk "localhost:8088", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_stdout" description="Writes events to standard output." href="/reference/operators/to_stdout">
+
+```tql
+to_stdout
 ```
 
 </ReferenceCard>

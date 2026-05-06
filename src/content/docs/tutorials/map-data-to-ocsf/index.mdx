@@ -468,8 +468,6 @@ Most pipelines (1) onboard data from a source, (2) transform it, and (3) send it
 somewhere. This tutorial focuses on the middle piece, with transformation being
 the mapping to OCSF.
 
-![Zeek OCSF Pipeline](./ocsf-zeek-pipeline.svg)
-
 We've addressed data _onboarding_ by reading a log file and decomposing the
 unstructured Zeek TSV contents into a structured record. The built-in
 <Op>read_zeek_tsv</Op> operator made this
@@ -494,8 +492,7 @@ read_zeek_tsv
 // ...
 
 // (3) Offboard data (implicit)
-write_tql
-save_stdout
+to_stdout
 ```
 
 Such a pipeline is impractical because data may arrive via multiple channels:
@@ -525,8 +522,7 @@ Let's work towards a package that comes with a user-defined operator called
 load_stdin
 read_zeek_tsv
 zeek::ocsf::map // 👈 Maps Zeek logs to OCSF with a user-defined operator.
-write_tql
-save_stdout
+to_stdout
 ```
 
 All you have to do to get there is create a package with following directory
