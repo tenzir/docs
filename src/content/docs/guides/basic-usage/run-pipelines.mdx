@@ -29,13 +29,13 @@ Tenzir](/guides/installation) for how to get the binary.
 
 If the pipeline expects events as its input, an implicit `load_stdin |
 read_json` will be prepended. If it expects bytes instead, only `load_stdin` is
-prepended. Likewise, if the pipeline outputs events, an implicit `write_json |
-save_stdout` will be appended. If it outputs bytes instead, only `save_stdout`
-is appended.
+prepended. Likewise, if the pipeline outputs events, an implicit `to_stdout`
+will be appended. If it outputs bytes instead, no implicit output operator is
+appended.
 
 The diagram below illustrates these mechanics:
 
-![Pipeline on the command line](run-pipelines/pipeline-cli.svg)
+![Pipeline on the command line](run-pipelines/pipeline-cli.excalidraw)
 
 For example, run `tenzir 'version | drop dependencies'` to see a single event in
 the terminal:
