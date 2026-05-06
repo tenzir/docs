@@ -57,7 +57,7 @@ to_ftp "ftp://user:pass@ftp.example.org/events.ndjson" {
 
 ### Upload compressed NDJSON
 
-Add <Op>compress gzip</Op> to the printing subpipeline when you want to upload
+Add <Op>compress_gzip</Op> to the printing subpipeline when you want to upload
 compressed output.
 
 ```tql
@@ -67,7 +67,7 @@ from {
 }
 to_ftp "ftp://user:pass@ftp.example.org/events.ndjson.gz" {
   write_ndjson
-  compress gzip
+  compress_gzip
 }
 ```
 
