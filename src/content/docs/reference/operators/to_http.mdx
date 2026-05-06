@@ -11,25 +11,27 @@ import Integration from '@components/see-also/Integration.astro';
 Sends events as HTTP requests to a webhook or API endpoint.
 
 ```tql
-to_http url:string, [method=string, body=record|string|blob, encode=string,
-        headers=record, paginate=string, paginate_delay=duration,
+to_http url:string, [method=string, headers=record, timeout=duration,
         parallel=int, tls=record, connection_timeout=duration,
-        max_retry_count=int, retry_delay=duration]
+        max_retry_count=int, retry_delay=duration] { … }
 ```
 
 ## Description
 
 The `to_http` operator sends each input event as an HTTP request to a webhook or
-API endpoint. By default, it JSON-encodes the entire event as the request body
-and sends it as a POST request.
+API endpoint. A required printer sub-pipeline turns each input event into bytes,
+which become the request body. By default, the operator sends requests with the
+`POST` method.
 
-The operator is fire-and-forget: non-success HTTP status codes do not cause
-pipeline errors.
+Non-2xx HTTP status codes emit warnings. Request failures, such as connection
+or retry exhaustion, cause pipeline errors.
 
 ### `url: string`
 
-URL to send the request to. This is an expression evaluated per event, so you
-can use field values to construct the URL dynamically.
+URL to send the request to.
+
+The URL is resolved as a [secret](/explanations/secrets), so you can pass a
+secret name to avoid hardcoding sensitive URLs.
 
 ### `method = string (optional)`
 
@@ -46,43 +48,17 @@ One of the following HTTP methods to use:
 
 Defaults to `post`.
 
-### `body = blob|record|string (optional)`
+### `{ … }`
 
-Body to send with the HTTP request.
+A required pipeline that receives events and must return bytes. The output of
+this pipeline becomes the HTTP request body.
 
-If the value is a `record`, then the body is encoded according to the `encode`
-option and an appropriate `Content-Type` is set for the request.
-
-If not specified, the entire input event is JSON-encoded as the request body.
-
-### `encode = string (optional)`
-
-Specifies how to encode `record` bodies. Supported values:
-
-- `json`
-- `form`
-
-Defaults to `json`.
+Use this pipeline to choose the request format explicitly. For example, use
+`write_ndjson`, `write_json`, or another byte-producing pipeline.
 
 ### `headers = record (optional)`
 
-Record of headers to send with the request. This is an expression evaluated per
-event, so you can use field values.
-
-### `paginate = string (optional)`
-
-The string `"link"` to automatically follow pagination links in the HTTP `Link`
-response header per
-[RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288). The operator parses
-`Link` headers and follows the `rel=next` relation to fetch the next page.
-Pagination stops when the response no longer contains a `rel=next` link or when
-a non-success status code is received.
-
-### `paginate_delay = duration (optional)`
-
-The duration to wait between consecutive pagination requests.
-
-Defaults to `0s`.
+Record of headers to send with the request.
 
 ### `parallel = int (optional)`
 
@@ -121,27 +97,20 @@ Send each event as a JSON POST request:
 
 ```tql
 from {message: "hello", severity: "info"}
-to_http "https://example.com/webhook"
+to_http "https://example.com/webhook" {
+  write_ndjson
+}
 ```
 
-The entire event is JSON-encoded as the request body.
+### Control the request body format
 
-### Use a custom body
-
-Override the default body with a string:
+Use the printer sub-pipeline to control how the operator serializes each event:
 
 ```tql
 from {foo: "bar"}
-to_http "https://example.com/api", body="custom-payload"
-```
-
-### Send form-encoded data
-
-```tql
-from {user: "alice"}
-to_http "https://example.com/api",
-  body={name: "alice", role: "admin"},
-  encode="form"
+to_http "https://example.com/api" {
+  write_json
+}
 ```
 
 ### Set a custom method and headers
@@ -150,7 +119,9 @@ to_http "https://example.com/api",
 from {foo: "bar"}
 to_http "https://example.com/api",
   method="put",
-  headers={"X-Custom": "value"}
+  headers={"X-Custom": "value"} {
+  write_ndjson
+}
 ```
 
 ### Send events with TLS
@@ -158,7 +129,9 @@ to_http "https://example.com/api",
 ```tql
 from {data: "sensitive"}
 to_http "https://secure.example.com/api",
-  tls={skip_peer_verification: true}
+  tls={skip_peer_verification: true} {
+  write_ndjson
+}
 ```
 
 ### Send requests in parallel
@@ -168,7 +141,9 @@ Increase throughput by sending multiple requests concurrently:
 ```tql
 load_file "events.json"
 read_json
-to_http "https://example.com/ingest", parallel=4
+to_http "https://example.com/ingest", parallel=4 {
+  write_ndjson
+}
 ```
 
 ## See Also
