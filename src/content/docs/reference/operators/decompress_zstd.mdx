@@ -21,9 +21,10 @@ of the same codec transparently.
 ### Import Suricata events from a Zstd-compressed file
 
 ```tql
-load_file "eve.json.zstd"
-decompress_zstd
-read_suricata
+from_file "eve.json.zstd" {
+  decompress_zstd
+  read_suricata
+}
 import
 ```
 

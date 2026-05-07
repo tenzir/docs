@@ -2,9 +2,9 @@
 title: Programs
 ---
 
-TQL **programs** compose [statements](/reference/statements) into
-complete data processing workflows that can execute. Valid TQL programs adhere
-to the following rules:
+TQL **programs** compose [statements](/reference/statements) into complete data
+processing workflows that can execute. Valid TQL programs adhere to the
+following rules:
 
 1. Adjacent operators must have identical types.
 2. A pipeline must be **closed**, i.e., begin with void input and end with void
@@ -16,9 +16,9 @@ When a pipeline is not closed, Tenzir attempts to _auto-complete_ it. On the
 suffices to write a sequence of transformations because Tenzir automatically
 adds a JSON input operator at the beginning and TQL output operator at the end.
 In the [web inteface](/guides/basic-usage/run-pipelines/#in-the-platform),
-auto-completetion takes place with an output operator: The web app appends
-<Op>serve</Op> to turn the dataflow into a REST API,
-allowing your browser to access it by routing the data through the platform.
+auto-completetion takes place with an output operator: The web app
+appends <Op>serve</Op> to turn the dataflow into a REST API, allowing your browser to
+access it by routing the data through the platform.
 :::
 
 ## Statement chaining
@@ -47,7 +47,7 @@ summarize src_ip, total=sum(bytes)
 And here a horziontal one:
 
 ```tql
-let $ports = [22, 443] | from "/tmp/logs.json" | where port in $ports | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
+let $ports = [22, 443] | from_file "/tmp/logs.json" | where port in $ports | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
 ```
 
 In theory, you can combine pipes and newlines to write programs that resemble
@@ -80,27 +80,27 @@ TQL tutorial](/tutorials/learn-idiomatic-tql).
 
 ## Pipeline nesting
 
-Operators can contain entire subpipelines that execute based on the operator's
-semantics. You define subpipelines syntactically within a block of curly braces
-(`{}`).
+Subpipelines are nested pipelines that an outer operator executes based on its
+own semantics. You define subpipelines within a block of curly braces (`{}`).
+They are a first-class part of TQL and the standard pattern for separating
+transport from parsing or printing.
 
 There are three types of subpipelines based on what they expect and produce:
 
 1. **Closed subpipelines** (void-to-void): Complete programs that run
-   independently, used by operators like <Op>every</Op>
-   and <Op>subscribe</Op>.
+   independently, used by operators like <Op>every</Op> and <Op>subscribe</Op>.
 
 2. **Parsing subpipelines** (bytes-to-events): Transform raw bytes into
-   structured events, used by input operators like
-   <Op>from_file</Op> and <Op>from_http</Op>.
+   structured events, used by input operators like <Op>from_file</Op>
+   and <Op>from_http</Op>.
 
 3. **Printing subpipelines** (events-to-bytes): Transform structured events into
-   raw bytes, used by output operators like <Op>to</Op>.
+   raw bytes, used by output operators like <Op>to_file</Op>
+   and <Op>to_http</Op>.
 
 ### Closed subpipelines
 
-The <Op>every</Op> operator executes a closed subpipeline
-at regular intervals:
+The <Op>every</Op> operator executes a closed subpipeline at regular intervals:
 
 ```tql
 every 1h {
@@ -112,10 +112,10 @@ every 1h {
 
 ### Parsing subpipelines
 
-Input operators like <Op>from_file</Op> or
-<Op>from_http</Op> that read raw bytes use parsing
-subpipelines to convert bytes into events. This pattern separates _where_ data
-comes from (the outer operator) from _how_ it's parsed (the subpipeline):
+Input operators like <Op>from_file</Op> or <Op>from_http</Op> that read raw
+bytes use parsing subpipelines to convert bytes into events. This pattern
+separates _where_ data comes from (the outer operator) from _how_ it's parsed
+(the subpipeline):
 
 ```tql
 from_file "data.log" {
@@ -141,10 +141,9 @@ extension), you can omit the subpipeline:
 from_file "data.json"  // Automatically uses read_json
 ```
 
-Operators that produce events directly, like
-<Op>from_kafka</Op> or
-<Op>accept_udp</Op>, don't take a parsing subpipeline
-because the data format is inherent to the source.
+Operators that produce events directly, like <Op>from_kafka</Op>
+or <Op>accept_udp</Op>, don't take a parsing subpipeline because the data format is
+inherent to the source.
 
 ## Comments
 
@@ -175,8 +174,8 @@ let $users = [
 
 ### Multi-line comments
 
-Use a slash-star (`/*`) to start a multi-line comment and a star-slash (`*/`)
-to end it.
+Use a slash-star (`/*`) to start a multi-line comment and a star-slash (`*/`) to
+end it.
 
 Here's an example where a comment spans multiple lines:
 
@@ -217,15 +216,13 @@ Understanding operator behavior helps write efficient pipelines:
 **Blocking operators** need all input before producing output:
 
 - <Op>sort</Op>: Must see all events to order them
-- <Op>summarize</Op>: Aggregates across the entire
-  stream
-- <Op>reverse</Op>: Needs complete input to reverse
-  order
+- <Op>summarize</Op>: Aggregates across the stream
+- <Op>reverse</Op>: Needs complete input to reverse order
 
  Efficient: streaming operations first:
 
 ```tql
-from "large_file.json"
+from_file "large_file.json"
 where severity == "critical"    // Streaming: reduces data early
 select relevant_fields          // Streaming: drops unnecessary data
 sort timestamp                  // Blocking: but on reduced dataset
@@ -234,7 +231,7 @@ sort timestamp                  // Blocking: but on reduced dataset
 L Less efficient: blocking operation on full data:
 
 ```tql
-from "large_file.json"
+from_file "large_file.json"
 sort timestamp                  // Blocking: processes everything
 where severity == "critical"    // Then filters
 ```
@@ -263,9 +260,8 @@ age = current_time - timestamp      // Runtime calculation
 
 ### Network transparency
 
-TQL pipelines can span network boundaries seamlessly. For example, the
-<Op>import</Op> operator implicitly performs a network
-connection based on where it runs. If the `tenzir` binary executes the pipeline,
-the executor establishesa transparent network connection. If the pipeline runs
-within a node, the executor passes the data directly to the next operator in the
-same process.
+TQL pipelines can span network boundaries seamlessly. For example,
+the <Op>import</Op> operator implicitly performs a network connection based on where
+it runs. If the `tenzir` binary executes the pipeline, the executor establishesa
+transparent network connection. If the pipeline runs within a node, the executor
+passes the data directly to the next operator in the same process.

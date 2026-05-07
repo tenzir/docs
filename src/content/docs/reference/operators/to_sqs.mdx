@@ -1,0 +1,101 @@
+---
+title: to_sqs
+category: Outputs/Events
+example: 'to_sqs "sqs://tenzir"'
+---
+
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
+
+Sends messages to an [Amazon SQS][sqs] queue.
+
+[sqs]: https://docs.aws.amazon.com/sqs/
+
+```tql
+to_sqs queue:str, [message=str|blob, aws_region=str, aws_iam=record]
+```
+
+## Description
+
+[Amazon Simple Queue Service (Amazon SQS)][sqs] is a fully managed message
+queueing service for decoupling distributed systems. The `to_sqs` operator sends
+one SQS message per input event.
+
+By default, `to_sqs` serializes each input event as NDJSON. Use the `message`
+option to send a specific string or blob expression instead. If the expression
+evaluates to `null` or another type, the operator skips that event and emits a
+warning.
+
+The operator requires the following AWS permissions:
+
+- `sqs:GetQueueUrl`
+- `sqs:SendMessage`
+
+### `queue: str`
+
+The name of the queue to send messages to. You can optionally prefix the queue
+name with `sqs://`.
+
+### `message = str | blob (optional)`
+
+The expression that produces the SQS message body.
+
+Defaults to `this.print_ndjson()`.
+
+### `aws_region = str (optional)`
+
+The AWS region for resolving the queue URL and sending messages.
+
+If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
+it uses the default AWS SDK region resolution.
+
+<AWSIAMOptions />
+
+## Examples
+
+### Send events to a queue
+
+```tql
+subscribe "to-sqs"
+to_sqs "sqs://tenzir"
+```
+
+### Send a specific field as the message body
+
+```tql
+from {payload: "security event detected"}
+to_sqs "alerts-queue", message=payload
+```
+
+### Use an explicit region
+
+```tql
+from {alert: "security event detected"}
+to_sqs "alerts-queue", aws_region="us-east-1"
+```
+
+### Use explicit credentials
+
+```tql
+from {alert: "security event detected"}
+to_sqs "alerts-queue", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-key"),
+  secret_access_key: secret("aws-secret")
+}
+```
+
+### Assume an IAM role
+
+```tql
+subscribe "events"
+to_sqs "my-queue", aws_iam={
+  region: "eu-west-1",
+  assume_role: "arn:aws:iam::123456789012:role/my-sqs-role"
+}
+```
+
+## See Also
+
+- <Op>from_sqs</Op>
+- <Guide>routing/send-to-destinations</Guide>
+- <Integration>amazon/sqs</Integration>

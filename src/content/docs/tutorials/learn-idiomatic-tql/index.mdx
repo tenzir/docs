@@ -15,7 +15,8 @@ conceptual foundations.
 
 ## What makes TQL idiomatic?
 
-Idiomatic TQL follows consistent patterns that leverage the language's strengths:
+Idiomatic TQL follows consistent patterns that leverage the language's
+strengths:
 
 - **Vertical clarity**: Pipelines flow top-to-bottom for readability
 - **Explicit data contracts**: Clear about what data should vs. might exist
@@ -23,7 +24,8 @@ Idiomatic TQL follows consistent patterns that leverage the language's strengths
 - **Composition over complexity**: Small, focused operators that combine well
 - **Performance-conscious**: Filters early, aggregates late
 
-This tutorial shows you these patterns through concrete examples, comparing idiomatic approaches with common pitfalls.
+This tutorial shows you these patterns through concrete examples, comparing
+idiomatic approaches with common pitfalls.
 
 ## Pipeline structure
 
@@ -39,7 +41,7 @@ TQL offers two ways to chain statements: a newline `\n` (vertical) or pipe `|`
 ```tql
 let $ports = [22, 443]
 
-from "/tmp/logs.json"
+from_file "/tmp/logs.json"
 where port in $ports
 select src_ip, dst_ip, bytes
 summarize src_ip, total=sum(bytes)
@@ -57,7 +59,7 @@ Benefits of vertical structure:
 ✅ Appropriate for one-liners:
 
 ```tql
-tenzir 'from "logs.json" | where severity == "high" | summarize count()'
+tenzir 'from_file "logs.json" | where severity == "high" | summarize count()'
 ```
 
 The horizontal approach is ideal for:
@@ -74,7 +76,7 @@ The horizontal approach is ideal for:
 ```tql
 let $ports = [22, 443]
 
-from "/tmp/logs.json"
+from_file "/tmp/logs.json"
 | where port in $ports
 | select src_ip, dst_ip, bytes
 | summarize src_ip, total=sum(bytes)
@@ -93,7 +95,8 @@ nested pipelines that increase indentation.
 
 ### Trailing commas in vertical structures
 
-When writing vertical structures, use trailing commas consistently to improve maintainability.
+When writing vertical structures, use trailing commas consistently to improve
+maintainability.
 
 #### Lists and records
 
@@ -250,8 +253,8 @@ if initiated {
 ```
 
 When the source field is only needed as the condition and not used elsewhere,
-wrap a `move` in parentheses to consume and test it in a single expression —
-no separate `drop` required:
+wrap a `move` in parentheses to consume and test it in a single expression — no
+separate `drop` required:
 
 ```tql
 connection_info = {
@@ -262,8 +265,8 @@ connection_info = {
 ```
 
 The ternary form is appropriate _only for genuinely binary choices_. The moment
-you need a third branch, switch to if/else chains or preferably a
-[record constant lookup](#use-record-constants-for-mappings-instead-of-if-else-chains):
+you need a third branch, switch to if/else chains or preferably a [record
+constant lookup](#use-record-constants-for-mappings-instead-of-if-else-chains):
 
 ```tql
 // Three or more enum-like outcomes → record constant
@@ -273,9 +276,9 @@ protocol_num = $protocols[proto]? else 255
 
 ### Use `in` for multi-value membership tests
 
-When a condition checks whether a field matches one of several values, `in`
-with a list is cleaner than a chain of `or` comparisons. This works anywhere
-you write a condition, such as `where` or `if`.
+When a condition checks whether a field matches one of several values, `in` with
+a list is cleaner than a chain of `or` comparisons. This works anywhere you
+write a condition, such as `where` or `if`.
 
 ✅ Idiomatic:
 
@@ -356,10 +359,8 @@ When normalizing data (e.g., to OCSF format):
 ### Use `replace` to normalize placeholder values
 
 When dealing with data that uses placeholder values like `"-"`, `"N/A"`, or
-empty strings to represent null, use the
-
-<Op>replace</Op> operator to normalize them instead of
-writing conditional logic.
+empty strings to represent null, use the <Op>replace</Op> operator to normalize
+them instead of writing conditional logic.
 
 ✅ Clear and composable approach:
 
@@ -405,7 +406,7 @@ Don't confuse the <Op>replace</Op> operator with the <Fn>replace</Fn> function:
 
 - **Operator**: Replaces entire values across all fields in events (e.g., replace all `"-"` with `null`)
 - **Function**: Replaces substrings within a string (e.g., `"hello".replace("l", "r")` → `"herro"`)
-:::
+  :::
 
 ### Use meaningful names for computed fields
 
@@ -491,7 +492,7 @@ that `* 1s` converts a number to a duration, which is less intuitive.
 ✅ Filter first, reduce data volume:
 
 ```tql
-from "large_dataset.json"
+from_file "large_dataset.json"
 where severity == "critical"     // Reduce early
 where timestamp > now() - 1h     // Further reduction
 select relevant_fields           // Drop unnecessary data
@@ -501,7 +502,7 @@ summarize ...                    // Aggregate reduced dataset
 ❌ Process everything, then filter:
 
 ```tql
-from "large_dataset.json"
+from_file "large_dataset.json"
 select all_fields
 summarize ...
 where result > threshold        // Filter after expensive operation
@@ -794,8 +795,8 @@ Only use `assert` when you specifically want warnings for violated conditions.
 
 ### Treat warnings as errors with `strict`
 
-The <Op>strict</Op> operator escalates all warnings to
-errors within its scope, stopping the pipeline when data quality issues occur.
+The <Op>strict</Op> operator escalates all warnings to errors within its scope,
+stopping the pipeline when data quality issues occur.
 
 ✅ Use `strict` for critical data processing:
 

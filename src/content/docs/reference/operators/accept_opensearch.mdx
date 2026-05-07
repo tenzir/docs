@@ -4,7 +4,7 @@ category: Inputs/Events
 example: 'accept_opensearch "0.0.0.0:9200"'
 ---
 
-Accepts incoming OpenSearch Bulk API requests and forwards them as events.
+Accepts incoming OpenSearch-compatible Bulk API requests and forwards them as events.
 
 ```tql
 accept_opensearch [url:string, keep_actions=bool, max_request_size=int,
@@ -14,16 +14,17 @@ accept_opensearch [url:string, keep_actions=bool, max_request_size=int,
 ## Description
 
 The `accept_opensearch` operator starts an OpenSearch-compatible HTTP server and
-accepts bulk ingestion requests on `/_bulk`.
+accepts bulk ingestion requests on `/_bulk` and `/{index}/_bulk`. Elasticsearch
+clients can also use this endpoint.
 
 For each bulk request, the operator buffers the request body in memory, up to
 `max_request_size`, optionally decompresses it based on the HTTP
 `Content-Encoding` header, parses the NDJSON payload, and emits the resulting
 records as events.
 
-By default, the operator drops OpenSearch action objects such as
-`{"create": ...}` and emits only the document records. To keep the action
-objects, set `keep_actions=true`.
+By default, the operator drops Bulk API action objects such as `{"create": ...}`
+and emits only the document records. To keep the action objects, set
+`keep_actions=true`.
 
 The operator also responds to `GET /` with a minimal OpenSearch-compatible info
 response so that basic health checks and client probes succeed.
@@ -39,7 +40,7 @@ Defaults to `"0.0.0.0:9200"`.
 
 ### `keep_actions = bool (optional)`
 
-Whether to keep action objects such as `{"create": ...}`.
+Whether to keep Bulk API action objects such as `{"create": ...}`.
 
 Defaults to `false`.
 

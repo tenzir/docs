@@ -338,8 +338,9 @@ tests/parsing/
 Access the inline input in TQL:
 
 ```tql
-from_file env("TENZIR_INPUT")
-read_csv
+from_file env("TENZIR_INPUT") {
+  read_csv
+}
 ```
 
 Or in a shell script:
@@ -562,8 +563,8 @@ harness doesn't load hooks from nested test directories.
 
 Available events:
 
-| Event            | When it runs                                                               |
-| ---------------- | -------------------------------------------------------------------------- |
+| Event            | When it runs                                                                |
+| ---------------- | --------------------------------------------------------------------------- |
 | `startup`        | Once per invocation, before settings and binary discovery.                  |
 | `shutdown`       | Once before the invocation exits normally.                                  |
 | `project_start`  | Before the harness starts executing a root project or satellite.            |

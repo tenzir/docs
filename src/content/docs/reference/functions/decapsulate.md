@@ -54,7 +54,7 @@ Special values include `0` (frame does not carry a VLAN ID) and `0xFFF`
 ### Decapsulate packets from a PCAP file
 
 ```tql
-from "/path/to/trace.pcap"
+from_file "/path/to/trace.pcap" { read_pcap }
 this = decapsulate(this)
 ```
 

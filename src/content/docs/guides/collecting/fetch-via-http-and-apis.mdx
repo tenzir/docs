@@ -2,9 +2,8 @@
 title: Fetch via HTTP and APIs
 ---
 
-This guide shows you how to fetch data from HTTP APIs using the
-<Op>from_http</Op> and
-<Op>http</Op> operators. You'll learn to make GET
+This guide shows you how to fetch data from HTTP APIs using
+the <Op>from_http</Op> and <Op>http</Op> operators. You'll learn to make GET
 requests, handle authentication, and implement pagination for large result sets.
 
 ## Choosing the Right Operator
@@ -42,7 +41,7 @@ HTTP response body using multiple methods:
 
 1. **URL-based inference**: The operators first check the URL's file extension
    to infer both the format (JSON, CSV, Parquet, etc.) and compression type
-   (gzip, zstd, etc.). This works just like the generic `from` operator.
+   (gzip, zstd, etc.).
 
 2. **Header-based inference**: If the format cannot be determined from the URL,
    the operators fall back to using the HTTP `Content-Type` and
@@ -131,8 +130,8 @@ The operators automatically use POST method when you specify a body.
 
 ## Request Configuration
 
-Configure requests with headers, authentication, and other options for
-different API requirements.
+Configure requests with headers, authentication, and other options for different
+API requirements.
 
 ### Adding Headers
 
@@ -145,14 +144,13 @@ from_http "https://api.example.com/data", headers={
   }
 ```
 
-Headers help you authenticate with APIs and specify request formats. Use the
-<Fn>secret</Fn> function to retrieve sensitive
-API tokens, as in the above example.
+Headers help you authenticate with APIs and specify request formats. Use
+the <Fn>secret</Fn> function to retrieve sensitive API tokens, as in the above
+example.
 
 ### TLS and Security
 
-Configure TLS by passing a record to the `tls` parameter with certificate
-paths:
+Configure TLS by passing a record to the `tls` parameter with certificate paths:
 
 ```tql
 from_http "https://secure-api.example.com/data",
@@ -192,8 +190,8 @@ Use HTTP requests to enrich existing data with information from external APIs.
 ### Preserving Input Context
 
 Keep original event data while adding API responses by specifying the
-`response_field` parameter on the [`http`](/reference/operators/http) operator to
-control where the response is stored:
+`response_field` parameter on the [`http`](/reference/operators/http) operator
+to control where the response is stored:
 
 ```tql
 from {
@@ -235,9 +233,9 @@ Handle APIs that return large datasets across multiple pages.
 ### Link Header Pagination
 
 Many REST APIs (such as GitHub, GitLab, and Jira) include pagination URLs in the
-HTTP `Link` response header following
-[RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288). Use `paginate="link"`
-to follow these automatically:
+HTTP `Link` response header following [RFC
+8288](https://datatracker.ietf.org/doc/html/rfc8288). Use `paginate="link"` to
+follow these automatically:
 
 ```tql
 from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
@@ -267,8 +265,8 @@ http url, paginate="link"
 
 Some APIs return an OData collection envelope with records in a top-level
 `value` array and the next page URL in `@odata.nextLink`. Microsoft Graph uses
-this pagination shape for many collection endpoints. Use `paginate="odata"` with
-<Op>from_http</Op> to unpack the envelope and follow the next link
+this pagination shape for many collection endpoints. Use `paginate="odata"`
+with <Op>from_http</Op> to unpack the envelope and follow the next link
 automatically:
 
 ```tql
@@ -283,10 +281,10 @@ from_http "https://graph.microsoft.com/v1.0/users",
 ```
 
 The operator emits each object from the top-level `value` array as an event. It
-follows a top-level string `@odata.nextLink` as an opaque URL, so you do not need
-to inspect or rebuild query parameters such as `$skiptoken`. Pagination stops
-when the response omits `@odata.nextLink` or when the field is not a string.
-Follow-up requests use `GET` and reuse the configured request headers.
+follows a top-level string `@odata.nextLink` as an opaque URL, so you do not
+need to inspect or rebuild query parameters such as `$skiptoken`. Pagination
+stops when the response omits `@odata.nextLink` or when the field is not a
+string. Follow-up requests use `GET` and reuse the configured request headers.
 
 ### Lambda-Based Pagination
 
@@ -332,10 +330,10 @@ Use `paginate_delay` and `parallel` to manage request rates appropriately.
 :::note[HTTP Pipelining]
 The `parallel` option effectively controls HTTP request pipelining. It exists
 only for the `http` operator, because unlike `from_http`, it can receive several
-events from its upstream operator, each of which fire off a new HTTP
-request. The corresponding responses may still be in transit before the next
-request arrives. With the `parallel` option, you specify the exact number of
-in-flight responses.
+events from its upstream operator, each of which fire off a new HTTP request.
+The corresponding responses may still be in transit before the next request
+arrives. With the `parallel` option, you specify the exact number of in-flight
+responses.
 :::
 
 ## Practical Examples
@@ -355,10 +353,9 @@ from_http "https://api.example.com/health" {
 }
 ```
 
-The above example parses the `Date` header from the HTTP response via
-<Fn>parse_time</Fn> into a timestamp and then
-compares it to the current wallclock time using the
-<Fn>now</Fn> function.
+The above example parses the `Date` header from the HTTP response
+via <Fn>parse_time</Fn> into a timestamp and then compares it to the current
+wallclock time using the <Fn>now</Fn> function.
 
 ## Error Handling
 
@@ -416,5 +413,5 @@ Follow these practices for reliable and efficient API integration:
 7. **Leverage automatic format inference**. Use descriptive file extensions in
    URLs when possible to enable automatic format and compression detection.
 8. **Prefer built-in pagination modes when available**. Use `paginate="link"`
-   for APIs that support RFC 8288 `Link` headers or `paginate="odata"` for
-   OData collection envelopes instead of writing custom lambda expressions.
+   for APIs that support RFC 8288 `Link` headers or `paginate="odata"` for OData
+   collection envelopes instead of writing custom lambda expressions.

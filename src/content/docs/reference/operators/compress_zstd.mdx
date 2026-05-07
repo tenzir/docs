@@ -25,18 +25,23 @@ omitted, the default level for the codec is used.
 
 ```tql
 export
-write_ndjson
-compress_zstd
-save_file "/tmp/backup.json.zstd"
+to_file "/tmp/backup.json.zstd" {
+  write_ndjson
+  compress_zstd
+}
 ```
 
-### Recompress a Zstd-compressed file at a different compression level
+### Read and write Zstd-compressed NDJSON
 
 ```tql
-load_file "in.zstd"
-decompress_zstd
-compress_zstd level=18
-save_file "out.zstd"
+from_file "in.zstd" {
+  decompress_zstd
+  read_ndjson
+}
+to_file "out.zstd" {
+  write_ndjson
+  compress_zstd level=18
+}
 ```
 
 ## See Also

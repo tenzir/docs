@@ -54,8 +54,9 @@ Defaults to `false`.
 ```tql
 subscribe "zeek-logs"
 where duration > 2s and id.orig_p != 80
-write_zeek_tsv
-save_file "filtered_conn.log"
+to_file "filtered_conn.log" {
+  write_zeek_tsv
+}
 ```
 
 ## See Also

@@ -41,7 +41,7 @@ per-batch statistics.
 ### Get the number of bytes read incrementally for a file
 
 ```tql
-load_file "input.json"
+from_file "input.json"
 measure
 ```
 
@@ -56,8 +56,9 @@ measure
 ### Get the number of events read incrementally from a file
 
 ```tql
-load_file "eve.json"
-read_suricata
+from_file "eve.json" {
+  read_suricata
+}
 measure
 ```
 
@@ -79,8 +80,9 @@ measure
 ### Get the total number of events in a file, grouped by schema
 
 ```tql
-load_file "eve.json"
-read_suricata
+from_file "eve.json" {
+  read_suricata
+}
 measure
 summarize schema, events=sum(events)
 ```

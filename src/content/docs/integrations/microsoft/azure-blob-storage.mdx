@@ -10,11 +10,9 @@ to read and write files.
 
 ## Examples
 
-Use <Op>from_azure_blob_storage</Op> to
-read files from Azure Blob Storage. It supports glob patterns and automatic
-format detection. For writing, use
-<Op>save_azure_blob_storage</Op> with a
-print operator.
+Use <Op>from_azure_blob_storage</Op> to read files from Azure Blob Storage. It
+supports glob patterns and automatic format detection. For writing,
+use <Op>to_azure_blob_storage</Op> with a print operator.
 
 ### Read events from a file in a container
 
@@ -33,5 +31,5 @@ from_azure_blob_storage "abfs://container/logs/**.json"
 ```tql
 from {foo: 42}
 print_json
-save_azure_blob_storage "abfs://container/path/to/file.json"
+to_azure_blob_storage "abfs://container/path/to/file.json"
 ```
