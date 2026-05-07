@@ -14,6 +14,10 @@ to_udp endpoint:string, [message=any]
 
 Sends one UDP datagram per input event to a fixed remote UDP endpoint.
 
+`to_udp` consumes events directly. It does not accept byte streams from
+`write_*` operators; use the `message` expression to choose the string, blob, or
+record that should become the datagram payload.
+
 ### `endpoint: string`
 
 The address of the remote endpoint. Must be of the format `host:port`. The

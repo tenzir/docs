@@ -88,7 +88,9 @@ interfaces:
 accept_udp "0.0.0.0:514"
 
 // TCP with TLS
-from "tcp://0.0.0.0:8443", tls=true
+accept_tcp "0.0.0.0:8443", tls={} {
+  read_json
+}
 ```
 
 See the [network data guide](/guides/collecting/get-data-from-the-network) for
