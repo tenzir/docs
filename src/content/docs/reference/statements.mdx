@@ -238,15 +238,16 @@ match action {
 
 Use `|` to list multiple alternatives for the same arm. Each arm contains one or
 more patterns, an optional guard, and a pipeline in braces. Constant patterns
-include strings, numbers, booleans, `null`, durations, times, IP addresses, and
-subnets. A negative numeric literal, such as `-1`, is also valid.
+include strings, numbers, booleans, `null`, durations, times, IP addresses,
+subnets, lists, and records. A negative numeric literal, such as `-1`, is also
+valid.
 
 Use `_` as a wildcard fallback for all remaining events. The wildcard must be
 the only pattern in its arm and must be the final arm, unless the arm has a
-guard. A guarded wildcard can fail and later arms can still match. An unguarded
-standalone binding, such as `$value`, also matches all remaining events and must
-be in the final arm. If you omit a wildcard or another irrefutable final arm,
-events that don't match any arm pass through unchanged.
+guard. A guarded wildcard can fail and later arms can still match, but it does
+not make the `match` exhaustive. Every `match` statement must include an
+unguarded final wildcard arm, so Tenzir can prove at compile time that the arms
+cover every possible value.
 
 ```tql
 match record_type {
@@ -256,12 +257,13 @@ match record_type {
   "CNAME" | "DNAME" => {
     record_family = "alias"
   }
+  _ => {
+    record_family = "other"
+  }
 }
 ```
 
-In this example, events with any other `record_type` continue downstream without
-a `record_family` field. Branch pipelines follow the same output type rules as
-`if` branches.
+Branch pipelines follow the same output type rules as `if` branches.
 
 ### Guards
 
@@ -272,28 +274,14 @@ is `true`; events where the guard is `false` or `null` continue to later arms.
 
 ```tql
 match status {
-  500..599 | 429 if retries > 0 => {
+  499..600 | 429 if retries > 0 => {
     action = "retry"
   }
-  500..599 => {
+  499..600 => {
     action = "page"
   }
   _ => {
     action = "ignore"
-  }
-}
-```
-
-Bindings from the matched pattern are available in the guard and in the arm
-pipeline:
-
-```tql
-match this {
-  {src: {ip: $ip, ..}, ..} if $ip.is_private() => {
-    zone = "internal"
-  }
-  {src: {ip: $ip, ..}, ..} => {
-    zone = "external"
   }
 }
 ```
@@ -314,95 +302,39 @@ match status {
 }
 ```
 
-When you combine guarded alternatives with bindings, each alternative must bind
-the same names from the same matched paths. If the alternatives need different
-bindings, split them into separate guarded arms.
-
-### List patterns
-
-List patterns match list values structurally. Elements are matched in order.
-Without `..`, the list must have exactly the listed elements. With a trailing
-`..`, the list may contain additional trailing elements.
+List and record constants are compared by equality:
 
 ```tql
-match tags {
-  ["prod", $service, ..] => {
-    environment = "production"
-    service = $service
+match value {
+  ["prod", "checkout"] => {
+    class = "checkout"
   }
-  [] => {
-    environment = "unknown"
+  {action: "allow", port: 443} => {
+    class = "allow web"
   }
-  [..] => {
-    environment = "other"
-  }
-}
-```
-
-You can nest list patterns anywhere a pattern is accepted:
-
-```tql
-match this {
-  {labels: ["prod", $service, ..], ..} => {
-    service = $service
-  }
-}
-```
-
-The `..` rest marker is only valid as the final list item.
-
-### Record patterns
-
-Record patterns match record values structurally. Listed fields must exist and
-match their nested patterns. Without `..`, the pattern is exact and rejects extra
-fields. With `..`, extra fields are ignored.
-
-```tql
-match this {
-  {action: "allow", dst_port: 80..443, ..} => {
-    verdict = "web allow"
-  }
-  {action: "deny"} => {
-    verdict = "exact deny record"
-  }
-  {..} => {
-    verdict = "other record"
+  _ => {
+    class = "other"
   }
 }
 ```
 
 ### Range patterns
 
-Range patterns use `lower..upper` and include both bounds.
+Range patterns use `lower..upper` and exclude both bounds.
 
 ```tql
 match status {
-  200..299 => {
+  199..300 => {
     class = "success"
   }
-  400..499 => {
+  399..500 => {
     class = "client error"
   }
-  500..599 => {
+  499..600 => {
     class = "server error"
   }
-}
-```
-
-### Bindings
-
-Bindings capture matched values for use in the arm pipeline. A binding name must
-be unique within an arm. If the same `$name` exists as an outer `let` binding,
-`match` treats it as a constant pattern instead.
-
-```tql
-match this {
-  {src: {ip: $ip, ..}, dst: {port: 443, ..}, ..} => {
-    remote_ip = $ip
+  _ => {
+    class = "other"
   }
 }
 ```
-
-Use a binding before you assign to the field it came from. Tenzir rejects arm
-pipelines that read a binding after assigning to the matched field, because that
-would make the binding depend on the mutation order inside the arm.
