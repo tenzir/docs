@@ -1,8 +1,8 @@
 import InlineSVG from "@components/InlineSVG.astro";
 
 <a href={props.url}>{props.Name}</a> is a search and observability suite for
-unstructured data. Tenzir can send events to {props.Name} and emulate and
-{props.Name} Bulk API endpoint.
+unstructured data. Tenzir can send events to {props.Name} and emulate a
+{props.Name}-compatible Bulk API endpoint.
 
 <InlineSVG src={props.image} alt="How to send and receive data" />
 
@@ -10,7 +10,10 @@ When sending data to {props.Name}, Tenzir uses the <a
   href={props.bulkApiUrl}>Bulk API</a> and attempts to maximally batch events
 for throughput, accumulating multiple events before shipping them within a
 single API call. You can control batching behavior with the `max_content_length`
-and `send_timeout` options.
+and `buffer_timeout` options.
+
+Use `to_opensearch` for both OpenSearch and Elasticsearch-compatible Bulk API
+endpoints. There is no separate `to_elasticsearch` operator.
 
 For more details, see the documentation for the
 [`to_opensearch`](/reference/operators/to_opensearch) operator.
@@ -20,7 +23,7 @@ Tenzir can also present a {props.Name}-compatible REST API via the
 
 ## Examples
 
-### Send events to an {props.Name} index
+### Send events to a {props.Name} index
 
 Send an example event to the `main` index:
 
@@ -28,24 +31,24 @@ import { Code } from "@astrojs/starlight/components";
 
 export const sendToMainIndex = `
 from {event: "example"}
-to_NAME "1.2.3.4:9200", action="create", index="main"
+to_opensearch "1.2.3.4:9200", action="create", index="main"
 `;
 
 <Code
-  code={sendToMainIndex.replace("NAME", props.Name.toLowerCase())}
+  code={sendToMainIndex}
   lang="tql"
 />
 
-Instead of treating the entire event as document to be indexed by {props.Name},
-you can designate a nested record as document:
+Instead of treating the entire event as a document to be indexed by {props.Name},
+you can designate a nested record as the document:
 
 export const sendNestedRecord = `
 from {category: "qux", doc_id: "XXX", event: {foo: "bar"}}
-to_NAME "localhost:9200", id=doc_id, doc=event, action="update", index=category
+to_opensearch "localhost:9200", id=doc_id, doc=event, action="update", index=category
 `;
 
 <Code
-  code={sendNestedRecord.replace("NAME", props.Name.toLowerCase())}
+  code={sendNestedRecord}
   lang="tql"
 />
 
@@ -54,7 +57,7 @@ nested field `event`.
 
 ### Accept data by emulating {props.Name}
 
-Tenzir can act as drop-in replacement for {props.Name} by accepting data via a
+Tenzir can act as a drop-in replacement for {props.Name} by accepting data via a
 Bulk API endpoint. This allows you to point your <a
 href={props.logstashUrl}>Logstash</a> or Beats instances to Tenzir instead.
 
@@ -71,13 +74,13 @@ other pipelines.
 
 Use `accept_opensearch` for new pipelines that receive bulk ingestion data.
 
-Setting `keep_actions=true` causes command events to remain in the stream, e.g.,
-like this:
+Setting `keep_actions=true` causes action objects to remain in the stream, like
+this:
 
 ```tql
-{create:{_index:"filebeat-8.17.3"}} // 👈 command event
+{create:{_index:"filebeat-8.17.3"}} // 👈 action object
 {"@timestamp":2025-03-31T13:42:28.068Z,log:{offset:1,file:{path:"/mounted/logfile"}},message:"hello",input:{type:"log"},host:{name:"eb21"},agent:{id:"682cfcf4-f251-4576-abcb-6c8bcadfda08",name:"eb21",type:"filebeat",version:"8.17.3",ephemeral_id:"17f74f6e-36f0-4045-93e6-c549874716df"},ecs:{version:"8.0.0"}}
-{create:{_index:"filebeat-8.17.3"}} // 👈 command event
+{create:{_index:"filebeat-8.17.3"}} // 👈 action object
 {"@timestamp":2025-03-31T13:42:28.068Z,log:{offset:7,file:{path:"/mounted/logfile"}},message:"this",input:{type:"log"},host:{name:"eb21"},agent:{id:"682cfcf4-f251-4576-abcb-6c8bcadfda08",name:"eb21",type:"filebeat",version:"8.17.3",ephemeral_id:"17f74f6e-36f0-4045-93e6-c549874716df"},ecs:{version:"8.0.0"}}
 ```
 
@@ -87,8 +90,7 @@ Configure [Filebeat](https://www.elastic.co/beats/filebeat) as follows to ship
 data to Tenzir:
 
 ```yaml title="filebeat.yml"
-output:
-  elasticsearch:
+output.elasticsearch:
   hosts: ["localhost:9200"]
 ```
 

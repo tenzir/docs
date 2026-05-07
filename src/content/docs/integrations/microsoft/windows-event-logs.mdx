@@ -46,7 +46,7 @@ winlogbeat.event_logs:
   - name: Microsoft-Windows-TerminalServices-LocalSessionManager/Operational
   - name: Microsoft-Windows-TerminalServices-RDPClient/Operational
 
-# Send data to a Tenzir pipeline with an ElasticSearch source.
+# Send data to a Tenzir pipeline with an Elasticsearch-compatible endpoint.
 output.elasticsearch:
   hosts: ["https://10.0.0.1:9200"]
   username: "$USER"
@@ -69,15 +69,15 @@ C:\Program Files\Winlogbeat> Start-Service winlogbeat
 
 #### Run a Tenzir pipeline
 
-Now consume the data via a Tenzir pipeline using
-the <Integration>elasticsearch</Integration>/<Integration>opensearch</Integration>
-integration that mimics a bulk ingest endpoint:
+Now consume the data via a Tenzir pipeline using the
+<Integration>elasticsearch</Integration>/<Integration>opensearch</Integration>
+integration that mimics a Bulk API endpoint:
 
 ```tql
-from_opensearch "10.0.0.1:92000" \
-  tls=true,
-  certfile="server.crt",
-  keyfile="private.key"
+accept_opensearch "10.0.0.1:9200", tls={
+  certfile: "server.crt",
+  keyfile: "private.key",
+}
 import
 ```
 
