@@ -47,7 +47,7 @@ summarize src_ip, total=sum(bytes)
 And here a horziontal one:
 
 ```tql
-let $ports = [22, 443] | from "/tmp/logs.json" | where port in $ports | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
+let $ports = [22, 443] | from_file "/tmp/logs.json" | where port in $ports | select src_ip, dst_ip, bytes | summarize src_ip, total=sum(bytes)
 ```
 
 In theory, you can combine pipes and newlines to write programs that resemble
@@ -82,7 +82,7 @@ TQL tutorial](/tutorials/learn-idiomatic-tql).
 
 Subpipelines are nested pipelines that an outer operator executes based on its
 own semantics. You define subpipelines within a block of curly braces (`{}`).
-They are a first-class part of TQL and the preferred v6 pattern for separating
+They are a first-class part of TQL and the standard pattern for separating
 transport from parsing or printing.
 
 There are three types of subpipelines based on what they expect and produce:
@@ -112,9 +112,9 @@ every 1h {
 
 ### Parsing subpipelines
 
-Input operators like <Op>from_file</Op> or <Op>from_http</Op> that read raw
+Input operators like <Op>from*file</Op> or <Op>from_http</Op> that read raw
 bytes use parsing subpipelines to convert bytes into events. This pattern
-separates _where_ data comes from (the outer operator) from _how_ it's parsed
+separates \_where* data comes from (the outer operator) from _how_ it's parsed
 (the subpipeline):
 
 ```tql

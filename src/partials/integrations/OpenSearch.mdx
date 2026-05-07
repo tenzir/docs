@@ -28,7 +28,7 @@ import { Code } from "@astrojs/starlight/components";
 
 export const sendToMainIndex = `
 from {event: "example"}
-to "NAME://1.2.3.4:9200", action="create", index="main"
+to_opensearch "NAME://1.2.3.4:9200", action="create", index="main"
 `;
 
 <Code
@@ -41,7 +41,7 @@ you can designate a nested record as document:
 
 export const sendNestedRecord = `
 from {category: "qux", doc_id: "XXX", event: {foo: "bar"}}
-to "NAME://localhost:9200", id=doc_id, doc=event, action="update", index=category
+to_opensearch "NAME://localhost:9200", id=doc_id, doc=event, action="update", index=category
 `;
 
 <Code

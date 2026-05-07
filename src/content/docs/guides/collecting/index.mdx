@@ -8,21 +8,13 @@ the different approaches for ingesting data from various sources.
 TQL provides two types of input operators:
 
 - **`from_*` operators** like <Op>from_file</Op> and
+
   <Op>from_http</Op> read bytes and parse them using
-  a [subpipeline](/reference/programs/#parsing-subpipelines).
+a [subpipeline](/reference/programs/#parsing-subpipelines).
 
 - **Direct event operators** like <Op>from_kafka</Op>
   and <Op>accept_udp</Op> produce structured events
   directly without an intermediate byte stream.
-
-:::caution[Migration note]
-The `from_*` family of operators supersedes the older `load_*` operators that
-produce bytes. While `load_*` operators remain supported, prefer the newer
-`from_*` variants which provide a more unified experience with built-in format
-inference.
-
-For example, `from_file "data.csv"` replaces `load_file "data.csv" | read_csv`.
-:::
 
 ## Collection patterns
 

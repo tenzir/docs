@@ -109,7 +109,7 @@ tenzir:
       # The definition of the pipeline. Configured pipelines that fail to start
       # cause the node to fail to start.
       definition: |
-        from "tcp://0.0.0.0:34343" {
+        accept_tcp "0.0.0.0:34343" {
           read_suricata
         }
         publish "suricata"

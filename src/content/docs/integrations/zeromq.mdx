@@ -28,9 +28,8 @@ their nested `read_*` pipeline unless `keep_prefix=true`.
 Because ZeroMQ is entirely asynchronous, publishers send messages even when no
 subscriber is present. This can lead to lost messages when the publisher begins
 operating before the subscriber. To avoid data loss due to such races, pass
-`monitor=true` on <Op>to_zmq</Op>, <Op>serve_zmq</Op>, or the
-legacy <Op>to_zmq</Op> operator to wait until at least one remote peer has connected on
-TCP transports.
+`monitor=true` on <Op>to_zmq</Op> or <Op>serve_zmq</Op> to wait until at least
+one remote peer has connected on TCP transports.
 
 ## Examples
 

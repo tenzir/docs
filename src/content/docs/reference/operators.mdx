@@ -189,7 +189,7 @@ operators:
     path: 'reference/operators/context/update'
   - name: 'cron'
     description: 'Runs a pipeline periodically according to a cron expression.'
-    example: 'cron "* */10 * * * MON-FRI" { from "https://example.org" }'
+    example: 'cron "* */10 * * * MON-FRI" { from_http "https://example.org" }'
     path: 'reference/operators/cron'
   - name: 'delay'
     description: 'Delays events relative to a given start time, with an optional speedup.'
@@ -209,7 +209,7 @@ operators:
     path: 'reference/operators/every'
   - name: 'fork'
     description: 'Executes a subpipeline with a copy of the input.'
-    example: 'fork { to "copy.json" }'
+    example: 'fork { publish "copy" }'
     path: 'reference/operators/fork'
   - name: 'group'
     description: 'Routes events with the same key through the same subpipeline.'
@@ -1325,7 +1325,7 @@ where name.starts_with("John")
 <ReferenceCard title="cron" description="Runs a pipeline periodically according to a cron expression." href="/reference/operators/cron">
 
 ```tql
-cron "* */10 * * * MON-FRI" { from "https://example.org" }
+cron "* */10 * * * MON-FRI" { from_http "https://example.org" }
 ```
 
 </ReferenceCard>
@@ -1365,7 +1365,7 @@ every 10s { summarize sum(amount) }
 <ReferenceCard title="fork" description="Executes a subpipeline with a copy of the input." href="/reference/operators/fork">
 
 ```tql
-fork { to "copy.json" }
+fork { publish "copy" }
 ```
 
 </ReferenceCard>
