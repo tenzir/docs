@@ -14,14 +14,14 @@ Use the IP address `0.0.0.0` to listen on all available network interfaces.
 
 ## Examples
 
-Use <Op>from_udp</Op> to receive UDP datagrams as
-structured events containing message data and peer information. For sending, use
-<Op>save_udp</Op> with a write operator.
+Use <Op>accept_udp</Op> to receive UDP datagrams as
+structured events containing message data and peer information. Use <Op>to_udp</Op>
+to send one UDP datagram per event directly from structured data.
 
 ### Receive syslog messages over UDP
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 ```
 
@@ -29,6 +29,5 @@ this = data.parse_syslog()
 
 ```tql
 from {message: "Tenzir"}
-write_ndjson
-save_udp "1.2.3.4:8080"
+to_udp "1.2.3.4:8080", message=message
 ```
