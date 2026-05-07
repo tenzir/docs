@@ -21,11 +21,13 @@ the number of retries is exceeded.
 ### Require 1,000 events per second, failing if the issue persists for 30s
 
 ```tql
-from "udp://0.0.0.0:514" { read_syslog }
+accept_udp "0.0.0.0:514"
+this = data.parse_syslog()
 assert_throughput 1k, within=1s, retries=30
 ```
 
 ## See Also
 
+- <Op>accept_udp</Op>
 - <Op>assert</Op>
 - <Op>throttle</Op>
