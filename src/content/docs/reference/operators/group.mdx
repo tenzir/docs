@@ -4,19 +4,18 @@ category: Analyze
 example: 'group collector { to_tcp $group { write_ndjson } }'
 ---
 
-This reference documents the `group` operator, which runs a subpipeline for
-each group key.
+Runs a subpipeline for each group key in an event stream.
 
 ```tql
-group over:any { ... }
+group over:expr { ... }
 ```
 
 ## Description
 
 The `group` operator evaluates `over` for every input event and routes each
-event to a subpipeline for the resulting key. Use this when a subpipeline needs
-a per-key constant argument, such as a destination endpoint, or when each key
-needs its own long-lived subpipeline instance.
+event to a subpipeline for the resulting key. Use this when processing events
+and a subpipeline needs a per-key constant argument, such as a destination
+endpoint, or when each key needs its own long-lived subpipeline instance.
 
 Events with the same key use the same subpipeline for the full input stream, so
 stateful operators and destinations inside the subpipeline keep separate state
@@ -31,7 +30,7 @@ Each distinct key creates a subpipeline. Use this operator with care when the
 input can contain many unique keys.
 :::
 
-### `over: any`
+### `over: expr`
 
 The expression that computes the group key for each event.
 
