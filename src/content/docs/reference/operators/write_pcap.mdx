@@ -43,8 +43,9 @@ The current implementation does _not_ support [PCAPNG][pcapng-rfc].
 
 ```tql
 from_nic "en1"
-write_pcap
-save_file "/logs/packets.pcap"
+to_file "/logs/packets.pcap" {
+  write_pcap
+}
 ```
 
 ### Round-trip a PCAP file while preserving its file header
@@ -53,8 +54,9 @@ save_file "/logs/packets.pcap"
 from_file "/tmp/trace.pcap" {
   read_pcap emit_file_headers=true
 }
-write_pcap
-save_file "/tmp/trace-copy.pcap"
+to_file "/tmp/trace-copy.pcap" {
+  write_pcap
+}
 ```
 
 ## See Also

@@ -16,6 +16,7 @@ The `context::create_geoip` operator constructs a new context of type
 [GeoIP](/explanations/enrichment#geoip-database).
 
 You must either provide a database with the `db_path` argument or use
+
 <Op>context::load</Op> to populate the context after creation.
 
 You can also create a GeoIP context as code by adding it to `tenzir.contexts` in
@@ -56,7 +57,7 @@ Open](https://data.public.lu/en/datasets/geo-open-ip-address-geolocation-per-cou
 dataset from November 12, 2024:
 
 ```tql
-load_http "https://data.public.lu/fr/datasets/r/69064b5d-bf46-4244-b752-2096b16917a4"
+from_http "https://data.public.lu/fr/datasets/r/69064b5d-bf46-4244-b752-2096b16917a4"
 context::load "ctx"
 ```
 

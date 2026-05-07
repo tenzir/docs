@@ -16,7 +16,7 @@ Default Credentials](https://google.aip.dev/auth/4110).
 
 Use <Op>from_google_cloud_storage</Op> to read files from Cloud
 Storage. It supports glob patterns and automatic format detection. For writing,
-use <Op>save_gcs</Op> with a print operator.
+use <Op>to_google_cloud_storage</Op> with a print operator.
 
 ### Read events from a file in a bucket
 
@@ -35,5 +35,5 @@ from_google_cloud_storage "gs://bucket/logs/**.json"
 ```tql
 from {foo: 42}
 print_json
-save_gcs "gs://bucket/path/to/file.json"
+to_google_cloud_storage "gs://bucket/path/to/file.json"
 ```

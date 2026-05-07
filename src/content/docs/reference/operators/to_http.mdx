@@ -139,8 +139,9 @@ to_http "https://secure.example.com/api",
 Increase throughput by sending multiple requests concurrently:
 
 ```tql
-load_file "events.json"
-read_json
+from_file "events.json" {
+  read_json
+}
 to_http "https://example.com/ingest", parallel=4 {
   write_ndjson
 }
@@ -152,5 +153,6 @@ to_http "https://example.com/ingest", parallel=4 {
 - <Op>http</Op>
 - <Op>accept_http</Op>
 - <Op>serve_http</Op>
+- <Guide>tenzir-v6-migration</Guide>
 - <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Integration>http</Integration>

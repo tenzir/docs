@@ -42,8 +42,9 @@ enumerate
 
 ```tql
 every 10min {
-  load_http "example.org/api/threats"
-  read_json
+  from_http "example.org/api/threats" {
+    read_json
+  }
 }
 publish "threat-feed"
 ```

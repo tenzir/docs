@@ -22,6 +22,7 @@ operator discards all events that do not match the provided rules.
 
 For each rule, the operator transpiles the YAML into an
 [expression](/reference/expressions) and instantiates a
+
 <Op>where</Op> operator, followed by assignments to
 generate an output. Here's how the transpilation works. The Sigma rule YAML
 format requires a `detection` attribute that includes a map of named
@@ -138,8 +139,9 @@ Watch a directory of Sigma rules and apply all of them on a continuous stream of
 Suricata events:
 
 ```tql
-load_file "eve.json", follow=true
-read_suricata
+from_file "eve.json", follow=true {
+  read_suricata
+}
 sigma "/tmp/rules/"
 ```
 

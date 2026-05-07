@@ -95,10 +95,6 @@ operators:
     description: 'Plots events on an pie chart.'
     example: 'chart_pie …'
     path: 'reference/operators/chart_pie'
-  - name: 'compress'
-    description: 'Compresses a stream of bytes.'
-    example: 'compress "zstd"'
-    path: 'reference/operators/compress'
   - name: 'compress_brotli'
     description: 'Compresses a stream of bytes using Brotli compression.'
     example: 'compress_brotli, level=10'
@@ -119,10 +115,6 @@ operators:
     description: 'Compresses a stream of bytes using zstd compression.'
     example: 'compress_zstd, level=6'
     path: 'reference/operators/compress_zstd'
-  - name: 'decompress'
-    description: 'Decompresses a stream of bytes.'
-    example: 'decompress "gzip"'
-    path: 'reference/operators/decompress'
   - name: 'decompress_brotli'
     description: 'Decompresses a stream of bytes in the Brotli format.'
     example: 'decompress_brotli'
@@ -435,58 +427,62 @@ operators:
     description: 'Submits VQL to a Velociraptor server and returns the response as events.'
     example: 'from_velociraptor subscribe="Windows"'
     path: 'reference/operators/from_velociraptor'
-  - name: 'load_amqp'
-    description: 'Loads a byte stream via AMQP messages.'
-    example: 'load_amqp'
-    path: 'reference/operators/load_amqp'
-  - name: 'load_azure_blob_storage'
-    description: 'Loads bytes from Azure Blob Storage.'
-    example: 'load_azure_blob_storage "abfs://container/file"'
-    path: 'reference/operators/load_azure_blob_storage'
-  - name: 'load_file'
-    description: 'Loads the contents of the file at `path` as a byte stream.'
-    example: 'load_file "/tmp/data.json"'
-    path: 'reference/operators/load_file'
-  - name: 'load_gcs'
-    description: 'Loads bytes from a Google Cloud Storage object.'
-    example: 'load_gcs "gs://bucket/object.json"'
-    path: 'reference/operators/load_gcs'
-  - name: 'load_google_cloud_pubsub'
+  - name: 'from_amqp'
+    description: 'Receives messages from an AMQP queue.'
+    example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
+    path: 'reference/operators/from_amqp'
+  - name: 'from_azure_blob_storage'
+    description: 'Reads bytes from Azure Blob Storage.'
+    example: 'from_azure_blob_storage "abfs://container/file"'
+    path: 'reference/operators/from_azure_blob_storage'
+  - name: 'from_file'
+    description: 'Reads the contents of the file at `path` as a byte stream.'
+    example: 'from_file "/tmp/data.json"'
+    path: 'reference/operators/from_file'
+  - name: 'from_google_cloud_storage'
+    description: 'Reads bytes from a Google Cloud Storage object.'
+    example: 'from_google_cloud_storage "gs://bucket/object.json"'
+    path: 'reference/operators/from_google_cloud_storage'
+  - name: 'from_google_cloud_pubsub'
     description: 'Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes.'
-    example: 'load_google_cloud_pubsub project_id="my-project"'
-    path: 'reference/operators/load_google_cloud_pubsub'
-  - name: 'load_http'
-    description: 'Loads a byte stream via HTTP.'
-    example: 'load_http "example.org", params={n: 5}'
-    path: 'reference/operators/load_http'
-  - name: 'load_kafka'
-    description: 'Loads a byte stream from an Apache Kafka topic.'
-    example: 'load_kafka topic="example"'
-    path: 'reference/operators/load_kafka'
-  - name: 'load_nic'
-    description: 'Loads bytes from a network interface card (NIC).'
-    example: 'load_nic "eth0"'
-    path: 'reference/operators/load_nic'
-  - name: 'load_s3'
-    description: 'Loads from an Amazon S3 object.'
-    example: 'load_s3 "s3://my-bucket/obj.csv"'
-    path: 'reference/operators/load_s3'
-  - name: 'load_sqs'
-    description: 'Loads bytes from Amazon SQS queues.'
-    example: 'load_sqs "sqs://tenzir"'
-    path: 'reference/operators/load_sqs'
-  - name: 'load_stdin'
+    example: 'from_google_cloud_pubsub project_id="my-project"'
+    path: 'reference/operators/from_google_cloud_pubsub'
+  - name: 'from_http'
+    description: 'Reads a byte stream via HTTP.'
+    example: 'from_http "example.org", params={n: 5}'
+    path: 'reference/operators/from_http'
+  - name: 'from_kafka'
+    description: 'Reads events from an Apache Kafka topic.'
+    example: 'from_kafka topic="example"'
+    path: 'reference/operators/from_kafka'
+  - name: 'from_nic'
+    description: 'Reads packets from a network interface card (NIC).'
+    example: 'from_nic "eth0"'
+    path: 'reference/operators/from_nic'
+  - name: 'from_s3'
+    description: 'Reads from an Amazon S3 object.'
+    example: 'from_s3 "s3://my-bucket/obj.csv"'
+    path: 'reference/operators/from_s3'
+  - name: 'from_sqs'
+    description: 'Receives messages from an Amazon SQS queue.'
+    example: 'from_sqs "sqs://tenzir", poll_time=5s'
+    path: 'reference/operators/from_sqs'
+  - name: 'from_stdin'
     description: 'Accepts bytes from standard input.'
-    example: 'load_stdin'
-    path: 'reference/operators/load_stdin'
-  - name: 'load_tcp'
-    description: 'Loads bytes from a TCP or TLS connection.'
-    example: 'load_tcp "0.0.0.0:8090" { read_json }'
-    path: 'reference/operators/load_tcp'
-  - name: 'load_zmq'
+    example: 'from_stdin'
+    path: 'reference/operators/from_stdin'
+  - name: 'accept_tcp'
+    description: 'Accepts bytes from a TCP or TLS connection.'
+    example: 'accept_tcp "0.0.0.0:8090" { read_json }'
+    path: 'reference/operators/accept_tcp'
+  - name: 'accept_udp'
+    description: 'Receives UDP datagrams and outputs structured events.'
+    example: 'accept_udp "0.0.0.0:8090"'
+    path: 'reference/operators/accept_udp'
+  - name: 'from_zmq'
     description: 'Receives ZeroMQ messages.'
-    example: 'load_zmq'
-    path: 'reference/operators/load_zmq'
+    example: 'from_zmq'
+    path: 'reference/operators/from_zmq'
   - name: 'ocsf::apply'
     description: 'Casts incoming events to their OCSF type.'
     example: 'ocsf::apply'
@@ -671,58 +667,54 @@ operators:
     description: 'Listens on a ZeroMQ endpoint and receives events.'
     example: 'accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }'
     path: 'reference/operators/accept_zmq'
-  - name: 'save_amqp'
-    description: 'Saves a byte stream via AMQP messages.'
-    example: 'save_amqp'
-    path: 'reference/operators/save_amqp'
-  - name: 'save_azure_blob_storage'
-    description: 'Saves bytes to Azure Blob Storage.'
-    example: 'save_azure_blob_storage "abfs://container/file"'
-    path: 'reference/operators/save_azure_blob_storage'
-  - name: 'save_email'
-    description: 'Saves bytes through an SMTP server.'
-    example: 'save_email "user@example.org"'
-    path: 'reference/operators/save_email'
-  - name: 'save_file'
+  - name: 'to_amqp'
+    description: 'Sends messages to an AMQP exchange.'
+    example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
+    path: 'reference/operators/to_amqp'
+  - name: 'to_azure_blob_storage'
+    description: 'Writes bytes to Azure Blob Storage.'
+    example: 'to_azure_blob_storage "abfs://container/file"'
+    path: 'reference/operators/to_azure_blob_storage'
+  - name: 'to_file'
     description: 'Writes a byte stream to a file.'
-    example: 'save_file "/tmp/out.json"'
-    path: 'reference/operators/save_file'
-  - name: 'save_gcs'
-    description: 'Saves bytes to a Google Cloud Storage object.'
-    example: 'save_gcs "gs://bucket/object.json"'
-    path: 'reference/operators/save_gcs'
-  - name: 'save_google_cloud_pubsub'
+    example: 'to_file "/tmp/out.json"'
+    path: 'reference/operators/to_file'
+  - name: 'to_google_cloud_storage'
+    description: 'Writes bytes to a Google Cloud Storage object.'
+    example: 'to_google_cloud_storage "gs://bucket/object.json"'
+    path: 'reference/operators/to_google_cloud_storage'
+  - name: 'to_google_cloud_pubsub'
     description: 'Publishes to a Google Cloud Pub/Sub topic.'
-    example: 'save_google_cloud_pubsub project_id="my-project"'
-    path: 'reference/operators/save_google_cloud_pubsub'
-  - name: 'save_http'
+    example: 'to_google_cloud_pubsub project_id="my-project"'
+    path: 'reference/operators/to_google_cloud_pubsub'
+  - name: 'to_http'
     description: 'Sends a byte stream via HTTP.'
-    example: 'save_http "example.org/api"'
-    path: 'reference/operators/save_http'
-  - name: 'save_kafka'
-    description: 'Saves a byte stream to a Apache Kafka topic.'
-    example: 'save_kafka topic="example"'
-    path: 'reference/operators/save_kafka'
-  - name: 'save_s3'
-    description: 'Saves bytes to an Amazon S3 object.'
-    example: 'save_s3 "s3://my-bucket/obj.csv"'
-    path: 'reference/operators/save_s3'
-  - name: 'save_sqs'
-    description: 'Saves bytes to Amazon SQS queues.'
-    example: 'save_sqs "sqs://tenzir"'
-    path: 'reference/operators/save_sqs'
-  - name: 'save_tcp'
-    description: 'Saves bytes to a TCP or TLS connection.'
-    example: 'save_tcp "0.0.0.0:8090", tls=true'
-    path: 'reference/operators/save_tcp'
+    example: 'to_http "example.org/api"'
+    path: 'reference/operators/to_http'
+  - name: 'to_kafka'
+    description: 'Sends events to an Apache Kafka topic.'
+    example: 'to_kafka topic="example"'
+    path: 'reference/operators/to_kafka'
+  - name: 'to_s3'
+    description: 'Writes bytes to an Amazon S3 object.'
+    example: 'to_s3 "s3://my-bucket/obj.csv"'
+    path: 'reference/operators/to_s3'
+  - name: 'to_sqs'
+    description: 'Sends messages to an Amazon SQS queue.'
+    example: 'to_sqs "sqs://tenzir"'
+    path: 'reference/operators/to_sqs'
+  - name: 'to_tcp'
+    description: 'Sends bytes to a TCP or TLS connection.'
+    example: 'to_tcp "0.0.0.0:8090", tls=true'
+    path: 'reference/operators/to_tcp'
   - name: 'to_udp'
-    description: 'Sends one UDP datagram per input event.'
-    example: 'to_udp "127.0.0.1:514"'
+    description: 'Sends bytes to a UDP socket.'
+    example: 'to_udp "0.0.0.0:8090"'
     path: 'reference/operators/to_udp'
-  - name: 'save_zmq'
+  - name: 'to_zmq'
     description: 'Sends bytes as ZeroMQ messages.'
-    example: 'save_zmq'
-    path: 'reference/operators/save_zmq'
+    example: 'to_zmq'
+    path: 'reference/operators/to_zmq'
   - name: 'serve_http'
     description: 'Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.'
     example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
@@ -740,7 +732,7 @@ operators:
     example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
   - name: 'to'
-    description: 'Saves to an URI, inferring the destination, compression and format.'
+    description: 'Writes to a URI, inferring the destination, compression, and format.'
     example: 'to "output.json"'
     path: 'reference/operators/to'
   - name: 'to_amazon_security_lake'
@@ -1152,14 +1144,6 @@ yara "/path/to/rules"
 
 <CardGrid>
 
-<ReferenceCard title="compress" description="Compresses a stream of bytes." href="/reference/operators/compress">
-
-```tql
-compress "zstd"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="compress_brotli" description="Compresses a stream of bytes using Brotli compression." href="/reference/operators/compress_brotli">
 
 ```tql
@@ -1196,14 +1180,6 @@ compress_lz4, level=7
 
 ```tql
 compress_zstd, level=6
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="decompress" description="Decompresses a stream of bytes." href="/reference/operators/decompress">
-
-```tql
-decompress "gzip"
 ```
 
 </ReferenceCard>
@@ -2130,106 +2106,98 @@ write_zeek_tsv
 
 <CardGrid>
 
-<ReferenceCard title="load_amqp" description="Loads a byte stream via AMQP messages." href="/reference/operators/load_amqp">
+<ReferenceCard title="from_azure_blob_storage" description="Reads bytes from Azure Blob Storage." href="/reference/operators/from_azure_blob_storage">
 
 ```tql
-load_amqp
+from_azure_blob_storage "abfs://container/file"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_azure_blob_storage" description="Loads bytes from Azure Blob Storage." href="/reference/operators/load_azure_blob_storage">
+<ReferenceCard title="from_file" description="Reads the contents of the file at `path` as a byte stream." href="/reference/operators/from_file">
 
 ```tql
-load_azure_blob_storage "abfs://container/file"
+from_file "/tmp/data.json"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_file" description="Loads the contents of the file at `path` as a byte stream." href="/reference/operators/load_file">
+<ReferenceCard title="from_google_cloud_storage" description="Reads bytes from a Google Cloud Storage object." href="/reference/operators/from_google_cloud_storage">
 
 ```tql
-load_file "/tmp/data.json"
+from_google_cloud_storage "gs://bucket/object.json"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_gcs" description="Loads bytes from a Google Cloud Storage object." href="/reference/operators/load_gcs">
+<ReferenceCard title="from_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes." href="/reference/operators/from_google_cloud_pubsub">
 
 ```tql
-load_gcs "gs://bucket/object.json"
+from_google_cloud_pubsub project_id="my-project"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and obtains bytes." href="/reference/operators/load_google_cloud_pubsub">
+<ReferenceCard title="from_http" description="Reads a byte stream via HTTP." href="/reference/operators/from_http">
 
 ```tql
-load_google_cloud_pubsub project_id="my-project"
+from_http "example.org", params={n: 5}
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_http" description="Loads a byte stream via HTTP." href="/reference/operators/load_http">
+<ReferenceCard title="from_kafka" description="Reads events from an Apache Kafka topic." href="/reference/operators/from_kafka">
 
 ```tql
-load_http "example.org", params={n: 5}
+from_kafka topic="example"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_kafka" description="Loads a byte stream from an Apache Kafka topic." href="/reference/operators/load_kafka">
+<ReferenceCard title="from_nic" description="Reads packets from a network interface card (NIC)." href="/reference/operators/from_nic">
 
 ```tql
-load_kafka topic="example"
+from_nic "eth0"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_nic" description="Loads bytes from a network interface card (NIC)." href="/reference/operators/load_nic">
+<ReferenceCard title="from_s3" description="Reads from an Amazon S3 object." href="/reference/operators/from_s3">
 
 ```tql
-load_nic "eth0"
+from_s3 "s3://my-bucket/obj.csv"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_s3" description="Loads from an Amazon S3 object." href="/reference/operators/load_s3">
+<ReferenceCard title="from_stdin" description="Accepts bytes from standard input." href="/reference/operators/from_stdin">
 
 ```tql
-load_s3 "s3://my-bucket/obj.csv"
+from_stdin
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_sqs" description="Loads bytes from Amazon SQS queues." href="/reference/operators/load_sqs">
+<ReferenceCard title="accept_tcp" description="Accepts bytes from a TCP or TLS connection." href="/reference/operators/accept_tcp">
 
 ```tql
-load_sqs "sqs://tenzir"
+accept_tcp "0.0.0.0:8090" { read_json }
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_stdin" description="Accepts bytes from standard input." href="/reference/operators/load_stdin">
+<ReferenceCard title="accept_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/accept_udp">
 
 ```tql
-load_stdin
+accept_udp "0.0.0.0:8090"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="load_tcp" description="Loads bytes from a TCP or TLS connection." href="/reference/operators/load_tcp">
+<ReferenceCard title="from_zmq" description="Receives ZeroMQ messages." href="/reference/operators/from_zmq">
 
 ```tql
-load_tcp "0.0.0.0:8090" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="load_zmq" description="Receives ZeroMQ messages." href="/reference/operators/load_zmq">
-
-```tql
-load_zmq
+from_zmq
 ```
 
 </ReferenceCard>
@@ -2263,10 +2231,10 @@ accept_tcp "0.0.0.0:8090" { read_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="from" description="Obtains events from an URI, inferring the source, compression and format." href="/reference/operators/from">
+<ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
 
 ```tql
-from "data.json"
+from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"
 ```
 
 </ReferenceCard>
@@ -2389,6 +2357,14 @@ from_nic "eth0"
 
 ```tql
 from_s3 "s3://my-bucket/data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_sqs">
+
+```tql
+from_sqs "sqs://tenzir", poll_time=5s
 ```
 
 </ReferenceCard>
@@ -2526,98 +2502,98 @@ schemas
 
 <CardGrid>
 
-<ReferenceCard title="save_amqp" description="Saves a byte stream via AMQP messages." href="/reference/operators/save_amqp">
+<ReferenceCard title="to_amqp" description="Sends messages to an AMQP exchange." href="/reference/operators/to_amqp">
 
 ```tql
-save_amqp
+to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_azure_blob_storage" description="Saves bytes to Azure Blob Storage." href="/reference/operators/save_azure_blob_storage">
+<ReferenceCard title="to_azure_blob_storage" description="Writes bytes to Azure Blob Storage." href="/reference/operators/to_azure_blob_storage">
 
 ```tql
-save_azure_blob_storage "abfs://container/file"
+to_azure_blob_storage "abfs://container/file"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_email" description="Saves bytes through an SMTP server." href="/reference/operators/save_email">
+<ReferenceCard title="to_file" description="Writes a byte stream to a file." href="/reference/operators/to_file">
 
 ```tql
-save_email "user@example.org"
+to_file "/tmp/out.json"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_file" description="Writes a byte stream to a file." href="/reference/operators/save_file">
+<ReferenceCard title="to_google_cloud_storage" description="Writes bytes to a Google Cloud Storage object." href="/reference/operators/to_google_cloud_storage">
 
 ```tql
-save_file "/tmp/out.json"
+to_google_cloud_storage "gs://bucket/object.json"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_gcs" description="Saves bytes to a Google Cloud Storage object." href="/reference/operators/save_gcs">
+<ReferenceCard title="to_google_cloud_pubsub" description="Publishes to a Google Cloud Pub/Sub topic." href="/reference/operators/to_google_cloud_pubsub">
 
 ```tql
-save_gcs "gs://bucket/object.json"
+to_google_cloud_pubsub project_id="my-project"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_google_cloud_pubsub" description="Publishes to a Google Cloud Pub/Sub topic." href="/reference/operators/save_google_cloud_pubsub">
+<ReferenceCard title="to_http" description="Sends a byte stream via HTTP." href="/reference/operators/to_http">
 
 ```tql
-save_google_cloud_pubsub project_id="my-project"
+to_http "example.org/api"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_http" description="Sends a byte stream via HTTP." href="/reference/operators/save_http">
+<ReferenceCard title="to_kafka" description="Sends events to an Apache Kafka topic." href="/reference/operators/to_kafka">
 
 ```tql
-save_http "example.org/api"
+to_kafka topic="example"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_kafka" description="Saves a byte stream to a Apache Kafka topic." href="/reference/operators/save_kafka">
+<ReferenceCard title="to_s3" description="Writes bytes to an Amazon S3 object." href="/reference/operators/to_s3">
 
 ```tql
-save_kafka topic="example"
+to_s3 "s3://my-bucket/obj.csv"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_s3" description="Saves bytes to an Amazon S3 object." href="/reference/operators/save_s3">
+<ReferenceCard title="to_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_sqs">
 
 ```tql
-save_s3 "s3://my-bucket/obj.csv"
+to_sqs "sqs://tenzir"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_sqs" description="Saves bytes to Amazon SQS queues." href="/reference/operators/save_sqs">
+<ReferenceCard title="to_tcp" description="Sends bytes to a TCP or TLS connection." href="/reference/operators/to_tcp">
 
 ```tql
-save_sqs "sqs://tenzir"
+to_tcp "0.0.0.0:8090", tls=true
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_tcp" description="Saves bytes to a TCP or TLS connection." href="/reference/operators/save_tcp">
+<ReferenceCard title="to_udp" description="Sends bytes to a UDP socket." href="/reference/operators/to_udp">
 
 ```tql
-save_tcp "0.0.0.0:8090", tls=true
+to_udp "0.0.0.0:8090"
 ```
 
 </ReferenceCard>
 
-<ReferenceCard title="save_zmq" description="Sends bytes as ZeroMQ messages." href="/reference/operators/save_zmq">
+<ReferenceCard title="to_zmq" description="Sends bytes as ZeroMQ messages." href="/reference/operators/to_zmq">
 
 ```tql
-save_zmq
+to_zmq
 ```
 
 </ReferenceCard>
@@ -2639,22 +2615,6 @@ serve_http "0.0.0.0:8080" { write_ndjson }
 
 ```tql
 serve_tcp "0.0.0.0:8090" { write_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to" description="Saves to an URI, inferring the destination, compression and format." href="/reference/operators/to">
-
-```tql
-to "output.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
-
-```tql
-to_udp "127.0.0.1:514"
 ```
 
 </ReferenceCard>

@@ -58,36 +58,41 @@ this = data.parse_syslog()
 ### Parse log entries separated by timestamps
 
 ```tql
-load_file "application.log"
-read_delimited_regex "(?=\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})"
+from_file "application.log" {
+  read_delimited_regex "(?=\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})"
+}
 ```
 
 ### Split on multiple possible delimiters
 
 ```tql
-load_file "mixed_delimiters.txt"
-read_delimited_regex "[;|]"
+from_file "mixed_delimiters.txt" {
+  read_delimited_regex "[;|]"
+}
 ```
 
 ### Include the separator in the output
 
 ```tql
-load_file "data.txt"
-read_delimited_regex "\\|\\|", include_separator=true
+from_file "data.txt" {
+  read_delimited_regex "\\|\\|", include_separator=true
+}
 ```
 
 ### Parse binary data with blob patterns
 
 ```tql
-load_file "binary.dat"
-read_delimited_regex b"\\x00\\x01"
+from_file "binary.dat" {
+  read_delimited_regex b"\\x00\\x01"
+}
 ```
 
 ### Use blob pattern with include_separator for binary delimiters
 
 ```tql
-load_file "protocol.dat"
-read_delimited_regex b"\\xFF\\xFE", include_separator=true
+from_file "protocol.dat" {
+  read_delimited_regex b"\\xFF\\xFE", include_separator=true
+}
 ```
 
 ## See Also

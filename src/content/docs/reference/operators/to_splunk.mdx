@@ -150,8 +150,9 @@ Defaults to `true`.
 ### Send a JSON file to a HEC endpoint
 
 ```tql
-load_file "example.json"
-read_json
+from_file "example.json" {
+  read_json
+}
 to_splunk "https://localhost:8088", hec_token=secret("splunk-hec-token")
 ```
 

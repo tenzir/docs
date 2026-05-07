@@ -3,6 +3,7 @@ title: Fetch via HTTP and APIs
 ---
 
 This guide shows you how to fetch data from HTTP APIs using the
+
 <Op>from_http</Op> and
 <Op>http</Op> operators. You'll learn to make GET
 requests, handle authentication, and implement pagination for large result sets.
@@ -42,7 +43,7 @@ HTTP response body using multiple methods:
 
 1. **URL-based inference**: The operators first check the URL's file extension
    to infer both the format (JSON, CSV, Parquet, etc.) and compression type
-   (gzip, zstd, etc.). This works just like the generic `from` operator.
+   (gzip, zstd, etc.).
 
 2. **Header-based inference**: If the format cannot be determined from the URL,
    the operators fall back to using the HTTP `Content-Type` and
@@ -146,6 +147,7 @@ from_http "https://api.example.com/data", headers={
 ```
 
 Headers help you authenticate with APIs and specify request formats. Use the
+
 <Fn>secret</Fn> function to retrieve sensitive
 API tokens, as in the above example.
 
@@ -268,6 +270,7 @@ http url, paginate="link"
 Some APIs return an OData collection envelope with records in a top-level
 `value` array and the next page URL in `@odata.nextLink`. Microsoft Graph uses
 this pagination shape for many collection endpoints. Use `paginate="odata"` with
+
 <Op>from_http</Op> to unpack the envelope and follow the next link
 automatically:
 
@@ -356,6 +359,7 @@ from_http "https://api.example.com/health" {
 ```
 
 The above example parses the `Date` header from the HTTP response via
+
 <Fn>parse_time</Fn> into a timestamp and then
 compares it to the current wallclock time using the
 <Fn>now</Fn> function.

@@ -145,8 +145,9 @@ newlines.
 ### Read in the `auth.log`
 
 ```tql title="Pipeline"
-load_file "/var/log/auth.log"
-read_syslog
+from_file "/var/log/auth.log" {
+  read_syslog
+}
 ```
 
 ```tql
@@ -259,8 +260,9 @@ read_syslog
 Use `raw_message` to keep the unparsed syslog line alongside the parsed fields:
 
 ```tql title="Pipeline"
-load_file "/var/log/auth.log"
-read_syslog raw_message=raw
+from_file "/var/log/auth.log" {
+  read_syslog raw_message=raw
+}
 ```
 
 ```tql

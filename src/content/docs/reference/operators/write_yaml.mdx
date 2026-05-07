@@ -19,10 +19,12 @@ Transforms the input event stream to YAML byte stream.
 ### Convert a JSON file into a YAML file
 
 ```tql
-load_file "input.json"
-read_json
-write_yaml
-save_file "output.yaml"
+from_file "input.json" {
+  read_json
+}
+to_file "output.yaml" {
+  write_yaml
+}
 ```
 
 ## See Also

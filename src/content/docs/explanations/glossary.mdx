@@ -47,12 +47,10 @@ offers a transactional interface for adding and removing partitions.
 
 ## Connector
 
-Manages chunks of raw bytes by interacting with a resource.
+Connects a pipeline to an external resource.
 
-A connector is either a _loader_ that acquires bytes from a resource, or a
-_saver_ that sends bytes to a resource. Loaders are implemented as ordinary
-[operators](/reference/operators) prefixed with `load_*` while savers are
-prefixed with `save_*`.
+A connector is usually exposed as a source operator that reads from a resource,
+or as a sink operator that writes to a resource.
 
 ## Context
 
@@ -67,6 +65,7 @@ pipelines.
 ## Destination
 
 An pipeline ending with an [output](#output) operator preceded by a
+
 <Op>subscribe</Op> input operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
@@ -77,6 +76,7 @@ The indexed storage that pipelines can use at the [node](#node). Every node has
 a light-weight storage engine for importing and exporting events. You must mount
 the storage into the node such that it can be used from [pipelines](#pipeline)
 using the <Op>import</Op> and
+
 <Op>export</Op> [operators](#operator). The storage
 cengine comes with a [catalog](#catalog) that tracks [partitions](#partition)
 and keeps sparse [indexes](#index) to accelerate historical queries.
@@ -146,14 +146,12 @@ A collection of [packages](#package).
 Our community library is [freely available at
 GitHub](https://github.com/tenzir/library).
 
-## Loader
+## Source
 
-A connector that acquires bytes.
+An operator that reads from an external resource.
 
-A loader is the dual to a [saver](#saver). It has a no input and only performs a
-side effect that acquires bytes. Use a loader implicitly with the
-<Op>from</Op> operator or explicitly with the `load_*`
-operators.
+A source is the dual to a [sink](#sink). It has no input and emits events or
+bytes into the pipeline.
 
 - Learn more about [pipelines](/explanations/pipeline)
 
@@ -219,8 +217,7 @@ A collection of [pipelines](#pipeline) and [contexts](#context).
 
 A bytes-to-events operator.
 
-A parser is the dual to a [printer](#printer). You use a parser implicitly in
-the <Op>from</Op> operator, or via the `read_*`
+A parser is the dual to a [printer](#printer). You use parsers via the `read_*`
 operators. There exist also [functions](#function) for applying parsers to
 string values.
 
@@ -256,21 +253,19 @@ An events-to-bytes operator.
 
 A [format](#format) that translates events into bytes.
 
-A printer is the dual to a [parser](#parser). Use a parser implicitly in the
-<Op>to</Op> operator.
+A printer is the dual to a [parser](#parser). Use printers via the `write_*`
+operators or as printing subpipelines in output operators.
 
 - Learn more about [pipelines](/explanations/pipeline)
 - See available [operators for printing](/reference/operators#printing)
 - See available [functions for printing](/reference/functions#printing)
 
-## Saver
+## Sink
 
-A [connector](#connector) that emits bytes.
+An operator that writes to an external resource.
 
-A saver is the dual to a [loader](#loader). It has a no output and only performs
-a side effect that emits bytes. Use a saver implicitly with the
-<Op>to</Op> operator or explicitly with the `save_*`
-operators.
+A sink is the dual to a [source](#source). It consumes events or bytes from the
+pipeline and has no output.
 
 - Learn more about [pipelines](/explanations/pipeline)
 
@@ -284,6 +279,7 @@ A top-level record type of an event.
 ## Source
 
 An pipeline starting with an [input](#input) operator followed by a
+
 <Op>publish</Op> output operator.
 
 - Learn more about [pipelines](/explanations/pipeline)

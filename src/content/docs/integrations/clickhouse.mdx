@@ -13,6 +13,7 @@ Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
 protocol using the official
 [clickhouse-cpp](https://github.com/ClickHouse/clickhouse-cpp) library. Tenzir
 communicates with ClickHouse via the host and port you specify in the
+
 <Op>to_clickhouse</Op> operator. This means:
 
 - **Network**: Tenzir and ClickHouse can run on the same machine (using
@@ -85,6 +86,7 @@ Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
 pipelines).
 
 You can find out more about how to configure TLS on the
+
 <Op>to_clickhouse</Op> documentation and the
 [Clickhouse SSL-TLS configuration
 guide](https://clickhouse.com/docs/guides/sre/configuring-ssl)
@@ -95,7 +97,7 @@ Tenzir can automatically create tables in ClickHouse based on the incoming data
 schema. For example, to ingest OCSF network activity data:
 
 ```tql
-from "ocsf_network_activity.json"
+from_file "ocsf_network_activity.json"
 ocsf::cast encode_variants=true, null_fill=true
 to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time, tls=false
 ```

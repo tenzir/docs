@@ -74,8 +74,9 @@ from_nic "en1", filter="tcp port 443"
 
 ```tql
 from_nic "en1"
-write_pcap
-save_file "trace.pcap"
+to_file "trace.pcap" {
+  write_pcap
+}
 ```
 
 ## See Also

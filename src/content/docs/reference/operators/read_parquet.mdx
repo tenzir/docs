@@ -20,8 +20,8 @@ tools support.
 [parquet]: https://parquet.apache.org/
 
 :::tip[MMAP Parsing]
-When using theis with the <Op>load_file</Op> operator, we
-recommend passing the `mmap=true` option to `load_file` to give the parser full control
+When using theis with the <Op>from_file</Op> operator, we
+recommend passing the `mmap=true` option to `from_file` to give the parser full control
 over the reads, which leads to better performance and memory usage.
 :::
 
@@ -35,8 +35,9 @@ Tenzir. We plan to lift this restriction in the future.
 Read a Parquet file:
 
 ```tql
-load_file "/tmp/data.prq", mmap=true
-read_parquet
+from_file "/tmp/data.prq", mmap=true {
+  read_parquet
+}
 ```
 
 ## See Also

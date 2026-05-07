@@ -9,6 +9,7 @@ export const guides = [
     "Get Started",
     [
       "guides/quickstart",
+      "guides/tenzir-v6-migration",
       {
         label: "Installation",
         collapsed: true,
@@ -378,7 +379,6 @@ export const integrations = [
   section(
     "Protocols",
     [
-      "integrations/email",
       "integrations/file",
       "integrations/ftp",
       "integrations/http",

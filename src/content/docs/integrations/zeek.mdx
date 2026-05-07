@@ -96,7 +96,7 @@ else
   exit 1
 fi
 
-pipeline="load_file \"$file_name\" | $read | import"
+pipeline="from_file \"$file_name\" | $read | import"
 
 tenzir "$pipeline"
 ```
@@ -126,14 +126,14 @@ tenzir:
 This allows you run Zeek on a packet trace as follows:
 
 ```bash
-tenzir 'load_file "/path/to/trace.pcap" | zeek'
+tenzir 'from_file "/path/to/trace.pcap" | zeek'
 ```
 
 You can also perform more elaborate packet filtering after light-weight
 [decapsulation](/reference/functions/decapsulate):
 
 ```bash
-tenzir 'load_file "/path/to/trace.pcap"
+tenzir 'from_file "/path/to/trace.pcap"
         read_pcap
         this = decapsulate(this)
         where ip.src in 10.0.0.0/8 || community == "1:YXWfTYEyYLKVv5Ge4WqijUnKTrM="
@@ -151,6 +151,7 @@ zeek-cut id.orig_h id.resp_h < conn.log
 ```
 
 The list of arguments to `zeek-cut` are the column names of the log. The
+
 <Op>select</Op> operator performs the equivalent in
 Tenzir after we parse the logs as Zeek TSV:
 
@@ -168,6 +169,7 @@ cat *.log | tenzir 'read_zeek_tsv | select id.orig_h id.resp_h'
 ### Generate Zeek TSV from arbitrary data
 
 You can render any data as Zeek TSV log using
+
 <Op>write_zeek_tsv</Op>:
 
 For example, this is how you create a filtered version of a Zeek conn.log:
@@ -176,6 +178,7 @@ For example, this is how you create a filtered version of a Zeek conn.log:
 subscribe "zeek"
 where @name == "zeek.conn"
 where duration > 2s and id.orig_p != 80
-write_zeek_tsv
-save_file "filtered_conn.log"
+to_file "filtered_conn.log" {
+  write_zeek_tsv
+}
 ```

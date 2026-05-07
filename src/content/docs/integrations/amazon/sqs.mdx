@@ -2,7 +2,7 @@
 title: SQS
 ---
 
-[Amazon Simple Queuing Service (SQS)](https://aws.amazon.com/sqs/) is a managed
+[Amazon Simple Queue Service (SQS)](https://aws.amazon.com/sqs/) is a managed
 message queue on AWS. It supports microservices, distributed systems, and
 serverless applications.
 
@@ -11,25 +11,18 @@ SQS queues.
 
 ![SQS](sqs.svg)
 
-When reading from SQS queues, you cannot specify individual messages. Instead,
-you determine the maximum number of messages you wish to retrieve, up to a limit
-of 10.
+When reading from SQS queues, Tenzir receives one SQS message at a time and
+emits the message body in the `message` field, together with SQS metadata such
+as the message ID and receive count.
 
-If the parameter `poll_interval` is non-zero, the pipeline automatically
-performs [long
-polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html).
-This means that you may receive messages in bursts, according to your specified
-poll interval.
+The `poll_time` parameter configures [long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html).
+This reduces empty responses when there are no messages available.
 
 Tenzir pipelines that read from an SQS queue automatically send a deletion
-request after having received the messages.
+request after receiving messages.
 
 :::tip[URL Support]
-The URL scheme `sqs://` dispatches to
-<Op>load_sqs</Op> and
-<Op>save_sqs</Op> for seamless URL-style use via
-<Op>from</Op> and
-<Op>to</Op>.
+Use `from_sqs` and `to_sqs` directly with `sqs://` URLs.
 :::
 
 ## Configuration
@@ -40,16 +33,15 @@ AWS credentials.
 Alternatively, use the `aws_iam` parameter to provide explicit credentials:
 
 ```tql
-load_sqs "my-queue", aws_iam={
+from_sqs "my-queue", aws_iam={
   region: "us-east-1",
   access_key_id: secret("aws-key"),
   secret_access_key: secret("aws-secret")
 }
 ```
 
-See the <Op>load_sqs</Op> and
-<Op>save_sqs</Op> operator documentation for all
-available options, including IAM role assumption.
+See the `from_sqs` and `to_sqs` operator documentation for all available
+options, including IAM role assumption.
 
 ## Examples
 
@@ -57,17 +49,14 @@ available options, including IAM role assumption.
 
 ```tql
 from {foo: 42}
-to "sqs://my-queue" {
-  write_json
-}
+to_sqs "sqs://my-queue"
 ```
 
 ### Receive messages from an SQS queue
 
 ```tql
-from "sqs://my-queue", poll_interval=5s {
-  read_json
-}
+from_sqs "sqs://my-queue", poll_time=5s
+this = message.parse_json()
 ```
 
 ```tql

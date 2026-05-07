@@ -39,7 +39,7 @@ TQL offers two ways to chain statements: a newline `\n` (vertical) or pipe `|`
 ```tql
 let $ports = [22, 443]
 
-from "/tmp/logs.json"
+from_file "/tmp/logs.json"
 where port in $ports
 select src_ip, dst_ip, bytes
 summarize src_ip, total=sum(bytes)
@@ -57,7 +57,7 @@ Benefits of vertical structure:
 ✅ Appropriate for one-liners:
 
 ```tql
-tenzir 'from "logs.json" | where severity == "high" | summarize count()'
+tenzir 'from_file "logs.json" | where severity == "high" | summarize count()'
 ```
 
 The horizontal approach is ideal for:
@@ -74,7 +74,7 @@ The horizontal approach is ideal for:
 ```tql
 let $ports = [22, 443]
 
-from "/tmp/logs.json"
+from_file "/tmp/logs.json"
 | where port in $ports
 | select src_ip, dst_ip, bytes
 | summarize src_ip, total=sum(bytes)
@@ -405,7 +405,7 @@ Don't confuse the <Op>replace</Op> operator with the <Fn>replace</Fn> function:
 
 - **Operator**: Replaces entire values across all fields in events (e.g., replace all `"-"` with `null`)
 - **Function**: Replaces substrings within a string (e.g., `"hello".replace("l", "r")` → `"herro"`)
-:::
+  :::
 
 ### Use meaningful names for computed fields
 
@@ -491,7 +491,7 @@ that `* 1s` converts a number to a duration, which is less intuitive.
 ✅ Filter first, reduce data volume:
 
 ```tql
-from "large_dataset.json"
+from_file "large_dataset.json"
 where severity == "critical"     // Reduce early
 where timestamp > now() - 1h     // Further reduction
 select relevant_fields           // Drop unnecessary data
@@ -501,7 +501,7 @@ summarize ...                    // Aggregate reduced dataset
 ❌ Process everything, then filter:
 
 ```tql
-from "large_dataset.json"
+from_file "large_dataset.json"
 select all_fields
 summarize ...
 where result > threshold        // Filter after expensive operation

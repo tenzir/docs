@@ -29,18 +29,23 @@ A number representing the encoder window bits.
 
 ```tql
 export
-write_ndjson
-compress_brotli
-save_file "/tmp/backup.json.bt"
+to_file "/tmp/backup.json.bt" {
+  write_ndjson
+  compress_brotli
+}
 ```
 
-### Recompress a Brotli-compressed file at a different compression level
+### Read and write Brotli-compressed NDJSON
 
 ```tql
-load_file "in.brotli"
-decompress_brotli
-compress_brotli level=18
-save_file "out.brotli"
+from_file "in.brotli" {
+  decompress_brotli
+  read_ndjson
+}
+to_file "out.brotli" {
+  write_ndjson
+  compress_brotli level=18
+}
 ```
 
 ## See Also
