@@ -1,7 +1,7 @@
 ---
 title: group
 category: Analyze
-example: 'group collector { to_tcp $group { write_ndjson } }'
+example: 'group collector { write_ndjson save_tcp $group }'
 ---
 
 Runs a subpipeline for each group key in an event stream.
@@ -48,13 +48,12 @@ The subpipeline must not produce bytes as output.
 ### Open one TCP stream per group
 
 Send events to the TCP endpoint stored in `collector`. Each collector value
-gets one long-lived <Op>to_tcp</Op> subpipeline:
+gets one long-lived <Op>save_tcp</Op> subpipeline:
 
 ```tql
 group collector {
-  to_tcp $group {
-    write_ndjson
-  }
+  write_ndjson
+  save_tcp $group
 }
 ```
 
@@ -64,11 +63,9 @@ Build an endpoint from event fields and use the resulting string as a constant
 argument inside each subpipeline:
 
 ```tql
-endpoint = f"{collector_host}:5044"
-group endpoint {
-  to_tcp $group {
-    write_json
-  }
+group f"{collector_host}:5044" {
+  write_json
+  save_tcp $group
 }
 ```
 

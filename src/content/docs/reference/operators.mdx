@@ -509,7 +509,7 @@ operators:
     path: 'reference/operators/shell'
   - name: 'group'
     description: 'Runs a subpipeline for each group key.'
-    example: 'group collector { to_tcp $group { write_ndjson } }'
+    example: 'group collector { write_ndjson save_tcp $group }'
     path: 'reference/operators/group'
   - name: 'rare'
     description: 'Shows the least common values.'
@@ -829,7 +829,7 @@ Tenzir comes with a wide range of built-in pipeline operators.
 <ReferenceCard title="group" description="Runs a subpipeline for each group key." href="/reference/operators/group">
 
 ```tql
-group collector { to_tcp $group { write_ndjson } }
+group collector { write_ndjson save_tcp $group }
 ```
 
 </ReferenceCard>
