@@ -6,14 +6,14 @@ This guide shows you how to parse text streams into structured events. You'll
 learn to split byte streams on newlines or custom delimiters, and parse
 line-based formats like JSON lines, CSV, TSV, key-value pairs, Syslog, and CEF.
 
-The examples use <Op>from_file</Op> with a
-[parsing subpipeline](/reference/programs#parsing-subpipelines) to illustrate
-each technique.
+The examples use <Op>from_file</Op> with a [parsing
+subpipeline](/reference/programs#parsing-subpipelines) to illustrate each
+technique.
 
 ## Split on newlines
 
-Use <Op>read_lines</Op> to split a byte stream on
-newline characters. Given this input file:
+Use <Op>read_lines</Op> to split a byte stream on newline characters. Given this
+input file:
 
 ```txt title="app.log"
 2024-01-15 10:30:45 INFO Application started
@@ -43,8 +43,8 @@ accept_tcp "0.0.0.0:9000" {
 
 ## Split on custom delimiters
 
-Use <Op>read_delimited</Op> when records use
-separators other than newlines. Given this input file:
+Use <Op>read_delimited</Op> when records use separators other than newlines.
+Given this input file:
 
 ```txt title="records.dat"
 first record|||second record|||third record
@@ -117,8 +117,8 @@ from_file "windows_events.xml" {
 this = data.parse_winlog()
 ```
 
-See <Integration>microsoft/windows-event-logs</Integration> for a
-complete example.
+See <Integration>microsoft/windows-event-logs</Integration> for a complete
+example.
 
 ## Line-based structured formats
 
@@ -134,8 +134,8 @@ Given this input file with dotted keys:
 {"ts": "2024-01-15T10:30:46Z", "id.orig_h": "192.168.1.101", "id.orig_p": 52312, "id.resp_h": "93.184.216.34", "id.resp_p": 80}
 ```
 
-Use <Op>read_ndjson</Op> with `unflatten_separator`
-to convert dotted keys into nested records:
+Use <Op>read_ndjson</Op> with `unflatten_separator` to convert dotted keys into
+nested records:
 
 ```tql
 from_file "conn.jsonl" {
@@ -148,8 +148,7 @@ from_file "conn.jsonl" {
 {ts: 2024-01-15T10:30:46Z, id: {orig_h: 192.168.1.101, orig_p: 52312, resp_h: 93.184.216.34, resp_p: 80}}
 ```
 
-For regular JSON arrays or objects, use <Op>read_json</Op>
-instead.
+For regular JSON arrays or objects, use <Op>read_json</Op> instead.
 
 ### CSV / TSV / SSV / XSV
 
@@ -162,8 +161,7 @@ id,name,email,role
 3,carol,carol@example.com,user
 ```
 
-Use <Op>read_csv</Op> to parse the file with automatic
-header detection:
+Use <Op>read_csv</Op> to parse the file with automatic header detection:
 
 ```tql
 from_file "users.csv" {
@@ -177,11 +175,8 @@ from_file "users.csv" {
 {id: 3, name: "carol", email: "carol@example.com", role: "user"}
 ```
 
-For tab-separated or space-separated data, use
-
-<Op>read_tsv</Op> or
-<Op>read_ssv</Op>. For custom delimiters, use
-<Op>read_xsv</Op>.
+For tab-separated or space-separated data, use <Op>read_tsv</Op>
+or <Op>read_ssv</Op>. For custom delimiters, use <Op>read_xsv</Op>.
 
 ### Key-value pairs (KV)
 
@@ -193,8 +188,7 @@ name=bob age=25
 name=carol age=35
 ```
 
-Use <Op>read_kv</Op> to parse each line as key-value
-pairs:
+Use <Op>read_kv</Op> to parse each line as key-value pairs:
 
 ```tql
 from_file "records.txt" {

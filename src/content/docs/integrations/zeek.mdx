@@ -102,8 +102,8 @@ tenzir "$pipeline"
 ```
 
 Our blog post [Native Zeek Log Rotation &
-Shipping](https://tenzir.com/blog/native-zeek-log-rotation-and-shipping) provides further details
-on this method.
+Shipping](https://tenzir.com/blog/native-zeek-log-rotation-and-shipping)
+provides further details on this method.
 
 ### Run Zeek on a packet pipeline
 
@@ -150,10 +150,9 @@ tab-separated logs. For example, to extract the host pairs from a conn log:
 zeek-cut id.orig_h id.resp_h < conn.log
 ```
 
-The list of arguments to `zeek-cut` are the column names of the log. The
-
-<Op>select</Op> operator performs the equivalent in
-Tenzir after we parse the logs as Zeek TSV:
+The list of arguments to `zeek-cut` are the column names of the log.
+The <Op>select</Op> operator performs the equivalent in Tenzir after we parse the
+logs as Zeek TSV:
 
 ```bash
 tenzir 'read_zeek_tsv | select id.orig_h id.resp_h' < conn.log
@@ -168,9 +167,7 @@ cat *.log | tenzir 'read_zeek_tsv | select id.orig_h id.resp_h'
 
 ### Generate Zeek TSV from arbitrary data
 
-You can render any data as Zeek TSV log using
-
-<Op>write_zeek_tsv</Op>:
+You can render any data as Zeek TSV log using <Op>write_zeek_tsv</Op>:
 
 For example, this is how you create a filtered version of a Zeek conn.log:
 

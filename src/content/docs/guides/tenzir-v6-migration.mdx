@@ -16,8 +16,8 @@ window, but it is deprecated in v6 and will be removed after the window closes.
 :::caution[Temporary compatibility controls]
 The legacy engine is deprecated in Tenzir v6. Use `//neo:false` as the first
 line only to keep critical existing pipelines running while you migrate. If you
-need to migrate one pipeline at a time, set `neo: false` temporarily and add
-`// neo` to pipelines after you update them.
+need to migrate one pipeline at a time, set `neo: false` temporarily and add `//
+neo` to pipelines after you update them.
 :::
 
 ## Choose a migration mode
@@ -88,15 +88,13 @@ Use this checklist to plan the migration:
 
 ## New v6 execution patterns
 
-The most important migration change is the move away from old byte-stream
-source and sink operators toward event-oriented operators with explicit
-subpipelines.
+The most important migration change is the move away from old byte-stream source
+and sink operators toward event-oriented operators with explicit subpipelines.
 
 ### Message-based sources
 
-Message brokers now use event-based source operators. For example,
-
-<Op>from_kafka</Op> emits one event per Kafka message with the message payload
+Message brokers now use event-based source operators. For
+example, <Op>from_kafka</Op> emits one event per Kafka message with the message payload
 in the `message` field:
 
 ```tql
@@ -111,9 +109,8 @@ lose message boundaries before the parser saw the data.
 ### Parsing and printing subpipelines
 
 Operators that read or write bytes use subpipelines to keep transport and data
-format separate. Source operators such as <Op>from_http</Op> and
-
-<Op>from_file</Op> receive bytes and use a parsing subpipeline:
+format separate. Source operators such as <Op>from_http</Op>
+and <Op>from_file</Op> receive bytes and use a parsing subpipeline:
 
 ```tql
 from_http "https://example.com/events.json.gz" {

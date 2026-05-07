@@ -17,9 +17,9 @@ scale each process independently.
 
 ## OCSF Primer
 
-OCSF is a vendor-agnostic event schema (aka. "taxonomy") that defines
-structure and semantics for security events. Here are some key terms you need to
-know to map events:
+OCSF is a vendor-agnostic event schema (aka. "taxonomy") that defines structure
+and semantics for security events. Here are some key terms you need to know to
+map events:
 
 - **Attribute**: a unique identifier for a specific type, e.g., `parent_folder`
   of type `String` or `observables` of type `Observable Array`.
@@ -78,15 +78,14 @@ avoid dealing with tabs and spaces in the snippet above.
 ### Step 1: Parse the input
 
 We first parse the log file into a structured form so that we can work with the
-individual fields. The <Op>read_zeek_tsv</Op>
-operator parses the above structure out of the box:
+individual fields. The <Op>read_zeek_tsv</Op> operator parses the above
+structure out of the box:
 
 ```sh
 tenzir 'read_zeek_tsv' < conn.log
 ```
 
-<details>
-<summary>Output</summary>
+<details> <summary>Output</summary>
 
 ```tql
 {
@@ -278,9 +277,9 @@ Let's unpack this:
    to make the subsequent mappings almost self-explanatory.
 2. The main work takes place here. Our approach is structured: for every field
    in the source event, (1) map it, and (2) remove it. Ideally, use the `move`
-   keyword to perform (1) and (2) together, e.g., `ocsf.x = move source.y`. If
-   a field needs to be used multiple times in the same expression, use the
-   <Op>drop</Op> afterwards.
+   keyword to perform (1) and (2) together, e.g., `ocsf.x = move source.y`. If a
+   field needs to be used multiple times in the same expression, use
+   the <Op>drop</Op> afterwards.
 3. The assignment `this = {...ocsf, unmapped: zeek}` means that we move all
    fields from the `ocsf` record into the top-level record (`this`), and at the
    same time add a new field `unmapped` that contains everything that we didn't
@@ -288,8 +287,7 @@ Let's unpack this:
    perform the mapping. If you forget to map a field, it simply lands in the
    `unmapped` catch-all record and you can tweak your mapping later.
 4. We drop null fields from `unmapped` to keep the output clean.
-5. We keep the mapping terse by only mapping the `*_[u]id` field and relying on
-   <Op>ocsf::derive</Op> to auto-populate the corresponding sibling fields.
+5. We keep the mapping terse by only mapping the `*_[u]id` field and relying on <Op>ocsf::derive</Op> to auto-populate the corresponding sibling fields.
 6. We give the event a new schema name so that we can easily filter by its shape
    in further pipelines.
 
@@ -316,9 +314,8 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 ```
 
 Note that computing the field `type_uid` requires simple arithmetic. You can
-rely on <Op>ocsf::derive</Op> to populate sibling
-fields—an optimization to write more concise mappings. This would simplify the
-above snippet to:
+rely on <Op>ocsf::derive</Op> to populate sibling fields—an optimization to
+write more concise mappings. This would simplify the above snippet to:
 
 ```tql
 ocsf.activity_id = 6
@@ -469,15 +466,13 @@ somewhere. This tutorial focuses on the middle piece, with transformation being
 the mapping to OCSF.
 
 We've addressed data _onboarding_ by reading a log file and decomposing the
-unstructured Zeek TSV contents into a structured record. The built-in
-
-<Op>read_zeek_tsv</Op> operator made this
-trivial. But it often requires a lot more elbow grease to get there. Check out
-our extensive [guide on parsing string fields](/guides/parsing/parse-string-fields)
-for more details.
-We haven't yet addressed the other end of the pipeline: data _offboarding_. Our
-examples run `tenzir` on the command line, relying on an implicit output
-operator that writes the result of the last transformation to the terminal.
+unstructured Zeek TSV contents into a structured record. The
+built-in <Op>read_zeek_tsv</Op> operator made this trivial. But it often requires a lot
+more elbow grease to get there. Check out our extensive [guide on parsing string
+fields](/guides/parsing/parse-string-fields) for more details. We haven't yet
+addressed the other end of the pipeline: data _offboarding_. Our examples run
+`tenzir` on the command line, relying on an implicit output operator that writes
+the result of the last transformation to the terminal.
 
 In other words, we have a sandwich structure in our pipeline. To make it
 explicit:
@@ -637,14 +632,14 @@ Now there's a \*.txt file next to the test scenario. Verify it that it has the
 expected output. Alternatively, use `uvx tenzir-test --passthrough` to print the
 output to the terminal for inline inspection.
 
-<details>
-<summary>Generated *.txt test scenario baseline</summary>
+<details> <summary>Generated *.txt test scenario baseline</summary>
 
 <Code code={mapOneTxt} lang="tql" title="zeek/tests/map_one.txt" />
 
 </details>
 
-After running `uvx tenzir-test` again without any flags, you get the following output:
+After running `uvx tenzir-test` again without any flags, you get the following
+output:
 
 ```txt
 i executing project: zeek (.)
@@ -659,10 +654,9 @@ Perfect. Now proceed with all log types and you have production-grade package.
 ### Step 4: Install and use the package
 
 After you have fleshed out the complete package, [install
-it](/guides/packages/install-a-package), either interactively via
-
-<Op>package::add</Op>, or IaC-style by putting it
-into a git repo and pointing the config option `tenzir.package-dirs` to it.
+it](/guides/packages/install-a-package), either interactively
+via <Op>package::add</Op>, or IaC-style by putting it into a git repo and pointing
+the config option `tenzir.package-dirs` to it.
 
 :::tip[Tenzir Community Library]
 Wrote a package that anyone could benefit from? Contribute it to the [Tenzir
@@ -673,8 +667,8 @@ cases.
 
 ## Summary
 
-This tutorial showed you how to map security data to OCSF using TQL
-pipelines. You learned:
+This tutorial showed you how to map security data to OCSF using TQL pipelines.
+You learned:
 
 - How OCSF events look like in high-level terms
 - How to structure your mapping pipeline using OCSF attribute groups

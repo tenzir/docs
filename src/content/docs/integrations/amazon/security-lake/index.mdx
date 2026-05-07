@@ -4,18 +4,16 @@ title: Security Lake
 
 import { Steps } from "@astrojs/starlight/components";
 
-[Amazon Security Lake][asl] is a managed security data lake on AWS. It
-collects and stores security data in the Open Cybersecurity Schema Framework
-(OCSF) format.
+[Amazon Security Lake][asl] is a managed security data lake on AWS. It collects
+and stores security data in the Open Cybersecurity Schema Framework (OCSF)
+format.
 
 [asl]: https://aws.amazon.com/security-lake/
 
 ![Amazon security Lake](basic.svg)
 
-Tenzir sends events to Amazon Security Lake using the
-
-<Op>to_amazon_security_lake</Op>
-operator.
+Tenzir sends events to Amazon Security Lake using
+the <Op>to_amazon_security_lake</Op> operator.
 
 ## Configuration
 
@@ -23,24 +21,24 @@ operator.
 
 The current architectural pattern for Amazon Security Lake requires creating one
 custom source per OCSF event class. This design ensures clean data organization,
-with each custom source receiving its own dedicated directory under `/ext` in the
-S3 bucket. Since each Parquet file must contain records of only one OCSF event
-class, this one-to-one mapping between custom sources and event classes is the
-most practical approach. The partition path follows this structure:
+with each custom source receiving its own dedicated directory under `/ext` in
+the S3 bucket. Since each Parquet file must contain records of only one OCSF
+event class, this one-to-one mapping between custom sources and event classes is
+the most practical approach. The partition path follows this structure:
 
 ```
 /ext/{custom-source-name}/region={region}/accountId={accountID}/eventDay={YYYYMMDD}/
 ```
 
 This architecture naturally leads to deploying one Tenzir pipeline per custom
-source. The <Op>to_amazon_security_lake</Op>
-operator handles the partitioning according to this structure automatically.
+source. The <Op>to_amazon_security_lake</Op> operator handles the partitioning
+according to this structure automatically.
 
 ### Custom Source Setup
 
 :::caution[Limited Custom Sources]
-Amazon Security Lake supports a maximum of 50 custom sources, but there are
-over 70 [supported event
+Amazon Security Lake supports a maximum of 50 custom sources, but there are over
+70 [supported event
 classes](https://docs.aws.amazon.com/security-lake/latest/userguide/adding-custom-sources.html).
 You must choose which event classes to prioritize. Future versions may increase
 this limit.
@@ -51,7 +49,8 @@ To set up a custom source:
 <Steps>
 
 1. Provide a globally unique 20-character source name using the pattern
-   `tnz-ocsf-${class_uid}` (for example, `tnz-ocsf-1001` for File System Activity)
+   `tnz-ocsf-${class_uid}` (for example, `tnz-ocsf-1001` for File System
+   Activity)
 
 2. Select an OCSF event class (for example, "Network Activity" or "DNS Activity")
 
@@ -67,9 +66,9 @@ sources](https://docs.aws.amazon.com/security-lake/latest/userguide/adding-custo
 #### Automated Custom Source Creation
 
 For streamlined custom source creation, you can use Tenzir's
-[security-lake-tools](https://github.com/tenzir/security-lake-tools)
-to automate the setup process. The easiest way to use this tool is with
-`uvx` (from the `uv` Python package manager):
+[security-lake-tools](https://github.com/tenzir/security-lake-tools) to automate
+the setup process. The easiest way to use this tool is with `uvx` (from the `uv`
+Python package manager):
 
 ```bash
 # Create a custom source for Network Activity (class_uid 4001)
@@ -120,7 +119,8 @@ to_amazon_security_lake $url, region=$region, account_id=$account_id, timeout=10
 ```
 
 :::tip[Available package]
-Use the [`amazon-security-lake`](https://github.com/tenzir/library/tree/main/amazon-security-lake)
+Use the
+[`amazon-security-lake`](https://github.com/tenzir/library/tree/main/amazon-security-lake)
 package from the Tenzir Library, which includes pre-built pipelines for common
 event classes.
 :::

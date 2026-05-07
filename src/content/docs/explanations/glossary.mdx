@@ -24,7 +24,8 @@ This page defines central terms in the Tenzir ecosystem.
 If you are missing a term, please open a [GitHub Discussion][new-discussion] or
 ping us in our [Discord server](/discord).
 
-[new-discussion]: https://github.com/orgs/tenzir/discussions/new?category=questions-answers
+[new-discussion]:
+https://github.com/orgs/tenzir/discussions/new?category=questions-answers
 
 :::
 
@@ -64,9 +65,8 @@ pipelines.
 
 ## Destination
 
-An pipeline ending with an [output](#output) operator preceded by a
-
-<Op>subscribe</Op> input operator.
+An pipeline ending with an [output](#output) operator preceded by
+a <Op>subscribe</Op> input operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
 
@@ -75,11 +75,10 @@ An pipeline ending with an [output](#output) operator preceded by a
 The indexed storage that pipelines can use at the [node](#node). Every node has
 a light-weight storage engine for importing and exporting events. You must mount
 the storage into the node such that it can be used from [pipelines](#pipeline)
-using the <Op>import</Op> and
-
-<Op>export</Op> [operators](#operator). The storage
-cengine comes with a [catalog](#catalog) that tracks [partitions](#partition)
-and keeps sparse [indexes](#index) to accelerate historical queries.
+using the <Op>import</Op> and <Op>export</Op> [operators](#operator). The
+storage cengine comes with a [catalog](#catalog) that tracks
+[partitions](#partition) and keeps sparse [indexes](#index) to accelerate
+historical queries.
 
 - [Ingest data into the node's edge
   storage](/guides/edge-storage/import-into-a-node)
@@ -88,9 +87,9 @@ and keeps sparse [indexes](#index) to accelerate historical queries.
 ## Event
 
 A record of typed data. Think of events as JSON objects, but with a richer [type
-system](/reference/types) that also has timestamps, durations, IP
-addresses, and more. Events have fields and can contain numerous shapes that
-describe its types (= the [schema](#schema)).
+system](/reference/types) that also has timestamps, durations, IP addresses, and
+more. Events have fields and can contain numerous shapes that describe its types
+(= the [schema](#schema)).
 
 - Learn more about [pipelines](/explanations/pipeline)
 
@@ -118,7 +117,8 @@ work on streams of events, functions can only act on single values.
 Optional data structures for accelerating queries involving the node's [edge
 storage](#edge-storage).
 
-Tenzir featres in-memory _sparse_ indexes that point to [partitions](#partition).
+Tenzir featres in-memory _sparse_ indexes that point to
+[partitions](#partition).
 
 - [Configure the catalog](/guides/node-setup/tune-performance#configure-the-catalog)
 
@@ -185,8 +185,8 @@ contains packages that map data sources to OCSF.
 
 The building block of a [pipeline](#pipeline).
 
-An operator is an [input](#input), a [transformation](#transformation), or
-an [output](#output).
+An operator is an [input](#input), a [transformation](#transformation), or an
+[output](#output).
 
 - See all available [operators](/reference/operators)
 
@@ -278,9 +278,8 @@ A top-level record type of an event.
 
 ## Source
 
-An pipeline starting with an [input](#input) operator followed by a
-
-<Op>publish</Op> output operator.
+An pipeline starting with an [input](#input) operator followed by
+a <Op>publish</Op> output operator.
 
 - Learn more about [pipelines](/explanations/pipeline)
 

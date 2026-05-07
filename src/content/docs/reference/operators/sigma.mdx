@@ -17,20 +17,17 @@ its input. If a rule matches, the operator emits a `tenzir.sigma` event that
 wraps the input record into a new record along with the matching rule. The
 operator discards all events that do not match the provided rules.
 
-<details>
-<summary> Transpilation Process </summary>
+<details> <summary> Transpilation Process </summary>
 
 For each rule, the operator transpiles the YAML into an
-[expression](/reference/expressions) and instantiates a
-
-<Op>where</Op> operator, followed by assignments to
-generate an output. Here's how the transpilation works. The Sigma rule YAML
-format requires a `detection` attribute that includes a map of named
-sub-expression called _search identifiers_. In addition, `detection` must
-include a final `condition` that combines search identifiers using boolean
-algebra (AND, OR, and NOT) or syntactic sugar to reference groups of search
-expressions, e.g., using the `1/all of *` or plain wildcard syntax. Consider the
-following `detection` embedded in a rule:
+[expression](/reference/expressions) and instantiates a <Op>where</Op> operator,
+followed by assignments to generate an output. Here's how the transpilation
+works. The Sigma rule YAML format requires a `detection` attribute that includes
+a map of named sub-expression called _search identifiers_. In addition,
+`detection` must include a final `condition` that combines search identifiers
+using boolean algebra (AND, OR, and NOT) or syntactic sugar to reference groups
+of search expressions, e.g., using the `1/all of *` or plain wildcard syntax.
+Consider the following `detection` embedded in a rule:
 
 ```yaml
 detection:

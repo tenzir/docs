@@ -69,10 +69,9 @@ C:\Program Files\Winlogbeat> Start-Service winlogbeat
 
 #### Run a Tenzir pipeline
 
-Now consume the data via a Tenzir pipeline using the
-
-<Integration>elasticsearch</Integration>/<Integration>opensearch</Integration> integration
-that mimics a bulk ingest endpoint:
+Now consume the data via a Tenzir pipeline using
+the <Integration>elasticsearch</Integration>/<Integration>opensearch</Integration>
+integration that mimics a bulk ingest endpoint:
 
 ```tql
 from_opensearch "10.0.0.1:92000" \
@@ -115,8 +114,7 @@ Bit to monitor.
 
 #### Run a Tenzir pipeline
 
-Use the <Op>from_fluent_bit</Op> source
-operator with the [Forward
+Use the <Op>from_fluent_bit</Op> source operator with the [Forward
 input](https://docs.fluentbit.io/manual/pipeline/inputs/forward):
 
 ```tql
@@ -263,14 +261,14 @@ import
 Instead of deploying an agent on a Windows endpoint, you can also use native
 facilities to collect logs centrally.
 
-To this end, Windows comes with a **Windows Event Forwarding (WEF)** mechanism on
-the endpoints that uses standard _Windows Remote Management (WinRM)_ protocols
-to transmit events. The **Windows Event Collector (WEC)** is the service running
-on a server that receives the events sent by clients through WEF. The WEC
-aggregates these logs and makes them available for review and analysis.
-Administrators can create subscriptions on the WEC that define which events to
-collect from which clients, using criteria such as event IDs, keywords, or log
-levels.
+To this end, Windows comes with a **Windows Event Forwarding (WEF)** mechanism
+on the endpoints that uses standard _Windows Remote Management (WinRM)_
+protocols to transmit events. The **Windows Event Collector (WEC)** is the
+service running on a server that receives the events sent by clients through
+WEF. The WEC aggregates these logs and makes them available for review and
+analysis. Administrators can create subscriptions on the WEC that define which
+events to collect from which clients, using criteria such as event IDs,
+keywords, or log levels.
 
 The diagram below illustrates a typical setup:
 
@@ -381,7 +379,11 @@ Key elements are:
 - `LogFile`: Define the destination log file on the collector.
 - `AllowedSourceDomainComputers`: Adjust the [SDDL](https://learn.microsoft.com/en-gb/windows/win32/secauthz/security-descriptor-definition-language?redirectedfrom=MSDN) string to specify which computers can forward events.
 
-There are [several](https://github.com/palantir/windows-event-forwarding/tree/master/wef-subscriptions) [GitHub](https://github.com/nsacyber/Event-Forwarding-Guidance/tree/master/Subscriptions/samples) [repositories](https://github.com/mdecrevoisier/Windows-WEC-server_auto-deploy/tree/master/windows-subscriptions) out there with ideas for additional subscriptions.
+There are
+[several](https://github.com/palantir/windows-event-forwarding/tree/master/wef-subscriptions)
+[GitHub](https://github.com/nsacyber/Event-Forwarding-Guidance/tree/master/Subscriptions/samples)
+[repositories](https://github.com/mdecrevoisier/Windows-WEC-server_auto-deploy/tree/master/windows-subscriptions)
+out there with ideas for additional subscriptions.
 
 #### Activate the subscription
 
@@ -474,7 +476,8 @@ used to configure both Windows clients and the OpenWEC collector. Make sure to
 pay attention to specifying the correct hostnames for the sending and receiving
 machines.
 
-[nxlog-scripts]: https://gitlab.com/nxlog-public/contrib/-/tree/master/windows-event-forwarding
+[nxlog-scripts]:
+https://gitlab.com/nxlog-public/contrib/-/tree/master/windows-event-forwarding
 
 ```bash
 git clone https://gitlab.com/nxlog-public/contrib
@@ -584,9 +587,8 @@ spinning up a server that listens at `tcp://10.0.0.1:1514`.
 
 ### Run a Tenzir pipeline
 
-Accept the logs sent with the configuration above into Tenzir via
-
-<Integration>tcp</Integration>:
+Accept the logs sent with the configuration above into Tenzir
+via <Integration>tcp</Integration>:
 
 ```tql
 accept_tcp "10.0.0.1:1514" {
@@ -597,10 +599,9 @@ publish "wec"
 
 ## Parse Windows Event Log XML
 
-When receiving Windows Event Log data in its native XML format, use
-
-<Fn>parse_winlog</Fn> to convert the XML into
-structured records. This function is optimized for the [Windows XML Event Log
+When receiving Windows Event Log data in its native XML format,
+use <Fn>parse_winlog</Fn> to convert the XML into structured records. This function
+is optimized for the [Windows XML Event Log
 format](https://learn.microsoft.com/en-us/windows/win32/wes/eventschema-schema)
 and handles the `System`, `EventData`, `UserData`, and `RenderingInfo` sections.
 

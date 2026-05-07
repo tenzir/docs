@@ -2,44 +2,36 @@
 title: Read and watch files
 ---
 
-This guide shows you how to read files and monitor directories using the
-
-<Op>from_file</Op> operator. You'll learn to read
-individual files, batch process directories, and set up real-time file
-monitoring.
+This guide shows you how to read files and monitor directories using
+the <Op>from_file</Op> operator. You'll learn to read individual files, batch
+process directories, and set up real-time file monitoring.
 
 :::caution[Transitioning from legacy operators]
-We designed the <Op>from_file</Op> operator to
-replace the existing <Op>from_file</Op>,
-
-<Op>from_s3</Op>, and
-<Op>from_google_cloud_storage</Op> operators. While we still support
-these legacy operators, <Op>from_file</Op> provides a
-more unified and feature-rich approach to file ingestion.
+We designed the <Op>from_file</Op> operator to replace the
+existing <Op>from_file</Op>, <Op>from_s3</Op>, and <Op>from_google_cloud_storage</Op>
+operators. While we still support these legacy operators, <Op>from_file</Op>
+provides a more unified and feature-rich approach to file ingestion.
 
 We plan to add some advanced features from the legacy operators (such as file
-tailing, anonymous S3 access, and Unix domain socket support) in future
-releases of <Op>from_file</Op>.
+tailing, anonymous S3 access, and Unix domain socket support) in future releases
+of <Op>from_file</Op>.
 :::
 
 ## Basic file reading
 
-The <Op>from_file</Op> operator handles various file
-types and formats. Start with these fundamental patterns for reading individual
-files.
+The <Op>from_file</Op> operator handles various file types and formats. Start
+with these fundamental patterns for reading individual files.
 
 ### Single files
 
-To read a single file, specify the path to the
-
-<Op>from_file</Op> operator:
+To read a single file, specify the path to the <Op>from_file</Op> operator:
 
 ```tql
 from_file "/path/to/file.json"
 ```
 
-The operator automatically detects the file format from the file extension.
-This works for all supported formats including JSON, CSV, Parquet, and others.
+The operator automatically detects the file format from the file extension. This
+works for all supported formats including JSON, CSV, Parquet, and others.
 
 ### Compressed files
 
@@ -78,8 +70,7 @@ Use glob patterns to process multiple files at once:
 from_file "/path/to/directory/*.csv.zst"
 ```
 
-This example processes all Zstd-compressed CSV files in the specified
-directory.
+This example processes all Zstd-compressed CSV files in the specified directory.
 
 You can also use glob patterns to consume files regardless of their format:
 
@@ -164,8 +155,8 @@ from_file "/archive/*.csv.gz", remove=true
 
 ## Cloud storage integration
 
-Access files directly from cloud storage providers using their native URLs.
-The operator supports major cloud platforms transparently.
+Access files directly from cloud storage providers using their native URLs. The
+operator supports major cloud platforms transparently.
 
 ### Amazon S3
 
@@ -191,7 +182,8 @@ from_file "gs://bucket/path/to/file.csv"
 
 ### Azure Blob Storage
 
-Access <Integration>microsoft/azure-blob-storage</Integration> using `abfs://` URLs:
+Access <Integration>microsoft/azure-blob-storage</Integration> using `abfs://`
+URLs:
 
 ```tql
 from_file "abfs://container/path/to/file.csv"

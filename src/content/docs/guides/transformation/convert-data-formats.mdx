@@ -9,10 +9,8 @@ functions.
 
 ## Print to JSON
 
-JSON is the most common data exchange format. Use
-
-<Fn>print_json</Fn> to convert any data to JSON
-strings:
+JSON is the most common data exchange format. Use <Fn>print_json</Fn> to convert
+any data to JSON strings:
 
 ```tql
 from {
@@ -48,10 +46,8 @@ _bytes_ instead of events. As such, you need to pair it with an [output operator
 that accepts bytes](/reference/operators/#outputs).
 :::
 
-The <Fn>print_json</Fn> function has
-
-<Op>write_json</Op> as sibling operator to format
-the entire event stream as JSON:
+The <Fn>print_json</Fn> function has <Op>write_json</Op> as sibling operator to
+format the entire event stream as JSON:
 
 ```
 from {
@@ -183,10 +179,8 @@ Charlie,35,LA
 
 ## Print to TSV and SSV
 
-For tab-separated and space-separated values, use
-
-<Fn>print_tsv</Fn> and
-<Fn>print_ssv</Fn>:
+For tab-separated and space-separated values, use <Fn>print_tsv</Fn>
+and <Fn>print_ssv</Fn>:
 
 ```tql
 from {
@@ -222,10 +216,8 @@ record.id record.name record.status
 1 Alice Smith active
 ```
 
-Note the additional double quotes with
-
-<Op>write_ssv</Op> because space is overloaded as
-field separator.
+Note the additional double quotes with <Op>write_ssv</Op> because space is
+overloaded as field separator.
 
 ```tql
 from {
@@ -241,10 +233,9 @@ record.id record.name record.status
 
 ## Print to custom-separated values
 
-If none of the existing \*SV formats meet your needs, the
-
-<Fn>print_xsv</Fn> function to customize field
-separator, list separator, and what to render for absent values:
+If none of the existing \*SV formats meet your needs, the <Fn>print_xsv</Fn>
+function to customize field separator, list separator, and what to render for
+absent values:
 
 Use <Fn>print_xsv</Fn> for custom separators:
 
@@ -257,9 +248,7 @@ pipe_separated = item.print_xsv(field_separator=" ⏸︎ ",
                                 null_value="∅")
 ```
 
-And for the entire event stream via
-
-<Op>write_xsv</Op>:
+And for the entire event stream via <Op>write_xsv</Op>:
 
 ```tql
 {
@@ -284,9 +273,7 @@ A001 ⏸︎ Widget ⏸︎ 9.99 ⏸︎ 42 ⌘ 84 ⏸︎ ∅
 
 ## Print to YAML
 
-Convert data to YAML format with
-
-<Fn>print_yaml</Fn>:
+Convert data to YAML format with <Fn>print_yaml</Fn>:
 
 ```tql
 from {
@@ -309,9 +296,8 @@ yaml = config.print_yaml()
 }
 ```
 
-Turn the entire event stream into a YAML document stream via
-
-<Op>write_yaml</Op>:
+Turn the entire event stream into a YAML document stream
+via <Op>write_yaml</Op>:
 
 ```tql
 from {
@@ -343,9 +329,7 @@ config:
 
 ## Print key-value pairs
 
-Convert records to key-value format with
-
-<Fn>print_kv</Fn>:
+Convert records to key-value format with <Fn>print_kv</Fn>:
 
 ```tql
 from {
@@ -377,9 +361,7 @@ kv_custom = event.print_kv(value_separator=": ", field_separator=" | ")
 
 ### CEF (Common Event Format)
 
-Print security events in CEF format with
-
-<Fn>print_cef</Fn>:
+Print security events in CEF format with <Fn>print_cef</Fn>:
 
 ```tql
 from {
@@ -409,10 +391,8 @@ cef = extension.print_cef(
 ```
 
 :::tip[Turn print functions into write operators]
-There's no `write_cef` sibling operator, but you use a combination of
-
-<Op>select</Op> and
-<Op>write_lines</Op>. For example:
+There's no `write_cef` sibling operator, but you use a combination
+of <Op>select</Op> and <Op>write_lines</Op>. For example:
 
 ```tql
 from { ... }

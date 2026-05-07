@@ -2,8 +2,8 @@
 title: File
 ---
 
-Tenzir can read from and write to files. This includes non-regular files such
-as [Unix domain sockets](https://en.wikipedia.org/wiki/Unix_domain_socket),
+Tenzir can read from and write to files. This includes non-regular files such as
+[Unix domain sockets](https://en.wikipedia.org/wiki/Unix_domain_socket),
 standard input, standard output, and standard error.
 
 ![File](file.svg)
@@ -11,10 +11,9 @@ standard input, standard output, and standard error.
 When `~` is the first character in the file path, the operator substitutes it
 with the `$HOME` environment variable.
 
-Use <Op>from_file</Op> to read files with glob
-patterns, automatic format detection, and file monitoring. For writing, use
-
-<Op>to_file</Op> with a print operator.
+Use <Op>from_file</Op> to read files with glob patterns, automatic format
+detection, and file monitoring. For writing, use <Op>to_file</Op> with a print
+operator.
 
 ## Examples
 
@@ -90,9 +89,8 @@ to_file "/tmp/socket", uds=true {
 }
 ```
 
-When reading from a Unix domain socket, use
-
-<Op>from_file</Op> with a parsing pipeline:
+When reading from a Unix domain socket, use <Op>from_file</Op> with a parsing
+pipeline:
 
 ```tql
 from_file "/tmp/socket" {

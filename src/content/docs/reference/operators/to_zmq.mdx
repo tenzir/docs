@@ -20,9 +20,8 @@ message per input event.
 
 The operator serializes each event with the selected `encoding` and optionally
 prepends a prefix to the serialized bytes before publishing the message. This
-prefix is intended for PUB/SUB-style routing and matches the `prefix` option of
-
-<Op>from_zmq</Op> and <Op>accept_zmq</Op>.
+prefix is intended for PUB/SUB-style routing and matches the `prefix` option
+of <Op>from_zmq</Op> and <Op>accept_zmq</Op>.
 
 If the connection fails, the operator retries with exponential backoff.
 
@@ -40,8 +39,7 @@ operator, for example `json`, `ndjson`, `csv`, or `yaml`.
 
 ### `prefix = string (optional)`
 
-An expression that evaluates to the prefix to prepend to each published
-message.
+An expression that evaluates to the prefix to prepend to each published message.
 
 Unlike the read-side `prefix`, this expression may depend on event fields. The
 operator evaluates it for every input event.
