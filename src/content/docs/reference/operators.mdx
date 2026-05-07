@@ -351,6 +351,14 @@ operators:
     description: 'Accepts incoming TCP or TLS connections and yields events.'
     example: 'accept_tcp "0.0.0.0:8090" { read_json }'
     path: 'reference/operators/accept_tcp'
+  - name: 'accept_udp'
+    description: 'Receives UDP datagrams and outputs structured events.'
+    example: 'accept_udp "0.0.0.0:8090"'
+    path: 'reference/operators/accept_udp'
+  - name: 'from_amqp'
+    description: 'Receives messages from an AMQP queue.'
+    example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
+    path: 'reference/operators/from_amqp'
   - name: 'from_azure_blob_storage'
     description: 'Reads one or multiple files from Azure Blob Storage.'
     example: 'from_azure_blob_storage "abfs://container/data/**.json"'
@@ -359,14 +367,14 @@ operators:
     description: 'Reads one or multiple files from a filesystem.'
     example: 'from_file "s3://data/**.json"'
     path: 'reference/operators/from_file'
-  - name: 'from_ftp'
-    description: 'Downloads bytes via FTP and parses them with a subpipeline.'
-    example: 'from_ftp "ftp.example.org/events.ndjson" { read_ndjson }'
-    path: 'reference/operators/from_ftp'
   - name: 'from_fluent_bit'
     description: 'Receives events via Fluent Bit.'
     example: 'from_fluent_bit "opentelemetry"'
     path: 'reference/operators/from_fluent_bit'
+  - name: 'from_ftp'
+    description: 'Downloads bytes via FTP and parses them with a subpipeline.'
+    example: 'from_ftp "ftp.example.org/events.ndjson" { read_ndjson }'
+    path: 'reference/operators/from_ftp'
   - name: 'from_google_cloud_pubsub'
     description: 'Subscribes to a Google Cloud Pub/Sub subscription and yields events.'
     example: 'from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"'
@@ -379,18 +387,6 @@ operators:
     description: 'Sends an HTTP/1.1 request and returns the response as events.'
     example: 'from_http "https://example.com/api" { read_json }'
     path: 'reference/operators/from_http'
-  - name: 'from_zmq'
-    description: 'Connects to a remote ZeroMQ publisher and receives events.'
-    example: 'from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }'
-    path: 'reference/operators/from_zmq'
-  - name: 'from_stdin'
-    description: 'Reads and parses events from standard input.'
-    example: 'from_stdin { read_json }'
-    path: 'reference/operators/from_stdin'
-  - name: 'from_tcp'
-    description: 'Connects to a remote TCP or TLS endpoint and receives events.'
-    example: 'from_tcp "example.org:4000" { read_json }'
-    path: 'reference/operators/from_tcp'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
@@ -415,22 +411,26 @@ operators:
     description: 'Retrieves PowerQuery results from SentinelOne Singularity Data Lake.'
     example: 'from_sentinelone_data_lake "https://…", …'
     path: 'reference/operators/from_sentinelone_data_lake'
-  - name: 'accept_udp'
-    description: 'Receives UDP datagrams and outputs structured events.'
-    example: 'accept_udp "0.0.0.0:8090"'
-    path: 'reference/operators/accept_udp'
-  - name: 'from_velociraptor'
-    description: 'Submits VQL to a Velociraptor server and returns the response as events.'
-    example: 'from_velociraptor subscribe="Windows"'
-    path: 'reference/operators/from_velociraptor'
-  - name: 'from_amqp'
-    description: 'Receives messages from an AMQP queue.'
-    example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
-    path: 'reference/operators/from_amqp'
   - name: 'from_sqs'
     description: 'Receives messages from an Amazon SQS queue.'
     example: 'from_sqs "sqs://tenzir", poll_time=5s'
     path: 'reference/operators/from_sqs'
+  - name: 'from_stdin'
+    description: 'Reads and parses events from standard input.'
+    example: 'from_stdin { read_json }'
+    path: 'reference/operators/from_stdin'
+  - name: 'from_tcp'
+    description: 'Connects to a remote TCP or TLS endpoint and receives events.'
+    example: 'from_tcp "example.org:4000" { read_json }'
+    path: 'reference/operators/from_tcp'
+  - name: 'from_velociraptor'
+    description: 'Submits VQL to a Velociraptor server and returns the response as events.'
+    example: 'from_velociraptor subscribe="Windows"'
+    path: 'reference/operators/from_velociraptor'
+  - name: 'from_zmq'
+    description: 'Connects to a remote ZeroMQ publisher and receives events.'
+    example: 'from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }'
+    path: 'reference/operators/from_zmq'
   - name: 'ocsf::apply'
     description: 'Casts incoming events to their OCSF type.'
     example: 'ocsf::apply'
@@ -615,6 +615,14 @@ operators:
     description: 'Listens on a ZeroMQ endpoint and receives events.'
     example: 'accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }'
     path: 'reference/operators/accept_zmq'
+  - name: 'serve_http'
+    description: 'Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.'
+    example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
+    path: 'reference/operators/serve_http'
+  - name: 'serve_tcp'
+    description: 'Listens for incoming TCP connections and sends events to all connected clients.'
+    example: 'serve_tcp "0.0.0.0:8090" { write_json }'
+    path: 'reference/operators/serve_tcp'
   - name: 'to_amqp'
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
@@ -627,14 +635,6 @@ operators:
     description: 'Sends one UDP datagram per input event.'
     example: 'to_udp "127.0.0.1:514"'
     path: 'reference/operators/to_udp'
-  - name: 'serve_http'
-    description: 'Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients.'
-    example: 'serve_http "0.0.0.0:8080" { write_ndjson }'
-    path: 'reference/operators/serve_http'
-  - name: 'serve_tcp'
-    description: 'Listens for incoming TCP connections and sends events to all connected clients.'
-    example: 'serve_tcp "0.0.0.0:8090" { write_json }'
-    path: 'reference/operators/serve_tcp'
   - name: 'sigma'
     description: 'Filter the input with Sigma rules and output matching events.'
     example: 'sigma "/tmp/rules/"'
@@ -1374,6 +1374,206 @@ sockets
 
 </CardGrid>
 
+## Inputs
+
+<CardGrid>
+
+<ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
+
+```tql
+accept_http "0.0.0.0:8080" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
+
+```tql
+accept_opensearch "0.0.0.0:9200"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
+
+```tql
+accept_tcp "0.0.0.0:8090" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/accept_udp">
+
+```tql
+accept_udp "0.0.0.0:8090"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="accept_zmq" description="Listens on a ZeroMQ endpoint and receives events." href="/reference/operators/accept_zmq">
+
+```tql
+accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
+
+```tql
+from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_azure_blob_storage" description="Reads one or multiple files from Azure Blob Storage." href="/reference/operators/from_azure_blob_storage">
+
+```tql
+from_azure_blob_storage "abfs://container/data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_file" description="Reads one or multiple files from a filesystem." href="/reference/operators/from_file">
+
+```tql
+from_file "s3://data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_fluent_bit" description="Receives events via Fluent Bit." href="/reference/operators/from_fluent_bit">
+
+```tql
+from_fluent_bit "opentelemetry"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_ftp" description="Downloads bytes via FTP and parses them with a subpipeline." href="/reference/operators/from_ftp">
+
+```tql
+from_ftp "ftp.example.org/events.ndjson" { read_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and yields events." href="/reference/operators/from_google_cloud_pubsub">
+
+```tql
+from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_google_cloud_storage" description="Reads one or multiple files from Google Cloud Storage." href="/reference/operators/from_google_cloud_storage">
+
+```tql
+from_google_cloud_storage "gs://my-bucket/data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_http" description="Sends an HTTP/1.1 request and returns the response as events." href="/reference/operators/from_http">
+
+```tql
+from_http "https://example.com/api" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_kafka" description="Receives events from an Apache Kafka topic." href="/reference/operators/from_kafka">
+
+```tql
+from_kafka "logs"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_mysql" description="Reads events from a MySQL database." href="/reference/operators/from_mysql">
+
+```tql
+from_mysql table="users", host="db.example.com", database="mydb"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_nats" description="Consumes messages from a NATS JetStream subject." href="/reference/operators/from_nats">
+
+```tql
+from_nats "alerts"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_nic" description="Captures packets from a network interface and outputs events." href="/reference/operators/from_nic">
+
+```tql
+from_nic "eth0"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_s3" description="Reads one or multiple files from Amazon S3." href="/reference/operators/from_s3">
+
+```tql
+from_s3 "s3://my-bucket/data/**.json"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_sentinelone_data_lake" description="Retrieves PowerQuery results from SentinelOne Singularity Data Lake." href="/reference/operators/from_sentinelone_data_lake">
+
+```tql
+from_sentinelone_data_lake "https://…", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_sqs">
+
+```tql
+from_sqs "sqs://tenzir", poll_time=5s
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
+
+```tql
+from_stdin { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_tcp" description="Connects to a remote TCP or TLS endpoint and receives events." href="/reference/operators/from_tcp">
+
+```tql
+from_tcp "example.org:4000" {
+  read_json
+}
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
+
+```tql
+from_velociraptor subscribe="Windows"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_zmq" description="Connects to a remote ZeroMQ publisher and receives events." href="/reference/operators/from_zmq">
+
+```tql
+from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
 ## Internals
 
 <CardGrid>
@@ -1562,6 +1762,52 @@ unroll names
 
 </CardGrid>
 
+## Node
+
+<CardGrid>
+
+<ReferenceCard title="diagnostics" description="Retrieves diagnostic events from a Tenzir node." href="/reference/operators/diagnostics">
+
+```tql
+diagnostics
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="metrics" description="Retrieves metrics events from a Tenzir node." href="/reference/operators/metrics">
+
+```tql
+metrics "cpu"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="openapi" description="Shows the node's OpenAPI specification." href="/reference/operators/openapi">
+
+```tql
+openapi
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="plugins" description="Shows all available plugins and built-ins." href="/reference/operators/plugins">
+
+```tql
+plugins
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="version" description="Shows the current version." href="/reference/operators/version">
+
+```tql
+version
+```
+
+</ReferenceCard>
+
+</CardGrid>
+
 ## OCSF
 
 <CardGrid>
@@ -1600,6 +1846,243 @@ ocsf::trim
 
 </CardGrid>
 
+## Outputs
+
+<CardGrid>
+
+<ReferenceCard title="serve_http" description="Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients." href="/reference/operators/serve_http">
+
+```tql
+serve_http "0.0.0.0:8080" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="serve_tcp" description="Listens for incoming TCP connections and sends events to all connected clients." href="/reference/operators/serve_tcp">
+
+```tql
+serve_tcp "0.0.0.0:8090" { write_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="serve_zmq" description="Listens on a ZeroMQ endpoint and sends events." href="/reference/operators/serve_zmq">
+
+```tql
+serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_security_lake" description="Sends OCSF events to Amazon Security Lake." href="/reference/operators/to_amazon_security_lake">
+
+```tql
+to_amazon_security_lake "s3://…"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amqp" description="Sends messages to an AMQP exchange." href="/reference/operators/to_amqp">
+
+```tql
+to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_azure_blob_storage" description="Writes events to one or multiple blobs in Azure Blob Storage." href="/reference/operators/to_azure_blob_storage">
+
+```tql
+to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_azure_log_analytics" description="Sends events to the Microsoft Azure Logs Ingestion API." href="/reference/operators/to_azure_log_analytics">
+
+```tql
+to_azure_log_analytics tenant_id="...", workspace_id="..."
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
+
+```tql
+to_clickhouse table="my_table"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_file" description="Writes events to one or multiple files on a filesystem." href="/reference/operators/to_file">
+
+```tql
+to_file "/tmp/out.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_fluent_bit" description="Sends events via Fluent Bit." href="/reference/operators/to_fluent_bit">
+
+```tql
+to_fluent_bit "elasticsearch" …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_ftp" description="Prints events to bytes and uploads them via FTP." href="/reference/operators/to_ftp">
+
+```tql
+to_ftp "ftp.example.org/events.ndjson" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_logging" description="Sends events to Google Cloud Logging." href="/reference/operators/to_google_cloud_logging">
+
+```tql
+to_google_cloud_logging …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_pubsub" description="Publishes events to a Google Cloud Pub/Sub topic." href="/reference/operators/to_google_cloud_pubsub">
+
+```tql
+to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_cloud_storage" description="Writes events to one or multiple objects in Google Cloud Storage." href="/reference/operators/to_google_cloud_storage">
+
+```tql
+to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
+
+```tql
+to_google_secops …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_hive" description="Writes events to a URI using hive partitioning." href="/reference/operators/to_hive">
+
+```tql
+to_hive "s3://…", partition_by=[x]
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_http" description="Sends events as HTTP requests to a webhook or API endpoint." href="/reference/operators/to_http">
+
+```tql
+to_http "https://example.com/webhook" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
+
+```tql
+to_kafka "topic"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_nats" description="Publishes messages to a NATS JetStream subject." href="/reference/operators/to_nats">
+
+```tql
+to_nats "alerts"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_opensearch" description="Sends events to an OpenSearch-compatible Bulk API." href="/reference/operators/to_opensearch">
+
+```tql
+to_opensearch "localhost:9200", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_s3" description="Writes events to one or multiple objects in Amazon S3." href="/reference/operators/to_s3">
+
+```tql
+to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_sentinelone_data_lake" description="Sends security events to SentinelOne Singularity Data Lake via REST API." href="/reference/operators/to_sentinelone_data_lake">
+
+```tql
+to_sentinelone_data_lake "https://…", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_snowflake" description="Sends events to a Snowflake database." href="/reference/operators/to_snowflake">
+
+```tql
+to_snowflake account_identifier="…
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_splunk" description="Sends events to a Splunk HTTP Event Collector (HEC)." href="/reference/operators/to_splunk">
+
+```tql
+to_splunk "localhost:8088", …
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_sqs">
+
+```tql
+to_sqs "sqs://tenzir"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_stdout" description="Writes events to standard output." href="/reference/operators/to_stdout">
+
+```tql
+to_stdout
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_tcp" description="Connects to a remote TCP or TLS endpoint and sends events." href="/reference/operators/to_tcp">
+
+```tql
+to_tcp "collector.example.com:5044" { write_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
+
+```tql
+to_udp "127.0.0.1:514"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_zmq" description="Connects to a remote ZeroMQ subscriber endpoint and sends events." href="/reference/operators/to_zmq">
+
+```tql
+to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"
+```
+
+</ReferenceCard>
+
+</CardGrid>
 ## Packages
 
 <CardGrid>
@@ -2008,256 +2491,7 @@ write_zeek_tsv
 
 </CardGrid>
 
-## Inputs
-
-### Events
-
-<CardGrid>
-
-<ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
-
-```tql
-accept_http "0.0.0.0:8080" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
-
-```tql
-accept_opensearch "0.0.0.0:9200"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="accept_tcp" description="Accepts incoming TCP or TLS connections and yields events." href="/reference/operators/accept_tcp">
-
-```tql
-accept_tcp "0.0.0.0:8090" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
-
-```tql
-from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_azure_blob_storage" description="Reads one or multiple files from Azure Blob Storage." href="/reference/operators/from_azure_blob_storage">
-
-```tql
-from_azure_blob_storage "abfs://container/data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_file" description="Reads one or multiple files from a filesystem." href="/reference/operators/from_file">
-
-```tql
-from_file "s3://data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_ftp" description="Downloads bytes via FTP and parses them with a subpipeline." href="/reference/operators/from_ftp">
-
-```tql
-from_ftp "ftp.example.org/events.ndjson" { read_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_fluent_bit" description="Receives events via Fluent Bit." href="/reference/operators/from_fluent_bit">
-
-```tql
-from_fluent_bit "opentelemetry"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_google_cloud_pubsub" description="Subscribes to a Google Cloud Pub/Sub subscription and yields events." href="/reference/operators/from_google_cloud_pubsub">
-
-```tql
-from_google_cloud_pubsub project_id="my-project", subscription_id="my-sub"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_google_cloud_storage" description="Reads one or multiple files from Google Cloud Storage." href="/reference/operators/from_google_cloud_storage">
-
-```tql
-from_google_cloud_storage "gs://my-bucket/data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_http" description="Sends an HTTP/1.1 request and returns the response as events." href="/reference/operators/from_http">
-
-```tql
-from_http "https://example.com/api" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_zmq" description="Connects to a remote ZeroMQ publisher and receives events." href="/reference/operators/from_zmq">
-
-```tql
-from_zmq "tcp://collector.example.com:5555", prefix="alerts/" { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
-
-```tql
-from_stdin { read_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_tcp" description="Connects to a remote TCP or TLS endpoint and receives events." href="/reference/operators/from_tcp">
-
-```tql
-from_tcp "example.org:4000" {
-  read_json
-}
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_kafka" description="Receives events from an Apache Kafka topic." href="/reference/operators/from_kafka">
-
-```tql
-from_kafka "logs"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_mysql" description="Reads events from a MySQL database." href="/reference/operators/from_mysql">
-
-```tql
-from_mysql table="users", host="db.example.com", database="mydb"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_nats" description="Consumes messages from a NATS JetStream subject." href="/reference/operators/from_nats">
-
-```tql
-from_nats "alerts"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_nic" description="Captures packets from a network interface and outputs events." href="/reference/operators/from_nic">
-
-```tql
-from_nic "eth0"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_s3" description="Reads one or multiple files from Amazon S3." href="/reference/operators/from_s3">
-
-```tql
-from_s3 "s3://my-bucket/data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_sqs">
-
-```tql
-from_sqs "sqs://tenzir", poll_time=5s
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_sentinelone_data_lake" description="Retrieves PowerQuery results from SentinelOne Singularity Data Lake." href="/reference/operators/from_sentinelone_data_lake">
-
-```tql
-from_sentinelone_data_lake "https://…", …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="accept_udp" description="Receives UDP datagrams and outputs structured events." href="/reference/operators/accept_udp">
-
-```tql
-accept_udp "0.0.0.0:8090"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_velociraptor" description="Submits VQL to a Velociraptor server and returns the response as events." href="/reference/operators/from_velociraptor">
-
-```tql
-from_velociraptor subscribe="Windows"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="accept_zmq" description="Listens on a ZeroMQ endpoint and receives events." href="/reference/operators/accept_zmq">
-
-```tql
-accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
-```
-
-</ReferenceCard>
-
-</CardGrid>
-
-## Node
-
-### Inspection
-
-<CardGrid>
-
-<ReferenceCard title="diagnostics" description="Retrieves diagnostic events from a Tenzir node." href="/reference/operators/diagnostics">
-
-```tql
-diagnostics
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="metrics" description="Retrieves metrics events from a Tenzir node." href="/reference/operators/metrics">
-
-```tql
-metrics "cpu"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="openapi" description="Shows the node's OpenAPI specification." href="/reference/operators/openapi">
-
-```tql
-openapi
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="plugins" description="Shows all available plugins and built-ins." href="/reference/operators/plugins">
-
-```tql
-plugins
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="version" description="Shows the current version." href="/reference/operators/version">
-
-```tql
-version
-```
-
-</ReferenceCard>
-
-</CardGrid>
-### Storage Engine
+## Storage
 
 <CardGrid>
 
@@ -2303,242 +2537,3 @@ schemas
 
 </CardGrid>
 
-## Outputs
-
-### Events
-
-<CardGrid>
-
-<ReferenceCard title="to_amqp" description="Sends messages to an AMQP exchange." href="/reference/operators/to_amqp">
-
-```tql
-to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_sqs">
-
-```tql
-to_sqs "sqs://tenzir"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_udp" description="Sends one UDP datagram per input event." href="/reference/operators/to_udp">
-
-```tql
-to_udp "127.0.0.1:514"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="serve_http" description="Starts an HTTP server and streams bytes produced by a nested pipeline to connected clients." href="/reference/operators/serve_http">
-
-```tql
-serve_http "0.0.0.0:8080" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="serve_tcp" description="Listens for incoming TCP connections and sends events to all connected clients." href="/reference/operators/serve_tcp">
-
-```tql
-serve_tcp "0.0.0.0:8090" { write_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_amazon_security_lake" description="Sends OCSF events to Amazon Security Lake." href="/reference/operators/to_amazon_security_lake">
-
-```tql
-to_amazon_security_lake "s3://…"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_azure_blob_storage" description="Writes events to one or multiple blobs in Azure Blob Storage." href="/reference/operators/to_azure_blob_storage">
-
-```tql
-to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_azure_log_analytics" description="Sends events to the Microsoft Azure Logs Ingestion API." href="/reference/operators/to_azure_log_analytics">
-
-```tql
-to_azure_log_analytics tenant_id="...", workspace_id="..."
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_zmq" description="Connects to a remote ZeroMQ subscriber endpoint and sends events." href="/reference/operators/to_zmq">
-
-```tql
-to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_clickhouse" description="Sends events to a ClickHouse table." href="/reference/operators/to_clickhouse">
-
-```tql
-to_clickhouse table="my_table"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_file" description="Writes events to one or multiple files on a filesystem." href="/reference/operators/to_file">
-
-```tql
-to_file "/tmp/out.json" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_fluent_bit" description="Sends events via Fluent Bit." href="/reference/operators/to_fluent_bit">
-
-```tql
-to_fluent_bit "elasticsearch" …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_ftp" description="Prints events to bytes and uploads them via FTP." href="/reference/operators/to_ftp">
-
-```tql
-to_ftp "ftp.example.org/events.ndjson" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_logging" description="Sends events to Google Cloud Logging." href="/reference/operators/to_google_cloud_logging">
-
-```tql
-to_google_cloud_logging …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_pubsub" description="Publishes events to a Google Cloud Pub/Sub topic." href="/reference/operators/to_google_cloud_pubsub">
-
-```tql
-to_google_cloud_pubsub project_id="my-project", topic_id="alerts", message=text
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_cloud_storage" description="Writes events to one or multiple objects in Google Cloud Storage." href="/reference/operators/to_google_cloud_storage">
-
-```tql
-to_google_cloud_storage "gs://my-bucket/data/{uuid}.json" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_google_secops" description="Sends unstructured events to a Google SecOps Chronicle instance." href="/reference/operators/to_google_secops">
-
-```tql
-to_google_secops …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="serve_zmq" description="Listens on a ZeroMQ endpoint and sends events." href="/reference/operators/serve_zmq">
-
-```tql
-serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_hive" description="Writes events to a URI using hive partitioning." href="/reference/operators/to_hive">
-
-```tql
-to_hive "s3://…", partition_by=[x]
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_http" description="Sends events as HTTP requests to a webhook or API endpoint." href="/reference/operators/to_http">
-
-```tql
-to_http "https://example.com/webhook" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_kafka" description="Sends messages to an Apache Kafka topic." href="/reference/operators/to_kafka">
-
-```tql
-to_kafka "topic"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_nats" description="Publishes messages to a NATS JetStream subject." href="/reference/operators/to_nats">
-
-```tql
-to_nats "alerts"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_opensearch" description="Sends events to an OpenSearch-compatible Bulk API." href="/reference/operators/to_opensearch">
-
-```tql
-to_opensearch "localhost:9200", …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_s3" description="Writes events to one or multiple objects in Amazon S3." href="/reference/operators/to_s3">
-
-```tql
-to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_sentinelone_data_lake" description="Sends security events to SentinelOne Singularity Data Lake via REST API." href="/reference/operators/to_sentinelone_data_lake">
-
-```tql
-to_sentinelone_data_lake "https://…", …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_snowflake" description="Sends events to a Snowflake database." href="/reference/operators/to_snowflake">
-
-```tql
-to_snowflake account_identifier="…
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_splunk" description="Sends events to a Splunk HTTP Event Collector (HEC)." href="/reference/operators/to_splunk">
-
-```tql
-to_splunk "localhost:8088", …
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_stdout" description="Writes events to standard output." href="/reference/operators/to_stdout">
-
-```tql
-to_stdout
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_tcp" description="Connects to a remote TCP or TLS endpoint and sends events." href="/reference/operators/to_tcp">
-
-```tql
-to_tcp "collector.example.com:5044" { write_json }
-```
-
-</ReferenceCard>
-
-</CardGrid>
