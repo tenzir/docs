@@ -1,24 +1,14 @@
-### `method = string (optional)`
+import Op from '@components/see-also/Op.astro';
+import HttpClientOptions from './HttpClientOptions.mdx';
 
-One of the following HTTP methods to use when using the client:
-
-- `get`
-- `head`
-- `post`
-- `put`
-- `del`
-- `connect`
-- `options`
-- `trace`
-
-Defaults to `get`, or `post` if `body` is specified.
+<HttpClientOptions />
 
 ### `body = blob|record|string (optional)`
 
 Body to send with the HTTP request.
 
-If the value is a `record`, then the body is encoded according to the `encode`
-option and an appropriate `Content-Type` is set for the request.
+If the value is a `record`, the body is encoded according to the `encode`
+option and Tenzir sets an appropriate `Content-Type` header.
 
 ### `encode = string (optional)`
 
@@ -29,55 +19,29 @@ Specifies how to encode `record` bodies. Supported values:
 
 Defaults to `json`.
 
-### `headers = record (optional)`
-
-Record of headers to send with the request. Each value is resolved as a
-[secret](/explanations/secrets), so you can pass secret names to avoid
-hardcoding tokens or API keys directly in the pipeline.
-
 ### `paginate = record -> string | string (optional)`
 
 Controls automatic pagination of HTTP responses.
 
-**Lambda mode**: A lambda expression to evaluate against the result of the
-request (optionally parsed by the given pipeline). If the expression evaluation
-is successful and non-null, the resulting string is used as the URL for a new
-GET request with the same headers.
+**Lambda mode**: A lambda expression to evaluate against the parsed result of a
+request. If the expression evaluates successfully and returns a non-null
+string, Tenzir uses that string as the URL for a new `GET` request with the
+same headers.
 
 **Link mode**: The string `"link"` to automatically follow pagination links in
-the HTTP `Link` response header per [RFC 8288](https://datatracker.ietf.org/doc/html/rfc8288).
-The operator parses `Link` headers and follows the `rel=next` relation to fetch
-the next page. Pagination stops when the response no longer contains a
-`rel=next` link.
+the HTTP `Link` response header as defined in [RFC
+8288](https://datatracker.ietf.org/doc/html/rfc8288). Tenzir follows the
+`rel=next` relation until the response no longer contains one.
 
 **[OData](https://www.oasis-open.org/standard/odata-v4-01-os/) mode**: For
 <Op>from_http</Op>, the string `"odata"` to follow OData collection responses
 such as Microsoft Graph. The response body must be a JSON object with a
-top-level `value` array. The operator emits each object from `value`, follows a
+top-level `value` array. Tenzir emits each object from `value`, follows a
 top-level string `@odata.nextLink` as an opaque URL, and sends follow-up
 requests as `GET` requests with the same headers.
 
 ### `paginate_delay = duration (optional)`
 
 The duration to wait between consecutive pagination requests.
-
-Defaults to `0s`.
-
-### `connection_timeout = duration (optional)`
-
-Timeout for the connection.
-
-Defaults to `5s`.
-
-### `max_retry_count = int (optional)`
-
-The maximum times to retry a failed request. Every request has its own retry
-count.
-
-Defaults to `0`.
-
-### `retry_delay = duration (optional)`
-
-The duration to wait between each retry.
 
 Defaults to `1s`.
