@@ -8,9 +8,9 @@ Receives messages from an AMQP queue.
 
 ```tql
 from_amqp url:secret, [channel=int, exchange=str, routing_key=str, queue=str,
-                       options=record, passive=bool, durable=bool,
-                       exclusive=bool, no_auto_delete=bool, no_local=bool,
-                       ack=bool]
+                       options=record, queue_arguments=record, passive=bool,
+                       durable=bool, exclusive=bool, no_auto_delete=bool,
+                       no_local=bool, ack=bool]
 ```
 
 ## Description
@@ -62,6 +62,9 @@ as `"amq.gen-XNTLF0FwabIn9FFKKtQHzg"`.
 An option record for the AMQP connection. Values must be numbers, booleans,
 strings, or secrets.
 
+Use `options` to configure the AMQP connection. Use `queue_arguments` to
+configure the queue declaration.
+
 Available options are:
 
 ```yaml
@@ -77,16 +80,27 @@ username: guest
 password: guest
 ```
 
+### `queue_arguments = record (optional)`
+
+A record of AMQP field-table arguments to pass to the queue declaration.
+
+Use this parameter for broker-specific queue settings, such as RabbitMQ quorum
+queues, queue length limits, message TTLs, single active consumers, and
+dead-lettering settings.
+
+Values must be numbers, booleans, or strings. Nested records, lists, blobs,
+nulls, and secrets are not supported.
+
 ### `passive = bool (optional)`
 
-If `true`, the broker replies with OK if an exchange already exists with the
-same name and raises an error otherwise.
+If `true`, the broker replies with OK if a queue already exists with the same
+name and raises an error otherwise.
 
 Defaults to `false`.
 
 ### `durable = bool (optional)`
 
-If `true`, a newly created exchange is durable and remains active when the
+If `true`, a newly created queue is durable and remains active when the
 broker restarts.
 
 Defaults to `false`.
@@ -100,7 +114,7 @@ Defaults to `false`.
 
 ### `no_auto_delete = bool (optional)`
 
-If `true`, the exchange is not deleted when all queues have finished using it.
+If `true`, the queue is not deleted when all consumers have finished using it.
 
 Defaults to `false`.
 
@@ -141,6 +155,19 @@ from_amqp "amqp://broker/vhost", options={
   password: secret("amqp-password"),
   heartbeat: 30,
 }
+```
+
+### Declare a RabbitMQ quorum queue
+
+```tql
+from_amqp "amqp://broker/vhost",
+          queue="events",
+          durable=true,
+          no_auto_delete=true,
+          queue_arguments={
+            "x-queue-type": "quorum",
+            "x-quorum-initial-group-size": 1,
+          }
 ```
 
 ## See Also
