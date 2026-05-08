@@ -145,8 +145,9 @@ newlines.
 ### Read in the `auth.log`
 
 ```tql title="Pipeline"
-load_file "/var/log/auth.log"
-read_syslog
+from_file "/var/log/auth.log" {
+  read_syslog
+}
 ```
 
 ```tql
@@ -176,7 +177,7 @@ When receiving syslog over TCP from systems that use RFC 6587 octet counting,
 the parser auto-detects and strips the length prefix:
 
 ```tql title="Pipeline"
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog
 }
 ```
@@ -259,8 +260,9 @@ read_syslog
 Use `raw_message` to keep the unparsed syslog line alongside the parsed fields:
 
 ```tql title="Pipeline"
-load_file "/var/log/auth.log"
-read_syslog raw_message=raw
+from_file "/var/log/auth.log" {
+  read_syslog raw_message=raw
+}
 ```
 
 ```tql

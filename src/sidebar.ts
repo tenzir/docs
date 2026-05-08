@@ -9,6 +9,7 @@ export const guides = [
     "Get Started",
     [
       "guides/quickstart",
+      "guides/tenzir-v6-migration",
       {
         label: "Installation",
         collapsed: true,
@@ -151,7 +152,9 @@ export const guides = [
         collapsed: true,
         items: [
           "guides/routing/send-to-destinations",
+          "guides/routing/expose-data-as-server",
           "guides/routing/split-and-merge-streams",
+          "guides/routing/fan-out-with-subpipelines",
           "guides/routing/load-balance-pipelines",
         ],
       },
@@ -368,6 +371,7 @@ export const integrations = [
       "integrations/amqp",
       "integrations/fluent-bit",
       "integrations/kafka",
+      "integrations/nats",
       "integrations/zeromq",
     ],
     "integration",
@@ -375,7 +379,6 @@ export const integrations = [
   section(
     "Protocols",
     [
-      "integrations/email",
       "integrations/file",
       "integrations/ftp",
       "integrations/http",
@@ -392,6 +395,7 @@ export const integrations = [
       "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/graylog",
+      "integrations/mysql",
       "integrations/opensearch",
       "integrations/snowflake",
       "integrations/splunk",

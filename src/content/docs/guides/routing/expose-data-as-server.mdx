@@ -1,0 +1,101 @@
+---
+title: Expose data as a server
+---
+
+import Op from '@components/see-also/Op.astro';
+
+This guide shows you how to make pipeline data available to external consumers
+by starting an HTTP server. You'll learn how to stream serialized pipeline
+output to HTTP clients, pick a wire format, and configure connection limits and
+TLS.
+
+## Spin up an HTTP server
+
+Use <Op>serve_http</Op> at the end of a pipeline to start an HTTP server. The
+nested pipeline chooses how to serialize your events:
+
+```tql
+from_file "example.yaml"
+serve_http "0.0.0.0:8080" {
+  write_ndjson
+}
+```
+
+Any HTTP client connecting to `http://host:8080/` receives a continuous NDJSON
+stream. Each event is JSON-encoded on a single line, separated by newlines:
+
+```bash
+curl http://localhost:8080/
+```
+
+```json
+{"timestamp":"2025-01-15T10:30:00Z","src_ip":"192.168.1.100","event":"login"}
+{"timestamp":"2025-01-15T10:30:01Z","src_ip":"10.0.0.50","event":"file_access"}
+```
+
+Multiple clients can connect simultaneously. Each connected client receives a
+copy of the bytes produced after it connects.
+
+### Choose a wire format
+
+Use the nested pipeline to control the response body format and content type.
+For example, use <Op>write_lines</Op> to stream plain text instead of NDJSON:
+
+```tql
+from_file "alerts.txt"
+serve_http "0.0.0.0:8080" {
+  write_lines
+}
+```
+
+You can also add filters or transforms before the printer:
+
+```tql
+from_file "alerts.json"
+where severity == "high"
+serve_http "0.0.0.0:8080" {
+  write_ndjson
+}
+```
+
+### Understand delivery semantics
+
+`serve_http` does not buffer output for future clients. A client only receives
+bytes produced after it connects.
+
+If a client cannot keep up with the producer, Tenzir may disconnect it to keep
+memory usage bounded.
+
+### Connection limits
+
+Control the maximum number of simultaneous client connections:
+
+```tql
+from_file "data.csv"
+serve_http "0.0.0.0:8080", max_connections=10 {
+  write_ndjson
+}
+```
+
+Additional clients wait until a connection slot becomes available.
+
+### TLS encryption
+
+Serve data over HTTPS by providing TLS certificates:
+
+```tql
+from_file "secret.json"
+serve_http "0.0.0.0:8443",
+  tls={
+    certfile: "/path/to/cert.pem",
+    keyfile: "/path/to/key.pem",
+  } {
+  write_ndjson
+}
+```
+
+## See Also
+
+- <Op>serve_http</Op>
+- <Op>serve_tcp</Op>
+- <Op>to_http</Op>

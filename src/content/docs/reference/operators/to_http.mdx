@@ -1,0 +1,128 @@
+---
+title: to_http
+category: Outputs/Events
+example: 'to_http "https://example.com/webhook" { write_ndjson }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Guide from '@components/see-also/Guide.astro';
+import Integration from '@components/see-also/Integration.astro';
+import HttpClientOptions from '@partials/operators/HttpClientOptions.mdx';
+
+Sends events as HTTP requests to a webhook or API endpoint.
+
+```tql
+to_http url:string, [method=string, headers=record, timeout=duration,
+        parallel=int, tls=record, connection_timeout=duration,
+        max_retry_count=int, retry_delay=duration] { … }
+```
+
+## Description
+
+The `to_http` operator sends each input event as an HTTP request to a webhook or
+API endpoint. A required printer sub-pipeline turns each input event into bytes,
+which become the request body. By default, the operator sends requests with the
+`POST` method.
+
+The operator retries transient transport failures and HTTP `429` and `5xx`
+responses up to `max_retry_count` times. If a response includes a
+`Retry-After` header, Tenzir waits for that duration before retrying.
+Otherwise, it uses exponential backoff starting at `retry_delay`.
+
+Non-2xx HTTP status codes emit warnings. Request failures, such as connection
+or retry exhaustion, cause pipeline errors.
+
+### `url: string`
+
+URL to send the request to.
+
+The URL is resolved as a [secret](/explanations/secrets), so you can pass a
+secret name to avoid hardcoding sensitive URLs.
+
+<HttpClientOptions />
+
+### `{ … }`
+
+A required pipeline that receives events and must return bytes. The output of
+this pipeline becomes the HTTP request body.
+
+Use this pipeline to choose the request format explicitly. For example, use
+`write_ndjson`, `write_json`, or another byte-producing pipeline.
+
+### `parallel = int (optional)`
+
+Maximum number of requests that can be in progress at any time.
+
+Defaults to `1`.
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+<TLSOptions tls_default="false"/>
+
+## Examples
+
+### Send events to a webhook
+
+Send each event as a JSON POST request:
+
+```tql
+from {message: "hello", severity: "info"}
+to_http "https://example.com/webhook" {
+  write_ndjson
+}
+```
+
+### Control the request body format
+
+Use the printer sub-pipeline to control how the operator serializes each event:
+
+```tql
+from {foo: "bar"}
+to_http "https://example.com/api" {
+  write_json
+}
+```
+
+### Set a custom method and headers
+
+```tql
+from {foo: "bar"}
+to_http "https://example.com/api",
+  method="put",
+  headers={"X-Custom": "value"} {
+  write_ndjson
+}
+```
+
+### Send events with TLS
+
+```tql
+from {data: "sensitive"}
+to_http "https://secure.example.com/api",
+  tls={skip_peer_verification: true} {
+  write_ndjson
+}
+```
+
+### Send requests in parallel
+
+Increase throughput by sending multiple requests concurrently:
+
+```tql
+from_file "events.json" {
+  read_json
+}
+to_http "https://example.com/ingest", parallel=4 {
+  write_ndjson
+}
+```
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>http</Op>
+- <Op>accept_http</Op>
+- <Op>serve_http</Op>
+- <Guide>tenzir-v6-migration</Guide>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
+- <Integration>http</Integration>

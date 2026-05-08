@@ -10,7 +10,7 @@ files.
 
 Use <Op>from_s3</Op> to read files from S3. It supports
 glob patterns, automatic format detection, and IAM role assumption. For writing,
-use <Op>save_s3</Op> with a print operator.
+use <Op>to_s3</Op> with a print operator.
 
 ## Configuration
 
@@ -35,7 +35,8 @@ from_s3 "s3://my-bucket/logs/**.json"
 
 ```tql
 from {foo: 42}
-print_json
-compress_gzip
-save_s3 "s3://my-bucket/path/to/file.json.gz"
+to_s3 "s3://my-bucket/path/to/file.json.gz" {
+  write_json
+  compress_gzip
+}
 ```

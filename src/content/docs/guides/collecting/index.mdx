@@ -13,17 +13,8 @@ TQL provides two types of input operators:
 a [subpipeline](/reference/programs/#parsing-subpipelines).
 
 - **Direct event operators** like <Op>from_kafka</Op>
-  and <Op>from_udp</Op> produce structured events
+  and <Op>accept_udp</Op> produce structured events
   directly without an intermediate byte stream.
-
-:::caution[Migration note]
-The `from_*` family of operators supersedes the older `load_*` operators that
-produce bytes. While `load_*` operators remain supported, prefer the newer
-`from_*` variants which provide a more unified experience with built-in format
-inference.
-
-For example, `from_file "data.csv"` replaces `load_file "data.csv" | read_csv`.
-:::
 
 ## Collection patterns
 
@@ -61,11 +52,18 @@ pagination patterns and advanced configurations.
 
 ### Message brokers
 
-Subscribe to topics or queues from Apache Kafka, AMQP, Amazon SQS, and Google
-Cloud Pub/Sub:
+Subscribe to topics or queues from Apache Kafka, NATS, AMQP, Amazon SQS, and
+Google Cloud Pub/Sub:
 
 ```tql
 from_kafka "security-events", offset="end"
+```
+
+For NATS JetStream, consume from a subject and parse the message field:
+
+```tql
+from_nats "alerts"
+this = string(message).parse_json()
 ```
 
 See the [message broker guide](/guides/collecting/read-from-message-brokers)
@@ -78,10 +76,12 @@ interfaces:
 
 ```tql
 // UDP syslog receiver
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 
 // TCP with TLS
-from "tcp://0.0.0.0:8443", tls=true
+accept_tcp "0.0.0.0:8443", tls={} {
+  read_json
+}
 ```
 
 See the [network data guide](/guides/collecting/get-data-from-the-network) for

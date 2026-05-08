@@ -36,9 +36,10 @@ Defaults to `gzip`.
 
 ```tql
 export
-write_ndjson
-compress_gzip
-save_file "/tmp/backup.json.gz"
+to_file "/tmp/backup.json.gz" {
+  write_ndjson
+  compress_gzip
+}
 ```
 
 ### Compress using Gzip deflate
@@ -49,13 +50,17 @@ write_ndjson
 compress_gzip format="deflate"
 ```
 
-### Recompress a Gzip-compressed file at a different compression level
+### Read and write Gzip-compressed NDJSON
 
 ```tql
-load_file "in.gzip"
-decompress_gzip
-compress_gzip level=18
-save_file "out.gzip"
+from_file "in.gzip" {
+  decompress_gzip
+  read_ndjson
+}
+to_file "out.gzip" {
+  write_ndjson
+  compress_gzip level=18
+}
 ```
 
 ## See Also

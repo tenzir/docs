@@ -21,9 +21,10 @@ of the same codec transparently.
 ### Import Suricata events from a Gzip-compressed file
 
 ```tql
-load_file "eve.json.gz"
-decompress_gzip
-read_suricata
+from_file "eve.json.gz" {
+  decompress_gzip
+  read_suricata
+}
 import
 ```
 

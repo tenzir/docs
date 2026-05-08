@@ -89,8 +89,8 @@ While all environment variables are strings on the shell, Tenzir parses them
 into a typed value internally. In general, parsing values from the environment
 follows the same syntactical rules as command line parsing.
 
-In particular, this applies to lists. For example, `TENZIR_PLUGINS="foo,bar"`
-is equivalent to `--plugins=foo,bar`.
+In particular, this applies to lists. For example, `TENZIR_PLUGINS="foo,bar"` is
+equivalent to `--plugins=foo,bar`.
 
 Tenzir ignores environment variables with an empty value because the type cannot
 be inferred. For example, `TENZIR_PLUGINS=` will not be considered.
@@ -139,10 +139,9 @@ at all system- and user-specified configuration paths.
 
 Tenzir provides node-level TLS configuration that applies to all operators and
 connectors using TLS/HTTPS connections. These settings are used by operators
-that make outbound connections (e.g., <Op>to_opensearch</Op>,
-<Op>to_splunk</Op>, <Op>save_email</Op>)
-and those that accept inbound connections (e.g., <Op>load_tcp</Op>,
-<Op>save_tcp</Op>).
+that make outbound connections (e.g., <Op>to_opensearch</Op>
+and <Op>to_splunk</Op>) and those that accept inbound connections
+(e.g., <Op>accept_tcp</Op> and <Op>serve_tcp</Op>).
 
 :::note[Use Only When Required]
 We do not recommend manually configuring TLS settings unless required for
@@ -191,10 +190,10 @@ configuration:
 
 - <Op>to_opensearch</Op>: Applies min version and ciphers to HTTPS connections
 - <Op>to_splunk</Op>: Applies min version and ciphers to Splunk HEC connections
-- <Op>save_email</Op>: Applies min version and ciphers to SMTP connections
-- <Op>load_tcp</Op>: Applies min version and ciphers to TLS server mode
-- <Op>save_tcp</Op>: Applies min version and ciphers to TLS client and server modes
-- <Op>from_opensearch</Op>: Applies min version and ciphers to HTTPS connections
+- <Op>accept_tcp</Op>: Applies min version and ciphers to TLS server mode
+- <Op>from_tcp</Op>: Applies min version and ciphers to TLS client mode
+- <Op>serve_tcp</Op>: Applies min version and ciphers to TLS server mode
+- <Op>accept_opensearch</Op>: Applies min version and ciphers to HTTPS connections
 
 ## Plugins
 
@@ -284,13 +283,12 @@ tls-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
 ```
 
 These options only affect the connection from the node to the Tenzir Platform.
-If not specified, the settings fall back to the node-level `tenzir.tls.min-version`
-and `tenzir.tls.ciphers` settings.
+If not specified, the settings fall back to the node-level
+`tenzir.tls.min-version` and `tenzir.tls.ciphers` settings.
 
 ### List plugins
 
-You can get the list of available plugins using the
-<Op>plugins</Op> operator:
+You can get the list of available plugins using the <Op>plugins</Op> operator:
 
 ```bash
 tenzir 'plugins'

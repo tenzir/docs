@@ -2,6 +2,13 @@
 
 The `docs/` directory includes the primary documentation content.
 
+## Public API only
+
+Do not document hidden/internal TQL arguments, operators, functions, or options
+whose names start with an underscore (for example `_batch_timeout`). Keep them
+out of signatures, argument lists, examples, and prose unless the page is
+explicitly about internal development.
+
 ## Linking conventions
 
 In `.mdx` pages, prefer semantic components for inline cross-references to

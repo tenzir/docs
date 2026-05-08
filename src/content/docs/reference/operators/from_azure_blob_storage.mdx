@@ -10,7 +10,7 @@ Reads one or multiple files from Azure Blob Storage.
 
 ```tql
 from_azure_blob_storage url:string, [account_key=string, watch=bool,
-  remove=bool, rename=string->string, path_field=field, max_age=duration] { … }
+  remove=bool, rename=string->string, max_age=duration] { … }
 ```
 
 ## Description
@@ -90,12 +90,15 @@ from_azure_blob_storage "abfs://input/**.json",
 ### Add source path to events
 
 ```tql
-from_azure_blob_storage "abfs://data/**.json", path_field=source_file
+from_azure_blob_storage "abfs://data/**.json" {
+  read_json
+  source_file = $file.path
+}
 ```
 
 ## See Also
 
 - <Op>from_file</Op>
-- <Op>load_azure_blob_storage</Op>
-- <Op>save_azure_blob_storage</Op>
+- <Op>from_azure_blob_storage</Op>
+- <Op>to_azure_blob_storage</Op>
 - <Integration>microsoft/azure-blob-storage</Integration>

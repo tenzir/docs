@@ -1,0 +1,108 @@
+---
+title: to_nats
+category: Outputs/Events
+example: 'to_nats "alerts"'
+---
+
+import TLSOptions from '@partials/operators/TLSOptions.mdx';
+
+Publishes messages to a NATS JetStream subject.
+
+```tql
+to_nats subject:string, [message=blob|string, headers=record, url=secret,
+        tls=record, auth=record, _max_pending=int]
+```
+
+## Description
+
+The `to_nats` operator publishes one NATS JetStream message per input event. The
+NATS server must have a JetStream stream that captures the target subject.
+
+The operator uses the default URL `nats://localhost:4222` unless you provide
+`url` or configure `plugins.nats.url`.
+
+### `subject: string`
+
+The NATS subject to publish to.
+
+### `message = blob|string (optional)`
+
+An expression that evaluates to the message payload for each row.
+
+Defaults to `this.print_ndjson()` when not specified.
+
+### `headers = record (optional)`
+
+An expression that evaluates to a record of NATS headers for each row. Header
+values must be strings or lists of strings.
+
+### `url = secret (optional)`
+
+The NATS server URL.
+
+If the URL has no scheme, Tenzir uses `nats://` by default or `tls://` when TLS
+is enabled. Use `nats://`, `tls://`, `ws://`, or `wss://` to select a specific
+transport.
+
+### `auth = record (optional)`
+
+Authentication settings for the NATS connection. Each value can be a string or a
+secret.
+
+Supported authentication records are:
+
+- `{token: secret("NATS_TOKEN")}` for token authentication.
+- `{user: "alice", password: secret("NATS_PASSWORD")}` for user/password
+  authentication.
+- `{credentials: "/path/to/user.creds"}` for NATS credentials files.
+- `{credentials: "/path/to/user.creds", seed: "/path/to/user.nk"}` for
+  credentials files with a separate seed file.
+- `{credentials_memory: secret("NATS_CREDS")}` for credentials content stored in
+  a secret.
+
+<TLSOptions />
+
+NATS uses the standard Tenzir `tls` record. The nats.c library does not expose a
+minimum TLS version setting, so `tls.min_version` is accepted for record
+compatibility but ignored with a warning.
+
+## Examples
+
+### Publish a JSON event
+
+```tql
+from {
+  severity: "high",
+  alert_type: "suspicious-login",
+}
+to_nats "alerts"
+```
+
+### Publish headers
+
+```tql
+from {
+  message: "hello",
+  headers: {
+    source: "tenzir",
+    tags: ["demo", "nats"],
+  },
+}
+to_nats "alerts", message=message, headers=headers
+```
+
+### Connect with token authentication and TLS
+
+```tql
+subscribe "alerts"
+to_nats "alerts",
+  url="tls://nats.example.com:4222",
+  auth={token: secret("NATS_TOKEN")},
+  tls={}
+```
+
+## See Also
+
+- <Op>from_nats</Op>
+- <Guide>routing/send-to-destinations</Guide>
+- <Integration>nats</Integration>

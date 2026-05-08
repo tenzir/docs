@@ -5,8 +5,8 @@ example: 'read_json arrays_of_objects=true'
 ---
 
 :::tip
-If you are receiving newline-delimited JSON (NDJSON), use
-<Op>read_ndjson</Op> instead.
+If you are receiving newline-delimited JSON (NDJSON), use <Op>read_ndjson</Op>
+instead.
 :::
 
 Parses an incoming JSON stream into events.
@@ -52,8 +52,9 @@ objects.
 ```
 
 ```tql title="Pipeline"
-load_file "events.json"
-read_json unflatten="."
+from_file "events.json" {
+  read_json unflatten="."
+}
 ```
 
 ```json title="Output"

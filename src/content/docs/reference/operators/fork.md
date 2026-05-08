@@ -1,7 +1,7 @@
 ---
 title: fork
 category: Flow Control
-example: 'fork { to "copy.json" }'
+example: 'fork { publish "copy" }'
 ---
 
 Executes a subpipeline with a copy of the input.

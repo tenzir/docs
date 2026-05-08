@@ -2,9 +2,9 @@
 title: Syslog
 ---
 
-Tenzir supports parsing and emitting Syslog messages across multiple transport
-protocols, including both UDP and TCP. This enables seamless integration with
-Syslog-based systems for ingesting or exporting logs.
+Tenzir supports parsing Syslog messages from transport protocols such as UDP
+and TCP, and emitting Syslog-formatted byte streams. This enables seamless
+integration with Syslog-based systems for ingesting or exporting logs.
 
 ![Syslog](syslog.svg)
 
@@ -21,26 +21,25 @@ Together, these building blocks enable round-trip Syslog processing.
 
 ### Create a Syslog Server
 
-To receive Syslog messages on a UDP socket, use
-<Op>from_udp</Op>:
+To receive Syslog messages on a UDP socket, use <Op>accept_udp</Op>:
 
 ```tql
-from_udp "0.0.0.0:514"
+accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 publish "syslog"
 ```
 
-To use TCP instead of UDP, use <Op>load_tcp</Op> with
+To use TCP instead of UDP, use <Op>accept_tcp</Op> with
 <Op>read_syslog</Op>:
 
 ```tql
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog
 }
 publish "syslog"
 ```
 
-The pipeline inside `load_tcp` executes _for each accepted connection_.
+The pipeline inside <Op>accept_tcp</Op> executes _for each accepted connection_.
 
 ### Parsing CEF, LEEF, or JSON Payloads
 
@@ -125,7 +124,7 @@ original syslog line alongside the parsed fields. Use the `raw_message`
 parameter to store the unparsed input:
 
 ```tql
-load_tcp "0.0.0.0:514" {
+accept_tcp "0.0.0.0:514" {
   read_syslog raw_message=raw
 }
 ```
@@ -186,7 +185,7 @@ When a record omits the SD-ID, Tenzir stores the parsed parameters under
 Tenzir also supports **creating** Syslog messages from structured events via
 <Op>write_syslog</Op>.
 
-Here's a basic example that emits a single Syslog line over UDP:
+Here's a basic example that emits a single Syslog line over TCP:
 
 ```tql
 from {
@@ -200,12 +199,13 @@ from {
   structured_data: {},
   message: " PARENT process running...",
 }
-write_syslog
-save_udp "1.2.3.4:514"
+to_tcp "1.2.3.4:514" {
+  write_syslog
+}
 ```
 
 This pipeline sends the following RFC 5424-formatted message to
-`1.2.3.4:514/udp`:
+`1.2.3.4:514/tcp`:
 
 ```txt
 <30>1 2020-03-02T18:44:46.000000Z parallels-Parallels-Virtual-Platform packagekitd 1370 - -  PARENT process running...

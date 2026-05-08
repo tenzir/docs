@@ -7,7 +7,7 @@ example: 'measure'
 Replaces the input with metrics describing the input.
 
 ```tql
-measure [real_time=bool, cumulative=bool]
+measure [cumulative=bool]
 ```
 
 ## Description
@@ -31,13 +31,6 @@ type tenzir.measure.bytes = record{
 }
 ```
 
-### `real_time = bool (optional)`
-
-Whether to emit metrics immediately with every batch, rather than buffering
-until the upstream operator stalls, i.e., is idle or waiting for further input.
-
-The is especially useful when `measure` should emit data without latency.
-
 ### `cumulative = bool (optional)`
 
 Whether to emit running totals for the `events` and `bytes` fields rather than
@@ -48,7 +41,7 @@ per-batch statistics.
 ### Get the number of bytes read incrementally for a file
 
 ```tql
-load_file "input.json"
+from_file "input.json"
 measure
 ```
 
@@ -63,8 +56,9 @@ measure
 ### Get the number of events read incrementally from a file
 
 ```tql
-load_file "eve.json"
-read_suricata
+from_file "eve.json" {
+  read_suricata
+}
 measure
 ```
 
@@ -86,8 +80,9 @@ measure
 ### Get the total number of events in a file, grouped by schema
 
 ```tql
-load_file "eve.json"
-read_suricata
+from_file "eve.json" {
+  read_suricata
+}
 measure
 summarize schema, events=sum(events)
 ```

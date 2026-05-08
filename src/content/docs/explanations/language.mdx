@@ -71,7 +71,7 @@ where timestamp > 2024-01-15T00:00:00
 Or monitor a live stream from a message bus:
 
 ```tql
-from "kafka://topic:9092"
+from_kafka "topic"
 where timestamp > now() - 1h
 ```
 
@@ -90,7 +90,7 @@ TQL's operators are **polymorphic**, adapting to different schemas at runtime:
 
 ```tql
 // Single pipeline processing multiple event types
-from "mixed_security_logs.json"
+from_file "mixed_security_logs.json"
 where timestamp > now() - 1h
 where severity? == "high" or risk_score? > 0.8
 select \

@@ -24,6 +24,8 @@ write-once-read-many use cases.
 Internally, BITZ uses Arrow's IPC format for serialization and deserialization,
 but prefixes each message with a 64 bit size prefix to support changing schemas
 between batches—something that Arrow's IPC format does not support on its own.
+Use <Op>write_bitz</Op> when you want to persist events in a compact columnar
+format and later load them again with <Op>read_bitz</Op>.
 
 ## See Also
 
@@ -31,3 +33,4 @@ between batches—something that Arrow's IPC format does not support on its own.
 - <Op>to_hive</Op>
 - <Op>write_feather</Op>
 - <Op>write_parquet</Op>
+- <Guide>parsing/parse-binary-data</Guide>

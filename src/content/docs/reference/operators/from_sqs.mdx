@@ -1,0 +1,129 @@
+---
+title: from_sqs
+category: Inputs/Events
+example: 'from_sqs "sqs://tenzir", poll_time=5s'
+---
+
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
+
+Receives messages from an [Amazon SQS][sqs] queue.
+
+[sqs]: https://docs.aws.amazon.com/sqs/
+
+```tql
+from_sqs queue:str, [poll_time=duration, aws_region=str, aws_iam=record]
+```
+
+## Description
+
+[Amazon Simple Queue Service (Amazon SQS)][sqs] is a fully managed message
+queueing service for decoupling distributed systems. The `from_sqs` operator
+reads messages from an SQS queue and emits one event per message.
+
+The emitted events use the `tenzir.sqs` schema with these fields:
+
+| Field                      | Type     | Description                               |
+| -------------------------- | -------- | ----------------------------------------- |
+| `message`                  | `string` | The SQS message body.                     |
+| `message_id`               | `string` | The SQS message ID.                       |
+| `sent_time`                | `time`   | The time when SQS sent the message.       |
+| `first_receive_time`       | `time`   | The first time SQS delivered the message. |
+| `receive_count`            | `int`    | The approximate receive count.            |
+| `sender_id`                | `string` | The sender ID reported by SQS.            |
+| `message_group_id`         | `string` | The FIFO message group ID.                |
+| `message_deduplication_id` | `string` | The FIFO message deduplication ID.        |
+| `sequence_number`          | `string` | The FIFO sequence number assigned by SQS. |
+
+All fields except `message` and `message_id` are optional because SQS only
+returns them when they are present on the message.
+
+The operator uses long polling, which reduces empty responses when there are no
+messages available. After the operator emits a message successfully, it deletes
+the message from the queue.
+
+The operator requires the following AWS permissions:
+
+- `sqs:GetQueueUrl` (only when passing a queue name; not required for URLs)
+- `sqs:ReceiveMessage`
+- `sqs:DeleteMessage`
+
+### `queue: str`
+
+The name of the queue to receive messages from. You can optionally prefix the
+queue name with `sqs://`.
+
+You can also pass a full queue URL (`https://...` or `http://...`) instead of a
+name. When a URL is given, the operator skips the `GetQueueUrl` lookup and
+talks to the URL's host directly. Set `aws_region` when the queue is in a
+non-default AWS region so SigV4 signing matches.
+
+### `poll_time = duration (optional)`
+
+The long polling timeout per request.
+
+The value must be between `1s` and `20s`.
+
+Defaults to `3s`.
+
+### `aws_region = str (optional)`
+
+The AWS region for resolving the queue URL and receiving messages.
+
+If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
+it uses the default AWS SDK region resolution.
+
+<AWSIAMOptions />
+
+## Examples
+
+### Receive messages from a queue
+
+```tql
+from_sqs "sqs://tenzir"
+```
+
+### Parse JSON messages
+
+```tql
+from_sqs "sqs://alerts", poll_time=5s
+this = message.parse_json()
+```
+
+### Use an explicit region
+
+```tql
+from_sqs "my-queue", aws_region="us-east-1"
+```
+
+### Pass a queue URL directly
+
+```tql
+from_sqs "https://sqs.eu-west-1.amazonaws.com/123456789012/my-queue",
+  aws_region="eu-west-1"
+```
+
+### Use explicit credentials
+
+```tql
+from_sqs "my-queue", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-key"),
+  secret_access_key: secret("aws-secret")
+}
+```
+
+### Assume an IAM role
+
+```tql
+from_sqs "my-queue", aws_iam={
+  region: "eu-west-1",
+  assume_role: "arn:aws:iam::123456789012:role/my-sqs-role",
+  session_name: "tenzir-session"
+}
+```
+
+## See Also
+
+- <Op>to_sqs</Op>
+- <Guide>collecting/read-from-message-brokers</Guide>
+- <Integration>amazon/sqs</Integration>
