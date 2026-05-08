@@ -43,7 +43,7 @@ the message from the queue.
 
 The operator requires the following AWS permissions:
 
-- `sqs:GetQueueUrl`
+- `sqs:GetQueueUrl` (only when passing a queue name; not required for URLs)
 - `sqs:ReceiveMessage`
 - `sqs:DeleteMessage`
 
@@ -51,6 +51,11 @@ The operator requires the following AWS permissions:
 
 The name of the queue to receive messages from. You can optionally prefix the
 queue name with `sqs://`.
+
+You can also pass a full queue URL (`https://...` or `http://...`) instead of a
+name. When a URL is given, the operator skips the `GetQueueUrl` lookup and
+talks to the URL's host directly. Set `aws_region` when the queue is in a
+non-default AWS region so SigV4 signing matches.
 
 ### `poll_time = duration (optional)`
 
@@ -88,6 +93,13 @@ this = message.parse_json()
 
 ```tql
 from_sqs "my-queue", aws_region="us-east-1"
+```
+
+### Pass a queue URL directly
+
+```tql
+from_sqs "https://sqs.eu-west-1.amazonaws.com/123456789012/my-queue",
+  aws_region="eu-west-1"
 ```
 
 ### Use explicit credentials
