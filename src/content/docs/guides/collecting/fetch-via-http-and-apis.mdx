@@ -315,7 +315,7 @@ By default, `from_http` fails the pipeline for non-`2xx` responses and emits an
 error instead of producing an event.
 
 If you want to handle HTTP errors gracefully, set `error_field` so `from_http`
-stores the error as a string in that field and continues emitting events:
+stores the error as a `blob` in that field and continues emitting events:
 
 ```tql
 from_http "https://my-server/health", error_field="error" {
