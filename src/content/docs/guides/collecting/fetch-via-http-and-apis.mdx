@@ -11,7 +11,7 @@ result sets.
 
 Tenzir has two HTTP client operators that share the same core client options:
 
-- [`from_http`](/reference/operators/from_http) is a **source** operator that
+- [`from_http`](/reference/operators/from_http) is a **input** operator that
   starts a pipeline with an HTTP request and parses the response into events.
   Use it for standalone API calls and paginated API ingestion.
 - [`to_http`](/reference/operators/to_http) is an **output** operator that
@@ -175,7 +175,6 @@ from_http "https://api.example.com/status" {
 }
 ```
 
-
 ## Pagination and Bulk Processing
 
 Handle APIs that return large datasets across multiple pages.
@@ -205,7 +204,6 @@ Link: <https://api.example.com/items?page=2>; rel="next"
 
 Relative URLs in the `Link` header are resolved against the request URL, so both
 absolute and relative pagination links work correctly.
-
 
 ### [OData](https://www.oasis-open.org/standard/odata-v4-01-os/) pagination
 
@@ -311,18 +309,20 @@ from_http "https://unreliable-api.example.com/data",
 }
 ```
 
-### Status Code Handling
+### Status code handling
 
-Check HTTP status codes using the `$response` variable to handle different
-response types:
+By default, `from_http` fails the pipeline for non-`2xx` responses and emits an
+error instead of producing an event.
+
+If you want to handle HTTP errors gracefully, set `error_field` so `from_http`
+stores the error as a string in that field and continues emitting events:
 
 ```tql
-from_http "https://api.example.com/data" {
-  read_json
-  where $response.code >= 200 and $response.code < 300
+from_http "https://my-server/health", error_field="error" {
+  read_lines
 }
+where error != null
 ```
-
 
 ## Best Practices
 
@@ -333,10 +333,5 @@ Follow these practices for reliable and efficient API integration:
 1. **Respect rate limits**. Use `paginate_delay` to control request rates.
 1. **Configure approriate retry logic**. Configure `max_retry_count` and
    `retry_delay` for handling network or server unavailablity.
-1. **Handle errors gracefully**. Use `error_field` in `from_http` to check
-   status codes and implement fallback logic.
-1. **Monitor API usage**. Track response times and error rates for
-   performance.
-1. **Prefer built-in pagination modes when available**. Use `paginate="link"`
-   for APIs that support RFC 8288 `Link` headers or `paginate="odata"` for OData
-   collection envelopes instead of writing custom lambda expressions.
+1. **Handle errors gracefully**. Use `error_field` in `from_http` if you want
+   to keep processing non-`2xx` responses instead of failing the pipeline.
