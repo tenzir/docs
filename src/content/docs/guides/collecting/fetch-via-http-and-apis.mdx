@@ -2,22 +2,24 @@
 title: Fetch via HTTP and APIs
 ---
 
-This guide shows you how to fetch data from HTTP APIs using
-the <Op>from_http</Op> and <Op>http</Op> operators. You'll learn to make GET
-requests, handle authentication, and implement pagination for large result sets.
+This guide shows you how to interact with HTTP APIs using the
+<Op>from_http</Op> and <Op>to_http</Op> operators. You'll learn to make GET
+requests, send data, handle authentication, and implement pagination for large
+result sets.
 
 ## Choosing the Right Operator
 
-Tenzir has two HTTP client operators that share nearly identical options:
+Tenzir has two HTTP client operators that share the same core client options:
 
-- [`from_http`](/reference/operators/from_http) is a **source** operator that
-  starts a pipeline with an HTTP request. Use it for standalone API calls.
-- [`http`](/reference/operators/http) is a **transformation** operator that
-  enriches events flowing through a pipeline with HTTP responses. Use it when
-  you have existing data and want to make per-event API lookups.
+- [`from_http`](/reference/operators/from_http) is a **input** operator that
+  starts a pipeline with an HTTP request and parses the response into events.
+  Use it for standalone API calls and paginated API ingestion.
+- [`to_http`](/reference/operators/to_http) is an **output** operator that
+  sends events as HTTP requests. Use it for webhooks and HTTP-based ingestion
+  APIs.
 
-Most examples in this guide use `from_http`. Unless noted otherwise, the same
-options work with `http` as well.
+Most examples in this guide use `from_http`, because it is the operator for
+fetching data from APIs.
 
 ## Basic API Requests
 
@@ -28,55 +30,23 @@ Start with these fundamental patterns for making HTTP requests to APIs.
 To fetch data from an API endpoint, pass the URL as the first parameter:
 
 ```tql
-from_http "https://api.example.com/data"
+from_http "https://api.example.com/data" {
+  read_json
+}
 ```
 
-The operator makes a GET request by default and forwards the response as an
-event.
+The operator makes a GET request by default and sends the response body to the
+required parsing sub-pipeline.
 
-### Parsing the HTTP Response Body
+### Parsing the HTTP response body
 
-The `from_http` and `http` operators automatically determine how to parse the
-HTTP response body using multiple methods:
+The `from_http` operator requires an explicit parsing sub-pipeline. Use it to
+specify how Tenzir should parse the response body.
 
-1. **URL-based inference**: The operators first check the URL's file extension
-   to infer both the format (JSON, CSV, Parquet, etc.) and compression type
-   (gzip, zstd, etc.).
+The operator automatically handles HTTP `Content-Encoding`. If the downloaded
+file itself is compressed, add the matching decompressor to the sub-pipeline.
 
-2. **Header-based inference**: If the format cannot be determined from the URL,
-   the operators fall back to using the HTTP `Content-Type` and
-   `Content-Encoding` response headers.
-
-3. **Manual specification**: You can always override automatic inference by
-   providing a parsing pipeline.
-
-#### Automatic Format and Compression Inference
-
-When the URL contains a recognizable file extension, the operators automatically
-handle decompression and parsing:
-
-```tql
-from_http "https://example.org/data/events.csv.zst"
-```
-
-This automatically infers `zstd` compression and `CSV` format from the file
-extension, decompresses, and parses accordingly.
-
-For URLs without clear extensions, the operators use HTTP headers:
-
-```tql
-from_http "https://example.org/download"
-```
-
-If the server responds with `Content-Type: application/json` and
-`Content-Encoding: gzip`, the operator will decompress and parse as JSON.
-
-#### Manual Format Specification
-
-You can manually override the parser for the response body by specifying a
-parsing pipeline, i.e., a pipeline that transforms bytes to events. For example,
-if an API returns CSV data without a proper `Content-Type`, you can specify the
-parsing pipeline as follows:
+For example, if an API returns CSV data, you can parse it as follows:
 
 ```tql
 from_http "https://api.example.com/users" {
@@ -87,18 +57,17 @@ from_http "https://api.example.com/users" {
 This parses the response from CSV into structured events that you can process
 further.
 
-Similarly, if you need to handle specific compression and format combinations
-that aren't automatically detected:
+If the downloaded file itself is compressed, add the decompressor explicitly:
 
 ```tql
-from_http "https://example.org/archive" {
+from_http "https://example.org/archive.json.gz" {
   decompress_gzip
   read_json
 }
 ```
 
-This explicitly specifies to decompress gzip and then parse as JSON, regardless
-of the URL or HTTP headers.
+This decompresses the downloaded gzip file and then parses the response as
+JSON.
 
 ### POST Requests with Data
 
@@ -106,27 +75,23 @@ Send data to APIs by specifying the `method` parameter as "post" and providing
 the request body in the `body` parameter:
 
 ```tql
-from_http "https://api.example.com/users",
-  method="post",
-  body={"name": "John", "email": "john@example.com"}
+let $body = {"name": "John", "email": "john@example.com"}
+from_http "https://api.example.com/users", method="post", body=$body {
+  read_json
+}
 ```
 
-Similarly, with the `http` operator you can also parameterize the entire HTTP
-request using event fields by referencing field values for each parameter:
+Use <Op>to_http</Op> when you want to send existing events to an HTTP API:
 
 ```tql
-from {
-  url: "https://api.example.com/users",
-  method: "post",
-  data: {
-    name: "John",
-    email: "john@example.com"
-  }
+from {name: "John", email: "john@example.com"}
+to_http "https://api.example.com/users" {
+  write_json
 }
-http url, method=method, body=data
 ```
 
-The operators automatically use POST method when you specify a body.
+The `from_http` operator automatically uses `post` when you specify a body.
+The `to_http` operator uses `post` by default.
 
 ## Request Configuration
 
@@ -139,9 +104,12 @@ Include custom headers by providing the `headers` parameter as a record
 containing key-value pairs:
 
 ```tql
-from_http "https://api.example.com/data", headers={
-    "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
-  }
+let $headers = {
+  "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
+}
+from_http "https://api.example.com/data", headers=$headers {
+  read_json
+}
 ```
 
 Headers help you authenticate with APIs and specify request formats. Use
@@ -157,7 +125,9 @@ from_http "https://secure-api.example.com/data",
   tls={
     certfile: "/path/to/client.crt",
     keyfile: "/path/to/client.key",
-  }
+  } {
+  read_json
+}
 ```
 
 Use these options when APIs require client certificate authentication.
@@ -166,7 +136,9 @@ To skip peer verification (e.g., for self-signed certificates in development):
 
 ```tql
 from_http "https://dev-api.example.com/data",
-  tls={skip_peer_verification: true}
+  tls={skip_peer_verification: true} {
+  read_json
+}
 ```
 
 ### Timeout and Retry Configuration
@@ -178,35 +150,19 @@ Configure timeouts and retry behavior by setting the `connection_timeout`,
 from_http "https://api.example.com/data",
   connection_timeout=10s,
   max_retry_count=3,
-  retry_delay=2s
+  retry_delay=2s {
+  read_json
+}
 ```
 
-For `from_http`, these settings retry transient transport failures and HTTP
+These settings retry transient transport failures and HTTP
 `429` and `5xx` responses with exponential backoff.
 
-## Data Enrichment
+## Response metadata
 
-Use HTTP requests to enrich existing data with information from external APIs.
+Use `from_http` to inspect HTTP response metadata while parsing the response.
 
-### Preserving Input Context
-
-Keep original event data while adding API responses by specifying the
-`response_field` parameter on the [`http`](/reference/operators/http) operator
-to control where the response is stored:
-
-```tql
-from {
-  domain: "example.com",
-  severity: "HIGH",
-}
-http f"https://threat-intel.example.com/lookup?domain={domain}",
-  response_field=threat_data
-```
-
-This approach preserves your original data and adds API responses in a specific
-field.
-
-### Accessing Response Metadata
+### Accessing response metadata
 
 With `from_http`, use the `$response` variable inside a parsing pipeline to
 access HTTP status codes and headers:
@@ -217,14 +173,6 @@ from_http "https://api.example.com/status" {
   status_code = $response.code
   server = $response.headers.Server
 }
-```
-
-With the `http` operator, use the `metadata_field` parameter instead:
-
-```tql
-from {url: "https://api.example.com/status"}
-http url, metadata_field=http_meta
-where http_meta.code >= 200 and http_meta.code < 300
 ```
 
 ## Pagination and Bulk Processing
@@ -240,7 +188,9 @@ follow these automatically:
 
 ```tql
 from_http "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10",
-  paginate="link"
+  paginate="link" {
+  read_json
+}
 ```
 
 The operator parses the `Link` header, finds the `rel=next` relation, and
@@ -254,13 +204,6 @@ Link: <https://api.example.com/items?page=2>; rel="next"
 
 Relative URLs in the `Link` header are resolved against the request URL, so both
 absolute and relative pagination links work correctly.
-
-The same approach works with the <Op>http</Op> operator:
-
-```tql
-from {url: "https://api.github.com/repos/tenzir/tenzir/issues?per_page=10"}
-http url, paginate="link"
-```
 
 ### [OData](https://www.oasis-open.org/standard/odata-v4-01-os/) pagination
 
@@ -287,17 +230,17 @@ need to inspect or rebuild query parameters such as `$skiptoken`. Pagination
 stops when the response omits `@odata.nextLink` or when the field is not a
 string. Follow-up requests use `GET` and reuse the configured request headers.
 
-### Lambda-Based Pagination
+### Lambda-based pagination
 
-The [`http`](/reference/operators/http) operator additionally supports
-lambda-based pagination for APIs with custom pagination schemes. Provide a
-lambda function to the `paginate` parameter that extracts the next page URL from
-the response:
+The `from_http` operator also supports lambda-based pagination for APIs with
+custom pagination schemes. Provide a lambda to `paginate` that extracts the
+next page URL from the parsed response:
 
 ```tql
-from {query: "tenzir"}
-http f"https://api.example.com/search?q={query}",
-  paginate=(x => x.next_url if x.has_more)
+from_http "https://api.example.com/search?q=tenzir",
+  paginate=(x => x.next_url if x.has_more) {
+  read_json
+}
 ```
 
 The operator continues making requests as long as the pagination lambda returns
@@ -307,35 +250,26 @@ You can also build pagination URLs dynamically:
 
 ```tql
 let $base = "https://api.example.com/items"
-from {category: "security"}
-http f"{$base}?category={category}&page=1",
-  paginate=(x => f"{$base}?category={category}&page={x.page + 1}" if x.page < x.total_pages)
+from_http f"{$base}?category=security&page=1",
+  paginate=(x => f"{$base}?category=security&page={x.page + 1}" if x.page < x.total_pages) {
+  read_json
+}
 ```
 
-### Rate Limiting
+### Rate limiting
 
-Control request frequency by configuring the `paginate_delay` parameter to add
-delays between requests and the `parallel` parameter to limit concurrent
-requests:
+Control request frequency by configuring `paginate_delay` to add delays between
+pagination requests:
 
 ```tql
-from {domain: "example.com"}
-http f"https://api.example.com/scan?q={domain}",
+from_http "https://api.example.com/scan?q=example.com",
   paginate=(x => x.next_url if x.has_next),
-  paginate_delay=500ms,
-  parallel=2
+  paginate_delay=500ms {
+  read_json
+}
 ```
 
-Use `paginate_delay` and `parallel` to manage request rates appropriately.
-
-:::note[HTTP Pipelining]
-The `parallel` option effectively controls HTTP request pipelining. It exists
-only for the `http` operator, because unlike `from_http`, it can receive several
-events from its upstream operator, each of which fire off a new HTTP request.
-The corresponding responses may still be in transit before the next request
-arrives. With the `parallel` option, you specify the exact number of in-flight
-responses.
-:::
+Use `paginate_delay` to manage request rates appropriately.
 
 ## Practical Examples
 
@@ -370,48 +304,34 @@ of retry attempts and `retry_delay` to control the base delay between retries:
 ```tql
 from_http "https://unreliable-api.example.com/data",
   max_retry_count=5,
-  retry_delay=2s
-```
-
-### Status Code Handling
-
-Check HTTP status codes using the `$response` variable to handle different
-response types:
-
-```tql
-from_http "https://api.example.com/data" {
+  retry_delay=2s {
   read_json
-  where $response.code >= 200 and $response.code < 300
 }
 ```
 
-With the `http` operator, use `metadata_field` instead:
+### Status code handling
+
+By default, `from_http` fails the pipeline for non-`2xx` responses and emits an
+error instead of producing an event.
+
+If you want to handle HTTP errors gracefully, set `error_field` so `from_http`
+stores the error as a `blob` in that field and continues emitting events:
 
 ```tql
-from {url: "https://api.example.com/data"}
-http url, metadata_field=meta
-where meta.code >= 200 and meta.code < 300
+from_http "https://my-server/health", error_field="error" {
+  read_lines
+}
+where error != null
 ```
 
 ## Best Practices
 
 Follow these practices for reliable and efficient API integration:
 
-1. **Use appropriate timeouts**. Set a reasonable `connection_timeout` for your
-   use case.
-2. **Implement retry logic**. Configure `max_retry_count` and `retry_delay` for
-   handling transient transport failures and HTTP `429` and `5xx` responses.
-3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control
-   request rates.
-4. **Handle errors gracefully**. Use `$response` in `from_http` parsing
-   pipelines or `metadata_field` with `http` to check status codes and implement
-   fallback logic.
-5. **Secure credentials**. Access API keys and tokens via
+1. **Secure credentials**. Access API keys and tokens via
    [secrets](/explanations/secrets), not in code.
-6. **Monitor API usage**. Track response times and error rates for
-   performance.
-7. **Leverage automatic format inference**. Use descriptive file extensions in
-   URLs when possible to enable automatic format and compression detection.
-8. **Prefer built-in pagination modes when available**. Use `paginate="link"`
-   for APIs that support RFC 8288 `Link` headers or `paginate="odata"` for OData
-   collection envelopes instead of writing custom lambda expressions.
+1. **Respect rate limits**. Use `paginate_delay` to control request rates.
+1. **Configure approriate retry logic**. Configure `max_retry_count` and
+   `retry_delay` for handling network or server unavailablity.
+1. **Handle errors gracefully**. Use `error_field` in `from_http` if you want
+   to keep processing non-`2xx` responses instead of failing the pipeline.
