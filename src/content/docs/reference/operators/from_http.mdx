@@ -26,9 +26,11 @@ events.
 The `from_http` operator requires a parser sub-pipeline. The operator sends the
 HTTP response body to that sub-pipeline as bytes.
 
-Use the sub-pipeline to decode compression and parse the response body. For
-example, use `decompress_gzip` followed by `read_json` for gzip-compressed JSON
-responses.
+Use the sub-pipeline to parse the response body. The operator automatically
+handles HTTP `Content-Encoding`. If the downloaded file itself is compressed,
+add the appropriate decompressor to the sub-pipeline. For example, use
+`decompress_gzip` followed by `read_json` for a downloaded gzip-compressed JSON
+file.
 
 ### `url: string`
 
@@ -83,7 +85,7 @@ requests with the same headers.
 
 The duration to wait between consecutive pagination requests.
 
-Defaults to `1s`.
+Defaults to `0s`.
 
 ### `error_field = field (optional)`
 
