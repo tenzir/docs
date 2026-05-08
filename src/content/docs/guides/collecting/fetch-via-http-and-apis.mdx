@@ -181,7 +181,8 @@ from_http "https://api.example.com/data",
   retry_delay=2s
 ```
 
-These settings help handle network issues and API rate limiting gracefully.
+For `from_http`, these settings retry transient transport failures and HTTP
+`429` and `5xx` responses with exponential backoff.
 
 ## Data Enrichment
 
@@ -363,9 +364,8 @@ Handle API errors and failures gracefully in your data pipelines.
 
 ### Retry Configuration
 
-Configure automatic retries by setting the `max_retry_count` parameter to
-specify the number of retry attempts and `retry_delay` to control the time
-between retries:
+Configure automatic retries by setting `max_retry_count` to control the number
+of retry attempts and `retry_delay` to control the base delay between retries:
 
 ```tql
 from_http "https://unreliable-api.example.com/data",
@@ -400,7 +400,7 @@ Follow these practices for reliable and efficient API integration:
 1. **Use appropriate timeouts**. Set a reasonable `connection_timeout` for your
    use case.
 2. **Implement retry logic**. Configure `max_retry_count` and `retry_delay` for
-   handling transient failures.
+   handling transient transport failures and HTTP `429` and `5xx` responses.
 3. **Respect rate limits**. Use `parallel` and `paginate_delay` to control
    request rates.
 4. **Handle errors gracefully**. Use `$response` in `from_http` parsing

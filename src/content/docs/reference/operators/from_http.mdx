@@ -38,9 +38,52 @@ scheme is omitted, `https://` is assumed.
 The URL is resolved as a [secret](/explanations/secrets), so you can pass a
 secret name to avoid hardcoding sensitive URLs.
 
-import HTTPClientOptions from '@partials/operators/HTTPClientOptions.mdx';
+import HttpClientOptions from '@partials/operators/HttpClientOptions.mdx';
 
-<HTTPClientOptions />
+<HttpClientOptions />
+
+### `body = blob|record|string (optional)`
+
+Body to send with the HTTP request.
+
+If the value is a `record`, the body is encoded according to the `encode`
+option and Tenzir sets an appropriate `Content-Type` header.
+
+### `encode = string (optional)`
+
+Specifies how to encode `record` bodies. Supported values:
+
+- `json`
+- `form`
+
+Defaults to `json`.
+
+### `paginate = record -> string | string (optional)`
+
+Controls automatic pagination of HTTP responses.
+
+**Lambda mode**: A lambda expression to evaluate against the parsed result of a
+request. If the expression evaluates successfully and returns a non-null
+string, Tenzir uses that string as the URL for a new `GET` request with the
+same headers.
+
+**Link mode**: The string `"link"` to automatically follow pagination links in
+the HTTP `Link` response header as defined in [RFC
+8288](https://datatracker.ietf.org/doc/html/rfc8288). Tenzir follows the
+`rel=next` relation until the response no longer contains one.
+
+**[OData](https://www.oasis-open.org/standard/odata-v4-01-os/) mode**: The
+string `"odata"` to follow OData collection responses such as Microsoft Graph.
+The response body must be a JSON object with a top-level `value` array. Tenzir
+emits each object from `value`, follows a top-level string
+`@odata.nextLink` as an opaque URL, and sends follow-up requests as `GET`
+requests with the same headers.
+
+### `paginate_delay = duration (optional)`
+
+The duration to wait between consecutive pagination requests.
+
+Defaults to `1s`.
 
 ### `error_field = field (optional)`
 
@@ -49,6 +92,9 @@ Field to insert the response body for HTTP error responses (status codes not in 
 When set, any HTTP response with a status code outside the 200–399 range will
 have its body stored in this field as a `blob`. Otherwise, error responses are
 skipped and an error is emitted.
+
+Retryable HTTP responses (`429` and `5xx`) are retried before the operator
+emits the final error response.
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
@@ -178,8 +224,8 @@ from_http "https://api.example.com/data", max_retry_count=3, retry_delay=2s {
 }
 ```
 
-This retries eligible failures up to 3 times, waiting 2 seconds between
-attempts.
+This retries transient transport failures and HTTP `429` and `5xx` responses
+up to 3 times. The delay starts at 2 seconds and backs off exponentially.
 
 ## See Also
 
