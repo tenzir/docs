@@ -23,15 +23,31 @@ For example, write `from {x: 42}` and click _Run_ to see a single event show up.
 
 ## On the command line
 
-On the command line, run `tenzir <pipeline>` where `<pipeline>` is the
-definition of the pipeline. See [Install
-Tenzir](/guides/installation) for how to get the binary.
+On the command line, run `tenzir <pipeline>` where `<pipeline>` is the definition
+of the pipeline. See [Install Tenzir](/guides/installation) for how to get the
+binary.
 
-If the pipeline expects events as its input, an implicit `from_stdin |
-read_json` will be prepended. If it expects bytes instead, only `from_stdin` is
-prepended. Likewise, if the pipeline outputs events, an implicit `to_stdout`
-will be appended. If it outputs bytes instead, no implicit output operator is
-appended.
+The command-line runner completes open pipelines with standard input or standard
+output. A pipeline that already starts with a source and ends with a sink runs as
+written:
+
+```sh
+tenzir 'from_file "events.json" { read_json } | to_file "events.csv" { write_csv }'
+```
+
+A transformation-only pipeline reads JSON events from standard input and writes
+TQL events to standard output:
+
+```sh
+echo '{"x":1}' | tenzir 'select x | head'
+```
+
+A parser-to-printer pipeline reads bytes from standard input and writes bytes to
+standard output:
+
+```sh
+cat input.yaml | tenzir 'read_yaml | select x | write_csv'
+```
 
 The diagram below illustrates these mechanics:
 
