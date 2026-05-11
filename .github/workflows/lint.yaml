@@ -27,7 +27,7 @@ jobs:
       - name: Validate Lefthook config
         run: bun run lefthook:validate
 
-      - name: Run Lefthook on changed files
+      - name: Run Lefthook
         env:
           BASE_REF: ${{ github.base_ref }}
           BEFORE_SHA: ${{ github.event.before }}
@@ -44,5 +44,11 @@ jobs:
             base="$(git rev-list --max-parents=0 HEAD)"
           fi
 
-          git diff --name-only -z --diff-filter=ACMR "$base" HEAD |
-            bun run lint:files
+          if git diff --name-only --diff-filter=ACMRD "$base" HEAD |
+            grep -Eq '^(lefthook\.yml|package\.json|bun\.lock|biome\.json|\.prettierrc\.json|\.markdownlint\.json|\.github/workflows/lint\.yaml)$'
+          then
+            bun run lint
+          else
+            git diff --name-only -z --diff-filter=ACMR "$base" HEAD |
+              bun run lint:files
+          fi
