@@ -14,18 +14,28 @@
     "generate:excalidraw": "node scripts/generate-excalidraw-svgs.mjs",
     "generate:excalidraw:placeholders": "node scripts/generate-placeholder-svgs.mjs",
     "sync:openapi": "bash scripts/sync-openapi.sh",
-    "lint": "bun run lint:markdown && bun run lint:biome && bun run lint:prettier",
+    "lint": "lefthook run pre-push --all-files",
+    "lint:files": "lefthook run pre-push --files-from-stdin",
+    "lint:push": "lefthook run pre-push",
     "lint:markdown": "markdownlint '**/*.md' '**/*.mdx' --ignore node_modules --ignore .astro",
+    "lint:markdown:files": "markdownlint --ignore node_modules --ignore .astro",
     "lint:markdown:fix": "markdownlint '**/*.md' '**/*.mdx' --ignore node_modules --ignore .astro --fix",
+    "lint:markdown:fix:files": "markdownlint --ignore node_modules --ignore .astro --fix",
     "lint:biome": "biome check",
+    "lint:biome:files": "biome check",
     "lint:biome:fix": "biome check --write",
+    "lint:biome:fix:files": "biome check --write",
     "lint:prettier": "prettier --check '**/*.md'",
+    "lint:prettier:files": "prettier --check",
     "lint:prettier:fix": "prettier --write '**/*.md'",
+    "lint:prettier:fix:files": "prettier --write",
+    "lefthook:install": "lefthook install",
+    "lefthook:validate": "lefthook validate",
     "test:inline-partials": "bun run scripts/verify-inline-partials.ts",
     "test:sitemap-excerpts": "bun run scripts/verify-sitemap-excerpts.ts",
     "build:linkcheck": "CHECK_LINKS=true bun run build",
     "build:full": "bun run generate && CHECK_LINKS=true LLMS_TXT=true bun run build",
-    "lint:fix": "bun run lint:markdown:fix && bun run lint:biome:fix && bun run lint:prettier:fix"
+    "lint:fix": "lefthook run fix --all-files"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.1",
@@ -71,6 +81,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.6",
     "@peculiar/webcrypto": "^1.5.0",
+    "lefthook": "^2.1.6",
     "markdownlint-cli": "^0.48.0",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1"

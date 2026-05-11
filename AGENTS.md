@@ -48,6 +48,18 @@ for live preview during development.
 Only use `bun run build` when you actually need to inspect build artifacts.
 Output goes to `dist/`.
 
+After installing dependencies, install the checked-in Git hooks with:
+
+```sh
+bun run lefthook:install
+```
+
+Git runs Lefthook's `pre-push` hook automatically after that. To reproduce the
+same harness manually across the repository, run `bun run lint`. To check an
+explicit file list, pass NUL-separated paths on standard input to
+`bun run lint:files`. To auto-fix formatting issues, run `bun run lint:fix` or
+`bunx lefthook run fix --file <path>` for targeted files.
+
 ### Generated Content
 
 Some content is auto-generated and excluded from linting:
@@ -75,6 +87,7 @@ Some content is auto-generated and excluded from linting:
 
 ### Linting
 
-- Run `bun run lint` to check markdownlint, ESLint, and Prettier.
+- Run `bun run lint` to check markdownlint, Biome, and Prettier through
+  Lefthook.
 - Run `bun run lint:fix` to apply automatic fixes across all linters.
 - Link checking runs separately in CI via `bun run build:linkcheck`.

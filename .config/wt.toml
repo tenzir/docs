@@ -1,5 +1,13 @@
 # Worktrunk project configuration
 # https://worktrunk.dev/reference/hook
 
-# Install dependencies when creating worktrees
-pre-start = "bun install"
+# Prepare new worktrees before follow-up commands run.
+[[pre-start]]
+deps = "bun install"
+
+[[pre-start]]
+lefthook = "bun run lefthook:install"
+
+# Gate Worktrunk merges with the same harness used by Git pre-push and CI.
+[[pre-merge]]
+lint = "bun run lint"
