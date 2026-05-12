@@ -1,0 +1,36 @@
+min_version: 2.1.6
+glob_matcher: doublestar
+skip_lfs: true
+no_auto_install: true
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: markdownlint
+      glob: "**/*.{md,mdx}"
+      run: bun run lint:markdown:files -- {push_files}
+
+    - name: prettier
+      glob: "**/*.md"
+      exclude: ".claude/CLAUDE.md"
+      run: bun run lint:prettier:files -- {push_files}
+
+    - name: biome
+      glob: "**/*.{astro,js,jsx,json,jsonc,mjs,ts,tsx}"
+      run: bun run lint:biome:files -- {push_files}
+
+fix:
+  parallel: false
+  jobs:
+    - name: markdownlint
+      glob: "**/*.{md,mdx}"
+      run: bun run lint:markdown:fix:files -- {files}
+
+    - name: biome
+      glob: "**/*.{astro,js,jsx,json,jsonc,mjs,ts,tsx}"
+      run: bun run lint:biome:fix:files -- {files}
+
+    - name: prettier
+      glob: "**/*.md"
+      exclude: ".claude/CLAUDE.md"
+      run: bun run lint:prettier:fix:files -- {files}
