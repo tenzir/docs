@@ -4,7 +4,9 @@ title: Sentinel & Log Analytics
 
 Send security logs and events from Tenzir to Microsoft's Log Analytics
 platform. You can analyze them with [Microsoft Sentinel][sentinel], create
-alerts with [Azure Monitor][azure-monitor], or query them with [KQL][kql].
+alerts with [Azure Monitor][azure-monitor], or query them with [KQL][kql]. To
+read Microsoft Entra and Microsoft 365 data from Microsoft Graph, use
+<Integration>microsoft/graph</Integration> instead.
 
 [azure-monitor]: https://learn.microsoft.com/en-us/azure/azure-monitor/overview
 [sentinel]: https://learn.microsoft.com/en-us/azure/sentinel/overview
@@ -49,7 +51,10 @@ logs (like NetFlow or firewall allows) cost-effectively for up to 12 years.
 
 ## Prerequisites
 
-Before using this integration, set up the following in the Azure Portal:
+Before using this integration, set up the following in the Azure Portal. The
+[Logs Ingestion API overview][logs-ingestion-api], [Data Collection Endpoint
+(DCE) overview][dce], and [Data Collection Rule (DCR) overview][dcr] explain
+how these Azure resources work together.
 
 1. **Log Analytics Workspace**: [Create a workspace][create-workspace] if you
    don't have one.
@@ -64,6 +69,7 @@ Before using this integration, set up the following in the Azure Portal:
 6. **Permissions**: Grant your Entra app the **Monitoring Metrics Publisher**
    role on the DCR.
 
+[logs-ingestion-api]: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/logs-ingestion-api-overview
 [create-workspace]: https://learn.microsoft.com/en-us/azure/azure-monitor/logs/quick-create-workspace
 [entra]: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app
 [create-dce]: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-collection-endpoint-overview#create-a-data-collection-endpoint
@@ -122,3 +128,9 @@ to_azure_log_analytics \
 
 Auxiliary tables store data in Parquet format with retention up to 12 years,
 making them ideal for historical forensics and ad-hoc KQL queries.
+
+## See Also
+
+- <Op>from_microsoft_graph</Op>
+- <Op>to_azure_log_analytics</Op>
+- <Integration>microsoft/graph</Integration>
