@@ -1,6 +1,6 @@
 /** Static redirect paths (external URLs, versioned aliases). */
 const STATIC_REDIRECTS = {
-  "/discord": "https://discord.gg/xqbDgVTCxZ",
+  "/discord": "https://discord.gg/AvUBhhpPBQ",
   "/sbom":
     "https://github.com/tenzir/tenzir/releases/latest/download/tenzir.spdx.json",
   // Architecture hoisting
