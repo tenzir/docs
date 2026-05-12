@@ -1,13 +1,9 @@
 ---
-import { pathWithBase } from "@utils/base";
-import { resolveLinkedPageTitle } from "@utils/page-title";
 import GuideIcon from "../icons/GuideIcon.astro";
-
-const path = Astro.slots.has("default")
-  ? (await Astro.slots.render("default")).trim()
-  : "";
-const href = pathWithBase(`/guides/${path}`);
-const title = await resolveLinkedPageTitle("guides", path);
+import SemanticPageLink from "./SemanticPageLink.astro";
 ---
 
-<a href={href} class="semantic-link"><GuideIcon class="inline-icon" />{title}</a>
+<SemanticPageLink collection="guides" hrefPrefix="/guides/">
+  <GuideIcon slot="icon" class="inline-icon" />
+  <slot />
+</SemanticPageLink>

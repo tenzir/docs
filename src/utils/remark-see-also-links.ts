@@ -6,6 +6,10 @@ import { remark } from "remark";
 import remarkMdx from "remark-mdx";
 import type { Plugin } from "unified";
 import { visit } from "unist-util-visit";
+import {
+  normalizePagePath,
+  parseSemanticLinkTarget,
+} from "./semantic-link-target";
 
 /**
  * Remark plugin for semantic cross-reference components such as Op and Fn.
@@ -92,8 +96,9 @@ export const remarkSeeAlsoLinks: Plugin<[], Root> = () => (tree) => {
       const slug = mdastToString(node).trim();
       if (!slug) return;
 
-      const path = slug.replace(/::/g, "/");
-      const href = `${semanticComponents[node.name].hrefPrefix}${path}`;
+      const { path, anchor } = parseSemanticLinkTarget(slug);
+      const normalizedPath = normalizePagePath(path).replace(/::/g, "/");
+      const href = `${semanticComponents[node.name].hrefPrefix}${normalizedPath}${anchor}`;
 
       node.attributes = node.attributes || [];
       const hasHrefAttribute = node.attributes.some(

@@ -12,13 +12,13 @@ following rules:
 
 :::note[Pipeline Auto-Completion]
 When a pipeline is not closed, Tenzir attempts to _auto-complete_ it in
-interactive execution contexts. On the
-[command line](/guides/basic-usage/run-pipelines/#on-the-command-line), Tenzir
-uses standard input and standard output as the missing source or sink. For event
+interactive execution contexts. For the command-line execution context described
+in <Guide>basic-usage/run-pipelines#on-the-command-line</Guide>, Tenzir uses
+standard input and standard output as the missing source or sink. For event
 pipelines, it prepends `from_stdin { read_json }` or appends
 `to_stdout { write_tql }`. For byte pipelines, it reads raw bytes from standard
-input or writes raw bytes to standard output. In the
-[web interface](/guides/basic-usage/run-pipelines/#in-the-platform),
+input or writes raw bytes to standard output. For the web execution context
+described in <Guide>basic-usage/run-pipelines#in-the-platform</Guide>,
 auto-completion takes place with an output operator: The web app
 appends <Op>serve</Op> to turn the dataflow into a REST API, allowing your
 browser to access it by routing the data through the platform.

@@ -17,8 +17,9 @@ operators, functions, and other documentation pages:
 `<Guide>node-setup/tune-performance</Guide>`,
 `<Integration>kafka</Integration>`.
 
-Use plain markdown links only when you need custom link text, emphasis, or a
-specific anchor target.
+Use plain markdown links only when you need custom link text or emphasis.
+Semantic components support anchor targets, for example
+`<Guide>node-setup/tune-performance#benchmark-the-node</Guide>`.
 
 ## Consecutive code blocks
 
