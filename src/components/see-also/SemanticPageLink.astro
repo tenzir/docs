@@ -1,0 +1,24 @@
+---
+import { pathWithBase } from "@utils/base";
+import { resolveLinkedPageTitle } from "@utils/page-title";
+import {
+  normalizePagePath,
+  parseSemanticLinkTarget,
+} from "@utils/semantic-link-target";
+
+interface Props {
+  collection: string;
+  hrefPrefix: string;
+}
+
+const { collection, hrefPrefix } = Astro.props;
+const target = Astro.slots.has("default")
+  ? (await Astro.slots.render("default")).trim()
+  : "";
+const { path, anchor } = parseSemanticLinkTarget(target);
+const pagePath = normalizePagePath(path);
+const href = pathWithBase(`${hrefPrefix}${pagePath}${anchor}`);
+const title = await resolveLinkedPageTitle(collection, pagePath);
+---
+
+<a href={href} class="semantic-link"><slot name="icon" />{title}</a>
