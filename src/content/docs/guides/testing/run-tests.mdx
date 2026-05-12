@@ -108,9 +108,19 @@ in that suite are included automatically. Empty and whitespace-only patterns
 are silently ignored.
 :::
 
-### By fixture tag
+### By fixture
 
-Use `--fixture-tag` to select tests by the fixtures they request:
+Use `--fixture-name` to select tests that request a fixture directly:
+
+```sh
+uvx tenzir-test --fixture-name node
+uvx tenzir-test --fixture-name docker-compose
+```
+
+Fixture-name matching is case-sensitive and uses the configured fixture name,
+not fixture options.
+
+Use `--fixture-tag` to select tests by fixture metadata:
 
 ```sh
 uvx tenzir-test --fixture-tag container
@@ -125,12 +135,17 @@ and `docker-compose` tags:
 uvx tenzir-test --fixture-tag docker-compose
 ```
 
-Repeat `--fixture-tag` to match any tag. Combine it with paths and `--match` to narrow the
+Repeat `--fixture-name` or `--fixture-tag` to match any selected fixture name
+or tag. Combine fixture selectors with paths and `--match` to narrow the
 selection:
 
 ```sh
+uvx tenzir-test tests/integrations/ --match kafka --fixture-name docker-compose
 uvx tenzir-test tests/integrations/ --match kafka --fixture-tag container
 ```
+
+Use `--fixture` only to start fixtures in standalone foreground mode. It
+doesn't select tests.
 
 ## Retry flaky tests
 
