@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -28,35 +26,4 @@ jobs:
         run: bun run lefthook:validate
 
       - name: Run Lefthook
-        env:
-          BASE_REF: ${{ github.base_ref }}
-          BEFORE_SHA: ${{ github.event.before }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-
-          if [ "$EVENT_NAME" = "pull_request" ]; then
-            git fetch --no-tags --depth=1 origin "$BASE_REF"
-            base="origin/$BASE_REF"
-          elif [ -n "$BEFORE_SHA" ] && [[ ! "$BEFORE_SHA" =~ ^0+$ ]]; then
-            base="$BEFORE_SHA"
-          else
-            base="$(git rev-list --max-parents=0 HEAD)"
-          fi
-
-          full_lint_required=false
-          while IFS= read -r file; do
-            case "$file" in
-              lefthook.yml|package.json|bun.lock|biome.json|.prettierrc.json|.prettierignore|.markdownlint.json|.markdownlintignore|.github/workflows/lint.yaml)
-                full_lint_required=true
-                break
-                ;;
-            esac
-          done < <(git diff --name-only --diff-filter=ACMRD "$base" HEAD)
-
-          if [ "$full_lint_required" = true ]; then
-            bun run lint
-          else
-            git diff --name-only -z --diff-filter=ACMR "$base" HEAD |
-              bun run lint:files
-          fi
+        run: bun run lint
