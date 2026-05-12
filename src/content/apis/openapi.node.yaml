@@ -2,10 +2,21 @@
 openapi: 3.0.0
 info:
   title: Tenzir REST API
-  version: "\"v0\""
-  description: "This API can be used to interact with a Tenzir Node in a RESTful manner.\n\nAll API requests must be authenticated with a valid token, which must be supplied in the `X-Tenzir-Token` request header. The token can be generated on the command-line using `tenzir-ctl web generate-token`.\n\nAll endpoints are versioned, and must be prefixed with `/v0`."
+  version: v0
+  description: "Use the Tenzir REST API to manage pipelines and read pipeline output from a Tenzir node.\n\nAuthenticate every request with a token in the `X-Tenzir-Token` request header. Generate tokens with `tenzir-ctl web generate-token`.\n\nAll endpoints are versioned. Prefix every path in this specification with `/v0`."
+  license:
+    name: BSD-3-Clause
+    url: https://github.com/tenzir/tenzir/blob/main/LICENSE
 servers:
-  - url: https://tenzir.example.com/api/v0
+  - url: /api/v0
+    description: Versioned API endpoint on the current Tenzir node.
+tags:
+  - name: Health
+    description: Node health checks.
+  - name: Pipelines
+    description: Pipeline lifecycle management.
+  - name: Pipeline output
+    description: Read events produced by running pipelines.
 security:
   - TenzirToken:
       []
@@ -30,7 +41,7 @@ components:
         id:
           type: string
           example: 08446737-da9b-4787-8599-97d85c48c3bb
-          description: The id of the pipeline to be updated. If not provided, a random id will be generated.
+          description: The pipeline ID. If omitted, Tenzir generates a random ID.
         definition:
           type: string
           example: export | where foo | publish /bar
@@ -42,11 +53,12 @@ components:
           example: zeek-monitoring-pipeline
         hidden:
           type: boolean
-          description: "A flag specifying whether this pipeline is hidden.\nHidden pipelines start automatically, are not persisted, and will not show up in the /pipeline/list endpoint response.\n"
+          description: "Whether this pipeline is hidden. Hidden pipelines start automatically,\nare not persisted, and are omitted from the `/pipeline/list` response.\n"
           default: false
           example: false
         ttl:
           type: string
+          nullable: true
           description: "A duration string specifying the maximum time for this pipeline to\nexist. No value means the pipeline is allowed to exist forever.\nThis parameter must be defined if the `hidden` parameter is true.\n"
           default: null
           example: 5min
@@ -61,7 +73,7 @@ components:
           example: 500ms
         unstoppable:
           type: boolean
-          description: "A flag specifying whether this pipeline is unstoppable.\nUnstoppable pipelines start automatically, fail when they complete, and can not be paused or stopped manually.\n"
+          description: "Whether this pipeline is unstoppable. Unstoppable pipelines start\nautomatically, fail when they complete, and can't be paused or stopped\nmanually.\n"
           default: false
           example: true
     Diagnostic:
@@ -91,50 +103,89 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Diagnostic"
-    Launch Response For Pipeline With Explicit Sink:
+    LaunchParameters:
+      type: object
+      required:
+        - definition
+      properties:
+        id:
+          type: string
+          example: 08446737-da9b-4787-8599-97d85c48c3bb
+          description: The pipeline ID. If omitted, Tenzir generates a random ID.
+        definition:
+          type: string
+          example: export | where foo
+          description: The pipeline definition.
+        name:
+          type: string
+          description: The human-readable name of the pipeline.
+          default: "[an auto-generated id]"
+          example: interactive-query
+        hidden:
+          type: boolean
+          description: Whether this pipeline is hidden.
+          default: false
+          example: true
+        ttl:
+          type: string
+          nullable: true
+          description: "A duration string specifying the maximum time for this pipeline to\nexist. No value means the pipeline is allowed to exist forever.\nThis parameter must be finite and defined if the `hidden` parameter is\ntrue.\n"
+          default: null
+          example: 5min
+        autostart:
+          $ref: "#/components/schemas/PipelineAutostart"
+        autodelete:
+          $ref: "#/components/schemas/PipelineAutodelete"
+        retry_delay:
+          type: string
+          description: The minimum time between automatic restarts after a pipeline error.
+          default: 1min
+          example: 500ms
+        unstoppable:
+          type: boolean
+          description: Whether this pipeline is unstoppable.
+          default: false
+          example: false
+        cache_id:
+          type: string
+          description: "The identifier for the `cache` operator, which is inserted only\nwhen this parameter is provided.\n"
+          example: 4ada2434-32asfe2s
+        cache_capacity:
+          type: integer
+          minimum: 1
+          description: The maximum number of events to keep in the `cache` operator.
+          example: 4000
+        cache_read_timeout:
+          type: string
+          description: "The time to live of the cache. Resets when reading from the cache.\n"
+          example: 1min
+        cache_write_timeout:
+          type: string
+          description: "The maximum time to live of the cache. Unlike the `cache_read_timeout`\nparameter, this does not reset when reading from the cache.\n"
+          example: 1h
+        serve_id:
+          type: string
+          description: The output stream identifier to create for reading events from this pipeline.
+          example: 4ada2434-32asfe2s
+        serve_buffer_size:
+          type: integer
+          minimum: 1
+          description: The maximum number of events to buffer for the output stream.
+          example: 4000
+    LaunchResponseForPipelineWithExplicitSink:
       type: object
       properties:
         deployable:
           type: boolean
           description: Returns this property with the value `true`.
-    Launch Response For Pipeline Without Explicit Sink:
+          example: true
+    LaunchResponseForPipelineWithoutExplicitSink:
       type: object
       properties:
         id:
           type: string
-          description: (If the pipeline does not end with a predefined sink) The id of the successfully created pipeline.
-    LaunchParameters:
-      allOf:
-        - $ref: "#/components/schemas/CreateParameters"
-          type: null
-          properties: null
-        - $ref: null
-          type: object
-          properties:
-            cache_id:
-              type: string
-              description: "The identifier for the `cache` operator, which is inserted only\nwhen this parameter is provided.\n"
-              example: 4ada2434-32asfe2s
-            cache_capacity:
-              type: integer
-              description: The maximum number of events to keep in the `cache` operator.
-              example: 4000
-            cache_read_timeout:
-              type: string
-              description: "The time to live of the cache. Resets when reading from the cache.\n"
-              example: 1min
-            cache_write_timeout:
-              type: string
-              description: "The maximum time to live of the cache. Unlike the `cache_read_timeout`\nparameter, this does not reset when reading from the cache.\n"
-              example: 1h
-            serve_id:
-              type: string
-              description: The identifier for the `serve` operator.
-              example: 4ada2434-32asfe2s
-            serve_buffer_size:
-              type: integer
-              description: The maximum number of events to keep in the `serve` operator.
-              example: 4000
+          description: The ID of the created pipeline. Present when Tenzir added an implicit output stream because the pipeline does not end with a sink.
+          example: 4c7f2b11-6169-4d1b-89b4-4fc0a68b3d4a
     Location:
       type: object
       description: A region in the source code, defined by byte offsets.
@@ -214,7 +265,7 @@ components:
           description: "A flag specifying whether this pipeline is unstoppable.\nUnstoppable pipelines start automatically, fail when they complete, and can not be paused or stopped manually.\n"
           example: true
         hidden:
-          type: bool
+          type: boolean
           description: Whether this pipeline is hidden. Hidden pipelines are only available through the `show pipelines` operator.
         created_at:
           type: integer
@@ -241,6 +292,7 @@ components:
             - completed
         error:
           type: string
+          nullable: true
           description: The error that the pipeline may have encountered during running.
         diagnostics:
           $ref: "#/components/schemas/Diagnostics"
@@ -256,10 +308,12 @@ components:
           $ref: "#/components/schemas/PipelineAutodelete"
         ttl:
           type: string
+          nullable: true
           description: If a TTL exists for this pipeline, the TTL as a duration string.
           example: 2min
         remaining_ttl:
           type: string
+          nullable: true
           description: If a TTL exists for this pipeline, the remaining TTL as a duration string.
           example: 10s
     PipelineLabel:
@@ -286,15 +340,20 @@ components:
 paths:
   /ping:
     post:
-      summary: Returns a success response
-      description: Returns a success response to indicate that the node is able to respond to requests. The response body includes the current node version.
+      tags:
+        - Health
+      operationId: pingNode
+      summary: Check node health
+      description: Checks whether the node can respond to authenticated API requests. The response includes the node version.
       responses:
         200:
-          description: OK.
+          description: The node is healthy.
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - version
                 properties:
                   version:
                     type: string
@@ -303,28 +362,39 @@ paths:
               example:
                 version: v2.3.0-rc3-32-g8529a6c43f
         401:
-          description: Not authenticated.
+          description: The request is missing a valid authentication token.
   /pipeline/create:
     post:
+      tags:
+        - Pipelines
+      operationId: createPipeline
       summary: Create a new pipeline
-      description: Creates a new pipeline. If `autostart.created` is `true`, the response is only sent after the pipeline was successfully started. If this fails, then the pipeline is immediately discarded, and the response contains the observed diagnostics. The error field then contains a rendered representation of the diagnostics. Otherwise, the diagnostics field is not present.
+      description: "Creates a pipeline.\n\nIf `autostart.created` is `true`, Tenzir sends the response after the\npipeline starts successfully. If startup fails, Tenzir discards the\npipeline and returns the observed diagnostics.\n"
       requestBody:
+        description: Pipeline creation request.
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/CreateParameters"
+            example:
+              definition: export | where foo | publish /bar
+              name: zeek-monitoring-pipeline
+              hidden: false
       responses:
         200:
-          description: Success.
+          description: The pipeline was created.
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
                 properties:
                   id:
                     type: string
                     description: The id of the successfully created pipeline.
+                    example: 4c7f2b11-6169-4d1b-89b4-4fc0a68b3d4a
         400:
           description: Invalid arguments or invalid pipeline.
           content:
@@ -342,8 +412,11 @@ paths:
                     $ref: "#/components/schemas/Diagnostics"
   /pipeline/delete:
     post:
+      tags:
+        - Pipelines
+      operationId: deletePipeline
       summary: Delete an existing pipeline
-      description: Deletes an existing pipeline.
+      description: Deletes a pipeline by ID.
       requestBody:
         description: Body for the delete endpoint
         required: true
@@ -360,7 +433,7 @@ paths:
                   description: The id of the pipeline to be deleted.
       responses:
         200:
-          description: Success.
+          description: The pipeline was deleted.
           content:
             application/json:
               schema:
@@ -382,30 +455,57 @@ paths:
                     description: The error message.
   /pipeline/launch:
     post:
+      tags:
+        - Pipelines
+      operationId: launchPipeline
       summary: Launch a new pipeline
-      description: Depending on whether the pipeline ends with a sink, create the pipeline with a [`serve` sink](https://docs.tenzir.com/operators/serve) with the provided `/pipeline/create` parameters or notify that this pipeline is deployable for further action.
+      description: "Creates a pipeline and prepares it for interactive use. If the pipeline\ndoes not end with a sink, Tenzir adds an implicit output stream and\nreturns the created pipeline ID. If the pipeline already has a sink,\nTenzir returns `deployable: true` so the caller can deploy it explicitly.\n"
       requestBody:
+        description: Pipeline launch request.
         required: true
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/LaunchParameters"
+            example:
+              definition: export | where foo
+              name: interactive-query
+              serve_id: query-1
+              serve_buffer_size: 4000
       responses:
         200:
-          description: Success.
+          description: The launch request was accepted.
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Launch Response For Pipeline With Explicit Sink"
-                  - $ref: "#/components/schemas/Launch Response For Pipeline Without Explicit Sink"
+                  - $ref: "#/components/schemas/LaunchResponseForPipelineWithExplicitSink"
+                  - $ref: "#/components/schemas/LaunchResponseForPipelineWithoutExplicitSink"
+        400:
+          description: Invalid arguments or invalid pipeline.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid arguments
+                    description: The error message.
+                  diagnostics:
+                    $ref: "#/components/schemas/Diagnostics"
   /pipeline/list:
     post:
-      summary: List all existing pipelines
-      description: Lists all existing pipelines.
+      tags:
+        - Pipelines
+      operationId: listPipelines
+      summary: List pipelines
+      description: Lists all visible pipelines.
       responses:
         200:
-          description: Success.
+          description: The pipeline list.
           content:
             application/json:
               schema:
@@ -423,7 +523,7 @@ paths:
                       definition: export | where foo | publish /bar
                       hidden: false
                       created_at: 1706180157837037485
-                      last_modifed: 1706180157837038016
+                      last_modified: 1706180157837038016
                       state: running
                       error: null
                       diagnostics:
@@ -433,7 +533,7 @@ paths:
                       definition: export asdf
                       hidden: false
                       created_at: 1706180157837037485
-                      last_modifed: 1706180157837038016
+                      last_modified: 1706180157837038016
                       state: failed
                       error: format 'asdf' not found
                       diagnostics:
@@ -453,8 +553,11 @@ paths:
                     description: The error message.
   /pipeline/reset-ttl:
     post:
+      tags:
+        - Pipelines
+      operationId: resetPipelineTtl
       summary: Reset the TTL of an existing pipeline
-      description: "Resets the TTL of an existing pipeline as specified, if one has been specified in the /create endpoint before.\nResetting the TTL means that the TTL-related timeout will start counting from zero seconds again, thus keeping the pipeline alive for longer.\n"
+      description: "Resets the TTL for existing pipelines that were created with a TTL.\nResetting the TTL restarts the TTL timer from zero seconds and keeps the\npipelines alive longer.\n"
       requestBody:
         description: Body for the reset-ttl endpoint
         required: true
@@ -470,13 +573,13 @@ paths:
                   items:
                     type: string
                   example:
-                    - 7
-                    - 1
-                    - 3
+                    - 4c7f2b11-6169-4d1b-89b4-4fc0a68b3d4a
+                    - 08446737-da9b-4787-8599-97d85c48c3bb
+                    - interactive-query
                   description: The id of pipelines whose TTL should be updated.
       responses:
         200:
-          description: Success.
+          description: The TTL was reset for the returned pipeline IDs.
           content:
             application/json:
               schema:
@@ -487,8 +590,8 @@ paths:
                     items:
                       type: string
                     example:
-                      - 7
-                      - 1
+                      - 4c7f2b11-6169-4d1b-89b4-4fc0a68b3d4a
+                      - interactive-query
                     description: The id of pipelines whose TTL has been successfully updated.
         400:
           description: Invalid arguments.
@@ -505,8 +608,11 @@ paths:
                     description: The error message.
   /pipeline/update:
     post:
+      tags:
+        - Pipelines
+      operationId: updatePipeline
       summary: Update pipeline state
-      description: "Update the state of the pipeline.\nAll values that are not explicitly included in the request are left in their old state.\n"
+      description: "Updates the definition, metadata, or lifecycle state of a pipeline.\nTenzir leaves omitted fields unchanged.\n"
       requestBody:
         description: Body for the update endpoint
         required: true
@@ -553,7 +659,7 @@ paths:
                   example: true
       responses:
         200:
-          description: Success.
+          description: The pipeline was updated.
           content:
             application/json:
               schema:
@@ -577,10 +683,13 @@ paths:
                     description: The error message.
   /serve:
     post:
-      summary: Return data from a pipeline
-      description: "Returns events from an existing pipeline. The pipeline definition must include a serve operator. By default, the endpoint performs long polling (`timeout: 5s`) and returns events as soon as they are available (`min_events: 1`)."
+      tags:
+        - Pipeline output
+      operationId: readPipelineOutput
+      summary: Read pipeline output
+      description: "Reads events from an existing pipeline output stream. By default, the endpoint uses long polling (`timeout: 5s`) and returns as soon as at least one event is available (`min_events: 1`)."
       requestBody:
-        description: Body for the serve endpoint
+        description: Pipeline output request.
         required: true
         content:
           application/json:
@@ -591,47 +700,68 @@ paths:
               properties:
                 serve_id:
                   type: string
-                  example: query1
-                  description: The id that was passed to the serve operator.
+                  example: query-1
+                  description: The output stream identifier returned when the pipeline was launched.
                 continuation_token:
                   type: string
                   example: 340ce2j
-                  description: The continuation token that was returned with the last response. For the initial request this is null.
+                  description: The continuation token from the previous response. Omit this field for the initial request.
                 max_events:
                   type: integer
+                  minimum: 0
                   example: 1024
                   default: 1024
-                  description: The maximum number of events returned.
+                  description: The maximum number of events to return.
                 min_events:
                   type: integer
+                  minimum: 0
                   example: 1
                   default: 1
-                  description: Wait for this number of events before returning.
+                  description: The minimum number of events to wait for before returning.
                 timeout:
                   type: string
                   example: 200ms
                   default: 5s
-                  description: The maximum amount of time spent on the request. Hitting the timeout is not an error. The timeout must not be greater than 10 seconds.
+                  description: The maximum time to spend on the request. Reaching the timeout returns the available events and is not an error. The timeout must not be greater than 10 seconds.
                 schema:
                   type: string
+                  enum:
+                    - legacy
+                    - exact
+                    - never
                   example: exact
                   default: legacy
-                  description: The output format in which schemas are represented. Must be one of "legacy", "exact", or "never". Use "exact" to switch to a type representation matching Tenzir's type system exactly, and "never" to omit schema definitions from the output entirely.
+                  description: The schema representation to include in the response. Use `exact` for a representation that matches Tenzir's type system exactly, and `never` to omit schema definitions.
+            example:
+              serve_id: query-1
+              max_events: 1024
+              min_events: 1
+              timeout: 5s
+              schema: exact
       responses:
         200:
-          description: Success.
+          description: Events are available, the timeout was reached, or the pipeline reached a terminal state.
           content:
             application/json:
               schema:
                 type: object
+                required:
+                  - next_continuation_token
+                  - state
+                  - events
                 properties:
                   next_continuation_token:
                     type: string
-                    description: A token to access the next pipeline data batch, null if the pipeline is completed.
+                    nullable: true
+                    description: The token to use when reading the next batch. The value is `null` when the pipeline reached a terminal state.
                     example: 340ce2j
                   state:
                     type: string
-                    description: The state of the corresponding pipeline at the time of the request. One of `running`, `completed`, or `failed`.
+                    enum:
+                      - running
+                      - completed
+                      - failed
+                    description: The pipeline state at the time of the request.
                     example: running
                   schemas:
                     type: array
@@ -642,9 +772,8 @@ paths:
                           type: string
                           description: The unique schema identifier.
                         definition:
-                          type: object
                           description: The schema definition in JSON format.
-                    description: The schemas that the served events are based on.
+                    description: The schemas for the returned events. This field is omitted when the request sets `schema` to `never`.
                     example:
                       - schema_id: c631d301e4b18f4
                         definition:
@@ -684,8 +813,8 @@ paths:
                           description: The unique schema identifier.
                         data:
                           type: object
-                          description: The actual served data in JSON format.
-                    description: The served events.
+                          description: The event data in JSON format.
+                    description: The returned events.
                     example:
                       - schema_id: c631d301e4b18f4
                         data:
@@ -699,8 +828,29 @@ paths:
                           schema: suricata.dns
                           schema_id: cd4771bas235f1
                           events: 50
+              example:
+                next_continuation_token: 340ce2j
+                state: running
+                schemas:
+                  - schema_id: c631d301e4b18f4
+                    definition:
+                      name: tenzir.summarize
+                      kind: record
+                      type: tenzir.summarize
+                      attributes:
+                        {}
+                      path:
+                        []
+                      fields:
+                        []
+                events:
+                  - schema_id: c631d301e4b18f4
+                    data:
+                      timestamp: 2023-04-26T12:00:00Z
+                      schema: zeek.conn
+                      events: 50
         400:
-          description: Invalid arguments.
+          description: The request body is invalid.
           content:
             application/json:
               schema:
@@ -714,10 +864,13 @@ paths:
                     description: The error message.
   /serve-multi:
     post:
-      summary: Return data from multiple pipelines
-      description: "Returns events from existing pipelines. The pipeline definitions must include a serve operator. By default, the endpoint performs long polling (`timeout: 5s`) and returns events as soon as they are available (`min_events: 1`)."
+      tags:
+        - Pipeline output
+      operationId: readMultiplePipelineOutputs
+      summary: Read multiple pipeline outputs
+      description: "Reads events from multiple existing pipeline output streams. By default, the endpoint uses long polling (`timeout: 5s`) and returns as soon as at least one event is available (`min_events: 1`)."
       requestBody:
-        description: Body for the serve-multi endpoint
+        description: Pipeline output batch request.
         required: true
         content:
           application/json:
@@ -728,55 +881,83 @@ paths:
               properties:
                 requests:
                   type: array
+                  minItems: 1
                   items:
                     type: object
+                    required:
+                      - serve_id
                     properties:
                       serve_id:
                         type: string
-                        example: query1
-                        description: The id that was passed to the serve operator.
+                        example: query-1
+                        description: The output stream identifier returned when the pipeline was launched.
                       continuation_token:
                         type: string
                         example: 340ce2j
-                        description: The continuation token that was returned with the last response. For the initial request this is null.
+                        description: The continuation token from the previous response for this output stream. Omit this field for the initial request.
                 max_events:
                   type: integer
+                  minimum: 0
                   example: 1024
                   default: 1024
-                  description: The maximum number of events returned. This is split evenly for all serve_ids. If necessary, it is rounded up.
+                  description: The maximum number of events to return across all requested output streams. The limit is split evenly across streams and rounded up when necessary.
                 min_events:
                   type: integer
+                  minimum: 0
                   example: 1
                   default: 1
-                  description: Wait for this number of events before returning. This is split evenly for all serve_ids. If necessary, it is rounded up.
+                  description: The minimum number of events to wait for across all requested output streams before returning. The limit is split evenly across streams and rounded up when necessary.
                 timeout:
                   type: string
                   example: 200ms
                   default: 5s
-                  description: The maximum amount of time spent on the request. Hitting the timeout is not an error. The timeout must not be greater than 10 seconds.
+                  description: The maximum time to spend on the request. Reaching the timeout returns the available events and is not an error. The timeout must not be greater than 10 seconds.
                 schema:
                   type: string
+                  enum:
+                    - legacy
+                    - exact
+                    - never
                   example: exact
                   default: legacy
-                  description: The output format in which schemas are represented. Must be one of "legacy", "exact", or "never". Use "exact" to switch to a type representation matching Tenzir's type system exactly, and "never" to omit schema definitions from the output entirely.
+                  description: The schema representation to include in each response. Use `exact` for a representation that matches Tenzir's type system exactly, and `never` to omit schema definitions.
+            example:
+              requests:
+                - serve_id: query-1
+                  continuation_token: null
+                - serve_id: query-2
+                  continuation_token: 340ce2j
+              max_events: 1024
+              min_events: 1
+              timeout: 5s
+              schema: exact
       responses:
         200:
-          description: Success.
+          description: The response contains one entry for each requested output stream.
           content:
             application/json:
               schema:
                 type: object
                 additionalProperties:
                   type: object
-                  description: The response is keyed by the serve-id
+                  description: A response keyed by output stream identifier.
+                  required:
+                    - next_continuation_token
+                    - state
+                    - events
                   properties:
                     next_continuation_token:
                       type: string
-                      description: A token to access the next pipeline data batch, null if the pipeline is completed.
+                      nullable: true
+                      description: The token to use when reading the next batch. The value is `null` when the pipeline reached a terminal state.
                       example: 340ce2j
                     state:
                       type: string
-                      description: The state of the corresponding pipeline at the time of the request. One of `running`, `completed`, or `failed`.
+                      enum:
+                        - running
+                        - completed
+                        - failed
+                      description: The pipeline state at the time of the request.
                       example: running
                     schemas:
                       type: array
@@ -787,9 +968,8 @@ paths:
                             type: string
                             description: The unique schema identifier.
                           definition:
-                            type: object
                             description: The schema definition in JSON format.
-                      description: The schemas that the served events are based on.
+                      description: The schemas for the returned events. This field is omitted when the request sets `schema` to `never`.
                       example:
                         - schema_id: c631d301e4b18f4
                           definition:
@@ -829,8 +1009,8 @@ paths:
                             description: The unique schema identifier.
                           data:
                             type: object
-                            description: The actual served data in JSON format.
-                      description: The served events.
+                            description: The event data in JSON format.
+                      description: The returned events.
                       example:
                         - schema_id: c631d301e4b18f4
                           data:
@@ -844,8 +1024,27 @@ paths:
                             schema: suricata.dns
                             schema_id: cd4771bas235f1
                             events: 50
+              example:
+                query-1:
+                  next_continuation_token: 340ce2j
+                  state: running
+                  schemas:
+                    []
+                  events:
+                    - schema_id: c631d301e4b18f4
+                      data:
+                        timestamp: 2023-04-26T12:00:00Z
+                        schema: zeek.conn
+                        events: 50
+                query-2:
+                  next_continuation_token: null
+                  state: completed
+                  schemas:
+                    []
+                  events:
+                    []
         400:
-          description: Invalid arguments.
+          description: The request body is invalid.
           content:
             application/json:
               schema:
