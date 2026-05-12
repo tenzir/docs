@@ -84,10 +84,3 @@ Some content is auto-generated and excluded from linting:
 - **Agent Skill**: Run `bun run build:skill` to generate the Tenzir agent skill.
   Requires `bun run build:full` first to generate per-page markdown files in `dist/`.
   Generated files: `tenzir-skill/SKILL.md`, `tenzir-skill/<doc-hierarchy>/`.
-
-### Linting
-
-- Run `bun run lint` to check markdownlint, Biome, and Prettier through
-  Lefthook.
-- Run `bun run lint:fix` to apply automatic fixes across all linters.
-- Link checking runs separately in CI via `bun run build:linkcheck`.
