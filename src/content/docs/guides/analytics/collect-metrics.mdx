@@ -43,3 +43,17 @@ sort -runtime
 
 The above example computes the total runtime over all pipelines grouped by their
 unique ID.
+
+## Inspect pipeline throughput
+
+Use `tenzir.metrics.pipeline` events to compare the number of events and bytes
+that enter and leave each pipeline:
+
+```tql
+metrics "pipeline"
+summarize ingress_events=sum(ingress.events), ingress_bytes=sum(ingress.bytes), egress_events=sum(egress.events), egress_bytes=sum(egress.bytes), pipeline_id
+sort -egress_events
+```
+
+The `events` fields count records that passed through the pipeline during the
+metric period. The `bytes` fields approximate the amount of data transferred.
