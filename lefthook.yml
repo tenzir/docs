@@ -6,6 +6,18 @@ no_auto_install: true
 pre-push:
   parallel: true
   jobs:
+    - name: markdownlint-full
+      glob: "{lefthook.yml,package.json,bun.lock,.markdownlint.json,.markdownlintignore}"
+      run: bun run lint:markdown
+
+    - name: prettier-full
+      glob: "{lefthook.yml,package.json,bun.lock,.prettierrc.json,.prettierignore}"
+      run: bun run lint:prettier
+
+    - name: biome-full
+      glob: "{lefthook.yml,package.json,bun.lock,biome.json}"
+      run: git ls-files -z -- '*.astro' '*.js' '*.jsx' '*.json' '*.jsonc' '*.mjs' '*.ts' '*.tsx' | xargs -0 bun run lint:biome:files --
+
     - name: markdownlint
       glob: "**/*.{md,mdx}"
       run: bun run lint:markdown:files -- {push_files}
