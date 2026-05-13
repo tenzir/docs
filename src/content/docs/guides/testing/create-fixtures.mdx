@@ -151,6 +151,42 @@ skip:
 An unavailable fixture then skips only that test. Frontmatter does not control
 suite fixture setup because suite fixtures start before any member test runs.
 
+## Declare Python dependencies
+
+Fixture modules can declare Python package dependencies with PEP 723 script
+metadata. Use this when a fixture imports packages that are not part of
+`tenzir-test` itself:
+
+```python
+# fixtures/localstack.py
+# /// script
+# dependencies = ["boto3"]
+# ///
+
+from tenzir_test import fixture
+
+@fixture()
+def localstack():
+    ...
+```
+
+When a fixture file declares dependencies, `tenzir-test` installs them with
+`uv` before importing project fixtures:
+
+```sh
+uv pip install --python <current-python> boto3
+```
+
+This works for `fixtures.py` and for any Python module under `fixtures/`,
+including nested modules imported by `fixtures/__init__.py`. The feature also
+applies in standalone fixture mode, such as `uvx tenzir-test --fixture
+localstack`.
+
+Make sure `uv` is on `PATH` when fixture files declare dependencies. If a
+fixture imports an undeclared package, `tenzir-test` still reports the missing
+dependency and suggests running the harness from a project environment or with
+`uvx --with`.
+
 ## Use container runtime helpers
 
 When a fixture manages a single container directly rather than orchestrating
