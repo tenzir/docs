@@ -72,10 +72,11 @@ Some content is auto-generated and excluded from linting:
   and `src/unified-timeline-data.generated.ts`. The tracked
   `src/content/docs/changelog/index.mdx` page is a stable shell and should not
   change during local builds.
-- **Excalidraw Diagrams**: Run `bun run generate:excalidraw` to convert `.excalidraw`
-  source files to SVG. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
-  The remark plugin inlines the corresponding `foo.excalidraw.svg` directly into
-  HTML for CSS dark mode support. Generated SVGs are gitignored.
+- **Excalidraw Diagrams**: `bun run dev` and `bun run build` refresh generated
+  SVGs automatically. Use `bun run generate:excalidraw` only when you need a
+  manual refresh. In markdown, reference diagrams as `![alt](foo.excalidraw)`.
+  The remark plugin inlines the corresponding `foo.excalidraw.svg` directly
+  into HTML for CSS dark mode support. Generated SVGs are gitignored.
 - **LLM Documentation**: Enabled via `LLMS_TXT=true`. The local starlight-llms-txt
   plugin implements the [llmstxt.org](https://llmstxt.org/) standard, generating
   `/llms.txt` (documentation map with page descriptions and headings),
