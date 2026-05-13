@@ -121,13 +121,20 @@ this = message.parse_json()
 
 ### Configure polling
 
-Use long polling to reduce API calls and receive messages in batches:
+Use long polling to reduce empty responses, and set `batch_size` to control the
+maximum number of messages per receive request:
 
 ```tql
-from_sqs "sqs://my-queue", poll_time=5s
+from_sqs "sqs://my-queue", poll_time=5s, batch_size=10
 ```
 
-SQS automatically deletes messages after successful receipt.
+By default, Tenzir deletes each SQS message after emitting it. Set
+`delete=false` to leave messages in the queue so SQS makes them visible again
+after the queue's visibility timeout:
+
+```tql
+from_sqs "sqs://my-queue", delete=false, visibility_timeout=30s
+```
 
 ## Google Cloud Pub/Sub
 
