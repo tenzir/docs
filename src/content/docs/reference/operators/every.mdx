@@ -1,7 +1,7 @@
 ---
 title: every
 category: Flow Control
-example: 'every 10s { summarize sum(amount) }'
+example: 'every 10s { from_http "example.org/api" { read_json } }'
 ---
 
 Runs a pipeline periodically at a fixed interval.
@@ -13,11 +13,19 @@ every interval:duration { … }
 ## Description
 
 The `every` operator repeats running a pipeline indefinitely at a fixed
-interval. The first run is starts directly when the outer pipeline itself
-starts.
+interval. The first run starts directly when the outer pipeline itself starts.
 
-Every `interval`, the executor spawns a new pipeline that runs to completion. If
-the pipeline runs longer than `interval`, the next run immediately starts.
+Every `interval`, the executor spawns a new sub-pipeline that runs to
+completion. If the sub-pipeline runs longer than `interval`, the next run
+starts immediately.
+
+:::caution[Sub-pipelines must terminate on their own]
+`every` never stops a sub-pipeline — it only waits for it to finish. Operators
+that run indefinitely, such as <Op>summarize</Op> without a `frequency` option,
+will block `every` from ever starting the next iteration. For periodic
+aggregation use the `options={frequency}` parameter of <Op>summarize</Op>
+directly instead of wrapping it inside `every`.
+:::
 
 ## Examples
 
@@ -38,6 +46,19 @@ enumerate
 // … continues like this
 ```
 
+### Aggregate metrics periodically with `summarize`
+
+Using `every` with <Op>summarize</Op> does not work as expected because
+`summarize` never terminates on its own — `every` would wait forever and the
+aggregation would never emit results.
+
+Instead, use the `options={frequency}` parameter of <Op>summarize</Op>:
+
+```tql
+from_tcp "127.0.0.1:5432" { read_json }
+summarize events=count(data), options={frequency: 5m}
+```
+
 ### Fetch the results from an API every 10 minutes
 
 ```tql
@@ -53,6 +74,7 @@ publish "threat-feed"
 
 - <Op>cron</Op>
 - <Op>each</Op>
+- <Op>summarize</Op>
 - <Guide>transformation/work-with-time</Guide>
 - <Guide>enrichment/work-with-lookup-tables</Guide>
 - <Tutorial>write-a-package</Tutorial>
