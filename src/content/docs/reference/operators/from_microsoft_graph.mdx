@@ -7,10 +7,10 @@ example: 'from_microsoft_graph "auditLogs/signIns", auth={…}'
 import Op from '@components/see-also/Op.astro';
 import Integration from '@components/see-also/Integration.astro';
 
-Reads events from a Microsoft Graph `v1.0` collection.
+Reads events from a Microsoft Graph collection.
 
 ```tql
-from_microsoft_graph resource:string, auth=record, [odata=record]
+from_microsoft_graph resource:string, auth=record, [version=string, odata=record, tls=bool|record]
 ```
 
 ## Description
@@ -28,8 +28,8 @@ Graph delta links or poll for changes.
 
 ### `resource: string`
 
-The Microsoft Graph `v1.0` resource path to read, without a leading slash. For
-example, use `users`, `groups`, or `auditLogs/signIns`.
+The Microsoft Graph resource path to read, without a leading slash or API
+version. For example, use `users`, `groups`, or `auditLogs/signIns`.
 
 ### `auth = record`
 
@@ -61,6 +61,16 @@ The `odata` record supports the following fields:
 | `select` | `list<string>`   | Fields to request with `$select`.                |
 | `top`    | `uint64` or `int64` | The page size to request with `$top`; must be positive. |
 
+### `version = string (optional)`
+
+The Microsoft Graph API version to use for the initial request. Supported
+values are `v1.0` and `beta`. Defaults to `v1.0`.
+
+### `tls = bool | record (optional)`
+
+TLS options for Microsoft Graph requests. Use a record to configure options such
+as `cacert` when a local proxy or custom trust store intercepts HTTPS traffic.
+
 ## Examples
 
 ### Read Microsoft Entra sign-in logs
@@ -90,6 +100,21 @@ from_microsoft_graph "users",
   },
   odata={
     select: ["id", "displayName", "userPrincipalName"],
+  }
+```
+
+### Read beta users
+
+```tql
+from_microsoft_graph "users",
+  version="beta",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "signInActivity"],
   }
 ```
 

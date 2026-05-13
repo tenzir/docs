@@ -6,7 +6,7 @@ Microsoft Graph is the unified API for Microsoft 365, Microsoft Entra ID, and
 other Microsoft cloud services.
 
 Use <Op>from_microsoft_graph</Op> to read events and inventory data from
-Microsoft Graph `v1.0` collection resources. The operator handles Microsoft
+Microsoft Graph collection resources. The operator handles Microsoft
 Entra client-credentials authentication, emits each object from the OData
 `value` array, and follows `@odata.nextLink` pagination.
 
@@ -94,6 +94,21 @@ from_microsoft_graph "users",
   },
   odata={
     select: ["id", "displayName", "userPrincipalName"],
+  }
+```
+
+Use `version="beta"` to read Microsoft Graph beta collections:
+
+```tql
+from_microsoft_graph "users",
+  version="beta",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "signInActivity"],
   }
 ```
 
