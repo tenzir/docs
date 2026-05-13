@@ -11,7 +11,7 @@ Receives messages from an [Amazon SQS][sqs] queue.
 [sqs]: https://docs.aws.amazon.com/sqs/
 
 ```tql
-from_sqs queue:str, [delete=bool, batch_size=int, poll_time=duration,
+from_sqs queue:str, [keep_messages=bool, batch_size=int, poll_time=duration,
                      visibility_timeout=duration, aws_region=str, aws_iam=record]
 ```
 
@@ -46,7 +46,7 @@ The operator requires the following AWS permissions:
 
 - `sqs:GetQueueUrl` (only when passing a queue name; not required for URLs)
 - `sqs:ReceiveMessage`
-- `sqs:DeleteMessage` (only when `delete=true`)
+- `sqs:DeleteMessage` (unless `keep_messages=true`)
 
 ### `queue: str`
 
@@ -74,19 +74,19 @@ The value must be between `1` and `10`.
 
 Defaults to `1`.
 
-### `delete = bool (optional)`
+### `keep_messages = bool (optional)`
 
-Whether to delete messages from the queue after receiving and emitting them.
+Whether to keep messages in the queue after receiving and emitting them.
 
-Defaults to `true`.
+Defaults to `false`.
 
-Set this option to `false` to keep received messages in the queue:
+Set this option to `true` to keep received messages in the queue:
 
 ```tql
-from_sqs "my-queue", delete=false
+from_sqs "my-queue", keep_messages=true
 ```
 
-When `delete=false`, SQS hides each received message until the queue's
+When `keep_messages=true`, SQS hides each received message until the queue's
 visibility timeout expires, then makes the message visible again. This option
 only skips `DeleteMessage`; it doesn't make downstream processing
 transactional.
@@ -98,11 +98,11 @@ The receive-level visibility timeout for messages returned by SQS.
 The value must be between `0s` and `12h`. When omitted, SQS uses the queue's
 configured visibility timeout.
 
-Use this option with `delete=false` to control when messages become available
-for redelivery:
+Use this option with `keep_messages=true` to control when messages become
+available for redelivery:
 
 ```tql
-from_sqs "my-queue", delete=false, visibility_timeout=30s
+from_sqs "my-queue", keep_messages=true, visibility_timeout=30s
 ```
 
 ### `aws_region = str (optional)`
@@ -133,7 +133,7 @@ this = message.parse_json()
 
 ```tql
 from_sqs "sqs://alerts",
-  delete=false,
+  keep_messages=true,
   poll_time=5s,
   batch_size=10,
   visibility_timeout=30s

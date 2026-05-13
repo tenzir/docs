@@ -129,11 +129,11 @@ from_sqs "sqs://my-queue", poll_time=5s, batch_size=10
 ```
 
 By default, Tenzir deletes each SQS message after emitting it. Set
-`delete=false` to leave messages in the queue so SQS makes them visible again
-after the queue's visibility timeout:
+`keep_messages=true` to leave messages in the queue so SQS makes them visible
+again after the queue's visibility timeout:
 
 ```tql
-from_sqs "sqs://my-queue", delete=false, visibility_timeout=30s
+from_sqs "sqs://my-queue", keep_messages=true, visibility_timeout=30s
 ```
 
 ## Google Cloud Pub/Sub
