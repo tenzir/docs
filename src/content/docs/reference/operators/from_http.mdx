@@ -228,6 +228,7 @@ from_http "https://api.example.com/data", max_retry_count=3, retry_delay=2s {
 
 This retries transient transport failures and HTTP `429` and `5xx` responses
 up to 3 times. The delay starts at 2 seconds and backs off exponentially.
+Tenzir emits a warning before each retry with the reason and wait time.
 
 ## See Also
 
