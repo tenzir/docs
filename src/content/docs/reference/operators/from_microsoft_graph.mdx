@@ -1,0 +1,124 @@
+---
+title: from_microsoft_graph
+category: Inputs/Events
+example: 'from_microsoft_graph "auditLogs/signIns", auth={…}'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Reads events from a Microsoft Graph collection.
+
+```tql
+from_microsoft_graph resource:string, auth=record, [version=string, odata=record, tls=bool|record]
+```
+
+## Description
+
+The `from_microsoft_graph` operator sends authenticated `GET` requests to the
+[Microsoft Graph API](https://learn.microsoft.com/en-us/graph/overview) and
+emits each object in the OData `value` array as a separate event.
+
+The operator uses Microsoft Entra client credentials to fetch access tokens,
+adds the `Authorization` header, and refreshes the token when needed. It follows
+`@odata.nextLink` URLs until the collection is exhausted.
+
+This operator is for one-shot collection reads. It does not store Microsoft
+Graph delta links or poll for changes.
+
+### `resource: string`
+
+The Microsoft Graph resource path to read, without a leading slash or API
+version. For example, use `users`, `groups`, or `auditLogs/signIns`.
+
+### `auth = record`
+
+Microsoft Entra application credentials for app-only authentication.
+
+The `auth` record supports the following fields:
+
+| Field           | Type              | Description                                                                 |
+| :-------------- | :---------------- | :-------------------------------------------------------------------------- |
+| `tenant_id`     | `string` or `secret` | The Microsoft Entra tenant ID or tenant domain.                       |
+| `client_id`     | `string` or `secret` | The application client ID.                                            |
+| `client_secret` | `string` or `secret` | The application client secret.                                        |
+| `scope`         | `string` or `secret` | The OAuth scope. Defaults to `https://graph.microsoft.com/.default`.  |
+| `authority`     | `string` or `secret` | The OAuth authority. Defaults to `https://login.microsoftonline.com`. |
+
+The application must have the Microsoft Graph application permissions required
+for the selected resource. For example, reading sign-in logs requires an
+application permission such as `AuditLog.Read.All`.
+
+### `odata = record (optional)`
+
+OData query options to append to the initial request.
+
+The `odata` record supports the following fields:
+
+| Field    | Type             | Description                                      |
+| :------- | :--------------- | :----------------------------------------------- |
+| `filter` | `string`         | A `$filter` expression.                          |
+| `select` | `list<string>`   | Fields to request with `$select`.                |
+| `top`    | `uint64` or `int64` | The page size to request with `$top`; must be positive. |
+
+### `version = string (optional)`
+
+The Microsoft Graph API version to use for the initial request. Supported
+values are `v1.0` and `beta`. Defaults to `v1.0`.
+
+### `tls = bool | record (optional)`
+
+TLS options for Microsoft Graph requests. Use a record to configure options such
+as `cacert` when a local proxy or custom trust store intercepts HTTPS traffic.
+
+## Examples
+
+### Read Microsoft Entra sign-in logs
+
+```tql
+from_microsoft_graph "auditLogs/signIns",
+  auth={
+    tenant_id: "contoso.onmicrosoft.com",
+    client_id: "00000000-0000-0000-0000-000000000000",
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    filter: "createdDateTime ge 2026-04-24T00:00:00Z",
+    select: ["id", "createdDateTime", "userPrincipalName", "status"],
+    top: 1000,
+  }
+```
+
+### Read users
+
+```tql
+from_microsoft_graph "users",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "userPrincipalName"],
+  }
+```
+
+### Read beta users
+
+```tql
+from_microsoft_graph "users",
+  version="beta",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "signInActivity"],
+  }
+```
+
+## See Also
+
+- <Op>from_http</Op>
+- <Integration>microsoft/graph</Integration>

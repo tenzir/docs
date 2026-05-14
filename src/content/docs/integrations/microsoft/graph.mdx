@@ -1,0 +1,120 @@
+---
+title: Microsoft Graph
+---
+
+Microsoft Graph is the unified API for Microsoft 365, Microsoft Entra ID, and
+other Microsoft cloud services.
+
+Use <Op>from_microsoft_graph</Op> to read events and inventory data from
+Microsoft Graph collection resources. The operator handles Microsoft
+Entra client-credentials authentication, emits each object from the OData
+`value` array, and follows `@odata.nextLink` pagination.
+
+Common security use cases include collecting Microsoft Entra audit and sign-in
+logs, reading users and groups for enrichment, and extracting inventory from
+Microsoft 365 services that expose collection resources through Microsoft
+Graph.
+
+:::tip[Prerequisites]
+Create a Microsoft Entra application registration, grant the application
+permissions required by the Microsoft Graph resource that you want to read, and
+create a client secret. For example, reading `auditLogs/signIns` requires an
+application permission such as `AuditLog.Read.All`.
+:::
+
+## Prepare Microsoft Graph access
+
+Before you run a pipeline, prepare the Microsoft Entra application and verify
+that it can read the Microsoft Graph resource you want to collect:
+
+1. [Register an application][register-app] in Microsoft Entra ID and record the
+   **Application (client) ID** and tenant ID.
+2. [Create a client secret][client-secret] for the application and record the
+   secret value.
+3. [Add Microsoft Graph application permissions][add-permissions] for the API
+   calls you plan to make. The `from_microsoft_graph` operator uses
+   application permissions because it authenticates without a signed-in user.
+4. [Grant administrator consent][admin-consent] for those application
+   permissions.
+5. Look up the required permissions in the [Microsoft Graph permissions
+   reference][permissions-reference] or on the reference page for the resource.
+
+Useful Microsoft Graph reference pages:
+
+- [Use the Microsoft Graph API][use-api]
+- [Get access without a user][app-auth]
+- [Microsoft Graph permissions reference][permissions-reference]
+- [Sign-ins API][signins-api]
+- [Directory audits API][directory-audits-api]
+- [Users API][users-api]
+- [Groups API][groups-api]
+
+[register-app]: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app
+[client-secret]: https://learn.microsoft.com/en-us/entra/identity-platform/how-to-add-credentials?tabs=client-secret
+[add-permissions]: https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-configure-app-access-web-apis#application-permission-to-microsoft-graph
+[admin-consent]: https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/grant-admin-consent
+[permissions-reference]: https://learn.microsoft.com/en-us/graph/permissions-reference
+[use-api]: https://learn.microsoft.com/en-us/graph/use-the-api
+[app-auth]: https://learn.microsoft.com/en-us/graph/auth-v2-service
+[signins-api]: https://learn.microsoft.com/en-us/graph/api/signin-list
+[directory-audits-api]: https://learn.microsoft.com/en-us/graph/api/directoryaudit-list
+[users-api]: https://learn.microsoft.com/en-us/graph/api/user-list
+[groups-api]: https://learn.microsoft.com/en-us/graph/api/group-list
+
+## Read sign-in logs
+
+The following pipeline reads Microsoft Entra sign-in logs and requests only a
+subset of fields:
+
+```tql
+from_microsoft_graph "auditLogs/signIns",
+  auth={
+    tenant_id: "contoso.onmicrosoft.com",
+    client_id: "00000000-0000-0000-0000-000000000000",
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    filter: "createdDateTime ge 2026-04-24T00:00:00Z",
+    select: ["id", "createdDateTime", "userPrincipalName", "status"],
+    top: 1000,
+  }
+```
+
+## Read directory objects
+
+You can read users, groups, or other directory collections for enrichment and
+inventory workflows:
+
+```tql
+from_microsoft_graph "users",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "userPrincipalName"],
+  }
+```
+
+Use `version="beta"` to read Microsoft Graph beta collections:
+
+```tql
+from_microsoft_graph "users",
+  version="beta",
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "signInActivity"],
+  }
+```
+
+## See Also
+
+- <Op>from_microsoft_graph</Op>
+- <Op>from_http</Op>
+- <Integration>microsoft/defender</Integration>
+- <Integration>microsoft/sentinel-log-analytics</Integration>

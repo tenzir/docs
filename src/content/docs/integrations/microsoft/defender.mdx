@@ -16,8 +16,17 @@ to Tenzir using [Azure Event Hubs][event-hubs].
 [defender-identity]: https://learn.microsoft.com/en-us/defender-for-identity/what-is
 [defender-cloud]: https://learn.microsoft.com/en-us/defender-xdr/microsoft-365-security-center-defender-cloud
 [event-hubs]: https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about
+[graph-security-api]: https://learn.microsoft.com/en-us/graph/api/resources/security-api-overview
+[defender-xdr-api]: https://learn.microsoft.com/en-us/defender-xdr/api-overview
 
 ![Microsoft Defender](defender.svg)
+
+For Microsoft Defender and Microsoft 365 data that is exposed as Microsoft
+Graph collections, use <Integration>microsoft/graph</Integration> with
+<Op>from_microsoft_graph</Op>. Use Azure Event Hubs for real-time Defender
+streaming. For the Microsoft API surface, see the [Microsoft Graph Security API
+reference][graph-security-api] and the [Microsoft Defender XDR API
+reference][defender-xdr-api].
 
 :::tip[Microsoft Defender Setup]
 The following example assumes that you have already set up Microsoft Defender
@@ -36,3 +45,9 @@ the target Event Hub and enable all event types that you want to collect.
 For detailed instructions on setting up Azure Event Hubs and consuming events
 with Tenzir, see the [Azure Event Hubs integration
 documentation](/integrations/microsoft/azure-event-hubs).
+
+## See Also
+
+- <Op>from_microsoft_graph</Op>
+- <Integration>microsoft/graph</Integration>
+- <Integration>microsoft/azure-event-hubs</Integration>

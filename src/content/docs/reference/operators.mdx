@@ -379,6 +379,10 @@ operators:
     description: 'Receives events from an Apache Kafka topic.'
     example: 'from_kafka "logs"'
     path: 'reference/operators/from_kafka'
+  - name: 'from_microsoft_graph'
+    description: 'Reads events from a Microsoft Graph v1.0 collection.'
+    example: 'from_microsoft_graph "auditLogs/signIns", auth={…}'
+    path: 'reference/operators/from_microsoft_graph'
   - name: 'from_mysql'
     description: 'Reads events from a MySQL database.'
     example: 'from_mysql table="users", host="db.example.com", database="mydb"'
@@ -1474,6 +1478,14 @@ from_http "https://example.com/api" { read_json }
 
 ```tql
 from_kafka "logs"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_microsoft_graph" description="Reads events from a Microsoft Graph v1.0 collection." href="/reference/operators/from_microsoft_graph">
+
+```tql
+from_microsoft_graph "auditLogs/signIns", auth={…}
 ```
 
 </ReferenceCard>
