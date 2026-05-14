@@ -1,0 +1,159 @@
+---
+title: to_cloudwatch
+category: Outputs/Events
+example: 'to_cloudwatch "/tenzir/events", "default"'
+---
+
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
+
+Sends events to Amazon CloudWatch Logs.
+
+```tql
+to_cloudwatch log_group:string, log_stream:string, [method=string,
+  message=string|blob, timestamp=time, batch_timeout=duration, batch_size=int,
+  parallel=int, token=secret, endpoint=string, aws_region=string,
+  aws_iam=record]
+```
+
+## Description
+
+The `to_cloudwatch` operator sends events to CloudWatch Logs. It can write to a
+log group and stream with `PutLogEvents`, or send to the CloudWatch HTTP Log
+Collector with bearer-token authentication.
+
+### `log_group: string`
+
+Name of the CloudWatch Logs log group.
+
+The operator expects the log group to already exist.
+
+### `log_stream: string`
+
+Name of the CloudWatch Logs log stream.
+
+The operator expects the log stream to already exist.
+
+### `method = string (optional)`
+
+The delivery method.
+
+Supported values:
+
+- `put_log_events`: Write with the CloudWatch Logs `PutLogEvents` API.
+- `hlc`: Write to the CloudWatch HTTP Log Collector.
+
+Defaults to `put_log_events`.
+
+### `message = string|blob (optional)`
+
+Expression that computes the log message for each event.
+
+Defaults to the incoming event serialized as NDJSON.
+
+### `timestamp = time (optional)`
+
+Expression that computes the CloudWatch event timestamp.
+
+Defaults to a `timestamp` field when present. Otherwise, the operator uses the
+processing time.
+
+### `batch_timeout = duration (optional)`
+
+Maximum time to keep events in a batch before flushing them.
+
+Defaults to `1s`.
+
+### `batch_size = int (optional)`
+
+Maximum number of events per batch.
+
+Defaults to `1000`.
+
+### `parallel = int (optional)`
+
+Maximum number of in-flight write requests.
+
+Defaults to `1`.
+
+CloudWatch Logs no longer requires sequence tokens for `PutLogEvents`, so you
+can raise this value for higher throughput to the same stream.
+
+### `token = secret (optional)`
+
+Bearer token for `method="hlc"`.
+
+This option is required for HLC and is not valid for `method="put_log_events"`.
+
+### `endpoint = string (optional)`
+
+HTTP endpoint for `method="hlc"`.
+
+Use this option for tests or controlled deployments that need an explicit HLC
+endpoint.
+
+### `aws_region = string (optional)`
+
+AWS region for `method="put_log_events"`.
+
+If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
+it uses the AWS SDK's default region resolution.
+
+<AWSIAMOptions />
+
+## Batching
+
+For `method="put_log_events"`, the operator sorts each batch by timestamp and
+enforces CloudWatch Logs limits before sending:
+
+- at most 10,000 events per request;
+- at most 1 MiB per request, counted as UTF-8 message bytes plus 26 bytes per
+  event;
+- a maximum timestamp span of 24 hours within one request;
+- no events more than 2 hours in the future or older than 14 days.
+
+Events that exceed CloudWatch event size or timestamp limits are skipped with a
+warning.
+
+## Examples
+
+### Write events to a log stream
+
+```tql
+from {message: "hello"}
+to_cloudwatch "/tenzir/events", "default", message=message
+```
+
+### Use an event timestamp field
+
+```tql
+from {ts: 2026-05-14T00:00:00Z, message: "hello"}
+to_cloudwatch "/tenzir/events", "default",
+  message=message,
+  timestamp=ts
+```
+
+### Assume an IAM role
+
+```tql
+from {message: "hello"}
+to_cloudwatch "/tenzir/events", "default",
+  message=message,
+  aws_iam={
+    region: "us-east-1",
+    assume_role: "arn:aws:iam::123456789012:role/cloudwatch-writer"
+  }
+```
+
+### Send to the HTTP Log Collector
+
+```tql
+from {message: "hello"}
+to_cloudwatch "/tenzir/events", "default",
+  method="hlc",
+  message=message,
+  token=secret("cloudwatch-hlc-token")
+```
+
+## See Also
+
+- <Op>from_cloudwatch</Op>

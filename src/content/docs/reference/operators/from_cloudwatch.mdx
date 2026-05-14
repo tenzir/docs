@@ -1,0 +1,143 @@
+---
+title: from_cloudwatch
+category: Inputs/Events
+example: 'from_cloudwatch "/aws/lambda/api", mode="filter"'
+---
+
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
+
+Reads events from Amazon CloudWatch Logs.
+
+```tql
+from_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
+  log_stream=string, log_streams=list, log_stream_prefix=string, filter=string,
+  start=time, end=time, limit=int, start_from_head=bool, unmask=bool,
+  aws_region=string, aws_iam=record]
+```
+
+## Description
+
+The `from_cloudwatch` operator reads CloudWatch Logs events and emits one event
+per log entry.
+
+The emitted events use the `tenzir.cloudwatch` schema:
+
+| Field            | Type     | Description                         |
+| ---------------- | -------- | ----------------------------------- |
+| `timestamp`      | `time`   | The CloudWatch event timestamp.     |
+| `ingestion_time` | `time`   | The CloudWatch ingestion timestamp. |
+| `log_group`      | `string` | The log group that contains the log. |
+| `log_stream`     | `string` | The log stream that contains the log. |
+| `message`        | `string` | The log message.                    |
+| `event_id`       | `string` | The CloudWatch event ID, if present. |
+
+### `log_group: string`
+
+Name of the log group to read from.
+
+### `mode = string (optional)`
+
+The CloudWatch Logs API to use.
+
+Supported values:
+
+- `live`: Subscribe with CloudWatch Logs Live Tail.
+- `filter`: Read matching events with `FilterLogEvents`.
+- `get`: Read events from one stream with `GetLogEvents`.
+
+Defaults to `live`.
+
+### `log_group_identifiers = list (optional)`
+
+List of log group identifiers for `mode="live"`.
+
+When omitted, the operator uses `log_group`.
+
+### `log_stream = string (optional)`
+
+The log stream to read in `mode="get"`.
+
+This option is required for `mode="get"`.
+
+### `log_streams = list (optional)`
+
+List of log stream names to read in `mode="live"` or `mode="filter"`.
+
+### `log_stream_prefix = string (optional)`
+
+Prefix for selecting log streams in `mode="live"` or `mode="filter"`.
+
+### `filter = string (optional)`
+
+CloudWatch Logs filter pattern.
+
+### `start = time (optional)`
+
+Earliest event timestamp to read in `mode="filter"` or `mode="get"`.
+
+### `end = time (optional)`
+
+Latest event timestamp to read in `mode="filter"` or `mode="get"`.
+
+### `limit = int (optional)`
+
+Maximum number of events to read in `mode="filter"` or `mode="get"`.
+
+### `start_from_head = bool (optional)`
+
+Whether `mode="get"` should read from the start of the log stream.
+
+### `unmask = bool (optional)`
+
+Whether to unmask protected log data when the AWS principal has permission.
+
+### `aws_region = string (optional)`
+
+AWS region for CloudWatch Logs requests.
+
+If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
+it uses the AWS SDK's default region resolution.
+
+<AWSIAMOptions />
+
+## Examples
+
+### Follow a log group
+
+```tql
+from_cloudwatch "/aws/vpc/flowlogs"
+```
+
+### Read matching historical events
+
+```tql
+from_cloudwatch "/aws/lambda/api",
+  mode="filter",
+  filter="ERROR",
+  start=2026-05-14T00:00:00Z,
+  end=2026-05-14T01:00:00Z
+```
+
+### Read one log stream
+
+```tql
+from_cloudwatch "/aws/lambda/api",
+  mode="get",
+  log_stream="2026/05/14/[$LATEST]abcdef",
+  start_from_head=true
+```
+
+### Assume an IAM role
+
+```tql
+from_cloudwatch "/aws/lambda/api",
+  mode="filter",
+  aws_iam={
+    region: "us-east-1",
+    assume_role: "arn:aws:iam::123456789012:role/cloudwatch-reader"
+  }
+```
+
+## See Also
+
+- <Op>to_cloudwatch</Op>
