@@ -11,7 +11,9 @@ Entra client-credentials authentication, emits each object from the OData
 `value` array, follows `@odata.nextLink` pagination, and uses a bounded default
 HTTP retry policy for throttling and transient service failures. When Microsoft
 Graph returns `Retry-After`, the operator waits for that duration before
-retrying.
+retrying. For resources that support Microsoft Graph delta queries, the
+operator can store the returned `@odata.deltaLink` in memory and poll for
+incremental changes.
 
 Common security use cases include collecting Microsoft Entra audit and sign-in
 logs, reading users and groups for enrichment, and extracting inventory from
@@ -114,6 +116,41 @@ from_microsoft_graph "users",
     select: ["id", "displayName", "signInActivity"],
   }
 ```
+
+## Poll changes with delta queries
+
+Use `delta=true` for Microsoft Graph resources that support delta queries, such
+as `users` and `groups`. Pass the collection resource without `/delta`; the
+operator appends `/delta` for the initial request and then polls the returned
+`@odata.deltaLink`.
+
+```tql
+from_microsoft_graph "users",
+  delta=true,
+  poll_interval=5min,
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    select: ["id", "displayName", "userPrincipalName"],
+  }
+```
+
+The operator doesn't maintain its own list of delta-capable Microsoft Graph
+resources. Microsoft Graph support can differ by resource, API version, tenant,
+and licensing. If a resource doesn't support delta queries, Microsoft Graph
+returns the error and Tenzir reports it.
+
+The `odata` options apply only to the initial delta request. Microsoft Graph
+decides which query options are valid for each resource. For example, Microsoft
+Graph supports `$select` for `users` and `groups` delta queries, but doesn't
+support `$top` there. Filters for those delta queries are limited to object ID
+scoping. Later polls use the stored delta link exactly as Microsoft Graph
+returned it. Delta state is stored in memory, so a pipeline restart starts a new
+initial delta query unless the executor restores a snapshot that contains the
+operator state.
 
 ## See Also
 
