@@ -367,6 +367,10 @@ operators:
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
     path: 'reference/operators/from_amqp'
+  - name: 'from_amazon_kinesis'
+    description: 'Receives records from an Amazon Kinesis data stream.'
+    example: 'from_amazon_kinesis "security-events"'
+    path: 'reference/operators/from_amazon_kinesis'
   - name: 'from_azure_blob_storage'
     description: 'Reads one or multiple files from Azure Blob Storage.'
     example: 'from_azure_blob_storage "abfs://container/data/**.json"'
@@ -647,6 +651,14 @@ operators:
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
     path: 'reference/operators/to_amqp'
+  - name: 'to_amazon_kinesis'
+    description: 'Sends records to an Amazon Kinesis data stream.'
+    example: 'to_amazon_kinesis "security-events"'
+    path: 'reference/operators/to_amazon_kinesis'
+  - name: 'to_sqs'
+    description: 'Sends messages to an Amazon SQS queue.'
+    example: 'to_sqs "sqs://tenzir"'
+    path: 'reference/operators/to_sqs'
   - name: 'to_udp'
     description: 'Sends one UDP datagram per input event.'
     example: 'to_udp "127.0.0.1:514"'
@@ -1510,6 +1522,14 @@ from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"
 
 </ReferenceCard>
 
+<ReferenceCard title="from_amazon_kinesis" description="Receives records from an Amazon Kinesis data stream." href="/reference/operators/from_amazon_kinesis">
+
+```tql
+from_amazon_kinesis "security-events"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_azure_blob_storage" description="Reads one or multiple files from Azure Blob Storage." href="/reference/operators/from_azure_blob_storage">
 
 ```tql
@@ -1988,6 +2008,14 @@ to_amazon_sqs "sqs://tenzir"
 
 ```tql
 to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_kinesis" description="Sends records to an Amazon Kinesis data stream." href="/reference/operators/to_amazon_kinesis">
+
+```tql
+to_amazon_kinesis "security-events"
 ```
 
 </ReferenceCard>
