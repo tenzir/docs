@@ -1,7 +1,7 @@
 ---
-title: from_cloudwatch
+title: from_amazon_cloudwatch
 category: Inputs/Events
-example: 'from_cloudwatch "/aws/lambda/api", mode="filter"'
+example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="filter"'
 ---
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
@@ -9,7 +9,7 @@ import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 Reads events from Amazon CloudWatch Logs.
 
 ```tql
-from_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
+from_amazon_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
   log_stream=string, log_streams=list, log_stream_prefix=string, filter=string,
   start=time, end=time, limit=int, start_from_head=bool, unmask=bool,
   aws_region=string, aws_iam=record]
@@ -17,8 +17,8 @@ from_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
 
 ## Description
 
-The `from_cloudwatch` operator reads CloudWatch Logs events and emits one event
-per log entry.
+The `from_amazon_cloudwatch` operator reads CloudWatch Logs events and emits one
+event per log entry.
 
 The emitted events use the `tenzir.cloudwatch` schema:
 
@@ -113,13 +113,13 @@ it uses the AWS SDK's default region resolution.
 ### Follow a log group
 
 ```tql
-from_cloudwatch "/aws/vpc/flowlogs"
+from_amazon_cloudwatch "/aws/vpc/flowlogs"
 ```
 
 ### Read matching historical events
 
 ```tql
-from_cloudwatch "/aws/lambda/api",
+from_amazon_cloudwatch "/aws/lambda/api",
   mode="filter",
   filter="ERROR",
   start=2026-05-14T00:00:00Z,
@@ -129,7 +129,7 @@ from_cloudwatch "/aws/lambda/api",
 ### Read one log stream
 
 ```tql
-from_cloudwatch "/aws/lambda/api",
+from_amazon_cloudwatch "/aws/lambda/api",
   mode="get",
   log_stream="2026/05/14/[$LATEST]abcdef",
   start_from_head=true
@@ -138,7 +138,7 @@ from_cloudwatch "/aws/lambda/api",
 ### Assume an IAM role
 
 ```tql
-from_cloudwatch "/aws/lambda/api",
+from_amazon_cloudwatch "/aws/lambda/api",
   mode="filter",
   aws_iam={
     region: "us-east-1",
@@ -148,4 +148,4 @@ from_cloudwatch "/aws/lambda/api",
 
 ## See Also
 
-- <Op>to_cloudwatch</Op>
+- <Op>to_amazon_cloudwatch</Op>

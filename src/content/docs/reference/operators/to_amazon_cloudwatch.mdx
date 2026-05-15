@@ -1,7 +1,7 @@
 ---
-title: to_cloudwatch
+title: to_amazon_cloudwatch
 category: Outputs/Events
-example: 'to_cloudwatch "/tenzir/events", "default"'
+example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
 ---
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
@@ -9,7 +9,7 @@ import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 Sends events to Amazon CloudWatch Logs.
 
 ```tql
-to_cloudwatch log_group:string, log_stream:string, [method=string,
+to_amazon_cloudwatch log_group:string, log_stream:string, [method=string,
   message=string|blob, timestamp=time, batch_timeout=duration, batch_size=int,
   parallel=int, token=secret, endpoint=string, aws_region=string,
   aws_iam=record]
@@ -17,8 +17,8 @@ to_cloudwatch log_group:string, log_stream:string, [method=string,
 
 ## Description
 
-The `to_cloudwatch` operator sends events to CloudWatch Logs. It can write to a
-log group and stream with `PutLogEvents`, or send to the CloudWatch HTTP Log
+The `to_amazon_cloudwatch` operator sends events to CloudWatch Logs. It can
+write to a log group and stream with `PutLogEvents`, or send to the CloudWatch HTTP Log
 Collector with bearer-token authentication.
 
 ### `log_group: string`
@@ -121,14 +121,14 @@ envelope would exceed the 1 MiB request limit.
 
 ```tql
 from {message: "hello"}
-to_cloudwatch "/tenzir/events", "default", message=message
+to_amazon_cloudwatch "/tenzir/events", "default", message=message
 ```
 
 ### Use an event timestamp field
 
 ```tql
 from {ts: 2026-05-14T00:00:00Z, message: "hello"}
-to_cloudwatch "/tenzir/events", "default",
+to_amazon_cloudwatch "/tenzir/events", "default",
   message=message,
   timestamp=ts
 ```
@@ -137,7 +137,7 @@ to_cloudwatch "/tenzir/events", "default",
 
 ```tql
 from {message: "hello"}
-to_cloudwatch "/tenzir/events", "default",
+to_amazon_cloudwatch "/tenzir/events", "default",
   message=message,
   aws_iam={
     region: "us-east-1",
@@ -149,7 +149,7 @@ to_cloudwatch "/tenzir/events", "default",
 
 ```tql
 from {message: "hello"}
-to_cloudwatch "/tenzir/events", "default",
+to_amazon_cloudwatch "/tenzir/events", "default",
   method="hlc",
   message=message,
   token=secret("cloudwatch-hlc-token")
@@ -157,4 +157,4 @@ to_cloudwatch "/tenzir/events", "default",
 
 ## See Also
 
-- <Op>from_cloudwatch</Op>
+- <Op>from_amazon_cloudwatch</Op>
