@@ -1,0 +1,53 @@
+---
+title: repeat
+category: String/Transformation
+example: '"na".repeat(8)'
+---
+
+Repeats a string a specified number of times.
+
+```tql
+repeat(x:string, n:int) -> string
+```
+
+## Description
+
+The `repeat` function returns a new string consisting of `x` repeated `n` times.
+If `n` is `0`, the function returns an empty string.
+
+### `x: string`
+
+The string to repeat.
+
+### `n: int`
+
+The number of times to repeat `x`. Must be non-negative.
+
+## Examples
+
+### Repeat a string
+
+```tql
+from {message: "na".repeat(8)}
+```
+
+```tql
+{message: "nananananananana"}
+```
+
+### Repeat zero times
+
+```tql
+from {message: "na".repeat(0)}
+```
+
+```tql
+{message: ""}
+```
+
+## See Also
+
+- <Fn>pad_end</Fn>
+- <Fn>pad_start</Fn>
+- <Fn>replace</Fn>
+- <Guide>transformation/manipulate-strings</Guide>
