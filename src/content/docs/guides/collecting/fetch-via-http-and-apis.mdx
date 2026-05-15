@@ -3,6 +3,7 @@ title: Fetch via HTTP and APIs
 ---
 
 This guide shows you how to interact with HTTP APIs using the
+
 <Op>from_http</Op> and <Op>to_http</Op> operators. You'll learn to make GET
 requests, send data, handle authentication, and implement pagination for large
 result sets.
@@ -30,18 +31,21 @@ Start with these fundamental patterns for making HTTP requests to APIs.
 To fetch data from an API endpoint, pass the URL as the first parameter:
 
 ```tql
-from_http "https://api.example.com/data" {
-  read_json
-}
+from_http "https://api.example.com/data.json"
 ```
 
 The operator makes a GET request by default and sends the response body to the
-required parsing sub-pipeline.
+parser. If the response has a supported `Content-Type` header or the URL path
+has a supported extension, Tenzir infers the parser automatically.
 
 ### Parsing the HTTP response body
 
-The `from_http` operator requires an explicit parsing sub-pipeline. Use it to
-specify how Tenzir should parse the response body.
+You can omit the parsing sub-pipeline when Tenzir can infer the response
+format. Tenzir first checks a non-empty `Content-Type` response header and then
+falls back to the URL path extension.
+
+Use an explicit parsing sub-pipeline when the response format is ambiguous,
+custom, or not reflected by the header or URL.
 
 The operator automatically handles HTTP `Content-Encoding`. If the downloaded
 file itself is compressed, add the matching decompressor to the sub-pipeline.
