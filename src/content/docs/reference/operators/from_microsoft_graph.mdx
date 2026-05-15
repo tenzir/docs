@@ -10,7 +10,7 @@ import Integration from '@components/see-also/Integration.astro';
 Reads events from a Microsoft Graph collection.
 
 ```tql
-from_microsoft_graph resource:string, auth=record, [version=string, odata=record, tls=bool|record]
+from_microsoft_graph resource:string, auth=record, [delta=bool, poll_interval=duration, version=string, odata=record, tls=bool|record]
 ```
 
 ## Description
@@ -23,6 +23,11 @@ The operator uses Microsoft Entra client credentials to fetch access tokens,
 adds the `Authorization` header, and refreshes the token when needed. It follows
 `@odata.nextLink` URLs until the collection is exhausted.
 
+By default, the operator performs a one-shot collection read. With
+`delta=true`, it uses Microsoft Graph delta queries: the initial request reads
+the resource's `/delta` endpoint, stores the final `@odata.deltaLink`, and polls
+that link for incremental changes.
+
 The operator retries throttled and transient Microsoft Graph responses with a
 bounded default HTTP retry policy. It honors `Retry-After` for throttling
 responses such as `429 Too Many Requests` and also retries transient service
@@ -30,8 +35,9 @@ failures such as `503 Service Unavailable` and `504 Gateway Timeout`.
 Permanent client and authorization failures such as `400 Bad Request`,
 `401 Unauthorized`, and `403 Forbidden` fail without retries.
 
-This operator is for one-shot collection reads. It does not store Microsoft
-Graph delta links or poll for changes.
+Delta query state is in memory. If the pipeline restarts without an executor
+snapshot that contains the operator state, the next run starts a new initial
+delta query.
 
 ### `resource: string`
 
@@ -58,7 +64,9 @@ application permission such as `AuditLog.Read.All`.
 
 ### `odata = record (optional)`
 
-OData query options to append to the initial request.
+OData query options to append to the initial request. In delta mode, these
+options apply only to the initial `/delta` request. Later polls use the
+`@odata.deltaLink` exactly as Microsoft Graph returned it.
 
 The `odata` record supports the following fields:
 
@@ -67,6 +75,23 @@ The `odata` record supports the following fields:
 | `filter` | `string`         | A `$filter` expression.                          |
 | `select` | `list<string>`   | Fields to request with `$select`.                |
 | `top`    | `uint64` or `int64` | The page size to request with `$top`; must be positive. |
+
+### `delta = bool (optional)`
+
+Whether to use Microsoft Graph delta queries. Defaults to `false`.
+
+When `delta=true`, pass the collection resource, such as `users`,
+`auditLogs/signIns`, or `auditLogs/directoryAudits`. The operator appends
+`/delta` unless the resource already ends with `/delta`.
+
+The operator warns, but still runs, when you use delta mode with a resource
+that isn't in Tenzir's known delta-capable resource list. Microsoft Graph may
+add delta support for more resources over time.
+
+### `poll_interval = duration (optional)`
+
+The time between delta polls after the initial delta query completes. Defaults
+to `1min`. The value must be positive and is only valid with `delta=true`.
 
 ### `version = string (optional)`
 
@@ -122,6 +147,23 @@ from_microsoft_graph "users",
   },
   odata={
     select: ["id", "displayName", "signInActivity"],
+  }
+```
+
+### Poll sign-in log changes with delta queries
+
+```tql
+from_microsoft_graph "auditLogs/signIns",
+  delta=true,
+  poll_interval=5min,
+  auth={
+    tenant_id: secret("ms-graph-tenant-id"),
+    client_id: secret("ms-graph-client-id"),
+    client_secret: secret("ms-graph-client-secret"),
+  },
+  odata={
+    filter: "createdDateTime ge 2026-04-24T00:00:00Z",
+    select: ["id", "createdDateTime", "userPrincipalName", "status"],
   }
 ```
 
