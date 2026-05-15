@@ -342,6 +342,7 @@ export const integrations = [
         items: [
           "integrations/amazon",
           "integrations/amazon/cloudwatch",
+          "integrations/amazon/kinesis",
           "integrations/amazon/msk",
           "integrations/amazon/s3",
           "integrations/amazon/security-lake",
