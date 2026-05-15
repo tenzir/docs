@@ -8,7 +8,10 @@ other Microsoft cloud services.
 Use <Op>from_microsoft_graph</Op> to read events and inventory data from
 Microsoft Graph collection resources. The operator handles Microsoft
 Entra client-credentials authentication, emits each object from the OData
-`value` array, and follows `@odata.nextLink` pagination.
+`value` array, follows `@odata.nextLink` pagination, and uses a bounded default
+HTTP retry policy for throttling and transient service failures. When Microsoft
+Graph returns `Retry-After`, the operator waits for that duration before
+retrying.
 
 Common security use cases include collecting Microsoft Entra audit and sign-in
 logs, reading users and groups for enrichment, and extracting inventory from

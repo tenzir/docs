@@ -23,6 +23,13 @@ The operator uses Microsoft Entra client credentials to fetch access tokens,
 adds the `Authorization` header, and refreshes the token when needed. It follows
 `@odata.nextLink` URLs until the collection is exhausted.
 
+The operator retries throttled and transient Microsoft Graph responses with a
+bounded default HTTP retry policy. It honors `Retry-After` for throttling
+responses such as `429 Too Many Requests` and also retries transient service
+failures such as `503 Service Unavailable` and `504 Gateway Timeout`.
+Permanent client and authorization failures such as `400 Bad Request`,
+`401 Unauthorized`, and `403 Forbidden` fail without retries.
+
 This operator is for one-shot collection reads. It does not store Microsoft
 Graph delta links or poll for changes.
 
