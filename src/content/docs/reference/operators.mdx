@@ -651,6 +651,10 @@ operators:
     description: 'Sends records to an Amazon Kinesis data stream.'
     example: 'to_amazon_kinesis "security-events"'
     path: 'reference/operators/to_amazon_kinesis'
+  - name: 'to_amazon_security_lake'
+    description: 'Sends OCSF events to Amazon Security Lake.'
+    example: 'to_amazon_security_lake "s3://…"'
+    path: 'reference/operators/to_amazon_security_lake'
   - name: 'to_amqp'
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
@@ -1988,18 +1992,18 @@ to_amazon_cloudwatch "/tenzir/events", stream="default"
 
 </ReferenceCard>
 
-<ReferenceCard title="to_amazon_security_lake" description="Sends OCSF events to Amazon Security Lake." href="/reference/operators/to_amazon_security_lake">
-
-```tql
-to_amazon_security_lake "s3://…"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="to_amazon_kinesis" description="Sends records to an Amazon Kinesis data stream." href="/reference/operators/to_amazon_kinesis">
 
 ```tql
 to_amazon_kinesis "security-events"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_security_lake" description="Sends OCSF events to Amazon Security Lake." href="/reference/operators/to_amazon_security_lake">
+
+```tql
+to_amazon_security_lake "s3://…"
 ```
 
 </ReferenceCard>
