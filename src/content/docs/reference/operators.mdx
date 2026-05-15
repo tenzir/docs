@@ -731,6 +731,10 @@ operators:
     description: 'Connects to a remote TCP or TLS endpoint and sends events.'
     example: 'to_tcp "collector.example.com:5044" { write_json }'
     path: 'reference/operators/to_tcp'
+  - name: 'write_all'
+    description: 'Concatenates one field from all input events into a byte stream.'
+    example: 'write_all data'
+    path: 'reference/operators/write_all'
   - name: 'write_bitz'
     description: 'Writes events in *BITZ* format.'
     example: 'write_bitz'
@@ -2336,6 +2340,14 @@ pipeline::run { … }
 ## Printing
 
 <CardGrid>
+
+<ReferenceCard title="write_all" description="Concatenates one field from all input events into a byte stream." href="/reference/operators/write_all">
+
+```tql
+write_all data
+```
+
+</ReferenceCard>
 
 <ReferenceCard title="write_bitz" description="Writes events in *BITZ* format." href="/reference/operators/write_bitz">
 
