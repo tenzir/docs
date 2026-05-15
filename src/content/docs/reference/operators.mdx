@@ -343,6 +343,10 @@ operators:
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
     path: 'reference/operators/accept_udp'
+  - name: 'from_amazon_cloudwatch'
+    description: 'Reads events from Amazon CloudWatch Logs.'
+    example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="filter"'
+    path: 'reference/operators/from_amazon_cloudwatch'
   - name: 'from_amqp'
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
@@ -351,10 +355,6 @@ operators:
     description: 'Reads one or multiple files from Azure Blob Storage.'
     example: 'from_azure_blob_storage "abfs://container/data/**.json"'
     path: 'reference/operators/from_azure_blob_storage'
-  - name: 'from_amazon_cloudwatch'
-    description: 'Reads events from Amazon CloudWatch Logs.'
-    example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="filter"'
-    path: 'reference/operators/from_amazon_cloudwatch'
   - name: 'from_file'
     description: 'Reads one or multiple files from a filesystem.'
     example: 'from_file "s3://data/**.json"'
@@ -639,6 +639,10 @@ operators:
     description: 'Executes YARA rules on byte streams.'
     example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
+  - name: 'to_amazon_cloudwatch'
+    description: 'Sends events to Amazon CloudWatch Logs.'
+    example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
+    path: 'reference/operators/to_amazon_cloudwatch'
   - name: 'to_amazon_security_lake'
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
@@ -651,10 +655,6 @@ operators:
     description: 'Sends events to the Microsoft Azure Logs Ingestion API.'
     example: 'to_azure_log_analytics tenant_id="...", workspace_id="..."'
     path: 'reference/operators/to_azure_log_analytics'
-  - name: 'to_amazon_cloudwatch'
-    description: 'Sends events to Amazon CloudWatch Logs.'
-    example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
-    path: 'reference/operators/to_amazon_cloudwatch'
   - name: 'to_zmq'
     description: 'Connects to a remote ZeroMQ subscriber endpoint and sends events.'
     example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"'
@@ -1418,6 +1418,14 @@ accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
 
 </ReferenceCard>
 
+<ReferenceCard title="from_amazon_cloudwatch" description="Reads events from Amazon CloudWatch Logs." href="/reference/operators/from_amazon_cloudwatch">
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api", mode="filter"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
 
 ```tql
@@ -1430,14 +1438,6 @@ from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"
 
 ```tql
 from_azure_blob_storage "abfs://container/data/**.json"
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="from_amazon_cloudwatch" description="Reads events from Amazon CloudWatch Logs." href="/reference/operators/from_amazon_cloudwatch">
-
-```tql
-from_amazon_cloudwatch "/aws/lambda/api", mode="filter"
 ```
 
 </ReferenceCard>
@@ -1866,6 +1866,14 @@ serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
 
 </ReferenceCard>
 
+<ReferenceCard title="to_amazon_cloudwatch" description="Sends events to Amazon CloudWatch Logs." href="/reference/operators/to_amazon_cloudwatch">
+
+```tql
+to_amazon_cloudwatch "/tenzir/events", "default"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_amazon_security_lake" description="Sends OCSF events to Amazon Security Lake." href="/reference/operators/to_amazon_security_lake">
 
 ```tql
@@ -1894,14 +1902,6 @@ to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }
 
 ```tql
 to_azure_log_analytics tenant_id="...", workspace_id="..."
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="to_amazon_cloudwatch" description="Sends events to Amazon CloudWatch Logs." href="/reference/operators/to_amazon_cloudwatch">
-
-```tql
-to_amazon_cloudwatch "/tenzir/events", "default"
 ```
 
 </ReferenceCard>
