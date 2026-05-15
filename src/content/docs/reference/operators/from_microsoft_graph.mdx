@@ -77,9 +77,14 @@ application permission such as `AuditLog.Read.All`.
 
 ### `odata = record (optional)`
 
-OData query options to append to the initial request. In delta mode, these
-options apply only to the initial `/delta` request. Later polls use the
+OData query options to append to the initial request. Microsoft Graph decides
+which query options are valid for each resource. In delta mode, these options
+apply only to the initial `/delta` request. Later polls use the
 `@odata.deltaLink` exactly as Microsoft Graph returned it.
+
+For example, Microsoft Graph supports `$select` for `users` and `groups` delta
+queries, but doesn't support `$top` there. Filters for those delta queries are
+limited to object ID scoping.
 
 The `odata` record supports the following fields:
 
@@ -93,13 +98,14 @@ The `odata` record supports the following fields:
 
 Whether to use Microsoft Graph delta queries. Defaults to `false`.
 
-When `delta=true`, pass the collection resource, such as `users`,
-`auditLogs/signIns`, or `auditLogs/directoryAudits`. The operator appends
-`/delta` unless the resource already ends with `/delta`.
+When `delta=true`, pass a Microsoft Graph collection resource that supports
+delta queries, such as `users` or `groups`. The operator appends `/delta`
+unless the resource already ends with `/delta`.
 
-The operator warns, but still runs, when you use delta mode with a resource
-that isn't in Tenzir's known delta-capable resource list. Microsoft Graph may
-add delta support for more resources over time.
+The operator doesn't maintain its own list of delta-capable Microsoft Graph
+resources. Microsoft Graph support can differ by resource, API version, tenant,
+and licensing. If a resource doesn't support delta queries, Microsoft Graph
+returns the error and Tenzir reports it.
 
 ### `poll_interval = duration (optional)`
 
@@ -163,10 +169,10 @@ from_microsoft_graph "users",
   }
 ```
 
-### Poll sign-in log changes with delta queries
+### Poll user changes with delta queries
 
 ```tql
-from_microsoft_graph "auditLogs/signIns",
+from_microsoft_graph "users",
   delta=true,
   poll_interval=5min,
   auth={
@@ -175,8 +181,7 @@ from_microsoft_graph "auditLogs/signIns",
     client_secret: secret("ms-graph-client-secret"),
   },
   odata={
-    filter: "createdDateTime ge 2026-04-24T00:00:00Z",
-    select: ["id", "createdDateTime", "userPrincipalName", "status"],
+    select: ["id", "displayName", "userPrincipalName"],
   }
 ```
 

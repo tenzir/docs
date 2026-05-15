@@ -120,12 +120,12 @@ from_microsoft_graph "users",
 ## Poll changes with delta queries
 
 Use `delta=true` for Microsoft Graph resources that support delta queries, such
-as `users`, `groups`, `auditLogs/signIns`, and `auditLogs/directoryAudits`.
-Pass the collection resource without `/delta`; the operator appends `/delta`
-for the initial request and then polls the returned `@odata.deltaLink`.
+as `users` and `groups`. Pass the collection resource without `/delta`; the
+operator appends `/delta` for the initial request and then polls the returned
+`@odata.deltaLink`.
 
 ```tql
-from_microsoft_graph "auditLogs/signIns",
+from_microsoft_graph "users",
   delta=true,
   poll_interval=5min,
   auth={
@@ -134,15 +134,23 @@ from_microsoft_graph "auditLogs/signIns",
     client_secret: secret("ms-graph-client-secret"),
   },
   odata={
-    filter: "createdDateTime ge 2026-04-24T00:00:00Z",
-    select: ["id", "createdDateTime", "userPrincipalName", "status"],
+    select: ["id", "displayName", "userPrincipalName"],
   }
 ```
 
-The `odata` options apply only to the initial delta request. Later polls use the
-stored delta link exactly as Microsoft Graph returned it. Delta state is stored
-in memory, so a pipeline restart starts a new initial delta query unless the
-executor restores a snapshot that contains the operator state.
+The operator doesn't maintain its own list of delta-capable Microsoft Graph
+resources. Microsoft Graph support can differ by resource, API version, tenant,
+and licensing. If a resource doesn't support delta queries, Microsoft Graph
+returns the error and Tenzir reports it.
+
+The `odata` options apply only to the initial delta request. Microsoft Graph
+decides which query options are valid for each resource. For example, Microsoft
+Graph supports `$select` for `users` and `groups` delta queries, but doesn't
+support `$top` there. Filters for those delta queries are limited to object ID
+scoping. Later polls use the stored delta link exactly as Microsoft Graph
+returned it. Delta state is stored in memory, so a pipeline restart starts a new
+initial delta query unless the executor restores a snapshot that contains the
+operator state.
 
 ## See Also
 
