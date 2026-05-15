@@ -55,17 +55,23 @@ When omitted, the operator uses `log_group`.
 
 ### `log_stream = string (optional)`
 
-The log stream to read in `mode="get"`.
+The log stream to read.
 
-This option is required for `mode="get"`.
+This option is required for `mode="get"`. In `mode="live"` and
+`mode="filter"`, it selects one stream and is mutually exclusive with
+`log_streams` and `log_stream_prefix`.
 
 ### `log_streams = list (optional)`
 
 List of log stream names to read in `mode="live"` or `mode="filter"`.
 
+This option is mutually exclusive with `log_stream` and `log_stream_prefix`.
+
 ### `log_stream_prefix = string (optional)`
 
 Prefix for selecting log streams in `mode="live"` or `mode="filter"`.
+
+This option is mutually exclusive with `log_stream` and `log_streams`.
 
 ### `filter = string (optional)`
 
@@ -82,6 +88,8 @@ Latest event timestamp to read in `mode="filter"` or `mode="get"`.
 ### `limit = int (optional)`
 
 Maximum number of events to read in `mode="filter"` or `mode="get"`.
+
+The maximum value is `2147483647`.
 
 ### `start_from_head = bool (optional)`
 

@@ -112,7 +112,8 @@ enforces CloudWatch Logs limits before sending:
 - no events more than 2 hours in the future or older than 14 days.
 
 Events that exceed CloudWatch event size or timestamp limits are skipped with a
-warning.
+warning. For `method="hlc"`, events are also skipped when the JSON request
+envelope would exceed the 1 MiB request limit.
 
 ## Examples
 
