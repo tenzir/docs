@@ -23,6 +23,19 @@ The operator uses Microsoft Entra client credentials to fetch access tokens,
 adds the `Authorization` header, and refreshes the token when needed. It follows
 `@odata.nextLink` URLs until the collection is exhausted.
 
+The operator doesn't inject its own `@` fields into emitted events. Microsoft
+Graph may include annotation fields on resource objects, and the operator
+handles them as follows:
+
+| Field          | Behavior |
+| :------------- | :------- |
+| `@odata.etag`  | Omitted from the emitted event when it appears as a top-level resource field. |
+| `@odata.type`  | Preserved because it can identify polymorphic Graph resource types. |
+| `@removed`     | Preserved because delta query responses use it to mark deleted or removed objects. |
+
+The operator doesn't emit OData envelope metadata such as `@odata.context`,
+`@odata.nextLink`, or `@odata.deltaLink` as events.
+
 By default, the operator performs a one-shot collection read. With
 `delta=true`, it uses Microsoft Graph delta queries: the initial request reads
 the resource's `/delta` endpoint, stores the final `@odata.deltaLink`, and polls
