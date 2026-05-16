@@ -276,8 +276,8 @@ function resolveSiteNavigation(config: SiteNavigationSectionConfig[]) {
     const normalizedPaths = (section.paths ?? []).map(normalizePathPattern);
     const childIds: string[] = [];
 
-    const currentSidebarIndex = section.sidebar?.length ? sidebarIndex++ : null;
-    if (section.sidebar?.length) {
+    const currentSidebarIndex = section.sidebar ? sidebarIndex++ : null;
+    if (section.sidebar) {
       sidebar.push({
         label: id,
         items: section.sidebar,
