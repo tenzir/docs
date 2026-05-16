@@ -327,6 +327,10 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_elasticsearch'
+    description: 'Accepts incoming Elasticsearch-compatible Bulk API requests and forwards them as events.'
+    example: 'accept_elasticsearch "0.0.0.0:9200"'
+    path: 'reference/operators/accept_elasticsearch'
   - name: 'accept_http'
     description: 'Accepts incoming HTTP requests and forwards them as events.'
     example: 'accept_http "0.0.0.0:8080" { read_json }'
@@ -655,6 +659,10 @@ operators:
     description: 'Sends events to a ClickHouse table.'
     example: 'to_clickhouse table="my_table"'
     path: 'reference/operators/to_clickhouse'
+  - name: 'to_elasticsearch'
+    description: 'Sends events to an Elasticsearch-compatible Bulk API.'
+    example: 'to_elasticsearch "localhost:9200", …'
+    path: 'reference/operators/to_elasticsearch'
   - name: 'to_file'
     description: 'Writes events to one or multiple files on a filesystem.'
     example: 'to_file "/tmp/out.json" { write_ndjson }'
@@ -1374,6 +1382,14 @@ sockets
 
 <CardGrid>
 
+<ReferenceCard title="accept_elasticsearch" description="Accepts incoming Elasticsearch-compatible Bulk API requests and forwards them as events." href="/reference/operators/accept_elasticsearch">
+
+```tql
+accept_elasticsearch "0.0.0.0:9200"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
 
 ```tql
@@ -1890,6 +1906,14 @@ to_azure_log_analytics tenant_id="...", workspace_id="..."
 
 ```tql
 to_clickhouse table="my_table"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_elasticsearch" description="Sends events to an Elasticsearch-compatible Bulk API." href="/reference/operators/to_elasticsearch">
+
+```tql
+to_elasticsearch "localhost:9200", …
 ```
 
 </ReferenceCard>

@@ -1,10 +1,6 @@
-import InlineSVG from "@components/InlineSVG.astro";
-
 <a href={props.url}>{props.Name}</a> is a search and observability suite for
 unstructured data. Tenzir can send events to {props.Name} and emulate a
 {props.Name}-compatible Bulk API endpoint.
-
-<InlineSVG src={props.image} alt="How to send and receive data" />
 
 When sending data to {props.Name}, Tenzir uses the <a
   href={props.bulkApiUrl}>Bulk API</a> and attempts to maximally batch events
@@ -12,16 +8,86 @@ for throughput, accumulating multiple events before shipping them within a
 single API call. You can control batching behavior with the `max_content_length`
 and `buffer_timeout` options.
 
-Use `to_opensearch` for both OpenSearch and Elasticsearch-compatible Bulk API
-endpoints. There is no separate `to_elasticsearch` operator.
+Use <code>{props.toOperator}</code> to send events to {props.Name} Bulk API
+endpoints.
 
-For more details, see the documentation for the
-[`to_opensearch`](/reference/operators/to_opensearch) operator.
+For more details, see the documentation for the <a
+  href={`/reference/operators/${props.toOperator}`}><code>{props.toOperator}</code></a> operator.
 
-Tenzir can also present a {props.Name}-compatible REST API via the
-[`accept_opensearch`](/reference/operators/accept_opensearch) operator.
+Tenzir can also present a {props.Name}-compatible REST API via the <a
+  href={`/reference/operators/${props.acceptOperator}`}><code>{props.acceptOperator}</code></a> operator.
 
 ## Examples
+
+### Query documents from a {props.Name} index
+
+Use [`from_http`](/reference/operators/from_http) to query the
+<a href={props.searchApiUrl}>Search API</a>. The Search API supports
+`GET` and `POST` requests to `/{index}/_search`. When you provide a request
+body, <code>from_http</code> uses <code>post</code> by default.
+
+export const queryIndex = `
+from_http "https://localhost:9200/main/_search",
+  body={
+    size: 100,
+    query: {match_all: {}},
+    sort: [{"@timestamp": {order: "desc"}}],
+  } {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+`;
+
+<Code code={queryIndex} lang="tql" />
+
+Add an `Authorization` header if your {props.Name} cluster requires
+authentication.
+
+### Export large result sets with scroll
+
+For larger exports, use the <a href={props.scrollApiUrl}>Scroll API</a>. Start
+with a search request that includes a `scroll` query parameter and a batch size:
+
+export const startScroll = `
+from_http "https://localhost:9200/main/_search?scroll=10m",
+  body={
+    size: 10000,
+    query: {match_all: {}},
+  } {
+  read_json
+}
+unroll hits.hits
+hits.hits._source._scroll_id = this._scroll_id
+this = hits.hits._source
+`;
+
+<Code code={startScroll} lang="tql" />
+
+The response also contains an `_scroll_id`. Use that value with
+`/_search/scroll` to fetch the next batch:
+
+export const continueScroll = `
+let $scroll_id = "DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAAAAUW..."
+
+from_http "https://localhost:9200/_search/scroll",
+  body={
+    scroll: "10m",
+    scroll_id: $scroll_id,
+  } {
+  read_json
+}
+unroll hits.hits
+hits.hits._source._scroll_id = this._scroll_id
+this = hits.hits._source
+`;
+
+<Code code={continueScroll} lang="tql" />
+
+Each emitted event includes the response `_scroll_id`. Repeat the scroll request
+with the latest `_scroll_id` until the response contains no hits. Close the
+scroll context when the export is complete, because {props.Name} keeps the
+search context alive until the scroll timeout expires.
 
 ### Send events to a {props.Name} index
 
@@ -31,11 +97,11 @@ import { Code } from "@astrojs/starlight/components";
 
 export const sendToMainIndex = `
 from {event: "example"}
-to_opensearch "1.2.3.4:9200", action="create", index="main"
+TO_OPERATOR "1.2.3.4:9200", action="create", index="main"
 `;
 
 <Code
-  code={sendToMainIndex}
+  code={sendToMainIndex.replace("TO_OPERATOR", props.toOperator)}
   lang="tql"
 />
 
@@ -44,11 +110,11 @@ you can designate a nested record as the document:
 
 export const sendNestedRecord = `
 from {category: "qux", doc_id: "XXX", event: {foo: "bar"}}
-to_opensearch "localhost:9200", id=doc_id, doc=event, action="update", index=category
+TO_OPERATOR "localhost:9200", id=doc_id, doc=event, action="update", index=category
 `;
 
 <Code
-  code={sendNestedRecord}
+  code={sendNestedRecord.replace("TO_OPERATOR", props.toOperator)}
   lang="tql"
 />
 
@@ -62,17 +128,23 @@ Bulk API endpoint. This allows you to point your <a
 href={props.logstashUrl}>Logstash</a> or Beats instances to Tenzir instead.
 
 export const emulate = `
-accept_opensearch "0.0.0.0:9200", keep_actions=true
+ACCEPT_OPERATOR "0.0.0.0:9200", keep_actions=true
 publish "NAME"
 `;
 
-<Code code={emulate.replace(/NAME/g, props.Name.toLowerCase())} lang="tql" />
+<Code
+  code={emulate
+    .replace("ACCEPT_OPERATOR", props.acceptOperator)
+    .replace(/NAME/g, props.Name.toLowerCase())}
+  lang="tql"
+/>
 
 This pipeline accepts data on port 9200 and publishes all received events on
 the <code>{props.Name.toLowerCase()}</code> topic for further processing by
 other pipelines.
 
-Use `accept_opensearch` for new pipelines that receive bulk ingestion data.
+Use <code>{props.acceptOperator}</code> for new pipelines that receive bulk
+ingestion data.
 
 Setting `keep_actions=true` causes action objects to remain in the stream, like
 this:

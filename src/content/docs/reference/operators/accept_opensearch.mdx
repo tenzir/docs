@@ -17,6 +17,8 @@ The `accept_opensearch` operator starts an OpenSearch-compatible HTTP server and
 accepts bulk ingestion requests on `/_bulk` and `/{index}/_bulk`. Elasticsearch
 clients can also use this endpoint.
 
+You can also use `accept_elasticsearch` as an alias.
+
 For each bulk request, the operator buffers the request body in memory, up to
 `max_request_size`, optionally decompresses it based on the HTTP
 `Content-Encoding` header, parses the NDJSON payload, and emits the resulting
