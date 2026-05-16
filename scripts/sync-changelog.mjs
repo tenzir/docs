@@ -12,6 +12,7 @@ import remarkHtml from "remark-html";
 // Load shared project config (icons defined once, used by both sync and topics.ts)
 const require = createRequire(import.meta.url);
 const changelogProjects = require("../src/changelog-projects.json");
+const CHANGELOG_EXPORT_MAX_BUFFER = 64 * 1024 * 1024;
 
 /**
  * Sync changelog from tenzir/news repository.
@@ -339,6 +340,7 @@ async function readAllReleases(newsRepoPath, changelogPath, projectName) {
       {
         cwd: fullChangelogPath,
         encoding: "utf-8",
+        maxBuffer: CHANGELOG_EXPORT_MAX_BUFFER,
         stdio: ["pipe", "pipe", "pipe"],
       },
     ).trim();
@@ -398,10 +400,7 @@ async function readAllReleases(newsRepoPath, changelogPath, projectName) {
       }
     }
   } catch (err) {
-    // Fallback: return empty if bulk export fails
-    console.warn(
-      `  Warning: Bulk export failed for ${changelogPath}: ${err.message}`,
-    );
+    throw new Error(`Bulk export failed for ${changelogPath}: ${err.message}`);
   }
 
   // Sort releases by version (newest first, unreleased at top due to Infinity)
