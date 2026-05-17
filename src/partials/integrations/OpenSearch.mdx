@@ -13,7 +13,7 @@ single API call. You can control batching behavior with the `max_content_length`
 and `buffer_timeout` options.
 
 Use `to_opensearch` for both OpenSearch and Elasticsearch-compatible Bulk API
-endpoints. There is no separate `to_elasticsearch` operator.
+endpoints. You can also use `to_elasticsearch` as an alias.
 
 For more details, see the documentation for the
 [`to_opensearch`](/reference/operators/to_opensearch) operator.
@@ -72,7 +72,8 @@ This pipeline accepts data on port 9200 and publishes all received events on
 the <code>{props.Name.toLowerCase()}</code> topic for further processing by
 other pipelines.
 
-Use `accept_opensearch` for new pipelines that receive bulk ingestion data.
+Use `accept_opensearch` for new pipelines that receive bulk ingestion data. You
+can also use `accept_elasticsearch` as an alias.
 
 Setting `keep_actions=true` causes action objects to remain in the stream, like
 this:
