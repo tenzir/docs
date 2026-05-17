@@ -4,13 +4,15 @@ category: Outputs/Events
 example: 'to_elasticsearch "localhost:9200", …'
 ---
 
-Sends events to an Elasticsearch-compatible Bulk API.
+import ToSearchBackend from "@partials/operators/ToSearchBackend.mdx";
 
-`to_elasticsearch` is an alias for <Op>to_opensearch</Op>. It supports the same
-options and behavior.
-
-## See Also
-
-- <Op>to_opensearch</Op>
-- <Integration>elasticsearch</Integration>
-- <Integration>opensearch</Integration>
+<ToSearchBackend
+  Product="Elasticsearch"
+  OtherProduct="OpenSearch"
+  operator="to_elasticsearch"
+  aliasOperator="to_opensearch"
+  acceptOperator="accept_elasticsearch"
+  bulkApiUrl="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html"
+  integration="elasticsearch"
+  otherIntegration="opensearch"
+/>

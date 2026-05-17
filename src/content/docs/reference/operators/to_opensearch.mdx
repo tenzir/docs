@@ -4,117 +4,15 @@ category: Outputs/Events
 example: 'to_opensearch "localhost:9200", …'
 ---
 
-Sends events to an OpenSearch-compatible Bulk API.
+import ToSearchBackend from "@partials/operators/ToSearchBackend.mdx";
 
-```tql
-to_opensearch url:string, action=string, [index=string, id=string, doc=record,
-    user=string, passwd=string, tls=record, include_nulls=bool,
-    max_content_length=int, buffer_timeout=duration, compress=bool]
-```
-
-## Description
-
-The `to_opensearch` operator sends events to an [OpenSearch-compatible Bulk
-API][api], including Elasticsearch.
-
-You can also use `to_elasticsearch` as an alias.
-
-[api]: https://opensearch.org/docs/latest/api-reference/document-apis/bulk/
-
-The operator appends `/_bulk` to the URL if the path doesn't already end with
-`/_bulk`. It accumulates multiple events before sending them as a single
-request. You can control the maximum request size with `max_content_length` and
-the timeout before sending accumulated events with `buffer_timeout`.
-
-### `url: string`
-
-The URL of the API endpoint.
-
-### `action = string`
-
-An expression for the action that evaluates to a `string`.
-
-Supported actions:
-
-- `create`: Creates a document if it doesn't already exist and returns an
-  error otherwise.
-- `delete`: Deletes a document if it exists.
-- `index`: Creates a document if it doesn't exist yet and replaces the document
-  if it already exists.
-- `update`: Updates existing documents and returns an error if the document
-  doesn't exist.
-- `upsert`: Updates a document if it exists, or indexes a new document if it
-  doesn't exist.
-
-### `index = string (optional)`
-
-An optional expression for the index that evaluates to a `string`.
-
-Must be provided if the `url` does not have an index.
-
-### `id = string (optional)`
-
-The `id` of the document to act on.
-
-Must be provided when using the `delete`, `update`, and `upsert` actions.
-
-### `doc = record (optional)`
-
-The document to serialize.
-
-Defaults to `this`.
-
-### `user = string (optional)`
-
-Optional user for HTTP Basic Authentication.
-
-### `passwd = string (optional)`
-
-Optional password for HTTP Basic Authentication.
-
-import TLSOptions from '@partials/operators/TLSOptions.mdx';
-
-<TLSOptions tls_default="true"/>
-
-### `include_nulls = bool (optional)`
-
-Include fields with null values in the transmitted event data. By default, the
-operator drops all null values to save space.
-
-Defaults to `false`.
-
-### `max_content_length = int (optional)`
-
-The maximum size of the uncompressed message body in bytes. A message may
-consist of multiple events. If a single event is larger than this limit, the
-operator drops it and emits a warning.
-
-Defaults to `5Mi`.
-
-### `buffer_timeout = duration (optional)`
-
-The maximum amount of time for which the operator accumulates events before
-sending them to the Bulk API as a single request.
-
-Defaults to `5s`.
-
-### `compress = bool (optional)`
-
-Whether to compress the message body using standard gzip.
-
-Defaults to `true`.
-
-## Examples
-
-### Send events from a JSON file
-
-```tql
-from_file "example.json"
-to_opensearch "localhost:9200", action="create", index="main"
-```
-
-## See Also
-
-- <Op>accept_opensearch</Op>
-- <Integration>opensearch</Integration>
-- <Integration>elasticsearch</Integration>
+<ToSearchBackend
+  Product="OpenSearch"
+  OtherProduct="Elasticsearch"
+  operator="to_opensearch"
+  aliasOperator="to_elasticsearch"
+  acceptOperator="accept_opensearch"
+  bulkApiUrl="https://opensearch.org/docs/latest/api-reference/document-apis/bulk/"
+  integration="opensearch"
+  otherIntegration="elasticsearch"
+/>
