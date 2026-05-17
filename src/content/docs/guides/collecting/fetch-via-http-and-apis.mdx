@@ -259,6 +259,54 @@ from_http f"{$base}?category=security&page=1",
 }
 ```
 
+For APIs that put pagination state in the request body, return a request record
+from the lambda. Missing fields inherit from the current request. This
+OpenSearch example keeps using the same `POST` request and replaces only the
+body with a `search_after` cursor from the previous page:
+
+```tql
+from_http "https://opensearch.example.com/logs/_search",
+  method="post",
+  body={
+    size: 500,
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+    query: {match_all: {}},
+  },
+  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  paginate=(x => {
+    body: {
+      size: 500,
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      query: {match_all: {}},
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+```
+
+Scroll-style APIs can change the URL and body for the next request while
+keeping the method and headers:
+
+```tql
+let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
+let $scroll = "https://opensearch.example.com/_search/scroll"
+
+from_http $search,
+  method="post",
+  body={size: 500, query: {match_all: {}}},
+  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  paginate=(x => {
+    url: $scroll,
+    body: {
+      scroll: "1m",
+      scroll_id: x._scroll_id,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+```
+
 ### Rate limiting
 
 Control request frequency by configuring `paginate_delay` to add delays between

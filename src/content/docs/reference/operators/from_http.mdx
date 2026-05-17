@@ -12,7 +12,7 @@ Sends an HTTP/1.1 request and returns the response as events.
 
 ```tql
 from_http url:string, [method=string, body=record|string|blob, encode=string,
-          headers=record, error_field=field, paginate=string,
+          headers=record, error_field=field, paginate=string|lambda,
           paginate_delay=duration, connection_timeout=duration,
           max_retry_count=int, retry_delay=duration, tls=record]
           [{ … }]
@@ -72,14 +72,41 @@ Specifies how to encode `record` bodies. Supported values:
 
 Defaults to `json`.
 
-### `paginate = record -> string | string (optional)`
+### `paginate = record -> string | record | null | string (optional)`
 
 Controls automatic pagination of HTTP responses.
 
 **Lambda mode**: A lambda expression to evaluate against the parsed result of a
-request. If the expression evaluates successfully and returns a non-null
+request. The lambda receives one parsed page envelope. If the parser emits
+multiple events for one page, Tenzir emits a warning and stops pagination.
+
+If the lambda returns `null`, pagination stops. If it returns a non-null
 string, Tenzir uses that string as the URL for a new `GET` request with the
 same headers.
+
+If the lambda returns a record, Tenzir patches the next request. The record
+supports these fields:
+
+- `url`: The next URL as a `string`. Relative URLs are resolved against the
+  current request URL.
+- `method`: The next HTTP method as a `string`.
+- `headers`: A record of request headers. Header names are matched
+  case-insensitively. String values set or replace headers, and `null` values
+  delete headers.
+- `body`: The next request body as a `blob`, `record`, or `string`. Set this
+  field to `null` to clear the body.
+
+Missing record fields inherit from the current effective request. Setting
+`body` does not change the method. Set `method` explicitly if the next request
+must use a different method. If `body` is a record, the `encode` option also
+applies to paginated request bodies.
+
+Unknown fields, empty request records, and invalid field values emit a
+diagnostic and stop pagination after the current page.
+
+This request-record pagination behavior applies to <Op>from_http</Op> only. It
+does not change <Op>http</Op>, <Op>to_http</Op>, <Op>accept_http</Op>, or
+<Op>serve_http</Op>.
 
 **Link mode**: The string `"link"` to automatically follow pagination links in
 the HTTP `Link` response header as defined in [RFC
@@ -245,6 +272,56 @@ operator emits each object from `value`, follows a top-level string
 `@odata.nextLink` as an opaque URL, and stops when the field is absent or not a
 string. Follow-up requests use `GET` with the same headers as the initial
 request.
+
+### Paginate with request records
+
+Use a request record when an API expects pagination state in the request body
+instead of the URL. This OpenSearch example uses `search_after` from the last
+hit in the previous page. The next request inherits the URL, method, and
+headers, but replaces the body:
+
+```tql
+from_http "https://opensearch.example.com/logs/_search",
+  method="post",
+  body={
+    size: 500,
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+    query: {match_all: {}},
+  },
+  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  paginate=(x => {
+    body: {
+      size: 500,
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      query: {match_all: {}},
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+```
+
+For scroll-style APIs, return both a new URL and a new body. The next request
+keeps the configured method and headers:
+
+```tql
+let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
+let $scroll = "https://opensearch.example.com/_search/scroll"
+
+from_http $search,
+  method="post",
+  body={size: 500, query: {match_all: {}}},
+  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  paginate=(x => {
+    url: $scroll,
+    body: {
+      scroll: "1m",
+      scroll_id: x._scroll_id,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+```
 
 ### Retry Failed Requests
 
