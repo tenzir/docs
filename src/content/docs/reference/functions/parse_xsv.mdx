@@ -9,7 +9,7 @@ Parses a string as delimiter separated values.
 ```tql
 parse_xsv(input:string, field_separator=string, list_separator=string, null_value=string,
           header=list<string>|string,
-         [auto_expand=bool, quotes=string, schema=string,
+         [auto_expand=bool, auto_fill=bool, quotes=string, schema=string,
           selector=string, schema_only=bool, raw=bool,
           unflatten_separator=string]) -> record
 ```
@@ -53,6 +53,12 @@ The string denoting an absent value.
 
 Automatically add fields to the schema when encountering events with too many
 values instead of dropping the excess values.
+
+### `auto_fill = bool (optional)`
+
+Silently fill missing trailing values in a row with `null` instead of emitting
+a warning. The missing fields are already filled with `null` either way; this
+option only suppresses the warning.
 
 ### `quotes = string (optional)`
 

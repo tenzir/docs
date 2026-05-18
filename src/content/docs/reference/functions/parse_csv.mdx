@@ -9,7 +9,7 @@ Parses a string as CSV (Comma-Separated Values).
 ```tql
 parse_csv(input:string, header=list<string>|string,
          [list_separator=string, null_value=string,
-          auto_expand=bool, quotes=string, schema=string,
+          auto_expand=bool, auto_fill=bool, quotes=string, schema=string,
           selector=string, schema_only=bool, raw=bool,
           unflatten_separator=string]) -> record
 ```
@@ -43,6 +43,12 @@ The string denoting an absent value.
 
 Automatically add fields to the schema when encountering events with too many
 values instead of dropping the excess values.
+
+### `auto_fill = bool (optional)`
+
+Silently fill missing trailing values in a row with `null` instead of emitting
+a warning. The missing fields are already filled with `null` either way; this
+option only suppresses the warning.
 
 ### `quotes = string (optional)`
 
