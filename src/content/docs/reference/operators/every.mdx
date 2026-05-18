@@ -19,6 +19,10 @@ Every `interval`, the executor spawns a new sub-pipeline that runs to
 completion. If the sub-pipeline runs longer than `interval`, the next run
 starts immediately.
 
+The sub-pipeline either emits events—which are forwarded as the operator's
+output—or ends with a sink, in which case `every` itself becomes a sink. The
+sub-pipeline must not produce bytes.
+
 :::caution[Sub-pipelines must terminate on their own]
 `every` never stops a sub-pipeline — it only waits for it to finish. Operators
 that run indefinitely, such as <Op>summarize</Op> without a `frequency` option,
@@ -68,6 +72,19 @@ every 10min {
   }
 }
 publish "threat-feed"
+```
+
+### Periodically import a snapshot
+
+When the sub-pipeline ends with a sink, `every` itself becomes a sink:
+
+```tql
+every 1h {
+  from_http "example.org/api/inventory" {
+    read_json
+  }
+  import
+}
 ```
 
 ## See Also
