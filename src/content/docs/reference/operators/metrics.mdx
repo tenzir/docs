@@ -73,10 +73,24 @@ compatible with Prometheus-oriented pipelines:
 ```
 
 The Prometheus shape recursively flattens numeric metric fields into individual
-records. String-like dimension fields such as `pipeline_id`, `operator_id`,
-`name`, `path`, `schema`, `schema_id`, `handle`, `method`, and `status_code`
-become labels. Duration values are converted to seconds and emitted with a
-`_seconds` metric suffix.
+records. Duration values are converted to seconds and emitted with a `_seconds`
+metric suffix.
+
+Only selected low-cardinality dimensions become labels. Tenzir omits
+high-cardinality metadata such as `schema_id`, request IDs, and native handles.
+When multiple raw metrics differ only in omitted metadata, Tenzir aggregates
+their values into one Prometheus-shaped sample.
+
+The Prometheus shape emits the following labels:
+
+- API metrics: `method`, `path`, and `status_code`.
+- Actor metrics: `name`.
+- CAF actor-list metrics: `name`.
+- Disk metrics: `path`.
+- Operator-scoped metrics: `pipeline_id` and `operator_id`.
+- Pipeline metrics: `pipeline_id`.
+- Schema-scoped import, export, ingest, publish, and subscribe metrics:
+  `schema`.
 
 ## Schemas
 
