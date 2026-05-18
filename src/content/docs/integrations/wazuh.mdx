@@ -100,6 +100,43 @@ Replace `wazuh-indexer.example.com` with the Wazuh indexer host and store the
 indexer credentials as Tenzir secrets. See the Wazuh documentation for
 [index names][wazuh-indices] and [indexer API authentication][wazuh-indexer-api].
 
+For larger exports, use the same request-record pagination pattern as
+OpenSearch. The Wazuh indexer response includes the `sort` values for each hit
+when you request a stable sort. Return a request record from `paginate` to add
+`search_after` for the next page:
+
+```tql
+let $auth = f"{secret("WAZUH_INDEXER_USER")}:{secret("WAZUH_INDEXER_PASSWORD")}"
+let $headers = {
+  "Authorization": f"Basic {$auth.encode_base64()}",
+  "Content-Type": "application/json",
+}
+
+from_http "https://wazuh-indexer.example.com:9200/wazuh-alerts-*/_search",
+  headers=$headers,
+  body={
+    size: 1000,
+    query: {match_all: {}},
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+  },
+  paginate=(x => {
+    body: {
+      size: 1000,
+      query: {match_all: {}},
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+Keep `unroll` after <Op>from_http</Op> so the pagination lambda can inspect the
+whole search response. Follow-up requests inherit the `POST` method and
+headers from the first request and replace only the request body.
+
 [wazuh-indices]: https://documentation.wazuh.com/current/user-manual/wazuh-indexer/wazuh-indexer-indices.html
 [wazuh-indexer-api]: https://documentation.wazuh.com/current/user-manual/indexer-api/getting-started.html
 
@@ -127,5 +164,6 @@ events as incoming log data.
 - <Op>to_opensearch</Op>
 - <Op>to_tcp</Op>
 - <Op>write_syslog</Op>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Integration>opensearch</Integration>
 - <Integration>syslog</Integration>

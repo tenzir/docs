@@ -281,17 +281,20 @@ hit in the previous page. The next request inherits the URL, method, and
 headers, but replaces the body:
 
 ```tql
-from_http "https://opensearch.example.com/logs/_search",
-  method="post",
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http "https://opensearch.example.com/logs-*/_search",
+  headers=$headers,
   body={
-    size: 500,
+    size: 1000,
     sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
     query: {match_all: {}},
   },
-  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
   paginate=(x => {
     body: {
-      size: 500,
+      size: 1000,
       sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
       query: {match_all: {}},
       search_after: x.hits.hits[-1].sort,
@@ -299,6 +302,8 @@ from_http "https://opensearch.example.com/logs/_search",
   } if x.hits.hits != []) {
   read_json
 }
+unroll hits.hits
+this = hits.hits._source
 ```
 
 For scroll-style APIs, return both a new URL and a new body. The next request
@@ -307,11 +312,13 @@ keeps the configured method and headers:
 ```tql
 let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
 let $scroll = "https://opensearch.example.com/_search/scroll"
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
 
 from_http $search,
-  method="post",
-  body={size: 500, query: {match_all: {}}},
-  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  headers=$headers,
+  body={size: 1000, query: {match_all: {}}},
   paginate=(x => {
     url: $scroll,
     body: {
@@ -321,7 +328,13 @@ from_http $search,
   } if x.hits.hits != []) {
   read_json
 }
+unroll hits.hits
+this = hits.hits._source
 ```
+
+Keep operators such as <Op>unroll</Op> after <Op>from_http</Op> for these
+pagination styles. The pagination lambda receives the parsed page envelope, so
+the parsing subpipeline must emit one event for the whole response.
 
 ### Retry Failed Requests
 
