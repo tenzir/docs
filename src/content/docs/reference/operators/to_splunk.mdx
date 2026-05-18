@@ -12,8 +12,8 @@ Sends events to a Splunk [HTTP Event Collector (HEC)][hec].
 to_splunk url:string, hec_token=string,
           [event=any, raw=string, host=string, source=string,
           sourcetype=expr, index=expr, time=expr, fields=record,
-          include_nulls=bool, max_content_length=int, buffer_timeout=duration,
-          compress=bool, tls=record]
+          queue=string, include_nulls=bool, max_content_length=int,
+          buffer_timeout=duration, compress=bool, tls=record]
 ```
 
 ## Description
@@ -109,6 +109,29 @@ The expression must evaluate to a flat record whose values are strings or lists
 of strings. Invalid field values are omitted with a warning. The fields are sent
 as top-level HEC `fields` metadata and are not copied into the event payload.
 
+### `queue = string (optional)`
+
+The Splunk processing queue to send events to.
+
+Set this option to one of the following values:
+
+- `indexing`: Use Splunk's default HEC event path to the `indexQueue`.
+- `typing`: Send events to Splunk's `parsingQueue` so Splunk can apply parsing
+  and source type rules before indexing.
+
+Defaults to `indexing`.
+
+This option is only supported with the HEC event endpoint. When you set
+`raw=...`, Splunk sends raw HEC requests to the indexer queue, and
+`queue="typing"` is rejected.
+
+The `queue` field is non-standard HEC metadata that uses Splunk pipeline queue
+names. It is not part of the fully documented Splunk HEC event parameter set, so
+behavior can depend on the receiver. The operator omits the field for
+`queue="indexing"` because this is the Splunk HEC default. Vanilla Splunk HEC
+can reject `queue="typing"` requests with `No data`; use this option only with
+receivers that support the hint.
+
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="true"/>
@@ -180,6 +203,18 @@ to_splunk "https://localhost:8088",
   hec_token=secret("splunk-hec-token"),
   event={message: message},
   fields={user: user, tags: tags}
+```
+
+### Send events to the typing queue
+
+```tql
+from {
+  message: "login succeeded",
+}
+to_splunk "https://localhost:8088",
+  hec_token=secret("splunk-hec-token"),
+  event={message: message},
+  queue="typing"
 ```
 
 ### Send raw events
