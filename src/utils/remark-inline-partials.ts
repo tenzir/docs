@@ -8,6 +8,7 @@ import type { MdxjsEsm } from "mdast-util-mdx";
 import type {
   MdxJsxAttribute,
   MdxJsxAttributeValueExpression,
+  MdxJsxExpressionAttribute,
   MdxJsxFlowElement,
   MdxJsxTextElement,
 } from "mdast-util-mdx-jsx";
@@ -426,6 +427,18 @@ function hasRemainingIdentifierReference(
     ) {
       const jsxNode = node as MdxJsxFlowElement | MdxJsxTextElement;
       for (const attribute of jsxNode.attributes ?? []) {
+        if (attribute.type === "mdxJsxExpressionAttribute") {
+          const estree = getExpressionAttributeEstree(
+            attribute as MdxJsxExpressionAttribute,
+            report,
+          );
+          if (estree && estreeHasIdentifierReference(estree, name)) {
+            found = true;
+            return false;
+          }
+          continue;
+        }
+
         if (
           attribute.type !== "mdxJsxAttribute" ||
           typeof attribute.value === "string" ||
@@ -448,6 +461,24 @@ function hasRemainingIdentifierReference(
   });
 
   return found;
+}
+
+function getExpressionAttributeEstree(
+  attribute: MdxJsxExpressionAttribute,
+  report: (message: string) => void,
+): unknown | null {
+  if (attribute.data?.estree) {
+    return attribute.data.estree;
+  }
+
+  const value = attribute.value.trim();
+  if (value.length === 0) return null;
+
+  if (value.startsWith("...")) {
+    return parseEstree(`({${value}})`, report, "MDX spread attribute");
+  }
+
+  return parseEstree(value, report, "MDX expression attribute");
 }
 
 function estreeHasIdentifierReference(estree: unknown, name: string): boolean {

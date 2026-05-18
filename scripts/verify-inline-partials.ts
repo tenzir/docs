@@ -52,6 +52,10 @@ try {
     join(partialsDir, "RetainedReference.mdx"),
     "### `retained = component`",
   );
+  writeFileSync(
+    join(partialsDir, "SpreadRetainedReference.mdx"),
+    "### `spread-retained = component`",
+  );
   const semanticLinkPartial = "- <Op>{props.Operator}</Op>";
   const semanticLinkPartialPath = join(partialsDir, "WithSemanticLink.mdx");
   writeFileSync(semanticLinkPartialPath, semanticLinkPartial);
@@ -70,6 +74,7 @@ try {
     'import UsesComponent from "@partials/UsesComponent.mdx";',
     'import Wrapper from "@partials/Wrapper.mdx";',
     'import RetainedReference from "@partials/RetainedReference.mdx";',
+    'import SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx";',
     'import WithSemanticLink from "@partials/WithSemanticLink.mdx";',
     "",
     "# Doc",
@@ -83,6 +88,10 @@ try {
     "<RetainedReference />",
     "",
     "<Slot content={RetainedReference} />",
+    "",
+    "<SpreadRetainedReference />",
+    "",
+    "<Slot {...{content: SpreadRetainedReference}} />",
     "",
     '<WithSemanticLink Operator="where" />',
   ].join("\n");
@@ -105,6 +114,7 @@ try {
   assert(headingTexts.includes("with svg"));
   assert(headingTexts.includes("Gadget"));
   assert(headingTexts.includes("retained = component"));
+  assert(headingTexts.includes("spread-retained = component"));
   assert(!headingTexts.includes('"Gadget"'));
 
   const jsxNames: string[] = [];
@@ -117,6 +127,7 @@ try {
   assert(!jsxNames.includes("Wrapper"));
   assert(!jsxNames.includes("WithProps"));
   assert(!jsxNames.includes("RetainedReference"));
+  assert(!jsxNames.includes("SpreadRetainedReference"));
 
   const importValues: string[] = [];
   visit(transformed, "mdxjsEsm", (node: { value?: string }) => {
@@ -130,6 +141,13 @@ try {
     importValues.some((value) =>
       value.includes(
         'RetainedReference from "@partials/RetainedReference.mdx"',
+      ),
+    ),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx"',
       ),
     ),
   );
