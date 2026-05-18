@@ -76,16 +76,20 @@ raw archived events in `wazuh-archives-*` indices. You can query these indices
 through the Wazuh indexer API with <Op>from_http</Op>:
 
 ```tql
+let $auth = f"{secret("WAZUH_INDEXER_USER")}:{secret("WAZUH_INDEXER_PASSWORD")}"
+let $headers = {
+  "Authorization": f"Basic {$auth.encode_base64()}",
+  "Content-Type": "application/json",
+}
+let $body = {
+  size: 100,
+  query: {match_all: {}},
+  sort: [{"@timestamp": {order: "desc"}}],
+}
+
 from_http "https://wazuh-indexer.example.com:9200/wazuh-alerts-*/_search",
-  headers={
-    "Authorization": "Basic " + f"{secret("WAZUH_INDEXER_USER")}:{secret("WAZUH_INDEXER_PASSWORD")}".encode_base64(),
-    "Content-Type": "application/json",
-  },
-  body={
-    size: 100,
-    query: {match_all: {}},
-    sort: [{"@timestamp": {order: "desc"}}],
-  } {
+  headers=$headers,
+  body=$body {
   read_json
 }
 unroll hits.hits

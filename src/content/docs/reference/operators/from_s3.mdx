@@ -92,7 +92,7 @@ from_s3 "s3://logs/application/**.json", watch=true, aws_iam={
 
 ```tql
 from_s3 "s3://input-bucket/**.json",
-  rename=(path => "archive/" + path)
+  rename=(path => f"archive/{path}")
 ```
 
 ### Add source path to events

@@ -338,7 +338,7 @@ pass string literals directly to operators that accept secrets:
 
 ```tql
 // Using managed secret
-auth_header = "Bearer " + secret("api-token")
+auth_header = f"Bearer {secret("api-token")}"
 
 // Using format string (produces a secret)
 connection = f"https://{secret("user")}:{secret("pass")}@api.example.com"

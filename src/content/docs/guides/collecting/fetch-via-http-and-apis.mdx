@@ -105,7 +105,7 @@ containing key-value pairs:
 
 ```tql
 let $headers = {
-  "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
+  "Authorization": f"Bearer {secret("YOUR_BEARER_TOKEN")}"
 }
 from_http "https://api.example.com/data", headers=$headers {
   read_json
@@ -216,7 +216,7 @@ automatically:
 ```tql
 from_http "https://graph.microsoft.com/v1.0/users",
   headers={
-    "Authorization": "Bearer " + secret("MICROSOFT_GRAPH_TOKEN"),
+    "Authorization": f"Bearer {secret("MICROSOFT_GRAPH_TOKEN")}",
     "ConsistencyLevel": "eventual",
   },
   paginate="odata" {
