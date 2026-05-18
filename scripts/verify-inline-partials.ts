@@ -56,6 +56,20 @@ try {
     join(partialsDir, "SpreadRetainedReference.mdx"),
     "### `spread-retained = component`",
   );
+  writeFileSync(
+    join(partialsDir, "NestedRetainedReference.mdx"),
+    "### `nested-retained = component`",
+  );
+  writeFileSync(
+    join(partialsDir, "NestedRetainedWrapper.mdx"),
+    [
+      'import NestedRetainedReference from "./NestedRetainedReference.mdx";',
+      "",
+      "<NestedRetainedReference />",
+      "",
+      "<Slot {...{content: NestedRetainedReference}} />",
+    ].join("\n"),
+  );
   const semanticLinkPartial = "- <Op>{props.Operator}</Op>";
   const semanticLinkPartialPath = join(partialsDir, "WithSemanticLink.mdx");
   writeFileSync(semanticLinkPartialPath, semanticLinkPartial);
@@ -75,6 +89,7 @@ try {
     'import Wrapper from "@partials/Wrapper.mdx";',
     'import RetainedReference from "@partials/RetainedReference.mdx";',
     'import SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx";',
+    'import NestedRetainedWrapper from "@partials/NestedRetainedWrapper.mdx";',
     'import WithSemanticLink from "@partials/WithSemanticLink.mdx";',
     "",
     "# Doc",
@@ -92,6 +107,8 @@ try {
     "<SpreadRetainedReference />",
     "",
     "<Slot {...{content: SpreadRetainedReference}} />",
+    "",
+    "<NestedRetainedWrapper />",
     "",
     '<WithSemanticLink Operator="where" />',
   ].join("\n");
@@ -115,6 +132,7 @@ try {
   assert(headingTexts.includes("Gadget"));
   assert(headingTexts.includes("retained = component"));
   assert(headingTexts.includes("spread-retained = component"));
+  assert(headingTexts.includes("nested-retained = component"));
   assert(!headingTexts.includes('"Gadget"'));
 
   const jsxNames: string[] = [];
@@ -128,6 +146,8 @@ try {
   assert(!jsxNames.includes("WithProps"));
   assert(!jsxNames.includes("RetainedReference"));
   assert(!jsxNames.includes("SpreadRetainedReference"));
+  assert(!jsxNames.includes("NestedRetainedWrapper"));
+  assert(!jsxNames.includes("NestedRetainedReference"));
 
   const importValues: string[] = [];
   visit(transformed, "mdxjsEsm", (node: { value?: string }) => {
@@ -148,6 +168,13 @@ try {
     importValues.some((value) =>
       value.includes(
         'SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx"',
+      ),
+    ),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'NestedRetainedReference from "@partials/NestedRetainedReference.mdx"',
       ),
     ),
   );
