@@ -1,3 +1,5 @@
+import { Code } from "@astrojs/starlight/components";
+
 <a href={props.url}>{props.Name}</a> is a search and observability suite for
 unstructured data. Tenzir can send events to {props.Name} and emulate a
 {props.Name}-compatible Bulk API endpoint.
@@ -44,56 +46,82 @@ this = hits.hits._source
 Add an `Authorization` header if your {props.Name} cluster requires
 authentication.
 
+### Export large result sets with `search_after`
+
+For larger exports, prefer `search_after` with a stable sort. Return a request
+record from `paginate` to replace the request body for each next page. The next
+request keeps the same URL, method, and headers unless the request record
+changes them.
+
+Keep only the response parser inside the <code>from_http</code> subpipeline.
+Operators such as <code>unroll</code> belong after <code>from_http</code>, so
+the pagination lambda receives the whole search response envelope.
+
+export const searchAfter = `
+from_http "https://localhost:9200/main/_search",
+  body={
+    size: 1000,
+    query: {match_all: {}},
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+  },
+  paginate=(x => {
+    body: {
+      size: 1000,
+      query: {match_all: {}},
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+`;
+
+<Code code={searchAfter} lang="tql" />
+
+Add an `Authorization` header if your {props.Name} cluster requires
+authentication.
+
 ### Export large result sets with scroll
 
-For larger exports, use the <a href={props.scrollApiUrl}>Scroll API</a>. Start
-with a search request that includes a `scroll` query parameter and a batch size:
+Use the <a href={props.scrollApiUrl}>Scroll API</a> when you need a server-side
+search context for a long-running export. Start with a search request that
+includes a `scroll` query parameter, then return a request record that switches
+the next URL to `/_search/scroll` and sends the latest `_scroll_id` in the body:
 
-export const startScroll = `
-from_http "https://localhost:9200/main/_search?scroll=10m",
+export const scrollPages = `
+let $search = "https://localhost:9200/main/_search?scroll=10m"
+let $scroll = "https://localhost:9200/_search/scroll"
+
+from_http $search,
   body={
     size: 10000,
     query: {match_all: {}},
-  } {
+  },
+  paginate=(x => {
+    url: $scroll,
+    body: {
+      scroll: "10m",
+      scroll_id: x._scroll_id,
+    },
+  } if x.hits.hits != []) {
   read_json
 }
 unroll hits.hits
-hits.hits._source._scroll_id = this._scroll_id
 this = hits.hits._source
 `;
 
-<Code code={startScroll} lang="tql" />
+<Code code={scrollPages} lang="tql" />
 
-The response also contains an `_scroll_id`. Use that value with
-`/_search/scroll` to fetch the next batch:
-
-export const continueScroll = `
-let $scroll_id = "DXF1ZXJ5QW5kRmV0Y2gBAAAAAAAAAAUW..."
-
-from_http "https://localhost:9200/_search/scroll",
-  body={
-    scroll: "10m",
-    scroll_id: $scroll_id,
-  } {
-  read_json
-}
-unroll hits.hits
-hits.hits._source._scroll_id = this._scroll_id
-this = hits.hits._source
-`;
-
-<Code code={continueScroll} lang="tql" />
-
-Each emitted event includes the response `_scroll_id`. Repeat the scroll request
-with the latest `_scroll_id` until the response contains no hits. Close the
-scroll context when the export is complete, because {props.Name} keeps the
-search context alive until the scroll timeout expires.
+The paginated request inherits the `POST` method from the initial request
+because the initial request has a body. It also keeps the configured headers.
+Close the scroll context when the export is complete, because {props.Name}
+keeps the search context alive until the scroll timeout expires.
 
 ### Send events to a {props.Name} index
 
 Send an example event to the `main` index:
-
-import { Code } from "@astrojs/starlight/components";
 
 export const sendToMainIndex = `
 from {event: "example"}

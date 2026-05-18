@@ -260,22 +260,29 @@ from_http f"{$base}?category=security&page=1",
 ```
 
 For APIs that put pagination state in the request body, return a request record
-from the lambda. Missing fields inherit from the current request. This
-OpenSearch example keeps using the same `POST` request and replaces only the
-body with a `search_after` cursor from the previous page:
+from the lambda. Missing fields inherit from the current request. This is useful
+for OpenSearch and Elasticsearch APIs that use a `search_after` cursor in the
+request body.
+
+Keep the `from_http` subpipeline focused on parsing the response envelope. Move
+operators such as `unroll` after `from_http`, because the pagination lambda
+receives the parsed page envelope.
 
 ```tql
-from_http "https://opensearch.example.com/logs/_search",
-  method="post",
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http "https://opensearch.example.com/logs-*/_search",
+  headers=$headers,
   body={
-    size: 500,
+    size: 1000,
     sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
     query: {match_all: {}},
   },
-  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
   paginate=(x => {
     body: {
-      size: 500,
+      size: 1000,
       sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
       query: {match_all: {}},
       search_after: x.hits.hits[-1].sort,
@@ -283,19 +290,27 @@ from_http "https://opensearch.example.com/logs/_search",
   } if x.hits.hits != []) {
   read_json
 }
+unroll hits.hits
+this = hits.hits._source
 ```
 
-Scroll-style APIs can change the URL and body for the next request while
-keeping the method and headers:
+The first request uses `POST` because it has a body. Follow-up requests inherit
+that method and the configured headers. The returned request record replaces
+only the body.
+
+Scroll-style APIs can change the URL and body for the next request while they
+keep the method and headers:
 
 ```tql
 let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
 let $scroll = "https://opensearch.example.com/_search/scroll"
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
 
 from_http $search,
-  method="post",
-  body={size: 500, query: {match_all: {}}},
-  headers={"Authorization": "Bearer " + secret("OPENSEARCH_TOKEN")},
+  headers=$headers,
+  body={size: 1000, query: {match_all: {}}},
   paginate=(x => {
     url: $scroll,
     body: {
@@ -305,7 +320,12 @@ from_http $search,
   } if x.hits.hits != []) {
   read_json
 }
+unroll hits.hits
+this = hits.hits._source
 ```
+
+See the [OpenSearch integration](/integrations/opensearch) for more
+search-backend examples that use the same pagination pattern.
 
 ### Rate limiting
 
