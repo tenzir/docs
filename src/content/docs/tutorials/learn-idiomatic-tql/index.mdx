@@ -192,6 +192,52 @@ comma) or use a backslash to continue.
 - Inside `()`, `[]`, `{}`: newlines don't end the statement
   :::
 
+### Extract bulky arguments before subpipelines
+
+Operators that take a subpipeline often also take record or list arguments. When
+those arguments span multiple lines, the record braces and subpipeline braces can
+be hard to distinguish. Move bulky configuration values into `let` bindings so
+the operator call stays compact and the subpipeline remains visually clear.
+This pattern is common with <Op>from_http</Op>, where request records can sit
+directly before a parsing subpipeline such as <Op>read_json</Op>.
+
+❌ Hard to scan:
+
+```tql
+from_http "https://api.example.com/search",
+  headers={
+    "Authorization": f"Bearer {secret("API_TOKEN")}",
+    "Content-Type": "application/json",
+  },
+  body={
+    query: "severity:high",
+    limit: 100,
+  } {
+  read_json
+}
+```
+
+✅ Clear separation between configuration and parsing:
+
+```tql
+let $headers = {
+  "Authorization": f"Bearer {secret("API_TOKEN")}",
+  "Content-Type": "application/json",
+}
+let $body = {
+  query: "severity:high",
+  limit: 100,
+}
+
+from_http "https://api.example.com/search", headers=$headers, body=$body {
+  read_json
+}
+```
+
+Use this pattern for readability, even when you don't reuse the value. Keep
+short scalar arguments inline, but extract multi-line records or lists when they
+would otherwise sit directly before `{ ... }`.
+
 ## Expression style
 
 ### Avoid unnecessary parentheses
@@ -223,6 +269,34 @@ Use parentheses only when they clarify precedence in complex expressions:
 
 ```tql
 where (a > 1 and b < 2) or c == 3
+```
+
+### Use format strings for string composition
+
+Use format strings (f-strings) when embedding values in a larger string. They
+keep separators, literals, and conversions in one template.
+
+✅ Readable string composition:
+
+```tql
+message = f"{status} - {ratio * 100}%"
+endpoint = f"{host}:{port}"
+```
+
+F-strings also work with secrets. When a format string contains a secret, the
+result is a secret:
+
+```tql
+let $headers = {
+  "Authorization": f"Bearer {secret("API_TOKEN")}",
+}
+```
+
+❌ Avoid building formatted strings with `+`:
+
+```tql
+message = status.string() + " - " + (ratio * 100).string() + "%"
+endpoint = string(host) + ":" + port.string()
 ```
 
 ### Use inline ternary for simple binary choices

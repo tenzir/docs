@@ -653,7 +653,7 @@ operators:
     path: 'reference/operators/to_azure_log_analytics'
   - name: 'to_zmq'
     description: 'Connects to a remote ZeroMQ subscriber endpoint and sends events.'
-    example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"'
+    example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=f"{kind}/"'
     path: 'reference/operators/to_zmq'
   - name: 'to_clickhouse'
     description: 'Sends events to a ClickHouse table.'
@@ -693,7 +693,7 @@ operators:
     path: 'reference/operators/to_google_secops'
   - name: 'serve_zmq'
     description: 'Listens on a ZeroMQ endpoint and sends events.'
-    example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"'
+    example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"'
     path: 'reference/operators/serve_zmq'
   - name: 'to_hive'
     description: 'Writes events to a URI using hive partitioning.'
@@ -1865,7 +1865,7 @@ serve_tcp "0.0.0.0:8090" { write_json }
 <ReferenceCard title="serve_zmq" description="Listens on a ZeroMQ endpoint and sends events." href="/reference/operators/serve_zmq">
 
 ```tql
-serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
+serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"
 ```
 
 </ReferenceCard>
@@ -2081,7 +2081,7 @@ to_udp "127.0.0.1:514"
 <ReferenceCard title="to_zmq" description="Connects to a remote ZeroMQ subscriber endpoint and sends events." href="/reference/operators/to_zmq">
 
 ```tql
-to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"
+to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=f"{kind}/"
 ```
 
 </ReferenceCard>
