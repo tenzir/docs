@@ -41,11 +41,18 @@ The CloudWatch Logs API to use.
 
 Supported values:
 
-- `live`: Subscribe with CloudWatch Logs Live Tail.
-- `filter`: Read matching events with `FilterLogEvents`.
-- `get`: Read events from one stream with `GetLogEvents`.
+- `live`: Subscribe with CloudWatch Logs Live Tail for continuous processing of
+  new events. This mode doesn't read historical events. It is the only mode that
+  accepts `log_group_identifiers`.
+- `filter`: Read matching historical events from one log group with
+  `FilterLogEvents`. Use this for investigations, backfills, and bounded
+  exports across one or more streams in the group.
+- `get`: Read one known log stream with `GetLogEvents`. This mode requires
+  `log_stream` and doesn't accept `filter`, `log_streams`, or
+  `log_stream_prefix`.
 
-Defaults to `live`.
+Defaults to `live`. For detailed mode selection guidance, see
+<Integration>amazon/cloudwatch</Integration>.
 
 ### `log_group_identifiers = list (optional)`
 
@@ -149,3 +156,4 @@ from_amazon_cloudwatch "/aws/lambda/api",
 ## See Also
 
 - <Op>to_amazon_cloudwatch</Op>
+- <Integration>amazon/cloudwatch</Integration>

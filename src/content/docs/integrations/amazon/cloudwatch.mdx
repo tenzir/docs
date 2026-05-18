@@ -1,0 +1,184 @@
+---
+title: CloudWatch Logs
+---
+
+[Amazon CloudWatch Logs](https://aws.amazon.com/cloudwatch/features/#Logs) is a
+log management service in AWS. Tenzir can read CloudWatch Logs events with
+<Op>from_amazon_cloudwatch</Op> and send events to CloudWatch Logs with
+<Op>to_amazon_cloudwatch</Op>.
+
+CloudWatch Logs organizes data into log groups and log streams. Use Tenzir to
+follow live logs, search historical logs with filter patterns, replay one log
+stream, or forward pipeline output into an existing log stream.
+
+## Configuration
+
+Follow the [Amazon integration configuration](/integrations/amazon) to
+authenticate with AWS credentials. You can also pass credentials or assume an
+IAM role inline with `aws_iam`:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api", mode="filter", aws_iam={
+  region: "us-east-1",
+  assume_role: "arn:aws:iam::123456789012:role/cloudwatch-reader",
+}
+```
+
+The `to_amazon_cloudwatch` operator expects the target log group and log stream
+to exist before the pipeline writes to them.
+
+Tenzir needs these CloudWatch Logs permissions:
+
+| Use case | Required permissions |
+| -------- | -------------------- |
+| Live tail with <Op>from_amazon_cloudwatch</Op> | `logs:StartLiveTail` |
+| Historical search with <Op>from_amazon_cloudwatch</Op> | `logs:FilterLogEvents` |
+| Stream replay with <Op>from_amazon_cloudwatch</Op> | `logs:GetLogEvents` |
+| Write with <Op>to_amazon_cloudwatch</Op> | `logs:PutLogEvents` |
+
+If you set `unmask=true` for historical reads, the principal also needs
+`logs:Unmask`.
+
+## Read from CloudWatch Logs
+
+The <Op>from_amazon_cloudwatch</Op> operator has three read modes. Choose the
+mode based on whether you need a continuous subscription, a historical search,
+or an exact replay of one stream:
+
+| Mode | AWS API | Best for |
+| ---- | ------- | -------- |
+| `live` | `StartLiveTail` | Continuous monitoring and alerting on new log events. |
+| `filter` | `FilterLogEvents` | Historical searches and bounded backfills across streams in one log group. |
+| `get` | `GetLogEvents` | Ordered replay from one known log stream. |
+
+Each mode emits events with the `tenzir.cloudwatch` schema. The `message` field
+contains the original log message as a string. If the message contains JSON,
+parse it in the next pipeline step:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api", mode="filter", filter="ERROR"
+this = message.parse_json()
+```
+
+### Follow new events with live mode
+
+The default `mode="live"` uses CloudWatch Logs Live Tail. Use it for pipelines
+that should keep running and process new events as they arrive, such as
+real-time detections, live dashboards, and forwarding pipelines:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api"
+```
+
+Live mode doesn't read historical events. It accepts `filter` for CloudWatch
+Logs filter patterns and can narrow the subscription to specific streams with
+`log_stream`, `log_streams`, or `log_stream_prefix`. It is the only mode that
+accepts `log_group_identifiers`, which lets one Live Tail session subscribe to
+multiple log groups:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api",
+  log_group_identifiers=[
+    "/aws/lambda/api",
+    "/aws/lambda/worker",
+  ],
+  filter="ERROR"
+```
+
+The historical options `start`, `end`, and `limit` don't apply to live mode.
+
+### Search historical events with filter mode
+
+Use `mode="filter"` when you want CloudWatch to scan existing events in a log
+group and return matches. This mode is a good fit for investigations, bounded
+backfills, scheduled catch-up jobs, and one-time exports:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api",
+  mode="filter",
+  filter="ERROR",
+  start=2026-05-14T00:00:00Z,
+  end=2026-05-14T01:00:00Z
+```
+
+The `filter` option accepts a [CloudWatch Logs filter pattern][filter-pattern].
+Use `start` and `end` to bound the search window, and use `limit` when you only
+need a sample or a fixed number of matches. To reduce the scope within the log
+group, pass one stream with `log_stream`, multiple streams with `log_streams`,
+or a stream prefix with `log_stream_prefix`.
+
+Filter mode finishes when CloudWatch has returned all matching pages or when
+`limit` is reached. It doesn't stay attached for new events after the historical
+read completes.
+
+### Replay one stream with get mode
+
+Use `mode="get"` when you know the exact log stream name and want to read that
+stream directly. This mode is useful for deterministic replays, debugging one
+Lambda invocation stream, and jobs that checkpoint or partition work by stream:
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api",
+  mode="get",
+  log_stream="2026/05/14/[$LATEST]abcdef",
+  start_from_head=true
+```
+
+Get mode requires `log_stream`. It doesn't accept `filter`, `log_streams`, or
+`log_stream_prefix`, because CloudWatch reads exactly one stream. Set
+`start_from_head=true` to replay from the oldest event in the stream, and use
+`start`, `end`, or `limit` to bound the replay.
+
+## Send to CloudWatch Logs
+
+Use `to_amazon_cloudwatch` to write events to an existing log group and log
+stream. The `message` option computes the CloudWatch log message, and the
+`timestamp` option computes the CloudWatch event timestamp:
+
+```tql
+from {
+  event_time: 2026-05-14T00:00:00Z,
+  severity: "error",
+  message: "login failed",
+}
+to_amazon_cloudwatch "/tenzir/alerts", "api",
+  message=this.print_json(),
+  timestamp=event_time
+```
+
+When you omit `message`, Tenzir serializes the whole incoming event as NDJSON.
+When you omit `timestamp`, Tenzir uses a `timestamp` field when present and the
+processing time otherwise.
+
+The default `method="put_log_events"` writes with the CloudWatch Logs
+`PutLogEvents` API. CloudWatch Logs no longer requires sequence tokens, so you
+can increase `parallel` for higher throughput to the same stream:
+
+```tql
+subscribe "alerts"
+to_amazon_cloudwatch "/tenzir/alerts", "api",
+  batch_size=1000,
+  batch_timeout=1s,
+  parallel=4
+```
+
+If your deployment exposes the CloudWatch HTTP Log Collector, use
+`method="hlc"` with a bearer token. This method uses bearer-token
+authentication instead of AWS IAM:
+
+```tql
+subscribe "alerts"
+to_amazon_cloudwatch "/tenzir/alerts", "api",
+  method="hlc",
+  token=secret("cloudwatch-hlc-token")
+```
+
+[filter-pattern]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html
+
+## See Also
+
+- <Op>from_amazon_cloudwatch</Op>
+- <Op>to_amazon_cloudwatch</Op>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
+- <Guide>routing/send-to-destinations</Guide>
+- <Integration>amazon</Integration>
