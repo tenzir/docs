@@ -1,0 +1,166 @@
+---
+title: from_amazon_kinesis
+category: Inputs/Events
+example: 'from_amazon_kinesis "security-events", start="trim_horizon"'
+---
+
+import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
+
+Receives records from an [Amazon Kinesis Data Streams][kinesis] stream.
+
+[kinesis]: https://aws.amazon.com/kinesis/data-streams/
+
+```tql
+from_amazon_kinesis stream:string, [start=string|time, count=int, exit=bool,
+                     records_per_call=int, poll_idle=duration,
+                     aws_region=string, aws_iam=record, endpoint=string]
+```
+
+## Description
+
+The `from_amazon_kinesis` operator reads records from the existing shards of a
+Kinesis data stream and emits one event per Kinesis record.
+
+The emitted events use the `tenzir.amazon_kinesis` schema with these fields:
+
+| Field                  | Type     | Description                                      |
+| ---------------------- | -------- | ------------------------------------------------ |
+| `message`              | `blob`   | The raw Kinesis record payload.                  |
+| `stream`               | `string` | The stream name.                                 |
+| `shard_id`             | `string` | The shard that contained the record.             |
+| `sequence_number`      | `string` | The Kinesis sequence number.                     |
+| `partition_key`        | `string` | The record partition key.                        |
+| `arrival_time`         | `time`   | The approximate time when Kinesis received it.   |
+| `encryption_type`      | `string` | The server-side encryption type, when available. |
+| `millis_behind_latest` | `int`    | The shard lag reported by Kinesis.               |
+
+The `arrival_time` and `encryption_type` fields are optional because Kinesis
+only returns them when they are present on the record.
+
+The operator lists shards once during startup. If the stream gains new shards
+while the pipeline is running, restart the pipeline to discover them. Pipeline
+snapshots store the next sequence number per shard, and restarts resume with
+`AFTER_SEQUENCE_NUMBER`. This gives at-least-once restart behavior.
+
+The operator requires these AWS permissions:
+
+- `kinesis:ListShards`
+- `kinesis:GetShardIterator`
+- `kinesis:GetRecords`
+
+### `stream: string`
+
+The name of the Kinesis data stream to receive records from.
+
+### `start = string | time (optional)`
+
+The position for the initial shard iterator when no snapshot is available.
+
+The value can be one of:
+
+- `"latest"`: start after the latest record
+- `"trim_horizon"`: start at the oldest available record
+- `<timestamp>`: start at the given timestamp
+
+Defaults to `"latest"`.
+
+### `count = int (optional)`
+
+Exit successfully after emitting `count` records.
+
+The value must be greater than zero.
+
+### `exit = bool (optional)`
+
+Exit successfully after the operator is caught up on all shards.
+
+Without this option, the operator waits for new records after consuming the
+currently available records.
+
+Defaults to `false`.
+
+### `records_per_call = int (optional)`
+
+The maximum number of records to fetch in one `GetRecords` request.
+
+The value must be between `1` and `10000`.
+
+Defaults to `1000`.
+
+### `poll_idle = duration (optional)`
+
+How long to wait after a `GetRecords` request returns no records.
+
+The value must be non-negative and less than `5min`.
+
+Defaults to `1s`.
+
+### `aws_region = string (optional)`
+
+The AWS region for reading from the stream.
+
+If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
+it uses the default AWS SDK region resolution.
+
+### `endpoint = string (optional)`
+
+A custom Kinesis endpoint URL.
+
+If omitted, the operator uses `AWS_ENDPOINT_URL_KINESIS` when set, then
+`AWS_ENDPOINT_URL`, then the default AWS SDK endpoint for the region.
+
+<AWSIAMOptions />
+
+## Examples
+
+### Read from the latest position
+
+```tql
+from_amazon_kinesis "security-events"
+```
+
+### Read from the oldest available record
+
+```tql
+from_amazon_kinesis "security-events", start="trim_horizon"
+```
+
+### Parse JSON payloads
+
+```tql
+from_amazon_kinesis "security-events", start="trim_horizon"
+this = string(message).parse_json()
+```
+
+### Read a bounded number of records
+
+```tql
+from_amazon_kinesis "security-events",
+  start="trim_horizon",
+  count=100,
+  exit=true
+```
+
+### Use explicit credentials
+
+```tql
+from_amazon_kinesis "security-events", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-key"),
+  secret_access_key: secret("aws-secret")
+}
+```
+
+### Use a LocalStack endpoint
+
+```tql
+from_amazon_kinesis "security-events",
+  aws_region="us-east-1",
+  endpoint="http://127.0.0.1:4566"
+```
+
+## See Also
+
+- <Op>to_amazon_kinesis</Op>
+- <Guide>collecting/read-from-message-brokers</Guide>
+- <Integration>amazon/kinesis</Integration>

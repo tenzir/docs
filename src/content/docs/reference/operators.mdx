@@ -347,6 +347,10 @@ operators:
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
     path: 'reference/operators/accept_udp'
+  - name: 'from_amazon_kinesis'
+    description: 'Receives records from an Amazon Kinesis data stream.'
+    example: 'from_amazon_kinesis "security-events"'
+    path: 'reference/operators/from_amazon_kinesis'
   - name: 'from_amqp'
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
@@ -619,6 +623,14 @@ operators:
     description: 'Listens for incoming TCP connections and sends events to all connected clients.'
     example: 'serve_tcp "0.0.0.0:8090" { write_json }'
     path: 'reference/operators/serve_tcp'
+  - name: 'to_amazon_kinesis'
+    description: 'Sends records to an Amazon Kinesis data stream.'
+    example: 'to_amazon_kinesis "security-events"'
+    path: 'reference/operators/to_amazon_kinesis'
+  - name: 'to_amazon_security_lake'
+    description: 'Sends OCSF events to Amazon Security Lake.'
+    example: 'to_amazon_security_lake "s3://…"'
+    path: 'reference/operators/to_amazon_security_lake'
   - name: 'to_amqp'
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
@@ -639,10 +651,6 @@ operators:
     description: 'Executes YARA rules on byte streams.'
     example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
-  - name: 'to_amazon_security_lake'
-    description: 'Sends OCSF events to Amazon Security Lake.'
-    example: 'to_amazon_security_lake "s3://…"'
-    path: 'reference/operators/to_amazon_security_lake'
   - name: 'to_azure_blob_storage'
     description: 'Writes events to one or multiple blobs in Azure Blob Storage.'
     example: 'to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }'
@@ -1430,6 +1438,14 @@ accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
 
 </ReferenceCard>
 
+<ReferenceCard title="from_amazon_kinesis" description="Receives records from an Amazon Kinesis data stream." href="/reference/operators/from_amazon_kinesis">
+
+```tql
+from_amazon_kinesis "security-events"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
 
 ```tql
@@ -1866,6 +1882,14 @@ serve_tcp "0.0.0.0:8090" { write_json }
 
 ```tql
 serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_kinesis" description="Sends records to an Amazon Kinesis data stream." href="/reference/operators/to_amazon_kinesis">
+
+```tql
+to_amazon_kinesis "security-events"
 ```
 
 </ReferenceCard>
