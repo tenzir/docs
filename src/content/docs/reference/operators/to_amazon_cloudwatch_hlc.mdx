@@ -9,7 +9,7 @@ Sends events to the Amazon CloudWatch HTTP Log Collector.
 ```tql
 to_amazon_cloudwatch_hlc group:string, stream:string, [message=string|blob,
   timestamp=time, batch_timeout=duration, batch_size=int, token=secret,
-  endpoint=string]
+  endpoint=string, aws_region=string]
 ```
 
 ## Description
@@ -58,9 +58,21 @@ Bearer token for the CloudWatch HTTP Log Collector.
 
 ### `endpoint = string (optional)`
 
-HTTP Log Collector endpoint.
+Base URL of the CloudWatch HTTP Log Collector endpoint.
 
-Defaults to `https://logs.cloudwatch.amazonaws.com/logs`.
+Defaults to `https://logs.<region>.amazonaws.com`, where `<region>` comes from
+`aws_region`, `AWS_REGION`, `AWS_DEFAULT_REGION`, or `us-east-1` in that order.
+
+The operator sends requests to
+`/services/collector/event?logGroup=<group>&logStream=<stream>` with
+URL-encoded group and stream names.
+
+### `aws_region = string (optional)`
+
+AWS region for the default CloudWatch HTTP Log Collector endpoint.
+
+If omitted, the operator uses `AWS_REGION`, `AWS_DEFAULT_REGION`, or `us-east-1`
+in that order.
 
 ## Batching
 
@@ -85,7 +97,7 @@ from {message: "hello"}
 to_amazon_cloudwatch_hlc "/tenzir/events", "default",
   message=message,
   token=secret("cloudwatch-hlc-token"),
-  endpoint="https://logs.cloudwatch.amazonaws.com/logs"
+  endpoint="https://logs.us-east-1.amazonaws.com"
 ```
 
 ## See Also
