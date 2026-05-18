@@ -91,6 +91,12 @@ ArcSight Transformation Hub is Kafka-based. SmartConnectors use the `th-cef`
 topic for CEF events, so Tenzir can publish CEF messages with <Op>to_kafka</Op>:
 
 ```tql
+let $options = {
+  "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
+  "security.protocol": "ssl",
+  "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
+}
+
 subscribe "detections"
 cef = this.print_cef(
   cef_version="0",
@@ -101,13 +107,7 @@ cef = this.print_cef(
   name=event_name? else "Tenzir event",
   severity=string(severity? else 5),
 )
-to_kafka "th-cef",
-  message=cef,
-  options={
-    "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
-    "security.protocol": "ssl",
-    "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
-  }
+to_kafka "th-cef", message=cef, options=$options
 ```
 
 Adapt the `options` record to match the Kafka settings of your Transformation
@@ -155,12 +155,13 @@ Consume CEF messages from the `th-cef` topic with <Op>from_kafka</Op> and parse
 each Kafka message with <Fn>parse_cef</Fn>:
 
 ```tql
-from_kafka "th-cef",
-  options={
-    "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
-    "security.protocol": "ssl",
-    "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
-  }
+let $options = {
+  "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
+  "security.protocol": "ssl",
+  "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
+}
+
+from_kafka "th-cef", options=$options
 this = message.parse_cef()
 publish "arcsight"
 ```
@@ -183,15 +184,17 @@ to fetch events:
 let $logger = "https://logger.example.com:9000"
 let $user_session = secret("ARCSIGHT_LOGGER_SESSION")
 let $search_session = secret("ARCSIGHT_LOGGER_SEARCH_SESSION")
+let $headers = {
+  "Content-Type": "application/json; charset=UTF-8",
+}
+let $body = {
+  user_session_id: $user_session,
+  search_session_id: $search_session,
+  offset: 0,
+  length: 1000,
+}
 
-from_http f"{$logger}/server/search/events",
-  headers={"Content-Type": "application/json; charset=UTF-8"},
-  body={
-    user_session_id: $user_session,
-    search_session_id: $search_session,
-    offset: 0,
-    length: 1000,
-  } {
+from_http f"{$logger}/server/search/events", headers=$headers, body=$body {
   read_json
 }
 ```
