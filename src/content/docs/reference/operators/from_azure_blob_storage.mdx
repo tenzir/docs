@@ -9,7 +9,7 @@ import FromFileCommonParams from '@partials/operators/FromFileCommonParams.mdx';
 Reads one or multiple files from Azure Blob Storage.
 
 ```tql
-from_azure_blob_storage url:string, [account_key=string, watch=bool,
+from_azure_blob_storage url:string, [account_key=string, watch=duration,
   remove=bool, rename=string->string, max_age=duration] { … }
 ```
 
@@ -56,7 +56,7 @@ command-line arguments.
 
 Account key for authenticating with Azure Blob Storage.
 
-<FromFileCommonParams removeNote={true} />
+<FromFileCommonParams removeNote={true} watchAsDuration={true} />
 
 ## Examples
 
@@ -75,7 +75,7 @@ from_azure_blob_storage "abfs://container/data.csv", account_key="your-account-k
 ### Read Suricata EVE JSON logs continuously
 
 ```tql
-from_azure_blob_storage "abfs://logs/suricata/**.json", watch=true {
+from_azure_blob_storage "abfs://logs/suricata/**.json", watch=10s {
   read_suricata
 }
 ```
