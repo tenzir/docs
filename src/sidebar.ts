@@ -260,6 +260,7 @@ export const explanations = [
       "explanations/pipeline",
       "explanations/node",
       "explanations/platform",
+      "explanations/platform/data-flow",
       "explanations/language",
     ],
     "architecture",
