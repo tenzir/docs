@@ -48,6 +48,10 @@ try {
     join(partialsDir, "WithProps.mdx"),
     ["### {props.Name}"].join("\n"),
   );
+  writeFileSync(
+    join(partialsDir, "RetainedReference.mdx"),
+    "### `retained = component`",
+  );
   const semanticLinkPartial = "- <Op>{props.Operator}</Op>";
   const semanticLinkPartialPath = join(partialsDir, "WithSemanticLink.mdx");
   writeFileSync(semanticLinkPartialPath, semanticLinkPartial);
@@ -65,6 +69,7 @@ try {
     'import Child from "@partials/Child.mdx";',
     'import UsesComponent from "@partials/UsesComponent.mdx";',
     'import Wrapper from "@partials/Wrapper.mdx";',
+    'import RetainedReference from "@partials/RetainedReference.mdx";',
     'import WithSemanticLink from "@partials/WithSemanticLink.mdx";',
     "",
     "# Doc",
@@ -74,6 +79,10 @@ try {
     "<UsesComponent />",
     "",
     '<Wrapper Name="Gadget" />',
+    "",
+    "<RetainedReference />",
+    "",
+    "<Slot content={RetainedReference} />",
     "",
     '<WithSemanticLink Operator="where" />',
   ].join("\n");
@@ -95,6 +104,7 @@ try {
   assert(headingTexts.includes("child = number"));
   assert(headingTexts.includes("with svg"));
   assert(headingTexts.includes("Gadget"));
+  assert(headingTexts.includes("retained = component"));
   assert(!headingTexts.includes('"Gadget"'));
 
   const jsxNames: string[] = [];
@@ -106,6 +116,7 @@ try {
   assert(!jsxNames.includes("UsesComponent"));
   assert(!jsxNames.includes("Wrapper"));
   assert(!jsxNames.includes("WithProps"));
+  assert(!jsxNames.includes("RetainedReference"));
 
   const importValues: string[] = [];
   visit(transformed, "mdxjsEsm", (node: { value?: string }) => {
@@ -114,6 +125,13 @@ try {
 
   assert(
     importValues.some((value) => value.includes("@components/InlineSVG.astro")),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'RetainedReference from "@partials/RetainedReference.mdx"',
+      ),
+    ),
   );
 
   const expressionValues: string[] = [];

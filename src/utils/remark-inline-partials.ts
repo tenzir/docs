@@ -97,11 +97,16 @@ export const remarkInlinePartials: Plugin<[InlinePartialsOptions?], Root> = (
     );
 
     if (inlinedComponents.size > 0) {
+      const removableInlinedComponents = new Set(
+        [...inlinedComponents].filter(
+          (name) => !hasRemainingIdentifierReference(tree, name, state.report),
+        ),
+      );
       removeInlinedPartialImports(
         tree.children as Content[],
         file.path,
         state.partialsDir,
-        inlinedComponents,
+        removableInlinedComponents,
         state.report,
       );
     }
@@ -367,6 +372,125 @@ function removeInlinedImportStatements(
   );
 
   return { code: nextCode.replace(/\n{3,}/g, "\n\n"), removed };
+}
+
+function hasRemainingIdentifierReference(
+  tree: Root,
+  name: string,
+  report: (message: string) => void,
+): boolean {
+  let found = false;
+
+  visit(tree, (node) => {
+    if (found) return false;
+
+    if (
+      (node.type === "mdxJsxFlowElement" ||
+        node.type === "mdxJsxTextElement") &&
+      (node as MdxJsxFlowElement | MdxJsxTextElement).name === name
+    ) {
+      found = true;
+      return false;
+    }
+
+    if (node.type === "mdxjsEsm") {
+      const code = (node as MdxjsEsm).value;
+      if (typeof code !== "string" || isImportOnly(code)) return;
+
+      const estree = parseEstree(code, report, "MDX module");
+      if (estree && estreeHasIdentifierReference(estree, name)) {
+        found = true;
+        return false;
+      }
+      return;
+    }
+
+    if (
+      node.type === "mdxTextExpression" ||
+      node.type === "mdxFlowExpression"
+    ) {
+      const value = (node as { value?: string }).value;
+      if (typeof value !== "string") return;
+
+      const estree = parseEstree(value, report, "MDX expression");
+      if (estree && estreeHasIdentifierReference(estree, name)) {
+        found = true;
+        return false;
+      }
+      return;
+    }
+
+    if (
+      node.type === "mdxJsxFlowElement" ||
+      node.type === "mdxJsxTextElement"
+    ) {
+      const jsxNode = node as MdxJsxFlowElement | MdxJsxTextElement;
+      for (const attribute of jsxNode.attributes ?? []) {
+        if (
+          attribute.type !== "mdxJsxAttribute" ||
+          typeof attribute.value === "string" ||
+          !attribute.value
+        ) {
+          continue;
+        }
+
+        const estree = parseEstree(
+          attribute.value.value,
+          report,
+          "MDX attribute expression",
+        );
+        if (estree && estreeHasIdentifierReference(estree, name)) {
+          found = true;
+          return false;
+        }
+      }
+    }
+  });
+
+  return found;
+}
+
+function estreeHasIdentifierReference(estree: unknown, name: string): boolean {
+  const stack: unknown[] = [estree];
+
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") continue;
+
+    const node = current as {
+      type?: string;
+      name?: string;
+      [key: string]: unknown;
+    };
+    if (
+      (node.type === "Identifier" || node.type === "JSXIdentifier") &&
+      node.name === name
+    ) {
+      return true;
+    }
+    if (node.type === "ImportDeclaration") {
+      continue;
+    }
+
+    for (const [key, value] of Object.entries(node)) {
+      if (
+        key === "loc" ||
+        key === "range" ||
+        key === "start" ||
+        key === "end" ||
+        key === "position"
+      ) {
+        continue;
+      }
+      if (Array.isArray(value)) {
+        stack.push(...value);
+      } else if (value && typeof value === "object") {
+        stack.push(value);
+      }
+    }
+  }
+
+  return false;
 }
 
 type ImportDisposition = "drop" | "hoist" | "keep";
