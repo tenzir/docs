@@ -1,15 +1,15 @@
 ---
-title: CloudWatch Logs
+title: CloudWatch
 ---
 
-[Amazon CloudWatch Logs](https://aws.amazon.com/cloudwatch/features/#Logs) is a
-log management service in AWS. Tenzir can read CloudWatch Logs events with
-<Op>from_amazon_cloudwatch</Op> and send events to CloudWatch Logs with
+[Amazon CloudWatch](https://aws.amazon.com/cloudwatch/) is a monitoring and
+observability service in AWS. Tenzir can read CloudWatch events with
+<Op>from_amazon_cloudwatch</Op> and send events to CloudWatch with
 <Op>to_amazon_cloudwatch</Op>.
 
-CloudWatch Logs organizes data into log groups and log streams. Use Tenzir to
-follow live logs, search historical logs with filter patterns, replay one log
-stream, or forward pipeline output into an existing log stream.
+CloudWatch stores log data in log groups and log streams. Use Tenzir to follow
+live logs, search historical logs with filter patterns, replay one log stream,
+or forward pipeline output into an existing log stream.
 
 ## Configuration
 
@@ -27,7 +27,7 @@ from_amazon_cloudwatch "/aws/lambda/api", mode="filter", aws_iam={
 The `to_amazon_cloudwatch` operator expects the target log group and log stream
 to exist before the pipeline writes to them.
 
-Tenzir needs these CloudWatch Logs permissions:
+Tenzir needs these CloudWatch permissions:
 
 | Use case | Required permissions |
 | -------- | -------------------- |
@@ -39,7 +39,7 @@ Tenzir needs these CloudWatch Logs permissions:
 If you set `unmask=true` for historical reads, the principal also needs
 `logs:Unmask`.
 
-## Read from CloudWatch Logs
+## Read from CloudWatch
 
 The <Op>from_amazon_cloudwatch</Op> operator has three read modes. Choose the
 mode based on whether you need a continuous subscription, a historical search,
@@ -62,7 +62,7 @@ this = message.parse_json()
 
 ### Follow new events with live mode
 
-The default `mode="live"` uses CloudWatch Logs Live Tail. Use it for pipelines
+The default `mode="live"` uses CloudWatch Live Tail. Use it for pipelines
 that should keep running and process new events as they arrive, such as
 real-time detections, live dashboards, and forwarding pipelines:
 
@@ -71,7 +71,7 @@ from_amazon_cloudwatch "/aws/lambda/api"
 ```
 
 Live mode doesn't read historical events. It accepts `filter` for CloudWatch
-Logs filter patterns and can narrow the subscription to specific streams with
+filter patterns and can narrow the subscription to specific streams with
 `log_stream`, `log_streams`, or `log_stream_prefix`. It is the only mode that
 accepts `log_group_identifiers`, which lets one Live Tail session subscribe to
 multiple log groups:
@@ -101,7 +101,7 @@ from_amazon_cloudwatch "/aws/lambda/api",
   end=2026-05-14T01:00:00Z
 ```
 
-The `filter` option accepts a [CloudWatch Logs filter pattern][filter-pattern].
+The `filter` option accepts a [CloudWatch filter pattern][filter-pattern].
 Use `start` and `end` to bound the search window, and use `limit` when you only
 need a sample or a fixed number of matches. To reduce the scope within the log
 group, pass one stream with `log_stream`, multiple streams with `log_streams`,
@@ -129,7 +129,7 @@ Get mode requires `log_stream`. It doesn't accept `filter`, `log_streams`, or
 `start_from_head=true` to replay from the oldest event in the stream, and use
 `start`, `end`, or `limit` to bound the replay.
 
-## Send to CloudWatch Logs
+## Send to CloudWatch
 
 Use `to_amazon_cloudwatch` to write events to an existing log group and log
 stream. The `message` option computes the CloudWatch log message, and the
@@ -150,8 +150,8 @@ When you omit `message`, Tenzir serializes the whole incoming event as NDJSON.
 When you omit `timestamp`, Tenzir uses a `timestamp` field when present and the
 processing time otherwise.
 
-The default `method="put_log_events"` writes with the CloudWatch Logs
-`PutLogEvents` API. CloudWatch Logs no longer requires sequence tokens, so you
+The default `method="put_log_events"` writes with the CloudWatch
+`PutLogEvents` API. CloudWatch no longer requires sequence tokens, so you
 can increase `parallel` for higher throughput to the same stream:
 
 ```tql

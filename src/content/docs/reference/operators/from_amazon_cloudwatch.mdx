@@ -6,7 +6,7 @@ example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="filter"'
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 
-Reads events from Amazon CloudWatch Logs.
+Reads events from Amazon CloudWatch.
 
 ```tql
 from_amazon_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
@@ -17,7 +17,7 @@ from_amazon_cloudwatch log_group:string, [mode=string, log_group_identifiers=lis
 
 ## Description
 
-The `from_amazon_cloudwatch` operator reads CloudWatch Logs events and emits one
+The `from_amazon_cloudwatch` operator reads CloudWatch events and emits one
 event per log entry.
 
 The emitted events use the `tenzir.cloudwatch` schema:
@@ -37,11 +37,11 @@ Name of the log group to read from.
 
 ### `mode = string (optional)`
 
-The CloudWatch Logs API to use.
+The CloudWatch API to use.
 
 Supported values:
 
-- `live`: Subscribe with CloudWatch Logs Live Tail for continuous processing of
+- `live`: Subscribe with CloudWatch Live Tail for continuous processing of
   new events. This mode doesn't read historical events. It is the only mode that
   accepts `log_group_identifiers`.
 - `filter`: Read matching historical events from one log group with
@@ -82,7 +82,7 @@ This option is mutually exclusive with `log_stream` and `log_streams`.
 
 ### `filter = string (optional)`
 
-CloudWatch Logs filter pattern.
+CloudWatch filter pattern.
 
 ### `start = time (optional)`
 
@@ -108,7 +108,7 @@ Whether to unmask protected log data when the AWS principal has permission.
 
 ### `aws_region = string (optional)`
 
-AWS region for CloudWatch Logs requests.
+AWS region for CloudWatch requests.
 
 If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
 it uses the AWS SDK's default region resolution.

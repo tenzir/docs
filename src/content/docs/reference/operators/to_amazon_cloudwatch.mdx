@@ -6,7 +6,7 @@ example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 
-Sends events to Amazon CloudWatch Logs.
+Sends events to Amazon CloudWatch.
 
 ```tql
 to_amazon_cloudwatch log_group:string, log_stream:string, [method=string,
@@ -17,19 +17,19 @@ to_amazon_cloudwatch log_group:string, log_stream:string, [method=string,
 
 ## Description
 
-The `to_amazon_cloudwatch` operator sends events to CloudWatch Logs. It can
+The `to_amazon_cloudwatch` operator sends events to CloudWatch. It can
 write to a log group and stream with `PutLogEvents`, or send to the CloudWatch HTTP Log
 Collector with bearer-token authentication.
 
 ### `log_group: string`
 
-Name of the CloudWatch Logs log group.
+Name of the CloudWatch log group.
 
 The operator expects the log group to already exist.
 
 ### `log_stream: string`
 
-Name of the CloudWatch Logs log stream.
+Name of the CloudWatch log stream.
 
 The operator expects the log stream to already exist.
 
@@ -39,7 +39,7 @@ The delivery method.
 
 Supported values:
 
-- `put_log_events`: Write with the CloudWatch Logs `PutLogEvents` API.
+- `put_log_events`: Write with the CloudWatch `PutLogEvents` API.
 - `hlc`: Write to the CloudWatch HTTP Log Collector.
 
 Defaults to `put_log_events`.
@@ -75,7 +75,7 @@ Maximum number of in-flight write requests.
 
 Defaults to `1`.
 
-CloudWatch Logs no longer requires sequence tokens for `PutLogEvents`, so you
+CloudWatch no longer requires sequence tokens for `PutLogEvents`, so you
 can raise this value for higher throughput to the same stream.
 
 ### `token = secret (optional)`
@@ -103,7 +103,7 @@ it uses the AWS SDK's default region resolution.
 ## Batching
 
 For `method="put_log_events"`, the operator sorts each batch by timestamp and
-enforces CloudWatch Logs limits before sending:
+enforces CloudWatch limits before sending:
 
 - at most 10,000 events per request;
 - at most 1 MiB per request, counted as UTF-8 message bytes plus 26 bytes per
