@@ -1,0 +1,87 @@
+---
+title: drop_matching
+category: Record
+example: 'record.drop_matching("^debug_")'
+---
+
+Removes top-level fields from a record when their names match a regular expression.
+
+```tql
+drop_matching(x:record, regex:string) -> record
+```
+
+## Description
+
+The `drop_matching` function returns a record with every top-level field from
+`x` whose field name does not match `regex`.
+
+Matching is partial by default. Use `^` and `$` anchors to match whole field
+names or prefixes. The function does not recurse into nested records; call it
+on the nested record if you want to drop fields there.
+
+The supported regular expression syntax is
+[RE2](https://github.com/google/re2/wiki/Syntax).
+
+### `x: record`
+
+The record whose fields you want to filter.
+
+### `regex: string`
+
+The regular expression to match against field names.
+
+## Examples
+
+### Remove fields by name
+
+```tql
+from {
+  name: "Alice",
+  email: "alice@example.com",
+  password: "secret",
+  api_key: "xyz123",
+}
+select public = this.drop_matching("^(password|api_key)$")
+```
+
+```tql
+{
+  public: {
+    name: "Alice",
+    email: "alice@example.com",
+  },
+}
+```
+
+### Separate matching fields from the rest
+
+```tql
+from {
+  foo: 1,
+  bar: 2,
+  baz: 3,
+}
+let $pattern = "^ba"
+select moved = this.select_matching($pattern),
+       rest = this.drop_matching($pattern)
+```
+
+```tql
+{
+  moved: {
+    bar: 2,
+    baz: 3,
+  },
+  rest: {
+    foo: 1,
+  },
+}
+```
+
+## See Also
+
+- <Op>drop</Op>
+- <Fn>select_matching</Fn>
+- <Fn>match_regex</Fn>
+- <Guide>transformation/shape-records</Guide>
+- <Guide>transformation/filter-and-select-data</Guide>
