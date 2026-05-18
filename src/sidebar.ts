@@ -400,6 +400,7 @@ export const integrations = [
       "integrations/opensearch",
       "integrations/snowflake",
       "integrations/splunk",
+      "integrations/wazuh",
     ],
     "analytics",
   ),

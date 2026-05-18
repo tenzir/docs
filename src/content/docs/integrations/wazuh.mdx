@@ -1,0 +1,127 @@
+---
+title: Wazuh
+---
+
+[Wazuh](https://wazuh.com/) is an open source XDR and SIEM platform. Tenzir can
+forward events to Wazuh over Syslog and query Wazuh alerts from the Wazuh
+indexer API.
+
+![Wazuh](wazuh.excalidraw)
+
+## Configure Wazuh to receive Syslog
+
+Wazuh can receive Syslog messages on the Wazuh server with a `<remote>`
+configuration in `/var/ossec/etc/ossec.conf`. For example, this configuration
+accepts TCP Syslog from a Tenzir node at `10.0.0.5`:
+
+```xml title="/var/ossec/etc/ossec.conf"
+<ossec_config>
+  <remote>
+    <connection>syslog</connection>
+    <port>514</port>
+    <protocol>tcp</protocol>
+    <allowed-ips>10.0.0.5</allowed-ips>
+    <local_ip>0.0.0.0</local_ip>
+  </remote>
+</ossec_config>
+```
+
+Restart the Wazuh manager after changing the configuration:
+
+```bash
+systemctl restart wazuh-manager
+```
+
+See Wazuh's [Syslog server documentation][wazuh-syslog] for the complete Wazuh
+configuration. For Wazuh Cloud, Wazuh documents a
+[relay pattern][wazuh-cloud-syslog] where rsyslog or Logstash receives Syslog
+on an endpoint that runs a Wazuh agent.
+
+[wazuh-syslog]: https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/syslog.html
+[wazuh-cloud-syslog]: https://documentation.wazuh.com/current/cloud-service/your-environment/send-syslog-data.html
+
+## Examples
+
+### Send events to Wazuh over Syslog
+
+Use <Op>to_tcp</Op> with <Op>write_syslog</Op> to forward events to the Wazuh
+manager. This keeps Wazuh in the analysis path, so Wazuh decoders and rules can
+process the event stream.
+
+```tql
+subscribe "detections"
+payload = this.print_json(strip_null_fields=true)
+hostname = "tenzir-node"
+app_name = "tenzir"
+message = payload
+to_tcp "wazuh-manager.example.com:514" {
+  write_syslog
+}
+```
+
+Replace `wazuh-manager.example.com` with the Wazuh manager host. If Wazuh
+listens on a different port, replace `514` with that port.
+
+Wazuh alerting and dashboards depend on matching decoders and rules. When you
+send structured JSON in the Syslog message body, configure Wazuh's
+[JSON decoder][wazuh-json-decoder] or a custom decoder for the event shape that
+you forward from Tenzir.
+
+[wazuh-json-decoder]: https://documentation.wazuh.com/current/user-manual/ruleset/decoders/json-decoder.html
+
+### Query Wazuh alerts from the indexer
+
+Wazuh stores alerts in `wazuh-alerts-*` indices and, when archives are enabled,
+raw archived events in `wazuh-archives-*` indices. You can query these indices
+through the Wazuh indexer API with <Op>from_http</Op>:
+
+```tql
+from_http "https://wazuh-indexer.example.com:9200/wazuh-alerts-*/_search",
+  headers={
+    "Authorization": "Basic " + f"{secret("WAZUH_INDEXER_USER")}:{secret("WAZUH_INDEXER_PASSWORD")}".encode_base64(),
+    "Content-Type": "application/json",
+  },
+  body={
+    size: 100,
+    query: {match_all: {}},
+    sort: [{"@timestamp": {order: "desc"}}],
+  } {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+Replace `wazuh-indexer.example.com` with the Wazuh indexer host and store the
+indexer credentials as Tenzir secrets. See the Wazuh documentation for
+[index names][wazuh-indices] and [indexer API authentication][wazuh-indexer-api].
+
+[wazuh-indices]: https://documentation.wazuh.com/current/user-manual/wazuh-indexer/wazuh-indexer-indices.html
+[wazuh-indexer-api]: https://documentation.wazuh.com/current/user-manual/indexer-api/getting-started.html
+
+### Write directly to the Wazuh indexer
+
+The Wazuh indexer exposes an OpenSearch-compatible API. You can use
+<Op>to_opensearch</Op> to write already-shaped documents to a custom index:
+
+```tql
+subscribe "detections"
+to_opensearch "https://wazuh-indexer.example.com:9200",
+  action="create",
+  index="tenzir-detections",
+  user=secret("WAZUH_INDEXER_USER"),
+  passwd=secret("WAZUH_INDEXER_PASSWORD")
+```
+
+Use this path for custom index storage or other indexer-specific workflows. It
+bypasses the Wazuh manager, so Wazuh decoders and rules won't analyze those
+events as incoming log data.
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>to_opensearch</Op>
+- <Op>to_tcp</Op>
+- <Op>write_syslog</Op>
+- <Integration>opensearch</Integration>
+- <Integration>syslog</Integration>
