@@ -10,7 +10,7 @@ import Integration from '@components/see-also/Integration.astro';
 Connects to a remote TCP or TLS endpoint and sends events.
 
 ```tql
-to_tcp endpoint:string, [tls=record] { … }
+to_tcp endpoint:string, [tls=record, max_retry_count=int] { … }
 ```
 
 ## Description
@@ -20,7 +20,8 @@ to the connection. Input events are run through a nested pipeline that must
 produce bytes (e.g., `{ write_json }`).
 
 If the connection fails, the operator reconnects automatically with exponential
-backoff.
+backoff. By default it retries forever; use `max_retry_count` to bound the
+number of reconnect attempts.
 
 ### `endpoint: string`
 
@@ -30,6 +31,13 @@ The remote endpoint to connect to. Must be of the form
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions/>
+
+### `max_retry_count = int (optional)`
+
+Maximum number of reconnect attempts after a failed connection. After this many
+consecutive failures, the operator emits an error and stops.
+
+Defaults to retrying forever.
 
 ### `{ … }`
 
