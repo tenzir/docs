@@ -6,43 +6,33 @@ example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 
-Sends events to Amazon CloudWatch.
+Sends events to Amazon CloudWatch Logs.
 
 ```tql
-to_amazon_cloudwatch log_group:string, log_stream:string, [method=string,
-  message=string|blob, timestamp=time, batch_timeout=duration, batch_size=int,
-  parallel=int, token=secret, endpoint=string, aws_region=string,
-  aws_iam=record]
+to_amazon_cloudwatch group:string, stream:string, [message=string|blob,
+  timestamp=time, batch_timeout=duration, batch_size=int, parallel=int,
+  endpoint=string, aws_region=string, aws_iam=record]
 ```
 
 ## Description
 
-The `to_amazon_cloudwatch` operator sends events to CloudWatch. It can
-write to a log group and stream with `PutLogEvents`, or send to the CloudWatch HTTP Log
-Collector with bearer-token authentication.
+The `to_amazon_cloudwatch` operator writes events to an existing CloudWatch log
+group and stream with the `PutLogEvents` API.
 
-### `log_group: string`
+Use <Op>to_amazon_cloudwatch_hlc</Op> to send events to the CloudWatch HTTP Log
+Collector.
+
+### `group: string`
 
 Name of the CloudWatch log group.
 
 The operator expects the log group to already exist.
 
-### `log_stream: string`
+### `stream: string`
 
 Name of the CloudWatch log stream.
 
 The operator expects the log stream to already exist.
-
-### `method = string (optional)`
-
-The delivery method.
-
-Supported values:
-
-- `put_log_events`: Write with the CloudWatch `PutLogEvents` API.
-- `hlc`: Write to the CloudWatch HTTP Log Collector.
-
-Defaults to `put_log_events`.
 
 ### `message = string|blob (optional)`
 
@@ -75,25 +65,19 @@ Maximum number of in-flight write requests.
 
 Defaults to `1`.
 
-CloudWatch no longer requires sequence tokens for `PutLogEvents`, so you
-can raise this value for higher throughput to the same stream.
-
-### `token = secret (optional)`
-
-Bearer token for `method="hlc"`.
-
-This option is required for HLC and is not valid for `method="put_log_events"`.
+CloudWatch no longer requires sequence tokens for `PutLogEvents`, so you can
+raise this value for higher throughput to the same stream.
 
 ### `endpoint = string (optional)`
 
-HTTP endpoint for `method="hlc"`.
+CloudWatch Logs endpoint override.
 
-Use this option for tests or controlled deployments that need an explicit HLC
-endpoint.
+Use this option for tests or compatible deployments that need an explicit AWS
+Logs endpoint.
 
 ### `aws_region = string (optional)`
 
-AWS region for `method="put_log_events"`.
+AWS region for CloudWatch requests.
 
 If omitted, the operator uses the region from `aws_iam` when present. Otherwise,
 it uses the AWS SDK's default region resolution.
@@ -102,18 +86,17 @@ it uses the AWS SDK's default region resolution.
 
 ## Batching
 
-For `method="put_log_events"`, the operator sorts each batch by timestamp and
-enforces CloudWatch limits before sending:
+The operator sorts each batch by timestamp and enforces CloudWatch limits before
+sending:
 
-- at most 10,000 events per request;
-- at most 1 MiB per request, counted as UTF-8 message bytes plus 26 bytes per
-  event;
-- a maximum timestamp span of 24 hours within one request;
-- no events more than 2 hours in the future or older than 14 days.
+- At most 10,000 events per request.
+- At most 1 MiB per request, counted as UTF-8 message bytes plus 26 bytes per
+  event.
+- A maximum timestamp span of 24 hours within one request.
+- No events more than 2 hours in the future or older than 14 days.
 
 Events that exceed CloudWatch event size or timestamp limits are skipped with a
-warning. For `method="hlc"`, events are also skipped when the JSON request
-envelope would exceed the 1 MiB request limit.
+warning.
 
 ## Examples
 
@@ -145,17 +128,8 @@ to_amazon_cloudwatch "/tenzir/events", "default",
   }
 ```
 
-### Send to the HTTP Log Collector
-
-```tql
-from {message: "hello"}
-to_amazon_cloudwatch "/tenzir/events", "default",
-  method="hlc",
-  message=message,
-  token=secret("cloudwatch-hlc-token")
-```
-
 ## See Also
 
 - <Op>from_amazon_cloudwatch</Op>
+- <Op>to_amazon_cloudwatch_hlc</Op>
 - <Integration>amazon/cloudwatch</Integration>

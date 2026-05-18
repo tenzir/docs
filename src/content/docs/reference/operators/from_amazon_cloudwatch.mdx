@@ -1,7 +1,7 @@
 ---
 title: from_amazon_cloudwatch
 category: Inputs/Events
-example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="filter"'
+example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="search"'
 ---
 
 import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
@@ -9,9 +9,9 @@ import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 Reads events from Amazon CloudWatch.
 
 ```tql
-from_amazon_cloudwatch log_group:string, [mode=string, log_group_identifiers=list,
-  log_stream=string, log_streams=list, log_stream_prefix=string, filter=string,
-  start=time, end=time, limit=int, start_from_head=bool, unmask=bool,
+from_amazon_cloudwatch group:string|list<string>, [mode=string,
+  stream=string|list<string>, stream_prefix=string, filter=string,
+  start=time, end=time, count=int, from_start=bool, unmask=bool,
   aws_region=string, aws_iam=record]
 ```
 
@@ -31,80 +31,77 @@ The emitted events use the `tenzir.cloudwatch` schema:
 | `message`        | `string` | The log message.                    |
 | `event_id`       | `string` | The CloudWatch event ID, if present. |
 
-### `log_group: string`
+### `group: string|list<string>`
 
-Name of the log group to read from.
+Log group name or identifier to read from.
+
+Use a list only with `mode="live"`. Historical modes require exactly one log
+group. For Live Tail subscriptions across multiple log groups, prefer log group
+ARNs because CloudWatch treats this parameter as a log group identifier.
 
 ### `mode = string (optional)`
 
-The CloudWatch API to use.
+Read mode.
 
 Supported values:
 
-- `live`: Subscribe with CloudWatch Live Tail for continuous processing of
-  new events. This mode doesn't read historical events. It is the only mode that
-  accepts `log_group_identifiers`.
-- `filter`: Read matching historical events from one log group with
-  `FilterLogEvents`. Use this for investigations, backfills, and bounded
-  exports across one or more streams in the group.
-- `get`: Read one known log stream with `GetLogEvents`. This mode requires
-  `log_stream` and doesn't accept `filter`, `log_streams`, or
-  `log_stream_prefix`.
+- `live`: Subscribe with CloudWatch Live Tail for continuous processing of new
+  events. This mode doesn't read historical events.
+- `search`: Search historical events in one log group with `FilterLogEvents`.
+  Use this mode for investigations, bounded backfills, and exports across one
+  or more streams in the group.
+- `replay`: Replay one known log stream with `GetLogEvents`. This mode requires
+  exactly one `stream`.
 
 Defaults to `live`. For detailed mode selection guidance, see
 <Integration>amazon/cloudwatch</Integration>.
 
-### `log_group_identifiers = list (optional)`
+### `stream = string|list<string> (optional)`
 
-List of log group identifiers for `mode="live"`.
+Log stream name or names to read.
 
-When omitted, the operator uses `log_group`.
+In `mode="replay"`, this option is required and must name exactly one stream.
+In `mode="live"` and `mode="search"`, this option narrows the read to one or
+more streams.
 
-### `log_stream = string (optional)`
+This option is mutually exclusive with `stream_prefix`.
 
-The log stream to read.
+### `stream_prefix = string (optional)`
 
-This option is required for `mode="get"`. In `mode="live"` and
-`mode="filter"`, it selects one stream and is mutually exclusive with
-`log_streams` and `log_stream_prefix`.
+Prefix for selecting log streams in `mode="live"` or `mode="search"`.
 
-### `log_streams = list (optional)`
-
-List of log stream names to read in `mode="live"` or `mode="filter"`.
-
-This option is mutually exclusive with `log_stream` and `log_stream_prefix`.
-
-### `log_stream_prefix = string (optional)`
-
-Prefix for selecting log streams in `mode="live"` or `mode="filter"`.
-
-This option is mutually exclusive with `log_stream` and `log_streams`.
+This option is mutually exclusive with `stream`. In live mode, `stream_prefix`
+requires exactly one `group`.
 
 ### `filter = string (optional)`
 
 CloudWatch filter pattern.
 
+This option isn't valid with `mode="replay"`.
+
 ### `start = time (optional)`
 
-Earliest event timestamp to read in `mode="filter"` or `mode="get"`.
+Earliest event timestamp to read in `mode="search"` or `mode="replay"`.
 
 ### `end = time (optional)`
 
-Latest event timestamp to read in `mode="filter"` or `mode="get"`.
+Latest event timestamp to read in `mode="search"` or `mode="replay"`.
 
-### `limit = int (optional)`
+### `count = int (optional)`
 
-Maximum number of events to read in `mode="filter"` or `mode="get"`.
+Maximum number of events to read in `mode="search"` or `mode="replay"`.
 
 The maximum value is `2147483647`.
 
-### `start_from_head = bool (optional)`
+### `from_start = bool (optional)`
 
-Whether `mode="get"` should read from the start of the log stream.
+Whether `mode="replay"` should read from the start of the log stream.
 
 ### `unmask = bool (optional)`
 
 Whether to unmask protected log data when the AWS principal has permission.
+
+This option is valid for `mode="search"` and `mode="replay"`.
 
 ### `aws_region = string (optional)`
 
@@ -117,36 +114,46 @@ it uses the AWS SDK's default region resolution.
 
 ## Examples
 
-### Follow a log group
+### Live tail a log group
 
 ```tql
 from_amazon_cloudwatch "/aws/vpc/flowlogs"
 ```
 
-### Read matching historical events
+### Live tail multiple log groups
+
+```tql
+from_amazon_cloudwatch [
+  "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/api",
+  "arn:aws:logs:us-east-1:123456789012:log-group:/aws/lambda/worker",
+],
+  filter="ERROR"
+```
+
+### Search historical events
 
 ```tql
 from_amazon_cloudwatch "/aws/lambda/api",
-  mode="filter",
+  mode="search",
   filter="ERROR",
   start=2026-05-14T00:00:00Z,
   end=2026-05-14T01:00:00Z
 ```
 
-### Read one log stream
+### Replay one log stream
 
 ```tql
 from_amazon_cloudwatch "/aws/lambda/api",
-  mode="get",
-  log_stream="2026/05/14/[$LATEST]abcdef",
-  start_from_head=true
+  mode="replay",
+  stream="2026/05/14/[$LATEST]abcdef",
+  from_start=true
 ```
 
 ### Assume an IAM role
 
 ```tql
 from_amazon_cloudwatch "/aws/lambda/api",
-  mode="filter",
+  mode="search",
   aws_iam={
     region: "us-east-1",
     assume_role: "arn:aws:iam::123456789012:role/cloudwatch-reader"
@@ -156,4 +163,5 @@ from_amazon_cloudwatch "/aws/lambda/api",
 ## See Also
 
 - <Op>to_amazon_cloudwatch</Op>
+- <Op>to_amazon_cloudwatch_hlc</Op>
 - <Integration>amazon/cloudwatch</Integration>
