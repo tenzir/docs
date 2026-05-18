@@ -259,6 +259,76 @@ from_http f"{$base}?category=security&page=1",
 }
 ```
 
+For APIs that put pagination state in the request body, return a request record
+from the lambda. Each request record patches the request that produced the
+current page. This is useful for OpenSearch-compatible APIs, including
+OpenSearch, Elasticsearch, and the Wazuh indexer, that use a `search_after`
+cursor in the request body.
+
+Keep the `from_http` subpipeline focused on parsing the response envelope. Move
+operators such as `unroll` after `from_http`, because the pagination lambda
+receives the parsed page envelope.
+
+```tql
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http "https://opensearch.example.com/logs-*/_search",
+  headers=$headers,
+  body={
+    size: 1000,
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+    query: {match_all: {}},
+  },
+  paginate=(x => {
+    body: {
+      size: 1000,
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      query: {match_all: {}},
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+The first request uses `POST` because it has a body. Follow-up requests inherit
+that method and the configured headers. The returned request record replaces
+only the body.
+
+Scroll-style APIs can change the URL and body for the next request while they
+keep the method and headers:
+
+```tql
+let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
+let $scroll = "https://opensearch.example.com/_search/scroll"
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http $search,
+  headers=$headers,
+  body={size: 1000, query: {match_all: {}}},
+  paginate=(x => {
+    url: $scroll,
+    body: {
+      scroll: "1m",
+      scroll_id: x._scroll_id,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+See the [OpenSearch integration](/integrations/opensearch) and the
+[Wazuh integration](/integrations/wazuh) for more search-backend examples that
+use the same pagination pattern.
+
 ### Rate limiting
 
 Control request frequency by configuring `paginate_delay` to add delays between
