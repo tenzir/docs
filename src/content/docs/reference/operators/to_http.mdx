@@ -9,29 +9,33 @@ import Guide from '@components/see-also/Guide.astro';
 import Integration from '@components/see-also/Integration.astro';
 import HttpClientOptions from '@partials/operators/HttpClientOptions.mdx';
 
-Sends events as HTTP requests to a webhook or API endpoint.
+Sends events as a single HTTP request to a webhook or API endpoint.
 
 ```tql
 to_http url:string, [method=string, headers=record, timeout=duration,
-        parallel=int, tls=record, connection_timeout=duration,
+        tls=record, connection_timeout=duration,
         max_retry_count=int, retry_delay=duration] { … }
 ```
 
 ## Description
 
-The `to_http` operator sends each input event as an HTTP request to a webhook or
-API endpoint. A required printer sub-pipeline turns each input event into bytes,
-which become the request body. By default, the operator sends requests with the
-`POST` method.
+The `to_http` operator collects all input events into a single HTTP request to
+a webhook or API endpoint. A required printer sub-pipeline turns the events
+into bytes, which Tenzir streams as the request body. The body is streamed
+directly from the printer sub-pipeline into the HTTP connection without
+buffering the entire body in memory. By default, the operator sends requests
+with the `POST` method.
 
-The operator retries transient transport failures and HTTP `429` and `5xx`
-responses up to `max_retry_count` times. If a response includes a
-`Retry-After` header, Tenzir waits for that duration before retrying.
-Otherwise, it uses exponential backoff starting at `retry_delay`. Tenzir
-emits a diagnostic before each retry with the reason and wait time.
+To split events across multiple requests, wrap `to_http` in the
+[`every`](/reference/operators/every) operator. For example,
+`every 1m { to_http ... }` sends one request per minute with the events that
+arrived during that window.
 
-Non-2xx HTTP status codes emit warnings. Request failures, such as connection
-or retry exhaustion, cause pipeline errors.
+The operator retries transient connection errors up to `max_retry_count`
+times, but only before any body data has been sent. Once the body stream has
+started, retries are not possible because the data cannot be replayed.
+
+Non-2xx HTTP status codes cause pipeline errors.
 
 ### `url: string`
 
@@ -50,12 +54,6 @@ this pipeline becomes the HTTP request body.
 Use this pipeline to choose the request format explicitly. For example, use
 `write_ndjson`, `write_json`, or another byte-producing pipeline.
 
-### `parallel = int (optional)`
-
-Maximum number of requests that can be in progress at any time.
-
-Defaults to `1`.
-
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="false"/>
@@ -64,7 +62,7 @@ import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 ### Send events to a webhook
 
-Send each event as a JSON POST request:
+Send all events as a single JSON POST request:
 
 ```tql
 from {message: "hello", severity: "info"}
@@ -75,7 +73,7 @@ to_http "https://example.com/webhook" {
 
 ### Control the request body format
 
-Use the printer sub-pipeline to control how the operator serializes each event:
+Use the printer sub-pipeline to control how the operator serializes events:
 
 ```tql
 from {foo: "bar"}
@@ -105,16 +103,19 @@ to_http "https://secure.example.com/api",
 }
 ```
 
-### Send requests in parallel
+### Send events in periodic batches
 
-Increase throughput by sending multiple requests concurrently:
+Use `every` to group events into time-based batches, with each batch sent as
+a separate HTTP request:
 
 ```tql
 from_file "events.json" {
   read_json
 }
-to_http "https://example.com/ingest", parallel=4 {
-  write_ndjson
+every 1m {
+  to_http "https://example.com/ingest" {
+    write_ndjson
+  }
 }
 ```
 
@@ -124,6 +125,7 @@ to_http "https://example.com/ingest", parallel=4 {
 - <Op>http</Op>
 - <Op>accept_http</Op>
 - <Op>serve_http</Op>
+- <Op>every</Op>
 - <Guide>tenzir-v6-migration</Guide>
 - <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Integration>http</Integration>
