@@ -96,13 +96,10 @@ supports these fields:
 - `body`: The next request body as a `blob`, `record`, or `string`. Set this
   field to `null` to clear the body.
 
-Missing record fields inherit from the current effective request. Setting
-`body` does not change the method. Set `method` explicitly if the next request
-must use a different method. If `body` is a record, the `encode` option also
-applies to paginated request bodies.
-
-Unknown fields, empty request records, and invalid field values emit a
-diagnostic and stop pagination after the current page.
+Each request record is a patch against the request that produced the current
+page. Setting `body` does not change the method. Set `method` explicitly if the
+next request must use a different method. If `body` is a record, the `encode`
+option also applies to paginated request bodies.
 
 This request-record pagination behavior applies to <Op>from_http</Op> only. It
 does not change <Op>http</Op>, <Op>to_http</Op>, <Op>accept_http</Op>, or

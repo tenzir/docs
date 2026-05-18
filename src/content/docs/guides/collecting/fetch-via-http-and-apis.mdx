@@ -260,9 +260,10 @@ from_http f"{$base}?category=security&page=1",
 ```
 
 For APIs that put pagination state in the request body, return a request record
-from the lambda. Missing fields inherit from the current request. This is useful
-for OpenSearch-compatible APIs, including OpenSearch, Elasticsearch, and the
-Wazuh indexer, that use a `search_after` cursor in the request body.
+from the lambda. Each request record patches the request that produced the
+current page. This is useful for OpenSearch-compatible APIs, including
+OpenSearch, Elasticsearch, and the Wazuh indexer, that use a `search_after`
+cursor in the request body.
 
 Keep the `from_http` subpipeline focused on parsing the response envelope. Move
 operators such as `unroll` after `from_http`, because the pagination lambda
