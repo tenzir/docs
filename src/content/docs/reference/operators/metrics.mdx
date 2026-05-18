@@ -17,13 +17,25 @@ events are collected every second.
 
 :::tip[Retention Policy]
 Set the `tenzir.retention.metrics` configuration option to change how long
-Tenzir Nodes store metrics:
+Tenzir Nodes store general metrics:
 
 ```yaml
 tenzir:
   retention:
     metrics: 7d
 ```
+
+Operator metrics use the separate `tenzir.retention.operator-metrics` setting:
+
+```yaml
+tenzir:
+  retention:
+    operator-metrics: 1d
+```
+
+Set `operator-metrics` to `0s` to disable persistence for
+`tenzir.metrics.operator` and `tenzir.metrics.operator_profile` events. Live
+subscribers can still receive them.
 
 :::
 
