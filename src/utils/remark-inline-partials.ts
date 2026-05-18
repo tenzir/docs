@@ -27,6 +27,7 @@ interface InlinePartialsOptions {
 interface InlineResult {
   contentNodes: Content[];
   hoistedImports: MdxjsEsm[];
+  inlinedComponents: Set<string>;
 }
 
 interface CachedPartial {
@@ -87,7 +88,23 @@ export const remarkInlinePartials: Plugin<[InlinePartialsOptions?], Root> = (
       }
     }
 
-    const { hoistedImports } = inlineTree(tree, file.path, state, [], false);
+    const { hoistedImports, inlinedComponents } = inlineTree(
+      tree,
+      file.path,
+      state,
+      [],
+      false,
+    );
+
+    if (inlinedComponents.size > 0) {
+      removeInlinedPartialImports(
+        tree.children as Content[],
+        file.path,
+        state.partialsDir,
+        inlinedComponents,
+        state.report,
+      );
+    }
 
     if (hoistedImports.length === 0) return;
 
@@ -135,6 +152,7 @@ function inlineTree(
 ): InlineResult {
   const importMap = collectPartialImports(tree, filePath, state.partialsDir);
   const hoistedImports: MdxjsEsm[] = [];
+  const inlinedComponents = new Set<string>();
 
   visit(tree, "mdxJsxFlowElement", (node: MdxJsxFlowElement, index, parent) => {
     if (!parent || typeof index !== "number") return;
@@ -147,6 +165,7 @@ function inlineTree(
     const result = loadPartial(partialPath, state, stack, propsMap);
     if (!result) return;
 
+    inlinedComponents.add(node.name);
     hoistedImports.push(...result.hoistedImports);
     parent.children.splice(index, 1, ...result.contentNodes);
 
@@ -166,7 +185,7 @@ function inlineTree(
     tree.children = contentNodes as Content[];
   }
 
-  return { contentNodes, hoistedImports };
+  return { contentNodes, hoistedImports, inlinedComponents };
 }
 
 function loadPartial(
@@ -214,6 +233,7 @@ function loadPartial(
   return {
     contentNodes: result.contentNodes,
     hoistedImports: result.hoistedImports,
+    inlinedComponents: result.inlinedComponents,
   };
 }
 
@@ -274,7 +294,79 @@ function extractImportNodes(
     }
   }
 
-  return { contentNodes, hoistedImports };
+  return { contentNodes, hoistedImports, inlinedComponents: new Set() };
+}
+
+function removeInlinedPartialImports(
+  nodes: Content[],
+  filePath: string,
+  partialsDir: string,
+  inlinedComponents: Set<string>,
+  report: (message: string) => void,
+): void {
+  for (let index = nodes.length - 1; index >= 0; index--) {
+    const node = nodes[index];
+    if (node.type !== "mdxjsEsm") continue;
+
+    const mdxNode = node as MdxjsEsm;
+    const code = typeof mdxNode.value === "string" ? mdxNode.value : "";
+    if (!isImportOnly(code)) continue;
+
+    const { code: nextCode, removed } = removeInlinedImportStatements(
+      code,
+      filePath,
+      partialsDir,
+      inlinedComponents,
+    );
+    if (!removed) continue;
+
+    if (nextCode.trim().length === 0) {
+      nodes.splice(index, 1);
+      continue;
+    }
+
+    const estree = parseEstree(nextCode, report, filePath);
+    if (!estree) continue;
+
+    mdxNode.value = nextCode;
+    setEstree(mdxNode, estree);
+  }
+}
+
+function removeInlinedImportStatements(
+  code: string,
+  filePath: string,
+  partialsDir: string,
+  inlinedComponents: Set<string>,
+): { code: string; removed: boolean } {
+  let removed = false;
+  const importStatementRegex =
+    /(^|\n)([ \t]*import\s+([\w$]+)\s+from\s+['"]([^'"]+)['"];?)/g;
+
+  const nextCode = code.replace(
+    importStatementRegex,
+    (
+      match,
+      prefix: string,
+      _statement: string,
+      name: string,
+      source: string,
+    ) => {
+      const resolvedPath = resolvePartialPath(source, filePath, partialsDir);
+      if (
+        !inlinedComponents.has(name) ||
+        !resolvedPath ||
+        !isWithinPartials(resolvedPath, partialsDir)
+      ) {
+        return match;
+      }
+
+      removed = true;
+      return prefix;
+    },
+  );
+
+  return { code: nextCode.replace(/\n{3,}/g, "\n\n"), removed };
 }
 
 type ImportDisposition = "drop" | "hoist" | "keep";
@@ -445,25 +537,24 @@ function applyPropsSubstitutions(
         if (result.updated) {
           const estree = parseEstree(result.value, report, partialPath);
           if (estree) {
-            if (node.type === "mdxTextExpression") {
-              const staticText = extractStaticText(estree);
-              if (
-                staticText != null &&
-                parent &&
-                typeof index === "number" &&
-                "children" in parent &&
-                Array.isArray(parent.children)
-              ) {
-                const replacement: Content = {
-                  type: "text",
-                  value: staticText,
-                };
-                const position = (node as { position?: Content["position"] })
-                  .position;
-                if (position) replacement.position = position;
-                parent.children[index] = replacement;
-                return index;
-              }
+            const staticText = extractStaticText(estree);
+            if (
+              staticText != null &&
+              canReplaceExpressionWithText(node, parent) &&
+              parent &&
+              typeof index === "number" &&
+              "children" in parent &&
+              Array.isArray(parent.children)
+            ) {
+              const replacement: Content = {
+                type: "text",
+                value: staticText,
+              };
+              const position = (node as { position?: Content["position"] })
+                .position;
+              if (position) replacement.position = position;
+              parent.children[index] = replacement;
+              return index;
             }
 
             exprNode.value = result.value;
@@ -515,6 +606,16 @@ function applyPropsSubstitutions(
       }
     }
   });
+}
+
+function canReplaceExpressionWithText(
+  node: { type: string },
+  parent: { type?: string } | undefined,
+): boolean {
+  if (node.type === "mdxTextExpression") return true;
+  return (
+    parent?.type === "mdxJsxFlowElement" || parent?.type === "mdxJsxTextElement"
+  );
 }
 
 function parseEstree(

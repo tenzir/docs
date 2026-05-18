@@ -8,6 +8,7 @@ import remarkMdx from "remark-mdx";
 import { visit } from "unist-util-visit";
 import { VFile } from "vfile";
 import { remarkInlinePartials } from "../src/utils/remark-inline-partials";
+import { remarkSeeAlsoLinks } from "../src/utils/remark-see-also-links";
 
 // This script verifies that inline partials expand headings, hoist imports,
 // and substitute props so the TOC uses the final heading text. Run it after
@@ -47,6 +48,9 @@ try {
     join(partialsDir, "WithProps.mdx"),
     ["### {props.Name}"].join("\n"),
   );
+  const semanticLinkPartial = "- <Op>{props.Operator}</Op>";
+  const semanticLinkPartialPath = join(partialsDir, "WithSemanticLink.mdx");
+  writeFileSync(semanticLinkPartialPath, semanticLinkPartial);
   writeFileSync(
     join(partialsDir, "Wrapper.mdx"),
     [
@@ -61,6 +65,7 @@ try {
     'import Child from "@partials/Child.mdx";',
     'import UsesComponent from "@partials/UsesComponent.mdx";',
     'import Wrapper from "@partials/Wrapper.mdx";',
+    'import WithSemanticLink from "@partials/WithSemanticLink.mdx";',
     "",
     "# Doc",
     "",
@@ -69,11 +74,14 @@ try {
     "<UsesComponent />",
     "",
     '<Wrapper Name="Gadget" />',
+    "",
+    '<WithSemanticLink Operator="where" />',
   ].join("\n");
 
   const processor = remark()
     .use(remarkMdx)
-    .use(remarkInlinePartials, { partialsDir });
+    .use(remarkInlinePartials, { partialsDir })
+    .use(remarkSeeAlsoLinks);
   const file = new VFile({ path: docPath, value: docContent });
   const tree = processor.parse(file);
   const transformed = processor.runSync(tree, file);
@@ -117,6 +125,29 @@ try {
   });
 
   assert(expressionValues.every((value) => !value.includes("props.")));
+  assert(!expressionValues.includes('"where"'));
+
+  const dataHrefs: string[] = [];
+  visit(
+    transformed,
+    ["mdxJsxFlowElement", "mdxJsxTextElement"],
+    (node: {
+      attributes?: Array<{ name?: string; value?: string }>;
+      name?: string;
+    }) => {
+      if (node.name !== "Op") return;
+
+      const dataHref = node.attributes?.find(
+        (attribute) => attribute.name === "data-href",
+      );
+      if (typeof dataHref?.value === "string") {
+        dataHrefs.push(dataHref.value);
+      }
+    },
+  );
+
+  assert(dataHrefs.includes("/reference/operators/where"));
+  assert(dataHrefs.every((href) => !href.includes('"')));
 } finally {
   rmSync(rootDir, { recursive: true, force: true });
 }
