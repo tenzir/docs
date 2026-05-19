@@ -4,9 +4,8 @@ title: CloudWatch
 
 [Amazon CloudWatch](https://aws.amazon.com/cloudwatch/) is a monitoring and
 observability service in AWS. Tenzir can read CloudWatch events with
-<Op>from_amazon_cloudwatch</Op>, write events with <Op>to_amazon_cloudwatch</Op>,
-and send events to the CloudWatch HTTP Log Collector with
-<Op>to_amazon_cloudwatch_hlc</Op>.
+<Op>from_amazon_cloudwatch</Op> and write events with
+<Op>to_amazon_cloudwatch</Op>.
 
 CloudWatch stores log data in log groups and log streams. Use Tenzir to live
 tail new logs, search historical logs with filter patterns, replay one log
@@ -27,8 +26,6 @@ from_amazon_cloudwatch "/aws/lambda/api", mode="search", aws_iam={
 
 The <Op>to_amazon_cloudwatch</Op> operator expects the target log group and log
 stream to exist before the pipeline writes to them.
-<Op>to_amazon_cloudwatch_hlc</Op> uses bearer-token authentication instead of
-AWS IAM.
 
 For AWS IAM-authenticated CloudWatch API calls, Tenzir needs these CloudWatch
 permissions:
@@ -38,11 +35,11 @@ permissions:
 | Live tail with <Op>from_amazon_cloudwatch</Op> | `logs:StartLiveTail` |
 | Historical search with <Op>from_amazon_cloudwatch</Op> | `logs:FilterLogEvents` |
 | Stream replay with <Op>from_amazon_cloudwatch</Op> | `logs:GetLogEvents` |
-| Write with <Op>to_amazon_cloudwatch</Op> | `logs:PutLogEvents` |
+| Write with <Op>to_amazon_cloudwatch</Op> `method="put"` | `logs:PutLogEvents` |
 
 If you set `unmask=true` for historical reads, the principal also needs
-`logs:Unmask`. HLC writes with <Op>to_amazon_cloudwatch_hlc</Op> use a bearer
-token and don't require `logs:PutLogEvents`.
+`logs:Unmask`. HTTP ingestion writes with <Op>to_amazon_cloudwatch</Op> can use
+a bearer token instead of AWS IAM.
 
 ## Read from CloudWatch
 
@@ -139,8 +136,9 @@ Replay mode requires exactly one `stream`. It doesn't accept `filter` or
 ## Send to CloudWatch
 
 Use <Op>to_amazon_cloudwatch</Op> to write events to an existing log group and
-log stream with `PutLogEvents`. The `message` option computes the CloudWatch log
-message, and the `timestamp` option computes the CloudWatch event timestamp:
+log stream. The default `method="put"` uses the AWS `PutLogEvents` API. The
+`payload` option computes the CloudWatch log payload, and the `timestamp` option
+computes the CloudWatch event timestamp:
 
 ```tql
 from {
@@ -148,12 +146,13 @@ from {
   severity: "error",
   message: "login failed",
 }
-to_amazon_cloudwatch "/tenzir/alerts", "api",
-  message=this.print_json(),
+to_amazon_cloudwatch "/tenzir/alerts",
+  stream="api",
+  payload=this.print_json(),
   timestamp=event_time
 ```
 
-When you omit `message`, Tenzir serializes the whole incoming event as NDJSON.
+When you omit `payload`, Tenzir serializes the whole incoming event as NDJSON.
 When you omit `timestamp`, Tenzir uses a `timestamp` field when present and the
 processing time otherwise.
 
@@ -162,18 +161,21 @@ increase `parallel` for higher throughput to the same stream:
 
 ```tql
 subscribe "alerts"
-to_amazon_cloudwatch "/tenzir/alerts", "api",
+to_amazon_cloudwatch "/tenzir/alerts",
+  stream="api",
   batch_size=1000,
   batch_timeout=1s,
   parallel=4
 ```
 
 If your deployment exposes the CloudWatch HTTP Log Collector, use
-<Op>to_amazon_cloudwatch_hlc</Op> with a bearer token:
+`method="hlc"` with a bearer token:
 
 ```tql
 subscribe "alerts"
-to_amazon_cloudwatch_hlc "/tenzir/alerts", "api",
+to_amazon_cloudwatch "/tenzir/alerts",
+  stream="api",
+  method="hlc",
   token=secret("cloudwatch-hlc-token")
 ```
 
@@ -183,7 +185,6 @@ to_amazon_cloudwatch_hlc "/tenzir/alerts", "api",
 
 - <Op>from_amazon_cloudwatch</Op>
 - <Op>to_amazon_cloudwatch</Op>
-- <Op>to_amazon_cloudwatch_hlc</Op>
 - <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Guide>routing/send-to-destinations</Guide>
 - <Integration>amazon</Integration>
