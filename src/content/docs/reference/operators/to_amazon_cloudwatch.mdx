@@ -120,8 +120,9 @@ sending:
 Events that exceed CloudWatch event size or timestamp limits are skipped with a
 warning.
 
-For HTTP ingestion methods, the operator batches events into one HTTP request
-until the request reaches the 1 MiB limit.
+For HTTP ingestion methods, the operator skips individual events larger than
+256 KiB and batches accepted events into one HTTP request until the request
+reaches the 1 MiB limit.
 
 ## Examples
 
