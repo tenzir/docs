@@ -17,10 +17,9 @@ get back the HTTP response body as your pipeline data:
 ![HTTP from](http-from.svg)
 
 Use [`from_http`](/reference/operators/from_http) to issue a one-shot HTTP
-request, or [`http`](/reference/operators/http) to enrich events flowing through
-a pipeline with HTTP responses. `from_http` streams response body chunks into
-its parser sub-pipeline as they arrive. Both operators automatically infer the
-response format from the URL extension or `Content-Type` header.
+request and stream the response body chunks into its parser sub-pipeline as
+they arrive. The operator automatically infers the response format from the URL
+extension or `Content-Type` header.
 
 See the [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis)
 guide for practical examples covering authentication, pagination, error
