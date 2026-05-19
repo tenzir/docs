@@ -56,7 +56,40 @@ secret name to avoid hardcoding sensitive URLs.
 
 import HttpClientOptions from '@partials/operators/HttpClientOptions.mdx';
 
+### `method = string (optional)`
+
+One of the following HTTP methods to use:
+
+- `get`
+- `head`
+- `post`
+- `put`
+- `del`
+- `connect`
+- `options`
+- `trace`
+
+Defaults to `get`, or `post` when you set `body`.
+
 <HttpClientOptions />
+
+### `max_retry_count = int (optional)`
+
+Maximum number of retry attempts per request.
+
+A request is retried on transient transport failures and HTTP `429` and `5xx`
+responses.
+
+Defaults to `5`.
+
+### `retry_delay = duration (optional)`
+
+Base duration between retry attempts.
+
+Tenzir uses exponential backoff starting at `retry_delay` and capping at `16 *
+retry_delay`. A `Retry-After` response header overrides this delay.
+
+Defaults to `1s`.
 
 ### `body = blob|record|string (optional)`
 
