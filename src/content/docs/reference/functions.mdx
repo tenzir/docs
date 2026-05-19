@@ -543,6 +543,10 @@ functions:
     description: 'Unflattens nested data.'
     example: 'unflatten(this)'
     path: 'reference/functions/unflatten'
+  - name: 'drop_matching'
+    description: 'Removes top-level fields from a record when their names match a regular expression.'
+    example: 'record.drop_matching("^debug_")'
+    path: 'reference/functions/drop_matching'
   - name: 'get'
     description: 'Gets a field from a record or an element from a list'
     example: 'xs.get(index, fallback)'
@@ -559,6 +563,10 @@ functions:
     description: 'Combines two records into a single record by merging their fields.'
     example: 'merge(foo, bar)'
     path: 'reference/functions/merge'
+  - name: 'select_matching'
+    description: 'Selects top-level fields from a record when their names match a regular expression.'
+    example: 'record.select_matching("^src_")'
+    path: 'reference/functions/select_matching'
   - name: 'sort'
     description: 'Sorts lists and record fields.'
     example: 'xs.sort()'
@@ -1695,6 +1703,14 @@ record.print_yaml()
 
 <CardGrid>
 
+<ReferenceCard title="drop_matching" description="Removes top-level fields from a record when their names match a regular expression." href="/reference/functions/drop_matching">
+
+```tql
+record.drop_matching("^debug_")
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="get" description="Gets a field from a record or an element from a list" href="/reference/functions/get">
 
 ```tql
@@ -1723,6 +1739,14 @@ record.keys()
 
 ```tql
 merge(foo, bar)
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="select_matching" description="Selects top-level fields from a record when their names match a regular expression." href="/reference/functions/select_matching">
+
+```tql
+record.select_matching("^src_")
 ```
 
 </ReferenceCard>
