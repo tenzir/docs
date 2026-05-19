@@ -7,7 +7,7 @@ example: 'to_http "https://example.com/webhook" { write_ndjson }'
 import Op from '@components/see-also/Op.astro';
 import Guide from '@components/see-also/Guide.astro';
 import Integration from '@components/see-also/Integration.astro';
-import HttpClientOptions from '@partials/operators/HttpClientOptions.mdx';
+import HttpOutputClientOptions from '@partials/operators/HttpOutputClientOptions.mdx';
 
 Sends events as a single HTTP request to a webhook or API endpoint.
 
@@ -31,9 +31,11 @@ To split events across multiple requests, wrap `to_http` in the
 `every 1m { to_http ... }` sends one request per minute with the events that
 arrived during that window.
 
-The operator retries transient connection errors up to `max_retry_count`
-times, but only before any body data has been sent. Once the body stream has
-started, retries are not possible because the data cannot be replayed.
+The operator retries transient connection errors and HTTP `429` and `5xx`
+responses up to `max_retry_count` times, but only before any body data has
+been sent. Once the body stream has started, retries are not possible because
+the data cannot be replayed. For retried HTTP responses, a `Retry-After`
+header overrides the configured delay.
 
 Non-2xx HTTP status codes cause pipeline errors.
 
@@ -44,7 +46,7 @@ URL to send the request to.
 The URL is resolved as a [secret](/explanations/secrets), so you can pass a
 secret name to avoid hardcoding sensitive URLs.
 
-<HttpClientOptions />
+<HttpOutputClientOptions />
 
 ### `{ … }`
 
