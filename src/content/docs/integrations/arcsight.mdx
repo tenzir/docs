@@ -1,0 +1,227 @@
+---
+title: ArcSight
+---
+
+[OpenText ArcSight](https://www.opentext.com/products/arcsight-enterprise-security-manager)
+is a SIEM and log management ecosystem. Tenzir integrates with ArcSight through
+open interfaces such as CEF, Syslog, Kafka, and the ArcSight Logger REST API.
+
+![ArcSight integration paths](arcsight.excalidraw)
+
+ArcSight products also have proprietary interfaces, including SmartMessage and
+ESM binary event transport. Tenzir does not provide dedicated operators for
+those protocols. Prefer CEF over Syslog, CEF over Kafka, or Logger REST search
+when you connect ArcSight and Tenzir.
+
+## Choose an integration path
+
+Use the interface that matches where ArcSight sits in your deployment:
+
+| Goal | ArcSight interface | Tenzir operators and functions |
+| :--- | :--- | :--- |
+| Send events to Logger or a CEF Syslog SmartConnector | CEF or Syslog receiver over TCP | <Fn>print_cef</Fn>, <Op>write_syslog</Op>, <Op>to_tcp</Op> |
+| Send CEF datagrams to Logger | CEF UDP receiver | <Fn>print_cef</Fn>, <Op>to_udp</Op> |
+| Publish events to Transformation Hub | Kafka topic `th-cef` | <Fn>print_cef</Fn>, <Op>to_kafka</Op> |
+| Receive forwarded ArcSight events | CEF or Syslog over TCP or UDP | <Op>accept_tcp</Op>, <Op>accept_udp</Op>, <Op>read_cef</Op>, <Op>read_syslog</Op>, <Fn>parse_cef</Fn> |
+| Read from Transformation Hub | Kafka topic `th-cef` | <Op>from_kafka</Op>, <Fn>parse_cef</Fn> |
+| Query stored Logger events | Logger REST search service | <Op>from_http</Op> |
+
+See the ArcSight documentation for [Logger receivers][logger-receivers],
+[SmartConnector destinations][smartconnector-logger], [CEF][cef], [Transformation
+Hub Kafka topics][th-cef], [Logger forwarding][logger-forwarding], and [Logger
+REST search][logger-rest-search].
+
+## Send events to ArcSight Logger
+
+ArcSight Logger can receive events through receivers such as CEF TCP, CEF UDP,
+and SmartMessage. If you want ArcSight to parse Tenzir events as CEF, format the
+event with <Fn>print_cef</Fn> first.
+
+For a TCP receiver, wrap the CEF payload in Syslog and connect to the Logger or
+SmartConnector endpoint:
+
+```tql
+subscribe "detections"
+cef = this.print_cef(
+  cef_version="0",
+  device_vendor="Tenzir",
+  device_product="Tenzir",
+  device_version="6",
+  signature_id=event_type? else "tenzir.event",
+  name=event_name? else "Tenzir event",
+  severity=string(severity? else 5),
+)
+message = cef
+facility = 4
+severity = 6
+hostname = "tenzir-node"
+app_name = "tenzir"
+to_tcp "arcsight-logger.example.com:515" {
+  write_syslog
+}
+```
+
+Replace `arcsight-logger.example.com:515` with the host and port of your Logger
+receiver or SmartConnector destination. Use TLS options on <Op>to_tcp</Op> if
+the receiver expects TLS.
+
+If you configured a CEF UDP receiver, send one CEF message per datagram:
+
+```tql
+subscribe "detections"
+cef = this.print_cef(
+  cef_version="0",
+  device_vendor="Tenzir",
+  device_product="Tenzir",
+  device_version="6",
+  signature_id=event_type? else "tenzir.event",
+  name=event_name? else "Tenzir event",
+  severity=string(severity? else 5),
+)
+to_udp "arcsight-logger.example.com:514", message=cef
+```
+
+Prefer TCP when you need delivery feedback, connection-level TLS, or receiver
+backpressure. UDP is useful only when your ArcSight receiver is explicitly
+configured for CEF datagrams.
+
+## Publish CEF to Transformation Hub
+
+ArcSight Transformation Hub is Kafka-based. SmartConnectors use the `th-cef`
+topic for CEF events, so Tenzir can publish CEF messages with <Op>to_kafka</Op>:
+
+```tql
+let $options = {
+  "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
+  "security.protocol": "ssl",
+  "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
+}
+
+subscribe "detections"
+cef = this.print_cef(
+  cef_version="0",
+  device_vendor="Tenzir",
+  device_product="Tenzir",
+  device_version="6",
+  signature_id=event_type? else "tenzir.event",
+  name=event_name? else "Tenzir event",
+  severity=string(severity? else 5),
+)
+to_kafka "th-cef", message=cef, options=$options
+```
+
+Adapt the `options` record to match the Kafka settings of your Transformation
+Hub deployment. The Kafka operators pass these options to librdkafka.
+
+## Receive ArcSight events in Tenzir
+
+Use Tenzir as a CEF or Syslog receiver when a SmartConnector, Logger forwarder,
+or another ArcSight component sends events to a network destination.
+
+For raw CEF over TCP, listen with <Op>accept_tcp</Op> and parse the byte stream
+with <Op>read_cef</Op>:
+
+```tql
+accept_tcp "0.0.0.0:1514" {
+  read_cef
+}
+publish "arcsight"
+```
+
+For Syslog-wrapped CEF over TCP, parse Syslog first, then parse the CEF payload
+from the Syslog message body:
+
+```tql
+accept_tcp "0.0.0.0:514" {
+  read_syslog
+}
+cef_message = message? else content?
+this = cef_message.parse_cef()
+publish "arcsight"
+```
+
+For UDP forwarding, receive one datagram per event. The following example
+expects raw CEF datagrams:
+
+```tql
+accept_udp "0.0.0.0:1514"
+this = data.parse_cef()
+publish "arcsight"
+```
+
+## Read from Transformation Hub
+
+Consume CEF messages from the `th-cef` topic with <Op>from_kafka</Op> and parse
+each Kafka message with <Fn>parse_cef</Fn>:
+
+```tql
+let $options = {
+  "bootstrap.servers": "kafka1.example.com:9093,kafka2.example.com:9093",
+  "security.protocol": "ssl",
+  "ssl.ca.location": "/etc/tenzir/arcsight-th-ca.pem",
+}
+
+from_kafka "th-cef", options=$options
+this = message.parse_cef()
+publish "arcsight"
+```
+
+ArcSight can also use an Avro topic for normalized events. Tenzir does not have
+a first-class ArcSight Avro parser, so use `th-cef` when you want to process
+Transformation Hub events with built-in Tenzir operators.
+
+## Query ArcSight Logger
+
+ArcSight Logger exposes a REST search service for stored events. The API is
+session-oriented: log in, create a search session, fetch results, close the
+search session, and log out. Use this path for scheduled backfill or targeted
+queries, not for live forwarding.
+
+After you have a Logger user session and search session, use <Op>from_http</Op>
+to fetch events:
+
+```tql
+let $logger = "https://logger.example.com:9000"
+let $user_session = secret("ARCSIGHT_LOGGER_SESSION")
+let $search_session = secret("ARCSIGHT_LOGGER_SEARCH_SESSION")
+let $headers = {
+  "Content-Type": "application/json; charset=UTF-8",
+}
+let $body = {
+  user_session_id: $user_session,
+  search_session_id: $search_session,
+  offset: 0,
+  length: 1000,
+}
+
+from_http f"{$logger}/server/search/events", headers=$headers, body=$body {
+  read_json
+}
+```
+
+The response includes the Logger result metadata and event rows. Shape the
+returned fields in TQL after you select the fields in the Logger search query.
+
+## See Also
+
+- <Op>accept_tcp</Op>
+- <Op>accept_udp</Op>
+- <Op>from_http</Op>
+- <Op>from_kafka</Op>
+- <Op>read_cef</Op>
+- <Op>read_syslog</Op>
+- <Op>to_kafka</Op>
+- <Op>to_tcp</Op>
+- <Op>to_udp</Op>
+- <Op>write_syslog</Op>
+- <Fn>parse_cef</Fn>
+- <Fn>print_cef</Fn>
+- <Integration>kafka</Integration>
+- <Integration>syslog</Integration>
+
+[cef]: https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/cef-implementation-standard/Content/CEF/Chapter%201%20What%20is%20CEF.htm
+[logger-forwarding]: https://www.microfocus.com/documentation/arcsight/logger-7.2.2/Logger-Admin-Guide/Content/Logger_AdminGuide/Overview/Forwarder_Configuration.htm
+[logger-receivers]: https://www.microfocus.com/documentation/arcsight/logger-7.2.2/Logger-Admin-Guide/Content/Logger_AdminGuide/Configuration/Receivers.htm
+[logger-rest-search]: https://www.microfocus.com/documentation/arcsight/logger-7.2.2/Logger-WebServices-API/Content/Logger_WebServicesAPI/RESTful_Search_Service/REST_SearchService.htm
+[smartconnector-logger]: https://www.microfocus.com/documentation/arcsight/logger-7.2.2/Logger-Admin-Guide/Content/Logger_AdminGuide/Using_SmartConnectors_to_Collect_Events/Configuring_a_SmartConnector_to_Send_Events_to_Logger.htm
+[th-cef]: https://www.microfocus.com/documentation/arcsight/arcsight-smartconnectors-8.3/AS_smartconn_install/Content/Installinfo/smartconn_cef_kafka.htm

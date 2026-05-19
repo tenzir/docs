@@ -393,6 +393,7 @@ export const integrations = [
   section(
     "Data Tools",
     [
+      "integrations/arcsight",
       "integrations/clickhouse",
       "integrations/elasticsearch",
       "integrations/graylog",
