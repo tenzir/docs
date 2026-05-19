@@ -18,8 +18,9 @@ get back the HTTP response body as your pipeline data:
 
 Use [`from_http`](/reference/operators/from_http) to issue a one-shot HTTP
 request, or [`http`](/reference/operators/http) to enrich events flowing through
-a pipeline with HTTP responses. Both operators automatically infer the response
-format from the URL extension or `Content-Type` header.
+a pipeline with HTTP responses. `from_http` streams response body chunks into
+its parser sub-pipeline as they arrive. Both operators automatically infer the
+response format from the URL extension or `Content-Type` header.
 
 See the [Fetch via HTTP and APIs](/guides/collecting/fetch-via-http-and-apis)
 guide for practical examples covering authentication, pagination, error
@@ -29,9 +30,10 @@ handling, and data enrichment.
 
 Use [`to_http`](/reference/operators/to_http) to send events to a webhook or
 API endpoint as a single HTTP request per operator invocation. A printer
-sub-pipeline turns the input events into the request body bytes. This is useful
-for pushing alerts to webhooks, forwarding events to SIEMs, or sending
-periodic batches to external APIs.
+sub-pipeline turns the input events into the request body bytes, which Tenzir
+streams directly into the outgoing request. This is useful for pushing alerts
+to webhooks, forwarding events to SIEMs, or sending periodic batches to
+external APIs.
 
 ![HTTP to](http-to.svg)
 

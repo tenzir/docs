@@ -21,10 +21,10 @@ to_http url:string, [method=string, headers=record, timeout=duration,
 
 The `to_http` operator collects all input events into a single HTTP request to
 a webhook or API endpoint. A required printer sub-pipeline turns the events
-into bytes, which Tenzir streams as the request body. The body is streamed
-directly from the printer sub-pipeline into the HTTP connection without
-buffering the entire body in memory. By default, the operator sends requests
-with the `POST` method.
+into bytes, which Tenzir streams as the request body. The request body flows
+from the printer sub-pipeline into the HTTP connection as chunks become
+available, without buffering the entire body in memory first. By default, the
+operator sends requests with the `POST` method.
 
 To split events across multiple requests, wrap `to_http` in the
 [`every`](/reference/operators/every) operator. For example,
@@ -51,8 +51,10 @@ secret name to avoid hardcoding sensitive URLs.
 A required pipeline that receives events and must return bytes. The output of
 this pipeline becomes the HTTP request body.
 
-Use this pipeline to choose the request format explicitly. For example, use
-`write_ndjson`, `write_json`, or another byte-producing pipeline.
+Tenzir reads this pipeline incrementally and forwards the emitted chunks to the
+HTTP client as they are produced. Use this pipeline to choose the request
+format explicitly. For example, use `write_ndjson`, `write_json`, or another
+byte-producing pipeline.
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 

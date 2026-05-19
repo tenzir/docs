@@ -13,11 +13,13 @@ Tenzir has two HTTP client operators that share the same core client options:
 
 - [`from_http`](/reference/operators/from_http) is a **input** operator that
   starts a pipeline with an HTTP request and parses the response into events.
+  It streams response body chunks into the parser sub-pipeline as they arrive.
   Use it for standalone API calls and paginated API ingestion.
 - [`to_http`](/reference/operators/to_http) is an **output** operator that
-  sends all events from one invocation as a single HTTP request. Use it for
-  webhooks and HTTP-based ingestion APIs, and wrap it in `every` when you want
-  time-based batches.
+  sends all events from one invocation as a single HTTP request. It streams the
+  request body from its printer sub-pipeline into the HTTP connection. Use it
+  for webhooks and HTTP-based ingestion APIs, and wrap it in `every` when you
+  want time-based batches.
 
 Most examples in this guide use `from_http`, because it is the operator for
 fetching data from APIs.
@@ -35,8 +37,10 @@ from_http "https://api.example.com/data.json"
 ```
 
 The operator makes a GET request by default and sends the response body to the
-parser. If the response has a supported `Content-Type` header or the URL path
-has a supported extension, Tenzir infers the parser automatically.
+parser. As the server sends response chunks, Tenzir forwards them to the parser
+pipeline incrementally. If the response has a supported `Content-Type` header
+or the URL path has a supported extension, Tenzir infers the parser
+automatically.
 
 ### Parsing the HTTP response body
 
@@ -96,7 +100,8 @@ to_http "https://api.example.com/users" {
 
 The `from_http` operator automatically uses `post` when you specify a body.
 The `to_http` operator uses `post` by default and sends all events from that
-operator invocation in one request.
+operator invocation in one request, streaming the request body as the printer
+pipeline produces bytes.
 
 ## Request Configuration
 
