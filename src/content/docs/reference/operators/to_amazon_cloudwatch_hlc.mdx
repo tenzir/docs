@@ -1,7 +1,7 @@
 ---
 title: to_amazon_cloudwatch_hlc
 category: Outputs/Events
-example: 'to_amazon_cloudwatch_hlc "/tenzir/events", "default", token=secret("cloudwatch-hlc-token"), aws_region="us-east-1"'
+example: 'to_amazon_cloudwatch_hlc "/tenzir/events", "default", token=secret("cloudwatch-hlc-token")'
 ---
 
 Sends events to the Amazon CloudWatch HTTP Log Collector.
@@ -61,7 +61,8 @@ Bearer token for the CloudWatch HTTP Log Collector.
 Base URL of the CloudWatch HTTP Log Collector endpoint.
 
 Defaults to `https://logs.<region>.amazonaws.com`, where `<region>` comes from
-`aws_region`. Set `endpoint` to use a custom collector URL.
+`aws_region` or the AWS SDK's default region resolution. Set `endpoint` to use a
+custom collector URL.
 
 The operator sends requests to
 `/services/collector/event?logGroup=<group>&logStream=<stream>` with
@@ -71,7 +72,7 @@ URL-encoded group and stream names.
 
 AWS region for the default CloudWatch HTTP Log Collector endpoint.
 
-This option is required when `endpoint` is omitted.
+If omitted, the operator uses the AWS SDK's default region resolution.
 
 ## Batching
 
@@ -86,8 +87,7 @@ when the JSON request envelope would exceed the 1 MiB request limit.
 from {message: "hello"}
 to_amazon_cloudwatch_hlc "/tenzir/events", "default",
   message=message,
-  token=secret("cloudwatch-hlc-token"),
-  aws_region="us-east-1"
+  token=secret("cloudwatch-hlc-token")
 ```
 
 ### Use an explicit endpoint
