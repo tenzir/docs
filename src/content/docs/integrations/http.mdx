@@ -27,11 +27,11 @@ handling, and data enrichment.
 
 ## Sending data to webhooks and APIs
 
-Use [`to_http`](/reference/operators/to_http) to send events as HTTP requests to
-a webhook or API endpoint. Each input event is sent as a separate request, with
-the event JSON-encoded as the body by default. This is useful for pushing alerts
-to webhooks, forwarding events to SIEMs, or calling external APIs for each
-event.
+Use [`to_http`](/reference/operators/to_http) to send events to a webhook or
+API endpoint as a single HTTP request per operator invocation. A printer
+sub-pipeline turns the input events into the request body bytes. This is useful
+for pushing alerts to webhooks, forwarding events to SIEMs, or sending
+periodic batches to external APIs.
 
 ![HTTP to](http-to.svg)
 
