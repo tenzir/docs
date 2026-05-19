@@ -149,6 +149,7 @@ a separate HTTP request:
 ```tql
 subscribe "stream-of-events"
 every 1m {
+  batch
   to_http "https://example.com/ingest" {
     write_ndjson
   }
