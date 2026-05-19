@@ -35,9 +35,9 @@ The emitted events use the `tenzir.cloudwatch` schema:
 
 Log group name or identifier to read from.
 
-Use a list only with `mode="live"`. Historical modes require exactly one log
-group. For Live Tail subscriptions across multiple log groups, prefer log group
-ARNs because CloudWatch treats this parameter as a log group identifier.
+Use log group ARNs with `mode="live"`. Live mode accepts at most 10 log
+groups. Use a list only with `mode="live"`; historical modes require exactly one
+log group.
 
 ### `mode = string (optional)`
 
@@ -62,13 +62,14 @@ Log stream name or names to read.
 
 In `mode="replay"`, this option is required and must name exactly one stream.
 In `mode="live"` and `mode="search"`, this option narrows the read to one or
-more streams.
+more streams. Search mode accepts at most 100 streams.
 
 This option is mutually exclusive with `stream_prefix`.
 
 ### `stream_prefix = string (optional)`
 
-Prefix for selecting log streams in `mode="live"` or `mode="search"`.
+Non-empty prefix for selecting log streams in `mode="live"` or
+`mode="search"`.
 
 This option is mutually exclusive with `stream`. In live mode, `stream_prefix`
 requires exactly one `group`.
@@ -117,7 +118,8 @@ it uses the AWS SDK's default region resolution.
 ### Live tail a log group
 
 ```tql
-from_amazon_cloudwatch "/aws/vpc/flowlogs"
+from_amazon_cloudwatch \
+  "arn:aws:logs:us-east-1:123456789012:log-group:/aws/vpc/flowlogs"
 ```
 
 ### Live tail multiple log groups
