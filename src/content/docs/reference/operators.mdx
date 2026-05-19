@@ -347,6 +347,10 @@ operators:
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
     path: 'reference/operators/accept_udp'
+  - name: 'from_amazon_cloudwatch'
+    description: 'Reads events from Amazon CloudWatch.'
+    example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="search"'
+    path: 'reference/operators/from_amazon_cloudwatch'
   - name: 'from_amqp'
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
@@ -639,6 +643,14 @@ operators:
     description: 'Executes YARA rules on byte streams.'
     example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
+  - name: 'to_amazon_cloudwatch'
+    description: 'Sends events to Amazon CloudWatch.'
+    example: 'to_amazon_cloudwatch "/tenzir/events", "default"'
+    path: 'reference/operators/to_amazon_cloudwatch'
+  - name: 'to_amazon_cloudwatch_hlc'
+    description: 'Sends events to the Amazon CloudWatch HTTP Log Collector.'
+    example: 'to_amazon_cloudwatch_hlc "/tenzir/events", "default", token=secret("cloudwatch-hlc-token")'
+    path: 'reference/operators/to_amazon_cloudwatch_hlc'
   - name: 'to_amazon_security_lake'
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
@@ -1430,6 +1442,14 @@ accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
 
 </ReferenceCard>
 
+<ReferenceCard title="from_amazon_cloudwatch" description="Reads events from Amazon CloudWatch." href="/reference/operators/from_amazon_cloudwatch">
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api", mode="search"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="from_amqp" description="Receives messages from an AMQP queue." href="/reference/operators/from_amqp">
 
 ```tql
@@ -1866,6 +1886,23 @@ serve_tcp "0.0.0.0:8090" { write_json }
 
 ```tql
 serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_cloudwatch" description="Sends events to Amazon CloudWatch." href="/reference/operators/to_amazon_cloudwatch">
+
+```tql
+to_amazon_cloudwatch "/tenzir/events", "default"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_cloudwatch_hlc" description="Sends events to the Amazon CloudWatch HTTP Log Collector." href="/reference/operators/to_amazon_cloudwatch_hlc">
+
+```tql
+to_amazon_cloudwatch_hlc "/tenzir/events", "default",
+  token=secret("cloudwatch-hlc-token")
 ```
 
 </ReferenceCard>
