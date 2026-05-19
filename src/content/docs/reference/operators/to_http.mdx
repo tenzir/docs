@@ -147,9 +147,7 @@ Use `every` to group events into time-based batches, with each batch sent as
 a separate HTTP request:
 
 ```tql
-from_file "events.json" {
-  read_json
-}
+subscribe "stream-of-events"
 every 1m {
   to_http "https://example.com/ingest" {
     write_ndjson
