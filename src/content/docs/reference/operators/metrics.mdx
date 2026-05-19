@@ -7,7 +7,7 @@ example: 'metrics "cpu"'
 Retrieves metrics events from a Tenzir node.
 
 ```tql
-metrics [name:string, live=bool, retro=bool]
+metrics [name:string, live=bool, retro=bool, shape=string]
 ```
 
 ## Description
@@ -52,6 +52,45 @@ metrics events persisted at a Tenzir node.
 ### `retro = bool (optional)`
 
 Work on persisted diagnostic events (first), even when `live` is given.
+
+### `shape = string (optional)`
+
+Controls the output shape. The default is `"raw"`, which preserves the native
+`tenzir.metrics.*` schemas listed below.
+
+Set `shape="prometheus"` to transform metrics into canonical records that are
+compatible with Prometheus-oriented pipelines:
+
+```tql
+{
+  metric: string,
+  value: double,
+  timestamp: time,
+  labels: record,
+  type: string,
+  unit: string,
+}
+```
+
+The Prometheus shape recursively flattens numeric metric fields into individual
+records. Duration values are converted to seconds and emitted with a `_seconds`
+metric suffix.
+
+Only selected low-cardinality dimensions become labels. Tenzir omits
+high-cardinality metadata such as `schema_id`, request IDs, and native handles.
+When multiple raw metrics differ only in omitted metadata, Tenzir aggregates
+their values into one Prometheus-shaped sample.
+
+The Prometheus shape emits the following labels:
+
+- API metrics: `method`, `path`, and `status_code`.
+- Actor metrics: `name`.
+- CAF actor-list metrics: `name`.
+- Disk metrics: `path`.
+- Operator-scoped metrics: `pipeline_id` and `operator_id`.
+- Pipeline metrics: `pipeline_id`.
+- Schema-scoped import, export, ingest, publish, and subscribe metrics:
+  `schema`.
 
 ## Schemas
 
