@@ -57,7 +57,6 @@ enumerate
 ```tql
 subscribe "event-stream"
 every 30s {
-  batch
   to_http "https://example.org/api/ingest" {
     write_json
   }
@@ -65,8 +64,8 @@ every 30s {
 ```
 
 Events flow into the sub-pipeline continuously. Every 30 seconds, `every` stops
-the input, causing <Op>batch</Op> to flush and <Op>to_http</Op> to send the
-accumulated batch. Then a new sub-pipeline starts.
+the input, causing <Op>to_http</Op> to finish the request and wait for the
+response. Then a new sub-pipeline starts.
 
 ### Aggregate metrics periodically with `summarize`
 
@@ -109,7 +108,9 @@ every 1h {
 
 - <Op>cron</Op>
 - <Op>each</Op>
+- <Op>to_http</Op>
 - <Op>summarize</Op>
+- <Guide>collecting/fetch-via-http-and-apis</Guide>
 - <Guide>transformation/work-with-time</Guide>
 - <Guide>enrichment/work-with-lookup-tables</Guide>
 - <Tutorial>write-a-package</Tutorial>

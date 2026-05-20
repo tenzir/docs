@@ -351,6 +351,92 @@ from_http "https://api.example.com/scan?q=example.com",
 
 Use `paginate_delay` to manage request rates appropriately.
 
+## Controlling Batching with `to_http`
+
+When sending events to an HTTP endpoint, you can control how many events go
+into each request.
+
+### Send all events in a single request
+
+By default, `to_http` collects all input events into one request. The printer
+sub-pipeline serializes the events and Tenzir streams the body to the
+connection:
+
+```tql
+from {message: "event-1"},
+     {message: "event-2"},
+     {message: "event-3"}
+to_http "https://example.com/ingest" {
+  write_ndjson
+}
+```
+
+This is useful for one-shot pipelines that produce a finite set of events.
+
+### Send one request per event
+
+Wrap `to_http` in <Op>each</Op> to send a separate HTTP request for every
+event:
+
+```tql
+from {message: "event-1"},
+     {message: "event-2"},
+     {message: "event-3"}
+each {
+  from $this
+  to_http "https://example.com/webhook" {
+    write_json
+  }
+}
+```
+
+This sends three independent `POST` requests, each carrying one event as JSON.
+Use `parallel` to control how many requests run concurrently:
+
+```tql
+subscribe "alerts"
+each parallel=4 {
+  from $this
+  to_http "https://example.com/webhook" {
+    write_json
+  }
+}
+```
+
+:::tip[Getting responses back]
+When sending a single event and either using JSON or form encoding, <Op>from_http</Op>
+can be used. This makes code more concise, but also allows response processing.
+
+```tql
+subscribe "alerts"
+each {
+  from_http f"https://example.com/webhook", body=$this {
+    read_json
+  }
+}
+```
+:::
+
+Per-event delivery is ideal for webhooks that expect one payload per call or
+when each event must be sent immediately.
+
+### Send periodic batches
+
+Wrap `to_http` in <Op>every</Op> to accumulate events over a time window and
+then flush them as one request:
+
+```tql
+subscribe "stream-of-events"
+every 5m {
+  to_http "https://example.com/ingest" {
+    write_parquet
+  }
+}
+```
+
+Every 5 minutes, `every` stops the input, causing `to_http` to finish the
+request wait for response and then restart.
+
 ## Practical Examples
 
 These examples demonstrate typical use cases for API integration in real-world
