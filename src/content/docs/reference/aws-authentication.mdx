@@ -1,0 +1,157 @@
+---
+title: AWS Authentication
+---
+
+Tenzir's AWS operators authenticate with AWS using either inline credentials,
+an assumed IAM role, an OIDC web identity token, or the AWS SDK's default
+credential provider chain.
+
+This page describes the shared `aws_iam` option used by <Op>from_s3</Op>,
+<Op>to_s3</Op>, <Op>from_sqs</Op>, <Op>to_sqs</Op>,
+<Op>from_amazon_cloudwatch</Op>, <Op>to_amazon_cloudwatch</Op>,
+<Op>from_kafka</Op>, <Op>to_kafka</Op>, and <Op>to_amazon_security_lake</Op>.
+
+## Inline credentials
+
+Pass an access key and secret directly. Wrap secrets with
+<Fn>secret</Fn> to keep them out of pipeline definitions:
+
+```tql
+from_s3 "s3://my-bucket/data.json", aws_iam={
+  region: "us-east-1",
+  access_key_id: secret("aws-access-key-id"),
+  secret_access_key: secret("aws-secret-access-key"),
+}
+```
+
+## Assumed IAM role
+
+Use `assume_role` to call `sts:AssumeRole` with the current credentials and
+take on a different role for the request:
+
+```tql
+from_s3 "s3://my-bucket/data.json", aws_iam={
+  region: "us-east-1",
+  assume_role: "arn:aws:iam::123456789012:role/MyRole",
+  session_name: "tenzir-session",
+}
+```
+
+The role's trust policy must allow your active principal (for example an EC2
+instance role or a local SSO role) to assume it.
+
+## Web identity authentication
+
+For cross-cloud authentication, exchange an OIDC token from an external
+identity provider (Azure, Google Cloud, a Kubernetes service account, or any
+custom OIDC issuer) for temporary AWS credentials with
+`AssumeRoleWithWebIdentity`:
+
+```tql
+from_s3 "s3://my-bucket/data.json", aws_iam={
+  region: "us-east-1",
+  assume_role: "arn:aws:iam::123456789012:role/CrossCloudRole",
+  web_identity: {
+    token_file: "/var/run/secrets/tokens/aws-token",
+  },
+}
+```
+
+The `web_identity` option supports three token sources:
+
+- **`token_file`**: Path to a file containing the JWT token. This is standard
+  for Kubernetes workload identity (EKS, AKS, GKE) where the platform mounts
+  a service account token into the pod.
+- **`token_endpoint`**: Configuration for fetching tokens from an HTTP
+  endpoint. Contains `url`, optional `headers`, and optional `path` for JSON
+  extraction. Use this for Azure IMDS or similar metadata services.
+- **`token`**: Direct token value, useful for testing or when the token
+  comes from another source.
+
+Tenzir refreshes credentials automatically before expiration, making this
+suitable for long-running pipelines.
+
+## Default credential chain
+
+If no `aws_iam` parameter is specified, operators use the AWS SDK's [default
+credential provider
+chain](https://docs.aws.amazon.com/sdk-for-cpp/v1/developer-guide/credentials.html),
+which searches in this order:
+
+1. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+   optionally `AWS_SESSION_TOKEN`).
+2. Shared credentials and config files (`~/.aws/credentials`, `~/.aws/config`).
+3. IAM role for Amazon EC2 or ECS task role.
+4. Instance metadata service.
+
+## Local usage with the AWS CLI
+
+When you run `tenzir` locally, the simplest way to authenticate is to reuse
+the AWS CLI's configuration. After installing the [AWS
+CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html),
+configure your default profile:
+
+```bash
+aws configure
+```
+
+This writes credentials to `~/.aws/credentials` and settings to
+`~/.aws/config`. Verify the configuration by calling any AWS API, for example:
+
+```bash
+aws sts get-caller-identity
+```
+
+Tenzir picks up the same files through the default credential chain, so no
+further configuration is required:
+
+```tql
+from_s3 "s3://my-bucket/data.json"
+```
+
+### Named profiles
+
+To use a profile other than `default`, set the `AWS_PROFILE` environment
+variable before starting `tenzir` or `tenzir-node`:
+
+```bash
+export AWS_PROFILE=my-profile
+tenzir 'from_s3 "s3://my-bucket/data.json"'
+```
+
+Profiles defined in `~/.aws/config` can chain into other profiles, assume
+roles with MFA, or use SSO. Tenzir transparently follows these mechanisms
+through the AWS SDK.
+
+### Running as a service
+
+The `tenzir-node` systemd unit creates a dedicated `tenzir` user by default
+and runs as that user. AWS credentials must therefore live in the `tenzir`
+user's home directory, and `~/.aws` must be readable by that user. Set
+credentials there or use environment variables in the unit file:
+
+```ini
+[Service]
+Environment=AWS_PROFILE=my-profile
+Environment=AWS_REGION=eu-west-1
+```
+
+For unattended deployments, prefer instance profiles or workload identity
+over long-lived credentials on disk.
+
+## See Also
+
+- <Op>from_amazon_cloudwatch</Op>
+- <Op>from_kafka</Op>
+- <Op>from_s3</Op>
+- <Op>from_sqs</Op>
+- <Op>to_amazon_cloudwatch</Op>
+- <Op>to_amazon_security_lake</Op>
+- <Op>to_kafka</Op>
+- <Op>to_s3</Op>
+- <Op>to_sqs</Op>
+- <Integration>amazon/cloudwatch</Integration>
+- <Integration>amazon/msk</Integration>
+- <Integration>amazon/s3</Integration>
+- <Integration>amazon/security-lake</Integration>
+- <Integration>amazon/sqs</Integration>

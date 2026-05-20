@@ -324,6 +324,7 @@ export const reference = [
     ],
     "tools",
   ),
+  section("Authentication", ["reference/aws-authentication"], "security"),
 ];
 
 export const integrations = [
@@ -334,7 +335,6 @@ export const integrations = [
         label: "Amazon",
         collapsed: true,
         items: [
-          "integrations/amazon",
           "integrations/amazon/cloudwatch",
           "integrations/amazon/msk",
           "integrations/amazon/s3",

@@ -13,6 +13,8 @@ const STATIC_REDIRECTS = {
   "/explanations/language/expressions": "/reference/expressions",
   "/explanations/language/statements": "/reference/statements",
   "/explanations/language/programs": "/reference/programs",
+  // AWS auth guide moved into the reference section
+  "/integrations/amazon": "/reference/aws-authentication",
 };
 
 /**
