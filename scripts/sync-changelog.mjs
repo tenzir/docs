@@ -482,7 +482,66 @@ function formatDate(dateStr) {
  * parses them as JSX tags, causing build failures.
  */
 function escapeForMdx(markdown) {
-  return markdown.replace(/<(https?:\/\/[^>]+)>/g, "$1");
+  return normalizeEscapedCodeSpans(markdown).replace(
+    /<(https?:\/\/[^>]+)>/g,
+    "$1",
+  );
+}
+
+function normalizeEscapedCodeSpans(markdown) {
+  let output = "";
+
+  for (let index = 0; index < markdown.length; index += 1) {
+    const char = markdown[index];
+    if (char !== "`") {
+      output += char;
+      continue;
+    }
+
+    let code = "";
+    let cursor = index + 1;
+    let sawEscapedBacktick = false;
+
+    while (cursor < markdown.length) {
+      if (markdown[cursor] === "\n") {
+        break;
+      }
+      if (markdown[cursor] === "\\" && markdown[cursor + 1] === "`") {
+        code += "`";
+        cursor += 2;
+        sawEscapedBacktick = true;
+        continue;
+      }
+      if (markdown[cursor] === "`") {
+        break;
+      }
+      code += markdown[cursor];
+      cursor += 1;
+    }
+
+    if (cursor >= markdown.length || markdown[cursor] !== "`") {
+      output += char;
+      continue;
+    }
+
+    if (sawEscapedBacktick) {
+      const delimiter = codeSpanDelimiter(code);
+      output += `${delimiter}${code}${delimiter}`;
+    } else {
+      output += `${char}${code}${char}`;
+    }
+    index = cursor;
+  }
+
+  return output;
+}
+
+function codeSpanDelimiter(code) {
+  const longestRun = Math.max(
+    0,
+    ...[...code.matchAll(/`+/g)].map((match) => match[0].length),
+  );
+  return "`".repeat(longestRun + 1);
 }
 
 /**
