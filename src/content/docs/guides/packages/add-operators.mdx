@@ -50,7 +50,7 @@ beginning of the `.tql` file.
 Each parameter supports the following fields:
 
 | Field         | Required | Description                                          |
-| ------------- | -------- | ---------------------------------------------------- |
+|---------------|----------|------------------------------------------------------|
 | `name`        | Yes      | Parameter name, used as `$name` in the operator body |
 | `type`        | No       | Type constraint for the parameter value              |
 | `description` | No       | Documentation string for the parameter               |
@@ -61,7 +61,7 @@ Each parameter supports the following fields:
 The `type` field constrains what values the parameter accepts:
 
 | Type     | Description                                                           |
-| -------- | --------------------------------------------------------------------- |
+|----------|-----------------------------------------------------------------------|
 | `field`  | A field selector (for example, `name`). Cannot have non-null defaults |
 | `string` | A string literal or expression                                        |
 | `int`    | An integer value                                                      |
@@ -326,7 +326,7 @@ Consider a package that normalizes various log formats to OCSF. You can organize
 the operators into layers:
 
 | Operator             | Purpose                                                              |
-| -------------------- | -------------------------------------------------------------------- |
+|----------------------|----------------------------------------------------------------------|
 | `acme::parse`        | [Parse](/guides/parsing/parse-delimited-text) raw input into events  |
 | `acme::clean`        | [Normalize fields](/guides/normalization/clean-up-values), fix types |
 | `acme::ocsf::base`   | Fallback: maps to OCSF Base Event                                    |

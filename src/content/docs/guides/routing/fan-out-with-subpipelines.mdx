@@ -15,7 +15,7 @@ operator based on how many subpipelines you need and how events should flow into
 them:
 
 | Operator              | Subpipelines                          | Event flow                                                         | Use case                                                      |
-| --------------------- | ------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+|-----------------------|---------------------------------------|--------------------------------------------------------------------|---------------------------------------------------------------|
 | <Op>fork</Op>         | One fixed side branch                 | Every event goes to the main pipeline and the side branch          | Archive or publish a copy while continuing processing         |
 | <Op>parallel</Op>     | A fixed number of workers             | Each event goes to one worker running the same subpipeline         | Speed up CPU-heavy or I/O-heavy work                          |
 | <Op>load_balance</Op> | One branch per configured target      | Each event goes to one target                                      | Distribute load across equivalent sinks                       |

@@ -25,7 +25,7 @@ Each mode uses a mathematical function that converts the event count into a
 sampling rate. For example, if you received 1,000 events in the previous period:
 
 | Mode      | Calculation      | Rate | Events kept (approx) |
-| --------- | ---------------- | ---- | -------------------- |
+|-----------|------------------|------|----------------------|
 | `"log10"` | log10(1,000) = 3 | 1:3  | 333 of 1,000         |
 | `"ln"`    | ln(1,000) = 7    | 1:7  | 143 of 1,000         |
 | `"log2"`  | log2(1,000) = 10 | 1:10 | 100 of 1,000         |
@@ -34,7 +34,7 @@ sampling rate. For example, if you received 1,000 events in the previous period:
 At higher volumes, the differences become more pronounced. With 1,000,000 events:
 
 | Mode      | Calculation            | Rate    | Events kept (approx) |
-| --------- | ---------------------- | ------- | -------------------- |
+|-----------|------------------------|---------|----------------------|
 | `"log10"` | log10(1,000,000) = 6   | 1:6     | 166,667              |
 | `"ln"`    | ln(1,000,000) = 14     | 1:14    | 71,429               |
 | `"log2"`  | log2(1,000,000) = 20   | 1:20    | 50,000               |
@@ -70,7 +70,7 @@ period.
 The available modes are:
 
 | Mode      | Function          | Sampling behavior                    |
-| --------- | ----------------- | ------------------------------------ |
+|-----------|-------------------|--------------------------------------|
 | `"log10"` | Base-10 logarithm | Conservative, keeps most data        |
 | `"ln"`    | Natural logarithm | Moderate sampling (default)          |
 | `"log2"`  | Base-2 logarithm  | Slightly more aggressive than `"ln"` |

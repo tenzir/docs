@@ -11,7 +11,7 @@ pre-push:
       run: bun run lint:markdown:files -- {push_files}
 
     - name: markdown-table-format
-      glob: "**/*.{md,mdx}"
+      glob: "**/*.mdx"
       run: bun run lint:tables:files -- {push_files}
 
     - name: prettier
@@ -31,7 +31,7 @@ fix:
       run: bun run lint:markdown:fix:files -- {files}
 
     - name: markdown-table-format
-      glob: "**/*.{md,mdx}"
+      glob: "**/*.mdx"
       run: bun run lint:tables:fix:files -- {files}
 
     - name: biome

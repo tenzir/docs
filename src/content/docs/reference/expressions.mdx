@@ -170,7 +170,7 @@ When mixing numeric types, TQL automatically coerces to the type that can hold
 the most values:
 
 | Left Type |  Operator   | Right Type | Result Type |
-| :-------- | :---------: | :--------- | :---------- |
+|:----------|:-----------:|:-----------|:------------|
 | `int64`   | +, -, \*, / | `int64`    | `int64`     |
 | `int64`   | +, -, \*, / | `uint64`   | `int64`     |
 | `int64`   | +, -, \*, / | `double`   | `double`    |
@@ -745,7 +745,7 @@ data types involved.
 #### Arithmetic Operations Summary
 
 | Operation      | Example | Behavior                         |
-| -------------- | ------- | -------------------------------- |
+|----------------|---------|----------------------------------|
 | Addition       | `a + b` | Type coercion to wider type      |
 | Subtraction    | `a - b` | Returns null on underflow        |
 | Multiplication | `a * b` | Returns null on overflow         |
@@ -754,7 +754,7 @@ data types involved.
 #### Time and Duration Arithmetic Summary
 
 | Operation             | Result Type | Example                 |
-| --------------------- | ----------- | ----------------------- |
+|-----------------------|-------------|-------------------------|
 | `time + duration`     | `time`      | `now() + 5min`          |
 | `time - duration`     | `time`      | `timestamp - 1h`        |
 | `time - time`         | `duration`  | `end_time - start_time` |
@@ -826,7 +826,7 @@ sufficient to determine the result, the second operand is not evaluated.
 The `in` operator tests containment across different types:
 
 | Expression            | Checks if...                            |
-| :-------------------- | :-------------------------------------- |
+|:----------------------|:----------------------------------------|
 | `value in list`       | List contains the value                 |
 | `substring in string` | String contains the substring           |
 | `ip in subnet`        | IP address is within the subnet range   |
@@ -861,7 +861,7 @@ To negate membership tests, use `not in` or `not (value in container)`.
 Operations follow standard precedence rules:
 
 | Precedence  | Operators                                | Associativity |
-| ----------- | ---------------------------------------- | ------------- |
+|-------------|------------------------------------------|---------------|
 | 1 (highest) | Method call, field access, `[]` indexing | -             |
 | 2           | Unary `+`, `-`                           | -             |
 | 3           | `*`, `/`                                 | Left          |

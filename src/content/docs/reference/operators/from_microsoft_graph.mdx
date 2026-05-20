@@ -28,7 +28,7 @@ Graph may include annotation fields on resource objects, and the operator
 handles them as follows:
 
 | Field         | Behavior                                                                           |
-| :------------ | :--------------------------------------------------------------------------------- |
+|:--------------|:-----------------------------------------------------------------------------------|
 | `@odata.etag` | Omitted from the emitted event when it appears as a top-level resource field.      |
 | `@odata.type` | Preserved because it can identify polymorphic Graph resource types.                |
 | `@removed`    | Preserved because delta query responses use it to mark deleted or removed objects. |
@@ -64,7 +64,7 @@ Microsoft Entra application credentials for app-only authentication.
 The `auth` record supports the following fields:
 
 | Field           | Type                 | Description                                                           |
-| :-------------- | :------------------- | :-------------------------------------------------------------------- |
+|:----------------|:---------------------|:----------------------------------------------------------------------|
 | `tenant_id`     | `string` or `secret` | The Microsoft Entra tenant ID or tenant domain.                       |
 | `client_id`     | `string` or `secret` | The application client ID.                                            |
 | `client_secret` | `string` or `secret` | The application client secret.                                        |
@@ -89,7 +89,7 @@ limited to object ID scoping.
 The `odata` record supports the following fields:
 
 | Field    | Type                | Description                                             |
-| :------- | :------------------ | :------------------------------------------------------ |
+|:---------|:--------------------|:--------------------------------------------------------|
 | `filter` | `string`            | A `$filter` expression.                                 |
 | `select` | `list<string>`      | Fields to request with `$select`.                       |
 | `top`    | `uint64` or `int64` | The page size to request with `$top`; must be positive. |

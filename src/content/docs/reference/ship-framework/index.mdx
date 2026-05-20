@@ -160,7 +160,7 @@ tenzir-ship init [options]
 ```
 
 | Option                 | Description                                               |
-| ---------------------- | --------------------------------------------------------- |
+|------------------------|-----------------------------------------------------------|
 | `--yes`                | Initialize without interactive prompts                    |
 | `--package`            | Force package mode using `package.yaml` metadata          |
 | `--standalone`         | Force standalone mode with `config.yaml`                  |
@@ -203,7 +203,7 @@ tenzir-ship show [identifiers...] [options]
 ```
 
 | Option                | Description                                             |
-| --------------------- | ------------------------------------------------------- |
+|-----------------------|---------------------------------------------------------|
 | `identifiers`         | Row numbers, entry IDs, scope tokens, or versions       |
 | `-c/--card`           | Show detailed cards for matching entries                |
 | `-m/--markdown`       | Export as Markdown                                      |
@@ -223,7 +223,7 @@ Scope tokens control which entries to display. Pass one as a positional
 argument:
 
 | Token        | Description                                         |
-| ------------ | --------------------------------------------------- |
+|--------------|-----------------------------------------------------|
 | `all`        | All entries (released and unreleased) — the default |
 | `unreleased` | Only unreleased entries                             |
 | `released`   | Only released entries                               |
@@ -291,7 +291,7 @@ tenzir-ship add [options]
 ```
 
 | Option                 | Description                                  |
-| ---------------------- | -------------------------------------------- |
+|------------------------|----------------------------------------------|
 | `--title <text>`       | Entry title                                  |
 | `--type <type>`        | `breaking`, `feature`, `bugfix`, or `change` |
 | `--description <text>` | Entry body                                   |
@@ -325,7 +325,7 @@ tenzir-ship release create [version] [options]
 ```
 
 | Option                | Description                                                |
-| --------------------- | ---------------------------------------------------------- |
+|-----------------------|------------------------------------------------------------|
 | `version`             | Exact release version override (for example `v1.0.0`)      |
 | `--patch`             | Manual patch bump override from the latest stable release  |
 | `--minor`             | Manual minor bump override from the latest stable release  |
@@ -434,7 +434,7 @@ tenzir-ship release version [options]
 ```
 
 | Option   | Description                      |
-| -------- | -------------------------------- |
+|----------|----------------------------------|
 | `--bare` | Print version without `v` prefix |
 
 Use this command in scripts to query the current stable version without parsing
@@ -463,7 +463,7 @@ tenzir-ship release publish [version] [options]
 ```
 
 | Option             | Description                                             |
-| ------------------ | ------------------------------------------------------- |
+|--------------------|---------------------------------------------------------|
 | `version`          | Release version (defaults to the latest release)        |
 | `--yes`            | Skip confirmation prompts                               |
 | `--draft`          | Mark as draft                                           |
@@ -614,7 +614,7 @@ tenzir-ship stats [options]
 ```
 
 | Option    | Description                           |
-| --------- | ------------------------------------- |
+|-----------|---------------------------------------|
 | `--table` | Force table view even for one project |
 | `--json`  | Export statistics as JSON             |
 
@@ -681,7 +681,7 @@ The workflow accepts the following inputs:
 #### Release inputs
 
 | Input            | Type    | Required | Default | Description                                             |
-| ---------------- | ------- | -------- | ------- | ------------------------------------------------------- |
+|------------------|---------|----------|---------|---------------------------------------------------------|
 | `intro`          | string  | yes      |         | 1–2 sentence release introduction                       |
 | `title`          | string  | no       |         | User-facing release title (auto-generated when empty)   |
 | `bump`           | string  | no       | `""`    | Version bump type: `auto`, `major`, `minor`, or `patch` |
@@ -693,7 +693,7 @@ The workflow accepts the following inputs:
 #### Hook inputs
 
 | Input          | Type   | Required | Default | Description                                                    |
-| -------------- | ------ | -------- | ------- | -------------------------------------------------------------- |
+|----------------|--------|----------|---------|----------------------------------------------------------------|
 | `pre-create`   | string | no       | `""`    | Shell script for quality gates (runs before `release create`)  |
 | `post-create`  | string | no       | `""`    | Shell script for version bumping (runs after `release create`) |
 | `pre-publish`  | string | no       | `""`    | Shell script that runs after create and before publish         |
@@ -707,7 +707,7 @@ The `pre-publish` and `post-publish` hooks have access to these environment
 variables:
 
 | Variable          | Description                                                     |
-| ----------------- | --------------------------------------------------------------- |
+|-------------------|-----------------------------------------------------------------|
 | `CHANGELOG_ROOT`  | Project root from `changelog-root` input                        |
 | `RELEASE_VERSION` | Created release version tag (for example `v1.2.3`)              |
 | `IS_LATEST`       | Whether the release is latest (`true` or `false`, post-publish) |
@@ -716,7 +716,7 @@ variables:
 #### Release control inputs
 
 | Input                              | Type    | Required | Default | Description                                                 |
-| ---------------------------------- | ------- | -------- | ------- | ----------------------------------------------------------- |
+|------------------------------------|---------|----------|---------|-------------------------------------------------------------|
 | `skip-publish`                     | boolean | no       | `false` | Create and prepare release but skip publish, tag, and push  |
 | `publish-no-latest-on-non-main`    | boolean | no       | `false` | Pass `--no-latest` on non-main branch releases              |
 | `copy-release-to-main-on-non-main` | boolean | no       | `false` | Copy release manifests back to `main` for non-main releases |
@@ -725,7 +725,7 @@ variables:
 #### Auth inputs
 
 | Input            | Type    | Required | Default                                                 | Description                                          |
-| ---------------- | ------- | -------- | ------------------------------------------------------- | ---------------------------------------------------- |
+|------------------|---------|----------|---------------------------------------------------------|------------------------------------------------------|
 | `github_app_id`  | string  | no       | `""`                                                    | GitHub App ID used to mint a repository-scoped token |
 | `use_push_token` | boolean | no       | `false`                                                 | Use `push_token` secret instead of the default token |
 | `git_user_name`  | string  | no       | `github-actions[bot]`                                   | Git author name used for release commits             |
@@ -734,14 +734,14 @@ variables:
 #### Signing inputs
 
 | Input          | Type    | Required | Default | Description                             |
-| -------------- | ------- | -------- | ------- | --------------------------------------- |
+|----------------|---------|----------|---------|-----------------------------------------|
 | `sign_commits` | boolean | no       | `false` | Sign commits when a GPG key is provided |
 | `sign_tags`    | boolean | no       | `false` | Sign tags when a GPG key is provided    |
 
 ### Workflow secrets
 
 | Secret                   | Required | Description                                 |
-| ------------------------ | -------- | ------------------------------------------- |
+|--------------------------|----------|---------------------------------------------|
 | `push_token`             | no       | Token override when `use_push_token` is set |
 | `github_app_private_key` | no       | Private key for GitHub App token generation |
 | `gpg_private_key`        | no       | GPG key material for signing                |
@@ -749,7 +749,7 @@ variables:
 ### Workflow outputs
 
 | Output      | Description                                        |
-| ----------- | -------------------------------------------------- |
+|-------------|----------------------------------------------------|
 | `version`   | Created release version tag (for example `v1.2.3`) |
 | `is_latest` | Whether the release should be treated as latest    |
 
@@ -802,7 +802,7 @@ precedence when both exist.
 Configuration fields:
 
 | Field            | Description                                                              |
-| ---------------- | ------------------------------------------------------------------------ |
+|------------------|--------------------------------------------------------------------------|
 | `id`             | Canonical project slug written into entry frontmatter (required)         |
 | `name`           | Human-friendly label surfaced in release titles and CLI output           |
 | `description`    | Optional project description included in release manifests               |
@@ -838,7 +838,7 @@ release:
 The `release` block supports:
 
 | Field               | Default             | Description                                              |
-| ------------------- | ------------------- | -------------------------------------------------------- |
+|---------------------|---------------------|----------------------------------------------------------|
 | `commit_message`    | `Release {version}` | Template for `--commit` flag; `{version}` expands        |
 | `version_bump_mode` | `auto`              | `auto` to detect and update version files, `off` to skip |
 | `version_files`     | `[]`                | Explicit list of paths to version files to update        |
@@ -929,7 +929,7 @@ is normalized to the plural form internally.
 Frontmatter fields:
 
 | Field                      | Type         | Required | Description                                    |
-| -------------------------- | ------------ | -------- | ---------------------------------------------- |
+|----------------------------|--------------|----------|------------------------------------------------|
 | `title`                    | string       | yes      | Entry title                                    |
 | `type`                     | string       | yes      | `breaking`, `feature`, `bugfix`, or `change`   |
 | `author` / `authors`       | list[string] | no       | Contributor names (singular or plural form)    |
@@ -956,7 +956,7 @@ intro: |
 Manifest fields:
 
 | Field     | Type   | Required | Description                                      |
-| --------- | ------ | -------- | ------------------------------------------------ |
+|-----------|--------|----------|--------------------------------------------------|
 | `created` | string | yes      | Release date in `YYYY-MM-DD` format              |
 | `title`   | string | no       | Custom title for the release heading             |
 | `intro`   | string | no       | Introductory content (supports Markdown)         |
@@ -1032,7 +1032,7 @@ user's profile. Full names (containing spaces) include only the `name` field.
 The CLI recognizes these environment variables:
 
 | Variable       | Description                                      |
-| -------------- | ------------------------------------------------ |
+|----------------|--------------------------------------------------|
 | `GITHUB_TOKEN` | GitHub token with `repo` scope for private repos |
 
 ## Modules

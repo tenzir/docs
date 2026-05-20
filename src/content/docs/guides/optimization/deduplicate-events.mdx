@@ -235,14 +235,14 @@ function](https://docs.cribl.io/stream/suppress-function/), here's how
 Tenzir's `deduplicate` compares:
 
 | Feature               | Cribl `suppress`                   | Tenzir `deduplicate`            |
-| --------------------- | ---------------------------------- | ------------------------------- |
+|-----------------------|------------------------------------|---------------------------------|
 | Key-based suppression | `keyExpr`                          | `keys…`                         |
 | Allow N events        | `numEventsToAllow` (default: 1)    | `limit` (default: 1)            |
 | Time-based window     | `suppressPeriodSec` (default: 30s) | `create_timeout` (no default)   |
 | Count dropped events  | `suppressCount` (automatic)        | `count_field` (explicit)        |
-| Position-based window | ❌                                 | `distance`                      |
+| Position-based window | ❌                                  | `distance`                      |
 | Drop vs. tag mode     | `dropEventsMode` toggle            | always drops                    |
-| Fine-grained timeouts | ❌                                 | `write_timeout`, `read_timeout` |
+| Fine-grained timeouts | ❌                                  | `write_timeout`, `read_timeout` |
 
 Tenzir's `deduplicate` offers several advantages:
 

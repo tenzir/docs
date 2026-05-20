@@ -171,7 +171,7 @@ replacement needs a parsing or printing subpipeline.
 ### Files and object storage
 
 | Legacy operator           | Use in v6                                  |
-| ------------------------- | ------------------------------------------ |
+|---------------------------|--------------------------------------------|
 | `load_file`               | `from_file`                                |
 | `load_s3`                 | `from_file` or `from_s3`                   |
 | `load_gcs`                | `from_file` or `from_google_cloud_storage` |
@@ -189,7 +189,7 @@ detection is not enough.
 ### HTTP and message brokers
 
 | Legacy operator            | Use in v6                  |
-| -------------------------- | -------------------------- |
+|----------------------------|----------------------------|
 | `load_http`                | `from_http`                |
 | `save_http`                | `to_http`                  |
 | `load_kafka`               | `from_kafka`               |
@@ -212,7 +212,7 @@ such as `parse_json`.
 ### Network transports
 
 | Legacy operator or mode        | Use in v6    |
-| ------------------------------ | ------------ |
+|--------------------------------|--------------|
 | `load_tcp` client mode         | `from_tcp`   |
 | `load_tcp` server mode         | `accept_tcp` |
 | `save_tcp` client mode         | `to_tcp`     |
@@ -231,7 +231,7 @@ subpipelines for received bytes and printing subpipelines for outgoing bytes.
 ### Standard input and output
 
 | Legacy operator | Use in v6    |
-| --------------- | ------------ |
+|-----------------|--------------|
 | `load_stdin`    | `from_stdin` |
 | `save_stdout`   | `to_stdout`  |
 
@@ -241,7 +241,7 @@ printing subpipeline when writing encoded bytes to standard output.
 ### Changed patterns
 
 | Legacy pattern                   | Use in v6                                  |
-| -------------------------------- | ------------------------------------------ |
+|----------------------------------|--------------------------------------------|
 | `http` as a per-event API call   | `each` with `from_http`                    |
 | `from_http ..., metadata_field=` | `$response` inside the parsing subpipeline |
 | `from_http ..., server=true`     | `accept_http`                              |
@@ -257,7 +257,7 @@ appropriate `load_*` operator based on the scheme. Use the table below to find
 the v6 operator for each URI scheme.
 
 | URI scheme      | Use in v6                   |
-| --------------- | --------------------------- |
+|-----------------|-----------------------------|
 | `abfs`, `abfss` | `from_azure_blob_storage`   |
 | `amqp`          | `from_amqp`                 |
 | `elasticsearch` | `from_opensearch`           |
@@ -285,7 +285,7 @@ appropriate `save_*` operator based on the scheme. Use the table below to find
 the v6 operator for each URI scheme.
 
 | URI scheme                         | Use in v6                   |
-| ---------------------------------- | --------------------------- |
+|------------------------------------|-----------------------------|
 | `abfs`, `abfss`                    | `to_azure_blob_storage`     |
 | `amqp`                             | `to_amqp`                   |
 | `elasticsearch`, `opensearch`      | `to_opensearch`             |
@@ -313,7 +313,7 @@ the `python` or `shell` operator to send email instead.
 These items need redesign rather than a direct replacement:
 
 | Removed item           | What to do instead                                     |
-| ---------------------- | ------------------------------------------------------ |
+|------------------------|--------------------------------------------------------|
 | `buffer`               | Remove it.                                             |
 | `legacy`               | Rewrite the operation using the existing operators.    |
 | `save_email`           | Use the `python` or `shell` operator to send an email. |

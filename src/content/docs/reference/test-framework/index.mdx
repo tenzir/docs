@@ -636,7 +636,7 @@ harness doesn't load hooks from nested test directories.
 Available events:
 
 | Event            | When it runs                                                                |
-| ---------------- | --------------------------------------------------------------------------- |
+|------------------|-----------------------------------------------------------------------------|
 | `startup`        | Once per invocation, before settings and binary discovery.                  |
 | `shutdown`       | Once before the invocation exits normally.                                  |
 | `project_start`  | Before the harness starts executing a root project or satellite.            |
@@ -651,7 +651,7 @@ For examples and lifecycle details, see the
 ## Runners
 
 | Runner   | Command/behavior                       | Input extension | Artifact |
-| -------- | -------------------------------------- | --------------- | -------- |
+|----------|----------------------------------------|-----------------|----------|
 | `tenzir` | `tenzir -f <test>`                     | `.tql`          | `.txt`   |
 | `python` | Execute with the active Python runtime | `.py`           | `.txt`   |
 | `shell`  | `sh -eu <test>` via the harness helper | `.sh`           | varies   |
@@ -713,7 +713,7 @@ The harness cycles between three internal modes:
 Common frontmatter keys:
 
 | Key            | Type            | Default   | Description                                                                                             |
-| -------------- | --------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+|----------------|-----------------|-----------|---------------------------------------------------------------------------------------------------------|
 | `runner`       | string          | by suffix | Runner name (`tenzir`, `python`, `shell`, custom).                                                      |
 | `fixtures`     | list            | `[]`      | Requested fixtures. Accepts bare names and structured options mappings.                                 |
 | `timeout`      | integer (s)     | `30`      | Command timeout. (`--coverage` multiplies it by five.)                                                  |
@@ -938,7 +938,7 @@ assert result.returncode == 0
 Top-level options (`DockerComposeOptions`):
 
 | Field            | Type           | Default     | Description                                                                               |
-| ---------------- | -------------- | ----------- | ----------------------------------------------------------------------------------------- |
+|------------------|----------------|-------------|-------------------------------------------------------------------------------------------|
 | `file`           | string         | `""`        | Path to the Compose file, resolved relative to the test directory.                        |
 | `project_name`   | string         | `""`        | Compose project name. Auto-generated from the test file name when empty.                  |
 | `profiles`       | list of string | `[]`        | Compose profiles to activate.                                                             |
@@ -954,14 +954,14 @@ Top-level options (`DockerComposeOptions`):
 Wait options (`DockerComposeWaitOptions`):
 
 | Field                   | Type  | Default | Description                                        |
-| ----------------------- | ----- | ------- | -------------------------------------------------- |
+|-------------------------|-------|---------|----------------------------------------------------|
 | `timeout_seconds`       | float | `120.0` | Maximum time to wait for all services to be ready. |
 | `poll_interval_seconds` | float | `1.0`   | Interval between readiness checks.                 |
 
 Down options (`DockerComposeDownOptions`):
 
 | Field             | Type    | Default | Description                                      |
-| ----------------- | ------- | ------- | ------------------------------------------------ |
+|-------------------|---------|---------|--------------------------------------------------|
 | `volumes`         | boolean | `true`  | Remove volumes on teardown (`--volumes`).        |
 | `remove_orphans`  | boolean | `true`  | Remove orphan containers (`--remove-orphans`).   |
 | `timeout_seconds` | integer | `20`    | Timeout for `docker compose down` (`--timeout`). |
@@ -1018,7 +1018,7 @@ Once all services are running, the fixture exports the following variables to
 the test environment:
 
 | Variable                                            | Description                                                                                          |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+|-----------------------------------------------------|------------------------------------------------------------------------------------------------------|
 | `DOCKER_COMPOSE_PROVIDER`                           | Always `docker`.                                                                                     |
 | `DOCKER_COMPOSE_PROJECT_NAME`                       | The Compose project name (explicit or auto-generated).                                               |
 | `DOCKER_COMPOSE_FILE`                               | Absolute path to the resolved Compose file.                                                          |
