@@ -99,6 +99,8 @@ method, the operator signs requests with AWS IAM.
 
 Bearer-token HTTP ingestion requires a CloudWatch log group that is configured
 for bearer-token authentication. The log group and stream must already exist.
+The IAM user behind the bearer token needs `logs:CallWithBearerToken` and
+`logs:PutLogEvents`.
 AWS currently supports bearer-token authentication for CloudWatch HTTP ingestion
 only in `us-east-1`, `us-east-2`, `us-west-1`, and `us-west-2`.
 
