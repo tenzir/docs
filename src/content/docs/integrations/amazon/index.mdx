@@ -1,0 +1,30 @@
+---
+title: Overview
+---
+
+Tenzir integrates with the [Amazon Web Services (AWS)](https://aws.amazon.com)
+services listed below. All integrations share the same authentication
+mechanisms, documented in <Reference>aws-authentication</Reference>.
+
+## Supported services
+
+| Service                                           | Operators                                                  | Use case                            |
+| ------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------- |
+| <Integration>amazon/cloudwatch</Integration>      | <Op>from_amazon_cloudwatch</Op>, <Op>to_amazon_cloudwatch</Op> | Read and write CloudWatch log events. |
+| <Integration>amazon/msk</Integration>             | <Op>from_kafka</Op>, <Op>to_kafka</Op>                     | Stream events through managed Kafka. |
+| <Integration>amazon/s3</Integration>              | <Op>from_s3</Op>, <Op>to_s3</Op>                           | Read and write S3 objects.          |
+| <Integration>amazon/security-lake</Integration>   | <Op>to_amazon_security_lake</Op>                           | Send OCSF events to Security Lake.  |
+| <Integration>amazon/sqs</Integration>             | <Op>from_sqs</Op>, <Op>to_sqs</Op>                         | Receive and send SQS messages.      |
+
+## Authentication
+
+Every AWS operator accepts a shared `aws_iam` option for inline credentials,
+role assumption, or OIDC web identity. If you omit it, Tenzir falls back to
+the AWS SDK's default credential chain. See
+<Reference>aws-authentication</Reference> for details, including local usage
+with the AWS CLI and named profiles.
+
+## See Also
+
+- <Reference>aws-authentication</Reference>
+- <Guide>node-setup/deploy-a-node</Guide>
