@@ -97,6 +97,11 @@ Bearer token for HTTP ingestion methods.
 Do not use `token` with `method="put"`. When omitted for an HTTP ingestion
 method, the operator signs requests with AWS IAM.
 
+Bearer-token HTTP ingestion requires a CloudWatch log group that is configured
+for bearer-token authentication. The log group and stream must already exist.
+AWS currently supports bearer-token authentication for CloudWatch HTTP ingestion
+only in `us-east-1`, `us-east-2`, `us-west-1`, and `us-west-2`.
+
 ### `aws_region = string (optional)`
 
 AWS region for CloudWatch requests.
