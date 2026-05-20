@@ -367,7 +367,7 @@ from {message: "event-1"},
      {message: "event-2"},
      {message: "event-3"}
 to_http "https://example.com/ingest" {
-  write_parquet
+  write_ndjson
 }
 ```
 
@@ -402,6 +402,21 @@ each parallel=4 {
   }
 }
 ```
+
+:::tip[Getting responses back]
+If you need to process the HTTP response for each event, use <Op>from_http</Op>
+inside <Op>each</Op> instead:
+
+```tql
+from {ip: "10.0.0.5"},
+     {ip: "10.0.0.7"}
+each {
+  from_http f"https://api.example.com/lookup?ip={$this.ip}" {
+    read_json
+  }
+}
+```
+:::
 
 Per-event delivery is ideal for webhooks that expect one payload per call or
 when each event must be sent immediately.

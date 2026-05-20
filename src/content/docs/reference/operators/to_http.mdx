@@ -105,12 +105,14 @@ By default, `to_http` collects all input events into a single HTTP request:
 ```tql
 from {message: "hello", severity: "info"},
      {message: "world", severity: "warn"}
-to_http "https://example.com/ingest" {
-  write_parquet
+to_http "https://example.com/webhook" {
+  write_ndjson
 }
 ```
 
 This sends one `POST` request whose body contains both events as NDJSON.
+Use any printer, such as `write_json`, `write_csv`, or `write_parquet`,
+to control the wire format.
 
 ### Send one request per event
 
