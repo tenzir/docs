@@ -215,3 +215,144 @@ if src_ip.is_private() {
   zone = "external"
 }
 ```
+
+## `match`
+
+The `match` statement routes events by comparing one expression against
+patterns. Tenzir evaluates the expression for each event, checks the arms from
+top to bottom, and sends the event to the first matching arm.
+
+```tql
+from {action: "accept"},
+     {action: "deny"},
+     {action: "reset"}
+match action {
+  "accept" | "allow" => {
+    verdict = "allowed"
+  }
+  "deny" | "drop" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+Use `|` to list multiple alternatives for the same arm. Each arm contains one or
+more patterns, an optional guard, and a pipeline in braces. Constant patterns
+include strings, numbers, booleans, `null`, durations, times, IP addresses,
+subnets, lists, and records. A negative numeric literal, such as `-1`, is also
+valid.
+
+Use `_` as a wildcard fallback for all remaining events. The wildcard must be
+the only pattern in its arm and must be the final arm, unless the arm has a
+guard. A guarded wildcard can fail and later arms can still match, but it does
+not make the `match` exhaustive. Every `match` statement must include an
+unguarded final wildcard arm, so Tenzir can prove at compile time that the arms
+cover every possible value.
+
+```tql
+from {record_type: "A"},
+     {record_type: "CNAME"},
+     {record_type: "TXT"}
+match record_type {
+  "A" | "AAAA" => {
+    record_family = "address"
+  }
+  "CNAME" | "DNAME" => {
+    record_family = "alias"
+  }
+  _ => {
+    record_family = "other"
+  }
+}
+```
+
+Branch pipelines follow the same output type rules as `if` branches.
+
+### Guards
+
+Add `if` between the pattern list and `=>` to require an additional boolean
+condition. Tenzir evaluates patterns first. If a pattern matches, Tenzir
+evaluates the guard for that event. The arm only receives events where the guard
+is `true`; events where the guard is `false` or `null` continue to later arms.
+
+```tql
+from {status: 503, retries: 1},
+     {status: 503, retries: 0},
+     {status: 404, retries: 0}
+match status {
+  499..600 | 429 if retries > 0 => {
+    action = "retry"
+  }
+  499..600 => {
+    action = "page"
+  }
+  _ => {
+    action = "ignore"
+  }
+}
+```
+
+A guard expression must evaluate to `bool`. If it evaluates to another type,
+Tenzir emits a warning and treats the arm as not matching for those events.
+
+A wildcard arm with a guard is not a fallback for every remaining event:
+
+```tql
+from {status: 404},
+     {status: 500}
+match status {
+  _ if status == 404 => {
+    class = "not_found"
+  }
+  _ => {
+    class = "other"
+  }
+}
+```
+
+List and record constants are compared by equality:
+
+```tql
+from {value: ["prod", "checkout"]},
+     {value: ["prod"]},
+     {value: {action: "allow", port: 443}},
+     {value: {action: "allow"}}
+match value {
+  ["prod", "checkout"] => {
+    class = "checkout"
+  }
+  {action: "allow", port: 443} => {
+    class = "allow web"
+  }
+  _ => {
+    class = "other"
+  }
+}
+```
+
+### Range patterns
+
+Range patterns use `lower..upper` and exclude both bounds.
+
+```tql
+from {status: 200},
+     {status: 404},
+     {status: 503}
+match status {
+  199..300 => {
+    class = "success"
+  }
+  399..500 => {
+    class = "client error"
+  }
+  499..600 => {
+    class = "server error"
+  }
+  _ => {
+    class = "other"
+  }
+}
+```

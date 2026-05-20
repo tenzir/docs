@@ -353,15 +353,24 @@ This hierarchy maps directly to your directory structure:
 The dispatcher operator routes events to specialized mappers, e.g., based on
 event type:
 
-```tql title="operators/ocsf/map.tql"
-if @name == "acme.dns" {
-  acme::ocsf::map::dns
-} else if @name == "acme.http" {
-  acme::ocsf::map::http
-} else if @name == "acme.auth" {
-  acme::ocsf::map::auth
-} else {
-  acme::ocsf::base
+```tql
+from {event_type: "dns"},
+     {event_type: "http"},
+     {event_type: "auth"},
+     {event_type: "other"}
+match event_type {
+  "dns" => {
+    mapper = "dns"
+  }
+  "http" => {
+    mapper = "http"
+  }
+  "auth" => {
+    mapper = "auth"
+  }
+  _ => {
+    mapper = "base"
+  }
 }
 ```
 

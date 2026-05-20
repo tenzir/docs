@@ -252,6 +252,231 @@ link_local3 = addr3.is_link_local()
 }
 ```
 
+## Classify values with `match`
+
+Use [`match`](/reference/statements/#match) when a transformation depends on a
+small set of cases. A `match` statement checks patterns from top to bottom and
+runs the first matching branch. Patterns can be constants, alternatives, ranges,
+or the wildcard `_`. Guards add boolean conditions to matching branches.
+
+### Normalize firewall actions
+
+Firewall and network devices often use vendor-specific action names. Use `|` to
+put equivalent values in the same branch and normalize them into a shared
+verdict before routing or aggregating the events:
+
+```tql
+from {vendor: "fortinet", action: "accept", src_ip: 10.0.0.5},
+     {vendor: "paloalto", action: "deny", src_ip: 203.0.113.10},
+     {vendor: "checkpoint", action: "drop", src_ip: 192.168.1.20},
+     {vendor: "custom", action: "reset", src_ip: 198.51.100.7}
+match action {
+  "accept" | "allow" | "pass" => {
+    verdict = "allowed"
+  }
+  "deny" | "drop" | "block" => {
+    verdict = "blocked"
+  }
+  _ => {
+    verdict = "unknown"
+  }
+}
+```
+
+```tql
+{
+  vendor: "fortinet",
+  action: "accept",
+  src_ip: 10.0.0.5,
+  verdict: "allowed",
+}
+{
+  vendor: "paloalto",
+  action: "deny",
+  src_ip: 203.0.113.10,
+  verdict: "blocked",
+}
+{
+  vendor: "checkpoint",
+  action: "drop",
+  src_ip: 192.168.1.20,
+  verdict: "blocked",
+}
+{
+  vendor: "custom",
+  action: "reset",
+  src_ip: 198.51.100.7,
+  verdict: "unknown",
+}
+```
+
+Every `match` statement must include an unguarded final wildcard branch. Use it
+to handle all values that don't match earlier branches.
+
+### Classify numeric ranges
+
+Range patterns use `lower..upper` and exclude both bounds. They're useful for
+bucketizing status codes, ports, scores, or severities:
+
+```tql
+from {status: 200},
+     {status: 204},
+     {status: 404},
+     {status: 503}
+match status {
+  199..300 => {
+    status_class = "success"
+  }
+  399..500 => {
+    status_class = "client_error"
+  }
+  499..600 => {
+    status_class = "server_error"
+  }
+  _ => {
+    status_class = "other"
+  }
+}
+```
+
+```tql
+{
+  status: 200,
+  status_class: "success",
+}
+{
+  status: 204,
+  status_class: "success",
+}
+{
+  status: 404,
+  status_class: "client_error",
+}
+{
+  status: 503,
+  status_class: "server_error",
+}
+```
+
+### Add context with guards
+
+Use a guard when the same pattern needs different handling depending on another
+field. This is common for retry decisions: the status code tells you that a
+request failed, but the retry counter decides whether you should retry, page, or
+throttle.
+
+```tql
+from {service: "api", status: 503, attempts: 1, max_attempts: 3},
+     {service: "api", status: 503, attempts: 3, max_attempts: 3},
+     {service: "api", status: 429, attempts: 2, max_attempts: 2},
+     {service: "api", status: 404, attempts: 1, max_attempts: 3}
+match status {
+  499..600 | 429 if attempts < max_attempts => {
+    action = "retry"
+  }
+  499..600 => {
+    action = "page"
+  }
+  429 => {
+    action = "throttle"
+  }
+  _ => {
+    action = "ignore"
+  }
+}
+```
+
+```tql
+{
+  service: "api",
+  status: 503,
+  attempts: 1,
+  max_attempts: 3,
+  action: "retry",
+}
+{
+  service: "api",
+  status: 503,
+  attempts: 3,
+  max_attempts: 3,
+  action: "page",
+}
+{
+  service: "api",
+  status: 429,
+  attempts: 2,
+  max_attempts: 2,
+  action: "throttle",
+}
+{
+  service: "api",
+  status: 404,
+  attempts: 1,
+  max_attempts: 3,
+  action: "ignore",
+}
+```
+
+The guarded branch catches retryable server errors and rate limits only while
+attempts remain. When the guard is false, the event continues to the later arms,
+so exhausted `503` errors become pages and exhausted `429` errors become
+throttling signals.
+
+Constants can also be lists or records. These values are compared by equality,
+so the whole value must match:
+
+```tql
+from {id: 1, value: ["prod", "checkout"]},
+     {id: 2, value: ["prod"]},
+     {id: 3, value: {action: "allow", port: 443}},
+     {id: 4, value: {action: "allow"}}
+match value {
+  ["prod", "checkout"] => {
+    class = "checkout"
+  }
+  {action: "allow", port: 443} => {
+    class = "allow_web"
+  }
+  _ => {
+    class = "other"
+  }
+}
+sort id
+```
+
+```tql
+{
+  id: 1,
+  value: [
+    "prod",
+    "checkout",
+  ],
+  class: "checkout",
+}
+{
+  id: 2,
+  value: [
+    "prod",
+  ],
+  class: "other",
+}
+{
+  id: 3,
+  value: {
+    action: "allow",
+    port: 443,
+  },
+  class: "allow_web",
+}
+{
+  id: 4,
+  value: {
+    action: "allow",
+  },
+  class: "other",
+}
+```
+
 ## Basic string operations
 
 Transform strings with simple operations to clean and standardize your data.
