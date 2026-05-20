@@ -256,23 +256,23 @@ The old `from` operator (no suffix) accepted a URI and dispatched to the
 appropriate `load_*` operator based on the scheme. Use the table below to find
 the v6 operator for each URI scheme.
 
-| URI scheme          | Use in v6                         |
-| ------------------- | --------------------------------- |
-| `abfs`, `abfss`     | `from_azure_blob_storage`         |
-| `amqp`              | `from_amqp`                       |
-| `elasticsearch`     | `from_opensearch`                 |
-| `file`              | `from_file`                       |
-| `fluent-bit`        | `from_fluent_bit`                 |
-| `ftp`, `ftps`       | `from_ftp`                        |
-| `gs`                | `from_google_cloud_storage`       |
-| `http`, `https`     | `from_http`                       |
-| `inproc`, `zmq`     | `from_zmq`                        |
-| `kafka`             | `from_kafka`                      |
-| `opensearch`        | `from_opensearch`                 |
-| `s3`                | `from_s3`                         |
-| `sqs`               | `from_sqs`                        |
-| `tcp`               | `from_tcp` or `accept_tcp`        |
-| `udp`               | `accept_udp`                      |
+| URI scheme      | Use in v6                   |
+| --------------- | --------------------------- |
+| `abfs`, `abfss` | `from_azure_blob_storage`   |
+| `amqp`          | `from_amqp`                 |
+| `elasticsearch` | `from_opensearch`           |
+| `file`          | `from_file`                 |
+| `fluent-bit`    | `from_fluent_bit`           |
+| `ftp`, `ftps`   | `from_ftp`                  |
+| `gs`            | `from_google_cloud_storage` |
+| `http`, `https` | `from_http`                 |
+| `inproc`, `zmq` | `from_zmq`                  |
+| `kafka`         | `from_kafka`                |
+| `opensearch`    | `from_opensearch`           |
+| `s3`            | `from_s3`                   |
+| `sqs`           | `from_sqs`                  |
+| `tcp`           | `from_tcp` or `accept_tcp`  |
+| `udp`           | `accept_udp`                |
 
 Move any parsing steps that followed the old `from` call into a parsing
 subpipeline on the new operator. For TCP, use `from_tcp` when connecting to a
@@ -284,23 +284,23 @@ The old `to` operator (no suffix) accepted a URI and dispatched to the
 appropriate `save_*` operator based on the scheme. Use the table below to find
 the v6 operator for each URI scheme.
 
-| URI scheme                          | Use in v6                        |
-| ----------------------------------- | -------------------------------- |
-| `abfs`, `abfss`                     | `to_azure_blob_storage`          |
-| `amqp`                              | `to_amqp`                        |
-| `elasticsearch`, `opensearch`       | `to_opensearch`                  |
-| `file`                              | `to_file`                        |
-| `fluent-bit`                        | `to_fluent_bit`                  |
-| `ftp`, `ftps`                       | `to_ftp`                         |
-| `gs`                                | `to_google_cloud_storage`        |
-| `http`, `https`                     | `to_http`                        |
-| `inproc`, `zmq`                     | `to_zmq`                         |
-| `kafka`                             | `to_kafka`                       |
-| `s3`                                | `to_s3`                          |
-| `sqs`                               | `to_sqs`                         |
-| `tcp`                               | `to_tcp` or `serve_tcp`          |
-| `udp`                               | `to_udp`                         |
-| `smtp`, `smtps`, `mailto`, `email`  | No replacement — see below.      |
+| URI scheme                         | Use in v6                   |
+| ---------------------------------- | --------------------------- |
+| `abfs`, `abfss`                    | `to_azure_blob_storage`     |
+| `amqp`                             | `to_amqp`                   |
+| `elasticsearch`, `opensearch`      | `to_opensearch`             |
+| `file`                             | `to_file`                   |
+| `fluent-bit`                       | `to_fluent_bit`             |
+| `ftp`, `ftps`                      | `to_ftp`                    |
+| `gs`                               | `to_google_cloud_storage`   |
+| `http`, `https`                    | `to_http`                   |
+| `inproc`, `zmq`                    | `to_zmq`                    |
+| `kafka`                            | `to_kafka`                  |
+| `s3`                               | `to_s3`                     |
+| `sqs`                              | `to_sqs`                    |
+| `tcp`                              | `to_tcp` or `serve_tcp`     |
+| `udp`                              | `to_udp`                    |
+| `smtp`, `smtps`, `mailto`, `email` | No replacement — see below. |
 
 Move any printing steps that preceded the old `to` call into a printing
 subpipeline on the new operator. For TCP, use `to_tcp` when connecting to a

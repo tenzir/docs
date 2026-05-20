@@ -32,12 +32,12 @@ stream to exist before the pipeline writes to them.
 For AWS IAM-authenticated CloudWatch API calls, Tenzir needs these CloudWatch
 permissions:
 
-| Use case | Required permissions |
-| -------- | -------------------- |
-| Live tail with <Op>from_amazon_cloudwatch</Op> | `logs:StartLiveTail` |
-| Historical search with <Op>from_amazon_cloudwatch</Op> | `logs:FilterLogEvents` |
-| Stream replay with <Op>from_amazon_cloudwatch</Op> | `logs:GetLogEvents` |
-| Write with <Op>to_amazon_cloudwatch</Op> `method="put"` | `logs:PutLogEvents` |
+| Use case                                                | Required permissions   |
+| ------------------------------------------------------- | ---------------------- |
+| Live tail with <Op>from_amazon_cloudwatch</Op>          | `logs:StartLiveTail`   |
+| Historical search with <Op>from_amazon_cloudwatch</Op>  | `logs:FilterLogEvents` |
+| Stream replay with <Op>from_amazon_cloudwatch</Op>      | `logs:GetLogEvents`    |
+| Write with <Op>to_amazon_cloudwatch</Op> `method="put"` | `logs:PutLogEvents`    |
 
 If you set `unmask=true` for historical reads, the principal also needs
 `logs:Unmask`. HTTP ingestion writes with <Op>to_amazon_cloudwatch</Op> can use
@@ -49,11 +49,11 @@ The <Op>from_amazon_cloudwatch</Op> operator has three read modes. Choose the
 mode based on whether you need a continuous subscription, a historical search,
 or an exact replay of one stream:
 
-| Mode | AWS API | Best for |
-| ---- | ------- | -------- |
-| `live` | `StartLiveTail` | Continuous monitoring and alerting on new log events. |
+| Mode     | AWS API           | Best for                                                                   |
+| -------- | ----------------- | -------------------------------------------------------------------------- |
+| `live`   | `StartLiveTail`   | Continuous monitoring and alerting on new log events.                      |
 | `search` | `FilterLogEvents` | Historical searches and bounded backfills across streams in one log group. |
-| `replay` | `GetLogEvents` | Ordered replay from one known log stream. |
+| `replay` | `GetLogEvents`    | Ordered replay from one known log stream.                                  |
 
 Each mode emits events with the `tenzir.cloudwatch` schema. The `message` field
 contains the original log message as a string. If the message contains JSON,

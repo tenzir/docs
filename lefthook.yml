@@ -10,6 +10,10 @@ pre-push:
       glob: "**/*.{md,mdx}"
       run: bun run lint:markdown:files -- {push_files}
 
+    - name: markdown-table-format
+      glob: "**/*.{md,mdx}"
+      run: bun run lint:tables:files -- {push_files}
+
     - name: prettier
       glob: "**/*.md"
       exclude: ".claude/CLAUDE.md"
@@ -25,6 +29,10 @@ fix:
     - name: markdownlint
       glob: "**/*.{md,mdx}"
       run: bun run lint:markdown:fix:files -- {files}
+
+    - name: markdown-table-format
+      glob: "**/*.{md,mdx}"
+      run: bun run lint:tables:fix:files -- {files}
 
     - name: biome
       glob: "**/*.{astro,js,jsx,json,jsonc,mjs,ts,tsx}"

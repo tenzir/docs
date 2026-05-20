@@ -680,24 +680,24 @@ The workflow accepts the following inputs:
 
 #### Release inputs
 
-| Input             | Type    | Required | Default | Description                                                         |
-| ----------------- | ------- | -------- | ------- | ------------------------------------------------------------------- |
-| `intro`           | string  | yes      |         | 1–2 sentence release introduction                                   |
-| `title`           | string  | no       |         | User-facing release title (auto-generated when empty)               |
-| `bump`            | string  | no       | `""`    | Version bump type: `auto`, `major`, `minor`, or `patch`             |
-| `version`         | string  | no       | `""`    | Explicit stable release version (for example `v1.2.3`)              |
-| `rc`              | boolean | no       | `false` | Create or continue the release-candidate series                     |
-| `changelog-root`  | string  | no       | `.`     | Project root for `--root` flag                                      |
-| `git-add-paths`   | string  | no       | `""`    | Space-separated extra paths to stage before publish                 |
+| Input            | Type    | Required | Default | Description                                             |
+| ---------------- | ------- | -------- | ------- | ------------------------------------------------------- |
+| `intro`          | string  | yes      |         | 1–2 sentence release introduction                       |
+| `title`          | string  | no       |         | User-facing release title (auto-generated when empty)   |
+| `bump`           | string  | no       | `""`    | Version bump type: `auto`, `major`, `minor`, or `patch` |
+| `version`        | string  | no       | `""`    | Explicit stable release version (for example `v1.2.3`)  |
+| `rc`             | boolean | no       | `false` | Create or continue the release-candidate series         |
+| `changelog-root` | string  | no       | `.`     | Project root for `--root` flag                          |
+| `git-add-paths`  | string  | no       | `""`    | Space-separated extra paths to stage before publish     |
 
 #### Hook inputs
 
-| Input          | Type   | Required | Default | Description                                                      |
-| -------------- | ------ | -------- | ------- | ---------------------------------------------------------------- |
-| `pre-create`   | string | no       | `""`    | Shell script for quality gates (runs before `release create`)    |
-| `post-create`  | string | no       | `""`    | Shell script for version bumping (runs after `release create`)   |
-| `pre-publish`  | string | no       | `""`    | Shell script that runs after create and before publish            |
-| `post-publish` | string | no       | `""`    | Shell script that runs after publish and branch updates           |
+| Input          | Type   | Required | Default | Description                                                    |
+| -------------- | ------ | -------- | ------- | -------------------------------------------------------------- |
+| `pre-create`   | string | no       | `""`    | Shell script for quality gates (runs before `release create`)  |
+| `post-create`  | string | no       | `""`    | Shell script for version bumping (runs after `release create`) |
+| `pre-publish`  | string | no       | `""`    | Shell script that runs after create and before publish         |
+| `post-publish` | string | no       | `""`    | Shell script that runs after publish and branch updates        |
 
 Hooks run inline in the release job. Use `pre-create` for quality gates and
 `post-create` to update version files or generated artifacts. Use `pre-publish`
@@ -715,43 +715,43 @@ variables:
 
 #### Release control inputs
 
-| Input                              | Type    | Required | Default | Description                                                  |
-| ---------------------------------- | ------- | -------- | ------- | ------------------------------------------------------------ |
-| `skip-publish`                     | boolean | no       | `false` | Create and prepare release but skip publish, tag, and push   |
-| `publish-no-latest-on-non-main`    | boolean | no       | `false` | Pass `--no-latest` on non-main branch releases               |
-| `copy-release-to-main-on-non-main` | boolean | no       | `false` | Copy release manifests back to `main` for non-main releases  |
-| `update-latest-branch-on-main`     | boolean | no       | `false` | Force-update the `latest` branch when releasing from `main`  |
+| Input                              | Type    | Required | Default | Description                                                 |
+| ---------------------------------- | ------- | -------- | ------- | ----------------------------------------------------------- |
+| `skip-publish`                     | boolean | no       | `false` | Create and prepare release but skip publish, tag, and push  |
+| `publish-no-latest-on-non-main`    | boolean | no       | `false` | Pass `--no-latest` on non-main branch releases              |
+| `copy-release-to-main-on-non-main` | boolean | no       | `false` | Copy release manifests back to `main` for non-main releases |
+| `update-latest-branch-on-main`     | boolean | no       | `false` | Force-update the `latest` branch when releasing from `main` |
 
 #### Auth inputs
 
-| Input             | Type    | Required | Default                                                  | Description                                                |
-| ----------------- | ------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------- |
-| `github_app_id`   | string  | no       | `""`                                                     | GitHub App ID used to mint a repository-scoped token       |
-| `use_push_token`  | boolean | no       | `false`                                                  | Use `push_token` secret instead of the default token       |
-| `git_user_name`   | string  | no       | `github-actions[bot]`                                    | Git author name used for release commits                   |
-| `git_user_email`  | string  | no       | `41898282+github-actions[bot]@users.noreply.github.com`  | Git author email used for release commits                  |
+| Input            | Type    | Required | Default                                                 | Description                                          |
+| ---------------- | ------- | -------- | ------------------------------------------------------- | ---------------------------------------------------- |
+| `github_app_id`  | string  | no       | `""`                                                    | GitHub App ID used to mint a repository-scoped token |
+| `use_push_token` | boolean | no       | `false`                                                 | Use `push_token` secret instead of the default token |
+| `git_user_name`  | string  | no       | `github-actions[bot]`                                   | Git author name used for release commits             |
+| `git_user_email` | string  | no       | `41898282+github-actions[bot]@users.noreply.github.com` | Git author email used for release commits            |
 
 #### Signing inputs
 
-| Input          | Type    | Required | Default | Description                                          |
-| -------------- | ------- | -------- | ------- | ---------------------------------------------------- |
-| `sign_commits` | boolean | no       | `false` | Sign commits when a GPG key is provided              |
-| `sign_tags`    | boolean | no       | `false` | Sign tags when a GPG key is provided                 |
+| Input          | Type    | Required | Default | Description                             |
+| -------------- | ------- | -------- | ------- | --------------------------------------- |
+| `sign_commits` | boolean | no       | `false` | Sign commits when a GPG key is provided |
+| `sign_tags`    | boolean | no       | `false` | Sign tags when a GPG key is provided    |
 
 ### Workflow secrets
 
-| Secret                   | Required | Description                                  |
-| ------------------------ | -------- | -------------------------------------------- |
-| `push_token`             | no       | Token override when `use_push_token` is set  |
-| `github_app_private_key` | no       | Private key for GitHub App token generation  |
-| `gpg_private_key`        | no       | GPG key material for signing                 |
+| Secret                   | Required | Description                                 |
+| ------------------------ | -------- | ------------------------------------------- |
+| `push_token`             | no       | Token override when `use_push_token` is set |
+| `github_app_private_key` | no       | Private key for GitHub App token generation |
+| `gpg_private_key`        | no       | GPG key material for signing                |
 
 ### Workflow outputs
 
-| Output       | Description                                          |
-| ------------ | ---------------------------------------------------- |
-| `version`    | Created release version tag (for example `v1.2.3`)   |
-| `is_latest`  | Whether the release should be treated as latest      |
+| Output      | Description                                        |
+| ----------- | -------------------------------------------------- |
+| `version`   | Created release version tag (for example `v1.2.3`) |
+| `is_latest` | Whether the release should be treated as latest    |
 
 ### Auth modes
 
