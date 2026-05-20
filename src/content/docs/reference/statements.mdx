@@ -219,10 +219,13 @@ if src_ip.is_private() {
 ## `match`
 
 The `match` statement routes events by comparing one expression against
-patterns. Tenzir evaluates the expression once for each input batch, checks the
-arms from top to bottom, and sends each event to the first matching arm.
+patterns. Tenzir evaluates the expression for each event, checks the arms from
+top to bottom, and sends the event to the first matching arm.
 
 ```tql
+from {action: "accept"},
+     {action: "deny"},
+     {action: "reset"}
 match action {
   "accept" | "allow" => {
     verdict = "allowed"
@@ -250,6 +253,9 @@ unguarded final wildcard arm, so Tenzir can prove at compile time that the arms
 cover every possible value.
 
 ```tql
+from {record_type: "A"},
+     {record_type: "CNAME"},
+     {record_type: "TXT"}
 match record_type {
   "A" | "AAAA" => {
     record_family = "address"
@@ -273,6 +279,9 @@ evaluates the guard for that event. The arm only receives events where the guard
 is `true`; events where the guard is `false` or `null` continue to later arms.
 
 ```tql
+from {status: 503, retries: 1},
+     {status: 503, retries: 0},
+     {status: 404, retries: 0}
 match status {
   499..600 | 429 if retries > 0 => {
     action = "retry"
@@ -292,6 +301,8 @@ Tenzir emits a warning and treats the arm as not matching for those events.
 A wildcard arm with a guard is not a fallback for every remaining event:
 
 ```tql
+from {status: 404},
+     {status: 500}
 match status {
   _ if status == 404 => {
     class = "not_found"
@@ -305,6 +316,10 @@ match status {
 List and record constants are compared by equality:
 
 ```tql
+from {value: ["prod", "checkout"]},
+     {value: ["prod"]},
+     {value: {action: "allow", port: 443}},
+     {value: {action: "allow"}}
 match value {
   ["prod", "checkout"] => {
     class = "checkout"
@@ -323,6 +338,9 @@ match value {
 Range patterns use `lower..upper` and exclude both bounds.
 
 ```tql
+from {status: 200},
+     {status: 404},
+     {status: 503}
 match status {
   199..300 => {
     class = "success"

@@ -402,24 +402,29 @@ ocsf.connection_info = {
   protocol_name: move zeek.proto,
   protocol_num: $proto_nums[zeek.proto]? else -1
 }
-// If we cannot use static records, branch with if/else statements.
+// Use `if` for binary predicates and `match` for finite case dispatch.
 if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
 } else {
   ocsf.connection_info.protocol_ver_id = 4
 }
-if zeek.local_orig and zeek.local_resp {
-  ocsf.connection_info.direction = "Lateral"
-  ocsf.connection_info.direction_id = 3
-} else if zeek.local_orig {
-  ocsf.connection_info.direction = "Outbound"
-  ocsf.connection_info.direction_id = 2
-} else if zeek.local_resp {
-  ocsf.connection_info.direction = "Inbound"
-  ocsf.connection_info.direction_id = 1
-} else {
-  ocsf.connection_info.direction = "Unknown"
-  ocsf.connection_info.direction_id = 0
+match ({orig: zeek.local_orig, resp: zeek.local_resp}) {
+  {orig: true, resp: true} => {
+    ocsf.connection_info.direction = "Lateral"
+    ocsf.connection_info.direction_id = 3
+  }
+  {orig: true, resp: false} => {
+    ocsf.connection_info.direction = "Outbound"
+    ocsf.connection_info.direction_id = 2
+  }
+  {orig: false, resp: true} => {
+    ocsf.connection_info.direction = "Inbound"
+    ocsf.connection_info.direction_id = 1
+  }
+  _ => {
+    ocsf.connection_info.direction = "Unknown"
+    ocsf.connection_info.direction_id = 0
+  }
 }
 drop zeek.local_orig, zeek.local_resp
 // The `status` attribute in OCSF is a success indicator. While we could use
