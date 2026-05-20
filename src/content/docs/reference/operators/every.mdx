@@ -23,6 +23,10 @@ interval, then the sub-pipeline flushes and restarts. Sub-pipelines without
 inputs (pure sources) must terminate on their own; if they run longer than
 `interval`, the next run starts immediately after.
 
+The sub-pipeline either emits events—which are forwarded as the operator's
+output—or ends with a sink, in which case `every` itself becomes a sink. The
+sub-pipeline must not produce bytes.
+
 :::caution[Source sub-pipelines must terminate on their own]
 `every` stops inputs to a sub-pipeline but cannot stop operators that produce
 data indefinitely on their own. Source operators like <Op>subscribe</Op> inside
@@ -86,6 +90,19 @@ every 10min {
   }
 }
 publish "threat-feed"
+```
+
+### Periodically import a snapshot
+
+When the sub-pipeline ends with a sink, `every` itself becomes a sink:
+
+```tql
+every 1h {
+  from_http "example.org/api/inventory" {
+    read_json
+  }
+  import
+}
 ```
 
 ## See Also
