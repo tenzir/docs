@@ -535,7 +535,7 @@ iso_time = iso.time()
 apache_time = apache.parse_time("%d/%b/%Y:%H:%M:%S %z")
 nginx_time = nginx.parse_time("%Y/%m/%d %H:%M:%S")
 // For syslog, we need to add the year
-syslog_time = ("2024 " + syslog).parse_time("%Y %b %d %H:%M:%S")
+syslog_time = f"2024 {syslog}".parse_time("%Y %b %d %H:%M:%S")
 ```
 
 ```tql

@@ -8,6 +8,7 @@ import remarkMdx from "remark-mdx";
 import { visit } from "unist-util-visit";
 import { VFile } from "vfile";
 import { remarkInlinePartials } from "../src/utils/remark-inline-partials";
+import { remarkSeeAlsoLinks } from "../src/utils/remark-see-also-links";
 
 // This script verifies that inline partials expand headings, hoist imports,
 // and substitute props so the TOC uses the final heading text. Run it after
@@ -48,6 +49,31 @@ try {
     ["### {props.Name}"].join("\n"),
   );
   writeFileSync(
+    join(partialsDir, "RetainedReference.mdx"),
+    "### `retained = component`",
+  );
+  writeFileSync(
+    join(partialsDir, "SpreadRetainedReference.mdx"),
+    "### `spread-retained = component`",
+  );
+  writeFileSync(
+    join(partialsDir, "NestedRetainedReference.mdx"),
+    "### `nested-retained = component`",
+  );
+  writeFileSync(
+    join(partialsDir, "NestedRetainedWrapper.mdx"),
+    [
+      'import NestedRetainedReference from "./NestedRetainedReference.mdx";',
+      "",
+      "<NestedRetainedReference />",
+      "",
+      "<Slot {...{content: NestedRetainedReference}} />",
+    ].join("\n"),
+  );
+  const semanticLinkPartial = "- <Op>{props.Operator}</Op>";
+  const semanticLinkPartialPath = join(partialsDir, "WithSemanticLink.mdx");
+  writeFileSync(semanticLinkPartialPath, semanticLinkPartial);
+  writeFileSync(
     join(partialsDir, "Wrapper.mdx"),
     [
       'import WithProps from "./WithProps.mdx";',
@@ -61,6 +87,10 @@ try {
     'import Child from "@partials/Child.mdx";',
     'import UsesComponent from "@partials/UsesComponent.mdx";',
     'import Wrapper from "@partials/Wrapper.mdx";',
+    'import RetainedReference from "@partials/RetainedReference.mdx";',
+    'import SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx";',
+    'import NestedRetainedWrapper from "@partials/NestedRetainedWrapper.mdx";',
+    'import WithSemanticLink from "@partials/WithSemanticLink.mdx";',
     "",
     "# Doc",
     "",
@@ -69,11 +99,24 @@ try {
     "<UsesComponent />",
     "",
     '<Wrapper Name="Gadget" />',
+    "",
+    "<RetainedReference />",
+    "",
+    "<Slot content={RetainedReference} />",
+    "",
+    "<SpreadRetainedReference />",
+    "",
+    "<Slot {...{content: SpreadRetainedReference}} />",
+    "",
+    "<NestedRetainedWrapper />",
+    "",
+    '<WithSemanticLink Operator="where" />',
   ].join("\n");
 
   const processor = remark()
     .use(remarkMdx)
-    .use(remarkInlinePartials, { partialsDir });
+    .use(remarkInlinePartials, { partialsDir })
+    .use(remarkSeeAlsoLinks);
   const file = new VFile({ path: docPath, value: docContent });
   const tree = processor.parse(file);
   const transformed = processor.runSync(tree, file);
@@ -87,6 +130,9 @@ try {
   assert(headingTexts.includes("child = number"));
   assert(headingTexts.includes("with svg"));
   assert(headingTexts.includes("Gadget"));
+  assert(headingTexts.includes("retained = component"));
+  assert(headingTexts.includes("spread-retained = component"));
+  assert(headingTexts.includes("nested-retained = component"));
   assert(!headingTexts.includes('"Gadget"'));
 
   const jsxNames: string[] = [];
@@ -98,6 +144,10 @@ try {
   assert(!jsxNames.includes("UsesComponent"));
   assert(!jsxNames.includes("Wrapper"));
   assert(!jsxNames.includes("WithProps"));
+  assert(!jsxNames.includes("RetainedReference"));
+  assert(!jsxNames.includes("SpreadRetainedReference"));
+  assert(!jsxNames.includes("NestedRetainedWrapper"));
+  assert(!jsxNames.includes("NestedRetainedReference"));
 
   const importValues: string[] = [];
   visit(transformed, "mdxjsEsm", (node: { value?: string }) => {
@@ -106,6 +156,27 @@ try {
 
   assert(
     importValues.some((value) => value.includes("@components/InlineSVG.astro")),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'RetainedReference from "@partials/RetainedReference.mdx"',
+      ),
+    ),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx"',
+      ),
+    ),
+  );
+  assert(
+    importValues.some((value) =>
+      value.includes(
+        'NestedRetainedReference from "@partials/NestedRetainedReference.mdx"',
+      ),
+    ),
   );
 
   const expressionValues: string[] = [];
@@ -117,6 +188,29 @@ try {
   });
 
   assert(expressionValues.every((value) => !value.includes("props.")));
+  assert(!expressionValues.includes('"where"'));
+
+  const dataHrefs: string[] = [];
+  visit(
+    transformed,
+    ["mdxJsxFlowElement", "mdxJsxTextElement"],
+    (node: {
+      attributes?: Array<{ name?: string; value?: string }>;
+      name?: string;
+    }) => {
+      if (node.name !== "Op") return;
+
+      const dataHref = node.attributes?.find(
+        (attribute) => attribute.name === "data-href",
+      );
+      if (typeof dataHref?.value === "string") {
+        dataHrefs.push(dataHref.value);
+      }
+    },
+  );
+
+  assert(dataHrefs.includes("/reference/operators/where"));
+  assert(dataHrefs.every((href) => !href.includes('"')));
 } finally {
   rmSync(rootDir, { recursive: true, force: true });
 }

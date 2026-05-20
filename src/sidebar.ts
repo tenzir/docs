@@ -335,6 +335,7 @@ export const integrations = [
         collapsed: true,
         items: [
           "integrations/amazon",
+          "integrations/amazon/cloudwatch",
           "integrations/amazon/msk",
           "integrations/amazon/s3",
           "integrations/amazon/security-lake",
@@ -400,6 +401,7 @@ export const integrations = [
       "integrations/opensearch",
       "integrations/snowflake",
       "integrations/splunk",
+      "integrations/wazuh",
     ],
     "analytics",
   ),

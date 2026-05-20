@@ -10,7 +10,7 @@ import AWSIAMOptions from '@partials/operators/AWSIAMOptions.mdx';
 Reads one or multiple files from Amazon S3.
 
 ```tql
-from_s3 url:string, [anonymous=bool, aws_iam=record, watch=bool,
+from_s3 url:string, [anonymous=bool, aws_iam=record, watch=duration,
   remove=bool, rename=string->string, max_age=duration] { … }
 ```
 
@@ -55,7 +55,7 @@ Defaults to `false`.
 
 <AWSIAMOptions />
 
-<FromFileCommonParams removeNote={true} />
+<FromFileCommonParams removeNote={true} watchAsDuration={true} />
 
 ## Examples
 
@@ -83,7 +83,7 @@ from_s3 "s3://my-bucket/data/**.json?endpoint_override=minio.example.com:9000&sc
 ### Read files continuously and assume IAM role
 
 ```tql
-from_s3 "s3://logs/application/**.json", watch=true, aws_iam={
+from_s3 "s3://logs/application/**.json", watch=10s, aws_iam={
   assume_role: "arn:aws:iam::123456789012:role/LogReaderRole"
 }
 ```
@@ -92,7 +92,7 @@ from_s3 "s3://logs/application/**.json", watch=true, aws_iam={
 
 ```tql
 from_s3 "s3://input-bucket/**.json",
-  rename=(path => "archive/" + path)
+  rename=(path => f"archive/{path}")
 ```
 
 ### Add source path to events

@@ -30,12 +30,13 @@ quantity = quantity.float()
 
 ### Convert to strings
 
-Use <Fn>string</Fn> to convert any value to its string representation:
+Use format strings to build strings from values. TQL formats each embedded
+expression as if you had called <Fn>string</Fn>:
 
 ```tql
 from {status: 200, ratio: 0.95},
      {status: 404, ratio: 0.05}
-message = status.string() + " - " + (ratio * 100).string() + "%"
+message = f"{status} - {ratio * 100}%"
 ```
 
 ```tql

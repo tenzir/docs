@@ -327,12 +327,16 @@ operators:
     description: 'Shows a snapshot of open sockets.'
     example: 'sockets'
     path: 'reference/operators/sockets'
+  - name: 'accept_elasticsearch'
+    description: 'Accepts incoming Elasticsearch-compatible Bulk API requests and forwards them as events.'
+    example: 'accept_elasticsearch "0.0.0.0:9200"'
+    path: 'reference/operators/accept_elasticsearch'
   - name: 'accept_http'
     description: 'Accepts incoming HTTP requests and forwards them as events.'
     example: 'accept_http "0.0.0.0:8080" { read_json }'
     path: 'reference/operators/accept_http'
   - name: 'accept_opensearch'
-    description: 'Accepts incoming OpenSearch Bulk API requests and forwards them as events.'
+    description: 'Accepts incoming OpenSearch-compatible Bulk API requests and forwards them as events.'
     example: 'accept_opensearch "0.0.0.0:9200"'
     path: 'reference/operators/accept_opensearch'
   - name: 'accept_tcp'
@@ -343,6 +347,10 @@ operators:
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
     path: 'reference/operators/accept_udp'
+  - name: 'from_amazon_cloudwatch'
+    description: 'Reads events from Amazon CloudWatch.'
+    example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="search"'
+    path: 'reference/operators/from_amazon_cloudwatch'
   - name: 'from_amqp'
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
@@ -373,7 +381,7 @@ operators:
     path: 'reference/operators/from_google_cloud_storage'
   - name: 'from_http'
     description: 'Sends an HTTP/1.1 request and returns the response as events.'
-    example: 'from_http "https://example.com/api" { read_json }'
+    example: 'from_http "https://example.com/api/events.json"'
     path: 'reference/operators/from_http'
   - name: 'from_kafka'
     description: 'Receives events from an Apache Kafka topic.'
@@ -635,6 +643,10 @@ operators:
     description: 'Executes YARA rules on byte streams.'
     example: 'yara "/path/to/rules"'
     path: 'reference/operators/yara'
+  - name: 'to_amazon_cloudwatch'
+    description: 'Sends events to Amazon CloudWatch.'
+    example: 'to_amazon_cloudwatch "/tenzir/events", stream="default"'
+    path: 'reference/operators/to_amazon_cloudwatch'
   - name: 'to_amazon_security_lake'
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
@@ -649,12 +661,16 @@ operators:
     path: 'reference/operators/to_azure_log_analytics'
   - name: 'to_zmq'
     description: 'Connects to a remote ZeroMQ subscriber endpoint and sends events.'
-    example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"'
+    example: 'to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=f"{kind}/"'
     path: 'reference/operators/to_zmq'
   - name: 'to_clickhouse'
     description: 'Sends events to a ClickHouse table.'
     example: 'to_clickhouse table="my_table"'
     path: 'reference/operators/to_clickhouse'
+  - name: 'to_elasticsearch'
+    description: 'Sends events to an Elasticsearch-compatible Bulk API.'
+    example: 'to_elasticsearch "localhost:9200", …'
+    path: 'reference/operators/to_elasticsearch'
   - name: 'to_file'
     description: 'Writes events to one or multiple files on a filesystem.'
     example: 'to_file "/tmp/out.json" { write_ndjson }'
@@ -685,14 +701,14 @@ operators:
     path: 'reference/operators/to_google_secops'
   - name: 'serve_zmq'
     description: 'Listens on a ZeroMQ endpoint and sends events.'
-    example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"'
+    example: 'serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"'
     path: 'reference/operators/serve_zmq'
   - name: 'to_hive'
     description: 'Writes events to a URI using hive partitioning.'
     example: 'to_hive "s3://…", partition_by=[x]'
     path: 'reference/operators/to_hive'
   - name: 'to_http'
-    description: 'Sends events as HTTP requests to a webhook or API endpoint.'
+    description: 'Sends events as a single HTTP request to a webhook or API endpoint.'
     example: 'to_http "https://example.com/webhook" { write_ndjson }'
     path: 'reference/operators/to_http'
   - name: 'to_kafka'
@@ -1374,6 +1390,14 @@ sockets
 
 <CardGrid>
 
+<ReferenceCard title="accept_elasticsearch" description="Accepts incoming Elasticsearch-compatible Bulk API requests and forwards them as events." href="/reference/operators/accept_elasticsearch">
+
+```tql
+accept_elasticsearch "0.0.0.0:9200"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="accept_http" description="Accepts incoming HTTP requests and forwards them as events." href="/reference/operators/accept_http">
 
 ```tql
@@ -1382,7 +1406,7 @@ accept_http "0.0.0.0:8080" { read_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
+<ReferenceCard title="accept_opensearch" description="Accepts incoming OpenSearch-compatible Bulk API requests and forwards them as events." href="/reference/operators/accept_opensearch">
 
 ```tql
 accept_opensearch "0.0.0.0:9200"
@@ -1410,6 +1434,14 @@ accept_udp "0.0.0.0:8090"
 
 ```tql
 accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_amazon_cloudwatch" description="Reads events from Amazon CloudWatch." href="/reference/operators/from_amazon_cloudwatch">
+
+```tql
+from_amazon_cloudwatch "/aws/lambda/api", mode="search"
 ```
 
 </ReferenceCard>
@@ -1473,7 +1505,7 @@ from_google_cloud_storage "gs://my-bucket/data/**.json"
 <ReferenceCard title="from_http" description="Sends an HTTP/1.1 request and returns the response as events." href="/reference/operators/from_http">
 
 ```tql
-from_http "https://example.com/api" { read_json }
+from_http "https://example.com/api/events.json"
 ```
 
 </ReferenceCard>
@@ -1849,7 +1881,15 @@ serve_tcp "0.0.0.0:8090" { write_json }
 <ReferenceCard title="serve_zmq" description="Listens on a ZeroMQ endpoint and sends events." href="/reference/operators/serve_zmq">
 
 ```tql
-serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=kind + "/"
+serve_zmq "tcp://0.0.0.0:5555", encoding="json", prefix=f"{kind}/"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_amazon_cloudwatch" description="Sends events to Amazon CloudWatch." href="/reference/operators/to_amazon_cloudwatch">
+
+```tql
+to_amazon_cloudwatch "/tenzir/events", stream="default"
 ```
 
 </ReferenceCard>
@@ -1890,6 +1930,14 @@ to_azure_log_analytics tenant_id="...", workspace_id="..."
 
 ```tql
 to_clickhouse table="my_table"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_elasticsearch" description="Sends events to an Elasticsearch-compatible Bulk API." href="/reference/operators/to_elasticsearch">
+
+```tql
+to_elasticsearch "localhost:9200", …
 ```
 
 </ReferenceCard>
@@ -1958,7 +2006,7 @@ to_hive "s3://…", partition_by=[x]
 
 </ReferenceCard>
 
-<ReferenceCard title="to_http" description="Sends events as HTTP requests to a webhook or API endpoint." href="/reference/operators/to_http">
+<ReferenceCard title="to_http" description="Sends events as a single HTTP request to a webhook or API endpoint." href="/reference/operators/to_http">
 
 ```tql
 to_http "https://example.com/webhook" { write_ndjson }
@@ -2057,7 +2105,7 @@ to_udp "127.0.0.1:514"
 <ReferenceCard title="to_zmq" description="Connects to a remote ZeroMQ subscriber endpoint and sends events." href="/reference/operators/to_zmq">
 
 ```tql
-to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=kind + "/"
+to_zmq "tcp://collector.example.com:5555", encoding="json", prefix=f"{kind}/"
 ```
 
 </ReferenceCard>

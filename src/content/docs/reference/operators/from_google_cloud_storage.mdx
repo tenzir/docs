@@ -9,8 +9,8 @@ import FromFileCommonParams from '@partials/operators/FromFileCommonParams.mdx';
 Reads one or multiple files from Google Cloud Storage.
 
 ```tql
-from_google_cloud_storage url:string, [anonymous=bool, watch=bool, remove=bool,
-  rename=string->string, max_age=duration] { … }
+from_google_cloud_storage url:string, [anonymous=bool, watch=duration,
+  remove=bool, rename=string->string, max_age=duration] { … }
 ```
 
 ## Description
@@ -49,7 +49,7 @@ works for publicly readable buckets and objects.
 
 Defaults to `false`.
 
-<FromFileCommonParams />
+<FromFileCommonParams watchAsDuration={true} />
 
 ## Examples
 
@@ -68,7 +68,7 @@ from_google_cloud_storage "gs://public-dataset/data.csv", anonymous=true
 ### Read Zeek logs continuously
 
 ```tql
-from_google_cloud_storage "gs://logs/zeek/**.log", watch=true {
+from_google_cloud_storage "gs://logs/zeek/**.log", watch=10s {
   read_zeek_tsv
 }
 ```

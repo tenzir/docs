@@ -1,3 +1,16 @@
+{props.watchAsDuration ? (
+<>
+### `watch = duration (optional)`
+
+In addition to processing all existing files, this option keeps the operator
+running, watching for new files that also match the given URL. The duration
+specifies the interval between filesystem scans. For example, `watch=30s` polls
+every 30 seconds.
+
+Disabled by default.
+</>
+) : (
+<>
 ### `watch = bool (optional)`
 
 In addition to processing all existing files, this option keeps the operator
@@ -5,6 +18,8 @@ running, watching for new files that also match the given URL. Currently, this
 scans the filesystem up to every 10s.
 
 Defaults to `false`.
+</>
+)}
 
 ### `remove = bool (optional)`
 

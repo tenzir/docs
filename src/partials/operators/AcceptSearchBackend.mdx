@@ -1,0 +1,85 @@
+import { Code } from "@astrojs/starlight/components";
+import TLSOptions from "@partials/operators/TLSOptions.mdx";
+
+Accepts incoming {props.Product}-compatible Bulk API requests and forwards them as
+events.
+
+<Code
+  code={`${props.operator} [url:string, keep_actions=bool, max_request_size=int,
+                 tls=record]`}
+  lang="tql"
+/>
+
+## Description
+
+The <code>{props.operator}</code> operator starts an HTTP server that accepts
+{props.Product}-compatible bulk ingestion requests on <code>/_bulk</code> and
+<code>{`/{index}/_bulk`}</code>. {props.OtherProduct} clients can use the same
+endpoint.
+
+You can also use <a href={`/reference/operators/${props.aliasOperator}`}><code>{props.aliasOperator}</code></a> as an alias.
+
+For each bulk request, the operator buffers the request body in memory, up to
+`max_request_size`, optionally decompresses it based on the HTTP
+`Content-Encoding` header, parses the NDJSON payload, and emits the resulting
+records as events.
+
+By default, the operator drops Bulk API action objects such as `{"create": ...}`
+and emits only the document records. To keep the action objects, set
+`keep_actions=true`.
+
+The operator also responds to `GET /` with a minimal {props.Product}-compatible
+info response so that basic health checks and client probes succeed.
+
+### `url: string (optional)`
+
+The endpoint to listen on.
+
+Use the form `host:port`, `[host]:port`, `http://host:port`, or
+`https://host:port`.
+
+Defaults to `"0.0.0.0:9200"`.
+
+### `keep_actions = bool (optional)`
+
+Whether to keep Bulk API action objects such as `{"create": ...}`.
+
+Defaults to `false`.
+
+### `max_request_size = int (optional)`
+
+The maximum size of an incoming request to accept.
+
+Requests that exceed this limit are rejected with HTTP `413 Content Too Large`.
+
+Defaults to `10MiB`.
+
+<TLSOptions tls_default="false" />
+
+## Examples
+
+### Listen on port 8080
+
+<Code code={`${props.operator} "0.0.0.0:8080"`} lang="tql" />
+
+### Keep action objects in the output
+
+<Code code={`${props.operator} keep_actions=true`} lang="tql" />
+
+### Accept HTTPS requests with TLS
+
+<Code
+  code={`${props.operator} "0.0.0.0:8443",
+                  tls={
+                    certfile: "/path/to/cert.pem",
+                    keyfile: "/path/to/key.pem",
+                  }`}
+  lang="tql"
+/>
+
+## See Also
+
+- <Op>{props.toOperator}</Op>
+- <Op>{props.aliasOperator}</Op>
+- <Integration>{props.integration}</Integration>
+- <Integration>{props.otherIntegration}</Integration>

@@ -10,7 +10,7 @@ Writes events to one or multiple files on a filesystem.
 
 ```tql
 to_file url:string, [max_size=int, timeout=duration,
-        partition_by=list<field>] { … }
+        partition_by=list<field>, append=bool] { … }
 ```
 
 ## Description
@@ -37,6 +37,15 @@ The path may contain two placeholders:
   or per-partition files do not overwrite each other.
 
 <ToArrowFsCommonParams />
+
+### `append = bool (optional)`
+
+If `true`, existing files are opened for appending instead of truncated.
+Useful for accumulating output across pipeline runs into a stable path.
+When combined with a `{uuid}` placeholder the flag is a no-op, since every
+rotation already targets a fresh filename.
+
+Defaults to `false`.
 
 ## Examples
 

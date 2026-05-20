@@ -2,8 +2,8 @@
 title: Fetch via HTTP and APIs
 ---
 
-This guide shows you how to interact with HTTP APIs using the
-<Op>from_http</Op> and <Op>to_http</Op> operators. You'll learn to make GET
+This guide shows you how to interact with HTTP APIs using <Op>from_http</Op>
+and <Op>to_http</Op> operators. You'll learn to make GET
 requests, send data, handle authentication, and implement pagination for large
 result sets.
 
@@ -13,10 +13,13 @@ Tenzir has two HTTP client operators that share the same core client options:
 
 - [`from_http`](/reference/operators/from_http) is a **input** operator that
   starts a pipeline with an HTTP request and parses the response into events.
+  It streams response body chunks into the parser sub-pipeline as they arrive.
   Use it for standalone API calls and paginated API ingestion.
 - [`to_http`](/reference/operators/to_http) is an **output** operator that
-  sends events as HTTP requests. Use it for webhooks and HTTP-based ingestion
-  APIs.
+  sends all events from one invocation as a single HTTP request. It streams the
+  request body from its printer sub-pipeline into the HTTP connection. Use it
+  for webhooks and HTTP-based ingestion APIs, and wrap it in `every` when you
+  want time-based batches.
 
 Most examples in this guide use `from_http`, because it is the operator for
 fetching data from APIs.
@@ -30,18 +33,23 @@ Start with these fundamental patterns for making HTTP requests to APIs.
 To fetch data from an API endpoint, pass the URL as the first parameter:
 
 ```tql
-from_http "https://api.example.com/data" {
-  read_json
-}
+from_http "https://api.example.com/data.json"
 ```
 
 The operator makes a GET request by default and sends the response body to the
-required parsing sub-pipeline.
+parser. As the server sends response chunks, Tenzir forwards them to the parser
+pipeline incrementally. If the response has a supported `Content-Type` header
+or the URL path has a supported extension, Tenzir infers the parser
+automatically.
 
 ### Parsing the HTTP response body
 
-The `from_http` operator requires an explicit parsing sub-pipeline. Use it to
-specify how Tenzir should parse the response body.
+You can omit the parsing sub-pipeline when Tenzir can infer the response
+format. Tenzir first checks a non-empty `Content-Type` response header and then
+falls back to the URL path extension.
+
+Use an explicit parsing sub-pipeline when the response format is ambiguous,
+custom, or not reflected by the header or URL.
 
 The operator automatically handles HTTP `Content-Encoding`. If the downloaded
 file itself is compressed, add the matching decompressor to the sub-pipeline.
@@ -91,7 +99,9 @@ to_http "https://api.example.com/users" {
 ```
 
 The `from_http` operator automatically uses `post` when you specify a body.
-The `to_http` operator uses `post` by default.
+The `to_http` operator uses `post` by default and sends all events from that
+operator invocation in one request, streaming the request body as the printer
+pipeline produces bytes.
 
 ## Request Configuration
 
@@ -105,7 +115,7 @@ containing key-value pairs:
 
 ```tql
 let $headers = {
-  "Authorization": "Bearer " + secret("YOUR_BEARER_TOKEN")
+  "Authorization": f"Bearer {secret("YOUR_BEARER_TOKEN")}"
 }
 from_http "https://api.example.com/data", headers=$headers {
   read_json
@@ -216,7 +226,7 @@ automatically:
 ```tql
 from_http "https://graph.microsoft.com/v1.0/users",
   headers={
-    "Authorization": "Bearer " + secret("MICROSOFT_GRAPH_TOKEN"),
+    "Authorization": f"Bearer {secret("MICROSOFT_GRAPH_TOKEN")}",
     "ConsistencyLevel": "eventual",
   },
   paginate="odata" {
@@ -255,6 +265,76 @@ from_http f"{$base}?category=security&page=1",
   read_json
 }
 ```
+
+For APIs that put pagination state in the request body, return a request record
+from the lambda. Each request record patches the request that produced the
+current page. This is useful for OpenSearch-compatible APIs, including
+OpenSearch, Elasticsearch, and the Wazuh indexer, that use a `search_after`
+cursor in the request body.
+
+Keep the `from_http` subpipeline focused on parsing the response envelope. Move
+operators such as `unroll` after `from_http`, because the pagination lambda
+receives the parsed page envelope.
+
+```tql
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http "https://opensearch.example.com/logs-*/_search",
+  headers=$headers,
+  body={
+    size: 1000,
+    sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+    query: {match_all: {}},
+  },
+  paginate=(x => {
+    body: {
+      size: 1000,
+      sort: [{"@timestamp": "asc"}, {"_id": "asc"}],
+      query: {match_all: {}},
+      search_after: x.hits.hits[-1].sort,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+The first request uses `POST` because it has a body. Follow-up requests inherit
+that method and the configured headers. The returned request record replaces
+only the body.
+
+Scroll-style APIs can change the URL and body for the next request while they
+keep the method and headers:
+
+```tql
+let $search = "https://opensearch.example.com/logs/_search?scroll=1m"
+let $scroll = "https://opensearch.example.com/_search/scroll"
+let $headers = {
+  "Authorization": f"Bearer {secret("OPENSEARCH_TOKEN")}",
+}
+
+from_http $search,
+  headers=$headers,
+  body={size: 1000, query: {match_all: {}}},
+  paginate=(x => {
+    url: $scroll,
+    body: {
+      scroll: "1m",
+      scroll_id: x._scroll_id,
+    },
+  } if x.hits.hits != []) {
+  read_json
+}
+unroll hits.hits
+this = hits.hits._source
+```
+
+See the [OpenSearch integration](/integrations/opensearch) and the
+[Wazuh integration](/integrations/wazuh) for more search-backend examples that
+use the same pagination pattern.
 
 ### Rate limiting
 
