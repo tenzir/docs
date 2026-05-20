@@ -404,14 +404,13 @@ each parallel=4 {
 ```
 
 :::tip[Getting responses back]
-If you need to process the HTTP response for each event, use <Op>from_http</Op>
-inside <Op>each</Op> instead:
+When sending a single event and either using JSON or form encoding, <Op>from_http</Op>
+can be used. This makes code more concise, but also allows response processing.
 
 ```tql
-from {ip: "10.0.0.5"},
-     {ip: "10.0.0.7"}
+subscribe "alerts"
 each {
-  from_http f"https://api.example.com/lookup?ip={$this.ip}" {
+  from_http f"https://example.com/webhook", body=$this {
     read_json
   }
 }
