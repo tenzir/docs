@@ -203,10 +203,16 @@ Some HTTP servers don't support chunked transfer encoding and require a
 
 ```tql
 subscribe "events"
-to_http "https://s3.example.com/bucket/key", buffer_all=true {
+head 1000
+to_http "https://s3.example.com/bucket/key", method="put", buffer_all=true {
   write_ndjson
 }
 ```
+
+The `head 1000` limits the input so that `buffer_all` has a finite body to
+buffer. Without a bound, `subscribe` streams indefinitely and the buffer grows
+without limit. Use <Op>every</Op> instead of `head` when you want periodic
+flushing.
 
 ## See Also
 
