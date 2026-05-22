@@ -6,7 +6,7 @@ example: 'from_clickhouse table="my_table"'
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
-This reference documents the `from_clickhouse` operator. You'll learn how to read table rows, run SQL queries, and inspect ClickHouse metadata through SQL.
+Fetches data from a ClickHouse server.
 
 ```tql
 from_clickhouse [table=string, sql=string,
@@ -16,13 +16,8 @@ from_clickhouse [table=string, sql=string,
 
 ## Description
 
-Use exactly one of `table` or `sql`.
-
-Use either `uri` or the explicit connection arguments `host`, `port`, `user`,
-and `password`.
-
-Currently, `from_clickhouse` is available only with the new pipeline executor.
-Run it with `tenzir --neo` until it is available in the legacy executor.
+The <op>from_clickhouse</op> operator issues a query to a ClickHouse server. You
+can either provide a `table` to read or an `sql` query.
 
 ### `uri = string (optional)`
 
@@ -37,6 +32,9 @@ current database.
 
 Use `tls` separately to control TLS.
 
+Use either `uri` or the explicit connection arguments `host`, `port`, `user`,
+and `password`.
+
 ### `table = string`
 
 The table to read from.
@@ -47,6 +45,8 @@ ClickHouse uses the current database selected by the URI or server defaults.
 Use this mode when you want to read a whole table and preserve named tuple
 fields from the table schema.
 
+Use exactly one of `table` or `sql`.
+
 ### `sql = string`
 
 A custom SQL query to execute.
@@ -56,6 +56,8 @@ before Tenzir reads it.
 
 For metadata queries such as `SHOW TABLES`, `DESCRIBE TABLE`, or queries
 against `system.tables` and `system.columns`, use `sql`.
+
+Use exactly one of `table` or `sql`.
 
 ### `host = string (optional)`
 
@@ -115,9 +117,23 @@ Tenzir maps ClickHouse types to Tenzir types as follows:
 `Map(...)` is not currently supported. Cast unsupported columns in `sql` or
 omit them from the query result.
 
-Some ClickHouse types are not perfect inverses of <Op>to_clickhouse</Op>. For
-example, <Op>to_clickhouse</Op> writes `bool` as `UInt8`, so reading the same
-table back yields `uint64` unless the ClickHouse column type is `Bool`.
+## Predicate Pushdown
+Tenzir has Predicate Pushdown, allowing `where` filters to be pushed up a pipeline
+and into the `from_clickhouse` operator. Where possible, `from_clickhouse` will
+also push this predicate into the query send to the ClickHouse server to reduce
+transfer and compute cost:
+
+```tql
+from_clickhouse table="db.table", host="localhost"
+where i > 42
+```
+is equivalent to
+```tql
+from_clickhouse sql="select * from db.table where i > 42", host="localhost"
+```
+
+Pushdown is only performed in `table` mode. When you provide an `sql` statement,
+you should consider filtering in the statement itself.
 
 ## Examples
 
