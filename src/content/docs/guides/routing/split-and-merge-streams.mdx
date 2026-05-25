@@ -38,7 +38,7 @@ Send the same events to multiple destinations by having multiple subscribers:
 
 ```tql
 // Pipeline 1: Ingest and publish
-from_file "/var/log/*.json", watch=true
+from_file "/var/log/*.json", watch=10s
 publish "logs"
 ```
 
@@ -101,7 +101,7 @@ Combine multiple sources into a single stream by publishing to the same topic:
 
 ```tql
 // Pipeline 1: Zeek logs
-from_file "/var/log/zeek/*.log", watch=true {
+from_file "/var/log/zeek/*.log", watch=10s {
   read_zeek_tsv
 }
 publish "network"
@@ -111,7 +111,7 @@ A second pipeline publishes Suricata alerts to the same topic:
 
 ```tql
 // Pipeline 2: Suricata alerts
-from_file "/var/log/suricata/eve.json", watch=true {
+from_file "/var/log/suricata/eve.json", watch=10s {
   read_suricata
 }
 publish "network"

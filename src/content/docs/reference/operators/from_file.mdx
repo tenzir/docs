@@ -9,7 +9,7 @@ import FromFileCommonParams from '@partials/operators/FromFileCommonParams.mdx';
 Reads one or multiple files from a filesystem.
 
 ```tql
-from_file url:string, [watch=bool, remove=bool, rename=string->string,
+from_file url:string, [watch=duration, remove=bool, rename=string->string,
           max_age=duration, mmap=bool] { … }
 ```
 
@@ -64,7 +64,7 @@ from_file "/data/**.json" {
 ### Read all files from S3 continuously and delete them afterwards
 
 ```tql
-from_file "s3://my-bucket/**", watch=true, remove=true
+from_file "s3://my-bucket/**", watch=10s, remove=true
 ```
 
 ### Move files to a directory, preserving filenames
