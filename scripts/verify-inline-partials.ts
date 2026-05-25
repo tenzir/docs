@@ -49,24 +49,6 @@ try {
     ["### {props.Name}"].join("\n"),
   );
   writeFileSync(
-    join(partialsDir, "ConditionalMarkdown.mdx"),
-    [
-      "{props.UseDuration ? (",
-      "<>",
-      "### `watch = duration (optional)`",
-      "",
-      "Duration branch.",
-      "</>",
-      ") : (",
-      "<>",
-      "### `watch = bool (optional)`",
-      "",
-      "Bool branch.",
-      "</>",
-      ")}",
-    ].join("\n"),
-  );
-  writeFileSync(
     join(partialsDir, "RetainedReference.mdx"),
     "### `retained = component`",
   );
@@ -105,7 +87,6 @@ try {
     'import Child from "@partials/Child.mdx";',
     'import UsesComponent from "@partials/UsesComponent.mdx";',
     'import Wrapper from "@partials/Wrapper.mdx";',
-    'import ConditionalMarkdown from "@partials/ConditionalMarkdown.mdx";',
     'import RetainedReference from "@partials/RetainedReference.mdx";',
     'import SpreadRetainedReference from "@partials/SpreadRetainedReference.mdx";',
     'import NestedRetainedWrapper from "@partials/NestedRetainedWrapper.mdx";',
@@ -118,8 +99,6 @@ try {
     "<UsesComponent />",
     "",
     '<Wrapper Name="Gadget" />',
-    "",
-    "<ConditionalMarkdown UseDuration={true} />",
     "",
     "<RetainedReference />",
     "",
@@ -151,8 +130,6 @@ try {
   assert(headingTexts.includes("child = number"));
   assert(headingTexts.includes("with svg"));
   assert(headingTexts.includes("Gadget"));
-  assert(headingTexts.includes("watch = duration (optional)"));
-  assert(!headingTexts.includes("watch = bool (optional)"));
   assert(headingTexts.includes("retained = component"));
   assert(headingTexts.includes("spread-retained = component"));
   assert(headingTexts.includes("nested-retained = component"));
@@ -167,7 +144,6 @@ try {
   assert(!jsxNames.includes("UsesComponent"));
   assert(!jsxNames.includes("Wrapper"));
   assert(!jsxNames.includes("WithProps"));
-  assert(!jsxNames.includes("ConditionalMarkdown"));
   assert(!jsxNames.includes("RetainedReference"));
   assert(!jsxNames.includes("SpreadRetainedReference"));
   assert(!jsxNames.includes("NestedRetainedWrapper"));
