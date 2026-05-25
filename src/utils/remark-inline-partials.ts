@@ -96,6 +96,28 @@ interface NodeLike {
   [key: string]: unknown;
 }
 
+interface ExpressionStatementLike {
+  type?: string;
+  expression?: unknown;
+}
+
+interface LiteralLike {
+  type?: string;
+  value?: unknown;
+}
+
+interface ConditionalExpressionLike {
+  type?: string;
+  test?: unknown;
+  consequent?: unknown;
+  alternate?: unknown;
+}
+
+interface JSXFragmentLike {
+  type?: string;
+  children?: Array<{ type?: string; value?: string; raw?: string }>;
+}
+
 interface PropsMap {
   [key: string]: string;
 }
@@ -928,6 +950,26 @@ function applyPropsSubstitutions(
         if (result.updated) {
           const estree = parseEstree(result.value, report, partialPath);
           if (estree) {
+            const staticMarkdown = extractStaticMarkdown(estree);
+            if (
+              staticMarkdown != null &&
+              node.type === "mdxFlowExpression" &&
+              parent &&
+              typeof index === "number" &&
+              "children" in parent &&
+              Array.isArray(parent.children)
+            ) {
+              const replacementTree = remark()
+                .use(remarkMdx)
+                .parse(staticMarkdown) as Root;
+              parent.children.splice(
+                index,
+                1,
+                ...(replacementTree.children as Content[]),
+              );
+              return index + replacementTree.children.length;
+            }
+
             const staticText = extractStaticText(estree);
             if (
               staticText != null &&
@@ -1040,21 +1082,40 @@ function parseEstreeQuietly(value: string): unknown | null {
   }
 }
 
+function extractStaticMarkdown(estree: unknown): string | null {
+  const expression = getSingleExpression(estree);
+  const conditional = expression as ConditionalExpressionLike;
+  if (conditional?.type !== "ConditionalExpression") return null;
+
+  const test = conditional.test as LiteralLike;
+  if (test?.type !== "Literal" || typeof test.value !== "boolean") return null;
+
+  const branch = test.value ? conditional.consequent : conditional.alternate;
+  return extractJSXFragmentText(branch);
+}
+
+function extractJSXFragmentText(node: unknown): string | null {
+  const fragment = node as JSXFragmentLike;
+  if (fragment?.type !== "JSXFragment" || !Array.isArray(fragment.children)) {
+    return null;
+  }
+
+  let text = "";
+  for (const child of fragment.children) {
+    if (child.type !== "JSXText") return null;
+    text += child.value ?? child.raw ?? "";
+  }
+  return text;
+}
+
 function extractStaticText(estree: unknown): string | null {
-  if (!estree || typeof estree !== "object") return null;
-  const program = estree as { type?: string; body?: unknown[] };
-  if (program.type !== "Program" || !Array.isArray(program.body)) return null;
-  if (program.body.length !== 1) return null;
-
-  const statement = program.body[0] as { type?: string; expression?: unknown };
-  if (statement.type !== "ExpressionStatement") return null;
-
-  const expression = statement.expression as {
+  const expression = getSingleExpression(estree) as {
     type?: string;
     value?: unknown;
     quasis?: Array<{ value?: { cooked?: string; raw?: string } }>;
     expressions?: unknown[];
-  };
+  } | null;
+  if (!expression) return null;
 
   if (expression?.type === "Literal" && typeof expression.value === "string") {
     return expression.value;
@@ -1074,6 +1135,17 @@ function extractStaticText(estree: unknown): string | null {
   }
 
   return null;
+}
+
+function getSingleExpression(estree: unknown): unknown | null {
+  if (!estree || typeof estree !== "object") return null;
+  const program = estree as { type?: string; body?: unknown[] };
+  if (program.type !== "Program" || !Array.isArray(program.body)) return null;
+  if (program.body.length !== 1) return null;
+
+  const statement = program.body[0] as ExpressionStatementLike;
+  if (statement.type !== "ExpressionStatement") return null;
+  return statement.expression ?? null;
 }
 
 function setEstree(
