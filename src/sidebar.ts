@@ -393,24 +393,24 @@ export const integrations = [
   section(
     "Data Tools",
     [
-      "integrations/arcsight",
       "integrations/clickhouse",
       "integrations/elasticsearch",
-      "integrations/graylog",
       "integrations/mysql",
       "integrations/opensearch",
       "integrations/snowflake",
       "integrations/splunk",
-      "integrations/wazuh",
     ],
     "analytics",
   ),
   section(
     "Security Tools",
     [
+      "integrations/arcsight",
+      "integrations/graylog",
       "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
+      "integrations/wazuh",
       "integrations/zeek",
       "integrations/zscaler",
     ],
