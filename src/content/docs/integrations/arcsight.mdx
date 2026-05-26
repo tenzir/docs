@@ -190,8 +190,13 @@ let $headers = {
 let $body = {
   user_session_id: $user_session,
   search_session_id: $search_session,
-  offset: 0,
-  length: 1000,
+  fields: [
+    "deviceEventClassId",
+    "deviceVendor",
+    "deviceReceiptTime",
+    "sourceAddress",
+    "destinationAddress",
+  ],
 }
 
 from_http f"{$logger}/server/search/events", headers=$headers, body=$body {
@@ -199,8 +204,9 @@ from_http f"{$logger}/server/search/events", headers=$headers, body=$body {
 }
 ```
 
-The response includes the Logger result metadata and event rows. Shape the
-returned fields in TQL after you select the fields in the Logger search query.
+The response includes the Logger result metadata and event rows for the selected
+fields. Shape the returned fields in TQL after you select the fields in the
+Logger search query.
 
 ## See Also
 
