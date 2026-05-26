@@ -22,6 +22,10 @@ avoid data loss. This mechanism is disabled for pipelines that are not visible
 on the overview page on [app.tenzir.com](https://app.tenzir.com), which drop
 data rather than slow down their publishers.
 
+During shutdown, `subscribe` will wait for `publish` to drain all data before
+shutting down itself. This prevents data loss, as long as pub/sub do not
+form cycles and `publish` does not use dynamic topic names.
+
 ### `topic: string... (optional)`
 
 Optional channel names to subscribe to. If unspecified, the operator
