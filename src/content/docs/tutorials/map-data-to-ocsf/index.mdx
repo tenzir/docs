@@ -243,6 +243,11 @@ ocsf.src_endpoint = {
   ip: ocsf.unmapped.id.orig_h,
   port: ocsf.unmapped.id.orig_p,
 }
+ocsf.dst_endpoint = {
+  ip: ocsf.unmapped.id.resp_h,
+  port: ocsf.unmapped.id.resp_p,
+}
+ocsf.is_src_dst_assignment_known = true
 // ...fill out remaining primary attributes.
 drop ocsf.unmapped.id // 👈 remove source field after mapping
 
@@ -393,6 +398,7 @@ ocsf.dst_endpoint = {
   ip: ocsf.unmapped.id.resp_h,
   port: ocsf.unmapped.id.resp_p,
 }
+ocsf.is_src_dst_assignment_known = true
 // Here, we use `drop` because we simply want to get rid of the intermediate
 // `id` record that we already mapped above.
 drop ocsf.unmapped.id
@@ -457,6 +463,8 @@ Here's what happens here:
   `proto` field and uses it as an index into a static record `$proto_nums`. Add
   a `?` at the end to avoid warnings when the lookup returns `null`, and use
   the inline `else` expression for the fallback value.
+- Set `is_src_dst_assignment_known` because Zeek's `id.orig_*` fields identify
+  the connection initiator and `id.resp_*` fields identify the responder.
 - Use <Fn>is_v6</Fn> on the connection IPs to identify IPv6 connections.
 
 #### Putting it together
