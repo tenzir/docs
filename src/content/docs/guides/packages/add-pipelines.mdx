@@ -12,22 +12,27 @@ The `pipelines` directory contains fully deployable TQL pipelines. Unlike
 [user-defined operators (UDOs)](/guides/packages/add-operators), pipelines are complete units
 that must begin with an input operator and end with an output operator.
 
-Pipelines typically call UDOs from the same package to transform data:
+Pipelines typically use source operators to fetch and parse data, then call
+UDOs from the same package to transform the parsed events:
 
 ```tql title="pipelines/fetch-and-normalize.tql"
 every 1h {
-  from_http "https://api.example.com/events"
+  from_http "https://api.example.com/events" {
+    read_json
+  }
 }
-acme::parse
-acme::ocsf::normalize
+acme::ocsf::map
+ocsf::derive
+ocsf::cast
 publish "normalized-events"
 ```
 
 When you install the package, the node automatically runs any enabled pipelines.
-The UDOs handle the transformation logic while the pipeline orchestrates the
-data flow. Use enabled pipelines only when the package should take action as
-soon as it is installed. Ship optional operational workflows as disabled
-templates unless automatic execution is the package's core behavior.
+The source operator handles fetching and parsing, while the package UDO handles
+cleanup, mapping, and other reusable transformation logic. Use enabled pipelines
+only when the package should take action as soon as it is installed. Ship
+optional operational workflows as disabled templates unless automatic execution
+is the package's core behavior.
 
 ## Configure pipeline behavior
 
@@ -46,9 +51,10 @@ description: >
 ---
 
 every 1h {
-  from_http "https://feeds.example.com/iocs.json"
+  from_http "https://feeds.example.com/iocs.json" {
+    read_json
+  }
 }
-acme::parse_indicators
 context::update "threat-intel", key=indicator
 ```
 

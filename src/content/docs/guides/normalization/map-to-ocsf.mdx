@@ -115,6 +115,10 @@ ocsf::cast
   mappings, drop it after the last use. Prefer `move` and single assignments.
 - **Keep unmapped residue**: Fields left under the source namespace still need
   review or an intentional decision to preserve source-specific data.
+- **Produce minimal OCSF**: Map required identifiers, required attributes, and
+  source-specific semantics. Don't hand-write derived sibling fields such as
+  `activity_name`, `category_name`, or `severity`; let <Op>ocsf::derive</Op>
+  expand the minimal event before validation.
 - **Validate the result**: Run <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>
   after the mapper returns the OCSF event.
 
@@ -165,8 +169,9 @@ import { FileTree } from '@astrojs/starlight/components';
 
 ### Dispatcher operator
 
-Your package should include one dispatching operator. The dispatcher routes
-events based on the event type and returns the mapped OCSF event:
+Your package should include one main mapping operator. This operator performs
+source-specific cleanup and shared OCSF setup, dispatches events based on the
+event type, and returns the mapped OCSF event:
 
 ```tql
 this = { panos: this }
@@ -207,15 +212,17 @@ in the log that differentiates the event types.
 Create one test file per event type:
 
 ```tql
-paloalto::ngfw::parse
-paloalto::ngfw::clean
+from_file env("TENZIR_INPUT") {
+  read_json
+}
 paloalto::ngfw::ocsf::map
 ocsf::derive
 ocsf::cast
 ```
 
 This requires that your test file has a sibling `.input` file that the [test
-framework](/guides/testing/write-tests) picks up automatically.
+framework](/guides/testing/write-tests) exposes through `TENZIR_INPUT`. Use the
+reader that matches your fixture format.
 
 ### Validation gate
 

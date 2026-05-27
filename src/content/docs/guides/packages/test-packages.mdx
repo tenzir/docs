@@ -139,9 +139,10 @@ ocsf::cast
 ```
 
 Use <Op>ocsf::derive</Op> to populate sibling enum fields and
-<Op>ocsf::cast</Op> to validate the mapped event against the OCSF schema. Drop
-or replace non-deterministic fields before the comparison, such as processing
-timestamps created with <Fn>now</Fn>.
+<Op>ocsf::cast</Op> to validate the mapped event against the OCSF schema. This
+lets the mapper stay minimal while the baseline captures the comprehensive OCSF
+shape that consumers see. Drop or replace non-deterministic fields before the
+comparison, such as processing timestamps created with <Fn>now</Fn>.
 
 ### Test with different arguments
 

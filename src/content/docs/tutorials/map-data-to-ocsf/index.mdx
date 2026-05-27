@@ -262,7 +262,7 @@ drop zeek.id // 👈 remove source field after mapping
 // (3) Return the mapped OCSF event and preserve mapping residue.
 this = {...ocsf, unmapped: zeek}
 
-// (4) Populate sibling fields and validate the final OCSF shape.
+// (4) Expand minimal OCSF and validate the final schema shape.
 ocsf::derive
 ocsf::cast
 ```
@@ -286,9 +286,11 @@ Let's unpack this:
    can filter by schema.
 4. The assignment `this = {...ocsf, unmapped: zeek}` returns the mapped OCSF
    event and stores the remaining source fields as `unmapped` for review.
-5. We keep the mapping terse by only mapping the `*_[u]id` field and relying
-   on <Op>ocsf::derive</Op> to auto-populate the corresponding sibling fields.
-   Then <Op>ocsf::cast</Op> validates the final event against the OCSF schema.
+5. The mapper intentionally produces minimal OCSF: it maps identifiers and
+   source-derived semantics, but does not hand-write derived sibling fields.
+   <Op>ocsf::derive</Op> expands the event with fields such as `activity_name`,
+   `category_name`, and `severity` before <Op>ocsf::cast</Op> validates the
+   final event against the OCSF schema.
 
 </Steps>
 
@@ -312,9 +314,10 @@ ocsf.severity = "Informational"
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 ```
 
-Note that computing the field `type_uid` requires simple arithmetic. You can
-rely on <Op>ocsf::derive</Op> to populate sibling fields—an optimization to
-write more concise mappings. This would simplify the above snippet to:
+Note that computing the field `type_uid` requires simple arithmetic. In package
+mappers, prefer minimal OCSF: set the IDs and source-derived values, but let
+<Op>ocsf::derive</Op> populate sibling fields. This keeps mappings concise and
+prevents repetitive label assignments. The shorter form is:
 
 ```tql
 ocsf.activity_id = 6
@@ -326,7 +329,9 @@ ocsf::derive
 ```
 
 The computed sibling fields for `<field>_id` often have the pattern
-`<field>_name` or simply `<field>`.
+`<field>_name` or simply `<field>`. Run <Op>ocsf::derive</Op> after the mapper
+returns the minimal OCSF event so downstream pipelines still receive the
+comprehensive schema shape.
 
 #### Occurrence Attributes
 
@@ -601,9 +606,9 @@ hierarchy:
 
 </FileTree>
 
-Since operators fully compose, you can implement `zeek::ocsf::map` as a
-combination of other operators: one dispatcher, shared setup in the `ocsf`
-record, and event-specific operators for each log type.
+Since operators fully compose, you can implement `zeek::ocsf::map` as one main
+mapper that performs source-specific cleanup, sets shared fields in the `ocsf`
+record, and dispatches to event-specific operators for each log type.
 
 import mapTql from '/public/packages/zeek/operators/ocsf/map.tql?raw';
 
@@ -624,11 +629,11 @@ In this layout, you'd put the mapping operators in the following directories:
 
 </FileTree>
 
-The mapper keeps intermediate results under `ocsf` internally, returns the final
-OCSF event, and leaves callers to run shared OCSF helpers such as
-<Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>. This mirrors how larger package
-mappers handle shared fields, fallback Base Event mapping, and event-specific
-mappings.
+The mapper keeps intermediate results under `ocsf` internally and returns a
+minimal OCSF event. Callers then run shared OCSF helpers such as
+<Op>ocsf::derive</Op> and <Op>ocsf::cast</Op> to expand and validate the final
+shape. This mirrors how larger package mappers handle cleanup, shared fields,
+fallback Base Event mapping, and event-specific mappings.
 
 #### Write tests for production-grade reliability
 
@@ -739,9 +744,10 @@ You learned:
 
 The key to successful OCSF mapping is systematic organization: keep source
 residue in `zeek`, map attributes group by group while removing source fields
-as you go, return the residue as `unmapped`, and validate the final shape with
-<Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>. This approach ensures you don't
-miss any fields and makes your mappings easy to maintain and extend.
+as you go, return the residue as `unmapped`, and produce minimal OCSF that
+<Op>ocsf::derive</Op> expands before <Op>ocsf::cast</Op> validates it. This
+approach keeps mappings maintainable while ensuring downstream pipelines receive
+the comprehensive schema shape.
 
 For more examples and ready-to-use OCSF mappings, check out the [Tenzir
 Community Library](https://github.com/tenzir/library).
