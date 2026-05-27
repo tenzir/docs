@@ -45,40 +45,22 @@ ocsf.dst_endpoint = {
 ocsf.is_src_dst_assignment_known = true
 ocsf.src_endpoint.mac = move ocsf.unmapped.orig_l2_addr?
 ocsf.dst_endpoint.mac = move ocsf.unmapped.resp_l2_addr?
-if ocsf.unmapped.geo.orig.country_code? != null or ocsf.unmapped.geo.orig.region? != null or ocsf.unmapped.geo.orig.city? != null or ocsf.unmapped.geo.orig.latitude? != null or ocsf.unmapped.geo.orig.longitude? != null {
-  ocsf.src_endpoint.location = {}
-  if ocsf.unmapped.geo.orig.country_code? != null {
-    ocsf.src_endpoint.location.country = move ocsf.unmapped.geo.orig.country_code
-  }
-  if ocsf.unmapped.geo.orig.region? != null {
-    ocsf.src_endpoint.location.region = move ocsf.unmapped.geo.orig.region
-  }
-  if ocsf.unmapped.geo.orig.city? != null {
-    ocsf.src_endpoint.location.city = move ocsf.unmapped.geo.orig.city
-  }
-  if ocsf.unmapped.geo.orig.latitude? != null {
-    ocsf.src_endpoint.location.lat = move ocsf.unmapped.geo.orig.latitude
-  }
-  if ocsf.unmapped.geo.orig.longitude? != null {
-    ocsf.src_endpoint.location.long = move ocsf.unmapped.geo.orig.longitude
+if ocsf.unmapped.geo.orig? != null {
+  ocsf.src_endpoint.location = {
+    country: move ocsf.unmapped.geo.orig.country_code?,
+    region: move ocsf.unmapped.geo.orig.region?,
+    city: move ocsf.unmapped.geo.orig.city?,
+    lat: move ocsf.unmapped.geo.orig.latitude?,
+    long: move ocsf.unmapped.geo.orig.longitude?,
   }
 }
-if ocsf.unmapped.geo.resp.country_code? != null or ocsf.unmapped.geo.resp.region? != null or ocsf.unmapped.geo.resp.city? != null or ocsf.unmapped.geo.resp.latitude? != null or ocsf.unmapped.geo.resp.longitude? != null {
-  ocsf.dst_endpoint.location = {}
-  if ocsf.unmapped.geo.resp.country_code? != null {
-    ocsf.dst_endpoint.location.country = move ocsf.unmapped.geo.resp.country_code
-  }
-  if ocsf.unmapped.geo.resp.region? != null {
-    ocsf.dst_endpoint.location.region = move ocsf.unmapped.geo.resp.region
-  }
-  if ocsf.unmapped.geo.resp.city? != null {
-    ocsf.dst_endpoint.location.city = move ocsf.unmapped.geo.resp.city
-  }
-  if ocsf.unmapped.geo.resp.latitude? != null {
-    ocsf.dst_endpoint.location.lat = move ocsf.unmapped.geo.resp.latitude
-  }
-  if ocsf.unmapped.geo.resp.longitude? != null {
-    ocsf.dst_endpoint.location.long = move ocsf.unmapped.geo.resp.longitude
+if ocsf.unmapped.geo.resp? != null {
+  ocsf.dst_endpoint.location = {
+    country: move ocsf.unmapped.geo.resp.country_code?,
+    region: move ocsf.unmapped.geo.resp.region?,
+    city: move ocsf.unmapped.geo.resp.city?,
+    lat: move ocsf.unmapped.geo.resp.latitude?,
+    long: move ocsf.unmapped.geo.resp.longitude?,
   }
 }
 drop ocsf.unmapped.geo?
