@@ -25,7 +25,9 @@ import
 
 When you install the package, the node automatically runs any enabled pipelines.
 The UDOs handle the transformation logic while the pipeline orchestrates the
-data flow.
+data flow. Use enabled pipelines only when the package should take action as
+soon as it is installed. Ship ingestion, export, and publishing workflows as
+disabled templates unless automatic execution is the package's core behavior.
 
 ## Configure pipeline behavior
 
@@ -91,9 +93,9 @@ to_http "https://siem.example.com/ingest"
 ```
 
 :::tip[Ship disabled by default]
-For maximum flexibility, add `disabled: true` to pipeline frontmatter. This
-ships the pipeline as a template that users must explicitly enable, combining
-the convenience of ready-made pipelines with opt-in execution.
+For opt-in operation, add `disabled: true` to pipeline frontmatter. This ships
+the pipeline as a template that users must explicitly enable, combining the
+convenience of ready-made pipelines with predictable installation behavior.
 :::
 
 ### `unstoppable`
@@ -157,7 +159,7 @@ that are both powerful and flexible.
 - The workflow is complete and self-contained
 - The package should take action upon installation
 
-For maximum flexibility, consider shipping both: operators that provide
+For flexible packages, consider shipping both: operators that provide reusable
 capabilities and disabled pipelines that demonstrate how to compose them.
 
 ## See also

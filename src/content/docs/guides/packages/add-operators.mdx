@@ -322,16 +322,16 @@ operators that call each other. This pattern keeps individual operators focused,
 enables independent testing, and creates a clear structure that mirrors your
 directory layout.
 
-Consider a package that normalizes various log formats to OCSF. You can organize
-the operators into layers:
+Consider a package that normalizes various event types to OCSF. You can
+organize the operators into layers:
 
-| Operator             | Purpose                                                              |
-| -------------------- | -------------------------------------------------------------------- |
-| `acme::parse`        | [Parse](/guides/parsing/parse-delimited-text) raw input into events  |
-| `acme::clean`        | [Normalize fields](/guides/normalization/clean-up-values), fix types |
-| `acme::ocsf::base`   | Fallback: maps to OCSF Base Event                                    |
-| `acme::ocsf::map`    | Dispatcher: routes to specific mappers                               |
-| `acme::ocsf::map::*` | Event-specific mapping (dns, http, auth, etc.)                       |
+| Operator                 | Purpose                                                              |
+| ------------------------ | -------------------------------------------------------------------- |
+| `acme::parse`            | [Parse](/guides/parsing/parse-delimited-text) raw input into events  |
+| `acme::clean`            | [Normalize fields](/guides/normalization/clean-up-values), fix types |
+| `acme::ocsf::base`       | Fallback: maps to OCSF Base Event                                    |
+| `acme::ocsf::map`        | Dispatcher: routes to specific mappers                               |
+| `acme::ocsf::events::*`  | Event-specific mapping such as dns, http, or auth                    |
 
 This hierarchy maps directly to your directory structure:
 
@@ -343,34 +343,33 @@ This hierarchy maps directly to your directory structure:
   - ocsf/
     - base.tql
     - map.tql
-    - map/
+    - events/
       - dns.tql
       - http.tql
       - auth.tql
 
 </FileTree>
 
-The dispatcher operator routes events to specialized mappers, e.g., based on
-event type:
+The dispatcher operator initializes the shared OCSF record, keeps source residue
+in `ocsf.unmapped`, and routes events to specialized mappers based on a stable
+event discriminator:
 
-```tql
+```tql title="operators/ocsf/map.tql"
 from {event_type: "dns"},
      {event_type: "http"},
      {event_type: "auth"},
      {event_type: "other"}
-match event_type {
-  "dns" => {
-    mapper = "dns"
-  }
-  "http" => {
-    mapper = "http"
-  }
-  "auth" => {
-    mapper = "auth"
-  }
-  _ => {
-    mapper = "base"
-  }
+
+ocsf.unmapped = this
+
+if event_type == "dns" {
+  acme::ocsf::events::dns
+} else if event_type == "http" {
+  acme::ocsf::events::http
+} else if event_type == "auth" {
+  acme::ocsf::events::auth
+} else {
+  acme::ocsf::base
 }
 ```
 
@@ -378,24 +377,37 @@ The fallback operator ensures that unrecognized events still conform to OCSF by
 mapping them to the Base Event class:
 
 ```tql title="operators/ocsf/base.tql"
-// Map unrecognized events to OCSF Base Event (class_uid: 0)
-class_uid = 0
-category_uid = 0
-activity_id = 0
-raw_data = move raw_message
+@name = "ocsf.base_event"
+ocsf.category_uid = 0
+ocsf.class_uid = 0
+ocsf.activity_id = 0
+ocsf.type_uid = 0
 ```
 
 Each leaf operator handles one specific event type:
 
-```tql title="operators/ocsf/map/dns.tql"
-// Map DNS logs to OCSF DNS Activity (class_uid: 4003)
-class_uid = 4003
-category_uid = 4
-activity_id = 1
-query.hostname = move query_name
-query.type = move query_type
-answers = move dns_answers
+```tql title="operators/ocsf/events/dns.tql"
+@name = "ocsf.dns_activity"
+ocsf.category_uid = 4
+ocsf.class_uid = 4003
+ocsf.activity_id = 1
+ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
+
+ocsf.query.hostname = move ocsf.unmapped.query_name
+ocsf.query.type = move ocsf.unmapped.query_type
+ocsf.answers = move ocsf.unmapped.dns_answers
 // ... additional field mappings
+```
+
+After the package mapper runs, callers can hoist the mapped event and run the
+shared OCSF helpers:
+
+```tql
+acme::ocsf::map
+this = ocsf
+drop_null_fields unmapped
+ocsf::derive
+ocsf::cast
 ```
 
 These operators compose into an end-to-end pipeline:
@@ -405,6 +417,10 @@ from_file "logs/mixed.json"
 acme::parse
 acme::clean
 acme::ocsf::map
+this = ocsf
+drop_null_fields unmapped
+ocsf::derive
+ocsf::cast
 publish "ocsf"
 ```
 

@@ -1,0 +1,85 @@
+// --- OCSF: classification attributes ----------
+
+@name = "ocsf.network_activity"
+ocsf.activity_id = 6
+ocsf.category_uid = 4
+ocsf.class_uid = 4001
+ocsf.severity_id = 1
+ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
+
+// --- OCSF: occurrence attributes --------------
+
+ocsf.time = move ocsf.unmapped.ts
+ocsf.end_time = ocsf.time + ocsf.unmapped.duration
+ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+ocsf.start_time = ocsf.time
+
+// --- OCSF: context attributes -----------------
+
+ocsf.metadata = {
+  log_name: "conn.log",
+  logged_time: move ocsf.unmapped._write_ts?,
+  product: {
+    name: "Zeek",
+    vendor_name: "Zeek",
+    cpe_name: "cpe:2.3:a:zeek:zeek",
+  },
+  uid: move ocsf.unmapped.uid,
+  version: "1.6.0",
+}
+ocsf.app_name = move ocsf.unmapped.service
+
+// --- OCSF: primary attributes -----------------
+
+let $proto_nums = {
+  tcp: 6,
+  udp: 17,
+  icmp: 1,
+  icmpv6: 58,
+  ipv6: 41,
+}
+ocsf.src_endpoint = {
+  ip: ocsf.unmapped.id.orig_h,
+  port: ocsf.unmapped.id.orig_p,
+}
+ocsf.dst_endpoint = {
+  ip: ocsf.unmapped.id.resp_h,
+  port: ocsf.unmapped.id.resp_p,
+}
+ocsf.connection_info = {
+  community_uid: move ocsf.unmapped.community_id?,
+  flag_history: move ocsf.unmapped.history,
+  protocol_name: move ocsf.unmapped.proto,
+  protocol_num: $proto_nums[ocsf.unmapped.proto]? else -1
+}
+if ocsf.unmapped.id.orig_h.is_v6() or ocsf.unmapped.id.resp_h.is_v6() {
+  ocsf.connection_info.protocol_ver_id = 6
+} else {
+  ocsf.connection_info.protocol_ver_id = 4
+}
+drop ocsf.unmapped.id
+ocsf.connection_info.direction_id = 0
+if ocsf.unmapped.local_orig != null and ocsf.unmapped.local_resp != null {
+  if ocsf.unmapped.local_orig and ocsf.unmapped.local_resp {
+    ocsf.connection_info.direction_id = 3
+  } else if ocsf.unmapped.local_orig {
+    ocsf.connection_info.direction_id = 2
+  } else if ocsf.unmapped.local_resp {
+    ocsf.connection_info.direction_id = 1
+  }
+}
+drop ocsf.unmapped.local_orig, ocsf.unmapped.local_resp
+ocsf.status_code = move ocsf.unmapped.conn_state
+ocsf.status_id = 99
+ocsf.traffic = {
+  bytes_in: ocsf.unmapped.resp_bytes,
+  bytes_out: ocsf.unmapped.orig_bytes,
+  packets_in: ocsf.unmapped.resp_pkts,
+  packets_out: ocsf.unmapped.orig_pkts,
+  bytes: ocsf.unmapped.orig_bytes + ocsf.unmapped.resp_bytes,
+  packets: ocsf.unmapped.orig_pkts + ocsf.unmapped.resp_pkts,
+}
+drop ocsf.unmapped.resp_bytes
+drop ocsf.unmapped.orig_bytes
+drop ocsf.unmapped.resp_pkts
+drop ocsf.unmapped.orig_pkts

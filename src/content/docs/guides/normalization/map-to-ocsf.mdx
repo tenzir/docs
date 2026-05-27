@@ -30,9 +30,9 @@ occurrence, context, primary.
 ```tql
 // --- Preamble ---------------------------------
 
-// Move source data into a dedicated field to prevent name clashes
+// Keep source data as mapping residue to prevent name clashes
 // and enable automatic unmapped field collection.
-this = { src: this }
+ocsf.unmapped = this
 
 // --- OCSF: classification attributes ----------
 
@@ -44,10 +44,12 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
 
-ocsf.time = move src.time_generated
-ocsf.start_time = move src.start
-ocsf.duration = move src.elapsed
-ocsf.end_time = ocsf.start_time + ocsf.duration if ocsf.duration != null
+ocsf.time = move ocsf.unmapped.time_generated
+ocsf.start_time = move ocsf.unmapped.start
+if ocsf.unmapped.elapsed != null {
+  ocsf.end_time = ocsf.start_time + ocsf.unmapped.elapsed
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.elapsed).round()
+}
 
 // --- OCSF: context attributes -----------------
 
@@ -59,31 +61,31 @@ ocsf.metadata = {
     name: "NGFW",
     vendor_name: "Palo Alto Networks",
   },
-  uid: move src.sessionid,
+  uid: move ocsf.unmapped.sessionid,
   version: "1.7.0",
 }
-ocsf.app_name = move src.app
+ocsf.app_name = move ocsf.unmapped.app
 
 // --- OCSF: primary attributes -----------------
 
 // Primary attributes reflect the core semantic meaning of the event.
 
 ocsf.src_endpoint = {
-  ip: move src.src,
-  port: move src.sport,
+  ip: move ocsf.unmapped.src,
+  port: move ocsf.unmapped.sport,
 }
 
 ocsf.dst_endpoint = {
-  ip: move src.dst,
-  port: move src.dport,
+  ip: move ocsf.unmapped.dst,
+  port: move ocsf.unmapped.dport,
 }
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
 ocsf.connection_info = {
-  protocol_num: $proto_nums[src.proto]? else -1,
-  protocol_name: src.proto,
+  protocol_num: $proto_nums[ocsf.unmapped.proto]? else -1,
+  protocol_name: ocsf.unmapped.proto,
 }
-drop src.proto
+drop ocsf.unmapped.proto
 
 // --- OCSF: profile-specific attributes --------
 
@@ -93,27 +95,32 @@ drop src.proto
 
 // --- Epilogue ---------------------------------
 
-// Hoist OCSF fields to root, collect unmapped.
-this = {...ocsf, unmapped: src}
-drop_null_fields unmapped
-
-// Derive sibling fields (activity_name, category_name, etc.)
-ocsf::derive
+// Hoist OCSF fields to root.
+this = ocsf
 
 // Set TQL-internal schema name for easier dispatching.
 @name = "ocsf.network_activity"
+
+drop_null_fields unmapped
+
+// Derive sibling fields and validate the final shape.
+ocsf::derive
+ocsf::cast
 ```
 
 ### Key principles
 
-- **Isolate source data**: `this = { src: this }` prevents name clashes and
+- **Isolate source data**: `ocsf.unmapped = this` prevents name clashes and
   makes unmapped field collection automatic.
 - **Use `move`**: Transfer fields with `move` to simultaneously assign and
-  remove from source, for example `ocsf.time = move src.time_generated`.
+  remove from source, for example
+  `ocsf.time = move ocsf.unmapped.time_generated`.
 - **Only use `drop` for multi-use fields**: When a field appears in multiple
   mappings, drop it after the last use. Prefer `move` and single assignments.
-- **Collect unmapped**: `this = {...ocsf, unmapped: src}` gathers any
-  fields you didn't map.
+- **Keep unmapped residue**: Fields left under `ocsf.unmapped` still need
+  review or an intentional decision to preserve source-specific data.
+- **Validate the result**: Run <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>
+  after hoisting the mapped OCSF record.
 
 :::note[Think in graphs]
 OCSF mapping is a bipartite graph transformation: source fields form one vertex
@@ -136,7 +143,7 @@ import { FileTree } from '@astrojs/starlight/components';
       - ocsf/
         - map.tql Main dispatcher
         - base.tql Fallback to OCSF base event
-        - event/
+        - events/
           - network.tql Traffic logs → Network Activity
           - dns.tql DNS logs → DNS Activity
           - threat.tql Threat logs → Security Finding
@@ -149,11 +156,11 @@ import { FileTree } from '@astrojs/starlight/components';
         - map.txt
         - base.tql
         - base.txt
-        - event/
-          - network.stdin Log sample(s)
+        - events/
+          - network.input Log sample(s)
           - network.tql Mapping for network event type
           - network.txt Mapped OCSF event(s)
-          - dns.stdin
+          - dns.input
           - dns.tql
           - dns.txt
   - package.yaml
@@ -165,29 +172,21 @@ Your package should include one dispatching operator. The dispatcher routes
 events based on the event type:
 
 ```tql
-from {src: {type: "TRAFFIC"}},
-     {src: {type: "DNS"}},
-     {src: {type: "THREAT"}},
-     {src: {type: "SYSTEM"}}
-match src.type {
-  "TRAFFIC" => {
-    mapper = "network"
-  }
-  "DNS" => {
-    mapper = "dns"
-  }
-  "THREAT" => {
-    mapper = "threat"
-  }
-  _ => {
-    mapper = "base"
-  }
+ocsf.unmapped = this
+
+if ocsf.unmapped.type == "TRAFFIC" {
+  paloalto::ngfw::ocsf::events::network
+} else if ocsf.unmapped.type == "DNS" {
+  paloalto::ngfw::ocsf::events::dns
+} else if ocsf.unmapped.type == "THREAT" {
+  paloalto::ngfw::ocsf::events::threat
+} else {
+  paloalto::ngfw::ocsf::base
 }
 ```
 
 If the parser package does not set a type field, dispatch on a different field
-in the log that differentiates the event types. In a package, each arm can call
-an event-specific mapping operator instead of setting `mapper`.
+in the log that differentiates the event types.
 
 ### Test structure
 
@@ -196,11 +195,14 @@ Create one test file per event type:
 ```tql
 paloalto::ngfw::parse
 paloalto::ngfw::clean
-paloalto::ngfw::ocsf::event::network
+paloalto::ngfw::ocsf::map
+this = ocsf
+drop_null_fields unmapped
+ocsf::derive
 ocsf::cast
 ```
 
-This requires that your test file has a sibling `.stdin` input that the [test
+This requires that your test file has a sibling `.input` file that the [test
 framework](/guides/testing/write-tests) picks up automatically.
 
 ### Validation gate

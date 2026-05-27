@@ -23,8 +23,8 @@ This involves three primary actions:
 3. Tag matching events with the OCSF OSINT profile, so that downstream tools can
    escalate the match into an alert or detection finding.
 
-We'll begin with the managing the lookup table. But first we need to get the
-package scaffolding in place.
+We'll begin by managing the lookup table. But first we need to get the package
+scaffolding in place.
 
 ## Create the package scaffold
 
@@ -51,6 +51,7 @@ of contexts and inputs, as we shall see below.
 ### Add descriptive metadata
 
 ```yaml title="sslbl/package.yaml"
+id: sslbl
 name: SSLBL
 author: Tenzir
 author_icon: https://github.com/tenzir.png
@@ -60,14 +61,17 @@ description: |
   The [SSLBL](https://sslbl.abuse.ch/) package provides a lookup table with
   SHA1 hashes of blacklisted certificates for TLS monitoring use cases.
 
+categories:
+  - contexts
+
 metadata:
   upstream: https://sslbl.abuse.ch/blacklist/sslblacklist.csv
-  category: threat-intelligence
 ```
 
-Tenzir accepts the top-level `metadata` field for external tooling and keeps its
-contents opaque. Unknown top-level keys outside the package schema still fail
-validation, so put non-engine data under `metadata`.
+Use top-level `categories` for the Tenzir Library grouping. Tenzir accepts the
+top-level `metadata` field for external tooling and keeps its contents opaque.
+Unknown top-level keys outside the package schema still fail validation, so put
+non-engine data under `metadata`.
 
 ### Define the lookup table context
 
@@ -99,7 +103,7 @@ import fetchTQL from '/public/packages/sslbl/operators/fetch.tql?raw';
 
 <Code code={fetchTQL} lang="tql" title="operators/fetch.tql" />
 
-The relative path in the packagage defines the operator name. After installing
+The relative path in the package defines the operator name. After installing
 the package, you can call this operator via `sslbl::fetch`. It will produce
 events of this shape:
 
@@ -112,8 +116,8 @@ events of this shape:
 ```
 
 Let's create another operator to map this data to [OSINT
-objects](https://schema.ocsf.io/1.6.0/objects/osint)—the standardized
-representation of an indicators of compromise (IOCs) in OCSF.
+objects](https://schema.ocsf.io/1.6.0/objects/osint), the standardized
+representation of indicators of compromise (IOCs) in OCSF.
 
 import toOsintTql from '/public/packages/sslbl/operators/ocsf/to_osint.tql?raw';
 
@@ -145,9 +149,9 @@ This pipeline translates the original feed into this shape:
 
 :::note[OCSF Verbosity]
 You may notice that this shape is a lot more verbose than the original event.
-Don't worry, it is absolutely normal when upgrading your raw data to a
-semantically richer representation like OCSF. You can always trim the feed down
-again later, either automatically with our
+This additional structure is normal when upgrading raw data to a semantically
+richer representation like OCSF. You can always trim the feed down again later,
+either automatically with our
 <Op>ocsf::trim</Op> operator or manually by
 <Op>drop</Op>ping fields. But while the data
 is in motion, the additional semantics unlock generic analytics when the context
@@ -274,9 +278,9 @@ import enrichNetworkActivityTql from '/public/packages/sslbl/examples/enrich-net
 
 <Code code={enrichNetworkActivityTql} lang="tql" title="examples/enrich-network-activity.tql" />
 
-This pipelines hones in on OCSF Network Activity events (`category_uid == 4`)
+This pipeline hones in on OCSF Network Activity events (`category_uid == 4`)
 that come with a SHA1 TLS certificate fingerprint (`algorithm_id == 2`). If we
-have a matche, we add the `osint` profile to the event and publish it to
+have a match, we add the `osint` profile to the event and publish it to a
 separate topic `ocsf-osint` for further processing.
 
 ### Example 3: Show a summary of the dataset
@@ -310,8 +314,8 @@ earlier you start, the better!
 
 ### Add tests for your operators
 
-Since our package ships with user-defined operators, we highly recommend to
-write tests for them:
+Since our package ships with user-defined operators, we recommend writing tests
+for them:
 
 1. You help users gain confidence in the functionality.
 2. You provide illustrative input-output pairs.
@@ -327,7 +331,7 @@ import testOcsfToOsintTql from '/public/packages/sslbl/tests/ocsf/to_osint.tql?r
 
 <Code code={testOcsfToOsintTql} lang="tql" title="tests/ocsf/to_osint.tql" />
 
-We first watch the terminal output it in passthrough mode:
+We first inspect the terminal output in passthrough mode:
 
 ```sh
 uvx tenzir-test --passthrough
@@ -337,7 +341,8 @@ import testOcsfToOsintTxt from '/public/packages/sslbl/tests/ocsf/to_osint.txt?r
 
 <Code code={testOcsfToOsintTxt} lang="tql" title="tests/ocsf/to_osint.txt" />
 
-As expected, a valid OCSF OSINT object. Let's confirm this as our new baseline:
+As expected, the test produces a valid OCSF OSINT object. Let's confirm this as
+our new baseline:
 
 ```sh
 uvx tenzir-test --update
@@ -385,7 +390,7 @@ The interactive wizard guides you through the process. See <Guide>packages/maint
 
 ## Share and contribute
 
-Phew, you made it! You now have a reusable package. 🎉
+You now have a reusable package.
 
 Now that you have a package, what's next?
 
