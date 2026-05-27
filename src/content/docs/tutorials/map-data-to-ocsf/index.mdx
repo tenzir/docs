@@ -199,7 +199,9 @@ Here's a template for the mapping pipeline:
 // --- Preamble ---------------------------------
 
 // Keep the source event as mapping residue inside the OCSF record.
+ocsf = {}
 ocsf.unmapped = this
+drop ocsf.unmapped.ocsf?
 
 // (2) Populate the OCSF event. Style-wise, we recommend using one coherent
 // block of TQL per OCSF attribute group to provide a bit of structure for the
@@ -207,6 +209,7 @@ ocsf.unmapped = this
 
 // --- OCSF: classification attributes ----------
 
+@name = "ocsf.network_activity"
 ocsf.category_uid = 4
 ocsf.class_uid = 4001
 ocsf.activity_id = 6
@@ -232,7 +235,7 @@ ocsf.metadata = {
     vendor_name: "Zeek",
   },
   profiles: [], // 👈 add profiles as needed, such as ["host", "network_proxy"]
-  uid: move ocsf.unmapped.uid,
+  original_event_uid: move ocsf.unmapped.uid,
   version: "1.8.0",
 }
 // ...fill out remaining context attributes.
@@ -240,12 +243,12 @@ ocsf.metadata = {
 // --- OCSF: primary attributes -----------------
 
 ocsf.src_endpoint = {
-  ip: ocsf.unmapped.id.orig_h,
-  port: ocsf.unmapped.id.orig_p,
+  ip: move ocsf.unmapped.id.orig_h,
+  port: move ocsf.unmapped.id.orig_p,
 }
 ocsf.dst_endpoint = {
-  ip: ocsf.unmapped.id.resp_h,
-  port: ocsf.unmapped.id.resp_p,
+  ip: move ocsf.unmapped.id.resp_h,
+  port: move ocsf.unmapped.id.resp_p,
 }
 ocsf.is_src_dst_assignment_known = true
 // ...fill out remaining primary attributes.
@@ -262,13 +265,7 @@ drop ocsf.unmapped.id // 👈 remove source field after mapping
 // (3) Hoist all `ocsf` attributes into the root.
 this = ocsf
 
-// (4) Assign metadata, such as a name for easier filtering downstream.
-@name = "ocsf.network_activity"
-
-// (5) Minimize nulls in the remaining unmapped data.
-drop_null_fields unmapped
-
-// (6) Populate sibling fields and validate the final OCSF shape.
+// (4) Populate sibling fields and validate the final OCSF shape.
 ocsf::derive
 ocsf::cast
 ```
@@ -279,22 +276,22 @@ Let's unpack this:
 
 <Steps>
 
-1. With `ocsf.unmapped = this`, we create a dedicated OCSF record and keep the
-   original event as mapping residue. This approach avoids name clashes when we
-   create new fields in the next steps.
+1. With `ocsf = {}` and `ocsf.unmapped = this`, we create a dedicated OCSF
+   record and keep the original event as mapping residue. This approach avoids
+   name clashes when we create new fields in the next steps. Drop
+   `ocsf.unmapped.ocsf?` to avoid carrying a nested OCSF record from upstream.
 2. The main work takes place here. Our approach is structured: for every field
    in the source event, (1) map it, and (2) remove it. Ideally, use the `move`
    keyword to perform (1) and (2) together, for example,
    `ocsf.x = move ocsf.unmapped.y`. If a field needs to be used multiple times
    in the same expression, use
    the <Op>drop</Op> afterwards.
-3. The assignment `this = ocsf` hoists the mapped event into the top-level
+3. Assign `@name` to the target OCSF event class so that downstream pipelines
+   can filter by schema.
+4. The assignment `this = ocsf` hoists the mapped event into the top-level
    record. Because mapped source fields were removed from `ocsf.unmapped`, the
    remaining `unmapped` record contains everything that still needs review.
-4. We give the event a new schema name so that we can easily filter by its shape
-   in further pipelines.
-5. We drop null fields from `unmapped` to keep the output clean.
-6. We keep the mapping terse by only mapping the `*_[u]id` field and relying
+5. We keep the mapping terse by only mapping the `*_[u]id` field and relying
    on <Op>ocsf::derive</Op> to auto-populate the corresponding sibling fields.
    Then <Op>ocsf::cast</Op> validates the final event against the OCSF schema.
 
@@ -368,7 +365,7 @@ ocsf.metadata = {
     vendor_name: "Zeek",
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
-  uid: move ocsf.unmapped.uid,
+  original_event_uid: move ocsf.unmapped.uid,
   version: "1.8.0",
 }
 drop ocsf.unmapped._path? // implied in metadata.log_name
@@ -391,14 +388,53 @@ information.
 
 ```tql
 ocsf.src_endpoint = {
-  ip: ocsf.unmapped.id.orig_h,
-  port: ocsf.unmapped.id.orig_p,
+  ip: move ocsf.unmapped.id.orig_h,
+  port: move ocsf.unmapped.id.orig_p,
 }
 ocsf.dst_endpoint = {
-  ip: ocsf.unmapped.id.resp_h,
-  port: ocsf.unmapped.id.resp_p,
+  ip: move ocsf.unmapped.id.resp_h,
+  port: move ocsf.unmapped.id.resp_p,
 }
 ocsf.is_src_dst_assignment_known = true
+ocsf.src_endpoint.mac = move ocsf.unmapped.orig_l2_addr?
+ocsf.dst_endpoint.mac = move ocsf.unmapped.resp_l2_addr?
+if ocsf.unmapped.geo.orig.country_code? != null or ocsf.unmapped.geo.orig.region? != null or ocsf.unmapped.geo.orig.city? != null or ocsf.unmapped.geo.orig.latitude? != null or ocsf.unmapped.geo.orig.longitude? != null {
+  ocsf.src_endpoint.location = {}
+  if ocsf.unmapped.geo.orig.country_code? != null {
+    ocsf.src_endpoint.location.country = move ocsf.unmapped.geo.orig.country_code
+  }
+  if ocsf.unmapped.geo.orig.region? != null {
+    ocsf.src_endpoint.location.region = move ocsf.unmapped.geo.orig.region
+  }
+  if ocsf.unmapped.geo.orig.city? != null {
+    ocsf.src_endpoint.location.city = move ocsf.unmapped.geo.orig.city
+  }
+  if ocsf.unmapped.geo.orig.latitude? != null {
+    ocsf.src_endpoint.location.lat = move ocsf.unmapped.geo.orig.latitude
+  }
+  if ocsf.unmapped.geo.orig.longitude? != null {
+    ocsf.src_endpoint.location.long = move ocsf.unmapped.geo.orig.longitude
+  }
+}
+if ocsf.unmapped.geo.resp.country_code? != null or ocsf.unmapped.geo.resp.region? != null or ocsf.unmapped.geo.resp.city? != null or ocsf.unmapped.geo.resp.latitude? != null or ocsf.unmapped.geo.resp.longitude? != null {
+  ocsf.dst_endpoint.location = {}
+  if ocsf.unmapped.geo.resp.country_code? != null {
+    ocsf.dst_endpoint.location.country = move ocsf.unmapped.geo.resp.country_code
+  }
+  if ocsf.unmapped.geo.resp.region? != null {
+    ocsf.dst_endpoint.location.region = move ocsf.unmapped.geo.resp.region
+  }
+  if ocsf.unmapped.geo.resp.city? != null {
+    ocsf.dst_endpoint.location.city = move ocsf.unmapped.geo.resp.city
+  }
+  if ocsf.unmapped.geo.resp.latitude? != null {
+    ocsf.dst_endpoint.location.lat = move ocsf.unmapped.geo.resp.latitude
+  }
+  if ocsf.unmapped.geo.resp.longitude? != null {
+    ocsf.dst_endpoint.location.long = move ocsf.unmapped.geo.resp.longitude
+  }
+}
+drop ocsf.unmapped.geo?
 // Here, we use `drop` because we simply want to get rid of the intermediate
 // `id` record that we already mapped above.
 drop ocsf.unmapped.id
@@ -414,8 +450,8 @@ let $proto_nums = {
 ocsf.connection_info = {
   community_uid: move ocsf.unmapped.community_id?,
   protocol_name: move ocsf.unmapped.proto,
-  protocol_num: $proto_nums[ocsf.unmapped.proto]? else -1
 }
+ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
 // Use `if` for binary predicates and `match` for finite case dispatch.
 if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
@@ -450,21 +486,35 @@ ocsf.status_code = move ocsf.unmapped.conn_state
 ocsf.traffic = {
   bytes_in: move ocsf.unmapped.resp_bytes,
   bytes_out: move ocsf.unmapped.orig_bytes,
+  bytes_missed: move ocsf.unmapped.missed_bytes,
   packets_in: move ocsf.unmapped.resp_pkts,
   packets_out: move ocsf.unmapped.orig_pkts,
 }
-ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
+if ocsf.traffic.bytes_out? != null and ocsf.traffic.bytes_in? != null {
+  ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
+}
 ocsf.traffic.packets = ocsf.traffic.packets_out + ocsf.traffic.packets_in
+if ocsf.unmapped.tunnel_parents == null {
+  drop ocsf.unmapped.tunnel_parents
+}
+if ocsf.unmapped.vlan == null {
+  drop ocsf.unmapped.vlan
+}
+if ocsf.unmapped.inner_vlan == null {
+  drop ocsf.unmapped.inner_vlan
+}
 ```
 
 Here's what happens here:
 
-- The expression `$proto_nums[ocsf.unmapped.proto]` takes the value of Zeek's
-  `proto` field and uses it as an index into a static record `$proto_nums`. Add
-  a `?` at the end to avoid warnings when the lookup returns `null`, and use
-  the inline `else` expression for the fallback value.
+- The expression `$proto_nums[ocsf.connection_info.protocol_name]` takes the
+  moved Zeek `proto` value and uses it as an index into a static record
+  `$proto_nums`. Add a `?` at the end to avoid warnings when the lookup returns
+  `null`, and use the inline `else` expression for the fallback value.
 - Set `is_src_dst_assignment_known` because Zeek's `id.orig_*` fields identify
   the connection initiator and `id.resp_*` fields identify the responder.
+- Move Layer 2 addresses and GeoIP enrichment into endpoint attributes instead
+  of leaving them in `unmapped`.
 - Use <Fn>is_v6</Fn> on the connection IPs to identify IPv6 connections.
 
 #### Putting it together
@@ -540,7 +590,6 @@ from_stdin
 read_zeek_tsv
 zeek::ocsf::map // 👈 Populates the `ocsf` record with a package UDO.
 this = ocsf
-drop_null_fields unmapped
 ocsf::derive
 ocsf::cast
 to_stdout
@@ -594,14 +643,15 @@ In this layout, you'd put the mapping operators in the following directories:
         - conn.tql
         - dns.tql
         - ...
+      - base.tql
       - map.tql
 
 </FileTree>
 
 The mapper keeps intermediate results under `ocsf` until the caller hoists the
-final event, trims null residue, and runs shared OCSF helpers such as
-<Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>. This mirrors how larger package
-mappers handle shared fields and event-specific mappings.
+final event and runs shared OCSF helpers such as <Op>ocsf::derive</Op> and
+<Op>ocsf::cast</Op>. This mirrors how larger package mappers handle shared
+fields, fallback Base Event mapping, and event-specific mappings.
 
 #### Write tests for production-grade reliability
 

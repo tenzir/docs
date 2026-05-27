@@ -32,10 +32,13 @@ occurrence, context, primary.
 
 // Keep source data as mapping residue to prevent name clashes
 // and enable automatic unmapped field collection.
+ocsf = {}
 ocsf.unmapped = this
+drop ocsf.unmapped.ocsf?
 
 // --- OCSF: classification attributes ----------
 
+@name = "ocsf.network_activity"
 ocsf.category_uid = 4
 ocsf.class_uid = 4001
 ocsf.activity_id = 6
@@ -62,8 +65,8 @@ ocsf.metadata = {
     name: "NGFW",
     vendor_name: "Palo Alto Networks",
   },
-  uid: move ocsf.unmapped.sessionid,
-  version: "1.7.0",
+  original_event_uid: move ocsf.unmapped.sessionid,
+  version: "1.8.0",
 }
 ocsf.app_name = move ocsf.unmapped.app
 
@@ -83,10 +86,9 @@ ocsf.dst_endpoint = {
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
 ocsf.connection_info = {
-  protocol_num: $proto_nums[ocsf.unmapped.proto]? else -1,
-  protocol_name: ocsf.unmapped.proto,
+  protocol_name: move ocsf.unmapped.proto,
 }
-drop ocsf.unmapped.proto
+ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
 
 // --- OCSF: profile-specific attributes --------
 
@@ -99,11 +101,6 @@ drop ocsf.unmapped.proto
 // Hoist OCSF fields to root.
 this = ocsf
 
-// Set TQL-internal schema name for easier dispatching.
-@name = "ocsf.network_activity"
-
-drop_null_fields unmapped
-
 // Derive sibling fields and validate the final shape.
 ocsf::derive
 ocsf::cast
@@ -111,8 +108,8 @@ ocsf::cast
 
 ### Key principles
 
-- **Isolate source data**: `ocsf.unmapped = this` prevents name clashes and
-  makes unmapped field collection automatic.
+- **Isolate source data**: `ocsf = {}` and `ocsf.unmapped = this` prevent name
+  clashes and make unmapped field collection automatic.
 - **Use `move`**: Transfer fields with `move` to simultaneously assign and
   remove from source, for example
   `ocsf.time = move ocsf.unmapped.time_generated`.
@@ -173,7 +170,19 @@ Your package should include one dispatching operator. The dispatcher routes
 events based on the event type:
 
 ```tql
+ocsf = {}
 ocsf.unmapped = this
+drop ocsf.unmapped.ocsf?
+
+ocsf.metadata = {
+  product: {
+    cpe_name: "cpe:/a:paloaltonetworks:pan-os",
+    name: "NGFW",
+    vendor_name: "Palo Alto Networks",
+  },
+  version: "1.8.0",
+}
+ocsf.severity_id = 1
 
 match ocsf.unmapped.type {
   "TRAFFIC" => {
@@ -203,7 +212,6 @@ paloalto::ngfw::parse
 paloalto::ngfw::clean
 paloalto::ngfw::ocsf::map
 this = ocsf
-drop_null_fields unmapped
 ocsf::derive
 ocsf::cast
 ```

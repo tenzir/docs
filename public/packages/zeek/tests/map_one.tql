@@ -3,7 +3,7 @@ from_file f"{env("TENZIR_INPUTS")}/conn.log" {
 }
 zeek::ocsf::map
 this = ocsf
-drop_null_fields unmapped
 ocsf::derive
 ocsf::cast
+sort time
 head 2

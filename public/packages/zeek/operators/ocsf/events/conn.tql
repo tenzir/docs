@@ -4,7 +4,6 @@
 ocsf.activity_id = 6
 ocsf.category_uid = 4
 ocsf.class_uid = 4001
-ocsf.severity_id = 1
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
@@ -14,22 +13,17 @@ if ocsf.unmapped.duration != null {
   ocsf.duration = move ocsf.unmapped.duration
   ocsf.end_time = ocsf.time + ocsf.duration
   ocsf.duration = count_milliseconds(ocsf.duration).round()
+} else {
+  drop ocsf.unmapped.duration
 }
 ocsf.start_time = ocsf.time
 
 // --- OCSF: context attributes -----------------
 
-ocsf.metadata = {
-  log_name: "conn.log",
-  logged_time: move ocsf.unmapped._write_ts?,
-  product: {
-    name: "Zeek",
-    vendor_name: "Zeek",
-    cpe_name: "cpe:2.3:a:zeek:zeek",
-  },
-  uid: move ocsf.unmapped.uid,
-  version: "1.8.0",
-}
+ocsf.metadata.log_name = "conn.log"
+ocsf.metadata.logged_time = move ocsf.unmapped._write_ts?
+ocsf.metadata.original_event_uid = move ocsf.unmapped.uid
+drop ocsf.unmapped._path?
 ocsf.app_protocol_name = move ocsf.unmapped.service
 
 // --- OCSF: primary attributes -----------------
@@ -42,21 +36,60 @@ let $proto_nums = {
   ipv6: 41,
 }
 ocsf.src_endpoint = {
-  ip: ocsf.unmapped.id.orig_h,
-  port: ocsf.unmapped.id.orig_p,
+  ip: move ocsf.unmapped.id.orig_h,
+  port: move ocsf.unmapped.id.orig_p,
 }
 ocsf.dst_endpoint = {
-  ip: ocsf.unmapped.id.resp_h,
-  port: ocsf.unmapped.id.resp_p,
+  ip: move ocsf.unmapped.id.resp_h,
+  port: move ocsf.unmapped.id.resp_p,
 }
 ocsf.is_src_dst_assignment_known = true
+ocsf.src_endpoint.mac = move ocsf.unmapped.orig_l2_addr?
+ocsf.dst_endpoint.mac = move ocsf.unmapped.resp_l2_addr?
+if ocsf.unmapped.geo.orig.country_code? != null or ocsf.unmapped.geo.orig.region? != null or ocsf.unmapped.geo.orig.city? != null or ocsf.unmapped.geo.orig.latitude? != null or ocsf.unmapped.geo.orig.longitude? != null {
+  ocsf.src_endpoint.location = {}
+  if ocsf.unmapped.geo.orig.country_code? != null {
+    ocsf.src_endpoint.location.country = move ocsf.unmapped.geo.orig.country_code
+  }
+  if ocsf.unmapped.geo.orig.region? != null {
+    ocsf.src_endpoint.location.region = move ocsf.unmapped.geo.orig.region
+  }
+  if ocsf.unmapped.geo.orig.city? != null {
+    ocsf.src_endpoint.location.city = move ocsf.unmapped.geo.orig.city
+  }
+  if ocsf.unmapped.geo.orig.latitude? != null {
+    ocsf.src_endpoint.location.lat = move ocsf.unmapped.geo.orig.latitude
+  }
+  if ocsf.unmapped.geo.orig.longitude? != null {
+    ocsf.src_endpoint.location.long = move ocsf.unmapped.geo.orig.longitude
+  }
+}
+if ocsf.unmapped.geo.resp.country_code? != null or ocsf.unmapped.geo.resp.region? != null or ocsf.unmapped.geo.resp.city? != null or ocsf.unmapped.geo.resp.latitude? != null or ocsf.unmapped.geo.resp.longitude? != null {
+  ocsf.dst_endpoint.location = {}
+  if ocsf.unmapped.geo.resp.country_code? != null {
+    ocsf.dst_endpoint.location.country = move ocsf.unmapped.geo.resp.country_code
+  }
+  if ocsf.unmapped.geo.resp.region? != null {
+    ocsf.dst_endpoint.location.region = move ocsf.unmapped.geo.resp.region
+  }
+  if ocsf.unmapped.geo.resp.city? != null {
+    ocsf.dst_endpoint.location.city = move ocsf.unmapped.geo.resp.city
+  }
+  if ocsf.unmapped.geo.resp.latitude? != null {
+    ocsf.dst_endpoint.location.lat = move ocsf.unmapped.geo.resp.latitude
+  }
+  if ocsf.unmapped.geo.resp.longitude? != null {
+    ocsf.dst_endpoint.location.long = move ocsf.unmapped.geo.resp.longitude
+  }
+}
+drop ocsf.unmapped.geo?
 ocsf.connection_info = {
   community_uid: move ocsf.unmapped.community_id?,
   flag_history: move ocsf.unmapped.history,
   protocol_name: move ocsf.unmapped.proto,
-  protocol_num: $proto_nums[ocsf.unmapped.proto]? else -1
 }
-if ocsf.unmapped.id.orig_h.is_v6() or ocsf.unmapped.id.resp_h.is_v6() {
+ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
+if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
   ocsf.connection_info.protocol_ver_id = 6
 } else {
   ocsf.connection_info.protocol_ver_id = 4
@@ -82,8 +115,20 @@ ocsf.status_id = 99
 ocsf.traffic = {
   bytes_in: move ocsf.unmapped.resp_bytes,
   bytes_out: move ocsf.unmapped.orig_bytes,
+  bytes_missed: move ocsf.unmapped.missed_bytes,
   packets_in: move ocsf.unmapped.resp_pkts,
   packets_out: move ocsf.unmapped.orig_pkts,
 }
-ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
+if ocsf.traffic.bytes_out? != null and ocsf.traffic.bytes_in? != null {
+  ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
+}
 ocsf.traffic.packets = ocsf.traffic.packets_out + ocsf.traffic.packets_in
+if ocsf.unmapped.tunnel_parents == null {
+  drop ocsf.unmapped.tunnel_parents
+}
+if ocsf.unmapped.vlan == null {
+  drop ocsf.unmapped.vlan
+}
+if ocsf.unmapped.inner_vlan == null {
+  drop ocsf.unmapped.inner_vlan
+}

@@ -1,6 +1,19 @@
 // Keep the parsed source event around while event-specific operators move
 // fields into their OCSF homes.
+ocsf = {}
 ocsf.unmapped = this
+drop ocsf.unmapped.ocsf?
+
+ocsf.metadata = {
+  product: {
+    name: "Zeek",
+    vendor_name: "Zeek",
+    cpe_name: "cpe:2.3:a:zeek:zeek",
+  },
+  version: "1.8.0",
+}
+
+ocsf.severity_id = 1
 
 // Dispatch mappings based on schema name. This assumes that you've parsed the
 // input logs and added the appropriate @name based on the log type. The
@@ -16,11 +29,6 @@ match @name {
     zeek::ocsf::events::dns
   }
   _ => {
-    // Base Event: unknown or unsupported Zeek log type
-    @name = "ocsf.base_event"
-    ocsf.category_uid = 0
-    ocsf.class_uid = 0
-    ocsf.activity_id = 0
-    ocsf.type_uid = 0
+    zeek::ocsf::base
   }
 }
