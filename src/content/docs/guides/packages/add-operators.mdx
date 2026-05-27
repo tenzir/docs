@@ -350,14 +350,12 @@ This hierarchy maps directly to your directory structure:
 
 </FileTree>
 
-The dispatcher operator initializes the shared OCSF record, keeps source residue
-in `ocsf.unmapped`, and routes events to specialized mappers based on a stable
-event discriminator:
+The dispatcher operator keeps source residue in `ocsf.unmapped`, adds shared
+OCSF fields, and routes events to specialized mappers based on a stable event
+discriminator:
 
 ```tql title="operators/ocsf/map.tql"
-ocsf = {}
 ocsf.unmapped = this
-drop ocsf.unmapped.ocsf?
 
 ocsf.metadata = {
   product: {

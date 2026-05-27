@@ -32,9 +32,7 @@ occurrence, context, primary.
 
 // Keep source data as mapping residue to prevent name clashes
 // and enable automatic unmapped field collection.
-ocsf = {}
 ocsf.unmapped = this
-drop ocsf.unmapped.ocsf?
 
 // --- OCSF: classification attributes ----------
 
@@ -107,8 +105,8 @@ ocsf::cast
 
 ### Key principles
 
-- **Isolate source data**: `ocsf = {}` and `ocsf.unmapped = this` prevent name
-  clashes and make unmapped field collection automatic.
+- **Isolate source data**: `ocsf.unmapped = this` prevents name clashes and
+  makes unmapped field collection automatic.
 - **Use `move`**: Transfer fields with `move` to simultaneously assign and
   remove from source, for example
   `ocsf.time = move ocsf.unmapped.time_generated`.
@@ -169,9 +167,7 @@ Your package should include one dispatching operator. The dispatcher routes
 events based on the event type:
 
 ```tql
-ocsf = {}
 ocsf.unmapped = this
-drop ocsf.unmapped.ocsf?
 
 ocsf.metadata = {
   product: {

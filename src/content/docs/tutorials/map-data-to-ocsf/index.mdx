@@ -199,9 +199,7 @@ Here's a template for the mapping pipeline:
 // --- Preamble ---------------------------------
 
 // Keep the source event as mapping residue inside the OCSF record.
-ocsf = {}
 ocsf.unmapped = this
-drop ocsf.unmapped.ocsf?
 
 // (2) Populate the OCSF event. Style-wise, we recommend using one coherent
 // block of TQL per OCSF attribute group to provide a bit of structure for the
@@ -275,10 +273,9 @@ Let's unpack this:
 
 <Steps>
 
-1. With `ocsf = {}` and `ocsf.unmapped = this`, we create a dedicated OCSF
-   record and keep the original event as mapping residue. This approach avoids
-   name clashes when we create new fields in the next steps. Drop
-   `ocsf.unmapped.ocsf?` to avoid carrying a nested OCSF record from upstream.
+1. With `ocsf.unmapped = this`, we create a dedicated OCSF record and keep the
+   original event as mapping residue. This approach avoids name clashes when we
+   create new fields in the next steps.
 2. The main work takes place here. Our approach is structured: for every field
    in the source event, (1) map it, and (2) remove it. Ideally, use the `move`
    keyword to perform (1) and (2) together, for example,
