@@ -216,8 +216,10 @@ ocsf.severity_id = 1
 // --- OCSF: occurrence attributes --------------
 
 ocsf.time = move ocsf.unmapped.ts // 👈 remove source field while mapping
-ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+if ocsf.unmapped.duration != null {
+  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+}
 ocsf.start_time = ocsf.time
 // ...fill out remaining occurrence attributes; add timezone_offset if known.
 
@@ -334,13 +336,15 @@ Let's tackle the occurrence group. These attributes are all about time.
 
 ```tql
 ocsf.time = move ocsf.unmapped.ts
-ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+if ocsf.unmapped.duration != null {
+  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+}
 ocsf.start_time = ocsf.time
 ```
 
-Using `+` with a value of type `time` and `duration` yields a new `time` value,
-just as you'd expect.
+When Zeek records a connection duration, using `+` with a value of type `time`
+and `duration` yields a new `time` value, just as you'd expect.
 
 #### Context Attributes
 

@@ -10,8 +10,10 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 // --- OCSF: occurrence attributes --------------
 
 ocsf.time = move ocsf.unmapped.ts
-ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+if ocsf.unmapped.duration != null {
+  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+}
 ocsf.start_time = ocsf.time
 
 // --- OCSF: context attributes -----------------

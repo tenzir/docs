@@ -355,11 +355,6 @@ in `ocsf.unmapped`, and routes events to specialized mappers based on a stable
 event discriminator:
 
 ```tql title="operators/ocsf/map.tql"
-from {event_type: "dns"},
-     {event_type: "http"},
-     {event_type: "auth"},
-     {event_type: "other"}
-
 ocsf.unmapped = this
 
 if event_type == "dns" {
