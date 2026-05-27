@@ -438,17 +438,13 @@ ocsf.status_id = 99
 ocsf.status = "Other"
 ocsf.status_code = move ocsf.unmapped.conn_state
 ocsf.traffic = {
-  bytes_in: ocsf.unmapped.resp_bytes,
-  bytes_out: ocsf.unmapped.orig_bytes,
-  packets_in: ocsf.unmapped.resp_pkts,
-  packets_out: ocsf.unmapped.orig_pkts,
-  bytes: ocsf.unmapped.orig_bytes + ocsf.unmapped.resp_bytes,
-  packets: ocsf.unmapped.orig_pkts + ocsf.unmapped.resp_pkts,
+  bytes_in: move ocsf.unmapped.resp_bytes,
+  bytes_out: move ocsf.unmapped.orig_bytes,
+  packets_in: move ocsf.unmapped.resp_pkts,
+  packets_out: move ocsf.unmapped.orig_pkts,
 }
-drop ocsf.unmapped.resp_bytes
-drop ocsf.unmapped.orig_bytes
-drop ocsf.unmapped.resp_pkts
-drop ocsf.unmapped.orig_pkts
+ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
+ocsf.traffic.packets = ocsf.traffic.packets_out + ocsf.traffic.packets_in
 ```
 
 Here's what happens here:
