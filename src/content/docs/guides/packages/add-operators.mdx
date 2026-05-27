@@ -357,14 +357,19 @@ event discriminator:
 ```tql title="operators/ocsf/map.tql"
 ocsf.unmapped = this
 
-if event_type == "dns" {
-  acme::ocsf::events::dns
-} else if event_type == "http" {
-  acme::ocsf::events::http
-} else if event_type == "auth" {
-  acme::ocsf::events::auth
-} else {
-  acme::ocsf::base
+match event_type {
+  "dns" => {
+    acme::ocsf::events::dns
+  }
+  "http" => {
+    acme::ocsf::events::http
+  }
+  "auth" => {
+    acme::ocsf::events::auth
+  }
+  _ => {
+    acme::ocsf::base
+  }
 }
 ```
 

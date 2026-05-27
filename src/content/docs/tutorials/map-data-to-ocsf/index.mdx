@@ -182,8 +182,8 @@ the corresponding OCSF fields.
 
 To map fields, you must first identify the appropriate OCSF event class. In our
 example, the corresponding event class in OCSF is [Network
-Activity](https://schema.ocsf.io/1.6.0/classes/network_activity). We use OCSF
-v1.6.0 throughout this tutorial.
+Activity](https://schema.ocsf.io/1.8.0/classes/network_activity). We use OCSF
+v1.8.0 throughout this tutorial.
 
 To make the mapping process more organized, we map per _attribute group_. The
 schema has four groups:
@@ -232,7 +232,7 @@ ocsf.metadata = {
   },
   profiles: [], // 👈 add profiles as needed, such as ["host", "network_proxy"]
   uid: move ocsf.unmapped.uid,
-  version: "1.7.0",
+  version: "1.8.0",
 }
 // ...fill out remaining context attributes.
 
@@ -362,7 +362,7 @@ ocsf.metadata = {
     cpe_name: "cpe:2.3:a:zeek:zeek",
   },
   uid: move ocsf.unmapped.uid,
-  version: "1.6.0",
+  version: "1.8.0",
 }
 drop ocsf.unmapped._path? // implied in metadata.log_name
 ocsf.app_name = move ocsf.unmapped.service

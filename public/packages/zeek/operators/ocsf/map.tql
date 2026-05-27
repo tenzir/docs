@@ -6,17 +6,21 @@ ocsf.unmapped = this
 // input logs and added the appropriate @name based on the log type. The
 // read_zeek_tsv operator does this automatically. You could also dispatch based
 // on any other stable discriminator, such as _path or event_type.
-if @name == "zeek.conn" {
-  // Map "conn.log" events
-  zeek::ocsf::events::conn
-} else if @name == "zeek.dns" {
-  // Map "dns.log" events
-  zeek::ocsf::events::dns
-} else {
-  // Base Event: unknown or unsupported Zeek log type
-  @name = "ocsf.base_event"
-  ocsf.category_uid = 0
-  ocsf.class_uid = 0
-  ocsf.activity_id = 0
-  ocsf.type_uid = 0
+match @name {
+  "zeek.conn" => {
+    // Map "conn.log" events
+    zeek::ocsf::events::conn
+  }
+  "zeek.dns" => {
+    // Map "dns.log" events
+    zeek::ocsf::events::dns
+  }
+  _ => {
+    // Base Event: unknown or unsupported Zeek log type
+    @name = "ocsf.base_event"
+    ocsf.category_uid = 0
+    ocsf.class_uid = 0
+    ocsf.activity_id = 0
+    ocsf.type_uid = 0
+  }
 }
