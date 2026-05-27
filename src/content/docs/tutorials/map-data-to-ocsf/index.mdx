@@ -217,8 +217,9 @@ ocsf.severity_id = 1
 
 ocsf.time = move ocsf.unmapped.ts // 👈 remove source field while mapping
 if ocsf.unmapped.duration != null {
-  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+  ocsf.duration = move ocsf.unmapped.duration
+  ocsf.end_time = ocsf.time + ocsf.duration
+  ocsf.duration = count_milliseconds(ocsf.duration).round()
 }
 ocsf.start_time = ocsf.time
 // ...fill out remaining occurrence attributes; add timezone_offset if known.
@@ -337,8 +338,9 @@ Let's tackle the occurrence group. These attributes are all about time.
 ```tql
 ocsf.time = move ocsf.unmapped.ts
 if ocsf.unmapped.duration != null {
-  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+  ocsf.duration = move ocsf.unmapped.duration
+  ocsf.end_time = ocsf.time + ocsf.duration
+  ocsf.duration = count_milliseconds(ocsf.duration).round()
 }
 ocsf.start_time = ocsf.time
 ```
