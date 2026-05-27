@@ -25,7 +25,8 @@ tenzir:
     metrics: 7d
 ```
 
-Operator metrics use the separate `tenzir.retention.operator-metrics` setting:
+Legacy operator metrics use the separate
+`tenzir.retention.operator-metrics` setting:
 
 ```yaml
 tenzir:
@@ -33,9 +34,18 @@ tenzir:
     operator-metrics: 0s
 ```
 
-With `0s`, Tenzir does not persist `tenzir.metrics.operator` or
-`tenzir.metrics.operator_profile` events, but live subscribers can still receive
-them.
+Operator profile metrics use
+`tenzir.retention.operator-profile-metrics`:
+
+```yaml
+tenzir:
+  retention:
+    operator-profile-metrics: 1d
+```
+
+Set either option to `0s` to disable persistence for the corresponding
+`tenzir.metrics.operator` or `tenzir.metrics.operator_profile` events. Live
+subscribers can still receive them.
 
 :::
 
