@@ -20,14 +20,14 @@ every 1h {
 }
 acme::parse
 acme::ocsf::normalize
-import
+publish "normalized-events"
 ```
 
 When you install the package, the node automatically runs any enabled pipelines.
 The UDOs handle the transformation logic while the pipeline orchestrates the
 data flow. Use enabled pipelines only when the package should take action as
-soon as it is installed. Ship ingestion, export, and publishing workflows as
-disabled templates unless automatic execution is the package's core behavior.
+soon as it is installed. Ship optional operational workflows as disabled
+templates unless automatic execution is the package's core behavior.
 
 ## Configure pipeline behavior
 
@@ -65,7 +65,7 @@ restart-on-error: 5m  # Restart after 5 minutes on failure
 every 1h {
   from_http "https://api.example.com/data"
 }
-import
+publish "raw-data"
 ```
 
 Options:
@@ -80,16 +80,17 @@ Options:
 Set to `true` to disable the pipeline. Disabled pipelines don't run when the
 package is installed, but users can enable them manually.
 
-```tql title="pipelines/optional-export.tql"
+```tql title="pipelines/notify-webhook.tql"
 ---
-name: Export to SIEM
+name: Notify Webhook
 description: >
-  Exports enriched events to an external SIEM. Enable manually if needed.
+  Sends selected security events to a webhook. Enable manually if needed.
 disabled: true
 ---
 
-subscribe "enriched-events"
-to_http "https://siem.example.com/ingest"
+subscribe "security-events"
+where severity_id >= 3
+to_http "https://hooks.example.com/security-events"
 ```
 
 :::tip[Ship disabled by default]
@@ -105,14 +106,14 @@ cannot pause or stop unstoppable pipelines manually. If they complete, they end
 up in a failed state. If you enable `restart-on-error`, they restart after the
 specified duration.
 
-```tql title="pipelines/critical-ingest.tql"
+```tql title="pipelines/critical-router.tql"
 ---
 unstoppable: true
 restart-on-error: 1m
 ---
 
 from_kafka "critical-events"
-import
+publish "critical-events"
 ```
 
 ### Complete example
