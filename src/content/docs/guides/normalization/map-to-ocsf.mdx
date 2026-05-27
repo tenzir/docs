@@ -30,9 +30,8 @@ occurrence, context, primary.
 ```tql
 // --- Preamble ---------------------------------
 
-// Keep source data as mapping residue to prevent name clashes
-// and enable automatic unmapped field collection.
-ocsf.unmapped = this
+// Keep source data in a source-specific working namespace.
+this = { panos: this }
 
 // --- OCSF: classification attributes ----------
 
@@ -45,11 +44,11 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
 
-ocsf.time = move ocsf.unmapped.time_generated
-ocsf.start_time = move ocsf.unmapped.start
-if ocsf.unmapped.elapsed != null {
-  ocsf.end_time = ocsf.start_time + ocsf.unmapped.elapsed
-  ocsf.duration = count_milliseconds(move ocsf.unmapped.elapsed).round()
+ocsf.time = move panos.time_generated
+ocsf.start_time = move panos.start
+if panos.elapsed != null {
+  ocsf.end_time = ocsf.start_time + panos.elapsed
+  ocsf.duration = count_milliseconds(move panos.elapsed).round()
 }
 
 // --- OCSF: context attributes -----------------
@@ -62,28 +61,28 @@ ocsf.metadata = {
     name: "NGFW",
     vendor_name: "Palo Alto Networks",
   },
-  original_event_uid: move ocsf.unmapped.sessionid,
+  original_event_uid: move panos.sessionid,
   version: "1.8.0",
 }
-ocsf.app_name = move ocsf.unmapped.app
+ocsf.app_name = move panos.app
 
 // --- OCSF: primary attributes -----------------
 
 // Primary attributes reflect the core semantic meaning of the event.
 
 ocsf.src_endpoint = {
-  ip: move ocsf.unmapped.src,
-  port: move ocsf.unmapped.sport,
+  ip: move panos.src,
+  port: move panos.sport,
 }
 
 ocsf.dst_endpoint = {
-  ip: move ocsf.unmapped.dst,
-  port: move ocsf.unmapped.dport,
+  ip: move panos.dst,
+  port: move panos.dport,
 }
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
 ocsf.connection_info = {
-  protocol_name: move ocsf.unmapped.proto,
+  protocol_name: move panos.proto,
 }
 ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
 
@@ -95,8 +94,8 @@ ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_na
 
 // --- Epilogue ---------------------------------
 
-// Hoist OCSF fields to root.
-this = ocsf
+// Return the mapped OCSF event and preserve mapping residue.
+this = {...ocsf, unmapped: panos}
 
 // Derive sibling fields and validate the final shape.
 ocsf::derive
@@ -105,14 +104,16 @@ ocsf::cast
 
 ### Key principles
 
-- **Isolate source data**: `ocsf.unmapped = this` prevents name clashes and
-  makes unmapped field collection automatic.
+- **Use a source namespace**: Move the input under a short descriptor such as
+  `panos`, `zeek`, `okta`, or the generic `event` before mapping. This prevents
+  name clashes with OCSF fields and keeps the remaining source fields ready for
+  `unmapped`.
 - **Use `move`**: Transfer fields with `move` to simultaneously assign and
   remove from source, for example
-  `ocsf.time = move ocsf.unmapped.time_generated`.
+  `ocsf.time = move panos.time_generated`.
 - **Only use `drop` for multi-use fields**: When a field appears in multiple
   mappings, drop it after the last use. Prefer `move` and single assignments.
-- **Keep unmapped residue**: Fields left under `ocsf.unmapped` still need
+- **Keep unmapped residue**: Fields left under the source namespace still need
   review or an intentional decision to preserve source-specific data.
 - **Validate the result**: Run <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>
   after the mapper returns the OCSF event.
@@ -121,7 +122,8 @@ ocsf::cast
 OCSF mapping is a bipartite graph transformation: source fields form one vertex
 set, OCSF attributes form another, and your mapping defines the edges. Edges can
 be 1:1 (direct assignment), 1:n (field splitting), n:1 (aggregation), or n:m
-(complex transformation). Fields with no outgoing edges remain `unmapped`.
+(complex transformation). Fields with no outgoing edges remain in the source
+namespace and become `unmapped` when the mapper returns the OCSF event.
 :::
 
 ### Package structure
@@ -167,7 +169,7 @@ Your package should include one dispatching operator. The dispatcher routes
 events based on the event type and returns the mapped OCSF event:
 
 ```tql
-ocsf.unmapped = this
+this = { panos: this }
 
 ocsf.metadata = {
   product: {
@@ -179,7 +181,7 @@ ocsf.metadata = {
 }
 ocsf.severity_id = 1
 
-match ocsf.unmapped.type {
+match panos.type {
   "TRAFFIC" => {
     paloalto::ngfw::ocsf::events::network
   }
@@ -194,7 +196,7 @@ match ocsf.unmapped.type {
   }
 }
 
-this = ocsf
+this = {...ocsf, unmapped: panos}
 ```
 
 If the parser package does not set a type field, dispatch on a different field

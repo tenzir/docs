@@ -8,22 +8,22 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 // --- OCSF: occurrence attributes --------------
 
-ocsf.time = move ocsf.unmapped.ts
-if ocsf.unmapped.duration != null {
-  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
-  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
+ocsf.time = move zeek.ts
+if zeek.duration != null {
+  ocsf.end_time = ocsf.time + zeek.duration
+  ocsf.duration = count_milliseconds(move zeek.duration).round()
 } else {
-  drop ocsf.unmapped.duration
+  drop zeek.duration
 }
 ocsf.start_time = ocsf.time
 
 // --- OCSF: context attributes -----------------
 
 ocsf.metadata.log_name = "conn.log"
-ocsf.metadata.logged_time = move ocsf.unmapped._write_ts?
-ocsf.metadata.original_event_uid = move ocsf.unmapped.uid
-drop ocsf.unmapped._path?
-ocsf.app_protocol_name = move ocsf.unmapped.service
+ocsf.metadata.logged_time = move zeek._write_ts?
+ocsf.metadata.original_event_uid = move zeek.uid
+drop zeek._path?
+ocsf.app_protocol_name = move zeek.service
 
 // --- OCSF: primary attributes -----------------
 
@@ -35,39 +35,39 @@ let $proto_nums = {
   ipv6: 41,
 }
 ocsf.src_endpoint = {
-  ip: move ocsf.unmapped.id.orig_h,
-  port: move ocsf.unmapped.id.orig_p,
+  ip: move zeek.id.orig_h,
+  port: move zeek.id.orig_p,
 }
 ocsf.dst_endpoint = {
-  ip: move ocsf.unmapped.id.resp_h,
-  port: move ocsf.unmapped.id.resp_p,
+  ip: move zeek.id.resp_h,
+  port: move zeek.id.resp_p,
 }
 ocsf.is_src_dst_assignment_known = true
-ocsf.src_endpoint.mac = move ocsf.unmapped.orig_l2_addr?
-ocsf.dst_endpoint.mac = move ocsf.unmapped.resp_l2_addr?
-if ocsf.unmapped.geo.orig? != null {
+ocsf.src_endpoint.mac = move zeek.orig_l2_addr?
+ocsf.dst_endpoint.mac = move zeek.resp_l2_addr?
+if zeek.geo.orig? != null {
   ocsf.src_endpoint.location = {
-    country: move ocsf.unmapped.geo.orig.country_code?,
-    region: move ocsf.unmapped.geo.orig.region?,
-    city: move ocsf.unmapped.geo.orig.city?,
-    lat: move ocsf.unmapped.geo.orig.latitude?,
-    long: move ocsf.unmapped.geo.orig.longitude?,
+    country: move zeek.geo.orig.country_code?,
+    region: move zeek.geo.orig.region?,
+    city: move zeek.geo.orig.city?,
+    lat: move zeek.geo.orig.latitude?,
+    long: move zeek.geo.orig.longitude?,
   }
 }
-if ocsf.unmapped.geo.resp? != null {
+if zeek.geo.resp? != null {
   ocsf.dst_endpoint.location = {
-    country: move ocsf.unmapped.geo.resp.country_code?,
-    region: move ocsf.unmapped.geo.resp.region?,
-    city: move ocsf.unmapped.geo.resp.city?,
-    lat: move ocsf.unmapped.geo.resp.latitude?,
-    long: move ocsf.unmapped.geo.resp.longitude?,
+    country: move zeek.geo.resp.country_code?,
+    region: move zeek.geo.resp.region?,
+    city: move zeek.geo.resp.city?,
+    lat: move zeek.geo.resp.latitude?,
+    long: move zeek.geo.resp.longitude?,
   }
 }
-drop ocsf.unmapped.geo?
+drop zeek.geo?
 ocsf.connection_info = {
-  community_uid: move ocsf.unmapped.community_id?,
-  flag_history: move ocsf.unmapped.history,
-  protocol_name: move ocsf.unmapped.proto,
+  community_uid: move zeek.community_id?,
+  flag_history: move zeek.history,
+  protocol_name: move zeek.proto,
 }
 ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
 if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
@@ -75,8 +75,8 @@ if ocsf.src_endpoint.ip.is_v6() or ocsf.dst_endpoint.ip.is_v6() {
 } else {
   ocsf.connection_info.protocol_ver_id = 4
 }
-drop ocsf.unmapped.id
-match ({orig: ocsf.unmapped.local_orig, resp: ocsf.unmapped.local_resp}) {
+drop zeek.id
+match ({orig: zeek.local_orig, resp: zeek.local_resp}) {
   {orig: true, resp: true} => {
     ocsf.connection_info.direction_id = 3
   }
@@ -90,26 +90,26 @@ match ({orig: ocsf.unmapped.local_orig, resp: ocsf.unmapped.local_resp}) {
     ocsf.connection_info.direction_id = 0
   }
 }
-drop ocsf.unmapped.local_orig, ocsf.unmapped.local_resp
-ocsf.status_code = move ocsf.unmapped.conn_state
+drop zeek.local_orig, zeek.local_resp
+ocsf.status_code = move zeek.conn_state
 ocsf.status_id = 99
 ocsf.traffic = {
-  bytes_in: move ocsf.unmapped.resp_bytes,
-  bytes_out: move ocsf.unmapped.orig_bytes,
-  bytes_missed: move ocsf.unmapped.missed_bytes,
-  packets_in: move ocsf.unmapped.resp_pkts,
-  packets_out: move ocsf.unmapped.orig_pkts,
+  bytes_in: move zeek.resp_bytes,
+  bytes_out: move zeek.orig_bytes,
+  bytes_missed: move zeek.missed_bytes,
+  packets_in: move zeek.resp_pkts,
+  packets_out: move zeek.orig_pkts,
 }
 if ocsf.traffic.bytes_out? != null and ocsf.traffic.bytes_in? != null {
   ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
 }
 ocsf.traffic.packets = ocsf.traffic.packets_out + ocsf.traffic.packets_in
-if ocsf.unmapped.tunnel_parents == null {
-  drop ocsf.unmapped.tunnel_parents
+if zeek.tunnel_parents == null {
+  drop zeek.tunnel_parents
 }
-if ocsf.unmapped.vlan == null {
-  drop ocsf.unmapped.vlan
+if zeek.vlan == null {
+  drop zeek.vlan
 }
-if ocsf.unmapped.inner_vlan == null {
-  drop ocsf.unmapped.inner_vlan
+if zeek.inner_vlan == null {
+  drop zeek.inner_vlan
 }

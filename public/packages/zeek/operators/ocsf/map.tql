@@ -1,6 +1,6 @@
 // Keep the parsed source event around while event-specific operators move
 // fields into their OCSF homes.
-ocsf.unmapped = this
+this = { zeek: this }
 
 ocsf.metadata = {
   product: {
@@ -29,4 +29,4 @@ match @name {
 }
 
 // Return the mapped OCSF event from the operator.
-this = ocsf
+this = {...ocsf, unmapped: zeek}

@@ -350,12 +350,12 @@ This hierarchy maps directly to your directory structure:
 
 </FileTree>
 
-The dispatcher operator keeps source residue in `ocsf.unmapped`, adds shared
-OCSF fields, routes events to specialized mappers based on a stable event
-discriminator, and returns the mapped OCSF event:
+The dispatcher operator keeps source residue in a product-specific `acme`
+namespace, adds shared OCSF fields, routes events to specialized mappers based
+on a stable event discriminator, and returns the mapped OCSF event:
 
 ```tql title="operators/ocsf/map.tql"
-ocsf.unmapped = this
+this = { acme: this }
 
 ocsf.metadata = {
   product: {
@@ -366,7 +366,7 @@ ocsf.metadata = {
 }
 ocsf.severity_id = 1
 
-match ocsf.unmapped.event_type {
+match acme.event_type {
   "dns" => {
     acme::ocsf::events::dns
   }
@@ -381,7 +381,7 @@ match ocsf.unmapped.event_type {
   }
 }
 
-this = ocsf
+this = {...ocsf, unmapped: acme}
 ```
 
 The fallback operator ensures that unrecognized events still conform to OCSF by
@@ -406,9 +406,9 @@ ocsf.class_uid = 4003
 ocsf.activity_id = 1
 ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
-ocsf.query.hostname = move ocsf.unmapped.query_name
-ocsf.query.type = move ocsf.unmapped.query_type
-ocsf.answers = move ocsf.unmapped.dns_answers
+ocsf.query.hostname = move acme.query_name
+ocsf.query.type = move acme.query_type
+ocsf.answers = move acme.dns_answers
 // ... additional field mappings
 ```
 
