@@ -204,6 +204,9 @@ Useful options:
 - `--no-hooks`: Disable project hook loading and invocation. Use this when you
   need to recover from a broken hook or compare behavior without hook side
   effects.
+- `--disable-inline-dependency-install`: Disable runtime installation for
+  inline Python dependencies declared by tests or fixtures. Use this when
+  another tool provisions the Python environment.
 
 Set `TENZIR_TEST_DEBUG=1` in CI when you want the same diagnostics without
 passing `--debug` on the command line.
@@ -1229,6 +1232,9 @@ walks through the full implementation.
   `--debug`).
 - `TENZIR_TEST_DISABLE_HOOKS` – Disable project hook loading and invocation
   (equivalent to `--no-hooks`).
+- `TENZIR_TEST_DISABLE_INLINE_DEPENDENCY_INSTALL` – Disable runtime
+  installation for inline Python dependencies declared by tests or fixtures.
+  Equivalent to `--disable-inline-dependency-install`.
 
 ### Binary resolution
 
