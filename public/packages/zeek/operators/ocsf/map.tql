@@ -24,11 +24,8 @@ match @name {
     // Map "conn.log" events
     zeek::ocsf::events::conn
   }
-  "zeek.dns" => {
-    // Map "dns.log" events
-    zeek::ocsf::events::dns
-  }
   _ => {
+    // Base Event: unknown or unsupported Zeek log type
     zeek::ocsf::base
   }
 }
