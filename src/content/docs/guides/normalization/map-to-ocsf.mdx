@@ -174,14 +174,19 @@ events based on the event type:
 ```tql
 ocsf.unmapped = this
 
-if ocsf.unmapped.type == "TRAFFIC" {
-  paloalto::ngfw::ocsf::events::network
-} else if ocsf.unmapped.type == "DNS" {
-  paloalto::ngfw::ocsf::events::dns
-} else if ocsf.unmapped.type == "THREAT" {
-  paloalto::ngfw::ocsf::events::threat
-} else {
-  paloalto::ngfw::ocsf::base
+match ocsf.unmapped.type {
+  "TRAFFIC" => {
+    paloalto::ngfw::ocsf::events::network
+  }
+  "DNS" => {
+    paloalto::ngfw::ocsf::events::dns
+  }
+  "THREAT" => {
+    paloalto::ngfw::ocsf::events::threat
+  }
+  _ => {
+    paloalto::ngfw::ocsf::base
+  }
 }
 ```
 
