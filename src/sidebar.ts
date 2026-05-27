@@ -412,6 +412,7 @@ export const integrations = [
     "Security Tools",
     [
       "integrations/arcsight",
+      "integrations/crowdstrike",
       "integrations/graylog",
       "integrations/sentinelone-data-lake",
       "integrations/suricata",
