@@ -391,6 +391,10 @@ operators:
     description: 'Reads events from a Microsoft Graph collection.'
     example: 'from_microsoft_graph "auditLogs/signIns", auth={…}'
     path: 'reference/operators/from_microsoft_graph'
+  - name: 'from_microsoft_sql'
+    description: 'Reads events from Microsoft SQL Server or Azure SQL Database.'
+    example: 'from_microsoft_sql table="dbo.events", host="sql.example.com", database="security", tls=true'
+    path: 'reference/operators/from_microsoft_sql'
   - name: 'from_mysql'
     description: 'Reads events from a MySQL database.'
     example: 'from_mysql table="users", host="db.example.com", database="mydb"'
@@ -1522,6 +1526,14 @@ from_kafka "logs"
 
 ```tql
 from_microsoft_graph "auditLogs/signIns", auth={…}
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_microsoft_sql" description="Reads events from Microsoft SQL Server or Azure SQL Database." href="/reference/operators/from_microsoft_sql">
+
+```tql
+from_microsoft_sql table="dbo.events", host="sql.example.com", database="security", tls=true
 ```
 
 </ReferenceCard>
