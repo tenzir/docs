@@ -351,8 +351,8 @@ This hierarchy maps directly to your directory structure:
 </FileTree>
 
 The dispatcher operator keeps source residue in `ocsf.unmapped`, adds shared
-OCSF fields, and routes events to specialized mappers based on a stable event
-discriminator:
+OCSF fields, routes events to specialized mappers based on a stable event
+discriminator, and returns the mapped OCSF event:
 
 ```tql title="operators/ocsf/map.tql"
 ocsf.unmapped = this
@@ -380,6 +380,8 @@ match ocsf.unmapped.event_type {
     acme::ocsf::base
   }
 }
+
+this = ocsf
 ```
 
 The fallback operator ensures that unrecognized events still conform to OCSF by
@@ -410,12 +412,10 @@ ocsf.answers = move ocsf.unmapped.dns_answers
 // ... additional field mappings
 ```
 
-After the package mapper runs, callers can hoist the mapped event and run the
-shared OCSF helpers:
+After the package mapper runs, callers can run the shared OCSF helpers:
 
 ```tql
 acme::ocsf::map
-this = ocsf
 ocsf::derive
 ocsf::cast
 ```
@@ -427,7 +427,6 @@ from_file "logs/mixed.json"
 acme::parse
 acme::clean
 acme::ocsf::map
-this = ocsf
 ocsf::derive
 ocsf::cast
 publish "ocsf"

@@ -115,7 +115,7 @@ ocsf::cast
 - **Keep unmapped residue**: Fields left under `ocsf.unmapped` still need
   review or an intentional decision to preserve source-specific data.
 - **Validate the result**: Run <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>
-  after hoisting the mapped OCSF record.
+  after the mapper returns the OCSF event.
 
 :::note[Think in graphs]
 OCSF mapping is a bipartite graph transformation: source fields form one vertex
@@ -164,7 +164,7 @@ import { FileTree } from '@astrojs/starlight/components';
 ### Dispatcher operator
 
 Your package should include one dispatching operator. The dispatcher routes
-events based on the event type:
+events based on the event type and returns the mapped OCSF event:
 
 ```tql
 ocsf.unmapped = this
@@ -193,6 +193,8 @@ match ocsf.unmapped.type {
     paloalto::ngfw::ocsf::base
   }
 }
+
+this = ocsf
 ```
 
 If the parser package does not set a type field, dispatch on a different field
@@ -206,7 +208,6 @@ Create one test file per event type:
 paloalto::ngfw::parse
 paloalto::ngfw::clean
 paloalto::ngfw::ocsf::map
-this = ocsf
 ocsf::derive
 ocsf::cast
 ```

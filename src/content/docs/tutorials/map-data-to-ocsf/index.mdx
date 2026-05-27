@@ -259,7 +259,7 @@ drop ocsf.unmapped.id // 👈 remove source field after mapping
 
 // --- Epilogue ---------------------------------
 
-// (3) Hoist all `ocsf` attributes into the root.
+// (3) Return the mapped OCSF event.
 this = ocsf
 
 // (4) Populate sibling fields and validate the final OCSF shape.
@@ -284,7 +284,7 @@ Let's unpack this:
    the <Op>drop</Op> afterwards.
 3. Assign `@name` to the target OCSF event class so that downstream pipelines
    can filter by schema.
-4. The assignment `this = ocsf` hoists the mapped event into the top-level
+4. The assignment `this = ocsf` returns the mapped event from the working
    record. Because mapped source fields were removed from `ocsf.unmapped`, the
    remaining `unmapped` record contains everything that still needs review.
 5. We keep the mapping terse by only mapping the `*_[u]id` field and relying
@@ -567,8 +567,7 @@ Let's work towards a package that comes with a user-defined operator called
 ```tql
 from_stdin
 read_zeek_tsv
-zeek::ocsf::map // 👈 Populates the `ocsf` record with a package UDO.
-this = ocsf
+zeek::ocsf::map // 👈 Returns OCSF events with a package UDO.
 ocsf::derive
 ocsf::cast
 to_stdout
@@ -626,10 +625,11 @@ In this layout, you'd put the mapping operators in the following directories:
 
 </FileTree>
 
-The mapper keeps intermediate results under `ocsf` until the caller hoists the
-final event and runs shared OCSF helpers such as <Op>ocsf::derive</Op> and
-<Op>ocsf::cast</Op>. This mirrors how larger package mappers handle shared
-fields, fallback Base Event mapping, and event-specific mappings.
+The mapper keeps intermediate results under `ocsf` internally, returns the final
+OCSF event, and leaves callers to run shared OCSF helpers such as
+<Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>. This mirrors how larger package
+mappers handle shared fields, fallback Base Event mapping, and event-specific
+mappings.
 
 #### Write tests for production-grade reliability
 
