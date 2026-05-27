@@ -10,9 +10,8 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 
 ocsf.time = move ocsf.unmapped.ts
 if ocsf.unmapped.duration != null {
-  ocsf.duration = move ocsf.unmapped.duration
-  ocsf.end_time = ocsf.time + ocsf.duration
-  ocsf.duration = count_milliseconds(ocsf.duration).round()
+  ocsf.end_time = ocsf.time + ocsf.unmapped.duration
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.duration).round()
 } else {
   drop ocsf.unmapped.duration
 }

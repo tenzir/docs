@@ -50,9 +50,8 @@ ocsf.type_uid = ocsf.class_uid * 100 + ocsf.activity_id
 ocsf.time = move ocsf.unmapped.time_generated
 ocsf.start_time = move ocsf.unmapped.start
 if ocsf.unmapped.elapsed != null {
-  ocsf.duration = move ocsf.unmapped.elapsed
-  ocsf.end_time = ocsf.start_time + ocsf.duration
-  ocsf.duration = count_milliseconds(ocsf.duration).round()
+  ocsf.end_time = ocsf.start_time + ocsf.unmapped.elapsed
+  ocsf.duration = count_milliseconds(move ocsf.unmapped.elapsed).round()
 }
 
 // --- OCSF: context attributes -----------------
