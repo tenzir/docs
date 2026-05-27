@@ -60,14 +60,18 @@ if ocsf.unmapped.id.orig_h.is_v6() or ocsf.unmapped.id.resp_h.is_v6() {
   ocsf.connection_info.protocol_ver_id = 4
 }
 drop ocsf.unmapped.id
-ocsf.connection_info.direction_id = 0
-if ocsf.unmapped.local_orig != null and ocsf.unmapped.local_resp != null {
-  if ocsf.unmapped.local_orig and ocsf.unmapped.local_resp {
+match ({orig: ocsf.unmapped.local_orig, resp: ocsf.unmapped.local_resp}) {
+  {orig: true, resp: true} => {
     ocsf.connection_info.direction_id = 3
-  } else if ocsf.unmapped.local_orig {
+  }
+  {orig: true, resp: false} => {
     ocsf.connection_info.direction_id = 2
-  } else if ocsf.unmapped.local_resp {
+  }
+  {orig: false, resp: true} => {
     ocsf.connection_info.direction_id = 1
+  }
+  _ => {
+    ocsf.connection_info.direction_id = 0
   }
 }
 drop ocsf.unmapped.local_orig, ocsf.unmapped.local_resp
