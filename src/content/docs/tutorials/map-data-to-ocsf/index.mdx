@@ -367,12 +367,16 @@ ocsf.metadata = {
   version: "1.8.0",
 }
 drop ocsf.unmapped._path? // implied in metadata.log_name
-ocsf.app_name = move ocsf.unmapped.service
+ocsf.app_protocol_name = move ocsf.unmapped.service
 ```
 
 We use `?` when accessing fields that are not always present, such as
 `ocsf.unmapped._write_ts?`. If you omit the `?`, the pipeline emits a warning
 when `_write_ts` is missing.
+
+Zeek's `service` field identifies the application-layer protocol, so map it to
+`app_protocol_name`. Reserve `app_name` for a specific network application, such
+as an App-ID result.
 
 #### Primary Attributes
 
