@@ -48,6 +48,10 @@ for live preview during development.
 Only use `bun run build` when you actually need to inspect build artifacts.
 Output goes to `dist/`.
 
+When changing `package.json`, run `bun install` and commit the resulting
+`bun.lock` update. For checks that must not rewrite dependencies, use
+`bun install --frozen-lockfile`.
+
 After installing dependencies, install the checked-in Git hooks with:
 
 ```sh
