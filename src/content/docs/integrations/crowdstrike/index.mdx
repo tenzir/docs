@@ -35,13 +35,7 @@ To collect FDR events, you need:
 - An active Falcon Data Replicator feed.
 - The notifications URL, which is an SQS queue URL.
 - The storage region for the CrowdStrike-managed S3 bucket.
-- The FDR client ID and secret. Several vendor UIs label these as AWS access key
-  ID and AWS secret access key because the FDR feed exposes AWS-compatible
-  credentials.
-
-Store sensitive values as Tenzir <Fn>secret</Fn> values, for example
-`crowdstrike-ngsiem-token`, `crowdstrike-fdr-client-id`, and
-`crowdstrike-fdr-secret`.
+- The FDR client ID and secret.
 
 ## Send events to Next-Gen SIEM
 
@@ -133,9 +127,9 @@ Falcon Data Replicator delivers data as S3 objects and uses SQS notifications to
 announce new objects. The SQS message contains the bucket name and object key.
 The S3 object is commonly gzip-compressed newline-delimited JSON.
 
-The following pipeline reads SQS notifications without deleting them, fetches
-the referenced S3 objects, parses the FDR events, and publishes them into the
-`crowdstrike-fdr` topic:
+The following pipeline reads SQS notifications, fetches the referenced S3
+objects, parses the FDR events, and publishes them into the `crowdstrike-fdr`
+topic:
 
 ```tql
 let $fdr_aws = {
@@ -146,7 +140,6 @@ let $fdr_aws = {
 
 from_sqs "https://sqs.us-east-1.amazonaws.com/123456789012/crowdstrike-fdr",
   aws_iam=$fdr_aws,
-  keep_messages=true,
   poll_time=20s,
   batch_size=10,
   visibility_timeout=300s
@@ -171,66 +164,14 @@ each parallel=4 {
 }
 ```
 
-Replace the queue URL and region with the values from your FDR feed. The
-pipeline uses `keep_messages=true` so Tenzir doesn't remove notifications from a
-queue that another consumer may also use. SQS hides each message for
-`visibility_timeout` and then makes it visible again.
+Replace the queue URL and region with the values from your FDR feed.
 
-This replayable pattern is useful when Tenzir is one consumer among several, or
-when you want to test the pipeline against existing notifications. It also means
-the same S3 object can be processed more than once. Keep the `s3_url` metadata
-so downstream pipelines can deduplicate events by object path, event ID, or the
-native FDR timestamp.
-
-### Use a dedicated queue
-
-If Tenzir owns a dedicated FDR feed or SQS queue, you can remove
-`keep_messages=true`. In that mode, <Op>from_sqs</Op> deletes notifications
-after it emits them. Use this only when this pipeline is the queue owner and
-your replay strategy doesn't rely on the same SQS notifications.
-
-For self-managed S3 replication, use the same shape with your own SQS queue and
-S3 bucket. Replace the FDR credentials with the AWS IAM configuration for your
-bucket, for example an assumed role:
-
-```tql
-let $aws = {
-  region: "us-east-1",
-  assume_role: "arn:aws:iam::123456789012:role/CrowdStrikeFDRRead",
-  session_name: "tenzir-fdr",
-}
-```
-
-## Validate and troubleshoot
-
-Use these checks when the integration doesn't behave as expected:
-
-- **No events in Falcon Next-Gen SIEM:** Confirm the connector is active, the
-  API URL matches your region, and outbound HTTPS from the Tenzir node is
-  allowed.
-- **HTTP 401 or 403:** Confirm the `Authorization` header uses
-  `Bearer <API key>` and regenerate the connector key if needed.
-- **Events arrive but fields are missing:** Test the selected parser in Falcon
-  with the exact `_raw` or raw JSON payload produced by Tenzir.
-- **HEC decoding errors:** Switch between the structured JSON endpoint and the
-  raw endpoint according to the connector's generated URL and parser guidance.
-- **Repeated FDR events:** This is expected when `keep_messages=true`. Deduplicate
-  downstream by `crowdstrike.fdr.s3_url`, event ID, or native event time.
-- **S3 object read errors:** Check the FDR storage region, credentials, object
-  retention, and whether the S3 key was URL-decoded correctly.
-- **Gzip or JSON parse errors:** Confirm the FDR feed writes gzip-compressed
-  NDJSON. If your replicated bucket uses another format, replace
-  `decompress_gzip` or `read_ndjson` accordingly.
-
-## Related vendor documentation
-
-- [Cribl CrowdStrike Falcon Next-Gen SIEM destination][cribl-ngsiem]
-- [Cribl CrowdStrike FDR source][cribl-fdr]
-- [Elastic CrowdStrike integration][elastic-fdr]
-- [Bindplane CrowdStrike FDR source][bindplane-fdr]
-- [Panther CrowdStrike Falcon Data Replicator][panther-fdr]
-- [Sumo Logic CrowdStrike FDR source][sumo-fdr]
-- [AWS CloudWatch pipeline configuration for CrowdStrike][aws-crowdstrike]
+:::note[Shared FDR queues]
+By default, <Op>from_sqs</Op> deletes notifications after it emits them. Add
+`keep_messages=true` only when Tenzir shares an existing queue or you want to
+replay notifications during testing. In that mode, downstream pipelines should
+deduplicate events by `crowdstrike.fdr.s3_url`, event ID, or native event time.
+:::
 
 ## See Also
 
@@ -247,11 +188,4 @@ Use these checks when the integration doesn't behave as expected:
 - <Integration>amazon/s3</Integration>
 - <Integration>http</Integration>
 
-[aws-crowdstrike]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/crowdstrike-pipeline-setup.html
-[bindplane-fdr]: https://docs.bindplane.com/integrations/sources/crowdstrike-fdr
-[cribl-fdr]: https://docs.cribl.io/stream/sources-crowdstrike/
-[cribl-ngsiem]: https://docs.cribl.io/stream/destinations-crowdstrike-next-gen-siem/
-[elastic-fdr]: https://www.elastic.co/guide/en/integrations/current/crowdstrike.html
 [ngsiem]: https://www.crowdstrike.com/en-us/platform/next-gen-siem/
-[panther-fdr]: https://docs.panther.com/data-onboarding/supported-logs/crowdstrike/falcon-data-replicator
-[sumo-fdr]: https://www.sumologic.com/help/docs/send-data/hosted-collectors/cloud-to-cloud-integration-framework/crowdstrike-fdr-source/
