@@ -50,29 +50,6 @@ The harness calls the generator once per fixture activation. Everything before
 also receive a per-test scratch directory via `TENZIR_TMP_DIR` for temporary
 files.
 
-## Declare Python dependencies
-
-Fixture modules can declare Python package dependencies with PEP 723 script
-metadata. Put the metadata block at the top of the fixture file:
-
-```python
-# /// script
-# dependencies = ["boto3"]
-# ///
-
-from tenzir_test import fixture
-```
-
-When fixture modules declare dependencies, `tenzir-test` installs missing
-packages into the active Python environment with `uv` before it imports the
-fixtures. If a bare dependency name, such as `boto3`, is already installed, the
-harness reuses it instead of running `uv pip install`.
-
-Set `TENZIR_TEST_DISABLE_INLINE_DEPENDENCY_INSTALL=1` when another tool, such
-as Nix, provisions all fixture dependencies and `tenzir-test` should not install
-packages at runtime. The harness still reads dependency metadata, but fixture
-imports can fail if the dependency is not actually available.
-
 ## Use the fixture in a test
 
 Request a fixture by name in the test's frontmatter. The harness starts it
@@ -193,12 +170,17 @@ def localstack():
     ...
 ```
 
-When a fixture file declares dependencies, `tenzir-test` installs them with
-`uv` before importing project fixtures:
+When a fixture file declares dependencies, `tenzir-test` installs missing
+packages into the active Python environment with `uv` before importing project
+fixtures:
 
 ```sh
 uv pip install --python <current-python> boto3
 ```
+
+If a bare dependency name, such as `boto3`, is already installed, the harness
+reuses it instead of running `uv pip install`. Versioned requirements, such as
+`boto3>=1.34`, still use `uv` so the requested version is enforced.
 
 This works for `fixtures.py` and for any Python module under `fixtures/`,
 including nested modules imported by `fixtures/__init__.py`. The feature also
@@ -209,6 +191,12 @@ Make sure `uv` is on `PATH` when fixture files declare dependencies. If a
 fixture imports an undeclared package, `tenzir-test` still reports the missing
 dependency and suggests running the harness from a project environment or with
 `uvx --with`.
+
+Pass `--disable-inline-dependency-install`, or set
+`TENZIR_TEST_DISABLE_INLINE_DEPENDENCY_INSTALL=1`, when another tool, such as
+Nix, provisions all fixture dependencies and `tenzir-test` should not install
+packages at runtime. The harness still reads dependency metadata, but fixture
+imports can fail if the dependency is not actually available.
 
 ## Use container runtime helpers
 
