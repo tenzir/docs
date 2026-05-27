@@ -472,14 +472,14 @@ if ocsf.traffic.bytes_out? != null and ocsf.traffic.bytes_in? != null {
   ocsf.traffic.bytes = ocsf.traffic.bytes_out + ocsf.traffic.bytes_in
 }
 ocsf.traffic.packets = ocsf.traffic.packets_out + ocsf.traffic.packets_in
-if zeek.tunnel_parents == null {
-  drop zeek.tunnel_parents
+if zeek.tunnel_parents? == null {
+  drop zeek.tunnel_parents?
 }
-if zeek.vlan == null {
-  drop zeek.vlan
+if zeek.vlan? == null {
+  drop zeek.vlan?
 }
-if zeek.inner_vlan == null {
-  drop zeek.inner_vlan
+if zeek.inner_vlan? == null {
+  drop zeek.inner_vlan?
 }
 ```
 

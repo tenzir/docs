@@ -124,8 +124,8 @@ acme::normalize
 
 ### Test OCSF mappings
 
-OCSF mapping tests should exercise the package mapper, hoist the mapped OCSF
-record, and run the shared OCSF helpers before comparing against a baseline.
+OCSF mapping tests should exercise the package mapper and run the shared OCSF
+helpers before comparing against a baseline.
 This verifies both your mapping logic and the final schema shape that downstream
 pipelines consume.
 
@@ -134,7 +134,6 @@ from_file env("TENZIR_INPUT") {
   read_json
 }
 acme::ocsf::map
-this = ocsf
 ocsf::derive
 ocsf::cast
 ```
