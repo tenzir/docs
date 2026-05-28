@@ -34,8 +34,12 @@ Valid values are:
 
 - `"none"`: Emit an error. This is the default.
 - `"lines"`: Use <Op>read_lines</Op>. The input must be valid UTF-8.
-- `"all"`: Use <Op>read_all</Op>. If the input is not valid UTF-8, `read_auto`
-  uses `read_all binary=true`.
+- `"all"`: Use <Op>read_all</Op>. `read_auto` uses the current probe to
+  choose between text and binary output: valid UTF-8 probe bytes select
+  `read_all`, while invalid probe bytes select `read_all binary=true`. If
+  binary input can start with a valid UTF-8 prefix longer than
+  `max_probe_bytes`, use a larger probe limit or <Op>read_all</Op> with
+  `binary=true` directly.
 
 ### `max_probe_bytes = uint (optional)`
 
