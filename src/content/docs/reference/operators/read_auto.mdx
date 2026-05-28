@@ -1,0 +1,109 @@
+---
+title: read_auto
+category: Parsing
+example: 'read_auto fallback="lines"'
+---
+
+Detects the input format of a byte stream and selects a matching reader.
+
+```tql
+read_auto [fallback=string, max_probe_bytes=uint]
+```
+
+## Description
+
+The `read_auto` operator probes the first bytes of its input and starts the
+reader whose detector returns the best unique match. Use it when the input format
+is unknown at authoring time, but should still be one of Tenzir's structured
+formats.
+
+By default, detection is strict. If no detector matches, or if multiple
+detectors match with the same score, `read_auto` emits an error instead of
+falling back to a generic text reader.
+
+The built-in detectors cover common JSON, delimited text, security log, and
+magic-byte formats, including NDJSON, JSON objects, JSON arrays of objects, CSV,
+TSV, SSV, key-value text, YAML, Syslog, CEF, LEEF, Zeek TSV, Suricata EVE JSON,
+Zeek JSON, GELF, PCAP, Feather, BITZ, and Parquet.
+
+### `fallback = string (optional)`
+
+Controls what happens when no detector matches.
+
+Valid values are:
+
+- `"none"`: Emit an error. This is the default.
+- `"lines"`: Use <Op>read_lines</Op>. The input must be valid UTF-8.
+- `"all"`: Use <Op>read_all</Op>. If the input is not valid UTF-8, `read_auto`
+  uses `read_all binary=true`.
+
+### `max_probe_bytes = uint (optional)`
+
+The maximum number of bytes to inspect before forcing a detection decision.
+
+Defaults to `1048576` bytes.
+
+## Examples
+
+### Detect JSON lines
+
+Given this input:
+
+```json title="events.ndjson"
+{"x":1}
+{"x":2}
+```
+
+Use `read_auto` where you would normally use a concrete reader:
+
+```tql
+load "events.ndjson"
+read_auto
+```
+
+```tql
+{x: 1}
+{x: 2}
+```
+
+### Fall back to lines
+
+For arbitrary UTF-8 text, opt into line-based parsing explicitly:
+
+```txt title="messages.txt"
+hello
+world
+```
+
+```tql
+load "messages.txt"
+read_auto fallback="lines"
+```
+
+```tql
+{line: "hello"}
+{line: "world"}
+```
+
+### Fall back to a single event
+
+Use `fallback="all"` when unknown input should become one event instead of one
+event per line:
+
+```tql
+load "payload.bin"
+read_auto fallback="all"
+```
+
+If the input is binary, the resulting event contains a `blob` value in the
+`data` field.
+
+## See Also
+
+- <Op>read_all</Op>
+- <Op>read_csv</Op>
+- <Op>read_json</Op>
+- <Op>read_lines</Op>
+- <Op>read_ndjson</Op>
+- <Op>read_syslog</Op>
+- <Op>read_yaml</Op>
