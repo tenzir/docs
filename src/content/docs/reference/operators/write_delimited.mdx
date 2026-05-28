@@ -1,0 +1,100 @@
+---
+title: write_delimited
+category: Printing
+example: 'write_delimited data, "|"'
+---
+
+Frames `string` or `blob` event values as a byte stream with a separator after
+each value.
+
+```tql
+write_delimited value:any, separator:string|blob
+```
+
+## Description
+
+The `write_delimited` operator evaluates `value` for each input event and writes
+the resulting bytes followed by `separator`. It accepts values of type `string`,
+`blob`, and `null`.
+
+For `string` values, `write_delimited` writes the string bytes as-is. For `blob`
+values, it writes the blob bytes as-is. The operator skips `null` values without
+writing the separator.
+
+The separator must be a constant `string` or `blob` value. Tenzir evaluates it
+once and uses the same bytes for every value. It can be empty, but use a
+non-empty separator for protocols that expect framed messages.
+
+:::note
+`write_delimited` writes a trailing separator after the last non-null value.
+Streaming protocols often need a terminator for the last message even when the
+input stream ends.
+:::
+
+`write_delimited` doesn't escape, quote, serialize JSON, or add newlines. Use a
+printer function such as <Fn>print_ndjson</Fn> when you need a formatted string
+before framing it.
+
+## Examples
+
+### Write strings with a separator
+
+```tql
+from {data: "a"}, {data: "b"}
+to_stdout {
+  write_delimited data, "|"
+}
+```
+
+```txt
+a|b|
+```
+
+### Send GELF JSON over TCP
+
+Graylog GELF over TCP expects one compact GELF JSON object followed by a null
+byte. Build the GELF record in TQL, serialize it with <Fn>print_ndjson</Fn>, and
+use `write_delimited` for the TCP framing.
+
+```tql
+export
+timestamp = ts.since_epoch().count_seconds()
+this = {
+  version: "1.1",
+  host: source_host,
+  short_message: message,
+  timestamp: timestamp,
+  level: level,
+  _tenant: tenant,
+  _pipeline: "detections",
+}
+to_tcp "graylog.example.com:12201" {
+  write_delimited this.print_ndjson(strip_null_fields=true), "\x00"
+}
+```
+
+### Concatenate preformatted values
+
+Use an empty separator to concatenate preformatted values while still streaming
+bytes as input is processed.
+
+```tql
+from {data: "a"}, {data: "b"}
+to_stdout {
+  write_delimited data, ""
+}
+```
+
+```txt
+ab
+```
+
+## See Also
+
+- <Op>read_delimited</Op>
+- <Op>to_file</Op>
+- <Op>to_stdout</Op>
+- <Op>to_tcp</Op>
+- <Op>write_all</Op>
+- <Op>write_lines</Op>
+- <Fn>print_ndjson</Fn>
