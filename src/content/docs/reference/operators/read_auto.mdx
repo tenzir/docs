@@ -61,8 +61,9 @@ Given this input:
 Use `read_auto` where you would normally use a concrete reader:
 
 ```tql
-load "events.ndjson"
-read_auto
+from_file "events.ndjson" {
+  read_auto
+}
 ```
 
 ```tql
@@ -80,8 +81,9 @@ world
 ```
 
 ```tql
-load "messages.txt"
-read_auto fallback="lines"
+from_file "messages.txt" {
+  read_auto fallback="lines"
+}
 ```
 
 ```tql
@@ -95,8 +97,9 @@ Use `fallback="all"` when unknown input should become one event instead of one
 event per line:
 
 ```tql
-load "payload.bin"
-read_auto fallback="all"
+from_file "payload.bin" {
+  read_auto fallback="all"
+}
 ```
 
 If the input is binary, the resulting event contains a `blob` value in the
