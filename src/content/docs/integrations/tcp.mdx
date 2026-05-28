@@ -18,6 +18,17 @@ Use <Op>from_tcp</Op> to connect to a remote TCP endpoint as a client and read
 data from it, or <Op>to_tcp</Op> to send data to a remote endpoint. Both
 operators reconnect automatically with exponential backoff on connection failure.
 
+The <Op>to_tcp</Op> operator uses a printing subpipeline to serialize events
+into bytes. Use format writers such as <Op>write_ndjson</Op> for common wire
+formats. For protocols that expect an explicit delimiter after each message,
+print the event to a string and frame it with <Op>write_delimited</Op>:
+
+```tql
+to_tcp "collector.example.com:9000" {
+  write_delimited this.print_ndjson(strip_null_fields=true), "\x00"
+}
+```
+
 ## Accepting incoming connections
 
 Use <Op>accept_tcp</Op> to listen on a local endpoint and accept incoming TCP
