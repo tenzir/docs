@@ -438,111 +438,51 @@ Use the spread operator `...` when you build a record or list from other records
 or lists. Spread keeps the resulting shape visible where you construct it, and
 lets you mix existing fragments with literals or computed fields.
 
-✅ Clear record construction:
+✅ Clear construction:
 
 ```tql
 from {
-  metadata: {original_event_uid: "evt-1"},
-  title: "Suspicious login",
-  service_source: "Microsoft Defender",
-  finding_type_fields: {type_id: 1, type_name: "Finding"},
+  defaults: {host: "localhost", port: 80},
+  overrides: {port: 443},
+  base_tags: ["prod"],
+  extra_tags: ["api"],
 }
-finding_info = {
-  uid: metadata.original_event_uid,
-  title: title?,
-  product: {
-    name: service_source?,
-    vendor_name: "Microsoft",
-  },
-  ...finding_type_fields?,
+
+service = {
+  ...defaults,
+  ...overrides,
+  tls: true,
 }
-```
-
-```tql
-{
-  metadata: {original_event_uid: "evt-1"},
-  title: "Suspicious login",
-  service_source: "Microsoft Defender",
-  finding_type_fields: {type_id: 1, type_name: "Finding"},
-  finding_info: {
-    uid: "evt-1",
-    title: "Suspicious login",
-    product: {
-      name: "Microsoft Defender",
-      vendor_name: "Microsoft"
-    },
-    type_id: 1,
-    type_name: "Finding"
-  }
-}
-```
-
-❌ Function call hides the target shape:
-
-```tql
-finding_info = merge({
-  uid: metadata.original_event_uid,
-  title: title?,
-  product: {
-    name: service_source?,
-    vendor_name: "Microsoft",
-  },
-}, finding_type_fields?)
-```
-
-For records, later fields overwrite earlier fields. Put defaults first and
-overrides last:
-
-```tql
-from {observed_endpoint: {hostname: "api.example.com", port: 443}}
-endpoint = {
-  hostname: "unknown",
-  port: 0,
-  ...observed_endpoint,
-  role: "server",
-}
-```
-
-```tql
-{
-  observed_endpoint: {hostname: "api.example.com", port: 443},
-  endpoint: {
-    hostname: "api.example.com",
-    port: 443,
-    role: "server"
-  }
-}
-```
-
-✅ Clear list construction:
-
-```tql
-from {
-  custom_tags: ["vip"],
-  system_tags: ["imported", "reviewed"],
-}
-labels = [
-  ...(custom_tags? else []),
-  ...(system_tags? else []),
+tags = [
+  ...base_tags,
+  "monitored",
+  ...extra_tags,
 ]
 ```
 
 ```tql
 {
-  custom_tags: ["vip"],
-  system_tags: ["imported", "reviewed"],
-  labels: ["vip", "imported", "reviewed"]
+  defaults: {host: "localhost", port: 80},
+  overrides: {port: 443},
+  base_tags: ["prod"],
+  extra_tags: ["api"],
+  service: {host: "localhost", port: 443, tls: true},
+  tags: ["prod", "monitored", "api"]
 }
 ```
 
-❌ Nested list concatenation gets noisy as inputs grow:
+For records, later fields overwrite earlier fields. Put defaults first and
+overrides last.
+
+❌ Nested function calls hide the target shape:
 
 ```tql
-labels = concatenate(
-  (custom_tags? else []),
-  (system_tags? else []),
-)
+service = merge(merge(defaults, overrides), {tls: true})
+tags = concatenate(concatenate(base_tags, ["monitored"]), extra_tags)
 ```
+
+When a fragment may be missing, use `...(record? else {})` for records and
+`...(list? else [])` for lists.
 
 Keep <Fn>merge</Fn> and <Fn>concatenate</Fn> in mind when you read existing code
 or need an explicit two-argument function. For new transformations, prefer
