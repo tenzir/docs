@@ -411,10 +411,10 @@ operators:
     description: 'Retrieves PowerQuery results from SentinelOne Singularity Data Lake.'
     example: 'from_sentinelone_data_lake "https://…", …'
     path: 'reference/operators/from_sentinelone_data_lake'
-  - name: 'from_sqs'
+  - name: 'from_amazon_sqs'
     description: 'Receives messages from an Amazon SQS queue.'
-    example: 'from_sqs "sqs://tenzir", poll_time=5s'
-    path: 'reference/operators/from_sqs'
+    example: 'from_amazon_sqs "sqs://tenzir", poll_time=5s'
+    path: 'reference/operators/from_amazon_sqs'
   - name: 'from_stdin'
     description: 'Reads and parses events from standard input.'
     example: 'from_stdin { read_json }'
@@ -627,10 +627,10 @@ operators:
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
     path: 'reference/operators/to_amqp'
-  - name: 'to_sqs'
+  - name: 'to_amazon_sqs'
     description: 'Sends messages to an Amazon SQS queue.'
-    example: 'to_sqs "sqs://tenzir"'
-    path: 'reference/operators/to_sqs'
+    example: 'to_amazon_sqs "sqs://tenzir"'
+    path: 'reference/operators/to_amazon_sqs'
   - name: 'to_udp'
     description: 'Sends one UDP datagram per input event.'
     example: 'to_udp "127.0.0.1:514"'
@@ -1570,10 +1570,10 @@ from_sentinelone_data_lake "https://…", …
 
 </ReferenceCard>
 
-<ReferenceCard title="from_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_sqs">
+<ReferenceCard title="from_amazon_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_amazon_sqs">
 
 ```tql
-from_sqs "sqs://tenzir", poll_time=5s
+from_amazon_sqs "sqs://tenzir", poll_time=5s
 ```
 
 </ReferenceCard>
@@ -2074,10 +2074,10 @@ to_splunk "localhost:8088", …
 
 </ReferenceCard>
 
-<ReferenceCard title="to_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_sqs">
+<ReferenceCard title="to_amazon_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_amazon_sqs">
 
 ```tql
-to_sqs "sqs://tenzir"
+to_amazon_sqs "sqs://tenzir"
 ```
 
 </ReferenceCard>
