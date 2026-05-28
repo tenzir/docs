@@ -21,8 +21,9 @@ For `string` values, `write_delimited` writes the string bytes as-is. For `blob`
 values, it writes the blob bytes as-is. The operator skips `null` values without
 writing the separator.
 
-The separator must be a constant `string` or `blob` expression. It can be empty,
-but use a non-empty separator for protocols that expect framed messages.
+The separator must be a constant `string` or `blob` value. Tenzir evaluates it
+once and uses the same bytes for every value. It can be empty, but use a
+non-empty separator for protocols that expect framed messages.
 
 :::note
 `write_delimited` writes a trailing separator after the last non-null value.
