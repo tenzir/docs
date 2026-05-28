@@ -21,12 +21,19 @@ Use plain markdown links only when you need custom link text or emphasis.
 Semantic components support anchor targets, for example
 `<Guide>node-setup/tune-performance#benchmark-the-node</Guide>`.
 
-## Consecutive code blocks
+## TQL example outputs
 
-Consecutive TQL code blocks render as a merged visual unit where the second
-block shows an "OUTPUT" label. Only use consecutive blocks when the first is a
-pipeline and the second shows its output. Otherwise, add a paragraph between
-blocks to separate them visually.
+When a TQL code block is an executable pipeline and the result helps readers
+verify the behavior, prefer following it with a second consecutive `tql` code
+block containing representative output. The renderer labels the second block as
+"OUTPUT".
+
+Skip the output block for incomplete snippets, destructive or external-side-
+effect pipelines, sink-only examples, long noisy outputs, or examples where the
+output doesn't clarify the point.
+
+Only use consecutive TQL code blocks for this pipeline/output pair. Otherwise,
+add prose between code blocks to keep them visually separate.
 
 ## First paragraph guidelines
 

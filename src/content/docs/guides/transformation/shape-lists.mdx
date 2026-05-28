@@ -52,9 +52,11 @@ multi_append = colors.append("blue").append("purple")
 }
 ```
 
-## Combine lists
+## Combine lists with spread
 
-Join multiple lists with <Fn>concatenate</Fn> or spread syntax:
+Use the spread operator `...` to combine lists. Spread keeps the resulting list
+visible where you construct it, and lets you mix existing lists with literals or
+computed values:
 
 ```tql
 from {
@@ -62,8 +64,7 @@ from {
   list2: [4, 5, 6],
   list3: [7, 8, 9]
 }
-combined = concatenate(concatenate(list1, list2), list3)
-spread = [...list1, ...list2, ...list3]
+combined = [...list1, ...list2, ...list3]
 with_value = [...list1, 10, ...list2]
 ```
 
@@ -73,10 +74,33 @@ with_value = [...list1, 10, ...list2]
   list2: [4, 5, 6],
   list3: [7, 8, 9],
   combined: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-  spread: [1, 2, 3, 4, 5, 6, 7, 8, 9],
   with_value: [1, 2, 3, 10, 4, 5, 6]
 }
 ```
+
+Use `else []` when a list fragment may be missing:
+
+```tql
+from {
+  custom_tags: ["vip"],
+  system_tags: ["imported", "reviewed"],
+}
+labels = [
+  ...(custom_tags? else []),
+  ...(system_tags? else []),
+]
+```
+
+```tql
+{
+  custom_tags: ["vip"],
+  system_tags: ["imported", "reviewed"],
+  labels: ["vip", "imported", "reviewed"]
+}
+```
+
+The <Fn>concatenate</Fn> function returns the same result for two lists, but
+prefer spread in transformation code when you construct the resulting list.
 
 ## Transform list elements
 

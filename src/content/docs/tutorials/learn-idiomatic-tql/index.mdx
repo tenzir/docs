@@ -432,6 +432,62 @@ if event_code == "4624" or event_code == "4625" or event_code == "4648" {
 }
 ```
 
+### Prefer spread when combining records and lists
+
+Use the spread operator `...` when you build a record or list from other records
+or lists. Spread keeps the resulting shape visible where you construct it, and
+lets you mix existing fragments with literals or computed fields.
+
+✅ Clear construction:
+
+```tql
+from {
+  defaults: {host: "localhost", port: 80},
+  overrides: {port: 443},
+  base_tags: ["prod"],
+  extra_tags: ["api"],
+}
+
+service = {
+  ...defaults,
+  ...overrides,
+  tls: true,
+}
+tags = [
+  ...base_tags,
+  "monitored",
+  ...extra_tags,
+]
+```
+
+```tql
+{
+  defaults: {host: "localhost", port: 80},
+  overrides: {port: 443},
+  base_tags: ["prod"],
+  extra_tags: ["api"],
+  service: {host: "localhost", port: 443, tls: true},
+  tags: ["prod", "monitored", "api"]
+}
+```
+
+For records, later fields overwrite earlier fields. Put defaults first and
+overrides last.
+
+❌ Nested function calls hide the target shape:
+
+```tql
+service = merge(merge(defaults, overrides), {tls: true})
+tags = concatenate(concatenate(base_tags, ["monitored"]), extra_tags)
+```
+
+When a fragment may be missing, use `...(record? else {})` for records and
+`...(list? else [])` for lists.
+
+Keep <Fn>merge</Fn> and <Fn>concatenate</Fn> in mind when you read existing code
+or need an explicit two-argument function. For new transformations, prefer
+spread when you are constructing the resulting record or list.
+
 ## Field management
 
 ### Use `move` expressions to prevent field duplication
@@ -744,7 +800,12 @@ severity_level = "critical" if score > 90 else "high" if score > 70 else "medium
 result = "blocked" if is_malicious else "allowed" if is_trusted else "quarantine" if risk > 0.8 else "review" if risk > 0.5 else "log"
 ```
 
-These inline chains are a serious anti-pattern because:
+When you see a statement-level `if`/`else if` ladder over one field, reach for
+`match` first. It models finite dispatch directly, keeps each branch as its own
+pipeline, and forces you to write an explicit fallback. Use a record constant
+only when every branch is a pure key-to-value lookup.
+
+Nested inline chains are a serious anti-pattern because:
 
 - **Unreadable**: Eyes can't parse the logic flow easily
 - **Error-prone**: Easy to mix up conditions and values
@@ -775,8 +836,33 @@ This pattern is particularly powerful for:
 - Providing sensible defaults for missing data
 - Creating reusable transformation logic
 
-If each case needs to run statements instead of returning values, use `match`
-instead of forcing the logic into a record.
+✅ Use `match` for branch pipelines:
+
+```tql
+from {action: "BLOCKED"}
+match action {
+  "BLOCKED" | "DENIED" => {
+    disposition = {id: 2, name: "Blocked"}
+    outcome = "failure"
+  }
+  "ALLOWED" => {
+    disposition = {id: 1, name: "Allowed"}
+    outcome = "success"
+  }
+  _ => {
+    disposition = {id: 0, name: "Unknown"}
+    outcome = "unknown"
+  }
+}
+```
+
+```tql
+{
+  action: "BLOCKED",
+  disposition: {id: 2, name: "Blocked"},
+  outcome: "failure"
+}
+```
 
 ## Writing comments
 
