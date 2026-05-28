@@ -93,8 +93,12 @@ publish "graylog"
 If you selected `TCP+TLS` in Graylog, configure TLS on the Tenzir listener:
 
 ```tql
-accept_tcp "0.0.0.0:12201",
-           tls={certfile: "server.pem", keyfile: "server-key.pem"} {
+let $tls = {
+  certfile: "server.pem",
+  keyfile: "server-key.pem",
+}
+
+accept_tcp "0.0.0.0:12201", tls=$tls {
   read_gelf
 }
 publish "graylog"
@@ -181,6 +185,8 @@ JSON when you enable bulk receiving on the Graylog input.
 For one HTTP request per event, wrap <Op>to_http</Op> in <Op>each</Op>:
 
 ```tql
+let $headers = {"Content-Type": "application/json"}
+
 subscribe "detections"
 gelf_timestamp = (timestamp? else now()).since_epoch().count_seconds()
 this = {
@@ -193,8 +199,7 @@ this = {
 }
 each {
   from $this
-  to_http "http://graylog.example.com:12201/gelf",
-    headers={"Content-Type": "application/json"} {
+  to_http "http://graylog.example.com:12201/gelf", headers=$headers {
     write_json strip_null_fields=true
   }
 }
@@ -204,6 +209,8 @@ For bulk receiving, group events into time-based batches with <Op>every</Op> and
 send newline-delimited GELF JSON:
 
 ```tql
+let $headers = {"Content-Type": "application/json"}
+
 subscribe "detections"
 gelf_timestamp = (timestamp? else now()).since_epoch().count_seconds()
 this = {
@@ -215,8 +222,7 @@ this = {
   _tenzir_topic: "detections",
 }
 every 30s {
-  to_http "http://graylog.example.com:12201/gelf",
-    headers={"Content-Type": "application/json"} {
+  to_http "http://graylog.example.com:12201/gelf", headers=$headers {
     write_ndjson strip_null_fields=true
   }
 }
