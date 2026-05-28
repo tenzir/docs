@@ -36,7 +36,6 @@ The result field is a record with the following structure:
 ```tql
 {
   text: string,
-  value: any | null,
   model: string | null,
   status: string | null,
   usage: {
@@ -48,9 +47,8 @@ The result field is a record with the following structure:
 }
 ```
 
-The `text` field contains the concatenated Responses API `output_text`
-content. The `value` field contains `text` parsed as JSON when parsing
-succeeds, or `null` otherwise.
+The `text` field contains the concatenated Responses API `output_text` content.
+The operator doesn't parse JSON-looking text into structured data.
 
 ### `model = string`
 
@@ -132,7 +130,7 @@ select summary=ai.prompt.text
 
 ### Use a custom OpenAI endpoint
 
-Send a smaller input record and ask the model to return JSON:
+Send a smaller input record to an OpenAI endpoint:
 
 ```tql
 from {
@@ -142,11 +140,11 @@ from {
 ai::prompt model="gpt-4.1-mini",
            endpoint="https://api.openai.com/v1",
            api_key=secret("openai-api-key"),
-           system="Return a JSON object with severity and reason.",
+           system="Summarize the alert in one short sentence.",
            data={message: message, src_ip: src_ip},
            into=enrichment.ai
-select severity=enrichment.ai.value.severity,
-       reason=enrichment.ai.value.reason
+select summary=enrichment.ai.text,
+       tokens=enrichment.ai.usage.total_tokens
 ```
 
 ## See Also
