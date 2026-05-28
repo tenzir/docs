@@ -21,10 +21,11 @@ it serializes `this` as compact JSON and sends that string as the Responses API
 `input` field. Set `data` to use another expression instead. String values are
 also serialized as JSON strings before they are sent.
 
-The operator uses `http://localhost:11434/v1` as its default endpoint, which
+The operator uses `http://127.0.0.1:11434/v1` as its default endpoint, which
 matches the standard Ollama OpenAI-compatible API port. The operator appends
 `/responses` to the endpoint and sends a `POST` request to the Responses API.
-It doesn't use the Chat Completions API.
+It doesn't use the Chat Completions API. For providers that support the
+Responses API `store` flag, the operator sets it to `false`.
 
 The operator preserves input order, even when `concurrency` is greater than
 `1`. If a request fails, Tenzir emits a warning, keeps the input event, and
@@ -61,7 +62,7 @@ This argument is required.
 
 The OpenAI-compatible base endpoint.
 
-Defaults to `http://localhost:11434/v1`.
+Defaults to `http://127.0.0.1:11434/v1`.
 
 The endpoint is resolved as a [secret](/explanations/secrets), so you can pass
 a secret name to avoid hardcoding sensitive URLs.
