@@ -13,7 +13,8 @@ sort(xs:list|record, [desc=bool, cmp=(a, b) => bool]) -> list|record
 ## Description
 
 The `sort` function takes either a list or record as input, ordering lists by
-value and records by their field name.
+value and record fields by field name. When sorting records, `sort` recursively
+sorts nested record fields, including records inside lists.
 
 ### `xs: list|record`
 
@@ -59,11 +60,10 @@ this = this.sort()
 ```
 
 ```tql
-{a: 1, b: {y: true, x: false}, c: 3}
+{a: 1, b: {x: false, y: true}, c: 3}
 ```
 
-Note that nested records are not automatically sorted. Use `b = b.sort()` to sort it
-manually.
+Nested list element order is preserved unless the list itself is being sorted.
 
 ### Sort in descending order
 
@@ -84,7 +84,7 @@ xs = xs.sort(cmp=(a, b) => a.v < b.v)
 ```
 
 ```tql
-{xs: [{v: 1, id: "a"}, {v: 2, id: "b"}, {v: 2, id: "c"}]}
+{xs: [{id: "a", v: 1}, {id: "b", v: 2}, {id: "c", v: 2}]}
 ```
 
 ## See Also
