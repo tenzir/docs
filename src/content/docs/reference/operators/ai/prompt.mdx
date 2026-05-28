@@ -1,0 +1,154 @@
+---
+title: ai::prompt
+category: Modify
+example: 'ai::prompt model="qwen3"'
+---
+
+Sends each input event to an OpenAI-compatible Responses API endpoint and adds
+the model response to the event.
+
+```tql
+ai::prompt model=string, [endpoint=string, system=string, data=any,
+           into=field, api_key=string, temperature=double,
+           max_tokens=uint, timeout=duration, concurrency=uint,
+           tls=record]
+```
+
+## Description
+
+The `ai::prompt` operator evaluates one request per input event. By default,
+it serializes `this` as compact JSON and sends that string as the Responses API
+`input` field. Set `data` to use another expression instead. String values are
+also serialized as JSON strings before they are sent.
+
+The operator uses `http://localhost:11434/v1` as its default endpoint, which
+matches the standard Ollama OpenAI-compatible API port. The operator appends
+`/responses` to the endpoint and sends a `POST` request to the Responses API.
+It doesn't use the Chat Completions API.
+
+The operator preserves input order, even when `concurrency` is greater than
+`1`. If a request fails, Tenzir emits a warning, keeps the input event, and
+writes `null` to the result field for that event.
+
+The result field is a record with the following structure:
+
+```tql
+{
+  text: string,
+  value: any | null,
+  model: string | null,
+  status: string | null,
+  usage: {
+    input_tokens: uint64 | null,
+    output_tokens: uint64 | null,
+    total_tokens: uint64 | null,
+  } | null,
+  latency: duration,
+}
+```
+
+The `text` field contains the concatenated Responses API `output_text`
+content. The `value` field contains `text` parsed as JSON when parsing
+succeeds, or `null` otherwise.
+
+### `model = string`
+
+The model to use.
+
+This argument is required.
+
+### `endpoint = string (optional)`
+
+The OpenAI-compatible base endpoint.
+
+Defaults to `http://localhost:11434/v1`.
+
+The endpoint is resolved as a [secret](/explanations/secrets), so you can pass
+a secret name to avoid hardcoding sensitive URLs.
+
+### `system = string (optional)`
+
+Instructions to send as the Responses API `instructions` field.
+
+### `data = any (optional)`
+
+The value to send as the request input after JSON serialization.
+
+Defaults to `this`.
+
+### `into = field (optional)`
+
+The field where Tenzir writes the result record.
+
+Defaults to `ai.prompt`.
+
+### `api_key = string (optional)`
+
+Bearer token to send in the `Authorization` header.
+
+If you omit this argument, Tenzir sends no authorization header. This is useful
+for local Ollama endpoints.
+
+The API key is resolved as a [secret](/explanations/secrets).
+
+### `temperature = double (optional)`
+
+Sampling temperature to send with the request.
+
+Defaults to `0`.
+
+### `max_tokens = uint (optional)`
+
+Maximum number of output tokens to request.
+
+### `timeout = duration (optional)`
+
+HTTP request timeout.
+
+Defaults to `30s`.
+
+### `concurrency = uint (optional)`
+
+Maximum number of in-flight requests.
+
+Defaults to `1`.
+
+### `tls = record (optional)`
+
+TLS options for the HTTP client.
+
+## Examples
+
+### Use a local Ollama model
+
+Send each event to the default local Ollama endpoint:
+
+```tql
+from {message: "Summarize this security alert."}
+ai::prompt model="qwen3"
+select summary=ai.prompt.text
+```
+
+### Use a custom OpenAI endpoint
+
+Send a smaller input record and ask the model to return JSON:
+
+```tql
+from {
+  message: "User logged in from an unusual ASN.",
+  src_ip: 203.0.113.10,
+}
+ai::prompt model="gpt-4.1-mini",
+           endpoint="https://api.openai.com/v1",
+           api_key=secret("openai-api-key"),
+           system="Return a JSON object with severity and reason.",
+           data={message: message, src_ip: src_ip},
+           into=enrichment.ai
+select severity=enrichment.ai.value.severity,
+       reason=enrichment.ai.value.reason
+```
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>to_http</Op>
