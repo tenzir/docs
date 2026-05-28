@@ -16,15 +16,15 @@ Use GELF when Graylog should ingest, route, index, and alert on the events. Use
 direct backend access only when you intentionally want to bypass Graylog's
 ingestion path.
 
-| Goal                                            | Graylog interface                                       | Tenzir operators                                                 |
-| :---------------------------------------------- | :------------------------------------------------------ | :--------------------------------------------------------------- |
-| Receive live messages from Graylog              | [GELF output][graylog-gelf-output] attached to a stream | <Op>accept_tcp</Op>, <Op>read_gelf</Op>                          |
-| Receive live messages with transport encryption | GELF output with protocol `TCP+TLS`                     | <Op>accept_tcp</Op> with `tls`, <Op>read_gelf</Op>               |
-| Send live events to Graylog over TCP or TLS     | [GELF TCP input][graylog-gelf-inputs]                   | <Op>to_tcp</Op>, <Op>write_delimited</Op>, <Fn>print_ndjson</Fn> |
-| Send live events to Graylog over UDP            | GELF UDP input                                          | <Op>to_udp</Op>, <Fn>print_ndjson</Fn>                           |
-| Send batches to Graylog over HTTP               | GELF HTTP input                                         | <Op>every</Op>, <Op>to_http</Op>, <Op>write_ndjson</Op>          |
-| Query stored Graylog events                     | OpenSearch or Elasticsearch search backend              | <Op>from_http</Op>                                               |
-| Write custom backend data                       | OpenSearch or Elasticsearch search backend              | <Op>to_opensearch</Op>, <Op>to_elasticsearch</Op>                |
+| Goal                 | Graylog side                                            | Tenzir path                                                        |
+| -------------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Receive messages     | [GELF output][graylog-gelf-output] attached to a stream | <Op>accept_tcp</Op> + <Op>read_gelf</Op>                           |
+| Receive over TLS     | GELF output with protocol `TCP+TLS`                     | <Op>accept_tcp</Op> with `tls` + <Op>read_gelf</Op>                |
+| Send over TCP or TLS | [GELF TCP input][graylog-gelf-inputs]                   | <Op>to_tcp</Op> + <Op>write_delimited</Op> + <Fn>print_ndjson</Fn> |
+| Send over UDP        | GELF UDP input                                          | <Op>to_udp</Op> + <Fn>print_ndjson</Fn>                            |
+| Send HTTP batches    | GELF HTTP input                                         | <Op>every</Op> + <Op>to_http</Op> + <Op>write_ndjson</Op>          |
+| Query stored events  | OpenSearch or Elasticsearch search backend              | <Op>from_http</Op>                                                 |
+| Write backend data   | OpenSearch or Elasticsearch search backend              | <Op>to_opensearch</Op> or <Op>to_elasticsearch</Op>                |
 
 ## GELF message format
 
