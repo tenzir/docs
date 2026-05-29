@@ -53,7 +53,11 @@ You can use expression options such as `name=metric_name` or
 `labels={tenant: tenant_id}` to send existing schemas without reshaping them
 first.
 
-The operator sends one `__name__` label from `name`. Providing
+The <Op>metrics</Op> operator can produce the default input shape with
+`shape="prometheus"`.
+
+The operator writes the metric-name expression as the reserved Prometheus
+`__name__` label. The expression defaults to the `metric` field. Providing
 `labels.__name__` is invalid. Samples with the same label set are batched into
 one time series per request, and samples in each time series are sorted by
 timestamp before serialization.
@@ -261,10 +265,13 @@ to_prometheus "https://prometheus.example/api/v1/write",
 
 ## Limitations
 
-The operator currently supports scalar samples only. It does not send native
+The operator currently supports scalar samples only. It does not support native
 histograms, exemplars, persistent queues, automatic protocol negotiation,
 OAuth, SigV4, or round-robin DNS behavior.
 
 ## See Also
 
+- <Op>metrics</Op>
 - <Op>to_http</Op>
+- <Guide>analytics/collect-metrics</Guide>
+- <Integration>prometheus</Integration>

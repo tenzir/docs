@@ -398,6 +398,7 @@ export const integrations = [
       "integrations/elasticsearch",
       "integrations/mysql",
       "integrations/opensearch",
+      "integrations/prometheus",
       "integrations/snowflake",
       "integrations/splunk",
     ],
