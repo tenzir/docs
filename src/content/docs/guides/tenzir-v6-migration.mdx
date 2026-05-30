@@ -186,6 +186,21 @@ provider-specific operators when you need provider-specific options. Put
 decompression, parsing, and printing in a subpipeline when automatic format
 detection is not enough.
 
+### Unix domain sockets
+
+The dedicated Unix domain socket operators replace the previous `uds=true`
+options on <Op>from_file</Op> and <Op>to_file</Op>. Keep <Op>from_file</Op> and
+<Op>to_file</Op> for regular filesystem and object-storage access.
+
+| Previous v6 syntax                     | Use instead                 |
+| -------------------------------------- | --------------------------- |
+| `from_file "/run/source.sock", uds=true` | `from_uds "/run/source.sock"` |
+| `to_file "/run/sink.sock", uds=true`     | `to_uds "/run/sink.sock"`     |
+
+Use <Op>from_uds</Op> and <Op>to_uds</Op> when Tenzir connects to an existing
+Unix domain socket. Use <Op>accept_uds</Op> and <Op>serve_uds</Op> when Tenzir
+owns the listening socket path.
+
 ### HTTP and message brokers
 
 | Legacy operator            | Use in v6                  |
