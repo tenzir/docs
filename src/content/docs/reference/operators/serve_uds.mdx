@@ -22,9 +22,10 @@ through a nested pipeline that must produce bytes, for example `{ write_json }`.
 Clients that connect receive the serialized output as a continuous byte stream.
 Each client only receives bytes produced after it connects.
 
-Before listening, the operator removes an existing socket file at `path`. If
-another file type already exists at `path`, the operator emits an error. When
-the operator shuts down, it removes the socket path that it created.
+Before listening, the operator removes a stale socket file at `path`. If another
+server is actively listening at `path`, or if another file type already exists
+there, the operator emits an error. When the operator shuts down, it removes the
+socket path that it created.
 
 ### `path: string`
 
