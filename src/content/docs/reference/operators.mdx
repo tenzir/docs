@@ -631,10 +631,6 @@ operators:
     description: 'Listens for incoming TCP connections and sends events to all connected clients.'
     example: 'serve_tcp "0.0.0.0:8090" { write_json }'
     path: 'reference/operators/serve_tcp'
-  - name: 'serve_uds'
-    description: 'Listens for incoming Unix domain socket connections and sends events to all connected clients.'
-    example: 'serve_uds "/run/collector.sock" { write_json }'
-    path: 'reference/operators/serve_uds'
   - name: 'to_amqp'
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
@@ -1912,14 +1908,6 @@ serve_http "0.0.0.0:8080" { write_ndjson }
 
 ```tql
 serve_tcp "0.0.0.0:8090" { write_json }
-```
-
-</ReferenceCard>
-
-<ReferenceCard title="serve_uds" description="Listens for incoming Unix domain socket connections and sends events to all connected clients." href="/reference/operators/serve_uds">
-
-```tql
-serve_uds "/run/collector.sock" { write_json }
 ```
 
 </ReferenceCard>
