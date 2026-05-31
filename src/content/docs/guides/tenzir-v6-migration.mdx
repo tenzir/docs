@@ -85,6 +85,13 @@ Use this checklist to plan the migration:
 - If you use compatibility mode, track pipelines that still need `// neo`.
 - Deploy and monitor migrated pipelines.
 
+## Migrate package UDO parameter types
+
+Package UDO parameter types now use TQL type-definition syntax. Use TQL type
+names such as `int`, `uint`, and `float` instead of legacy names such as
+`int64`, `uint64`, and `double`. List types use TQL syntax and must be quoted in
+YAML, for example `type: "[int]"`.
+
 ## New v6 execution patterns
 
 The most important migration change is the move away from old byte-stream source

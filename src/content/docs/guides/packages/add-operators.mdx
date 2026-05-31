@@ -58,17 +58,23 @@ Each parameter supports the following fields:
 
 ### Supported types
 
-The `type` field constrains what values the parameter accepts:
+The `type` field constrains what values the parameter accepts. It uses TQL type
+definition syntax:
 
-| Type     | Description                                                           |
-| -------- | --------------------------------------------------------------------- |
-| `field`  | A field selector (for example, `name`). Cannot have non-null defaults |
-| `string` | A string literal or expression                                        |
-| `int`    | An integer value                                                      |
-| `double` | A floating-point value                                                |
-| `bool`   | A boolean value                                                       |
-| `ip`     | An IP address                                                         |
-| `secret` | A secret string (accepts string literals)                             |
+| Type       | Description                                                           |
+| ---------- | --------------------------------------------------------------------- |
+| `field`    | A field selector (for example, `name`). Cannot have non-null defaults |
+| `string`   | A string literal or expression                                        |
+| `int`      | A signed integer value                                                |
+| `uint`     | An unsigned integer value                                             |
+| `float`    | A floating-point value                                                |
+| `bool`     | A boolean value                                                       |
+| `duration` | A duration value                                                      |
+| `time`     | A timestamp value                                                     |
+| `ip`       | An IP address                                                         |
+| `subnet`   | A subnet value                                                        |
+| `blob`     | A blob value                                                          |
+| `secret`   | A secret string (accepts string literals)                             |
 
 If you omit the `type` field, the parameter accepts any value.
 
