@@ -30,36 +30,12 @@ latest TQL parser and highlight queries.
 
 ## Helix
 
-Add a TQL language entry to `~/.config/helix/languages.toml`:
-
-```toml
-[[language]]
-name = "tql"
-scope = "source.tql"
-file-types = ["tql"]
-comment-tokens = "//"
-block-comment-tokens = { start = "/*", end = "*/" }
-indent = { tab-width = 2, unit = "  " }
-
-[[grammar]]
-name = "tql"
-source = { git = "https://github.com/tenzir/tree-sitter-tql", rev = "main" }
-```
-
-Fetch and build the parser:
+Helix includes TQL syntax highlighting and indentation support. Use a Helix
+version that ships the TQL grammar, then fetch and build the bundled parser:
 
 ```sh
 hx --grammar fetch
 hx --grammar build
-```
-
-Helix loads query files from its runtime directory. Clone the grammar repository
-and copy the TQL queries into your local Helix runtime:
-
-```sh
-git clone https://github.com/tenzir/tree-sitter-tql
-mkdir -p ~/.config/helix/runtime/queries/tql
-cp tree-sitter-tql/queries/tql/*.scm ~/.config/helix/runtime/queries/tql/
 ```
 
 Open a `.tql` file and run `hx --health tql` to confirm that Helix detects the
