@@ -2,9 +2,8 @@
 title: File
 ---
 
-Tenzir can read from and write to files. This includes non-regular files such as
-[Unix domain sockets](https://en.wikipedia.org/wiki/Unix_domain_socket),
-standard input, standard output, and standard error.
+Tenzir can read from and write to local files, cloud object storage, standard
+input, standard output, and standard error.
 
 ![File](file.svg)
 
@@ -79,21 +78,28 @@ to_file "/tmp/event.csv", append=true {
 }
 ```
 
-### Read/write a Unix domain socket
+### Read or write a Unix domain socket
 
-Pass `uds=true` to signal that the file is a Unix domain socket:
+Use the dedicated Unix domain socket operators for local socket streams. When
+Tenzir connects to an existing socket, use <Op>from_unix_socket</Op> or
+<Op>to_unix_socket</Op>:
 
 ```tql
-to_file "/tmp/socket", uds=true {
+from_unix_socket "/tmp/socket" {
+  read_ndjson
+}
+```
+
+```tql
+to_unix_socket "/tmp/socket" {
   write_ndjson
 }
 ```
 
-When reading from a Unix domain socket, use <Op>from_file</Op> with a parsing
-pipeline:
+When Tenzir owns the listening socket path, use <Op>accept_unix_socket</Op>:
 
 ```tql
-from_file "/tmp/socket" {
+accept_unix_socket "/tmp/socket" {
   read_ndjson
 }
 ```

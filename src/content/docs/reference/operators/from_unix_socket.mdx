@@ -1,0 +1,54 @@
+---
+title: from_unix_socket
+category: Inputs/Events
+example: 'from_unix_socket "/run/collector.sock" { read_json }'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Connects to a Unix domain socket and receives events.
+
+```tql
+from_unix_socket path:string { … }
+```
+
+## Description
+
+Connects to the specified filesystem-backed Unix stream socket as a client and
+reads bytes from the connection. The nested pipeline parses the byte stream into
+events.
+
+If the connection fails or reaches EOF, the operator reconnects automatically
+with exponential backoff.
+
+### `path: string`
+
+The Unix domain socket path to connect to. The path may start with `~`, which
+expands to the current user's home directory. Relative paths are resolved
+relative to the process working directory.
+
+The operator supports filesystem-backed Unix domain sockets only. It doesn't
+support Linux abstract namespace sockets.
+
+### `{ … }`
+
+The pipeline to run for the Unix domain socket connection. Use this to parse
+the incoming byte stream into events, for instance `{ read_json }`.
+
+## Examples
+
+### Connect to a local socket and read JSON
+
+```tql
+from_unix_socket "/run/collector.sock" {
+  read_json
+}
+```
+
+## See Also
+
+- <Op>to_unix_socket</Op>
+- <Op>accept_unix_socket</Op>
+- <Op>from_tcp</Op>
+- <Integration>file</Integration>
