@@ -51,35 +51,40 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim), add this plugin
 configuration:
 
 ```lua
+local function register_tql_parser()
+  require('nvim-treesitter.parsers').tql = {
+    install_info = {
+      url = 'https://github.com/tenzir/tree-sitter-tql',
+      branch = 'main',
+    },
+  }
+end
+
 return {
   'nvim-treesitter/nvim-treesitter',
+  branch = 'main',
   build = ':TSUpdate',
   dependencies = {
     'tenzir/tree-sitter-tql',
   },
-  opts = function(_, opts)
-    opts.ensure_installed = opts.ensure_installed or {}
-    if not vim.tbl_contains(opts.ensure_installed, 'tql') then
-      table.insert(opts.ensure_installed, 'tql')
-    end
+  config = function()
+    local treesitter = require('nvim-treesitter')
 
-    opts.highlight = opts.highlight or {}
-    opts.highlight.enable = true
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'TSUpdate',
+      callback = register_tql_parser,
+    })
+    register_tql_parser()
 
-    return opts
-  end,
-  config = function(_, opts)
-    local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-    parser_config.tql = {
-      install_info = {
-        url = 'https://github.com/tenzir/tree-sitter-tql',
-        files = { 'src/parser.c' },
-        branch = 'main',
-      },
-      filetype = 'tql',
-    }
+    treesitter.setup()
+    treesitter.install({ 'tql' })
 
-    require('nvim-treesitter.configs').setup(opts)
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'tql',
+      callback = function()
+        vim.treesitter.start()
+      end,
+    })
     vim.filetype.add({ extension = { tql = 'tql' } })
   end,
 }
