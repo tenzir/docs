@@ -343,10 +343,10 @@ operators:
     description: 'Accepts incoming TCP or TLS connections and yields events.'
     example: 'accept_tcp "0.0.0.0:8090" { read_json }'
     path: 'reference/operators/accept_tcp'
-  - name: 'accept_uds'
+  - name: 'accept_unix_socket'
     description: 'Accepts incoming Unix domain socket connections and yields events.'
-    example: 'accept_uds "/run/collector.sock" { read_json }'
-    path: 'reference/operators/accept_uds'
+    example: 'accept_unix_socket "/run/collector.sock" { read_json }'
+    path: 'reference/operators/accept_unix_socket'
   - name: 'accept_udp'
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
@@ -427,10 +427,10 @@ operators:
     description: 'Connects to a remote TCP or TLS endpoint and receives events.'
     example: 'from_tcp "example.org:4000" { read_json }'
     path: 'reference/operators/from_tcp'
-  - name: 'from_uds'
+  - name: 'from_unix_socket'
     description: 'Connects to a Unix domain socket and receives events.'
-    example: 'from_uds "/run/collector.sock" { read_json }'
-    path: 'reference/operators/from_uds'
+    example: 'from_unix_socket "/run/collector.sock" { read_json }'
+    path: 'reference/operators/from_unix_socket'
   - name: 'from_velociraptor'
     description: 'Submits VQL to a Velociraptor server and returns the response as events.'
     example: 'from_velociraptor subscribe="Windows"'
@@ -755,10 +755,10 @@ operators:
     description: 'Connects to a remote TCP or TLS endpoint and sends events.'
     example: 'to_tcp "collector.example.com:5044" { write_json }'
     path: 'reference/operators/to_tcp'
-  - name: 'to_uds'
+  - name: 'to_unix_socket'
     description: 'Connects to a Unix domain socket and sends events.'
-    example: 'to_uds "/run/collector.sock" { write_json }'
-    path: 'reference/operators/to_uds'
+    example: 'to_unix_socket "/run/collector.sock" { write_json }'
+    path: 'reference/operators/to_unix_socket'
   - name: 'write_all'
     description: 'Concatenates one field from all input events into a byte stream.'
     example: 'write_all data'
@@ -1438,10 +1438,10 @@ accept_tcp "0.0.0.0:8090" { read_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="accept_uds" description="Accepts incoming Unix domain socket connections and yields events." href="/reference/operators/accept_uds">
+<ReferenceCard title="accept_unix_socket" description="Accepts incoming Unix domain socket connections and yields events." href="/reference/operators/accept_unix_socket">
 
 ```tql
-accept_uds "/run/collector.sock" { read_json }
+accept_unix_socket "/run/collector.sock" { read_json }
 ```
 
 </ReferenceCard>
@@ -1616,10 +1616,10 @@ from_tcp "example.org:4000" {
 
 </ReferenceCard>
 
-<ReferenceCard title="from_uds" description="Connects to a Unix domain socket and receives events." href="/reference/operators/from_uds">
+<ReferenceCard title="from_unix_socket" description="Connects to a Unix domain socket and receives events." href="/reference/operators/from_unix_socket">
 
 ```tql
-from_uds "/run/collector.sock" {
+from_unix_socket "/run/collector.sock" {
   read_json
 }
 ```
@@ -2128,10 +2128,10 @@ to_tcp "collector.example.com:5044" { write_json }
 
 </ReferenceCard>
 
-<ReferenceCard title="to_uds" description="Connects to a Unix domain socket and sends events." href="/reference/operators/to_uds">
+<ReferenceCard title="to_unix_socket" description="Connects to a Unix domain socket and sends events." href="/reference/operators/to_unix_socket">
 
 ```tql
-to_uds "/run/collector.sock" { write_json }
+to_unix_socket "/run/collector.sock" { write_json }
 ```
 
 </ReferenceCard>

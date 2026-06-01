@@ -1,7 +1,7 @@
 ---
-title: to_uds
+title: to_unix_socket
 category: Outputs/Events
-example: 'to_uds "/run/collector.sock" { write_json }'
+example: 'to_unix_socket "/run/collector.sock" { write_json }'
 ---
 
 import Op from '@components/see-also/Op.astro';
@@ -9,7 +9,7 @@ import Op from '@components/see-also/Op.astro';
 Connects to a Unix domain socket and sends events.
 
 ```tql
-to_uds path:string, [max_retry_count=int] { … }
+to_unix_socket path:string, [max_retry_count=int] { … }
 ```
 
 ## Description
@@ -23,7 +23,8 @@ backoff. By default it retries forever; use `max_retry_count` to bound the
 number of reconnect attempts.
 
 The operator connects only when the nested pipeline produces bytes. If the
-nested pipeline produces no output, `to_uds` doesn't open a socket connection.
+nested pipeline produces no output, `to_unix_socket` doesn't open a socket
+connection.
 
 ### `path: string`
 
@@ -52,12 +53,12 @@ output, for instance `{ write_json }` or `{ write_csv }`.
 
 ```tql
 export
-to_uds "/run/collector.sock" { write_json }
+to_unix_socket "/run/collector.sock" { write_json }
 ```
 
 ## See Also
 
-- <Op>from_uds</Op>
-- <Op>accept_uds</Op>
+- <Op>from_unix_socket</Op>
+- <Op>accept_unix_socket</Op>
 - <Op>to_tcp</Op>
 - <Op>write_delimited</Op>

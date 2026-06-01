@@ -1,7 +1,7 @@
 ---
-title: accept_uds
+title: accept_unix_socket
 category: Inputs/Events
-example: 'accept_uds "/run/collector.sock" { read_json }'
+example: 'accept_unix_socket "/run/collector.sock" { read_json }'
 ---
 
 import Op from '@components/see-also/Op.astro';
@@ -9,7 +9,7 @@ import Op from '@components/see-also/Op.astro';
 Listens for incoming Unix domain socket connections and receives events.
 
 ```tql
-accept_uds path:string, [max_connections=int] { … }
+accept_unix_socket path:string, [max_connections=int] { … }
 ```
 
 ## Description
@@ -51,13 +51,13 @@ pipeline that parses the individual connection streams into events, for instance
 ### Accept incoming JSON over a Unix domain socket
 
 ```tql
-accept_uds "/run/collector.sock" {
+accept_unix_socket "/run/collector.sock" {
   read_json
 }
 ```
 
 ## See Also
 
-- <Op>from_uds</Op>
-- <Op>to_uds</Op>
+- <Op>from_unix_socket</Op>
+- <Op>to_unix_socket</Op>
 - <Op>accept_tcp</Op>

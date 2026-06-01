@@ -1,7 +1,7 @@
 ---
-title: from_uds
+title: from_unix_socket
 category: Inputs/Events
-example: 'from_uds "/run/collector.sock" { read_json }'
+example: 'from_unix_socket "/run/collector.sock" { read_json }'
 ---
 
 import Op from '@components/see-also/Op.astro';
@@ -9,7 +9,7 @@ import Op from '@components/see-also/Op.astro';
 Connects to a Unix domain socket and receives events.
 
 ```tql
-from_uds path:string { … }
+from_unix_socket path:string { … }
 ```
 
 ## Description
@@ -40,13 +40,13 @@ the incoming byte stream into events, for instance `{ read_json }`.
 ### Connect to a local socket and read JSON
 
 ```tql
-from_uds "/run/collector.sock" {
+from_unix_socket "/run/collector.sock" {
   read_json
 }
 ```
 
 ## See Also
 
-- <Op>to_uds</Op>
-- <Op>accept_uds</Op>
+- <Op>to_unix_socket</Op>
+- <Op>accept_unix_socket</Op>
 - <Op>from_tcp</Op>
