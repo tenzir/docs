@@ -3,16 +3,90 @@ title: Setup syntax highlighting
 description: Install TQL language extensions for syntax highlighting in your editor
 ---
 
-This guide shows you how to set up TQL syntax highlighting in your editor.
-You'll get proper colorization, language detection, and basic language support
+This guide shows you how to set up TQL syntax highlighting and language
+detection in your editor. You'll get colorization and basic language support
 for `.tql` files.
+
+TQL editor integrations use the
+[Tree-sitter TQL grammar](https://github.com/tenzir/tree-sitter-tql) for
+incremental parsing. The grammar repository also ships Tree-sitter queries for
+highlights, indentation, folds, injections, and local variables.
 
 ## VS Code
 
-Install the [TQL extension](https://github.com/tenzir/vscode-tql) for syntax
-highlighting and language support.
+Install the [TQL extension for VS Code](https://github.com/tenzir/vscode-tql)
+for syntax highlighting and language support.
+
+VS Code-compatible editors such as Cursor and Windsurf can use the same
+extension when it is available in their extension marketplace. If the extension
+doesn't appear there, install a packaged `.vsix` file manually.
 
 ## Zed
 
 [Zed](https://zed.dev) is a high-performance editor with AI integration. Install
-the [TQL extension](https://github.com/tenzir/zed-tql) for syntax highlighting.
+the [TQL extension for Zed](https://github.com/tenzir/zed-tql) from the Zed
+extensions view or from the extension repository. The extension bundles the
+latest TQL parser and highlight queries.
+
+## Helix
+
+Helix includes TQL syntax highlighting and indentation support. Use a Helix
+version that ships the TQL grammar, then fetch and build the bundled parser:
+
+```sh
+hx --grammar fetch
+hx --grammar build
+```
+
+Open a `.tql` file and run `hx --health tql` to confirm that Helix detects the
+language and parser.
+
+## Neovim
+
+Use
+[nvim-treesitter](https://github.com/neovim-treesitter/nvim-treesitter) to
+install the Tree-sitter TQL parser and register the `tql` filetype.
+
+With [lazy.nvim](https://github.com/folke/lazy.nvim), add this plugin
+configuration:
+
+```lua
+return {
+  'neovim-treesitter/nvim-treesitter',
+  dependencies = {
+    'neovim-treesitter/treesitter-parser-registry',
+  },
+  lazy = false,
+  build = ':TSUpdate',
+  config = function()
+    local treesitter = require('nvim-treesitter')
+
+    treesitter.setup {
+      local_parsers = {
+        tql = {
+          source = {
+            type = 'self_contained',
+            url = 'https://github.com/tenzir/tree-sitter-tql',
+            semver = false,
+            queries_path = 'queries/tql',
+          },
+          filetypes = { 'tql' },
+        },
+      },
+    }
+    treesitter.install({ 'tql' })
+
+    vim.api.nvim_create_autocmd('FileType', {
+      pattern = 'tql',
+      callback = function()
+        vim.treesitter.start()
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+      end,
+    })
+    vim.filetype.add({ extension = { tql = 'tql' } })
+  end,
+}
+```
+
+After you update your Neovim plugins, open a `.tql` file and run
+`:InspectTree` to confirm that Neovim uses the TQL parser.
