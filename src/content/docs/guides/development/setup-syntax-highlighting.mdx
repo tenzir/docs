@@ -58,13 +58,13 @@ return {
     'tenzir/tree-sitter-tql',
   },
   opts = function(_, opts)
-    opts.ensure_installed = {
-      'tql',
-    }
+    opts.ensure_installed = opts.ensure_installed or {}
+    if not vim.tbl_contains(opts.ensure_installed, 'tql') then
+      table.insert(opts.ensure_installed, 'tql')
+    end
 
-    opts.highlight = {
-      enable = true,
-    }
+    opts.highlight = opts.highlight or {}
+    opts.highlight.enable = true
 
     return opts
   end,
