@@ -1,0 +1,53 @@
+---
+title: read_chunks
+category: Parsing
+example: 'read_chunks'
+---
+
+Parses binary data into events with a single `data` field, in a streaming
+fasion.
+
+```tql
+read_chunks
+```
+
+## Description
+
+The `read_chunks` operator turns each incoming byte chunk into a single event
+with a field called `data` of type `blob`. Unlike <Op>read_all</Op>, which
+buffers the entire input and produces one event, `read_chunks` emits events
+as data arrives.
+
+This is useful for piping binary data out `from_` operators, that can only emit
+events.
+
+## Examples
+
+### Read a file as blob events
+
+```tql
+from_file "data.bin" {
+  read_chunks
+}
+```
+
+```tql
+{data: b"<chunk contents>"}
+```
+
+### Round-trip with write_chunks
+
+```tql
+from_file "input.bin" {
+  read_chunks
+}
+to_file "output.bin" {
+  write_chunks
+}
+```
+
+## See Also
+
+- <Op>read_all</Op>
+- <Op>read_delimited</Op>
+- <Op>write_chunks</Op>
