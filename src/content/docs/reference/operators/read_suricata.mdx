@@ -65,19 +65,23 @@ following settings in your `suricata.yaml`:
 ```yaml
 outputs:
   - eve-log:
-    enabled: yes
-    filetype: unix_stream
-    filename: eve.sock
+      enabled: yes
+      filetype: unix_stream
+      filename: /run/suricata/eve.sock
 ```
 
-Start Tenzir before Suricata so that Tenzir creates `eve.sock` and accepts the
-incoming stream:
+Start Tenzir before Suricata so that Tenzir creates the socket and accepts the
+incoming EVE JSON stream:
 
 ```tql
-accept_unix_socket "eve.sock" {
+accept_unix_socket "/run/suricata/eve.sock" {
   read_suricata
 }
 ```
+
+Suricata's `unix-command` socket is separate from EVE output. It is a control
+socket for tools such as `suricatasc`, not an event stream for
+<Op>read_suricata</Op>.
 
 ## See Also
 
