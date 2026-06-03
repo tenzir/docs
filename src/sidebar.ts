@@ -324,6 +324,7 @@ export const reference = [
     ],
     "tools",
   ),
+  section("Authentication", ["reference/aws-authentication"], "security"),
 ];
 
 export const integrations = [
