@@ -101,18 +101,26 @@ Exactly one of the following token sources must be specified in
   for Kubernetes workload identity (EKS, AKS, GKE) where the platform mounts
   a service account token into the pod.
 - **`token_endpoint`**: Configuration for fetching tokens from an HTTP
-  endpoint. Contains `url`, optional `headers`, and optional `path` for JSON
-  extraction. Use this for Azure IMDS or similar metadata services.
+  endpoint. Use this for Azure IMDS or similar metadata services. The nested
+  record contains:
+  - `url` (required): The HTTP endpoint URL that returns a token.
+  - `headers`: HTTP headers to include in the token request. For Azure IMDS,
+    you typically need `{Metadata: "true"}`.
+  - `path`: JSON path to extract the token from the endpoint response.
+    Defaults to `.access_token`. Set to `null` for endpoints that return the
+    token as plain text.
 - **`token`**: Direct token value, useful for testing or when the token
   comes from another source.
 
-Tenzir refreshes credentials automatically before expiration, making this
-suitable for long-running pipelines.
+Tenzir refreshes credentials automatically before expiration, with
+exponential backoff retry for transient failures, making this suitable for
+long-running pipelines.
 
 ## Static credentials
 
-Pass an access key and secret directly. Wrap secrets with <Fn>secret</Fn> to
-keep them out of pipeline definitions:
+Pass an access key and secret directly. The `access_key_id` and
+`secret_access_key` options must be specified together. Wrap secrets with
+<Fn>secret</Fn> to keep them out of pipeline definitions:
 
 ```tql
 from_s3 "s3://my-bucket/data.json", aws_iam={
