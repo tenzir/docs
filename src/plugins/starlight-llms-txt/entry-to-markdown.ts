@@ -10,6 +10,7 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { remove } from "unist-util-remove";
 import { visit } from "unist-util-visit";
+import { markdownPathForDocPath } from "../../utils/llm-markdown-path";
 import { getNonMarkdownPaths } from "../../utils/redirects.mjs";
 
 const astroContainer = await experimental_AstroContainer.create({
@@ -196,7 +197,7 @@ const htmlToMarkdownPipeline = unified()
         const suffix = href.slice(suffixIndex);
         // Remove trailing slash before adding .md
         const cleanPath = path.endsWith("/") ? path.slice(0, -1) : path;
-        link.properties.href = `${cleanPath}.md${suffix}`;
+        link.properties.href = `${markdownPathForDocPath(cleanPath)}${suffix}`;
       }
     };
   })
