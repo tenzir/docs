@@ -24,6 +24,10 @@ const { starlightRoute } = Astro.locals;
 const weightConfig = getSearchWeight(starlightRoute.id);
 const pagefindType = weightConfig?.metadata?.type;
 const pagefindWeight = weightConfig?.weight;
+// The per-page Markdown twin only exists for pages backed by the `docs`
+// content collection. Pages injected by other integrations (e.g. starlight-
+// openapi) have no `.md` route, so we hide the action buttons there.
+const hasMarkdownTwin = docsMap.has(starlightRoute.entry.id);
 const markdownUrl = pathWithBase(
   markdownPathForDocPath(starlightRoute.entry.id),
 );
@@ -178,6 +182,7 @@ for (let i = 0; i < segments.length; i++) {
     <h1 {...h1Attrs}>
       {starlightRoute.entry.data.title}
     </h1>
+    {hasMarkdownTwin && (
     <div class="page-actions" data-page-actions>
       <button
         type="button"
@@ -298,6 +303,7 @@ for (let i = 0; i < segments.length; i++) {
         </a>
       </div>
     </div>
+    )}
   </div>
 </div>
 
