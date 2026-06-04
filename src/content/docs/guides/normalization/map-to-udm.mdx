@@ -14,10 +14,36 @@ don't send structured UDM records directly with <Op>to_google_secops</Op> until
 structured UDM ingestion support is available.
 :::
 
-The examples use lowerCamelCase UDM JSON field names, such as
-`metadata.eventType`, to match the API-facing record shape. Google SecOps rule
-and normalizer field paths may use snake_case names, such as
-`metadata.event_type`, in those contexts.
+The TQL examples in this guide build API-facing UDM records, so they use field
+names such as `metadata.eventType`. Google SecOps rule and normalizer field
+paths use names such as `$event.metadata.event_type` in those contexts.
+
+## Use the UDM skill
+
+Install the `tenzir-google-udm` skill when you want an agent to help with UDM
+schema decisions. See
+<Guide>ai-workbench/use-agent-skills#use-the-google-udm-skill</Guide> for
+installation and usage examples.
+
+The skill supports both UDM workflows:
+
+- **Mapping to UDM records**: Ask the agent to use ingestion object field
+  names, such as `metadata.eventType` and `network.ipProtocol`, when it writes
+  TQL that builds a UDM event or entity object.
+- **Detection engineering**: Ask the agent to use field path names, such as
+  `$event.metadata.event_type` and `$event.network.ip_protocol`, when it writes
+  YARA-L or Google SecOps rule logic.
+
+Generated UDM field headings can show two forms:
+
+```text
+field_path_form / ingestionObjectForm
+```
+
+Use the left-side form in dotted field-path contexts. Use the right-side form
+in API-facing UDM records. If a heading has one name, both contexts use the same
+spelling. The mapping comes from Google protobuf descriptors, so don't derive
+one spelling from the other by case conversion.
 
 ## Choose the UDM event type
 
