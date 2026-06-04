@@ -126,6 +126,7 @@ export const guides = [
           { label: "Overview", link: "guides/normalization" },
           "guides/normalization/clean-up-values",
           "guides/normalization/map-to-ocsf",
+          "guides/normalization/map-to-udm",
           "guides/normalization/map-to-other-schemas",
         ],
       },

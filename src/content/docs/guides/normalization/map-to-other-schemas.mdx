@@ -66,32 +66,7 @@ is Google Chronicle's (SecOps) event schema. Refer to the
 [UDM field list](https://cloud.google.com/chronicle/docs/reference/udm-field-list)
 for a complete reference.
 
-### Key differences from OCSF
-
-- Uses protobuf-style nested structures
-- Strict typing with enums for many fields
-- Event type determines required field sets
-
-### Mapping pattern
-
-```tql
-// From OCSF to UDM
-udm.metadata.event_timestamp = ocsf.time
-udm.metadata.event_type = "NETWORK_CONNECTION"
-udm.principal.ip = [ocsf.src_endpoint.ip]
-udm.principal.port = ocsf.src_endpoint.port
-udm.target.ip = [ocsf.dst_endpoint.ip]
-udm.target.port = ocsf.dst_endpoint.port
-udm.network.ip_protocol = ocsf.connection_info.protocol_name.to_upper()
-```
-
-### UDM entity types
-
-- `principal` - Initiating entity (source)
-- `target` - Target entity (destination)
-- `src` - Alternative source (for multi-party events)
-- `observer` - Monitoring/logging entity
-- `intermediary` - Proxy or middlebox
+For a detailed TQL mapping pattern, see <Guide>normalization/map-to-udm</Guide>.
 
 ## Microsoft ASIM
 
@@ -230,4 +205,5 @@ fork {
 
 - <Op>to_opensearch</Op>
 - <Guide>normalization/map-to-ocsf</Guide>
+- <Guide>normalization/map-to-udm</Guide>
 - <Guide>transformation/transform-values</Guide>

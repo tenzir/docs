@@ -1,11 +1,11 @@
 ---
 title: Use agent skills
-description: Access Tenzir documentation as an Agent Skill for any compatible AI agent
+description: Install Tenzir agent skills for documentation, schemas, and workflow automation
 ---
 
 This guide shows you how to install and manage Tenzir's agent skills. You'll
-learn how to add skills globally or per project, install individual skills, and
-keep them up to date.
+learn which skills are available, how to add skills globally or per project,
+install individual skills, and keep them up to date.
 
 Tenzir publishes agent skills in the
 [`tenzir/skills`](https://github.com/tenzir/skills) repository.
@@ -16,6 +16,36 @@ knowledge that AI agents can use. Skills provide structured documentation with
 progressive disclosure, letting agents load a condensed overview first and drill
 into details only when needed.
 :::
+
+## Available skills
+
+Tenzir publishes the following skills:
+
+### 🧬 Schemas
+
+| Skill               | Description                                                                                   |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `tenzir-google-udm` | Google SecOps UDM schema and normalization guidance for fields, event types, and entity types  |
+| `tenzir-ocsf`       | OCSF schema reference for event classes, objects, attributes, profiles, and extensions         |
+
+### 🛡️ Tenzir Users
+
+| Skill                   | Description                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------- |
+| `tenzir-docs`           | Tenzir documentation for TQL, operators, functions, integrations, and deployment        |
+| `tenzir-create-package` | Create library-quality Tenzir packages with operators, tests, examples, and pipelines   |
+
+### 🏗️ Tenzir Contributors
+
+| Skill                         | Description                                                              |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| `tenzir-commit-changes`       | Stage, split, and commit changes with clean messages                     |
+| `tenzir-create-pull-requests` | Open pull requests, add changelog entries, and link documentation PRs    |
+| `tenzir-review-changes`       | Review code with severity ratings and structured findings                |
+| `tenzir-design-system`        | Use frontend design tokens, components, and brand assets                 |
+| `tenzir-ship`                 | Write changelog entries, release notes, and GitHub releases              |
+| `tenzir-update-docs`          | Coordinate docs.tenzir.com updates alongside code changes                |
+| `tenzir-technical-writing`    | Write documentation in Tenzir's technical writing style                  |
 
 ## Install skills
 
@@ -36,12 +66,10 @@ to select targets.
 
 ### Install individual skills
 
-Append `@<skill-name>` to install a specific skill:
+Append `@<skill-name>` to install a specific skill from the available skills:
 
 ```bash
-npx skills add tenzir/skills@tenzir-docs
-npx skills add tenzir/skills@tenzir-ocsf
-npx skills add tenzir/skills@tenzir-create-package
+npx skills add tenzir/skills@<skill-name>
 ```
 
 ### Choose the installation scope
