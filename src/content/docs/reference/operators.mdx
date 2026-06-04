@@ -523,6 +523,10 @@ operators:
     description: 'Shows the most common values.'
     example: 'top user'
     path: 'reference/operators/top'
+  - name: 'window'
+    description: 'Groups events into event-time windows and runs a subpipeline per window.'
+    example: 'window size=1h, on=ts { summarize count() }'
+    path: 'reference/operators/window'
   - name: 'read_all'
     description: 'Parses an incoming bytes stream into a single event.'
     example: 'read_all binary=true'
@@ -886,6 +890,14 @@ summarize name, sum(amount)
 
 ```tql
 top user
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="window" description="Groups events into event-time windows and runs a subpipeline per window." href="/reference/operators/window">
+
+```tql
+window size=1h, on=ts { summarize count() }
 ```
 
 </ReferenceCard>
