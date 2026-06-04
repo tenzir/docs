@@ -16,7 +16,11 @@ import {
   reference,
   tutorials,
 } from "../../../sidebar";
-import { changelogTopics } from "../../../sidebar-changelog.generated";
+import {
+  markdownUrlForDocPath,
+  normalizeDocPathForMarkdown,
+} from "../../../utils/llm-markdown-path";
+import { changelogTopics } from "../changelog-topics";
 import { entryToSimpleMarkdown } from "../entry-to-markdown";
 import type { SidebarItem } from "../types";
 import { ensureTrailingSlash, isDefaultLocale } from "../utils";
@@ -39,6 +43,8 @@ interface ChildLink {
  * Extract child links from a sidebar section for a given doc ID.
  */
 function extractChildLinks(docId: string, baseUrl: string): ChildLink[] | null {
+  const childUrl = (docPath: string) => markdownUrlForDocPath(baseUrl, docPath);
+
   // Check if we're looking for a top-level section
   if (docId in SECTION_SIDEBARS) {
     const sidebarItems = SECTION_SIDEBARS[docId];
@@ -48,17 +54,17 @@ function extractChildLinks(docId: string, baseUrl: string): ChildLink[] | null {
           const label = item.split("/").pop() || item;
           return {
             title: label.charAt(0).toUpperCase() + label.slice(1),
-            url: `${baseUrl}/${item}.md`,
+            url: childUrl(item),
           };
         } else if (item.link) {
-          return { title: item.label, url: `${baseUrl}/${item.link}.md` };
+          return { title: item.label, url: childUrl(item.link) };
         } else if (item.items && item.items.length > 0) {
           // For groups, link to the first item if it's an index page
           const first = item.items[0];
           if (typeof first === "string") {
-            return { title: item.label, url: `${baseUrl}/${first}.md` };
+            return { title: item.label, url: childUrl(first) };
           } else if (first && "link" in first && first.link) {
-            return { title: item.label, url: `${baseUrl}/${first.link}.md` };
+            return { title: item.label, url: childUrl(first.link) };
           }
           return null;
         }
@@ -74,7 +80,7 @@ function extractChildLinks(docId: string, baseUrl: string): ChildLink[] | null {
     );
     return projects.map((t) => ({
       title: t.label,
-      url: `${baseUrl}/${t.link}.md`,
+      url: childUrl(t.link),
     }));
   }
 
@@ -95,6 +101,8 @@ function findChildrenForPath(
   targetPath: string,
   baseUrl: string,
 ): ChildLink[] | null {
+  const childUrl = (docPath: string) => markdownUrlForDocPath(baseUrl, docPath);
+
   for (const item of items) {
     if (typeof item === "string") continue;
     if (!item.items) continue;
@@ -117,16 +125,16 @@ function findChildrenForPath(
             const label = child.split("/").pop() || child;
             return {
               title: label.charAt(0).toUpperCase() + label.slice(1),
-              url: `${baseUrl}/${child}.md`,
+              url: childUrl(child),
             };
           } else if (child.link) {
-            return { title: child.label, url: `${baseUrl}/${child.link}.md` };
+            return { title: child.label, url: childUrl(child.link) };
           } else if (child.items && child.items.length > 0) {
             const first = child.items[0];
             if (typeof first === "string") {
-              return { title: child.label, url: `${baseUrl}/${first}.md` };
+              return { title: child.label, url: childUrl(first) };
             } else if (first && "link" in first && first.link) {
-              return { title: child.label, url: `${baseUrl}/${first.link}.md` };
+              return { title: child.label, url: childUrl(first.link) };
             }
           }
           return null;
@@ -147,7 +155,7 @@ function findChildrenForPath(
  */
 function getChildLinksForPage(docId: string, baseUrl: string): ChildLink[] {
   // Normalize the doc ID (remove /index suffix)
-  const normalizedId = docId.replace(/\/index$/, "");
+  const normalizedId = normalizeDocPathForMarkdown(docId);
 
   const children = extractChildLinks(normalizedId, baseUrl);
   return children || [];
@@ -179,7 +187,7 @@ export const getStaticPaths = (async () => {
       // Simple .md replacement pattern
       return [
         {
-          params: { slug },
+          params: { slug: normalizeDocPathForMarkdown(slug) },
           props: { doc },
         },
       ];

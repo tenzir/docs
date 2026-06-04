@@ -19,21 +19,25 @@ export default function starlightLlmsTxt(
           name: "starlight-llms-txt",
           hooks: {
             "astro:config:setup"({ injectRoute, updateConfig }) {
-              // /llms.txt - The sitemap entry point with navigation, descriptions, and headings
-              injectRoute({
-                entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
-                pattern: "/llms.txt",
-                prerender: true,
-              });
-              // /llms-full.txt - Complete documentation bundle
-              injectRoute({
-                entrypoint: new URL(
-                  "./routes/llms-full.txt.ts",
-                  import.meta.url,
-                ),
-                pattern: "/llms-full.txt",
-                prerender: true,
-              });
+              const llmsTxtRoutesEnabled = opts.llmsTxt ?? true;
+
+              if (llmsTxtRoutesEnabled) {
+                // /llms.txt - The sitemap entry point with navigation, descriptions, and headings
+                injectRoute({
+                  entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
+                  pattern: "/llms.txt",
+                  prerender: true,
+                });
+                // /llms-full.txt - Complete documentation bundle
+                injectRoute({
+                  entrypoint: new URL(
+                    "./routes/llms-full.txt.ts",
+                    import.meta.url,
+                  ),
+                  pattern: "/llms-full.txt",
+                  prerender: true,
+                });
+              }
 
               // Parse perPageMarkdown config
               const perPageMarkdownConfig = (() => {
@@ -72,7 +76,7 @@ export default function starlightLlmsTxt(
               }
 
               // Inject sitemap.md alias if enabled (serves same content as llms.txt)
-              if (opts.sitemapAlias) {
+              if (llmsTxtRoutesEnabled && opts.sitemapAlias) {
                 injectRoute({
                   entrypoint: new URL("./routes/llms.txt.ts", import.meta.url),
                   pattern: "/sitemap.md",

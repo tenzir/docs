@@ -162,20 +162,16 @@ export default defineConfig({
         },
       },
       plugins: [
-        ...(llmsTxt
-          ? [
-              starlightLlmsTxt({
-                projectName: "Tenzir",
-                description:
-                  "The low-code data pipeline solution for security teams",
-                perPageMarkdown: {
-                  extensionStrategy: "replace",
-                },
-                sitemapAlias: true,
-                preambles: true,
-              }),
-            ]
-          : []),
+        starlightLlmsTxt({
+          llmsTxt,
+          projectName: "Tenzir",
+          description: "The low-code data pipeline solution for security teams",
+          perPageMarkdown: {
+            extensionStrategy: "replace",
+          },
+          sitemapAlias: llmsTxt,
+          preambles: llmsTxt,
+        }),
         ...(checkLinks
           ? [
               starlightLinksValidator({
