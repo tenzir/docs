@@ -14,9 +14,14 @@ don't send structured UDM records directly with <Op>to_google_secops</Op> until
 structured UDM ingestion support is available.
 :::
 
+The examples use lowerCamelCase UDM JSON field names, such as
+`metadata.eventType`, to match the API-facing record shape. Google SecOps rule
+and normalizer field paths may use snake_case names, such as
+`metadata.event_type`, in those contexts.
+
 ## Choose the UDM event type
 
-Start by choosing `metadata.event_type`. This value describes the activity that
+Start by choosing `metadata.eventType`. This value describes the activity that
 the event records, not the product that emitted the log. For example, a firewall
 connection log maps to `NETWORK_CONNECTION`, while DNS payloads map to
 `NETWORK_DNS`.
@@ -65,11 +70,11 @@ let $actions = {
 }
 
 udm.metadata = {
-  event_timestamp: move fw.ts,
-  event_type: "NETWORK_CONNECTION",
-  vendor_name: "Example Networks",
-  product_name: "Example Firewall",
-  product_event_type: fw.action,
+  eventTimestamp: move fw.ts,
+  eventType: "NETWORK_CONNECTION",
+  vendorName: "Example Networks",
+  productName: "Example Firewall",
+  productEventType: fw.action,
 }
 
 udm.principal = {
@@ -83,14 +88,14 @@ udm.target = {
 }
 
 udm.network = {
-  ip_protocol: $ip_protocols[fw.proto.to_lower()]? else "UNKNOWN_IP_PROTOCOL",
-  sent_bytes: move fw.bytes_out,
-  received_bytes: move fw.bytes_in,
+  ipProtocol: $ip_protocols[fw.proto.to_lower()]? else "UNKNOWN_IP_PROTOCOL",
+  sentBytes: move fw.bytes_out,
+  receivedBytes: move fw.bytes_in,
 }
 
-udm.security_result = [{
+udm.securityResult = [{
   action: [$actions[fw.action.to_lower()]? else "UNKNOWN_ACTION"],
-  action_details: fw.action,
+  actionDetails: fw.action,
 }]
 
 drop fw.action
@@ -102,11 +107,11 @@ this = {...udm, additional: fw}
 ```tql
 {
   metadata: {
-    event_timestamp: 2024-01-15T10:30:45Z,
-    event_type: "NETWORK_CONNECTION",
-    vendor_name: "Example Networks",
-    product_name: "Example Firewall",
-    product_event_type: "allowed",
+    eventTimestamp: 2024-01-15T10:30:45Z,
+    eventType: "NETWORK_CONNECTION",
+    vendorName: "Example Networks",
+    productName: "Example Firewall",
+    productEventType: "allowed",
   },
   principal: {
     ip: [
@@ -121,16 +126,16 @@ this = {...udm, additional: fw}
     port: 443,
   },
   network: {
-    ip_protocol: "TCP",
-    sent_bytes: 1280,
-    received_bytes: 8192,
+    ipProtocol: "TCP",
+    sentBytes: 1280,
+    receivedBytes: 8192,
   },
-  security_result: [
+  securityResult: [
     {
       action: [
         "ALLOW",
       ],
-      action_details: "allowed",
+      actionDetails: "allowed",
     },
   ],
   additional: {},
@@ -143,7 +148,7 @@ Use the same structure for larger mappings:
 
 - **Keep a source namespace**: Move the parsed event under a short namespace
   such as `fw`, `dns`, `edr`, or `event` before you create UDM fields.
-- **Set `metadata.event_type` early**: Let the UDM event type drive which
+- **Set `metadata.eventType` early**: Let the UDM event type drive which
   participant nouns and protocol fields you populate.
 - **Model participants as nouns**: Use `principal` for the initiating entity,
   `target` for the destination, `observer` for the sensor, and `intermediary`
@@ -152,13 +157,6 @@ Use the same structure for larger mappings:
   as `TCP`, `UDP`, `ALLOW`, or `BLOCK`.
 - **Preserve unmapped fields**: Keep source fields that don't have a deliberate
   UDM target under `additional` so reviewers can audit the mapping.
-
-## Test the operator
-
-Package UDM mappings like other normalization operators and test them with
-fixtures. Until Tenzir has a structured UDM validation and ingestion path, use
-fixture output to verify that each event type populates the expected UDM
-sections and enum values.
 
 ## See Also
 
