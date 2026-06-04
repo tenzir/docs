@@ -453,32 +453,15 @@ for (let i = 0; i < segments.length; i++) {
     }
   });
 
-  function preloadCopyButton(button: HTMLButtonElement) {
-    const markdownUrl = button.dataset.markdownUrl;
-    if (!markdownUrl) {
-      return;
-    }
-
-    const idleLabel = button.dataset.copyLabel ?? "Copy for LLM";
-    setCopyButtonState(
-      button,
-      "pending",
-      idleLabel,
-      "Preparing page Markdown.",
-    );
-    fetchMarkdown(markdownUrl)
-      .then(() => {
-        setCopyButtonState(button, "idle", idleLabel, "");
-      })
-      .catch(() => {
-        setCopyButtonState(button, "idle", idleLabel, "");
-      });
-  }
-
+  // Enable the buttons on JS init without fetching. The SSR markup ships
+  // them disabled so non-JS readers see a no-op control. The pointerover
+  // and focusin listeners below prefetch on intent, and the click handler
+  // falls back to fetching inline if nothing is cached.
   for (const button of document.querySelectorAll<HTMLButtonElement>(
     "button[data-copy-for-llm]",
   )) {
-    preloadCopyButton(button);
+    const idleLabel = button.dataset.copyLabel ?? "Copy for LLM";
+    setCopyButtonState(button, "idle", idleLabel, "");
   }
 
   document.addEventListener("pointerover", (event) => {
