@@ -4,8 +4,8 @@ title: Map to other schemas
 
 This guide provides brief guidance on mapping data to schemas other than OCSF.
 While OCSF is the recommended choice for security data, you may need to support
-Elastic Common Schema (ECS), Google UDM, or Microsoft ASIM for integration with
-specific platforms.
+Elastic Common Schema (ECS) or Microsoft ASIM for integration with specific
+platforms.
 
 ## Choosing a schema
 
@@ -13,7 +13,6 @@ specific platforms.
 | -------- | --------------------------- | ---------------------------------------------- |
 | **OCSF** | Security data normalization | Vendor-neutral, comprehensive security focus   |
 | **ECS**  | Elasticsearch/Elastic Stack | Tight Elastic integration, good field coverage |
-| **UDM**  | Google SecOps (Chronicle)   | Required for Chronicle, maps well from OCSF    |
 | **ASIM** | Microsoft Sentinel          | Required for Sentinel, KQL-optimized           |
 
 :::tip[Recommended approach]
@@ -58,15 +57,6 @@ Common ECS field sets for security data:
 - `user.*` - User information
 - `host.*` - Host/device details
 - `threat.*` - Threat intelligence
-
-## Google Unified Data Model (UDM)
-
-[UDM](https://docs.cloud.google.com/chronicle/docs/event-processing/udm-overview)
-is Google Chronicle's (SecOps) event schema. Refer to the
-[UDM field list](https://cloud.google.com/chronicle/docs/reference/udm-field-list)
-for a complete reference.
-
-For a detailed TQL mapping pattern, see <Guide>normalization/map-to-udm</Guide>.
 
 ## Microsoft ASIM
 
@@ -124,9 +114,6 @@ When values need conversion:
 ```tql
 // OCSF uses integers, ECS might use strings
 ecs.event.severity = ocsf.severity_id.string()
-
-// Protocol name case differences
-udm.network.ip_protocol = ocsf.connection_info.protocol_name.to_upper()
 ```
 
 ### Structural transformation
@@ -177,11 +164,6 @@ fork {
   ocsf_to_ecs
   to_opensearch "https://elasticsearch.example.com:9200", action="index", index="ecs"
 }
-fork {
-  // Translate and send to Chronicle
-  ocsf_to_udm
-  to_google_secops "..."
-}
 ```
 
 ## Best practices
@@ -205,5 +187,4 @@ fork {
 
 - <Op>to_opensearch</Op>
 - <Guide>normalization/map-to-ocsf</Guide>
-- <Guide>normalization/map-to-udm</Guide>
 - <Guide>transformation/transform-values</Guide>
