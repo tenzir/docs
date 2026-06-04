@@ -4,8 +4,8 @@ title: Map to other schemas
 
 This guide provides brief guidance on mapping data to schemas other than OCSF.
 While OCSF is the recommended choice for security data, you may need to support
-Elastic Common Schema (ECS) or Microsoft ASIM for integration with specific
-platforms.
+Elastic Common Schema (ECS), Google UDM, or Microsoft ASIM for integration with
+specific platforms.
 
 ## Choosing a schema
 
@@ -13,6 +13,7 @@ platforms.
 | -------- | --------------------------- | ---------------------------------------------- |
 | **OCSF** | Security data normalization | Vendor-neutral, comprehensive security focus   |
 | **ECS**  | Elasticsearch/Elastic Stack | Tight Elastic integration, good field coverage |
+| **UDM**  | Google SecOps               | Required for SecOps, API-oriented UDM shape    |
 | **ASIM** | Microsoft Sentinel          | Required for Sentinel, KQL-optimized           |
 
 :::tip[Recommended approach]
@@ -163,6 +164,11 @@ fork {
   // Translate and send to Elasticsearch
   ocsf_to_ecs
   to_opensearch "https://elasticsearch.example.com:9200", action="index", index="ecs"
+}
+fork {
+  // Translate and send to Google SecOps
+  ocsf_to_udm
+  to_google_secops "..."
 }
 ```
 
