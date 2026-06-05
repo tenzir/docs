@@ -347,10 +347,18 @@ operators:
     description: 'Receives UDP datagrams and outputs structured events.'
     example: 'accept_udp "0.0.0.0:8090"'
     path: 'reference/operators/accept_udp'
+  - name: 'accept_unix_socket'
+    description: 'Accepts incoming Unix domain socket connections and yields events.'
+    example: 'accept_unix_socket "/run/collector.sock" { read_json }'
+    path: 'reference/operators/accept_unix_socket'
   - name: 'from_amazon_cloudwatch'
     description: 'Reads events from Amazon CloudWatch.'
     example: 'from_amazon_cloudwatch "/aws/lambda/api", mode="search"'
     path: 'reference/operators/from_amazon_cloudwatch'
+  - name: 'from_amazon_sqs'
+    description: 'Receives messages from an Amazon SQS queue.'
+    example: 'from_amazon_sqs "sqs://tenzir", poll_time=5s'
+    path: 'reference/operators/from_amazon_sqs'
   - name: 'from_amqp'
     description: 'Receives messages from an AMQP queue.'
     example: 'from_amqp "amqp://admin:pass@0.0.0.1:5672/vhost", queue="events"'
@@ -415,10 +423,6 @@ operators:
     description: 'Retrieves PowerQuery results from SentinelOne Singularity Data Lake.'
     example: 'from_sentinelone_data_lake "https://…", …'
     path: 'reference/operators/from_sentinelone_data_lake'
-  - name: 'from_sqs'
-    description: 'Receives messages from an Amazon SQS queue.'
-    example: 'from_sqs "sqs://tenzir", poll_time=5s'
-    path: 'reference/operators/from_sqs'
   - name: 'from_stdin'
     description: 'Reads and parses events from standard input.'
     example: 'from_stdin { read_json }'
@@ -427,6 +431,10 @@ operators:
     description: 'Connects to a remote TCP or TLS endpoint and receives events.'
     example: 'from_tcp "example.org:4000" { read_json }'
     path: 'reference/operators/from_tcp'
+  - name: 'from_unix_socket'
+    description: 'Connects to a Unix domain socket and receives events.'
+    example: 'from_unix_socket "/run/collector.sock" { read_json }'
+    path: 'reference/operators/from_unix_socket'
   - name: 'from_velociraptor'
     description: 'Submits VQL to a Velociraptor server and returns the response as events.'
     example: 'from_velociraptor subscribe="Windows"'
@@ -631,10 +639,6 @@ operators:
     description: 'Sends messages to an AMQP exchange.'
     example: 'to_amqp "amqp://admin:pass@0.0.0.1:5672/vhost"'
     path: 'reference/operators/to_amqp'
-  - name: 'to_sqs'
-    description: 'Sends messages to an Amazon SQS queue.'
-    example: 'to_sqs "sqs://tenzir"'
-    path: 'reference/operators/to_sqs'
   - name: 'to_udp'
     description: 'Sends one UDP datagram per input event.'
     example: 'to_udp "127.0.0.1:514"'
@@ -655,6 +659,10 @@ operators:
     description: 'Sends OCSF events to Amazon Security Lake.'
     example: 'to_amazon_security_lake "s3://…"'
     path: 'reference/operators/to_amazon_security_lake'
+  - name: 'to_amazon_sqs'
+    description: 'Sends messages to an Amazon SQS queue.'
+    example: 'to_amazon_sqs "sqs://tenzir"'
+    path: 'reference/operators/to_amazon_sqs'
   - name: 'to_azure_blob_storage'
     description: 'Writes events to one or multiple blobs in Azure Blob Storage.'
     example: 'to_azure_blob_storage "abfs://container/data/{uuid}.json" { write_ndjson }'
@@ -727,6 +735,10 @@ operators:
     description: 'Sends events to an OpenSearch-compatible Bulk API.'
     example: 'to_opensearch "localhost:9200", …'
     path: 'reference/operators/to_opensearch'
+  - name: 'to_prometheus'
+    description: 'Sends metric events to a Prometheus Remote Write receiver.'
+    example: 'to_prometheus "https://prometheus.example/api/v1/write"'
+    path: 'reference/operators/to_prometheus'
   - name: 'to_s3'
     description: 'Writes events to one or multiple objects in Amazon S3.'
     example: 'to_s3 "s3://my-bucket/data/{uuid}.json" { write_ndjson }'
@@ -751,6 +763,10 @@ operators:
     description: 'Connects to a remote TCP or TLS endpoint and sends events.'
     example: 'to_tcp "collector.example.com:5044" { write_json }'
     path: 'reference/operators/to_tcp'
+  - name: 'to_unix_socket'
+    description: 'Connects to a Unix domain socket and sends events.'
+    example: 'to_unix_socket "/run/collector.sock" { write_json }'
+    path: 'reference/operators/to_unix_socket'
   - name: 'write_all'
     description: 'Concatenates one field from all input events into a byte stream.'
     example: 'write_all data'
@@ -763,6 +779,10 @@ operators:
     description: 'Transforms event stream to CSV (Comma-Separated Values) byte stream.'
     example: 'write_csv'
     path: 'reference/operators/write_csv'
+  - name: 'write_delimited'
+    description: 'Frames string or blob event values as bytes with a separator after each value.'
+    example: 'write_delimited data, "|"'
+    path: 'reference/operators/write_delimited'
   - name: 'write_feather'
     description: 'Transforms the input event stream to Feather byte stream.'
     example: 'write_feather'
@@ -1434,6 +1454,14 @@ accept_udp "0.0.0.0:8090"
 
 </ReferenceCard>
 
+<ReferenceCard title="accept_unix_socket" description="Accepts incoming Unix domain socket connections and yields events." href="/reference/operators/accept_unix_socket">
+
+```tql
+accept_unix_socket "/run/collector.sock" { read_json }
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="accept_zmq" description="Listens on a ZeroMQ endpoint and receives events." href="/reference/operators/accept_zmq">
 
 ```tql
@@ -1446,6 +1474,14 @@ accept_zmq "tcp://0.0.0.0:5555", prefix="alerts/" { read_json }
 
 ```tql
 from_amazon_cloudwatch "/aws/lambda/api", mode="search"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_amazon_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_amazon_sqs">
+
+```tql
+from_amazon_sqs "sqs://tenzir", poll_time=5s
 ```
 
 </ReferenceCard>
@@ -1578,14 +1614,6 @@ from_sentinelone_data_lake "https://…", …
 
 </ReferenceCard>
 
-<ReferenceCard title="from_sqs" description="Receives messages from an Amazon SQS queue." href="/reference/operators/from_sqs">
-
-```tql
-from_sqs "sqs://tenzir", poll_time=5s
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="from_stdin" description="Reads and parses events from standard input." href="/reference/operators/from_stdin">
 
 ```tql
@@ -1598,6 +1626,16 @@ from_stdin { read_json }
 
 ```tql
 from_tcp "example.org:4000" {
+  read_json
+}
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="from_unix_socket" description="Connects to a Unix domain socket and receives events." href="/reference/operators/from_unix_socket">
+
+```tql
+from_unix_socket "/run/collector.sock" {
   read_json
 }
 ```
@@ -1914,6 +1952,14 @@ to_amazon_security_lake "s3://…"
 
 </ReferenceCard>
 
+<ReferenceCard title="to_amazon_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_amazon_sqs">
+
+```tql
+to_amazon_sqs "sqs://tenzir"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_amqp" description="Sends messages to an AMQP exchange." href="/reference/operators/to_amqp">
 
 ```tql
@@ -2050,6 +2096,14 @@ to_opensearch "localhost:9200", …
 
 </ReferenceCard>
 
+<ReferenceCard title="to_prometheus" description="Sends metric events to a Prometheus Remote Write receiver." href="/reference/operators/to_prometheus">
+
+```tql
+to_prometheus "https://prometheus.example/api/v1/write"
+```
+
+</ReferenceCard>
+
 <ReferenceCard title="to_s3" description="Writes events to one or multiple objects in Amazon S3." href="/reference/operators/to_s3">
 
 ```tql
@@ -2082,14 +2136,6 @@ to_splunk "localhost:8088", …
 
 </ReferenceCard>
 
-<ReferenceCard title="to_sqs" description="Sends messages to an Amazon SQS queue." href="/reference/operators/to_sqs">
-
-```tql
-to_sqs "sqs://tenzir"
-```
-
-</ReferenceCard>
-
 <ReferenceCard title="to_stdout" description="Writes events to standard output." href="/reference/operators/to_stdout">
 
 ```tql
@@ -2110,6 +2156,14 @@ to_tcp "collector.example.com:5044" { write_json }
 
 ```tql
 to_udp "127.0.0.1:514"
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="to_unix_socket" description="Connects to a Unix domain socket and sends events." href="/reference/operators/to_unix_socket">
+
+```tql
+to_unix_socket "/run/collector.sock" { write_json }
 ```
 
 </ReferenceCard>
@@ -2421,6 +2475,14 @@ write_bitz
 
 ```tql
 write_csv
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="write_delimited" description="Frames string or blob event values as bytes with a separator after each value." href="/reference/operators/write_delimited">
+
+```tql
+write_delimited data, "|"
 ```
 
 </ReferenceCard>

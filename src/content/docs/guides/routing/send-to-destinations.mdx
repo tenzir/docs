@@ -75,7 +75,7 @@ Send to SQS:
 
 ```tql
 subscribe "notifications"
-to_sqs "sqs://notifications", message=this.print_json()
+to_amazon_sqs "sqs://notifications", message=this.print_json()
 ```
 
 Send to Pub/Sub:
@@ -116,10 +116,19 @@ to_file "s3://bucket/logs/events.jsonl" {
 }
 ```
 
-Send NDJSON over <Integration>tcp</Integration>:
+Send newline-delimited JSON over <Integration>tcp</Integration>:
 
 ```tql
-to_tcp "collector.example.com:5044" { write_json }
+to_tcp "collector.example.com:5044" { write_ndjson }
+```
+
+For protocols that expect a delimiter after every message, print the event to a
+string and use <Op>write_delimited</Op> for the byte-stream framing:
+
+```tql
+to_tcp "collector.example.com:12201" {
+  write_delimited this.print_ndjson(strip_null_fields=true), "\x00"
+}
 ```
 
 ## Expression-based serialization
@@ -162,11 +171,15 @@ Route events to different destinations based on content:
 to_kafka f"events.{event_type}"
 ```
 
-## See also
+## See Also
 
+- <Op>fork</Op>
+- <Op>to_kafka</Op>
+- <Op>to_opensearch</Op>
+- <Op>to_splunk</Op>
+- <Op>to_tcp</Op>
+- <Op>write_delimited</Op>
+- <Op>write_ndjson</Op>
+- <Fn>print_ndjson</Fn>
 - <Guide>routing/load-balance-pipelines</Guide>
 - <Guide>routing/split-and-merge-streams</Guide>
-- <Op>to_kafka</Op>
-- <Op>to_splunk</Op>
-- <Op>to_opensearch</Op>
-- <Op>fork</Op>

@@ -3,7 +3,8 @@ title: Shape records
 ---
 
 Records (objects) contain key-value pairs. This guide shows you how to work with
-records — accessing fields, extracting keys, merging, and transforming values.
+records — accessing fields, extracting keys, combining fragments, and
+transforming values.
 
 ## Access record fields
 
@@ -65,29 +66,62 @@ num_fields = config.keys().length()
 }
 ```
 
-## Merge records
+## Combine records with spread
 
-Combine multiple records with <Fn>merge</Fn> or spread syntax:
+Use the spread operator `...` to combine records. Spread keeps the resulting
+record visible where you construct it, and lets you mix existing fragments with
+literals or computed fields. Later fields overwrite earlier fields, so put
+defaults first and overrides last:
 
 ```tql
 from {
   defaults: {host: "localhost", port: 80, ssl: false},
   custom: {port: 8080, ssl: true}
 }
-merged = merge(defaults, custom)
-spread = {...defaults, ...custom}
-with_extra = {...defaults, ...custom, debug: true}
+service = {
+  ...defaults,
+  ...custom,
+  debug: true,
+}
 ```
 
 ```tql
 {
   defaults: {host: "localhost", port: 80, ssl: false},
   custom: {port: 8080, ssl: true},
-  merged: {host: "localhost", port: 8080, ssl: true},
-  spread: {host: "localhost", port: 8080, ssl: true},
-  with_extra: {host: "localhost", port: 8080, ssl: true, debug: true}
+  service: {
+    host: "localhost",
+    port: 8080,
+    ssl: true,
+    debug: true
+  }
 }
 ```
+
+Use `else {}` when a record fragment may be missing:
+
+```tql
+from {base: {id: 1, name: "Alice"}}
+user = {
+  ...base,
+  ...(profile? else {}),
+  active: true,
+}
+```
+
+```tql
+{
+  base: {id: 1, name: "Alice"},
+  user: {
+    id: 1,
+    name: "Alice",
+    active: true
+  }
+}
+```
+
+The <Fn>merge</Fn> function returns the same result for two records, but prefer
+spread in transformation code when you construct the resulting record.
 
 ## Transform record values
 

@@ -13,6 +13,9 @@ const STATIC_REDIRECTS = {
   "/explanations/language/expressions": "/reference/expressions",
   "/explanations/language/statements": "/reference/statements",
   "/explanations/language/programs": "/reference/programs",
+  // Operator aliases
+  "/reference/operators/from_sqs": "/reference/operators/from_amazon_sqs",
+  "/reference/operators/to_sqs": "/reference/operators/to_amazon_sqs",
 };
 
 /**

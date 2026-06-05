@@ -41,8 +41,8 @@ A package is a directory with the following structure:
 </FileTree>
 
 The `package.yaml` manifest is the only required file. It identifies the
-directory as a package and contains descriptive fields, external metadata,
-context definitions, and input specifications.
+directory as a package and contains descriptive fields, top-level categories,
+external metadata, context definitions, and input specifications.
 
 ## Package components
 
@@ -56,6 +56,10 @@ Operators can accept [positional and named
 arguments](/guides/packages/add-operators#add-parameters-to-operators) for
 flexible, parameterized transformations.
 
+Packages that normalize to OCSF should expose mapping as operators too, usually
+with a dispatcher such as `vendor::product::ocsf::map` and event-specific
+operators under `operators/.../ocsf/events/`.
+
 ### Pipelines
 
 **Pipelines** in the `pipelines` directory are complete, deployable TQL
@@ -64,6 +68,8 @@ They run automatically when you install the package (unless disabled).
 
 Pipeline [frontmatter options](/guides/packages/add-pipelines#configure-pipeline-behavior)
 control restart behavior, enable/disable state, and other runtime settings.
+Ship optional operational pipelines with `disabled: true` so installation
+remains predictable.
 
 ### Contexts
 
@@ -78,6 +84,10 @@ These self-contained snippets appear in the Tenzir Library and help users
 understand package capabilities.
 
 ### Metadata
+
+Top-level `categories` describe where the package appears in the Tenzir
+Library. Valid values are `sources`, `destinations`, `mappings`, and
+`contexts`.
 
 The top-level `metadata` key stores opaque package data for external tools.
 Tenzir accepts the key in `package.yaml` but does not interpret its contents.

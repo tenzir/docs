@@ -126,6 +126,8 @@ export const guides = [
           { label: "Overview", link: "guides/normalization" },
           "guides/normalization/clean-up-values",
           "guides/normalization/map-to-ocsf",
+          "guides/normalization/map-to-udm",
+          "guides/normalization/map-to-asim",
           "guides/normalization/map-to-other-schemas",
         ],
       },
@@ -324,6 +326,7 @@ export const reference = [
     ],
     "tools",
   ),
+  section("Authentication", ["reference/aws-authentication"], "security"),
 ];
 
 export const integrations = [
@@ -399,6 +402,7 @@ export const integrations = [
       "integrations/elasticsearch",
       "integrations/mysql",
       "integrations/opensearch",
+      "integrations/prometheus",
       "integrations/snowflake",
       "integrations/splunk",
     ],

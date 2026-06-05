@@ -1,0 +1,67 @@
+---
+title: Prometheus
+---
+
+[Prometheus](https://prometheus.io/) is an open-source monitoring system and
+time-series database. Tenzir can send metric events to Prometheus-compatible
+Remote Write receivers, including Prometheus, Grafana Mimir, Cortex, Thanos
+Receive, and VictoriaMetrics.
+
+Use <Op>metrics</Op> with `shape="prometheus"` and <Op>to_prometheus</Op> to
+send Tenzir node metrics to a Prometheus Remote Write endpoint. This integration
+doesn't expose a scrape endpoint for the Prometheus pull model.
+
+## Prerequisites
+
+Before you send metrics, configure your receiver to accept Remote Write traffic.
+For Prometheus, start the server with the Remote Write receiver enabled and use
+the `/api/v1/write` endpoint.
+
+Store endpoint URLs and authentication headers as
+[secrets](/explanations/secrets) when they contain credentials.
+
+## Examples
+
+### Send canonical metric events
+
+Send events that already use the default metric shape expected by
+<Op>to_prometheus</Op>:
+
+```tql
+from {
+  metric: "http_requests_total",
+  value: 42,
+  timestamp: 2026-05-15T10:00:00Z,
+  labels: {
+    method: "GET",
+    status: 200,
+  },
+}
+to_prometheus "https://prometheus.example/api/v1/write"
+```
+
+### Export Tenzir node metrics
+
+Convert live Tenzir node metrics to Prometheus samples:
+
+```tql
+metrics live=true, shape="prometheus"
+to_prometheus "https://prometheus.example/api/v1/write"
+```
+
+### Add authentication headers
+
+Pass additional HTTP headers when your receiver requires authentication. Header
+values are resolved as secrets.
+
+```tql
+metrics live=true, shape="prometheus"
+to_prometheus "prometheus-remote-write-url",
+  headers={Authorization: "prometheus-remote-write-token"}
+```
+
+## See Also
+
+- <Op>metrics</Op>
+- <Op>to_prometheus</Op>
+- <Guide>analytics/collect-metrics</Guide>
