@@ -359,6 +359,7 @@ Search:
 | Complete-input aggregation | ✅ <Op>summarize</Op> | ✅ `summarize` | ✅ `stats` | ⚠️ Aggregations are time-windowed |
 | Grouped aggregation | ✅ <Op>summarize</Op> `key, agg=...` | ✅ `summarize ... by key` | ✅ `stats ... BY key` | ⚠️ Time-windowed `Group by fields` |
 | Periodic processing-time aggregation | ✅ <Op>summarize</Op> `options={frequency: 1m}` or <Op>every</Op> | ⚠️ Scheduled or continuous query pattern | ⚠️ Real-time or scheduled searches | ⚠️ Scheduled Collectors; Aggregations use event-time buckets |
+| Periodic running stats | ✅ <Op>summarize</Op> `options={frequency: 1m, mode: "cumulative"}` | ⚠️ Scheduled or continuous query pattern | ⚠️ `streamstats` or scheduled searches | ⚠️ Aggregations `Cumulative aggregations` |
 | Wall-clock subpipeline batches | ✅ <Op>every</Op> `1m { ... }` | ❌ No direct query-language block equivalent | ❌ No direct query-language block equivalent | ⚠️ Scheduled Collectors; no Function block |
 | Tumbling event-time windows | ✅ <Op>window</Op> `size=1h, on=ts` | ✅ `summarize ... by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` | ✅ Aggregations `Time window` |
 | Hopping event-time windows | ✅ <Op>window</Op> `size=1h, every=5m, on=ts` | ⚠️ Manual expansion or plugins for specific metrics | ⚠️ Workaround with `streamstats` or manual bucketing | ❌ No hopping window option |
