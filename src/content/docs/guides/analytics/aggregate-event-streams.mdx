@@ -572,10 +572,10 @@ weeks, months, or other non-epoch boundaries.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
-| TQL          | ⚠️      | <Op>window</Op> is epoch-aligned only.     |
+| TQL          | ⚠️      | Fixed <Op>window</Op> buckets are epoch-anchored; no custom origin or calendar alignment. |
 | KQL          | ✅      | Use `bin_at()`.                            |
 | SPL          | ✅      | Use `aligntime` and calendar spans.        |
-| Cribl Stream | ❌      | Fixed second or minute windows only.       |
+| Cribl Stream | ⚠️      | Fixed `Time window` buckets; no documented custom origin or calendar alignment. |
 
 Legend: ✅ native or covered, ⚠️ partial or workaround, ❌ missing.
 
