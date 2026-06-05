@@ -74,21 +74,21 @@ npx skills add tenzir/skills@<skill-name>
 
 ### Use the Google UDM skill
 
-Install the Google SecOps UDM schema skill when you want an agent to help with
-UDM mapping or detection engineering:
+Install the Google SecOps UDM schema skill when you want an agent to help
+generate UDM API ingestion payloads or write detection logic:
 
 ```bash
 npx skills add tenzir/skills@tenzir-google-udm
 ```
 
-The `tenzir-google-udm` skill supports two naming contexts. Generated UDM field
-headings can show two forms, for example `event_type / eventType`:
+The `tenzir-google-udm` skill supports two primary workflows. Generated UDM
+field headings can show two forms, for example `event_type / eventType`:
 
-- Use the left-side field path form for YARA-L, Detect Engine, CBN, and other
-  dotted paths, such as `$event.metadata.event_type`.
-- Use the right-side ingestion object form when the agent creates API-facing UDM
-  event or entity objects, including TQL mapping output such as
-  `metadata.eventType`.
+- Use the right-side ingestion object form when the agent maps logs into UDM
+  event or entity objects for Google SecOps UDM API ingestion, including TQL
+  mapping output such as `metadata.eventType`.
+- Use the left-side field path form when the agent writes YARA-L, Detect
+  Engine, CBN, or other dotted paths, such as `$event.metadata.event_type`.
 
 Tell the agent which context you want:
 
@@ -101,9 +101,6 @@ object. Use ingestion object field names in the TQL output.
 Use the tenzir-google-udm skill to write YARA-L detection logic for a UDM
 network connection event. Use field path names.
 ```
-
-The spellings come from Google protobuf descriptors. Treat the pair as an
-explicit mapping instead of applying case conversion.
 
 ### Choose the installation scope
 

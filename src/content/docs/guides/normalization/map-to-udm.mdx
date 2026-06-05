@@ -25,11 +25,11 @@ schema decisions. See
 <Guide>ai-workbench/use-agent-skills#use-the-google-udm-skill</Guide> for
 installation and usage examples.
 
-The skill supports both UDM workflows:
+The skill supports two primary UDM workflows:
 
-- **Mapping to UDM records**: Ask the agent to use ingestion object field
-  names, such as `metadata.eventType` and `network.ipProtocol`, when it writes
-  TQL that builds a UDM event or entity object.
+- **Mapping to UDM API payloads**: Ask the agent to use ingestion object field
+  names, such as `metadata.eventType` and `network.ipProtocol`, when it maps
+  logs into UDM event or entity objects for Google SecOps UDM API ingestion.
 - **Detection engineering**: Ask the agent to use field path names, such as
   `$event.metadata.event_type` and `$event.network.ip_protocol`, when it writes
   YARA-L or Google SecOps rule logic.
@@ -42,8 +42,7 @@ field_path_form / ingestionObjectForm
 
 Use the left-side form in dotted field-path contexts. Use the right-side form
 in API-facing UDM records. If a heading has one name, both contexts use the same
-spelling. The mapping comes from Google protobuf descriptors, so don't derive
-one spelling from the other by case conversion.
+spelling.
 
 ## Choose the UDM event type
 
