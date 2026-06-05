@@ -186,7 +186,17 @@ The mask is unrelated to the input, so the original value is unrecoverable and
 two distinct values become indistinguishable in the output. Use this pattern
 for credentials and any value you never want to correlate again.
 
-To redact every record that contains the field, assign to the field unconditionally as shown earlier. To redact only when the field is present, guard the assignment with <Op>where</Op> or a conditional expression.
+Assigning to a field unconditionally also creates it on records that did not
+have it. To redact only when the field is already present, guard the
+assignment with an `if` block:
+
+```tql
+if password? != null {
+  password = "******"
+}
+```
+
+Records without a `password` field pass through unchanged.
 
 ## Reveal a prefix and mask the rest
 
