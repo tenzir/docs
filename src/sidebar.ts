@@ -164,7 +164,7 @@ export const guides = [
         label: "Analytics",
         collapsed: true,
         items: [
-          "guides/analytics/aggregate-and-summarize",
+          "guides/analytics/aggregate-event-streams",
           "guides/analytics/collect-metrics",
         ],
       },

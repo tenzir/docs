@@ -691,6 +691,47 @@ summarize ...
 where result > threshold        // Filter after expensive operation
 ```
 
+### Put the stream clock outside keyed aggregations
+
+When you aggregate keys inside event-time windows, put <Op>window</Op> outside
+<Op>group</Op> if one stream-wide event-time clock should close all buckets. This
+keeps sparse keys from holding their own windows open until another event for the
+same key arrives, `idle_timeout` fires, or the input ends.
+
+✅ Prefer a single window clock for stream-wide detections:
+
+```tql
+from {ts: 2024-01-01T10:00:00, user: "alice"},
+     {ts: 2024-01-01T10:01:00, user: "alice"},
+     {ts: 2024-01-01T10:02:00, user: "bob"}
+window size=5min, on=ts {
+  group user {
+    summarize failures=count()
+    user = $group
+    start = $window.start
+  }
+}
+```
+
+❌ Avoid independent clocks unless each key should advance on its own:
+
+```tql
+from {ts: 2024-01-01T10:00:00, user: "alice"},
+     {ts: 2024-01-01T10:01:00, user: "alice"},
+     {ts: 2024-01-01T10:02:00, user: "bob"}
+group user {
+  window size=5min, on=ts {
+    summarize failures=count()
+    user = $group
+    start = $window.start
+  }
+}
+```
+
+Use <Op>group</Op> around <Op>window</Op> only when each key needs an independent
+event-time clock. For most stream detections, the outer <Op>window</Op> bounds
+state more predictably.
+
 ## Composition patterns
 
 ### Use constants for reusable values
