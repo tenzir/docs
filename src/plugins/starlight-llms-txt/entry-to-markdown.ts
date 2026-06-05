@@ -1,4 +1,5 @@
 import { type CollectionEntry, render } from "astro:content";
+import { starlightLlmsTxtContext } from "virtual:starlight-llms-txt/context";
 import mdxServer from "@astrojs/mdx/server.js";
 import type { APIContext } from "astro";
 import { experimental_AstroContainer } from "astro/container";
@@ -10,179 +11,51 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { remove } from "unist-util-remove";
 import { visit } from "unist-util-visit";
-import { markdownPathForDocPath } from "../../utils/llm-markdown-path";
+import { markdownUrlForDocPath } from "../../utils/llm-markdown-path";
 import { getNonMarkdownPaths } from "../../utils/redirects.mjs";
+import { ensureTrailingSlash } from "./utils";
 
 const astroContainer = await experimental_AstroContainer.create({
   renderers: [{ name: "astro:jsx", ssr: mdxServer }],
 });
 
-const htmlToMarkdownPipeline = unified()
-  .use(rehypeParse, { fragment: true })
-  .use(function improveExpressiveCodeHandling() {
-    return (tree) => {
-      const ecInstances = selectAll(
-        ".expressive-code",
-        tree as Parameters<typeof selectAll>[1],
-      );
-      for (const instance of ecInstances) {
-        // Remove the "Terminal Window" label from Expressive Code terminal frames.
-        const figcaption = select("figcaption", instance);
-        if (figcaption) {
-          const terminalWindowTextIndex = figcaption.children.findIndex(
-            (child) => matches("span.sr-only", child),
-          );
-          if (terminalWindowTextIndex > -1) {
-            figcaption.children.splice(terminalWindowTextIndex, 1);
-          }
-        }
-        const pre = select("pre", instance);
-        const code = select("code", instance);
-        // Use Expressive Code's `data-language=*` attribute to set a `language-*` class name.
-        // This is what `hast-util-to-mdast` checks for code language metadata.
-        if (pre?.properties.dataLanguage && code) {
-          if (!Array.isArray(code.properties.className))
-            code.properties.className = [];
+/**
+ * Rewrite internal `<a>` hrefs to absolute URLs, appending `.md` for routes
+ * that have a Markdown twin. Absolute URLs are the right choice because the
+ * generated `.md` is intended for LLMs / agents that may have no origin
+ * context to resolve a root-relative path against.
+ */
+function absolutizeInternalLinks(baseUrl: string) {
+  const skipExtensions =
+    /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
+  const nonMarkdownPaths = getNonMarkdownPaths();
 
-          const diffLines =
-            pre.properties.dataLanguage === "diff"
-              ? []
-              : code.children.filter((child) =>
-                  matches("div.ec-line.ins, div.ec-line.del", child),
-                );
-          if (diffLines.length === 0) {
-            code.properties.className.push(
-              `language-${pre.properties.dataLanguage}`,
-            );
-          } else {
-            code.properties.className.push("language-diff");
-            for (const line of diffLines) {
-              if (line.type !== "element") continue;
-              const classes = line.properties?.className;
-              if (typeof classes !== "string" && !Array.isArray(classes))
-                continue;
-              const marker = classes.includes("ins") ? "+" : "-";
-              const span = select("span:not(.indent)", line);
-              const firstChild = span?.children[0];
-              if (firstChild?.type === "text") {
-                firstChild.value = `${marker}${firstChild.value}`;
-              }
-            }
-          }
-        }
-      }
-    };
-  })
-  .use(function improveTabsHandling() {
-    return (tree) => {
-      const tabInstances = selectAll(
-        "starlight-tabs",
-        tree as Parameters<typeof selectAll>[1],
-      );
-      for (const instance of tabInstances) {
-        const tabs = selectAll('[role="tab"]', instance);
-        const panels = selectAll('[role="tabpanel"]', instance);
-        // Convert parent `<starlight-tabs>` element to empty unordered list.
-        instance.tagName = "ul";
-        instance.properties = {};
-        instance.children = [];
-        // Iterate over tabs and panels to build a list with tab label as initial list text.
-        for (let i = 0; i < Math.min(tabs.length, panels.length); i++) {
-          const tab = tabs[i];
-          const panel = panels[i];
-          if (!tab || !panel) continue;
-          // Filter out extra whitespace and icons from tab contents.
-          const tabLabel = tab.children
-            .filter((child) => child.type === "text" && child.value.trim())
-            .map((child) => child.type === "text" && child.value.trim())
-            .join("");
-          // Add list entry for this tab and panel.
-          instance.children.push({
-            type: "element",
-            tagName: "li",
-            properties: {},
-            children: [
-              {
-                type: "element",
-                tagName: "p",
-                children: [{ type: "text", value: tabLabel }],
-                properties: {},
-              },
-              panel,
-            ],
-          });
-        }
-      }
-    };
-  })
-  .use(function improveFileTreeHandling() {
-    return (tree) => {
-      const trees = selectAll(
-        "starlight-file-tree",
-        tree as Parameters<typeof selectAll>[1],
-      );
-      for (const fileTree of trees) {
-        // Remove "Directory" screen reader labels from <FileTree> entries.
-        remove(fileTree, (_node) => {
-          const node = _node as Parameters<typeof matches>[1];
-          return matches(".sr-only", node);
-        });
-      }
-    };
-  })
-  .use(function removeHeadingAnchorLinks() {
-    return (tree) => {
-      // Remove Starlight's heading anchor links (e.g. "Section titled …").
-      // These are sibling <a> elements next to headings inside .sl-heading-wrapper divs.
-      remove(tree, (_node) => {
-        const node = _node as Parameters<typeof matches>[1];
-        return matches("a.sl-anchor-link", node);
-      });
-    };
-  })
-  .use(function removeInlineSemanticIcons() {
-    return (tree) => {
-      // Remove decorative semantic-reference icons such as the `fn` badge shown
-      // before links rendered by components like <Fn> and <Op>. In the markdown
-      // bundle, these should serialize as plain links only.
-      // The icons live inside `.semantic-link` anchors as `.inline-icon` children.
-      visit(tree, "element", (node: any) => {
-        if (!matches("a.semantic-link", node)) return;
-        node.children = node.children.filter(
-          (child: any) => !matches(".inline-icon", child),
-        );
-      });
-    };
-  })
-  .use(function addMarkdownExtensionToInternalLinks() {
-    // Extensions that should not get .md appended
-    const skipExtensions =
-      /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
-    // Routes that have no markdown page (redirects, OpenAPI-generated)
-    const nonMarkdownPaths = getNonMarkdownPaths();
-    return (tree) => {
+  return function rewriteLinks() {
+    return (tree: unknown) => {
       const links = selectAll("a", tree as Parameters<typeof selectAll>[1]);
       for (const link of links) {
         const href = link.properties?.href;
         if (typeof href !== "string") continue;
-        // Only transform internal links (starting with /)
-        if (!href.startsWith("/")) continue;
-        // Skip routes without markdown pages
+        // Only transform internal links (starting with /); skip anchor-only.
+        if (!href.startsWith("/") || href.startsWith("/#")) continue;
+
         const pathPart = href.split("#")[0].split("?")[0];
-        if (
-          nonMarkdownPaths.some(
-            (r) =>
-              pathPart === r ||
-              pathPart === `${r}/` ||
-              pathPart.startsWith(`${r}/`),
-          )
-        )
+
+        // Routes without a Markdown twin (redirects, OpenAPI): absolutise
+        // but do not append `.md`.
+        const isNonMarkdown = nonMarkdownPaths.some(
+          (r) =>
+            pathPart === r ||
+            pathPart === `${r}/` ||
+            pathPart.startsWith(`${r}/`),
+        );
+        if (isNonMarkdown || skipExtensions.test(pathPart)) {
+          link.properties.href = `${baseUrl}${href}`;
           continue;
-        // Skip if already has a known extension
-        if (skipExtensions.test(pathPart)) continue;
-        // Skip anchor-only links
-        if (href.startsWith("/#")) continue;
-        // Add .md extension (preserve hash and query if present)
+        }
+
+        // Internal doc page: absolutise and append `.md` while preserving
+        // hash and query.
         const hashIndex = href.indexOf("#");
         const queryIndex = href.indexOf("?");
         const suffixIndex =
@@ -195,18 +68,181 @@ const htmlToMarkdownPipeline = unified()
                 : href.length;
         const path = href.slice(0, suffixIndex);
         const suffix = href.slice(suffixIndex);
-        // Remove trailing slash before adding .md
         const cleanPath = path.endsWith("/") ? path.slice(0, -1) : path;
-        link.properties.href = `${markdownPathForDocPath(cleanPath)}${suffix}`;
+        link.properties.href = `${markdownUrlForDocPath(baseUrl, cleanPath)}${suffix}`;
       }
     };
-  })
-  .use(rehypeRemark)
-  .use(remarkGfm)
-  .use(remarkStringify, {
-    emphasis: "*",
-    strong: "*",
-  });
+  };
+}
+
+function buildHtmlToMarkdownPipeline(baseUrl: string) {
+  return unified()
+    .use(rehypeParse, { fragment: true })
+    .use(function improveExpressiveCodeHandling() {
+      return (tree) => {
+        const ecInstances = selectAll(
+          ".expressive-code",
+          tree as Parameters<typeof selectAll>[1],
+        );
+        for (const instance of ecInstances) {
+          // Remove the "Terminal Window" label from Expressive Code terminal frames.
+          const figcaption = select("figcaption", instance);
+          if (figcaption) {
+            const terminalWindowTextIndex = figcaption.children.findIndex(
+              (child) => matches("span.sr-only", child),
+            );
+            if (terminalWindowTextIndex > -1) {
+              figcaption.children.splice(terminalWindowTextIndex, 1);
+            }
+          }
+          const pre = select("pre", instance);
+          const code = select("code", instance);
+          // Use Expressive Code's `data-language=*` attribute to set a `language-*` class name.
+          // This is what `hast-util-to-mdast` checks for code language metadata.
+          if (pre?.properties.dataLanguage && code) {
+            if (!Array.isArray(code.properties.className))
+              code.properties.className = [];
+
+            const diffLines =
+              pre.properties.dataLanguage === "diff"
+                ? []
+                : code.children.filter((child) =>
+                    matches("div.ec-line.ins, div.ec-line.del", child),
+                  );
+            if (diffLines.length === 0) {
+              code.properties.className.push(
+                `language-${pre.properties.dataLanguage}`,
+              );
+            } else {
+              code.properties.className.push("language-diff");
+              for (const line of diffLines) {
+                if (line.type !== "element") continue;
+                const classes = line.properties?.className;
+                if (typeof classes !== "string" && !Array.isArray(classes))
+                  continue;
+                const marker = classes.includes("ins") ? "+" : "-";
+                const span = select("span:not(.indent)", line);
+                const firstChild = span?.children[0];
+                if (firstChild?.type === "text") {
+                  firstChild.value = `${marker}${firstChild.value}`;
+                }
+              }
+            }
+          }
+        }
+      };
+    })
+    .use(function improveTabsHandling() {
+      return (tree) => {
+        const tabInstances = selectAll(
+          "starlight-tabs",
+          tree as Parameters<typeof selectAll>[1],
+        );
+        for (const instance of tabInstances) {
+          const tabs = selectAll('[role="tab"]', instance);
+          const panels = selectAll('[role="tabpanel"]', instance);
+          // Convert parent `<starlight-tabs>` element to empty unordered list.
+          instance.tagName = "ul";
+          instance.properties = {};
+          instance.children = [];
+          // Iterate over tabs and panels to build a list with tab label as initial list text.
+          for (let i = 0; i < Math.min(tabs.length, panels.length); i++) {
+            const tab = tabs[i];
+            const panel = panels[i];
+            if (!tab || !panel) continue;
+            // Filter out extra whitespace and icons from tab contents.
+            const tabLabel = tab.children
+              .filter((child) => child.type === "text" && child.value.trim())
+              .map((child) => child.type === "text" && child.value.trim())
+              .join("");
+            // Add list entry for this tab and panel.
+            instance.children.push({
+              type: "element",
+              tagName: "li",
+              properties: {},
+              children: [
+                {
+                  type: "element",
+                  tagName: "p",
+                  children: [{ type: "text", value: tabLabel }],
+                  properties: {},
+                },
+                panel,
+              ],
+            });
+          }
+        }
+      };
+    })
+    .use(function improveFileTreeHandling() {
+      return (tree) => {
+        const trees = selectAll(
+          "starlight-file-tree",
+          tree as Parameters<typeof selectAll>[1],
+        );
+        for (const fileTree of trees) {
+          // Remove "Directory" screen reader labels from <FileTree> entries.
+          remove(fileTree, (_node) => {
+            const node = _node as Parameters<typeof matches>[1];
+            return matches(".sr-only", node);
+          });
+        }
+      };
+    })
+    .use(function removeHeadingAnchorLinks() {
+      return (tree) => {
+        // Remove Starlight's heading anchor links (e.g. "Section titled …").
+        // These are sibling <a> elements next to headings inside .sl-heading-wrapper divs.
+        remove(tree, (_node) => {
+          const node = _node as Parameters<typeof matches>[1];
+          return matches("a.sl-anchor-link", node);
+        });
+      };
+    })
+    .use(function removeInlineSemanticIcons() {
+      return (tree) => {
+        // Remove decorative semantic-reference icons such as the `fn` badge shown
+        // before links rendered by components like <Fn> and <Op>. In the markdown
+        // bundle, these should serialize as plain links only.
+        // The icons live inside `.semantic-link` anchors as `.inline-icon` children.
+        visit(tree, "element", (node: any) => {
+          if (!matches("a.semantic-link", node)) return;
+          node.children = node.children.filter(
+            (child: any) => !matches(".inline-icon", child),
+          );
+        });
+      };
+    })
+    .use(absolutizeInternalLinks(baseUrl))
+    .use(rehypeRemark)
+    .use(remarkGfm)
+    .use(remarkStringify, {
+      emphasis: "*",
+      strong: "*",
+    });
+}
+
+const pipelineCache = new Map<
+  string,
+  ReturnType<typeof buildHtmlToMarkdownPipeline>
+>();
+
+function getPipeline(baseUrl: string) {
+  let pipeline = pipelineCache.get(baseUrl);
+  if (!pipeline) {
+    pipeline = buildHtmlToMarkdownPipeline(baseUrl);
+    pipelineCache.set(baseUrl, pipeline);
+  }
+  return pipeline;
+}
+
+function resolveBaseUrl(context: APIContext): string {
+  const site = new URL(
+    ensureTrailingSlash(starlightLlmsTxtContext.base),
+    context.site,
+  );
+  return site.href.replace(/\/$/, "");
+}
 
 /** Render a content collection entry to HTML and back to Markdown to support rendering and simplifying MDX components */
 export async function entryToSimpleMarkdown(
@@ -215,6 +251,7 @@ export async function entryToSimpleMarkdown(
 ) {
   const { Content } = await render(entry);
   const html = await astroContainer.renderToString(Content, context);
-  const file = await htmlToMarkdownPipeline.process(html);
+  const baseUrl = resolveBaseUrl(context);
+  const file = await getPipeline(baseUrl).process(html);
   return String(file).trim();
 }
