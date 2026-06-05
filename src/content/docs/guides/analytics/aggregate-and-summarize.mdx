@@ -329,19 +329,28 @@ the same spike unless you add downstream suppression.
 
 ### Compare TQL with KQL and SPL
 
-The following table compares common event-stream aggregation capabilities across
-TQL, Microsoft KQL, and Splunk SPL:
+The following table compares aggregation and windowing capabilities across TQL,
+Microsoft KQL, and Splunk SPL. It covers Tenzir's <Op>summarize</Op>,
+<Op>every</Op>, <Op>group</Op>, and <Op>window</Op> operators:
 
 | Capability | TQL | KQL | SPL |
 | ---------- | --- | --- | --- |
-| Tumbling fixed windows | ✅ `window size=1h, on=ts` | ✅ `summarize by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` |
-| Hopping or sliding fixed windows | ✅ `every < size` | ⚠️ `sliding_window_counts()` or manual expansion | ⚠️ `streamstats time_window=...` |
-| Per-key windows | ✅ Compose with `group` | ✅ `summarize ... by key, bin(ts, ...)` | ✅ `BY key` or split-by |
-| Late or out-of-order event time | ✅ `tolerance` | ❌ Mostly batch semantics | ⚠️ Search-order dependent |
-| Arbitrary per-window subpipeline or sink | ✅ Native subpipeline block | ❌ No direct equivalent | ❌ No direct equivalent |
+| Complete-input aggregation | ✅ <Op>summarize</Op> | ✅ `summarize` | ✅ `stats` |
+| Grouped aggregation | ✅ `summarize key, agg=...` | ✅ `summarize ... by key` | ✅ `stats ... BY key` |
+| Periodic processing-time aggregation | ✅ `summarize ..., options={frequency: 1m}` or <Op>every</Op> | ⚠️ Scheduled or continuous query pattern | ⚠️ Real-time or scheduled searches |
+| Wall-clock subpipeline batches | ✅ `every 1m { ... }` | ❌ No direct query-language block equivalent | ❌ No direct query-language block equivalent |
+| Tumbling event-time windows | ✅ `window size=1h, on=ts` | ✅ `summarize ... by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` |
+| Hopping event-time windows | ✅ `window size=1h, every=5m, on=ts` | ⚠️ Manual expansion or plugins for specific metrics | ⚠️ Workaround with `streamstats` or manual bucketing |
+| Per-event rolling stats | ❌ Not the `window` model | ⚠️ Manual expansion or row-window functions | ✅ `streamstats time_window=...` |
+| Per-key event-time windows | ✅ Compose <Op>group</Op> with <Op>window</Op> | ✅ `summarize ... by key, bin(ts, ...)` | ✅ `BY key` or split-by |
+| Streaming late-event tolerance | ✅ `window tolerance=...` | ❌ Mostly batch or query-time semantics | ⚠️ Search-order dependent |
+| Independent per-key event-time clocks | ✅ Outer <Op>group</Op> around <Op>window</Op> | ❌ No streaming clock per key in ad hoc KQL | ⚠️ Search-order dependent workarounds |
+| Arbitrary subpipeline per key | ✅ `group key { ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
+| Arbitrary subpipeline per window | ✅ `window ... { ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
+| Sink per key or per window | ✅ <Op>group</Op> and <Op>window</Op> blocks can end in sinks | ❌ No direct equivalent | ❌ No direct equivalent |
 | Empty window padding | ❌ Not emitted | ⚠️ Manual `range` and `union` padding | ✅ `timechart cont=true` |
-| Session windows | ❌ Not supported | ✅ `row_window_session()` | ✅ `transaction maxpause` and `maxspan` |
-| Custom alignment or calendar windows | ⚠️ Epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans |
+| Session windows | ❌ Not native; requires precomputed session IDs or custom stateful logic | ✅ `row_window_session()` | ✅ `transaction maxpause` and `maxspan` |
+| Custom alignment or calendar windows | ⚠️ `window` is epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans |
 
 Legend: ✅ native or covered, ⚠️ partial or workaround, ❌ missing.
 
