@@ -173,15 +173,10 @@ events can change the answer. Use <Op>window</Op> for event-time detections.
 
 ```tql
 every 10min {
-  from {
-    endpoints: [
-      {host: "laptop-1", status: "healthy"},
-      {host: "server-1", status: "healthy"},
-      {host: "laptop-2", status: "stale"},
-    ]
-  }
-  unroll endpoints
-  summarize status=endpoints.status, endpoint_count=count()
+  from {host: "laptop-1", status: "healthy"},
+       {host: "server-1", status: "healthy"},
+       {host: "laptop-2", status: "stale"}
+  summarize status, endpoint_count=count()
   snapshot_time = now()
 }
 head 2
