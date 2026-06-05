@@ -333,6 +333,9 @@ If your input stream contains one OCSF SMB Activity event per file operation,
 pre-aggregate it into 10-minute bucket events before running the spike detector:
 
 ```tql
+from {class_uid: 4006, time: 2024-01-01T00:00:00, src_endpoint: {hostname: "workstation-7"}, traffic: {bytes: 4}},
+     {class_uid: 4006, time: 2024-01-01T00:03:00, src_endpoint: {hostname: "workstation-7"}, traffic: {bytes: 6}},
+     {class_uid: 4006, time: 2024-01-01T00:10:00, src_endpoint: {hostname: "workstation-7"}, traffic: {bytes: 11}}
 where class_uid == 4006
 window size=10min, on=time, tolerance=2min {
   summarize src=src_endpoint.hostname, smb_bytes=sum(traffic.bytes)
