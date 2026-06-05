@@ -41,9 +41,9 @@ windows late, or not until the input ends, unless `idle_timeout` is set.
 
 ### The event-time clock
 
-`window` orders events by the timestamp that `on` evaluates to, not by their
-arrival order. The current time is the largest timestamp observed so far, which
-only ever moves forward.
+`window` processes events in stream order and uses the timestamp that `on`
+evaluates to for window assignment. The current time is the largest timestamp
+observed so far, which only ever moves forward.
 
 A window closes once the clock reaches its end plus `tolerance`. The window's
 subpipeline then closes and its output is streamed out. Because closing is
