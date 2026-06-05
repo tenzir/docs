@@ -1,11 +1,10 @@
 ---
-title: Aggregate and summarize data
+title: Aggregate event streams
 ---
 
-Aggregation transforms streams of events into meaningful summaries. Whether
-you're calculating statistics, counting occurrences, or finding extremes, the
-<Op>summarize</Op> operator combined with aggregation
-functions provides powerful data analysis capabilities.
+This guide shows you how to aggregate event streams with <Op>summarize</Op> and
+<Op>window</Op>. You'll learn to count, group, compute statistics, and build
+bounded event-time detections over streaming data.
 
 ## Understanding the summarize operator
 
@@ -160,6 +159,191 @@ summarize avg_duration = mean(duration), action_count = count(), user, action
   action: "view",
 }
 ```
+
+## Aggregate periodic snapshots
+
+Use <Op>every</Op> when the aggregation is tied to a wall-clock schedule, such
+as polling an inventory API every 10 minutes and publishing a current count of
+endpoint states. This pattern works well for dashboards, reports, cache
+refreshes, and external API polling where each run describes the current
+snapshot.
+
+Don't use `every` for streaming detections where delayed or out-of-order events
+can change the answer. Use <Op>window</Op> for event-time detections.
+
+```tql
+every 10min {
+  from {
+    endpoints: [
+      {host: "laptop-1", status: "healthy"},
+      {host: "server-1", status: "healthy"},
+      {host: "laptop-2", status: "stale"},
+    ]
+  }
+  unroll endpoints
+  summarize status=endpoints.status, endpoint_count=count()
+  snapshot_time = now()
+}
+head 2
+sort status
+```
+
+Each run fetches a fresh snapshot, groups endpoints by current status, and adds
+the run time. The `from` block stands in for an inventory API response; in a
+long-running pipeline, replace it with <Op>from_http</Op>, remove `head`, and
+publish the compact summary to a channel or destination.
+
+The wall-clock schedule is not an event-time window. If the pipeline starts at
+09:00, `every 10min` runs the subpipeline for `[09:00, 09:10)`, then restarts it
+for `[09:10, 09:20)`, and so on. The boundaries depend on when the pipeline
+starts, not on timestamps in the fetched data.
+
+## Window event streams
+
+Use <Op>window</Op> when you need bounded event-time aggregations on a stream.
+The operator creates one subpipeline per fixed time range. Inside that
+subpipeline, use <Op>summarize</Op> to compute counts, distinct values, and
+statistics for the events in that window.
+
+Unlike <Op>summarize</Op> with `options={frequency: ...}`, `window` assigns
+events by event time. This lets you tolerate out-of-order data with `tolerance`
+and compose per-entity windows with <Op>group</Op>.
+
+### Detect brute-force login attempts
+
+The following streaming detection groups failed logins by user and source IP
+address, counts failures in 10-minute event-time windows, and emits an alert
+when a pair exceeds the threshold:
+
+```tql
+from {ts: 2024-01-01T10:00:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-1", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:01:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-2", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:02:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-1", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:03:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-2", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:04:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-3", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:05:00, user: "alice", src_ip: 10.0.0.5, host: "vpn-3", action: "login", outcome: "failure"},
+     {ts: 2024-01-01T10:06:00, user: "bob", src_ip: 10.0.0.8, host: "vpn-1", action: "login", outcome: "failure"}
+where action == "login" and outcome == "failure"
+group {user: user, src_ip: src_ip} {
+  window size=10min, on=ts, tolerance=30s, idle_timeout=5min {
+    summarize failures=count(), target_hosts=count_distinct(host)
+    user = $group.user
+    src_ip = $group.src_ip
+    start = $window.start
+    end = $window.end
+  }
+}
+where failures >= 5
+select user, src_ip, failures, target_hosts, start, end
+```
+
+```tql
+{
+  user: "alice",
+  src_ip: 10.0.0.5,
+  failures: 6,
+  target_hosts: 3,
+  start: 2024-01-01T10:00:00Z,
+  end: 2024-01-01T10:10:00Z,
+}
+```
+
+The outer <Op>group</Op> gives every user and source IP pair its own event-time
+clock. The `idle_timeout` closes sparse keys after wall-clock inactivity so live
+detections don't wait indefinitely for the next event from the same key.
+
+This example uses tumbling windows because `every` is omitted. With
+`size=10min`, the intervals are `[10:00, 10:10)`, `[10:10, 10:20)`, and so on
+for each grouped user and source IP pair. An event exactly at `10:10` belongs to
+the second window because window ends are exclusive.
+
+### Detect SMB traffic spikes
+
+You can combine <Op>window</Op> with statistical aggregations to detect traffic
+spikes. The next example is a lightweight TQL transpilation of Splunk's
+[SMB Traffic Spike](https://github.com/splunk/security_content/blob/4493a82b24dc7e93a612c229e842751c853b96c8/detections/network/smb_traffic_spike.yml)
+analytic. It uses pre-bucketed SMB connection counts to keep the pipeline short
+and interleaves the sources by timestamp to match event-time order. In a
+production pipeline, replace the `from` block with network traffic logs, filter
+to SMB traffic on ports `139` and `445` or `app == "smb"`, and aggregate those
+logs into 10-minute counts before this step.
+
+```tql
+from {ts: 2024-01-01T00:00:00, src: "workstation-7", smb_connections: 10},
+     {ts: 2024-01-01T00:00:00, src: "file-server-1", smb_connections: 120},
+     {ts: 2024-01-01T00:10:00, src: "workstation-7", smb_connections: 11},
+     {ts: 2024-01-01T00:10:00, src: "file-server-1", smb_connections: 118},
+     {ts: 2024-01-01T00:20:00, src: "workstation-7", smb_connections: 9},
+     {ts: 2024-01-01T00:20:00, src: "file-server-1", smb_connections: 121},
+     {ts: 2024-01-01T00:30:00, src: "workstation-7", smb_connections: 10},
+     {ts: 2024-01-01T00:30:00, src: "file-server-1", smb_connections: 119},
+     {ts: 2024-01-01T00:40:00, src: "workstation-7", smb_connections: 10},
+     {ts: 2024-01-01T00:40:00, src: "file-server-1", smb_connections: 122},
+     {ts: 2024-01-01T00:50:00, src: "workstation-7", smb_connections: 10},
+     {ts: 2024-01-01T00:50:00, src: "file-server-1", smb_connections: 120},
+     {ts: 2024-01-01T01:00:00, src: "workstation-7", smb_connections: 80},
+     {ts: 2024-01-01T01:00:00, src: "file-server-1", smb_connections: 123}
+window size=70min, every=10min, on=ts {
+  summarize src,
+            samples=count(),
+            avg_connections=mean(smb_connections),
+            stdev_connections=stddev(smb_connections),
+            current_connections=max(smb_connections)
+  upper_bound = avg_connections + stdev_connections * 2
+  where samples >= 5 and current_connections > upper_bound
+  start = $window.start
+  end = $window.end
+}
+select src, current_connections, upper_bound, start, end
+sort start
+```
+
+```tql
+{
+  src: "workstation-7",
+  current_connections: 80,
+  upper_bound: 69.00145770426485,
+  start: 2024-01-01T00:00:00Z,
+  end: 2024-01-01T01:10:00Z,
+}
+{
+  src: "workstation-7",
+  current_connections: 80,
+  upper_bound: 73.85436210874914,
+  start: 2024-01-01T00:10:00Z,
+  end: 2024-01-01T01:20:00Z,
+}
+```
+
+The `workstation-7` bucket with `80` SMB connections exceeds the mean plus two
+standard deviations in two 70-minute windows, while the steady file-server
+traffic stays below its bound. The simplified detector uses the maximum bucket
+in each window as the candidate spike.
+
+This example uses a hopping window: `size=70min` defines the lookback and
+`every=10min` moves the window forward every 10 minutes. Around midnight, Tenzir
+evaluates intervals such as `[00:00, 01:10)`, `[00:10, 01:20)`, and
+`[00:20, 01:30)`. A 10-minute count bucket can participate in multiple open
+windows, which gives rolling context but can also produce repeated alerts for
+the same spike unless you add downstream suppression.
+
+### Compare TQL with KQL and SPL
+
+The following table compares common event-stream aggregation capabilities across
+TQL, Microsoft KQL, and Splunk SPL:
+
+| Capability | TQL | KQL | SPL |
+| ---------- | --- | --- | --- |
+| Tumbling fixed windows | ✅ `window size=1h, on=ts` | ✅ `summarize by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` |
+| Hopping or sliding fixed windows | ✅ `every < size` | ⚠️ `sliding_window_counts()` or manual expansion | ⚠️ `streamstats time_window=...` |
+| Per-key windows | ✅ Compose with `group` | ✅ `summarize ... by key, bin(ts, ...)` | ✅ `BY key` or split-by |
+| Late or out-of-order event time | ✅ `tolerance` | ❌ Mostly batch semantics | ⚠️ Search-order dependent |
+| Arbitrary per-window subpipeline or sink | ✅ Native subpipeline block | ❌ No direct equivalent | ❌ No direct equivalent |
+| Empty window padding | ❌ Not emitted | ⚠️ Manual `range` and `union` padding | ✅ `timechart cont=true` |
+| Session windows | ❌ Not supported | ✅ `row_window_session()` | ✅ `transaction maxpause` and `maxspan` |
+| Custom alignment or calendar windows | ⚠️ Epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans |
+
+Legend: ✅ native or covered, ⚠️ partial or workaround, ❌ missing.
 
 ## Statistical functions
 
@@ -600,6 +784,10 @@ error_rate = error_count / request_count
 
 ## See also
 
+- <Op>every</Op>
+- <Op>group</Op>
+- <Op>summarize</Op>
+- <Op>window</Op>
 - <Guide>transformation/shape-lists</Guide>
 - <Guide>transformation/filter-and-select-data</Guide>
 - <Guide>optimization/slice-and-sample-data</Guide>

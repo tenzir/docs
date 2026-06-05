@@ -97,13 +97,14 @@ once per window.
 ### `tolerance = duration (optional)`
 
 The amount of out-of-order event time to wait for before closing a window. It
-applies to event time only. Defaults to `0s`: a window closes as soon as the
-event-time clock reaches the window end. Increase it to tolerate out-of-order
-data.
+applies to event time only. Defaults to `0s`, which assumes events for a window
+arrive before a later event advances the clock strictly past that window's end.
+A boundary event at the window end does not close the previous window. Increase
+`tolerance` to accept events that arrive after later timestamps.
 
 `window` tracks the largest timestamp observed so far and closes a window once
-that value reaches the window end plus `tolerance`. Events that arrive after
-their window closed are dropped with a warning.
+that value moves strictly past the window end plus `tolerance`. Events that
+arrive after their window closed are dropped with a warning.
 
 ### `idle_timeout = duration (optional)`
 
@@ -212,4 +213,5 @@ group {user: user, src_ip: src_ip} {
 - <Op>group</Op>
 - <Op>summarize</Op>
 - <Op>every</Op>
+- <Guide>analytics/aggregate-and-summarize</Guide>
 - <Guide>transformation/work-with-time</Guide>
