@@ -355,6 +355,10 @@ Search.
 
 #### Complete-input aggregation
 
+Complete-input aggregation waits for the full input and then emits final
+aggregate results. Use it for batch summaries where intermediate updates and
+event-time boundaries do not matter.
+
 | System       | Support | Notes                                             |
 | ------------ | ------- | ------------------------------------------------- |
 | TQL          | ✅      | <Op>summarize</Op> consumes the input by default. |
@@ -363,6 +367,10 @@ Search.
 | Cribl Stream | ⚠️      | Aggregations are time-windowed.                   |
 
 #### Grouped aggregation
+
+Grouped aggregation computes separate aggregate results for each key, such as
+one count per user or host. The grouping key partitions aggregate state, but it
+does not add time boundaries unless you combine it with a windowing mechanism.
 
 | System       | Support | Notes                                           |
 | ------------ | ------- | ----------------------------------------------- |
@@ -373,6 +381,10 @@ Search.
 
 #### Periodic processing-time aggregation
 
+Periodic processing-time aggregation emits results on a wall-clock or
+processing-time cadence. Use it for live dashboards and operational metrics when
+arrival time matters more than event timestamps.
+
 | System       | Support | Notes                                                        |
 | ------------ | ------- | ------------------------------------------------------------ |
 | TQL          | ✅      | Use <Op>summarize</Op> `options={frequency: ...}` or <Op>every</Op>. |
@@ -381,6 +393,9 @@ Search.
 | Cribl Stream | ⚠️      | Use Scheduled Collectors; Aggregations use event-time buckets. |
 
 #### Periodic running stats
+
+Periodic running stats emit accumulated values repeatedly instead of waiting for
+the stream to end. They show the total so far, not a bounded rolling lookback.
 
 | System       | Support | Notes                                                        |
 | ------------ | ------- | ------------------------------------------------------------ |
@@ -391,6 +406,10 @@ Search.
 
 #### Wall-clock subpipeline batches
 
+Wall-clock subpipeline batches rerun a block of work on a fixed schedule. This
+is useful when the work fetches or refreshes data, rather than grouping existing
+events by event time.
+
 | System       | Support | Notes                                             |
 | ------------ | ------- | ------------------------------------------------- |
 | TQL          | ✅      | Use <Op>every</Op> to rerun an arbitrary block.   |
@@ -399,6 +418,10 @@ Search.
 | Cribl Stream | ⚠️      | Scheduled Collectors schedule collection work.    |
 
 #### Tumbling event-time windows
+
+Tumbling event-time windows split events into adjacent, non-overlapping time
+ranges based on event timestamps. Each event belongs to one window, and each
+window produces its own result.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
@@ -409,6 +432,10 @@ Search.
 
 #### Hopping event-time windows
 
+Hopping event-time windows use a window size that is larger than the step between
+window starts. This gives rolling context with repeated overlapping windows, so
+one event can contribute to several results.
+
 | System       | Support | Notes                                           |
 | ------------ | ------- | ----------------------------------------------- |
 | TQL          | ✅      | Use <Op>window</Op> `size=1h, every=5m, on=ts`. |
@@ -417,6 +444,10 @@ Search.
 | Cribl Stream | ❌      | No hopping window option.                       |
 
 #### Per-input-event rolling stats
+
+Per-input-event rolling stats update a trailing calculation for each arriving
+event. This is different from periodic emission because the output cadence
+follows events, not a timer.
 
 | System       | Support | Notes                                             |
 | ------------ | ------- | ------------------------------------------------- |
@@ -427,6 +458,9 @@ Search.
 
 #### Per-key event-time windows
 
+Per-key event-time windows keep separate windowed results for each entity.
+Events from one noisy key cannot advance or close windows for another key.
+
 | System       | Support | Notes                                             |
 | ------------ | ------- | ------------------------------------------------- |
 | TQL          | ✅      | Compose <Op>group</Op> with <Op>window</Op>.      |
@@ -435,6 +469,10 @@ Search.
 | Cribl Stream | ⚠️      | Use `Group by fields` per Worker Process.         |
 
 #### Streaming late-event tolerance
+
+Streaming late-event tolerance controls how long a window remains open for
+out-of-order events. It lets a pipeline accept delayed data without holding
+every window until the input ends.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
@@ -445,6 +483,10 @@ Search.
 
 #### Independent per-key event-time clocks
 
+Independent per-key clocks let each group advance event time based only on its
+own events. This prevents a busy key from making sparse keys late, but sparse
+windows may also close later.
+
 | System       | Support | Notes                                           |
 | ------------ | ------- | ----------------------------------------------- |
 | TQL          | ✅      | Put <Op>window</Op> inside an outer <Op>group</Op>. |
@@ -453,6 +495,9 @@ Search.
 | Cribl Stream | ⚠️      | Grouped buckets exist, but no documented per-key clock. |
 
 #### Arbitrary subpipeline per key
+
+An arbitrary per-key subpipeline can do more than compute a fixed aggregate list.
+It can reshape, filter, enrich, or sink each group's stream independently.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
@@ -463,6 +508,10 @@ Search.
 
 #### Arbitrary subpipeline per window
 
+An arbitrary per-window subpipeline runs custom logic inside each event-time
+range. It covers detections that need more than a fixed aggregate list, such as
+post-aggregation filtering or alert formatting.
+
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
 | TQL          | ✅      | Use <Op>window</Op> `{ ... }`.             |
@@ -471,6 +520,10 @@ Search.
 | Cribl Stream | ❌      | Aggregations only emit configured outputs. |
 
 #### Sink per key or per window
+
+A sink per key or window sends results from inside the grouped or windowed scope.
+This supports local alerting or routing decisions without merging all results
+back into a shared stream first.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
@@ -481,6 +534,10 @@ Search.
 
 #### Empty window padding
 
+Empty window padding emits rows for time ranges that have no events. This is
+useful for charts and time-series joins that need an explicit zero or null for
+missing intervals.
+
 | System       | Support | Notes                               |
 | ------------ | ------- | ----------------------------------- |
 | TQL          | ❌      | Empty windows are not emitted.      |
@@ -490,6 +547,10 @@ Search.
 
 #### Session windows
 
+Session windows group events by gaps in activity rather than fixed boundaries.
+They are useful for user sessions, transactions, and bursts where the end time
+depends on silence.
+
 | System       | Support | Notes                                             |
 | ------------ | ------- | ------------------------------------------------- |
 | TQL          | ❌      | Requires precomputed session IDs or custom stateful logic. |
@@ -498,6 +559,10 @@ Search.
 | Cribl Stream | ❌      | Not native.                                       |
 
 #### Custom alignment or calendar windows
+
+Custom alignment or calendar windows anchor boundaries to a chosen origin or
+calendar unit. This matters for reports that must align to local business days,
+weeks, months, or other non-epoch boundaries.
 
 | System       | Support | Notes                                      |
 | ------------ | ------- | ------------------------------------------ |
