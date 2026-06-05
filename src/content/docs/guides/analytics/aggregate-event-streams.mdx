@@ -346,33 +346,165 @@ pre-aggregation step handles the raw event volume.
 
 ### Compare TQL with KQL, SPL, and Cribl Stream
 
-The following table compares aggregation and windowing capabilities across TQL,
-Microsoft KQL, Splunk SPL, and Cribl Stream. It covers Tenzir's
+The following sections compare aggregation and windowing capabilities across
+TQL, Microsoft KQL, Splunk SPL, and Cribl Stream. They cover Tenzir's
 <Op>summarize</Op>, <Op>every</Op>, <Op>group</Op>, and <Op>window</Op>
-operators. The Cribl Stream column refers to Cribl Stream pipeline Functions,
-especially
+operators. Cribl Stream entries refer to pipeline Functions, especially
 [Aggregations](https://docs.cribl.io/stream/aggregations-function/), not Cribl
-Search:
+Search.
 
-| Capability | TQL | KQL | SPL | Cribl Stream |
-| ---------- | --- | --- | --- | ------------ |
-| Complete-input aggregation | ✅ <Op>summarize</Op> | ✅ `summarize` | ✅ `stats` | ⚠️ Aggregations are time-windowed |
-| Grouped aggregation | ✅ <Op>summarize</Op> `key, agg=...` | ✅ `summarize ... by key` | ✅ `stats ... BY key` | ⚠️ Time-windowed `Group by fields` |
-| Periodic processing-time aggregation | ✅ <Op>summarize</Op> `options={frequency: 1m}` or <Op>every</Op> | ⚠️ Scheduled or continuous query pattern | ⚠️ Real-time or scheduled searches | ⚠️ Scheduled Collectors; Aggregations use event-time buckets |
-| Periodic running stats | ✅ <Op>summarize</Op> `options={frequency: 1m, mode: "cumulative"}` | ⚠️ Scheduled or continuous query pattern | ⚠️ `streamstats` or scheduled searches | ⚠️ Aggregations `Cumulative aggregations` |
-| Wall-clock subpipeline batches | ✅ <Op>every</Op> `1m { ... }` | ❌ No direct query-language block equivalent | ❌ No direct query-language block equivalent | ⚠️ Scheduled Collectors; no Function block |
-| Tumbling event-time windows | ✅ <Op>window</Op> `size=1h, on=ts` | ✅ `summarize ... by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` | ✅ Aggregations `Time window` |
-| Hopping event-time windows | ✅ <Op>window</Op> `size=1h, every=5m, on=ts` | ⚠️ Manual expansion or plugins for specific metrics | ⚠️ Workaround with `streamstats` or manual bucketing | ❌ No hopping window option |
-| Per-event rolling stats | ❌ Not the <Op>window</Op> model | ⚠️ Manual expansion or row-window functions | ✅ `streamstats time_window=...` | ❌ Aggregations emit window events |
-| Per-key event-time windows | ✅ Compose <Op>group</Op> with <Op>window</Op> | ✅ `summarize ... by key, bin(ts, ...)` | ✅ `BY key` or split-by | ⚠️ `Group by fields` per Worker Process |
-| Streaming late-event tolerance | ✅ <Op>window</Op> `tolerance=...` | ❌ Mostly batch or query-time semantics | ⚠️ Search-order dependent | ✅ Aggregations `Lag tolerance` |
-| Independent per-key event-time clocks | ✅ Outer <Op>group</Op> around <Op>window</Op> | ❌ No streaming clock per key in ad hoc KQL | ⚠️ Search-order dependent workarounds | ⚠️ Grouped buckets; no documented per-key clock |
-| Arbitrary subpipeline per key | ✅ <Op>group</Op> `key { ... }` | ❌ No direct equivalent | ❌ No direct equivalent | ❌ No grouped Function block |
-| Arbitrary subpipeline per window | ✅ <Op>window</Op> `{ ... }` | ❌ No direct equivalent | ❌ No direct equivalent | ❌ Aggregations only emit configured outputs |
-| Sink per key or per window | ✅ <Op>group</Op> and <Op>window</Op> blocks can end in sinks | ❌ No direct equivalent | ❌ No direct equivalent | ⚠️ Route emitted aggregate events downstream |
-| Empty window padding | ❌ Not emitted | ⚠️ Manual `range` and `union` padding | ✅ `timechart cont=true` | ❌ No documented empty buckets |
-| Session windows | ❌ Not native; requires precomputed session IDs or custom stateful logic | ✅ `row_window_session()` | ✅ `transaction maxpause` and `maxspan` | ❌ Not native |
-| Custom alignment or calendar windows | ⚠️ <Op>window</Op> is epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans | ❌ Fixed second or minute windows only |
+#### Complete-input aggregation
+
+| System       | Support | Notes                                             |
+| ------------ | ------- | ------------------------------------------------- |
+| TQL          | ✅      | <Op>summarize</Op> consumes the input by default. |
+| KQL          | ✅      | Use `summarize`.                                  |
+| SPL          | ✅      | Use `stats`.                                      |
+| Cribl Stream | ⚠️      | Aggregations are time-windowed.                   |
+
+#### Grouped aggregation
+
+| System       | Support | Notes                                           |
+| ------------ | ------- | ----------------------------------------------- |
+| TQL          | ✅      | Use <Op>summarize</Op> with grouping fields.    |
+| KQL          | ✅      | Use `summarize ... by key`.                     |
+| SPL          | ✅      | Use `stats ... BY key`.                         |
+| Cribl Stream | ⚠️      | Use time-windowed `Group by fields`.            |
+
+#### Periodic processing-time aggregation
+
+| System       | Support | Notes                                                        |
+| ------------ | ------- | ------------------------------------------------------------ |
+| TQL          | ✅      | Use <Op>summarize</Op> `options={frequency: ...}` or <Op>every</Op>. |
+| KQL          | ⚠️      | Use scheduled or continuous query patterns.                  |
+| SPL          | ⚠️      | Use real-time or scheduled searches.                         |
+| Cribl Stream | ⚠️      | Use Scheduled Collectors; Aggregations use event-time buckets. |
+
+#### Periodic running stats
+
+| System       | Support | Notes                                                        |
+| ------------ | ------- | ------------------------------------------------------------ |
+| TQL          | ✅      | Use <Op>summarize</Op> `options={frequency: ..., mode: "cumulative"}`. |
+| KQL          | ⚠️      | Use scheduled or continuous query patterns.                  |
+| SPL          | ⚠️      | Use `streamstats` or scheduled searches.                     |
+| Cribl Stream | ⚠️      | Enable `Cumulative aggregations` in Aggregations.            |
+
+#### Wall-clock subpipeline batches
+
+| System       | Support | Notes                                             |
+| ------------ | ------- | ------------------------------------------------- |
+| TQL          | ✅      | Use <Op>every</Op> to rerun an arbitrary block.   |
+| KQL          | ❌      | No direct query-language block equivalent.        |
+| SPL          | ❌      | No direct query-language block equivalent.        |
+| Cribl Stream | ⚠️      | Scheduled Collectors schedule collection work.    |
+
+#### Tumbling event-time windows
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ✅      | Use <Op>window</Op> `size=1h, on=ts`.      |
+| KQL          | ✅      | Use `summarize ... by bin(ts, 1h)`.        |
+| SPL          | ✅      | Use `timechart span=1h` or `bin _time`.    |
+| Cribl Stream | ✅      | Use Aggregations `Time window`.            |
+
+#### Hopping event-time windows
+
+| System       | Support | Notes                                           |
+| ------------ | ------- | ----------------------------------------------- |
+| TQL          | ✅      | Use <Op>window</Op> `size=1h, every=5m, on=ts`. |
+| KQL          | ⚠️      | Use manual expansion or plugins for specific metrics. |
+| SPL          | ⚠️      | Use `streamstats` workarounds or manual bucketing. |
+| Cribl Stream | ❌      | No hopping window option.                       |
+
+#### Per-input-event rolling stats
+
+| System       | Support | Notes                                             |
+| ------------ | ------- | ------------------------------------------------- |
+| TQL          | ❌      | Not native; <Op>summarize</Op> `frequency` is periodic. |
+| KQL          | ⚠️      | Use manual expansion or row-window functions.     |
+| SPL          | ✅      | Use `streamstats time_window=...`.                |
+| Cribl Stream | ❌      | Aggregations emit window events.                  |
+
+#### Per-key event-time windows
+
+| System       | Support | Notes                                             |
+| ------------ | ------- | ------------------------------------------------- |
+| TQL          | ✅      | Compose <Op>group</Op> with <Op>window</Op>.      |
+| KQL          | ✅      | Use `summarize ... by key, bin(ts, ...)`.         |
+| SPL          | ✅      | Use `BY key` or split-by.                         |
+| Cribl Stream | ⚠️      | Use `Group by fields` per Worker Process.         |
+
+#### Streaming late-event tolerance
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ✅      | Use <Op>window</Op> `tolerance=...`.       |
+| KQL          | ❌      | Mostly batch or query-time semantics.      |
+| SPL          | ⚠️      | Depends on search order.                   |
+| Cribl Stream | ✅      | Use Aggregations `Lag tolerance`.          |
+
+#### Independent per-key event-time clocks
+
+| System       | Support | Notes                                           |
+| ------------ | ------- | ----------------------------------------------- |
+| TQL          | ✅      | Put <Op>window</Op> inside an outer <Op>group</Op>. |
+| KQL          | ❌      | No streaming clock per key in ad hoc KQL.       |
+| SPL          | ⚠️      | Requires search-order dependent workarounds.    |
+| Cribl Stream | ⚠️      | Grouped buckets exist, but no documented per-key clock. |
+
+#### Arbitrary subpipeline per key
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ✅      | Use <Op>group</Op> `key { ... }`.          |
+| KQL          | ❌      | No direct equivalent.                      |
+| SPL          | ❌      | No direct equivalent.                      |
+| Cribl Stream | ❌      | No grouped Function block.                 |
+
+#### Arbitrary subpipeline per window
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ✅      | Use <Op>window</Op> `{ ... }`.             |
+| KQL          | ❌      | No direct equivalent.                      |
+| SPL          | ❌      | No direct equivalent.                      |
+| Cribl Stream | ❌      | Aggregations only emit configured outputs. |
+
+#### Sink per key or per window
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ✅      | <Op>group</Op> and <Op>window</Op> blocks can end in sinks. |
+| KQL          | ❌      | No direct query-language equivalent.       |
+| SPL          | ❌      | No direct query-language equivalent.       |
+| Cribl Stream | ⚠️      | Route emitted aggregate events downstream. |
+
+#### Empty window padding
+
+| System       | Support | Notes                               |
+| ------------ | ------- | ----------------------------------- |
+| TQL          | ❌      | Empty windows are not emitted.      |
+| KQL          | ⚠️      | Use manual `range` and `union` padding. |
+| SPL          | ✅      | Use `timechart cont=true`.          |
+| Cribl Stream | ❌      | No documented empty buckets.        |
+
+#### Session windows
+
+| System       | Support | Notes                                             |
+| ------------ | ------- | ------------------------------------------------- |
+| TQL          | ❌      | Requires precomputed session IDs or custom stateful logic. |
+| KQL          | ✅      | Use `row_window_session()`.                       |
+| SPL          | ✅      | Use `transaction maxpause` and `maxspan`.         |
+| Cribl Stream | ❌      | Not native.                                       |
+
+#### Custom alignment or calendar windows
+
+| System       | Support | Notes                                      |
+| ------------ | ------- | ------------------------------------------ |
+| TQL          | ⚠️      | <Op>window</Op> is epoch-aligned only.     |
+| KQL          | ✅      | Use `bin_at()`.                            |
+| SPL          | ✅      | Use `aligntime` and calendar spans.        |
+| Cribl Stream | ❌      | Fixed second or minute windows only.       |
 
 Legend: ✅ native or covered, ⚠️ partial or workaround, ❌ missing.
 
