@@ -1,0 +1,261 @@
+---
+title: from_microsoft_sql
+category: Inputs/Events
+example: 'from_microsoft_sql table="dbo.events", host="sql.example.com", database="security", tls=true'
+---
+
+import Op from '@components/see-also/Op.astro';
+import Integration from '@components/see-also/Integration.astro';
+
+Reads events from Microsoft SQL Server or Azure SQL Database.
+
+```tql
+from_microsoft_sql [table=string], [sql=string], [query=string],
+                   [show=string], [live=bool],
+                   [tracking_column=string], [host=string], [port=int],
+                   [user=string], [password=secret],
+                   [database=string], [tls=bool|record]
+```
+
+## Description
+
+The `from_microsoft_sql` operator connects to Microsoft SQL Server-compatible
+databases over TDS. You can read a table, execute a custom query, retrieve
+metadata, or poll a table for newly inserted rows.
+
+The operator supports four query modes:
+
+1. **Table mode**: Read all rows from a table using the `table` parameter.
+2. **SQL mode**: Execute a custom SQL query using the `sql` parameter.
+3. **Query mode**: Execute a custom SQL query using the `query` parameter.
+4. **Show mode**: List database metadata using the `show` parameter.
+   When `show="columns"`, also set `table` to the table name.
+
+### `table = string (optional)`
+
+The name of the table to read from. Use the `schema.table` form to select a
+schema-qualified table, such as `dbo.events`.
+
+This is mutually exclusive with `sql` and `query`. When `show="columns"`, set
+`table` to the table name.
+
+### `sql = string (optional)`
+
+A raw SQL query to execute. This is mutually exclusive with `table`, `query`,
+and `show`.
+
+Use raw strings for complex queries:
+
+```tql
+from_microsoft_sql sql=r"SELECT id, created_at FROM dbo.events WHERE severity >= 3"
+```
+
+### `query = string (optional)`
+
+A raw SQL query to execute. This is equivalent to `sql` and exists as a more
+descriptive spelling. This is mutually exclusive with `table`, `sql`, and
+`show`.
+
+### `show = string (optional)`
+
+Retrieve database metadata. This is mutually exclusive with `sql`, `query`, and
+`live=true`. When `show="columns"`, set `table` to the table name.
+
+Supported values:
+
+- `"tables"`: List all base tables in the database.
+- `"columns"`: List all columns for the table specified in `table`.
+
+### `live = bool (optional)`
+
+Enables continuous polling for new rows from a table. The operator tracks
+progress using a watermark on an integer column and polls every second for rows
+above the last-seen value. Live mode is mutually exclusive with `sql`, `query`,
+and `show`, and requires `table`.
+
+Defaults to `false`.
+
+Live mode initializes the watermark from the current maximum tracking value and
+then emits rows with greater values. It doesn't emit an initial snapshot, and it
+doesn't capture updates or deletes.
+
+### `tracking_column = string (optional)`
+
+The integer column to use for watermark tracking in live mode. The operator
+queries for rows where this column exceeds the last-seen watermark.
+
+When omitted, the operator detects a suitable column from the table metadata. It
+prefers a single integer identity column and falls back to a single integer
+primary-key column. Requires `live=true`.
+
+### `host = string (optional)`
+
+The hostname or IP address of the SQL Server.
+
+Defaults to `"localhost"`.
+
+### `port = int (optional)`
+
+The TCP port of the SQL Server.
+
+Defaults to `1433`.
+
+### `user = string (optional)`
+
+The username for SQL authentication.
+
+Defaults to `"sa"`.
+
+### `password = secret (optional)`
+
+The password for SQL authentication. Use `secret` for secure credential
+management.
+
+Defaults to `""`.
+
+### `database = string (optional)`
+
+The database to connect to.
+
+Defaults to `""`.
+
+### `tls = bool|record (optional)`
+
+TLS configuration for the SQL Server connection. Defaults to `false` (no TLS).
+
+Use `tls=true` to enable TLS with default settings and certificate
+verification, or provide a record to customize specific options:
+
+```tql
+{
+  skip_peer_verification: bool, // Skip certificate verification.
+  cacert: string,               // CA bundle to verify peers.
+  certfile: string,             // Client certificate to present.
+  keyfile: string,              // Private key for the client certificate.
+}
+```
+
+Azure SQL Database requires TLS. Use the Azure SQL server host name, usually in
+the form `<server>.database.windows.net`, and set `tls=true`.
+
+The operator currently supports SQL authentication. Microsoft Entra
+authentication, managed identities, Windows authentication, and Kerberos are not
+supported.
+
+## Types
+
+The operator maps Microsoft SQL Server types to <Reference>types</Reference> as
+follows:
+
+| SQL Server type                                | Tenzir type | Notes                                |
+| :--------------------------------------------- | :---------- | :----------------------------------- |
+| `tinyint`                                      | `uint64`    |                                      |
+| `smallint`, `int`, `bigint`                    | `int64`     |                                      |
+| `bit`                                          | `bool`      |                                      |
+| `real`, `float`                                | `double`    |                                      |
+| `decimal`, `numeric`                           | `double`    | May lose precision.                  |
+| `smallmoney`, `money`                          | `double`    | May lose precision.                  |
+| `date`, `smalldatetime`, `datetime`            | `time`      |                                      |
+| `datetime2`, `datetimeoffset`                  | `time`      | The offset isn't preserved.           |
+| `time`                                         | `duration`  |                                      |
+| `char`, `varchar`, `text`                      | `string`    |                                      |
+| `nchar`, `nvarchar`, `ntext`, `xml`            | `string`    |                                      |
+| `binary`, `varbinary`, `image`                 | `blob`      |                                      |
+| `uniqueidentifier`                             | `string`    |                                      |
+
+## Examples
+
+### Read all rows from a table
+
+```tql
+from_microsoft_sql table="dbo.users",
+                   host="sql.example.com",
+                   database="app",
+                   tls=true
+```
+
+### Execute a custom SQL query
+
+```tql
+from_microsoft_sql query=r"SELECT id, name, created_at
+                          FROM dbo.users
+                          WHERE active = 1",
+                   host="sql.example.com",
+                   database="app",
+                   tls=true
+```
+
+### Use secure credentials
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   host="sql.example.com",
+                   user="tenzir_reader",
+                   password=secret("mssql-password"),
+                   database="security",
+                   tls=true
+```
+
+### Connect to Azure SQL
+
+```tql
+from_microsoft_sql query="SELECT TOP 10 * FROM dbo.events",
+                   host="example.database.windows.net",
+                   port=1433,
+                   user="tenzir_reader",
+                   password=secret("azure-sql-password"),
+                   database="security",
+                   tls=true
+```
+
+### List all tables in a database
+
+```tql
+from_microsoft_sql show="tables",
+                   host="sql.example.com",
+                   database="app",
+                   tls=true
+```
+
+### List columns for a specific table
+
+```tql
+from_microsoft_sql show="columns",
+                   table="dbo.users",
+                   host="sql.example.com",
+                   database="app",
+                   tls=true
+```
+
+### Stream new rows from a table
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   live=true,
+                   tracking_column="id",
+                   host="sql.example.com",
+                   database="security",
+                   tls=true
+```
+
+### Connect with TLS but skip peer verification
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   host="sql.example.com",
+                   database="security",
+                   tls={skip_peer_verification: true}
+```
+
+### Connect with TLS using a CA certificate
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   host="sql.example.com",
+                   database="security",
+                   tls={cacert: "/path/to/ca.pem"}
+```
+
+## See Also
+
+- <Integration>microsoft/sql-server</Integration>

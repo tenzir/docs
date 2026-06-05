@@ -363,6 +363,7 @@ export const integrations = [
           "integrations/microsoft/azure-event-hubs",
           "integrations/microsoft/defender",
           "integrations/microsoft/graph",
+          "integrations/microsoft/sql-server",
           "integrations/microsoft/sentinel-log-analytics",
           "integrations/microsoft/windows-event-logs",
         ],
