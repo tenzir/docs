@@ -63,7 +63,17 @@ The raw log type or entity log type. Required when `mode="log"` or
 
 For raw logs, this selects the SecOps log type in the `logs.import` resource
 path. For entities, this sets the `logType` field in the `entities.import`
-request.
+request. Use a context source log type accepted by your SecOps instance, such as
+`AZURE_AD_CONTEXT` for Azure AD user context. This is not the same as the UDM
+entity type, such as `USER` or `ASSET`.
+
+### UDM and Entity Field Names
+
+UDM events and entities are sent as ingestion API JSON. Shape these rows with
+Google's lowerCamelCase ingestion field names, such as `metadata.eventType` and
+`metadata.entityType`. Query field names in SecOps search and YARA-L often use
+snake_case, such as `metadata.event_type`; those are not the field names to send
+to the import APIs.
 
 ### `log_text = blob|string`
 
@@ -172,11 +182,25 @@ to_google_secops \
 ```tql
 from {
   metadata: {
-    event_type: "NETWORK_DNS",
-    product_name: "Tenzir",
+    eventTimestamp: 2026-01-01T00:00:00,
+    collectedTimestamp: 2026-01-01T00:00:01,
+    eventType: "NETWORK_CONNECTION",
+    vendorName: "Tenzir",
+    productName: "Tenzir Pipeline",
+    productEventType: "connection",
   },
   principal: {
     hostname: "host.example",
+    ip: ["192.0.2.10"],
+  },
+  target: {
+    hostname: "service.example",
+    ip: ["198.51.100.20"],
+    port: 443,
+  },
+  network: {
+    applicationProtocol: "HTTPS",
+    ipProtocol: "TCP",
   },
 }
 to_google_secops \
@@ -192,11 +216,18 @@ to_google_secops \
 ```tql
 from {
   metadata: {
-    entity_type: "ASSET",
-    product_name: "Tenzir",
+    collectedTimestamp: 2026-01-01T00:00:01,
+    vendorName: "Tenzir",
+    productName: "Tenzir Pipeline",
+    entityType: "USER",
   },
   entity: {
-    hostname: "host.example",
+    user: {
+      userid: "alice@example.com",
+      productObjectId: "alice-0001",
+      userDisplayName: "Alice Example",
+      emailAddresses: ["alice@example.com"],
+    },
   },
 }
 to_google_secops \
@@ -205,7 +236,7 @@ to_google_secops \
   region="us",
   instance="my-secops-instance",
   service_credentials=secret("my_secops_service_account"),
-  log_type="ASSET_CONTEXT"
+  log_type="AZURE_AD_CONTEXT"
 ```
 
 ## See Also
