@@ -117,6 +117,7 @@ export const guides = [
           "guides/transformation/shape-records",
           "guides/transformation/reshape-complex-data",
           "guides/transformation/convert-data-formats",
+          "guides/transformation/mask-sensitive-data",
         ],
       },
       {

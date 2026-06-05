@@ -1,0 +1,335 @@
+---
+title: Mask sensitive data
+---
+
+This guide shows you how to mask sensitive fields such as IP addresses, email
+addresses, account identifiers, and credentials. You'll learn when to anonymize,
+hash, redact, or partially reveal a value, and how to combine TQL functions to
+apply each pattern consistently across your pipelines.
+
+Pick the technique that matches the downstream use case:
+
+- **Anonymize** when you want to keep structural properties of the value, for
+  example to preserve subnet relationships across IP addresses.
+- **Hash** when you need a stable, irreversible identifier so the same input
+  always maps to the same opaque output.
+- **Redact** when the value must not leave the pipeline in any recoverable form.
+- **Partially reveal** when an operator or analyst needs enough context to
+  recognize a record without seeing the full value.
+
+The strongest mask is no field at all. When a sensitive field has no
+downstream use, drop it instead of transforming it with <Op>drop</Op> or by
+omitting it from <Op>select</Op>:
+
+```tql
+drop password, ssn
+```
+
+The rest of this guide covers the cases where you do need to keep something.
+
+## Anonymize IP addresses
+
+Use <Fn>encrypt_cryptopan</Fn> to replace IP addresses with prefix-preserving
+pseudonyms. Two addresses in the same subnet produce two anonymized addresses in
+the same subnet, which keeps flow analysis meaningful while removing the
+original IPs.
+
+```tql
+let $seed = "deadbeef" // use secret() in practice
+from {
+  client_ip: 192.168.1.100,
+  server_ip: 8.8.8.8,
+  peer_ip: 192.168.1.42,
+}
+client_ip = client_ip.encrypt_cryptopan(seed=$seed)
+server_ip = server_ip.encrypt_cryptopan(seed=$seed)
+peer_ip = peer_ip.encrypt_cryptopan(seed=$seed)
+```
+
+```tql
+{
+  client_ip: 155.71.206.156,
+  server_ip: 23.185.199.244,
+  peer_ip: 155.71.206.201,
+}
+```
+
+The two addresses originally in `192.168.1.0/24` still share a prefix
+(`155.71.206.0/24`) after anonymization, while `8.8.8.8` ends up in an
+unrelated range. Store the seed in your secret store and retrieve it with
+<Fn>secret</Fn> so the value never appears in pipeline definitions.
+
+:::caution[Crypto-PAn is reversible]
+Crypto-PAn is a keyed pseudonymization scheme, not a one-way function. Anyone
+with the seed can recover the original addresses from the anonymized output.
+Treat the seed like a private key: keep it in your secret store, rotate it on a
+schedule, and use <Fn>hash_sha256</Fn> instead if you need an irreversible
+transformation.
+:::
+
+## Hash sensitive fields
+
+Use a cryptographic hash to turn a value into a stable, irreversible token.
+The same input always produces the same output, which lets you correlate events
+without exposing the original data.
+
+```tql
+from {
+  user: "alice",
+  email: "alice@example.com",
+  account_id: "A-19483",
+}
+email = email.hash_sha256()
+account_id = account_id.hash_sha256()
+```
+
+```tql
+{
+  user: "alice",
+  email: "ff8d9819fc0e12bf0d24892e45987e249a28dce836a85cad60e28eaaa8c6d976",
+  account_id: "b680734b648f3c329b87f4785db0644f66d9d4d4280e2c091d5daa20c01ed0b8",
+}
+```
+
+<Fn>hash_sha256</Fn> works for any string and produces a 64-character hex
+digest. Tenzir ships several hash functions so you can pick the right
+trade-off between speed and collision resistance:
+
+- SHA-2 family: <Fn>hash_sha224</Fn>, <Fn>hash_sha256</Fn>,
+  <Fn>hash_sha384</Fn>, <Fn>hash_sha512</Fn>
+- SHA-3 family: <Fn>hash_sha3_224</Fn>, <Fn>hash_sha3_256</Fn>,
+  <Fn>hash_sha3_384</Fn>, <Fn>hash_sha3_512</Fn>
+- Legacy (not cryptographically secure): <Fn>hash_md5</Fn>, <Fn>hash_sha1</Fn>
+- Fast non-cryptographic: <Fn>hash_xxh3</Fn> for high-throughput
+  deduplication or sharding
+
+Two notes on hashing:
+
+- The same input always yields the same digest, so an attacker with a list of
+  candidate values can confirm matches. Add a secret salt for fields with low
+  entropy.
+- Hashing is one-way. Once a field is hashed, you can no longer recover the
+  original value from the event.
+
+### Salt low-entropy values
+
+For values from a small or guessable domain, such as phone numbers or short
+account IDs, pass a secret `seed` to the hash function. Every hash function
+listed earlier accepts the same `seed` argument:
+
+```tql
+let $salt = "some-random-string" // use secret() in practice
+from {phone: "555-123-4567"}
+phone = phone.hash_sha256(seed=$salt)
+```
+
+```tql
+{
+  phone: "3165fcc6f2ce36dd14e56b451142d5188eed5e2f1e2dafec1e34c1e573438afe",
+}
+```
+
+A different seed produces a completely different digest for the same input, so
+keeping the salt secret defeats any pre-computed rainbow tables an attacker may
+hold.
+
+### Authenticate with HMAC
+
+When compliance language asks for HMAC-SHA256 specifically, or when you need
+the formal guarantees of a keyed message authentication code, use
+<Fn>hmac</Fn>:
+
+```tql
+let $key = "some-random-string" // use secret() in practice
+from {
+  user: "alice",
+  email: "alice@example.com",
+}
+email = hmac(email, $key)
+```
+
+```tql
+{
+  user: "alice",
+  email: "349aca5c07a66d0970bf1fc97326b5f9c2c3d15155ea4be90fbe88f628aa7e6e",
+}
+```
+
+`hmac` defaults to SHA-256 and accepts `algorithm="sha512"`, `"sha384"`,
+`"sha1"`, or `"md5"`. The function is marked experimental and the key
+currently has to be a plain string; secret support is planned.
+
+## Redact values with a fixed mask
+
+When the original value must not survive the pipeline at all, overwrite the
+field with a constant:
+
+```tql
+from {
+  user: "alice",
+  password: "hunter2",
+  api_key: "sk-live-9f8a3c2b1d0e",
+}
+password = "******"
+api_key = "******"
+```
+
+```tql
+{
+  user: "alice",
+  password: "******",
+  api_key: "******",
+}
+```
+
+The mask is unrelated to the input, so the original value is unrecoverable and
+two distinct values become indistinguishable in the output. Use this pattern
+for credentials and any value you never want to correlate again.
+
+To redact every record that contains the field, assign to the field unconditionally as shown earlier. To redact only when the field is present, guard the assignment with <Op>where</Op> or a conditional expression.
+
+## Reveal a prefix and mask the rest
+
+Sometimes you want analysts to recognize a value at a glance without exposing
+all of it. Combine <Fn>slice</Fn> with <Fn>pad_end</Fn> or <Fn>pad_start</Fn>
+to keep either end of the value:
+
+```tql
+from {
+  account_id: "ACME-19483-PROD",
+  card_number: "4111111111111111",
+}
+account_id = account_id.slice(end=4).pad_end(8, "*")
+card_number = card_number.slice(begin=-4).pad_start(16, "*")
+```
+
+```tql
+{
+  account_id: "ACME****",
+  card_number: "************1111",
+}
+```
+
+For `account_id`, `slice(end=4)` takes the first four characters and
+`pad_end(8, "*")` extends the result to eight characters with `*`.
+
+For `card_number`, `slice(begin=-4)` takes the last four digits and
+`pad_start(16, "*")` prepends twelve `*` characters to match the original
+length. This is the conventional display format for payment card numbers.
+Adjust the slice offsets and pad lengths to control how much of the value
+stays visible.
+
+## Mask parts of an email address
+
+Email addresses have structure you can exploit. Sometimes you want to hide who
+the user is but keep the provider visible for analytics; other times you want
+just enough of both parts for an analyst to recognize a record.
+
+### Mask the local part, keep the domain
+
+Split on `@` and rebuild the address with a fixed mask for the local part:
+
+```tql
+from {email: "alice@example.com"},
+     {email: "bob@mail.tenzir.com"},
+     {email: "carol.smith@acme.co.uk"}
+email = f"*****@{email.split("@")[1]}"
+```
+
+```tql
+{email: "*****@example.com"}
+{email: "*****@mail.tenzir.com"}
+{email: "*****@acme.co.uk"}
+```
+
+The domain stays intact, so you can still group events by provider while the
+identifying portion is gone.
+
+### Reveal one character of each part
+
+For a display-friendly format, use <Fn>replace_regex</Fn> with capture groups to
+keep the first character of the local part and the first character of the host:
+
+```tql
+from {email: "alice@example.com"},
+     {email: "bob@mail.tenzir.com"},
+     {email: "carol.smith@acme.co.uk"}
+email = email.replace_regex(r"([^@])[^@]*@([^.])[^.]*\.(.+)", r"\1****@\2****.\3")
+```
+
+```tql
+{email: "a****@e****.com"}
+{email: "b****@m****.tenzir.com"}
+{email: "c****@a****.co.uk"}
+```
+
+The pattern captures the first character of the local part (`\1`), the first
+character of the host name (`\2`), and the remaining TLD components (`\3`),
+then surrounds each captured character with a fixed `****` mask. Multi-label
+TLDs like `co.uk` and subdomains like `mail.tenzir.com` are preserved because
+`\3` matches everything after the first dot in the domain.
+
+## Coarsen dates and timestamps
+
+For fields like date of birth or login time, you often want to keep the year
+or month but drop finer granularity. Combine <Fn>format_time</Fn> with the
+<Fn>time</Fn> constructor to rebuild a `time` value pinned to the start of a
+period, which preserves the type for downstream filtering and aggregation:
+
+```tql
+from {
+  user: "alice",
+  dob: 1985-07-23T00:00:00,
+  last_login: 2024-06-15T14:30:45,
+}
+dob = dob.format_time("%Y-01-01").time()
+last_login = last_login.format_time("%Y-%m-01").time()
+```
+
+```tql
+{
+  user: "alice",
+  dob: 1985-01-01T00:00:00Z,
+  last_login: 2024-06-01T00:00:00Z,
+}
+```
+
+The pipeline reduces `dob` to year precision and `last_login` to month
+precision. Adjust the format string to keep the day (`"%Y-%m-%d"`) or to
+truncate further by hard-coding earlier components.
+
+If you only need the year as a number, for example to compute age cohorts,
+call <Fn>year</Fn> directly:
+
+```tql
+from {dob: 1985-07-23T00:00:00}
+birth_year = dob.year()
+```
+
+```tql
+{
+  dob: 1985-07-23T00:00:00Z,
+  birth_year: 1985,
+}
+```
+
+For a string label such as `"1985"`, use <Fn>format_time</Fn> with `"%Y"`.
+
+## See also
+
+- <Op>drop</Op>
+- <Op>select</Op>
+- <Fn>encrypt_cryptopan</Fn>
+- <Fn>hash_sha256</Fn>
+- <Fn>hmac</Fn>
+- <Fn>slice</Fn>
+- <Fn>pad_end</Fn>
+- <Fn>pad_start</Fn>
+- <Fn>replace_regex</Fn>
+- <Fn>year</Fn>
+- <Fn>format_time</Fn>
+- <Fn>secret</Fn>
+- <Guide>transformation/manipulate-strings</Guide>
+- <Guide>transformation/transform-values</Guide>
+- <Guide>transformation/work-with-time</Guide>
+- <Explanation>secrets</Explanation>
