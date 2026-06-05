@@ -4,8 +4,12 @@ title: Map to other schemas
 
 This guide provides brief guidance on mapping data to schemas other than OCSF.
 While OCSF is the recommended choice for security data, you may need to support
-Elastic Common Schema (ECS), Google UDM, or Microsoft ASIM for integration with
-specific platforms.
+Elastic Common Schema (ECS), Google UDM, Microsoft ASIM, or another
+platform-specific schema.
+
+Use <Guide>normalization/map-to-udm</Guide> and
+<Guide>normalization/map-to-asim</Guide> for the dedicated Google UDM and
+Microsoft ASIM workflows.
 
 ## Choosing a schema
 
@@ -63,28 +67,14 @@ Common ECS field sets for security data:
 
 [ASIM](https://learn.microsoft.com/en-us/azure/sentinel/normalization) (Advanced
 Security Information Model) is Microsoft Sentinel's normalization schema.
+Use <Guide>normalization/map-to-asim</Guide> for the detailed ASIM mapping
+workflow.
 
 ### Key differences from OCSF
 
 - Designed for KQL queries
 - Uses specific parser naming conventions
 - Column-oriented naming style
-
-### Mapping pattern
-
-```tql
-// From OCSF to ASIM Network Session
-asim.EventType = "NetworkSession"
-asim.EventProduct = ocsf.metadata.product.name
-asim.EventVendor = ocsf.metadata.product.vendor_name
-asim.TimeGenerated = ocsf.time
-asim.SrcIpAddr = ocsf.src_endpoint.ip
-asim.SrcPortNumber = ocsf.src_endpoint.port
-asim.DstIpAddr = ocsf.dst_endpoint.ip
-asim.DstPortNumber = ocsf.dst_endpoint.port
-asim.NetworkProtocol = ocsf.connection_info.protocol_name
-asim.NetworkBytes = ocsf.traffic.total_bytes
-```
 
 ### ASIM schemas
 
@@ -177,4 +167,5 @@ fork {
 - <Op>to_opensearch</Op>
 - <Guide>normalization/map-to-ocsf</Guide>
 - <Guide>normalization/map-to-udm</Guide>
+- <Guide>normalization/map-to-asim</Guide>
 - <Guide>transformation/transform-values</Guide>

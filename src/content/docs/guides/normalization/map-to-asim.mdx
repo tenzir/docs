@@ -1,0 +1,173 @@
+---
+title: Map to ASIM
+---
+
+This guide shows you how to map events to Microsoft Sentinel Advanced Security
+Information Model (ASIM) records in TQL. You'll learn how to choose an ASIM
+schema, populate schema and product metadata, map role-prefixed fields,
+normalize event results, and preserve unmapped source fields.
+
+## Use the ASIM skill
+
+Install the `tenzir-microsoft-asim` skill when you want an agent to help with
+ASIM schema decisions. See
+<Guide>ai-workbench/use-agent-skills#use-the-microsoft-asim-skill</Guide> for
+installation and usage examples.
+
+Ask the agent to choose the event or entity schema before it maps fields. ASIM
+fields use Microsoft Sentinel column names such as `EventSchema`,
+`EventSchemaVersion`, `SrcIpAddr`, and `DstIpAddr`. Prefer canonical fields
+over aliases when you build reusable mappings, analytics rules, or workbooks.
+
+## Choose the ASIM schema
+
+Start by choosing `EventSchema` and `EventSchemaVersion` for event records, or
+`EntitySchema` and `EntitySchemaVersion` for entity records. These fields
+identify the schema contract that the record follows.
+
+For a firewall connection event, choose the `NetworkSession` schema. It
+describes IP network activity from sources such as firewalls, NetFlow records,
+routers, operating systems, and intrusion prevention systems.
+
+For a `NetworkSession` event, start with these core fields:
+
+- `EventSchema`: The schema name. Use `NetworkSession`.
+- `EventSchemaVersion`: The schema version. Use `0.2.7` for `NetworkSession`.
+- `EventType`: The activity scenario, such as `NetworkSession`, `Flow`, or
+  `EndpointNetworkSession`.
+- `EventVendor` and `EventProduct`: The source product context.
+- `EventStartTime` and `EventEndTime`: The activity time range.
+- `EventResult`: The normalized result, such as `Success` or `Failure`.
+- `Src*` and `Dst*`: The source and destination participants.
+
+## Write a small mapping
+
+The following example maps a parsed firewall connection event to an ASIM
+`NetworkSession` record. It keeps the source data under `fw`, sets the ASIM
+schema constants, normalizes the device action and result, maps source and
+destination fields, and preserves unmapped residue in `AdditionalFields`.
+
+```tql
+from {
+  ts: 2024-01-15T10:30:45Z,
+  action: "allowed",
+  src_ip: "10.0.0.5",
+  src_port: 51544,
+  dst_ip: "203.0.113.10",
+  dst_port: 443,
+  proto: "tcp",
+  bytes_out: 1280,
+  bytes_in: 8192,
+  device: "edge-fw-01",
+}
+
+this = {fw: this}
+
+let $actions = {
+  allow: "Allow",
+  allowed: "Allow",
+  deny: "Deny",
+  denied: "Deny",
+  drop: "Drop",
+  dropped: "Drop",
+}
+
+let $results = {
+  allow: "Success",
+  allowed: "Success",
+  deny: "Failure",
+  denied: "Failure",
+  drop: "Failure",
+  dropped: "Failure",
+}
+
+asim.EventSchema = "NetworkSession"
+asim.EventSchemaVersion = "0.2.7"
+asim.EventType = "NetworkSession"
+asim.EventCount = 1
+asim.EventStartTime = fw.ts
+asim.EventEndTime = fw.ts
+asim.EventVendor = "Example Networks"
+asim.EventProduct = "Example Firewall"
+asim.DvcHostname = fw.device
+asim.DvcAction = $actions[fw.action.to_lower()]? else "Allow"
+asim.EventResult = $results[fw.action.to_lower()]? else "Success"
+asim.SrcIpAddr = fw.src_ip
+asim.SrcPortNumber = fw.src_port
+asim.DstIpAddr = fw.dst_ip
+asim.DstPortNumber = fw.dst_port
+asim.NetworkProtocol = fw.proto.to_upper()
+asim.SrcBytes = fw.bytes_out
+asim.DstBytes = fw.bytes_in
+asim.NetworkBytes = fw.bytes_out + fw.bytes_in
+
+drop fw.ts
+drop fw.action
+drop fw.src_ip
+drop fw.src_port
+drop fw.dst_ip
+drop fw.dst_port
+drop fw.proto
+drop fw.bytes_out
+drop fw.bytes_in
+drop fw.device
+
+this = {...asim, AdditionalFields: fw}
+```
+
+```tql
+{
+  EventSchema: "NetworkSession",
+  EventSchemaVersion: "0.2.7",
+  EventType: "NetworkSession",
+  EventCount: 1,
+  EventStartTime: 2024-01-15T10:30:45Z,
+  EventEndTime: 2024-01-15T10:30:45Z,
+  EventVendor: "Example Networks",
+  EventProduct: "Example Firewall",
+  DvcHostname: "edge-fw-01",
+  DvcAction: "Allow",
+  EventResult: "Success",
+  SrcIpAddr: "10.0.0.5",
+  SrcPortNumber: 51544,
+  DstIpAddr: "203.0.113.10",
+  DstPortNumber: 443,
+  NetworkProtocol: "TCP",
+  SrcBytes: 1280,
+  DstBytes: 8192,
+  NetworkBytes: 9472,
+  AdditionalFields: {},
+}
+```
+
+## Apply the mapping pattern
+
+Use the same structure for larger mappings:
+
+- **Keep a source namespace**: Move the parsed event under a short namespace
+  such as `fw`, `dns`, `edr`, or `event` before you create ASIM fields.
+- **Set the schema fields early**: Let `EventSchema` and
+  `EventSchemaVersion` drive which field records, constants, and conditional
+  requirements you apply.
+- **Map participants with role prefixes**: Use prefixes such as `Src`, `Dst`,
+  `Actor`, `Target`, `Acting`, and `Dvc` to distinguish entities in the event.
+- **Populate by field class**: Start with `Mandatory` fields, add useful
+  `Recommended` fields, and populate `Conditional` fields when their
+  documented condition applies.
+- **Normalize enum values explicitly**: Map source strings to ASIM values such
+  as `Allow`, `Deny`, `Success`, `Failure`, `TCP`, or `UDP`.
+- **Prefer canonical fields**: Resolve aliases to canonical ASIM fields before
+  you build reusable mappings or detections.
+- **Preserve unmapped fields**: Keep source fields that don't have a deliberate
+  ASIM target in `AdditionalFields` so reviewers can audit the mapping.
+
+## See Also
+
+- <Op>to_azure_log_analytics</Op>
+- <Guide>ai-workbench/use-agent-skills#use-the-microsoft-asim-skill</Guide>
+- <Guide>normalization/map-to-ocsf</Guide>
+- <Guide>normalization/map-to-udm</Guide>
+- <Guide>normalization/map-to-other-schemas</Guide>
+- <Guide>packages/create-a-package</Guide>
+- <Guide>testing/write-tests</Guide>
+- <Integration>microsoft/sentinel-log-analytics</Integration>
