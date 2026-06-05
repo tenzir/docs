@@ -8,7 +8,7 @@ bounded event-time detections over streaming data.
 
 ## Understanding the summarize operator
 
-The `summarize` operator groups events and applies aggregation functions. Its
+The <Op>summarize</Op> operator groups events and applies aggregation functions. Its
 syntax is:
 
 ```
@@ -168,8 +168,8 @@ endpoint states. This pattern works well for dashboards, reports, cache
 refreshes, and external API polling where each run describes the current
 snapshot.
 
-Don't use `every` for streaming detections where delayed or out-of-order events
-can change the answer. Use <Op>window</Op> for event-time detections.
+Don't use <Op>every</Op> for streaming detections where delayed or out-of-order
+events can change the answer. Use <Op>window</Op> for event-time detections.
 
 ```tql
 every 10min {
@@ -190,12 +190,12 @@ sort status
 
 Each run fetches a fresh snapshot, groups endpoints by current status, and adds
 the run time. The `from` block stands in for an inventory API response; in a
-long-running pipeline, replace it with <Op>from_http</Op>, remove `head`, and
-publish the compact summary to a channel or destination.
+long-running pipeline, replace it with <Op>from_http</Op>, remove
+<Op>head</Op>, and publish the compact summary to a channel or destination.
 
 The wall-clock schedule is not an event-time window. If the pipeline starts at
-09:00, `every 10min` runs the subpipeline for `[09:00, 09:10)`, then restarts it
-for `[09:10, 09:20)`, and so on. The boundaries depend on when the pipeline
+09:00, <Op>every</Op> runs the subpipeline for `[09:00, 09:10)`, then restarts
+it for `[09:10, 09:20)`, and so on. The boundaries depend on when the pipeline
 starts, not on timestamps in the fetched data.
 
 ## Window event streams
@@ -205,7 +205,7 @@ The operator creates one subpipeline per fixed time range. Inside that
 subpipeline, use <Op>summarize</Op> to compute counts, distinct values, and
 statistics for the events in that window.
 
-Unlike <Op>summarize</Op> with `options={frequency: ...}`, `window` assigns
+Unlike <Op>summarize</Op> with `options={frequency: ...}`, <Op>window</Op> assigns
 events by event time. This lets you tolerate out-of-order data with `tolerance`
 and compose per-entity windows with <Op>group</Op>.
 
@@ -252,7 +252,7 @@ The outer <Op>group</Op> gives every user and source IP pair its own event-time
 clock. The `idle_timeout` closes sparse keys after wall-clock inactivity so live
 detections don't wait indefinitely for the next event from the same key.
 
-This example uses tumbling windows because `every` is omitted. With
+This example uses tumbling windows because <Op>window</Op> omits `every`. With
 `size=10min`, the intervals are `[10:00, 10:10)`, `[10:10, 10:20)`, and so on
 for each grouped user and source IP pair. An event exactly at `10:10` belongs to
 the second window because window ends are exclusive.
@@ -336,21 +336,21 @@ Microsoft KQL, and Splunk SPL. It covers Tenzir's <Op>summarize</Op>,
 | Capability | TQL | KQL | SPL |
 | ---------- | --- | --- | --- |
 | Complete-input aggregation | ✅ <Op>summarize</Op> | ✅ `summarize` | ✅ `stats` |
-| Grouped aggregation | ✅ `summarize key, agg=...` | ✅ `summarize ... by key` | ✅ `stats ... BY key` |
-| Periodic processing-time aggregation | ✅ `summarize ..., options={frequency: 1m}` or <Op>every</Op> | ⚠️ Scheduled or continuous query pattern | ⚠️ Real-time or scheduled searches |
-| Wall-clock subpipeline batches | ✅ `every 1m { ... }` | ❌ No direct query-language block equivalent | ❌ No direct query-language block equivalent |
-| Tumbling event-time windows | ✅ `window size=1h, on=ts` | ✅ `summarize ... by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` |
-| Hopping event-time windows | ✅ `window size=1h, every=5m, on=ts` | ⚠️ Manual expansion or plugins for specific metrics | ⚠️ Workaround with `streamstats` or manual bucketing |
-| Per-event rolling stats | ❌ Not the `window` model | ⚠️ Manual expansion or row-window functions | ✅ `streamstats time_window=...` |
+| Grouped aggregation | ✅ <Op>summarize</Op> `key, agg=...` | ✅ `summarize ... by key` | ✅ `stats ... BY key` |
+| Periodic processing-time aggregation | ✅ <Op>summarize</Op> `options={frequency: 1m}` or <Op>every</Op> | ⚠️ Scheduled or continuous query pattern | ⚠️ Real-time or scheduled searches |
+| Wall-clock subpipeline batches | ✅ <Op>every</Op> `1m { ... }` | ❌ No direct query-language block equivalent | ❌ No direct query-language block equivalent |
+| Tumbling event-time windows | ✅ <Op>window</Op> `size=1h, on=ts` | ✅ `summarize ... by bin(ts, 1h)` | ✅ `timechart span=1h` or `bin _time` |
+| Hopping event-time windows | ✅ <Op>window</Op> `size=1h, every=5m, on=ts` | ⚠️ Manual expansion or plugins for specific metrics | ⚠️ Workaround with `streamstats` or manual bucketing |
+| Per-event rolling stats | ❌ Not the <Op>window</Op> model | ⚠️ Manual expansion or row-window functions | ✅ `streamstats time_window=...` |
 | Per-key event-time windows | ✅ Compose <Op>group</Op> with <Op>window</Op> | ✅ `summarize ... by key, bin(ts, ...)` | ✅ `BY key` or split-by |
-| Streaming late-event tolerance | ✅ `window tolerance=...` | ❌ Mostly batch or query-time semantics | ⚠️ Search-order dependent |
+| Streaming late-event tolerance | ✅ <Op>window</Op> `tolerance=...` | ❌ Mostly batch or query-time semantics | ⚠️ Search-order dependent |
 | Independent per-key event-time clocks | ✅ Outer <Op>group</Op> around <Op>window</Op> | ❌ No streaming clock per key in ad hoc KQL | ⚠️ Search-order dependent workarounds |
-| Arbitrary subpipeline per key | ✅ `group key { ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
-| Arbitrary subpipeline per window | ✅ `window ... { ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
+| Arbitrary subpipeline per key | ✅ <Op>group</Op> `key { ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
+| Arbitrary subpipeline per window | ✅ <Op>window</Op> `{ ... }` | ❌ No direct equivalent | ❌ No direct equivalent |
 | Sink per key or per window | ✅ <Op>group</Op> and <Op>window</Op> blocks can end in sinks | ❌ No direct equivalent | ❌ No direct equivalent |
 | Empty window padding | ❌ Not emitted | ⚠️ Manual `range` and `union` padding | ✅ `timechart cont=true` |
 | Session windows | ❌ Not native; requires precomputed session IDs or custom stateful logic | ✅ `row_window_session()` | ✅ `transaction maxpause` and `maxspan` |
-| Custom alignment or calendar windows | ⚠️ `window` is epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans |
+| Custom alignment or calendar windows | ⚠️ <Op>window</Op> is epoch-aligned only | ✅ `bin_at()` | ✅ `aligntime` and calendar spans |
 
 Legend: ✅ native or covered, ⚠️ partial or workaround, ❌ missing.
 
@@ -556,7 +556,7 @@ summarize first_reading = first(reading),
 
 ### Group and collect values
 
-Use `collect()` with grouping to build hierarchical structures:
+Use <Fn>collect</Fn> with grouping to build hierarchical structures:
 
 ```tql
 from {dept: "Engineering", team: "Backend", member: "Alice"},
@@ -786,7 +786,7 @@ error_rate = error_count / request_count
 
 ## Best practices
 
-1. **Choose appropriate functions**: Use `mean()` for averages, `median()` for skewed data
+1. **Choose appropriate functions**: Use <Fn>mean</Fn> for averages, <Fn>median</Fn> for skewed data
 2. **Handle empty collections**: Check if lists are empty before aggregating
 3. **Consider memory usage**: Large collections can consume significant memory
 4. **Combine aggregations**: Calculate multiple statistics in one pass for efficiency
