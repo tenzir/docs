@@ -202,7 +202,8 @@ statistics for the events in that window.
 
 Unlike <Op>summarize</Op> with `options={frequency: ...}`, <Op>window</Op> assigns
 events by event time. This lets you tolerate out-of-order data with `tolerance`
-and compose per-entity windows with <Op>group</Op>.
+and group entities inside each event-time window. Put <Op>group</Op> outside
+<Op>window</Op> only when each key needs its own event-time clock.
 
 ### Detect brute-force login attempts
 
@@ -220,8 +221,8 @@ from {time: 2024-01-01T10:00:00, activity_id: 1, status_id: 2, user: {name: "ali
      {time: 2024-01-01T10:05:00, activity_id: 1, status_id: 2, user: {name: "alice"}, src_endpoint: {ip: 10.0.0.5}, dst_endpoint: {hostname: "vpn-3"}},
      {time: 2024-01-01T10:06:00, activity_id: 1, status_id: 2, user: {name: "bob"}, src_endpoint: {ip: 10.0.0.8}, dst_endpoint: {hostname: "vpn-1"}}
 where activity_id == 1 and status_id == 2
-group {user: user.name, src_ip: src_endpoint.ip} {
-  window size=10min, on=time, tolerance=30s, idle_timeout=5min {
+window size=10min, on=time, tolerance=30s, idle_timeout=5min {
+  group {user: user.name, src_ip: src_endpoint.ip} {
     summarize failures=count(), target_hosts=count_distinct(dst_endpoint.hostname)
     user = $group.user
     src_ip = $group.src_ip
