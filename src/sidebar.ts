@@ -127,6 +127,7 @@ export const guides = [
           "guides/normalization/clean-up-values",
           "guides/normalization/map-to-ocsf",
           "guides/normalization/map-to-udm",
+          "guides/normalization/map-to-asim",
           "guides/normalization/map-to-other-schemas",
         ],
       },
