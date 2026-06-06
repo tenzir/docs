@@ -1,0 +1,192 @@
+---
+title: Enrich events with AI
+description: Add AI-generated summaries and labels to OCSF events in Tenzir pipelines
+---
+
+This guide shows you how to enrich OCSF events with AI-generated summaries,
+classifications, and annotations by using <Op>ai::prompt</Op>.
+
+The <Op>ai::prompt</Op> operator sends one request per input event to an
+OpenAI-compatible Responses API endpoint. Use it when a deterministic rule or
+lookup table is too rigid, and keep the prompt payload small and explicit. The
+examples use compact OCSF-style records as `from {...}` starting points so you
+can focus on the enrichment pattern.
+
+## Summarize a detection finding
+
+Use `data` to send only the fields that the model needs. This example enriches
+an OCSF `detection_finding` event with a one-sentence summary and stores the
+result under `ai.summary`:
+
+```tql
+from {
+  time: 2024-08-22T09:12:34,
+  category_uid: 2,
+  class_uid: 2004,
+  activity_id: 1,
+  activity_name: "Create",
+  type_uid: 200401,
+  severity_id: 4,
+  message: "Suspicious PowerShell command downloaded a script from a newly registered domain.",
+  metadata: {
+    version: "1.8.0",
+  },
+  finding_info: {
+    uid: "finding-42",
+    title: "Suspicious PowerShell download",
+    desc: "PowerShell used a hidden window to download and execute a remote script.",
+  },
+  confidence_id: 3,
+  confidence: "High",
+}
+@name = "ocsf.detection_finding"
+ai::prompt model="qwen3",
+           system="Summarize this OCSF detection finding in one sentence for a security analyst.",
+           data={
+             schema: @name,
+             severity_id: severity_id,
+             confidence: confidence,
+             message: message,
+             finding: finding_info,
+           },
+           into=ai.summary
+select schema=@name,
+       finding=finding_info.uid,
+       summary=ai.summary.text
+```
+
+The default endpoint is `http://127.0.0.1:11434/v1`, which matches the standard
+Ollama OpenAI-compatible API port. The example works with a local model if
+Ollama is running and the `qwen3` model is available.
+
+## Classify DNS activity
+
+For fields that you want to use later in a pipeline, ask for a compact answer.
+The operator stores the model response as text and doesn't parse JSON-looking
+output into structured fields.
+
+This example classifies an OCSF `dns_activity` event. It sends the DNS query,
+response, and endpoints instead of the entire event:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  activity_name: "Response",
+  type_uid: 400302,
+  severity_id: 1,
+  message: "DNS response for suspicious-update.example resolved to 198.51.100.42.",
+  metadata: {
+    version: "1.8.0",
+  },
+  query: {
+    hostname: "suspicious-update.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  src_endpoint: {
+    ip: 10.10.2.17,
+    port: 54213,
+    hostname: "workstation-17",
+  },
+  dst_endpoint: {
+    ip: 192.0.2.53,
+    port: 53,
+    hostname: "resolver-1",
+  },
+  answers: [{
+    rdata: "198.51.100.42",
+    type: "A",
+    ttl: 60,
+  }],
+}
+@name = "ocsf.dns_activity"
+ai::prompt model="qwen3",
+           system="Classify this OCSF DNS event as benign, suspicious, or malicious. Reply with one label and a short reason.",
+           data={
+             schema: @name,
+             query: query.hostname,
+             rcode: rcode,
+             answers: answers,
+             src_endpoint: src_endpoint,
+             dst_endpoint: dst_endpoint,
+           },
+           into=ai.classification,
+           timeout=10s,
+           concurrency=4
+select schema=@name,
+       query=query.hostname,
+       classification=ai.classification.text,
+       model=ai.classification.model,
+       tokens=ai.classification.usage.total_tokens
+```
+
+Use `concurrency` to control how many requests can run at the same time. Keep
+the value low until you understand your provider's rate limits and your model
+latency.
+
+## Use a hosted endpoint
+
+To use a hosted OpenAI-compatible endpoint, set `endpoint` and `api_key`. Both
+arguments are resolved as secrets, so you can keep provider details out of the
+pipeline text:
+
+```tql
+from {
+  time: 2024-08-22T09:14:10,
+  category_uid: 2,
+  class_uid: 2004,
+  activity_id: 2,
+  activity_name: "Update",
+  type_uid: 200402,
+  severity_id: 3,
+  message: "Detection confidence increased after related network activity.",
+  metadata: {
+    version: "1.8.0",
+  },
+  finding_info: {
+    uid: "finding-43",
+    title: "Suspicious domain contact",
+    desc: "A workstation contacted a domain that appeared in a related DNS activity event.",
+  },
+  confidence_id: 2,
+  confidence: "Medium",
+}
+@name = "ocsf.detection_finding"
+ai::prompt model="gpt-4.1-mini",
+           endpoint=secret("openai-endpoint"),
+           api_key=secret("openai-api-key"),
+           system="Suggest one next investigation step for this OCSF finding.",
+           data={
+             schema: @name,
+             severity_id: severity_id,
+             confidence: confidence,
+             message: message,
+             finding: finding_info,
+           },
+           into=ai.next_step
+select finding=finding_info.uid,
+       next_step=ai.next_step.text,
+       latency=ai.next_step.latency
+```
+
+## Handle request failures
+
+If a request fails, Tenzir keeps the input event and writes `null` to the result
+field. Filter or route failed enrichments before you use the model output:
+
+```tql
+where ai.next_step != null
+```
+
+Model calls can send sensitive event data to another process or service. Prefer
+`data={...}` over sending the whole event, omit fields that aren't needed for
+the task, and use secrets for endpoint URLs and API keys.
+
+## See Also
+
+- <Op>ai::prompt</Op>
+- <Guide>enrichment/enrich-with-threat-intel</Guide>
+- <Guide>enrichment/enrich-with-network-inventory</Guide>
