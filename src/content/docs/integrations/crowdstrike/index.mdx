@@ -2,15 +2,16 @@
 title: CrowdStrike
 ---
 
-This page shows you how to send events from Tenzir to CrowdStrike Falcon
-Next-Gen SIEM and collect CrowdStrike Falcon Data Replicator (FDR) events into
-Tenzir through Amazon SQS and Amazon S3.
+This page shows you how to send events from Tenzir to
+[CrowdStrike Falcon Next-Gen SIEM][ngsiem] and collect
+[CrowdStrike Falcon Data Replicator (FDR)][fdr] events into Tenzir through
+Amazon SQS and Amazon S3.
 
 [CrowdStrike Falcon Next-Gen SIEM][ngsiem] is CrowdStrike's security
 information and event management platform. Tenzir can forward events to Falcon
-Next-Gen SIEM through its HEC/HTTP connector and can consume Falcon Data
-Replicator data from the SQS-to-S3 delivery path used by CrowdStrike and many
-SIEM integrations.
+Next-Gen SIEM through its [HEC/HTTP connector][ngsiem-hec] and can consume
+Falcon Data Replicator data from the SQS-to-S3 delivery path used by
+CrowdStrike and many SIEM integrations.
 
 ![CrowdStrike integration](crowdstrike.excalidraw)
 
@@ -53,69 +54,77 @@ parser-specific request body directly.
 
 CrowdStrike integrations commonly use one of two HEC shapes:
 
-- A JSON object sent to the connector URL, usually with the original event in
-  `_raw`.
-- Raw newline-delimited JSON sent to a raw HEC endpoint, often with `/raw`
-  appended to the generated connector URL.
+- Structured JSON events sent to the connector URL.
+- Raw log lines sent to a raw HEC endpoint, often with `/raw` appended to the
+  generated connector URL.
 
-Use the first example when the connector expects JSON HEC events. Use the second
-example when the connector documentation or parser expects raw JSON in
-`@rawstring`.
+Use the first example when the connector parser expects JSON. Use the second
+example when you want to forward raw syslog messages and let the CrowdStrike
+parser extract fields from the original log line.
 
-### Send JSON HEC events
+### Send structured JSON events
 
-Many CrowdStrike parser workflows expect the original vendor event in `_raw`.
-This keeps the payload small and avoids charging for additional fields that the
-parser won't use.
+If your connector parser expects JSON, send structured events directly. The
+following example ships a minimal OCSF Network Activity event and preserves the
+original vendor payload in `raw_data`.
 
 ```tql
 let $ngsiem_url = "https://cloud-api.us-1.crowdstrike.com/hec/v1/events"
 let $ngsiem_headers = {
   "Authorization": f"Bearer {secret("crowdstrike-ngsiem-token")}",
-  "Content-Type": "application/json",
+  "Content-Type": "application/x-ndjson",
 }
 
-subscribe "suricata"
-where @name == "suricata.alert"
-select _raw=this.print_ndjson(strip_null_fields=true)
-to_http $ngsiem_url,
-  headers=$ngsiem_headers,
-  parallel=4,
-  max_retry_count=8,
-  retry_delay=5s {
-  write_json
+from {
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  severity_id: 1,
+  time: 1780756200000,
+  type_uid: 400106,
+  metadata: {
+    product: {name: "Tenzir", vendor_name: "Tenzir"},
+    version: "1.8.0",
+  },
+  src_endpoint: {ip: 10.0.1.12, port: 53014},
+  dst_endpoint: {ip: 198.51.100.42, port: 443},
+  raw_data: "{\"event\": \"network\", \"src_ip\": \"10.0.1.12\", ...}",
+  raw_size: 1804,
+}
+to_http $ngsiem_url, headers=$ngsiem_headers {
+  write_ndjson strip_null_fields=true
 }
 ```
 
 Replace `$ngsiem_url` with the API URL from your Falcon connector. If your
-parser expects a different field, adapt the `select` statement but keep the
+parser expects a different JSON shape, adapt the emitted event but keep the
 payload limited to the fields the parser needs.
 
-### Send raw JSON events
+### Forward raw syslog messages
 
-Some webhook-style connectors require a raw HEC endpoint. In that case, send one
-newline-delimited JSON event per request body.
+If your connector parser expects raw syslog, preserve the original syslog line
+with `raw_message` and send one line per event to the raw HEC endpoint.
 
 ```tql
 let $ngsiem_raw_url = "https://cloud-api.us-1.crowdstrike.com/hec/v1/events/raw"
 let $ngsiem_headers = {
   "Authorization": f"Bearer {secret("crowdstrike-ngsiem-token")}",
-  "Content-Type": "application/json",
+  "Content-Type": "text/plain; charset=utf-8",
 }
 
-subscribe "detections"
-to_http $ngsiem_raw_url,
-  headers=$ngsiem_headers,
-  parallel=4,
-  max_retry_count=8,
-  retry_delay=5s {
-  write_ndjson
+accept_tcp "0.0.0.0:514" {
+  read_syslog raw_message=raw
+}
+// Example raw: "<34>Nov 16 14:55:56 firewall sshd[1234]: Failed password ..."
+to_http $ngsiem_raw_url, headers=$ngsiem_headers {
+  // Raw HEC ingests each newline-delimited line as one event.
+  write_delimited raw, "\n"
 }
 ```
 
 Use the raw endpoint only when your connector or parser documentation calls for
-it. If CrowdStrike reports an event decoding error for structured HEC events,
-check whether the generated URL needs a `/raw` suffix for your connector.
+raw data. If CrowdStrike reports event decoding errors, check whether the parser
+expects structured JSON on the connector URL or raw lines on the `/raw` URL.
 
 :::tip[Size the connector]
 If your sustained event rate exceeds the capacity of one Falcon data connector,
@@ -149,11 +158,13 @@ notification = message.parse_json()
 where notification.Records != null
 unroll notification.Records
 where notification.Records.eventSource == "aws:s3"
-select s3_url=f"s3://{notification.Records.s3.bucket.name}/{notification.Records.s3.object.key.replace("+", "%20").decode_url()}",
+bucket = notification.Records.s3.bucket.name
+key = notification.Records.s3.object.key.replace("+", "%20").decode_url()
+select s3_url=f"s3://{bucket}/{key}",
        s3_event_time=notification.Records.eventTime,
        s3_event_name=notification.Records.eventName,
        sqs_message_id=message_id
-each parallel=4 {
+each {
   from_s3 $this.s3_url, aws_iam=$fdr_aws {
     decompress_gzip
     read_ndjson
@@ -162,7 +173,7 @@ each parallel=4 {
   crowdstrike.fdr.s3_event_time = $this.s3_event_time
   crowdstrike.fdr.s3_event_name = $this.s3_event_name
   crowdstrike.fdr.sqs_message_id = $this.sqs_message_id
-  publish "crowdstrike-fdr"
+  publish "crowdstrike"
 }
 ```
 
@@ -177,10 +188,14 @@ deduplicate events by `crowdstrike.fdr.s3_url`, event ID, or native event time.
 
 ## See Also
 
+- <Op>accept_tcp</Op>
 - <Op>to_http</Op>
 - <Op>from_sqs</Op>
 - <Op>from_s3</Op>
 - <Op>each</Op>
+- <Op>read_syslog</Op>
+- <Op>write_delimited</Op>
+- <Op>write_ndjson</Op>
 - <Fn>parse_json</Fn>
 - <Fn>decode_url</Fn>
 - <Guide>collecting/read-from-message-brokers</Guide>
@@ -191,3 +206,5 @@ deduplicate events by `crowdstrike.fdr.s3_url`, event ID, or native event time.
 - <Integration>http</Integration>
 
 [ngsiem]: https://www.crowdstrike.com/en-us/platform/next-gen-siem/
+[ngsiem-hec]: https://developer.crowdstrike.com/ngsiem/data-ingestion/
+[fdr]: https://www.crowdstrike.com/resources/data-sheets/falcon-data-replicator/
