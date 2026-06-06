@@ -44,10 +44,12 @@ onboarding** and choose the HEC/HTTP connector. Select the parser that matches
 the events you send. If no parser matches your source format, create one and
 test it with representative event samples before routing production data.
 
+:::note[Use HTTP directly]
 Although CrowdStrike uses HEC terminology, this connector is not the Splunk HEC
 contract that <Op>to_splunk</Op> implements. Use <Op>to_http</Op> so the
 pipeline controls the generated Falcon API URL, Bearer authorization header, and
 parser-specific request body directly.
+:::
 
 CrowdStrike integrations commonly use one of two HEC shapes:
 
