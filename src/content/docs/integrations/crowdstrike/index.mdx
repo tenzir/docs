@@ -1,0 +1,210 @@
+---
+title: CrowdStrike
+---
+
+This page shows you how to send events from Tenzir to
+[CrowdStrike Falcon Next-Gen SIEM][ngsiem] and collect
+[CrowdStrike Falcon Data Replicator (FDR)][fdr] events into Tenzir through
+Amazon SQS and Amazon S3.
+
+[CrowdStrike Falcon Next-Gen SIEM][ngsiem] is CrowdStrike's security
+information and event management platform. Tenzir can forward events to Falcon
+Next-Gen SIEM through its [HEC/HTTP connector][ngsiem-hec] and can consume
+Falcon Data Replicator data from the SQS-to-S3 delivery path used by
+CrowdStrike and many SIEM integrations.
+
+![CrowdStrike integration](crowdstrike.excalidraw)
+
+:::note[Validate in your Falcon tenant]
+The examples use public connector patterns from CrowdStrike and integration
+partners. Connector names, available parsers, and generated URLs can differ by
+tenant, region, and entitlement. Use the API URL and parser settings shown in
+your Falcon console.
+:::
+
+## Prerequisites
+
+To send events to Falcon Next-Gen SIEM, you need:
+
+- A Falcon Next-Gen SIEM or Falcon Next-Gen SIEM 10 GB subscription.
+- Permission to create a data connection in the Falcon console.
+- A HEC/HTTP connector with an assigned parser.
+- The API URL and API key generated for the connector.
+
+To collect FDR events, you need:
+
+- An active Falcon Data Replicator feed.
+- The notifications URL, which is an SQS queue URL.
+- The storage region for the CrowdStrike-managed S3 bucket.
+- The FDR client ID and secret.
+
+## Send events to Next-Gen SIEM
+
+In the Falcon console, create a data connection under **Next-Gen SIEM > Data
+onboarding** and choose the HEC/HTTP connector. Select the parser that matches
+the events you send. If no parser matches your source format, create one and
+test it with representative event samples before routing production data.
+
+:::note[Use HTTP directly]
+Although CrowdStrike uses HEC terminology, this connector is not the Splunk HEC
+contract that <Op>to_splunk</Op> implements. Use <Op>to_http</Op> so the
+pipeline controls the generated Falcon API URL, Bearer authorization header, and
+parser-specific request body directly.
+:::
+
+CrowdStrike integrations commonly use one of two HEC shapes:
+
+- Structured JSON events sent to the connector URL.
+- Raw log lines sent to a raw HEC endpoint, often with `/raw` appended to the
+  generated connector URL.
+
+Use the first example when the connector parser expects JSON. Use the second
+example when you want to forward raw syslog messages and let the CrowdStrike
+parser extract fields from the original log line.
+
+### Send structured JSON events
+
+If your connector parser expects JSON, send structured events directly. The
+following example ships a minimal OCSF Network Activity event and preserves the
+original vendor payload in `raw_data`.
+
+```tql
+let $ngsiem_url = "https://cloud-api.us-1.crowdstrike.com/hec/v1/events"
+let $ngsiem_headers = {
+  "Authorization": f"Bearer {secret("crowdstrike-ngsiem-token")}",
+  "Content-Type": "application/x-ndjson",
+}
+
+from {
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  severity_id: 1,
+  time: 1780756200000,
+  type_uid: 400106,
+  metadata: {
+    product: {name: "Tenzir", vendor_name: "Tenzir"},
+    version: "1.8.0",
+  },
+  src_endpoint: {ip: 10.0.1.12, port: 53014},
+  dst_endpoint: {ip: 198.51.100.42, port: 443},
+  raw_data: "{\"event\": \"network\", \"src_ip\": \"10.0.1.12\", ...}",
+  raw_size: 1804,
+}
+to_http $ngsiem_url, headers=$ngsiem_headers {
+  write_ndjson strip_null_fields=true
+}
+```
+
+Replace `$ngsiem_url` with the API URL from your Falcon connector. If your
+parser expects a different JSON shape, adapt the emitted event but keep the
+payload limited to the fields the parser needs.
+
+### Forward raw syslog messages
+
+If your connector parser expects raw syslog, preserve the original syslog line
+with `raw_message` and send one line per event to the raw HEC endpoint.
+
+```tql
+let $ngsiem_raw_url = "https://cloud-api.us-1.crowdstrike.com/hec/v1/events/raw"
+let $ngsiem_headers = {
+  "Authorization": f"Bearer {secret("crowdstrike-ngsiem-token")}",
+  "Content-Type": "text/plain; charset=utf-8",
+}
+
+accept_tcp "0.0.0.0:514" {
+  read_syslog raw_message=raw
+}
+// Example raw: "<34>Nov 16 14:55:56 firewall sshd[1234]: Failed password ..."
+to_http $ngsiem_raw_url, headers=$ngsiem_headers {
+  // Raw HEC ingests each newline-delimited line as one event.
+  write_delimited raw, "\n"
+}
+```
+
+Use the raw endpoint only when your connector or parser documentation calls for
+raw data. If CrowdStrike reports event decoding errors, check whether the parser
+expects structured JSON on the connector URL or raw lines on the `/raw` URL.
+
+:::tip[Size the connector]
+If your sustained event rate exceeds the capacity of one Falcon data connector,
+create additional connectors and route separate streams to them. Use Tenzir
+pipelines to split the streams by source, tenant, or event type.
+:::
+
+## Collect Falcon Data Replicator events
+
+Falcon Data Replicator delivers data as S3 objects and uses SQS notifications to
+announce new objects. The SQS message contains the bucket name and object key.
+The S3 object is commonly gzip-compressed newline-delimited JSON.
+
+The following pipeline reads SQS notifications, fetches the referenced S3
+objects, parses the FDR events, and publishes them into the `crowdstrike-fdr`
+topic:
+
+```tql
+let $fdr_aws = {
+  region: "us-east-1",
+  access_key_id: secret("crowdstrike-fdr-client-id"),
+  secret_access_key: secret("crowdstrike-fdr-secret"),
+}
+
+from_sqs "https://sqs.us-east-1.amazonaws.com/123456789012/crowdstrike-fdr",
+  aws_iam=$fdr_aws,
+  poll_time=20s,
+  batch_size=10,
+  visibility_timeout=300s
+notification = message.parse_json()
+where notification.Records != null
+unroll notification.Records
+where notification.Records.eventSource == "aws:s3"
+bucket = notification.Records.s3.bucket.name
+key = notification.Records.s3.object.key.replace("+", "%20").decode_url()
+select s3_url=f"s3://{bucket}/{key}",
+       s3_event_time=notification.Records.eventTime,
+       s3_event_name=notification.Records.eventName,
+       sqs_message_id=message_id
+each {
+  from_s3 $this.s3_url, aws_iam=$fdr_aws {
+    decompress_gzip
+    read_ndjson
+  }
+  crowdstrike.fdr.s3_url = $this.s3_url
+  crowdstrike.fdr.s3_event_time = $this.s3_event_time
+  crowdstrike.fdr.s3_event_name = $this.s3_event_name
+  crowdstrike.fdr.sqs_message_id = $this.sqs_message_id
+  publish "crowdstrike"
+}
+```
+
+Replace the queue URL and region with the values from your FDR feed.
+
+:::note[Shared FDR queues]
+By default, <Op>from_sqs</Op> deletes notifications after it emits them. Add
+`keep_messages=true` only when Tenzir shares an existing queue or you want to
+replay notifications during testing. In that mode, downstream pipelines should
+deduplicate events by `crowdstrike.fdr.s3_url`, event ID, or native event time.
+:::
+
+## See Also
+
+- <Op>accept_tcp</Op>
+- <Op>to_http</Op>
+- <Op>from_sqs</Op>
+- <Op>from_s3</Op>
+- <Op>each</Op>
+- <Op>read_syslog</Op>
+- <Op>write_delimited</Op>
+- <Op>write_ndjson</Op>
+- <Fn>parse_json</Fn>
+- <Fn>decode_url</Fn>
+- <Guide>collecting/read-from-message-brokers</Guide>
+- <Guide>routing/send-to-destinations</Guide>
+- <Explanation>secrets</Explanation>
+- <Integration>amazon/sqs</Integration>
+- <Integration>amazon/s3</Integration>
+- <Integration>http</Integration>
+
+[ngsiem]: https://www.crowdstrike.com/en-us/platform/next-gen-siem/
+[ngsiem-hec]: https://developer.crowdstrike.com/ngsiem/data-ingestion/
+[fdr]: https://www.crowdstrike.com/resources/data-sheets/falcon-data-replicator/
