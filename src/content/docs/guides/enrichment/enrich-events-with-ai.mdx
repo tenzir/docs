@@ -12,11 +12,16 @@ lookup table is too rigid, and keep the prompt payload small and explicit. The
 examples use compact OCSF-style records as `from {...}` starting points so you
 can focus on the enrichment pattern.
 
+OCSF events have an `enrichments` field for inline enrichment data associated
+with an event or finding. The examples write the model result to a temporary
+field, use <Fn>add</Fn> to add an OCSF `enrichment` object to `enrichments`,
+and then remove the temporary field.
+
 ## Summarize a detection finding
 
 Use `data` to send only the fields that the model needs. This example enriches
-an OCSF `detection_finding` event with a one-sentence summary and stores the
-result under `ai.summary`:
+an OCSF `detection_finding` event with a one-sentence summary and adds it to
+the event's `enrichments` field:
 
 ```tql
 from {
@@ -36,23 +41,35 @@ from {
     title: "Suspicious PowerShell download",
     desc: "PowerShell used a hidden window to download and execute a remote script.",
   },
+  enrichments: [],
   confidence_id: 3,
   confidence: "High",
 }
-@name = "ocsf.detection_finding"
 ai::prompt model="qwen3",
            system="Summarize this OCSF detection finding in one sentence for a security analyst.",
            data={
-             schema: @name,
              severity_id: severity_id,
              confidence: confidence,
              message: message,
              finding: finding_info,
            },
            into=ai.summary
-select schema=@name,
-       finding=finding_info.uid,
-       summary=ai.summary.text
+where ai.summary != null
+enrichments = enrichments.add({
+  name: "finding_info.uid",
+  value: finding_info.uid,
+  type: "ai_summary",
+  provider: "Tenzir ai::prompt",
+  short_desc: ai.summary.text,
+  created_time: now(),
+  data: {
+    text: ai.summary.text,
+    model: ai.summary.model,
+    usage: ai.summary.usage,
+    latency: ai.summary.latency,
+  },
+})
+drop ai
 ```
 
 The default endpoint is `http://127.0.0.1:11434/v1`, which matches the standard
@@ -101,12 +118,11 @@ from {
     type: "A",
     ttl: 60,
   }],
+  enrichments: [],
 }
-@name = "ocsf.dns_activity"
 ai::prompt model="qwen3",
            system="Classify this OCSF DNS event as benign, suspicious, or malicious. Reply with one label and a short reason.",
            data={
-             schema: @name,
              query: query.hostname,
              rcode: rcode,
              answers: answers,
@@ -116,11 +132,22 @@ ai::prompt model="qwen3",
            into=ai.classification,
            timeout=10s,
            concurrency=4
-select schema=@name,
-       query=query.hostname,
-       classification=ai.classification.text,
-       model=ai.classification.model,
-       tokens=ai.classification.usage.total_tokens
+where ai.classification != null
+enrichments = enrichments.add({
+  name: "query.hostname",
+  value: query.hostname,
+  type: "ai_classification",
+  provider: "Tenzir ai::prompt",
+  short_desc: ai.classification.text,
+  created_time: now(),
+  data: {
+    text: ai.classification.text,
+    model: ai.classification.model,
+    usage: ai.classification.usage,
+    latency: ai.classification.latency,
+  },
+})
+drop ai
 ```
 
 Use `concurrency` to control how many requests can run at the same time. Keep
@@ -151,31 +178,44 @@ from {
     title: "Suspicious domain contact",
     desc: "A workstation contacted a domain that appeared in a related DNS activity event.",
   },
+  enrichments: [],
   confidence_id: 2,
   confidence: "Medium",
 }
-@name = "ocsf.detection_finding"
 ai::prompt model="gpt-4.1-mini",
            endpoint=secret("openai-endpoint"),
            api_key=secret("openai-api-key"),
            system="Suggest one next investigation step for this OCSF finding.",
            data={
-             schema: @name,
              severity_id: severity_id,
              confidence: confidence,
              message: message,
              finding: finding_info,
            },
            into=ai.next_step
-select finding=finding_info.uid,
-       next_step=ai.next_step.text,
-       latency=ai.next_step.latency
+where ai.next_step != null
+enrichments = enrichments.add({
+  name: "finding_info.uid",
+  value: finding_info.uid,
+  type: "ai_next_step",
+  provider: "Tenzir ai::prompt",
+  short_desc: ai.next_step.text,
+  created_time: now(),
+  data: {
+    text: ai.next_step.text,
+    model: ai.next_step.model,
+    usage: ai.next_step.usage,
+    latency: ai.next_step.latency,
+  },
+})
+drop ai
 ```
 
 ## Handle request failures
 
-If a request fails, Tenzir keeps the input event and writes `null` to the result
-field. Filter or route failed enrichments before you use the model output:
+If a request fails, Tenzir keeps the input event and writes `null` to the
+temporary result field. Filter or route failed enrichments before you add an
+OCSF `enrichment` object:
 
 ```tql
 where ai.next_step != null
