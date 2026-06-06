@@ -61,12 +61,13 @@ enrichments = enrichments.add({
   type: "ai_summary",
   provider: "Tenzir ai::prompt",
   short_desc: ai.summary.text,
+  src_url: "http://127.0.0.1:11434/v1/responses",
   created_time: now(),
   data: {
     text: ai.summary.text,
     model: ai.summary.model,
     usage: ai.summary.usage,
-    latency: ai.summary.latency,
+    latency_ms: ai.summary.latency / 1ms,
   },
 })
 drop ai
@@ -139,12 +140,13 @@ enrichments = enrichments.add({
   type: "ai_classification",
   provider: "Tenzir ai::prompt",
   short_desc: ai.classification.text,
+  src_url: "http://127.0.0.1:11434/v1/responses",
   created_time: now(),
   data: {
     text: ai.classification.text,
     model: ai.classification.model,
     usage: ai.classification.usage,
-    latency: ai.classification.latency,
+    latency_ms: ai.classification.latency / 1ms,
   },
 })
 drop ai
@@ -200,12 +202,13 @@ enrichments = enrichments.add({
   type: "ai_next_step",
   provider: "Tenzir ai::prompt",
   short_desc: ai.next_step.text,
+  src_url: "https://api.openai.com/v1/responses",
   created_time: now(),
   data: {
     text: ai.next_step.text,
     model: ai.next_step.model,
     usage: ai.next_step.usage,
-    latency: ai.next_step.latency,
+    latency_ms: ai.next_step.latency / 1ms,
   },
 })
 drop ai
