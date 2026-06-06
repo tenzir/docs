@@ -4,14 +4,82 @@ title: Microsoft SQL Server
 
 import Op from '@components/see-also/Op.astro';
 
-This guide shows you how to read events from Microsoft SQL Server and Azure SQL
-Databases with Tenzir.
+[Microsoft SQL Server][sql-server] is a relational database management system.
+Tenzir can read events from SQL Server and Azure SQL Database.
 
-Use <Op>from_microsoft_sql</Op> to connect to Microsoft SQL Server over the
-Tabular Data Stream (TDS) protocol. The operator can read a full table, execute
-a custom query, list table metadata, or poll a table for newly inserted rows.
+[sql-server]: https://www.microsoft.com/en-us/sql-server
 
-## Connect to Azure SQL
+![Microsoft SQL Server](sql-server.excalidraw)
+
+Use <Op>from_microsoft_sql</Op> to connect to SQL Server-compatible databases
+over the Tabular Data Stream (TDS) protocol. The operator can read a table,
+execute a custom SQL query, list table metadata, or poll a table for newly
+inserted rows.
+
+Tenzir connects to SQL Server over the network via the host and port you specify
+in the operator. This means:
+
+- **Network**: Tenzir and SQL Server can run on the same machine or on different
+  machines in the same network.
+- **IPC**: There is no direct inter-process communication (IPC) mechanism; all
+  communication uses TDS.
+- **Co-deployment**: For best performance and security, deploy Tenzir and SQL
+  Server in the same trusted network or use TLS for encrypted connections.
+
+## Examples
+
+These examples assume that Tenzir can reach SQL Server on the network and that
+the database user has read access to the target database.
+
+### List available tables
+
+```tql
+from_microsoft_sql show="tables",
+                   host="sql.example.com",
+                   user="tenzir_reader",
+                   password=secret("sql-server-password"),
+                   database="security",
+                   tls=true
+```
+
+### Read from a table
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   host="sql.example.com",
+                   user="tenzir_reader",
+                   password=secret("sql-server-password"),
+                   database="security",
+                   tls=true
+```
+
+### Execute a custom SQL query
+
+```tql
+from_microsoft_sql query=r"SELECT id, created_at, source, message
+                          FROM dbo.events
+                          WHERE severity >= 3",
+                   host="sql.example.com",
+                   user="tenzir_reader",
+                   password=secret("sql-server-password"),
+                   database="security",
+                   tls=true
+```
+
+### Stream new rows
+
+```tql
+from_microsoft_sql table="dbo.events",
+                   live=true,
+                   tracking_column="id",
+                   host="sql.example.com",
+                   user="tenzir_reader",
+                   password=secret("sql-server-password"),
+                   database="security",
+                   tls=true
+```
+
+### Connect to Azure SQL
 
 Azure SQL Database accepts TDS connections on port `1433` and requires TLS. Use
 the server host name from Azure, usually in the form
@@ -30,80 +98,6 @@ from_microsoft_sql query="SELECT TOP 10 * FROM dbo.events",
 The operator currently supports SQL authentication. Microsoft Entra
 authentication, managed identities, Windows authentication, and Kerberos are not
 supported.
-
-## Read from SQL Server
-
-Use `table` to read every row from a table:
-
-```tql
-from_microsoft_sql table="dbo.events",
-                   host="sql.example.com",
-                   user="tenzir_reader",
-                   password=secret("sql-server-password"),
-                   database="security",
-                   tls=true
-```
-
-Use `query` or `sql` when you want to select, filter, or join data in SQL
-Server before Tenzir receives it:
-
-```tql
-from_microsoft_sql query=r"SELECT id, created_at, source, message
-                          FROM dbo.events
-                          WHERE severity >= 3",
-                   host="sql.example.com",
-                   user="tenzir_reader",
-                   password=secret("sql-server-password"),
-                   database="security",
-                   tls=true
-```
-
-## Stream new rows
-
-Set `live=true` to poll a table for newly inserted rows. Live mode uses a
-monotonic integer tracking column as a watermark. If you don't specify
-`tracking_column`, the operator tries to detect a single integer identity column
-or a single integer primary-key column.
-
-```tql
-from_microsoft_sql table="dbo.events",
-                   live=true,
-                   tracking_column="id",
-                   host="sql.example.com",
-                   user="tenzir_reader",
-                   password=secret("sql-server-password"),
-                   database="security",
-                   tls=true
-```
-
-Live mode initializes its watermark from the current maximum tracking value and
-then emits rows with greater values. It doesn't emit an initial snapshot, and it
-doesn't capture updates or deletes.
-
-## Inspect metadata
-
-List all base tables in the selected database:
-
-```tql
-from_microsoft_sql show="tables",
-                   host="sql.example.com",
-                   user="tenzir_reader",
-                   password=secret("sql-server-password"),
-                   database="security",
-                   tls=true
-```
-
-List columns for a table:
-
-```tql
-from_microsoft_sql show="columns",
-                   table="dbo.events",
-                   host="sql.example.com",
-                   user="tenzir_reader",
-                   password=secret("sql-server-password"),
-                   database="security",
-                   tls=true
-```
 
 ## See Also
 
