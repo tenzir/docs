@@ -52,6 +52,11 @@ Valid values are:
   `max_probe_bytes`, use a larger probe limit or <Op>read_all</Op> with
   `binary=true` directly.
 
+`read_auto` uses a fallback only after the probe is final, either because the
+input ended or because the probe reached `max_probe_bytes`. For long-lived
+streams with unknown plain-text input, lower `max_probe_bytes` to reduce startup
+latency or use <Op>read_lines</Op> directly.
+
 ### `max_probe_bytes = uint (optional)`
 
 The maximum number of bytes to inspect before forcing a detection decision.
