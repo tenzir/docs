@@ -26,6 +26,17 @@ magic-byte formats, including NDJSON, JSON objects, JSON arrays of objects, CSV,
 TSV, SSV, key-value text, YAML, Syslog, CEF, LEEF, Zeek TSV, Suricata EVE JSON,
 Zeek JSON, GELF, PCAP, Feather, BITZ, and Parquet.
 
+Use `read_auto` for exploratory pipelines where you want to try sample data
+quickly, for file drops where names don't reliably encode the format, and for
+multi-format ingestion endpoints. For example, <Op>accept_tcp</Op> can run
+`read_auto` per connection so one client sends NDJSON while another sends CSV,
+Syslog, or another supported format.
+
+Prefer a concrete reader when you already know the format or need reader-specific
+options such as `unflatten_separator` for <Op>read_ndjson</Op>. `read_auto`
+selects the reader once for each byte stream and expects the remaining bytes in
+that stream to use the same format.
+
 ### `fallback = string (optional)`
 
 Controls what happens when no detector matches.
@@ -105,8 +116,26 @@ from_file "payload.bin" {
 If the input is binary, the resulting event contains a `blob` value in the
 `data` field.
 
+### Accept multiple formats over TCP
+
+Use `read_auto` in a network listener when the endpoint accepts producers with
+different formats:
+
+```tql
+accept_tcp "0.0.0.0:9000" {
+  read_auto fallback="lines"
+}
+```
+
+The detector runs separately for each connection. This makes the pattern useful
+for rapid prototyping, intake endpoints shared by several teams, and package
+pipelines that normalize data only after the parser has selected the input
+format.
+
 ## See Also
 
+- <Op>accept_tcp</Op>
+- <Op>from_file</Op>
 - <Op>read_all</Op>
 - <Op>read_csv</Op>
 - <Op>read_json</Op>
@@ -114,3 +143,6 @@ If the input is binary, the resulting event contains a `blob` value in the
 - <Op>read_ndjson</Op>
 - <Op>read_syslog</Op>
 - <Op>read_yaml</Op>
+- <Guide>collecting/get-data-from-the-network</Guide>
+- <Guide>collecting/read-and-watch-files</Guide>
+- <Guide>parsing/parse-delimited-text</Guide>
