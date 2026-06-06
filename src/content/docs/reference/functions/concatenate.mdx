@@ -16,6 +16,10 @@ The `concatenate` function returns a list containing all elements from the lists
 `xs` and `ys` in order. The expression `concatenate(xs, ys)` is equivalent to
 `[...xs, ...ys]`.
 
+If either argument is `null`, it contributes no elements. For example,
+`concatenate([1], null)` returns `[1]`, and `concatenate(null, [2])` returns
+`[2]`.
+
 ## Examples
 
 ### Concatenate two lists
@@ -30,6 +34,26 @@ zs = concatenate(xs, ys)
   xs: [1, 2],
   ys: [3, 4],
   zs: [1, 2, 3, 4]
+}
+```
+
+### Concatenate nullable lists
+
+```tql
+from {xs: null}
+left = concatenate([1], xs)
+right = concatenate(xs, [2])
+```
+
+```tql
+{
+  xs: null,
+  left: [
+    1,
+  ],
+  right: [
+    2,
+  ],
 }
 ```
 
