@@ -1,0 +1,85 @@
+---
+title: decrypt_cryptopan
+category: Networking
+example: 'decrypt_cryptopan(1.2.3.4)'
+---
+
+Decrypts an IP address via Crypto-PAn.
+
+```tql
+decrypt_cryptopan(address:ip, [seed=string], [family=string])
+```
+
+## Description
+
+The `decrypt_cryptopan` function decrypts an IP `address` that was encrypted
+with <Fn>encrypt_cryptopan</Fn> and the same seed.
+
+Tenzir represents IPv4 addresses as IPv4-mapped IPv6 addresses with the
+`::ffff/96` prefix. <Fn>encrypt_cryptopan</Fn> preserves this prefix for IPv4
+addresses and permutes only the final 32 bits. For IPv6 addresses, it permutes
+the full 128-bit address.
+
+By default, `decrypt_cryptopan` infers the address family from the ciphertext:
+addresses under `::ffff/96` decrypt as IPv4, and all other addresses decrypt as
+IPv6. A true IPv6 ciphertext can still land under `::ffff/96`, but this requires
+the first 96 encrypted bits to match the IPv4-mapped prefix exactly. The
+probability is therefore `2^-96`, or about `1.26e-29`.
+
+### `address: ip`
+
+The IP address to decrypt.
+
+### `seed = string (optional)`
+
+A 64-character seed that describes a hexadecimal value. When the seed is shorter
+than 64 characters, the function appends zeros to match the size; when it is
+longer, it truncates the seed.
+
+### `family = string (optional)`
+
+The Crypto-PAn address family to decrypt in. Valid values are `ipv4` and
+`ipv6`.
+
+Set this to `ipv6` when decrypting an IPv6 ciphertext that happens to look like
+an IPv4-mapped address.
+
+## Examples
+
+### Decrypt IP address fields
+
+```tql
+let $seed = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+from {
+  src: decrypt_cryptopan(2.90.93.17, seed=$seed),
+  dst: decrypt_cryptopan(dd92:2c44:3fc0:ff1e:7ff9:c7f0:8180:7e00, seed=$seed),
+}
+```
+
+```tql
+{
+  src: 192.0.2.1,
+  dst: 2001:db8::1,
+}
+```
+
+### Decrypt an IPv4-mapped IPv6 ciphertext
+
+```tql
+let $seed = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+from {
+  address: decrypt_cryptopan(192.0.2.1, seed=$seed, family="ipv6"),
+}
+```
+
+```tql
+{
+  address: c3ff:3ff8:7cff:81f1:4c03:f000:7f08:7c4e,
+}
+```
+
+## See Also
+
+- <Fn>community_id</Fn>
+- <Fn>encrypt_cryptopan</Fn>
+- <Guide>transformation/manipulate-strings</Guide>
