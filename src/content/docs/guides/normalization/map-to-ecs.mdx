@@ -71,32 +71,23 @@ let $event_types = {
   dropped: ["connection", "denied"],
 }
 
-let $transports = {
-  tcp: "tcp",
-  udp: "udp",
-  icmp: "icmp",
-}
-
 ecs["@timestamp"] = move fw.ts
 ecs.ecs.version = "9.4.0"
 ecs.event.kind = "event"
 ecs.event.category = ["network"]
 ecs.event.type = $event_types[fw.action.to_lower()]? else ["connection"]
-ecs.event.action = fw.action.to_lower()
+ecs.event.action = (move fw.action).to_lower()
 ecs.source.ip = move fw.src_ip
 ecs.source.port = move fw.src_port
 ecs.source.bytes = move fw.bytes_out
 ecs.destination.ip = move fw.dst_ip
 ecs.destination.port = move fw.dst_port
 ecs.destination.bytes = move fw.bytes_in
-ecs.network.transport = $transports[fw.proto.to_lower()]? else fw.proto.to_lower()
+ecs.network.transport = (move fw.proto).to_lower()
 ecs.network.bytes = ecs.source.bytes + ecs.destination.bytes
 ecs.observer.hostname = move fw.device
 ecs.observer.vendor = "Example Networks"
 ecs.observer.product = "Example Firewall"
-
-drop fw.action
-drop fw.proto
 
 this = {...ecs, example: {unmapped: fw}}
 ```

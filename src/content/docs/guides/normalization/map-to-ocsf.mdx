@@ -93,7 +93,7 @@ ocsf.dst_endpoint = {
 
 let $proto_nums = {tcp: 6, udp: 17, icmp: 1}
 ocsf.connection_info = {
-  protocol_name: move panos.proto,
+  protocol_name: (move panos.proto).to_lower(),
 }
 ocsf.connection_info.protocol_num = $proto_nums[ocsf.connection_info.protocol_name]? else -1
 

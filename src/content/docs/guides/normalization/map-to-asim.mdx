@@ -85,8 +85,6 @@ let $results = {
   dropped: "Failure",
 }
 
-fw.proto = fw.proto.to_upper()
-
 asim.EventSchema = "NetworkSession"
 asim.EventSchemaVersion = "0.2.7"
 asim.EventType = "NetworkSession"
@@ -104,7 +102,7 @@ asim.SrcIpAddr = move fw.src_ip
 asim.SrcPortNumber = move fw.src_port
 asim.DstIpAddr = move fw.dst_ip
 asim.DstPortNumber = move fw.dst_port
-asim.NetworkProtocol = move fw.proto
+asim.NetworkProtocol = (move fw.proto).to_upper()
 asim.SrcBytes = move fw.bytes_out
 asim.DstBytes = move fw.bytes_in
 asim.NetworkBytes = asim.SrcBytes + asim.DstBytes

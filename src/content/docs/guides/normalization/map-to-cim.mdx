@@ -75,34 +75,26 @@ let $actions = {
   teardown: "teardown",
 }
 
-let $transports = {
-  tcp: "tcp",
-  udp: "udp",
-  icmp: "icmp",
-}
-
-cim._time = fw.ts
+cim._time = move fw.ts
 cim.tag = ["network", "communicate"]
 cim.host = fw.device
 cim.source = "example-firewall"
 cim.sourcetype = "example:firewall"
 cim.vendor_product = "Example Networks Example Firewall"
-cim.action = $actions[fw.action.to_lower()]? else "unknown"
+cim.action = $actions[fw.action.to_lower()]? else fw.action.to_lower()
 cim.src = fw.src_ip
 cim.src_ip = move fw.src_ip
 cim.src_port = move fw.src_port
 cim.dest = fw.dst_ip
 cim.dest_ip = move fw.dst_ip
 cim.dest_port = move fw.dst_port
-cim.transport = $transports[fw.proto.to_lower()]? else "unknown"
+cim.transport = (move fw.proto).to_lower()
 cim.bytes_out = move fw.bytes_out
 cim.bytes_in = move fw.bytes_in
 cim.bytes = cim.bytes_in + cim.bytes_out
 cim.dvc = move fw.device
 
-drop fw.ts
 drop fw.action
-drop fw.proto
 
 this = {...cim, unmapped: fw}
 ```

@@ -100,18 +100,15 @@ udm.target = {
 }
 
 udm.network = {
-  ipProtocol: $ip_protocols[fw.proto.to_lower()]? else "UNKNOWN_IP_PROTOCOL",
+  ipProtocol: $ip_protocols[(move fw.proto).to_lower()]? else "UNKNOWN_IP_PROTOCOL",
   sentBytes: move fw.bytes_out,
   receivedBytes: move fw.bytes_in,
 }
 
 udm.securityResult = [{
   action: [$actions[fw.action.to_lower()]? else "UNKNOWN_ACTION"],
-  actionDetails: fw.action,
+  actionDetails: move fw.action,
 }]
-
-drop fw.action
-drop fw.proto
 
 this = {...udm, additional: fw}
 ```
