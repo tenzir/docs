@@ -1,0 +1,9 @@
+from {
+  unmapped: {
+    src_ip: 10.0.0.15,
+    dst_ip: 10.0.1.20,
+  },
+}
+context::enrich "network_segments", key=unmapped.src_ip, into=src_endpoint
+context::enrich "network_segments", key=unmapped.dst_ip, into=dst_endpoint
+select src_endpoint, dst_endpoint

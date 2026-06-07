@@ -1,0 +1,16 @@
+from {
+  indicator: "malware.example",
+  observable: {
+    name: "query.hostname",
+    type_id: 1,
+    type: "Hostname",
+    value: "malware.example",
+    reputation: {
+      provider: "threat-intel",
+      base_score: 95,
+      score_id: 10,
+      score: "Malicious",
+    },
+  },
+}
+context::update "domain_reputation", key=indicator, value=observable

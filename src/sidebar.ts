@@ -136,9 +136,10 @@ export const guides = [
         label: "Enrichment",
         collapsed: true,
         items: [
-          "guides/enrichment/work-with-lookup-tables",
-          "guides/enrichment/enrich-with-network-inventory",
+          "guides/enrichment/use-lookup-tables",
+          "guides/enrichment/enrich-with-asset-inventory",
           "guides/enrichment/enrich-with-threat-intel",
+          "guides/enrichment/enrich-events-with-ai",
           "guides/enrichment/execute-sigma-rules",
         ],
       },

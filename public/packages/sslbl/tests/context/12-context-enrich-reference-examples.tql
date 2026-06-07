@@ -1,0 +1,5 @@
+from {x: 1}
+context::enrich "ctx", key=x
+context::enrich "ctx", key=x, into=enrichments, mode="append"
+context::enrich "ctx", key=x, into=enrichments, mode="append"
+select x, ctx, enrichments

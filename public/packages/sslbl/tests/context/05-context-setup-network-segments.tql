@@ -1,0 +1,8 @@
+from {subnet: 10.0.0.0/22, zone: "corp", owner: {name: "platform"}},
+     {subnet: 10.0.0.0/24, zone: "production", owner: {name: "web-platform"}},
+     {subnet: 10.0.1.0/24, zone: "database", owner: {name: "data-platform"}}
+context::update "network_segments", key=subnet, value={
+  subnet_uid: subnet,
+  zone: zone,
+  owner: owner,
+}

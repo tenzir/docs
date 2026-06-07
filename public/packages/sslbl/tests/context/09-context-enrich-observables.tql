@@ -1,0 +1,11 @@
+from {
+  query: {
+    hostname: "malware.example",
+  },
+  observables: [],
+}
+context::enrich "domain_reputation",
+  key=query.hostname,
+  into=observables,
+  mode="append"
+select observables

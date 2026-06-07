@@ -1,0 +1,20 @@
+from {
+  key: {
+    src_zone: "internet",
+    dst_zone: "dmz",
+  },
+  action: "allow",
+  reason: "Public web tier",
+},
+{
+  key: {
+    src_zone: "internet",
+    dst_zone: "database",
+  },
+  action: "deny",
+  reason: "Database tier is not internet-facing",
+}
+context::update "access_policies", key=key, value={
+  action: action,
+  reason: reason,
+}

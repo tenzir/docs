@@ -1,0 +1,378 @@
+---
+title: Enrich with asset inventory
+description: Add asset inventory context to OCSF endpoint and user fields
+---
+
+This guide shows you how to enrich OCSF events with asset inventory data from
+lookup tables. Use this pattern when you have CMDB exports, endpoint inventory,
+DHCP leases, cloud inventory, or network segment ownership data that should
+become part of the OCSF event.
+
+The baseline enrichment target is the OCSF `enrichments` array. Use it for
+general context. When inventory data describes a known OCSF object, such as
+`src_endpoint`, `dst_endpoint`, `device`, or `user`, write it into that object
+instead. This makes downstream queries easier because analysts can filter on
+standard OCSF fields instead of unpacking provider-specific enrichment blobs.
+
+## Model inventory as OCSF objects
+
+Design lookup tables around the OCSF object you want to enrich:
+
+| Lookup table | Key | OCSF target |
+| --- | --- | --- |
+| `endpoint_assets` | IP address, MAC address, or asset UID | `src_endpoint`, `dst_endpoint`, `device` |
+| `network_segments` | Subnet | `src_endpoint` and `dst_endpoint` network fields |
+| `users` | User UID, username, or email address | `user`, `actor.user`, owner fields |
+
+Keep the table values close to the target OCSF object. For example, endpoint
+inventory should use fields such as `uid`, `hostname`, `type_id`, `type`,
+`owner`, `os`, `zone`, and `location`.
+
+## Populate endpoint inventory
+
+Start with a CSV export from your inventory source. Use dotted column names
+for nested OCSF fields:
+
+```csv title=endpoint-assets.csv
+ip,uid,hostname,type_id,type,owner.name,zone,os.name,os.version,location.country,location.city
+10.0.0.15,asset-001,web-01.prod.example,1,Server,web-platform,production,Linux,6.8,DE,Frankfurt
+10.0.1.20,asset-042,db-01.prod.example,1,Server,data-platform,database,Linux,6.8,DE,Frankfurt
+10.0.20.17,asset-117,laptop-117.example,3,Laptop,Alice Nguyen,workforce,macOS,15.4,US,San Francisco
+```
+
+Populate a pre-created endpoint inventory table. The `unflatten_separator`
+option turns dotted column names into nested records:
+
+```tql
+from_file "endpoint-assets.csv" {
+  read_csv unflatten_separator="."
+}
+context::update "endpoint_assets", key=ip
+```
+
+## Enrich into `enrichments`
+
+Use `enrichments` when you want to preserve the inventory record as attached
+context without changing the event's primary fields:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  src_endpoint: {
+    ip: 10.0.0.15,
+    port: 54213,
+  },
+  dst_endpoint: {
+    ip: 10.0.1.20,
+    port: 443,
+  },
+  enrichments: [],
+}
+context::enrich "endpoint_assets",
+  key=src_endpoint.ip,
+  into=enrichments,
+  mode="append",
+  format="ocsf"
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  src_endpoint: {
+    ip: 10.0.0.15,
+    port: 54213,
+  },
+  dst_endpoint: {
+    ip: 10.0.1.20,
+    port: 443,
+  },
+  enrichments: [{
+    created_time: 2024-08-22T09:13:02.069981,
+    data: {
+      ip: 10.0.0.15,
+      uid: "asset-001",
+      hostname: "web-01.prod.example",
+      type_id: 1,
+      type: "Server",
+      owner: {
+        name: "web-platform",
+      },
+      zone: "production",
+      os: {
+        name: "Linux",
+        version: "6.8",
+      },
+      location: {
+        country: "DE",
+        city: "Frankfurt",
+      },
+    },
+    name: "src_endpoint.ip",
+    provider: "endpoint_assets",
+    value: 10.0.0.15,
+  }],
+}
+```
+
+This produces an OCSF `enrichment` object whose `name` points at
+`src_endpoint.ip`, whose `value` is the matched IP address, whose `provider` is
+`endpoint_assets`, and whose `data` contains the inventory record. Tenzir does
+not infer an enrichment `type` from the lookup table.
+
+## Enrich endpoint objects
+
+When the inventory record describes the endpoint, enrich the endpoint object
+directly:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    src_ip: 10.0.0.15,
+    dst_ip: 10.0.1.20,
+  },
+}
+context::enrich "endpoint_assets", key=unmapped.src_ip, into=src_endpoint
+context::enrich "endpoint_assets", key=unmapped.dst_ip, into=dst_endpoint
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    src_ip: 10.0.0.15,
+    dst_ip: 10.0.1.20,
+  },
+  src_endpoint: {
+    ip: 10.0.0.15,
+    uid: "asset-001",
+    hostname: "web-01.prod.example",
+    type_id: 1,
+    type: "Server",
+    owner: {
+      name: "web-platform",
+    },
+    zone: "production",
+    os: {
+      name: "Linux",
+      version: "6.8",
+    },
+    location: {
+      country: "DE",
+      city: "Frankfurt",
+    },
+  },
+  dst_endpoint: {
+    ip: 10.0.1.20,
+    uid: "asset-042",
+    hostname: "db-01.prod.example",
+    type_id: 1,
+    type: "Server",
+    owner: {
+      name: "data-platform",
+    },
+    zone: "database",
+    os: {
+      name: "Linux",
+      version: "6.8",
+    },
+    location: {
+      country: "DE",
+      city: "Frankfurt",
+    },
+  },
+}
+```
+
+This keeps asset context in the OCSF endpoint objects where downstream tools
+expect it.
+
+## Enrich with subnet inventory
+
+Lookup tables can use `subnet` values as keys. When you query such a table with
+an IP address, Tenzir performs a longest-prefix match. This is useful when you
+know ownership or zoning at the network segment level, but not for every
+individual endpoint.
+
+```csv title=network-segments.csv
+subnet,subnet_uid,zone,owner_name
+10.0.0.0/22,prod-vpc-1,production,platform
+10.0.0.0/24,prod-web,web,web-platform
+10.0.1.0/24,prod-db,database,data-platform
+```
+
+Populate a pre-created subnet table:
+
+```tql
+from_file "network-segments.csv" {
+  read_csv
+}
+context::update "network_segments", key=subnet, value={
+  subnet_uid: subnet_uid,
+  zone: zone,
+  owner: {
+    name: owner_name,
+  },
+}
+```
+
+Use the subnet table when endpoint-level inventory is unavailable:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    src_ip: 10.0.0.15,
+  },
+}
+context::enrich "network_segments", key=unmapped.src_ip, into=src_endpoint
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4001,
+  activity_id: 6,
+  type_uid: 400106,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    src_ip: 10.0.0.15,
+  },
+  src_endpoint: {
+    subnet_uid: "prod-web",
+    zone: "web",
+    owner: {
+      name: "web-platform",
+    },
+  },
+}
+```
+
+The subnet `10.0.0.0/24` wins over `10.0.0.0/22` for `10.0.0.15` because it is
+the more specific prefix.
+
+## Enrich user ownership
+
+Asset inventory often references people or service accounts. Store user data in
+a separate table and write it into OCSF user objects instead of nesting it
+inside endpoint-specific data.
+
+```tql
+from {
+  uid: "u-123",
+  name: "alice",
+  full_name: "Alice Nguyen",
+  email_addr: "alice@example.com",
+  type_id: 1,
+  type: "User",
+  has_mfa: true,
+}
+context::update "users", key=name
+```
+
+Enrich the actor user by keeping the source username in `unmapped` and writing
+the lookup result directly to `actor.user`:
+
+```tql
+from {
+  time: 2024-08-22T09:12:34,
+  category_uid: 3,
+  class_uid: 3002,
+  activity_id: 1,
+  type_uid: 300201,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    actor_user_name: "alice",
+  },
+}
+context::enrich "users", key=unmapped.actor_user_name, into=actor.user
+```
+
+```tql
+{
+  time: 2024-08-22T09:12:34,
+  category_uid: 3,
+  class_uid: 3002,
+  activity_id: 1,
+  type_uid: 300201,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  unmapped: {
+    actor_user_name: "alice",
+  },
+  actor: {
+    user: {
+      uid: "u-123",
+      name: "alice",
+      full_name: "Alice Nguyen",
+      email_addr: "alice@example.com",
+      type_id: 1,
+      type: "User",
+      has_mfa: true,
+    },
+  },
+}
+```
+
+Use separate lookup tables for endpoint and user objects so each table can
+follow the semantics, ownership, and refresh cadence of the OCSF object it
+populates.
+
+## See Also
+
+- <Op>context::create_lookup_table</Op>
+- <Op>context::update</Op>
+- <Op>context::enrich</Op>
+- <Guide>enrichment/use-lookup-tables</Guide>
+- <Guide>enrichment/enrich-with-threat-intel</Guide>
+- <Guide>enrichment/enrich-events-with-ai</Guide>
+- <Explanation>enrichment</Explanation>

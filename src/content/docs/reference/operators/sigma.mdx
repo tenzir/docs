@@ -111,14 +111,17 @@ Defaults to `5s`.
 
 ## Examples
 
-### Apply a Sigma rule to an EVTX file
+### Apply a Sigma rule to Windows Event Log XML
 
-The tool [`evtx_dump`](https://github.com/omerbenamram/evtx) turns an EVTX file
-into a JSON object. On the command line, use the `tenzir` binary to pipe the
-`evtx_dump` output to a Tenzir pipeline using the `sigma` operator:
+Use <Fn>parse_winlog</Fn> to parse native Windows Event Log XML before you run
+Windows Sigma rules:
 
-```bash
-evtx_dump -o jsonl file.evtx | tenzir 'read_json | sigma "rule.yaml"'
+```tql
+from_file "windows-security.xml" {
+  read_delimited "</Event>\n", include_separator=true
+}
+this = data.parse_winlog()
+sigma "rule.yaml"
 ```
 
 ### Run a Sigma rule on historical data
@@ -137,7 +140,7 @@ Watch a directory of Sigma rules and apply all of them on a continuous stream of
 Suricata events:
 
 ```tql
-from_file "eve.json", follow=true {
+from_file "eve.json", watch=10s {
   read_suricata
 }
 sigma "/tmp/rules/"
@@ -149,5 +152,6 @@ will match it on all subsequent inputs.
 ## See Also
 
 - <Op>where</Op>
+- <Fn>parse_winlog</Fn>
 - <Guide>enrichment/execute-sigma-rules</Guide>
 - <Reference>expressions</Reference>
