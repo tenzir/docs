@@ -125,10 +125,11 @@ export const guides = [
         items: [
           { label: "Overview", link: "guides/normalization" },
           "guides/normalization/clean-up-values",
+          "guides/normalization/map-to-asim",
+          "guides/normalization/map-to-cim",
+          "guides/normalization/map-to-ecs",
           "guides/normalization/map-to-ocsf",
           "guides/normalization/map-to-udm",
-          "guides/normalization/map-to-asim",
-          "guides/normalization/map-to-other-schemas",
         ],
       },
       {

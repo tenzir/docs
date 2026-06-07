@@ -11,7 +11,8 @@ ready for analysis, storage, and sharing.
 Normalization involves several key transformations:
 
 1. **Clean up values** - Replace nulls, normalize sentinels, fix types
-2. **Map to schemas** - Translate fields to a standard schema like OCSF
+2. **Map to schemas** - Translate fields to a standard schema like ASIM, CIM,
+   ECS, OCSF, or UDM
 3. **Package mappings** - Create reusable, tested mapping operators
 
 Each step builds on the previous. Start with clean data, then map to your
@@ -57,7 +58,8 @@ publish "normalized-events"
 
 ## Normalization guides
 
-Work through these guides in order for a complete normalization workflow:
+Start with cleanup, then choose the schema guide for your target platform.
+Schema guides are listed alphabetically by acronym.
 
 ### Clean up values
 
@@ -68,6 +70,36 @@ issues:
 - Normalize sentinel values
 - Fix types (strings to timestamps, IPs, numbers)
 - Provide default values for missing fields
+
+### Map to ASIM
+
+<Guide>normalization/map-to-asim</Guide> — Learn how to map events to
+Microsoft Sentinel ASIM records:
+
+- Choose the correct ASIM event or entity schema
+- Populate schema, product, and event metadata
+- Map role-prefixed source, destination, actor, target, and device fields
+- Preserve unmapped fields in `AdditionalFields`
+
+### Map to CIM
+
+<Guide>normalization/map-to-cim</Guide> — Learn how to map events to Splunk CIM
+fields:
+
+- Choose the correct CIM data model and dataset
+- Apply dataset tags and constraints
+- Populate normalized fields for data model acceleration
+- Send mapped events to Splunk HEC with metadata
+
+### Map to ECS
+
+<Guide>normalization/map-to-ecs</Guide> — Learn how to map events to Elastic
+Common Schema fields:
+
+- Populate `@timestamp` and `ecs.version`
+- Choose `event.kind`, `event.category`, and `event.type`
+- Map source, destination, network, and observer fieldsets
+- Preserve source-specific details in a custom namespace
 
 ### Map to OCSF
 
@@ -88,23 +120,6 @@ SecOps UDM records:
 - Populate metadata and participant nouns
 - Convert source values to UDM enums
 - Preserve unmapped fields in `additional`
-
-### Map to ASIM
-
-<Guide>normalization/map-to-asim</Guide> — Learn how to map events to
-Microsoft Sentinel ASIM records:
-
-- Choose the correct ASIM event or entity schema
-- Populate schema, product, and event metadata
-- Map role-prefixed source, destination, actor, target, and device fields
-- Preserve unmapped fields in `AdditionalFields`
-
-### Map to other schemas
-
-<Guide>normalization/map-to-other-schemas</Guide> — Brief guidance on
-alternative schemas that don't have a dedicated guide:
-
-- Elastic Common Schema (ECS)
 
 ## When to normalize
 
