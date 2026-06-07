@@ -23,11 +23,13 @@ Tenzir publishes the following skills:
 
 ### 🧬 Schemas
 
-| Skill               | Description                                                                                   |
-| ------------------- | --------------------------------------------------------------------------------------------- |
-| `tenzir-google-udm` | Google SecOps UDM schema and normalization guidance for fields, event types, and entity types  |
-| `tenzir-microsoft-asim` | Microsoft Sentinel ASIM schema and mapping guidance for schemas, fields, aliases, and roles |
-| `tenzir-ocsf`       | OCSF schema reference for event classes, objects, attributes, profiles, and extensions         |
+| Skill         | Description                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `tenzir-asim` | Microsoft Sentinel ASIM schema and mapping guidance for schemas, fields, aliases, and roles |
+| `tenzir-cim`  | Splunk CIM data models, datasets, fields, tags, constraints, lookups, and mapping guidance  |
+| `tenzir-ecs`  | ECS fields, fieldsets, categorization values, custom fields, and OpenTelemetry alignment    |
+| `tenzir-ocsf` | OCSF schema reference for event classes, objects, attributes, profiles, and extensions      |
+| `tenzir-udm`  | Google SecOps UDM schema and normalization guidance for fields, event types, and entities   |
 
 ### 🛡️ Tenzir Users
 
@@ -73,17 +75,122 @@ Append `@<skill-name>` to install a specific skill from the available skills:
 npx skills add tenzir/skills@<skill-name>
 ```
 
-### Use the Google UDM skill
+### Use the ASIM skill
+
+Install the Microsoft Sentinel ASIM schema skill when you want an agent to help
+choose ASIM schemas, map events or entities, inspect normalized fields, or
+resolve aliases:
+
+```bash
+npx skills add tenzir/skills@tenzir-asim
+```
+
+The `tenzir-asim` skill is generated from Microsoft Defender Docs and is
+optimized for schema-first mapping. Ask the agent to choose the ASIM schema
+before it maps fields, then use canonical ASIM field names such as
+`EventSchema`, `EventSchemaVersion`, `SrcIpAddr`, and `DstIpAddr`.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-asim skill to map this firewall event to a Microsoft
+Sentinel ASIM NetworkSession record.
+```
+
+```text
+Use the tenzir-asim skill to explain the required and recommended
+fields for ASIM DNS events.
+```
+
+### Use the CIM skill
+
+Install the Splunk CIM schema skill when you want an agent to choose CIM data
+models, inspect datasets, apply tags, normalize fields, or use CIM lookup
+values:
+
+```bash
+npx skills add tenzir/skills@tenzir-cim
+```
+
+The `tenzir-cim` skill is generated from Splunk CIM 8.5. Ask the agent to
+choose the data model and dataset before it maps fields, then apply the tags,
+constraints, and recommended fields documented for that dataset.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-cim skill to map this firewall event to Splunk CIM Network
+Traffic / All_Traffic fields.
+```
+
+```text
+Use the tenzir-cim skill to explain the tags and recommended fields for CIM DNS
+events.
+```
+
+### Use the ECS skill
+
+Install the Elastic Common Schema skill when you want an agent to map events to
+ECS fields, choose categorization values, design custom fields, or align data
+with OpenTelemetry:
+
+```bash
+npx skills add tenzir/skills@tenzir-ecs
+```
+
+The `tenzir-ecs` skill is generated from the latest supported ECS release in
+the Tenzir skills repository. Ask the agent to choose `event.kind`,
+`event.category`, and `event.type` values before it maps fieldsets such as
+`source`, `destination`, `network`, `host`, `user`, or `observer`.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-ecs skill to map this firewall event to ECS. Use nested TQL
+records that serialize to ECS field paths.
+```
+
+```text
+Use the tenzir-ecs skill to choose event.category and event.type values for
+this authentication event.
+```
+
+### Use the OCSF skill
+
+Install the OCSF schema skill when you want an agent to choose OCSF event
+classes, inspect attributes, use profiles, or map source events into OCSF:
+
+```bash
+npx skills add tenzir/skills@tenzir-ocsf
+```
+
+The `tenzir-ocsf` skill tracks OCSF versions and schema reference files. Ask
+the agent to choose the OCSF version, event class, and profiles before it maps
+attributes.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-ocsf skill to map this Zeek connection event to an OCSF Network
+Activity event.
+```
+
+```text
+Use the tenzir-ocsf skill to explain which attributes are required for OCSF DNS
+Activity.
+```
+
+### Use the UDM skill
 
 Install the Google SecOps UDM schema skill when you want an agent to help
 generate UDM API ingestion payloads or write detection logic:
 
 ```bash
-npx skills add tenzir/skills@tenzir-google-udm
+npx skills add tenzir/skills@tenzir-udm
 ```
 
-The `tenzir-google-udm` skill supports two primary workflows. Generated UDM
-field headings can show two forms, for example `event_type / eventType`:
+The `tenzir-udm` skill supports two primary workflows. Generated UDM field
+headings can show two forms, for example `event_type / eventType`:
 
 - Use the right-side ingestion object form when the agent maps logs into UDM
   event or entity objects for Google SecOps UDM API ingestion, including TQL
@@ -94,40 +201,13 @@ field headings can show two forms, for example `event_type / eventType`:
 Tell the agent which context you want:
 
 ```text
-Use the tenzir-google-udm skill to map this firewall event to a UDM event
-object. Use ingestion object field names in the TQL output.
+Use the tenzir-udm skill to map this firewall event to a UDM event object. Use
+ingestion object field names in the TQL output.
 ```
 
 ```text
-Use the tenzir-google-udm skill to write YARA-L detection logic for a UDM
-network connection event. Use field path names.
-```
-
-### Use the Microsoft ASIM skill
-
-Install the Microsoft Sentinel ASIM schema skill when you want an agent to help
-choose ASIM schemas, map events or entities, inspect normalized fields, or
-resolve aliases:
-
-```bash
-npx skills add tenzir/skills@tenzir-microsoft-asim
-```
-
-The `tenzir-microsoft-asim` skill is generated from Microsoft Defender Docs and
-is optimized for schema-first mapping. Ask the agent to choose the ASIM schema
-before it maps fields, then use canonical ASIM field names such as
-`EventSchema`, `EventSchemaVersion`, `SrcIpAddr`, and `DstIpAddr`.
-
-Tell the agent which context you want:
-
-```text
-Use the tenzir-microsoft-asim skill to map this firewall event to a Microsoft
-Sentinel ASIM NetworkSession record.
-```
-
-```text
-Use the tenzir-microsoft-asim skill to explain the required and recommended
-fields for ASIM DNS events.
+Use the tenzir-udm skill to write YARA-L detection logic for a UDM network
+connection event. Use field path names.
 ```
 
 ### Choose the installation scope

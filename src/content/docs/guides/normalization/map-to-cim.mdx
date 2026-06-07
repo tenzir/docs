@@ -1,0 +1,183 @@
+---
+title: Map to CIM
+---
+
+This guide shows you how to map events to Splunk Common Information Model (CIM)
+fields in TQL. You'll learn how to choose a CIM data model and dataset, apply
+dataset tags, populate normalized fields, set Splunk HEC metadata, and preserve
+source-specific details.
+
+CIM is organized around data models and datasets rather than a single event
+record hierarchy. For Splunk searches and accelerated data models to find your
+events, the mapping must produce the right tags and normalized fields for the
+chosen dataset.
+
+## Use the CIM skill
+
+Install the `tenzir-cim` skill when you want an agent to help with CIM schema
+decisions. See <Guide>ai-workbench/use-agent-skills#use-the-cim-skill</Guide>
+for installation and usage examples.
+
+Ask the agent to choose the data model and dataset before it maps fields. The
+skill can inspect tags, constraints, recommended fields, calculated fields, and
+lookup-backed values for the selected dataset.
+
+## Choose the CIM dataset
+
+Start from the event semantics, then choose the closest CIM data model and
+dataset. For a firewall connection event, choose the `Network_Traffic` data
+model and the `All_Traffic` dataset.
+
+For `Network_Traffic / All_Traffic`, start with these fields and tags:
+
+- `tag`: Include `network` and `communicate`.
+- `_time`: The event timestamp.
+- `src`, `src_ip`, and `src_port`: The source endpoint.
+- `dest`, `dest_ip`, and `dest_port`: The destination endpoint.
+- `transport`: The layer 4 protocol, such as `tcp`, `udp`, or `icmp`.
+- `action`: The normalized traffic action, such as `allowed`, `blocked`, or
+  `teardown`.
+- `bytes`, `bytes_in`, and `bytes_out`: Traffic volume fields.
+- `dvc` and `vendor_product`: The reporting product context.
+
+## Write a small mapping
+
+The following example maps a parsed firewall connection event to CIM Network
+Traffic fields. It keeps the source data under `fw`, applies the dataset tags,
+normalizes action and transport values, maps endpoint fields, and preserves
+unmapped residue for review.
+
+```tql
+from {
+  ts: 2024-01-15T10:30:45Z,
+  action: "allowed",
+  src_ip: "10.0.0.5",
+  src_port: 51544,
+  dst_ip: "203.0.113.10",
+  dst_port: 443,
+  proto: "tcp",
+  bytes_out: 1280,
+  bytes_in: 8192,
+  device: "edge-fw-01",
+}
+
+this = {fw: this}
+
+let $actions = {
+  allow: "allowed",
+  allowed: "allowed",
+  block: "blocked",
+  blocked: "blocked",
+  deny: "blocked",
+  denied: "blocked",
+  drop: "blocked",
+  dropped: "blocked",
+  teardown: "teardown",
+}
+
+let $transports = {
+  tcp: "tcp",
+  udp: "udp",
+  icmp: "icmp",
+}
+
+cim._time = fw.ts
+cim.tag = ["network", "communicate"]
+cim.host = fw.device
+cim.source = "example-firewall"
+cim.sourcetype = "example:firewall"
+cim.vendor_product = "Example Networks Example Firewall"
+cim.action = $actions[fw.action.to_lower()]? else "unknown"
+cim.src = fw.src_ip
+cim.src_ip = move fw.src_ip
+cim.src_port = move fw.src_port
+cim.dest = fw.dst_ip
+cim.dest_ip = move fw.dst_ip
+cim.dest_port = move fw.dst_port
+cim.transport = $transports[fw.proto.to_lower()]? else "unknown"
+cim.bytes_out = move fw.bytes_out
+cim.bytes_in = move fw.bytes_in
+cim.bytes = cim.bytes_in + cim.bytes_out
+cim.dvc = move fw.device
+
+drop fw.ts
+drop fw.action
+drop fw.proto
+
+this = {...cim, unmapped: fw}
+```
+
+```tql
+{
+  _time: 2024-01-15T10:30:45Z,
+  tag: [
+    "network",
+    "communicate",
+  ],
+  host: "edge-fw-01",
+  source: "example-firewall",
+  sourcetype: "example:firewall",
+  vendor_product: "Example Networks Example Firewall",
+  action: "allowed",
+  src: "10.0.0.5",
+  src_ip: "10.0.0.5",
+  src_port: 51544,
+  dest: "203.0.113.10",
+  dest_ip: "203.0.113.10",
+  dest_port: 443,
+  transport: "tcp",
+  bytes_out: 1280,
+  bytes_in: 8192,
+  bytes: 9472,
+  dvc: "edge-fw-01",
+  unmapped: {},
+}
+```
+
+## Apply the mapping pattern
+
+Use the same structure for larger mappings:
+
+- **Keep a source namespace**: Move the parsed event under a short namespace
+  such as `fw`, `dns`, `edr`, or `event` before you create CIM fields.
+- **Choose the dataset first**: Let the CIM data model, dataset tags, and
+  constraints drive the mapping.
+- **Apply dataset tags**: Include the tags from the selected dataset and its
+  parent chain so Splunk data model searches can find the event.
+- **Populate recommended fields**: Map recommended fields such as `src`,
+  `dest`, `action`, `transport`, `dvc`, and `vendor_product` when the source
+  provides them.
+- **Use lookup-backed values**: Normalize values such as `action` and
+  `transport` to the values documented by CIM lookups.
+- **Preserve unmapped fields**: Keep source fields that don't have a deliberate
+  CIM target in `unmapped` so reviewers can audit the mapping.
+
+## Send CIM events to Splunk
+
+When you send CIM-shaped events to Splunk HEC, pass Splunk metadata through the
+dedicated <Op>to_splunk</Op> options:
+
+```tql
+my_source::cim::map
+to_splunk "https://splunk.example.com:8088",
+  hec_token=secret("splunk-hec-token"),
+  time=_time,
+  host=host,
+  source=source,
+  sourcetype=sourcetype
+```
+
+Use the `index` option when the destination index differs per event.
+
+## See Also
+
+- <Op>to_splunk</Op>
+- <Guide>normalization/clean-up-values</Guide>
+- <Guide>ai-workbench/use-agent-skills#use-the-cim-skill</Guide>
+- <Guide>normalization/map-to-asim</Guide>
+- <Guide>normalization/map-to-ecs</Guide>
+- <Guide>normalization/map-to-ocsf</Guide>
+- <Guide>normalization/map-to-udm</Guide>
+- <Guide>packages/create-a-package</Guide>
+- <Guide>testing/write-tests</Guide>
+- <Integration>splunk</Integration>
