@@ -1,0 +1,7 @@
+from {
+  unmapped: {
+    actor_user_name: "alice",
+  },
+}
+context::enrich "users", key=unmapped.actor_user_name, into=actor.user
+select actor

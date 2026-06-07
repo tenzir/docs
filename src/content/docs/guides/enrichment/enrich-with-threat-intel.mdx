@@ -1,215 +1,425 @@
 ---
 title: Enrich with threat intel
+description: Add threat intelligence to OCSF enrichments, observables, and OSINT fields
 ---
 
-Tenzir has a powerful [enrichment framework](/explanations/enrichment)
-for real-time contextualization. The heart of the framework is a **context**—a
-stateful object that can be managed and used with pipelines.
+This guide shows you how to enrich OCSF events with threat intelligence from
+lookup tables. Use this pattern when you ingest indicators of compromise,
+reputation scores, malware names, campaign context, or OSINT from external
+feeds.
 
-## Setup a context
+Start with the OCSF `enrichments` array when you want to attach the source
+record as inline context. For production mappings, prefer one lookup table per
+OCSF object and place the result in semantic fields such as `observables`,
+`osint`, or nested `reputation` objects. This keeps threat intelligence
+queryable without requiring every downstream consumer to understand a
+provider-specific `enrichment` payload.
 
-Prior to enriching, you need to populate a context with data. First, create a
-context called `threatfox` that uses a lookup table, i.e., a key-value mapping
-where a key is used to perform the lookup and the value can be any structured
-additional data.
+## Choose the OCSF target
 
-```tql
-context::create_lookup_table "threatfox"
-```
+Pick the enrichment target based on what the lookup table value represents:
 
-After creating a context, we load data into the context. In our example, we load
-data from the [ThreatFox](https://threatfox.abuse.ch/) API:
+| Lookup table value | OCSF target |
+| --- | --- |
+| Raw or provider-specific indicator context | `enrichments` |
+| Observable with reputation for a hostname, IP address, URL, or hash | `observables` |
+| OSINT indicator details | `osint` |
+| OSINT indicator details with related malware | `osint` |
 
-```tql
-from_http "https://threatfox-api.abuse.ch/api/v1/",
-  body={query: "get_iocs", days: 1} {
-  read_json
-}
-unroll data
-where data.ioc_type == "domain"
-context::update "threatfox", key=ioc, value=data
-```
+## Prepare threat intelligence tables
 
-<details>
-<summary>Example data for context updating</summary>
+Create separate lookup tables in setup pipelines for the OCSF objects you plan
+to enrich:
 
-If we replace
-<Op>context::update</Op> in the above
-pipeline with `head 5`, we get output similar to the following, depending on the
-current state of the API:
+| Lookup table | OCSF target |
+| --- | --- |
+| `domain_indicator_enrichments` | `enrichments` |
+| `domain_reputation` | `observables` with `reputation` |
+| `domain_osint` | `osint` |
+| `domain_malware` | `osint` with `malware` |
 
-```tql
-{
-  id: "1213056",
-  ioc: "deletefateoow.pw",
-  threat_type: "botnet_cc",
-  threat_type_desc: "Indicator that identifies a botnet command&control server (C&C)",
-  ioc_type: "domain",
-  ioc_type_desc: "Domain that is used for botnet Command&control (C&C)",
-  malware: "win.lumma",
-  malware_printable: "Lumma Stealer",
-  malware_alias: "LummaC2 Stealer",
-  malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/win.lumma",
-  confidence_level: 75,
-  first_seen: "2023-12-15 15:31:00 UTC",
-  last_seen: null,
-  reference: "",
-  reporter: "stoerchl",
-  tags: ["LummaStealer"]
-}
-{
-  id: "1213057",
-  ioc: "perceivedomerusp.pw",
-  threat_type: "botnet_cc",
-  threat_type_desc: "Indicator that identifies a botnet command&control server (C&C)",
-  ioc_type: "domain",
-  ioc_type_desc: "Domain that is used for botnet Command&control (C&C)",
-  malware: "win.lumma",
-  malware_printable: "Lumma Stealer",
-  malware_alias: "LummaC2 Stealer",
-  malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/win.lumma",
-  confidence_level: 75,
-  first_seen: "2023-12-15 15:31:00 UTC",
-  last_seen: null,
-  reference: "",
-  reporter: "stoerchl",
-  tags: ["LummaStealer"]
-}
-{
-  id: "1213058",
-  ioc: "showerreigerniop.pw",
-  threat_type: "botnet_cc",
-  threat_type_desc: "Indicator that identifies a botnet command&control server (C&C)",
-  ioc_type: "domain",
-  ioc_type_desc: "Domain that is used for botnet Command&control (C&C)",
-  malware: "win.lumma",
-  malware_printable: "Lumma Stealer",
-  malware_alias: "LummaC2 Stealer",
-  malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/win.lumma",
-  confidence_level: 75,
-  first_seen: "2023-12-15 15:31:00 UTC",
-  last_seen: null,
-  reference: "",
-  reporter: "stoerchl",
-  tags: ["LummaStealer"]
-}
-{
-  id: "1213059",
-  ioc: "fortunedomerussea.pw",
-  threat_type: "botnet_cc",
-  threat_type_desc: "Indicator that identifies a botnet command&control server (C&C)",
-  ioc_type: "domain",
-  ioc_type_desc: "Domain that is used for botnet Command&control (C&C)",
-  malware: "win.lumma",
-  malware_printable: "Lumma Stealer",
-  malware_alias: "LummaC2 Stealer",
-  malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/win.lumma",
-  confidence_level: 75,
-  first_seen: "2023-12-15 15:31:00 UTC",
-  last_seen: null,
-  reference: "",
-  reporter: "stoerchl",
-  tags: ["LummaStealer"]
-}
-{
-  id: "1213060",
-  ioc: "offerdelicateros.pw",
-  threat_type: "botnet_cc",
-  threat_type_desc: "Indicator that identifies a botnet command&control server (C&C)",
-  ioc_type: "domain",
-  ioc_type_desc: "Domain that is used for botnet Command&control (C&C)",
-  malware: "win.lumma",
-  malware_printable: "Lumma Stealer",
-  malware_alias: "LummaC2 Stealer",
-  malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/win.lumma",
-  confidence_level: 75,
-  first_seen: "2023-12-15 15:31:00 UTC",
-  last_seen: null,
-  reference: "",
-  reporter: "stoerchl",
-  tags: ["LummaStealer"]
-}
-```
+Separate tables let each value match a specific OCSF target. They also let you
+refresh high-churn reputation data more frequently than slower-moving malware
+or campaign metadata.
 
-</details>
+Populate these tables from feed ingestion pipelines, package pipelines, or
+internal intelligence exports. Keep each table value close to the OCSF object it
+will produce, then use the enrichment pipeline only to look up and place the
+value.
 
-## Enrich with a context
+## Enrich into `enrichments`
 
-Now that we loaded IoCs into the context, we can enrich with it in other
-pipelines. Since we previously imported only domains, we look for fields in the
-data of that type.
-
-The following pipeline subscribes to the import feed of all data arriving at the
-node via `export live=true` and applies the `threatfox` context to Suricata DNS
-requests in field `dns.rrname` via
-<Op>context::enrich</Op>:
+Use `format="ocsf"` with `mode="append"` to attach a match as an OCSF
+`enrichment` object:
 
 ```tql
-export live=true
-where @name == "suricata.dns"
-context::enrich "threatfox", key=dns.rrname
-```
-
-Here is a sample of an event that the above pipeline yields:
-
-```tql
-{
-  timestamp: 2021-11-17T16:57:42.389824,
-  flow_id: 1542499730911936,
-  pcap_cnt: 3167,
-  vlan: null,
-  in_iface: null,
-  src_ip: 45.85.90.164,
-  src_port: 56462,
-  dest_ip: 198.71.247.91,
-  dest_port: 53,
-  proto: "UDP",
-  event_type: "dns",
-  community_id: null,
-  dns: {
-    version: null,
-    type: "query",
-    id: 1,
-    flags: null,
-    qr: null,
-    rd: null,
-    ra: null,
-    aa: null,
-    tc: null,
-    rrname: "bza.fartit.com",
-    rrtype: "RRSIG",
-    rcode: null,
-    ttl: null,
-    tx_id: 0,
-    grouped: null,
-    answers: null
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
   },
-  threatfox: {
-    key: "bza.fartit.com",
-    context: {
-      id: "1209087",
-      ioc: "bza.fartit.com",
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  dst_endpoint: {
+    ip: 192.0.2.53,
+    port: 53,
+  },
+  enrichments: [],
+}
+context::enrich "domain_indicator_enrichments",
+  key=query.hostname,
+  into=enrichments,
+  mode="append",
+  format="ocsf"
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  dst_endpoint: {
+    ip: 192.0.2.53,
+    port: 53,
+  },
+  enrichments: [{
+    created_time: 2024-08-22T09:13:02.069981,
+    data: {
+      provider: "threat-intel",
+      indicator: "malware.example",
+      indicator_type: "domain",
       threat_type: "payload_delivery",
-      threat_type_desc: "Indicator that identifies a malware distribution server (payload delivery)",
-      ioc_type: "domain",
-      ioc_type_desc: "Domain name that delivers a malware payload",
-      malware: "apk.irata",
-      malware_printable: "IRATA",
-      malware_alias: null,
-      malware_malpedia: "https://malpedia.caad.fkie.fraunhofer.de/details/apk.irata",
-      confidence_level: 100,
-      first_seen: "2023-12-03 14:05:20 UTC",
-      last_seen: null,
-      reference: "",
-      reporter: "onecert_ir",
-      tags: ["irata"]
+      confidence_level: 95,
+      tags: ["malware"],
     },
-    timestamp: 2023-12-04T13:52:49.043157
-  }
+    name: "query.hostname",
+    provider: "domain_indicator_enrichments",
+    value: "malware.example",
+  }],
 }
 ```
 
-The sub-record `threatfox` holds the enrichment details. The field `key`
-contains the matching key. The field `context` is the row from the lookup table
-at key `bza.fartit.com`. The field `timestamp` is the time when the enrichment
-occurred.
+This is the safest default when you don't yet know where the feed belongs in
+the OCSF event. The result stays attached to the event, with the lookup result
+in `data` and the context name in `provider`, but it remains a generic
+enrichment object because Tenzir does not infer an enrichment `type`.
+
+## Enrich observables with reputation
+
+For detection and hunting workflows, reputation belongs with the observable
+that matched. Populate a table whose values are OCSF observables with nested
+`reputation` objects:
+
+```tql
+from {
+  indicator: "malware.example",
+  observable: {
+    name: "query.hostname",
+    type_id: 1,
+    type: "Hostname",
+    value: "malware.example",
+    reputation: {
+      provider: "threat-intel",
+      base_score: 95,
+      score_id: 10,
+      score: "Malicious",
+    },
+  },
+}
+context::update "domain_reputation", key=indicator, value=observable
+```
+
+Attach the reputation to an OCSF observable for `query.hostname`:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  observables: [],
+}
+context::enrich "domain_reputation",
+  key=query.hostname,
+  into=observables,
+  mode="append"
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  observables: [{
+    name: "query.hostname",
+    type_id: 1,
+    type: "Hostname",
+    value: "malware.example",
+    reputation: {
+      provider: "threat-intel",
+      base_score: 95,
+      score_id: 10,
+      score: "Malicious",
+    },
+  }],
+}
+```
+
+This makes reputation available through the standard OCSF observable model
+instead of burying it inside `enrichments[].data`.
+
+## Enrich the OSINT profile
+
+When a feed provides indicator details, store values as OCSF OSINT objects and
+append them to the event's `osint` list:
+
+```tql
+from {
+  indicator: "malware.example",
+  osint: {
+    type_id: 2,
+    type: "Domain",
+    value: "malware.example",
+    name: "query.hostname",
+    vendor_name: "threat-intel",
+    category: "malware_delivery",
+    desc: "Domain associated with malware delivery.",
+    confidence_id: 3,
+    confidence: "High",
+    risk_score: 95,
+    labels: ["malware"],
+    reputation: {
+      provider: "threat-intel",
+      base_score: 95,
+      score_id: 10,
+      score: "Malicious",
+    },
+  },
+}
+context::update "domain_osint", key=indicator, value=osint
+```
+
+Append the OSINT object directly:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+    profiles: ["osint"],
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  osint: [],
+}
+context::enrich "domain_osint",
+  key=query.hostname,
+  into=osint,
+  mode="append"
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+    profiles: ["osint"],
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  osint: [{
+    type_id: 2,
+    type: "Domain",
+    value: "malware.example",
+    name: "query.hostname",
+    vendor_name: "threat-intel",
+    category: "malware_delivery",
+    desc: "Domain associated with malware delivery.",
+    confidence_id: 3,
+    confidence: "High",
+    risk_score: 95,
+    labels: ["malware"],
+    reputation: {
+      provider: "threat-intel",
+      base_score: 95,
+      score_id: 10,
+      score: "Malicious",
+    },
+  }],
+}
+```
+
+Use this shape when the threat intelligence is valuable in its own right, not
+only as a note about one event field.
+
+## Enrich related malware
+
+If analysts frequently query by malware family, keep malware details in their
+own lookup table and then place them under the OSINT object:
+
+```tql
+from {
+  indicator: "malware.example",
+  osint: {
+    type_id: 2,
+    type: "Domain",
+    value: "malware.example",
+    name: "query.hostname",
+    vendor_name: "threat-intel",
+    malware: [{
+      name: "ExampleBot",
+      classification_ids: [3],
+      classifications: ["Bot"],
+      severity_id: 4,
+      severity: "High",
+    }],
+  },
+}
+context::update "domain_malware", key=indicator, value=osint
+```
+
+Append the OSINT record with the malware object:
+
+```tql
+from {
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+    profiles: ["osint"],
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  osint: [],
+}
+context::enrich "domain_malware",
+  key=query.hostname,
+  into=osint,
+  mode="append"
+```
+
+```tql
+{
+  time: 2024-08-22T09:13:01,
+  category_uid: 4,
+  class_uid: 4003,
+  activity_id: 2,
+  type_uid: 400302,
+  severity_id: 1,
+  metadata: {
+    version: "1.8.0",
+    profiles: ["osint"],
+  },
+  query: {
+    hostname: "malware.example",
+  },
+  rcode_id: 0,
+  rcode: "NoError",
+  osint: [{
+    type_id: 2,
+    type: "Domain",
+    value: "malware.example",
+    name: "query.hostname",
+    vendor_name: "threat-intel",
+    malware: [{
+      name: "ExampleBot",
+      classification_ids: [3],
+      classifications: ["Bot"],
+      severity_id: 4,
+      severity: "High",
+    }],
+  }],
+}
+```
+
+This keeps malware-specific fields in an OCSF `malware` object, while the OSINT
+object ties that malware context back to the indicator that matched the event.
+
+## Choose field-specific keys
+
+Use separate tables for different indicator types instead of mixing unrelated
+keys into one catch-all table:
+
+| Indicator type | Example OCSF key | Example target |
+| --- | --- | --- |
+| Domain or hostname | `query.hostname` | `observables[].reputation`, `osint` |
+| IP address | `src_endpoint.ip` or `dst_endpoint.ip` | `observables[].reputation` |
+| URL | `http_request.url.url_string` | `observables[].reputation`, `osint` |
+| File hash | `file.hashes[].value` | `observables[].reputation`, `osint` |
+
+Keeping one table per OCSF object and indicator type prevents ambiguous values,
+lets you set different expiration policies, and makes each enrichment pipeline
+state exactly which semantic field it changes.
+
+## See Also
+
+- <Op>context::create_lookup_table</Op>
+- <Op>context::update</Op>
+- <Op>context::enrich</Op>
+- <Guide>enrichment/use-lookup-tables</Guide>
+- <Guide>enrichment/enrich-with-asset-inventory</Guide>
+- <Guide>enrichment/enrich-events-with-ai</Guide>
+- <Explanation>enrichment</Explanation>

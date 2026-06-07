@@ -1,0 +1,12 @@
+from {
+  indicator: "malware.example",
+  data: {
+    provider: "threat-intel",
+    indicator: "malware.example",
+    indicator_type: "domain",
+    threat_type: "payload_delivery",
+    confidence_level: 95,
+    tags: ["malware"],
+  },
+}
+context::update "domain_indicator_enrichments", key=indicator, value=data

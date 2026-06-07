@@ -1,0 +1,18 @@
+from {
+  user: {
+    uid: "S-1-5-21-1001",
+    name: "alice",
+  },
+  enrichments: [],
+}
+context::enrich "user_roles",
+  key=user.uid,
+  into=enrichments,
+  mode="append",
+  format="ocsf"
+enrichment = enrichments.get(0)
+select data=enrichment.data,
+  name=enrichment.name,
+  provider=enrichment.provider,
+  has_type=enrichment.has("type"),
+  value=enrichment.value

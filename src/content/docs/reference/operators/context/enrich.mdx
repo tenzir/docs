@@ -47,7 +47,7 @@ The style of the enriched value:
 - `plain`: formats the enrichment as retrieved from the context.
 - `ocsf`: formats the enrichment as an [OCSF
   Enrichment](https://schema.ocsf.io/1.4.0-dev/objects/enrichment?extensions=)
-  object with fields `data`, `provider`, `type`, and `value`.
+  object with fields `created_time`, `data`, `name`, `provider`, and `value`.
 
 Defaults to `plain`.
 
@@ -98,9 +98,10 @@ context::enrich "ctx", key=x, format="ocsf"
   x: 1,
   ctx: {
     created_time: 2024-11-18T16:35:48.069981,
-    name: "x",
-    value: 1,
     data: "a",
+    name: "x",
+    provider: "ctx",
+    value: 1,
   }
 }
 ```
@@ -138,8 +139,8 @@ context::enrich "ctx", key=x, into=enrichments, mode="append"
 - <Op>context::reset</Op>
 - <Op>context::save</Op>
 - <Op>context::update</Op>
-- <Guide>enrichment/work-with-lookup-tables</Guide>
+- <Guide>enrichment/use-lookup-tables</Guide>
 - <Guide>enrichment/enrich-with-threat-intel</Guide>
-- <Guide>enrichment/enrich-with-network-inventory</Guide>
+- <Guide>enrichment/enrich-with-asset-inventory</Guide>
 - <Tutorial>learn-idiomatic-tql</Tutorial>
 - <Explanation>enrichment</Explanation>

@@ -1,0 +1,15 @@
+from {
+  src_endpoint: {
+    zone: "internet",
+  },
+  dst_endpoint: {
+    zone: "dmz",
+  },
+}
+context::enrich "access_policies",
+  key={
+    src_zone: src_endpoint.zone,
+    dst_zone: dst_endpoint.zone,
+  },
+  into=access_policy
+select access_policy

@@ -1,0 +1,39 @@
+from {
+  ip: 10.0.0.15,
+  uid: "asset-001",
+  hostname: "web-01.prod.example",
+  type_id: 1,
+  type: "Server",
+  owner: {
+    name: "web-platform",
+  },
+  zone: "production",
+  os: {
+    name: "Linux",
+    version: "6.8",
+  },
+  location: {
+    country: "DE",
+    city: "Frankfurt",
+  },
+},
+{
+  ip: 10.0.1.20,
+  uid: "asset-042",
+  hostname: "db-01.prod.example",
+  type_id: 1,
+  type: "Server",
+  owner: {
+    name: "data-platform",
+  },
+  zone: "database",
+  os: {
+    name: "Linux",
+    version: "6.8",
+  },
+  location: {
+    country: "DE",
+    city: "Frankfurt",
+  },
+}
+context::update "endpoint_assets", key=ip
