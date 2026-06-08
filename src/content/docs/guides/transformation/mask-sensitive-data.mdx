@@ -61,10 +61,11 @@ unrelated range. Store the seed in your secret store and retrieve it with
 
 :::caution[Crypto-PAn is reversible]
 Crypto-PAn is a keyed pseudonymization scheme, not a one-way function. Anyone
-with the seed can recover the original addresses from the anonymized output.
-Treat the seed like a private key: keep it in your secret store, rotate it on a
-schedule, and use <Fn>hash_sha256</Fn> instead if you need an irreversible
-transformation.
+with the seed can recover the original addresses with
+<Fn>decrypt_cryptopan</Fn>. Treat the seed like a private key: keep it in your
+secret store, and use <Fn>hash_sha256</Fn> instead if you need an irreversible
+transformation. The reversibility is useful when an authorized investigator
+needs to round-trip an event back to its original IPs.
 :::
 
 ## Hash sensitive fields
@@ -103,13 +104,13 @@ trade-off between speed and collision resistance:
 - Fast non-cryptographic: <Fn>hash_xxh3</Fn> for high-throughput
   deduplication or sharding
 
-Two notes on hashing:
-
+:::note[Two properties of hashing to keep in mind]
 - The same input always yields the same digest, so an attacker with a list of
   candidate values can confirm matches. Add a secret salt for fields with low
   entropy.
 - Hashing is one-way. Once a field is hashed, you can no longer recover the
   original value from the event.
+:::
 
 ### Salt low-entropy values
 
@@ -325,11 +326,21 @@ birth_year = dob.year()
 
 For a string label such as `"1985"`, use <Fn>format_time</Fn> with `"%Y"`.
 
+:::caution[`secret()` does not yet resolve inside function arguments]
+Several examples on this page mention <Fn>secret</Fn> as the right place to
+hold seeds, salts, and HMAC keys. Today, function arguments cannot resolve
+secrets, so the examples use plain `let` bindings as a stand-in. Until secret
+resolution lands for function arguments, source these values through your
+deployment's secret-injection mechanism (such as environment variables
+populated from a secret store) rather than `secret()`.
+:::
+
 ## See also
 
 - <Op>drop</Op>
 - <Op>select</Op>
 - <Fn>encrypt_cryptopan</Fn>
+- <Fn>decrypt_cryptopan</Fn>
 - <Fn>hash_sha256</Fn>
 - <Fn>hmac</Fn>
 - <Fn>slice</Fn>
