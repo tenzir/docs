@@ -35,7 +35,7 @@ the same subnet, which keeps flow analysis meaningful while removing the
 original IPs.
 
 ```tql
-let $seed = "deadbeef" // use secret() in practice
+let $seed = "deadbeef" // inject from your secret store
 from {
   client_ip: 192.168.1.100,
   server_ip: 8.8.8.8,
@@ -56,8 +56,8 @@ peer_ip = peer_ip.encrypt_cryptopan(seed=$seed)
 
 The two addresses originally in `192.168.1.0/24` still share a prefix
 (`155.71.206.0/24`) after anonymization, while `8.8.8.8` ends up in an
-unrelated range. Store the seed in your secret store and retrieve it with
-<Fn>secret</Fn> so the value never appears in pipeline definitions.
+unrelated range. Keep the seed in your secret store and inject it into the
+pipeline so the value never appears in pipeline definitions.
 
 :::caution[Crypto-PAn is reversible]
 Crypto-PAn is a keyed pseudonymization scheme, not a one-way function. Anyone
@@ -119,7 +119,7 @@ account IDs, pass a secret `seed` to the hash function. Every hash function
 listed earlier accepts the same `seed` argument:
 
 ```tql
-let $salt = "some-random-string" // use secret() in practice
+let $salt = "some-random-string" // inject from your secret store
 from {phone: "555-123-4567"}
 phone = phone.hash_sha256(seed=$salt)
 ```
@@ -141,7 +141,7 @@ the formal guarantees of a keyed message authentication code, use
 <Fn>hmac</Fn>:
 
 ```tql
-let $key = "some-random-string" // use secret() in practice
+let $key = "some-random-string" // inject from your secret store
 from {
   user: "alice",
   email: "alice@example.com",
@@ -326,13 +326,13 @@ birth_year = dob.year()
 
 For a string label such as `"1985"`, use <Fn>format_time</Fn> with `"%Y"`.
 
-:::caution[`secret()` does not yet resolve inside function arguments]
-Several examples on this page mention <Fn>secret</Fn> as the right place to
-hold seeds, salts, and HMAC keys. Today, function arguments cannot resolve
-secrets, so the examples use plain `let` bindings as a stand-in. Until secret
-resolution lands for function arguments, source these values through your
-deployment's secret-injection mechanism (such as environment variables
-populated from a secret store) rather than `secret()`.
+:::caution[`secret()` and function arguments]
+The examples above use plain `let` bindings because <Fn>secret</Fn> does not
+yet resolve inside function arguments. Until that lands, source seeds, salts,
+and HMAC keys through your deployment's secret-injection mechanism (such as
+environment variables populated from a secret store) and bind them with
+`let`, as shown above. Direct `secret()` use inside `hash_*`, `hmac`, and
+`encrypt_cryptopan` arguments is planned.
 :::
 
 ## See also
