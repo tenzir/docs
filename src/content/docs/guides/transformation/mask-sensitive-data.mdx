@@ -35,15 +35,12 @@ the same subnet, which keeps flow analysis meaningful while removing the
 original IPs.
 
 ```tql
-let $seed = "deadbeef" // inject from your secret store
+let $seed = "deadbeef"
 from {
-  client_ip: 192.168.1.100,
-  server_ip: 8.8.8.8,
-  peer_ip: 192.168.1.42,
+  client_ip: encrypt_cryptopan(192.168.1.100, seed=$seed),
+  server_ip: encrypt_cryptopan(8.8.8.8, seed=$seed),
+  peer_ip: encrypt_cryptopan(192.168.1.42, seed=$seed),
 }
-client_ip = client_ip.encrypt_cryptopan(seed=$seed)
-server_ip = server_ip.encrypt_cryptopan(seed=$seed)
-peer_ip = peer_ip.encrypt_cryptopan(seed=$seed)
 ```
 
 ```tql
@@ -119,7 +116,7 @@ account IDs, pass a secret `seed` to the hash function. Every hash function
 listed earlier accepts the same `seed` argument:
 
 ```tql
-let $salt = "some-random-string" // inject from your secret store
+let $salt = "some-random-string"
 from {phone: "555-123-4567"}
 phone = phone.hash_sha256(seed=$salt)
 ```
@@ -141,7 +138,7 @@ the formal guarantees of a keyed message authentication code, use
 <Fn>hmac</Fn>:
 
 ```tql
-let $key = "some-random-string" // inject from your secret store
+let $key = "some-random-string"
 from {
   user: "alice",
   email: "alice@example.com",
