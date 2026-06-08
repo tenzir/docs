@@ -15,6 +15,9 @@ map(xs:list, capture:field, any->any) -> list
 The `map` function applies an expression to each element within a list,
 returning a list of the same length.
 
+If `xs` is `null`, `map` returns `null` without evaluating the lambda. When you
+spread that result into a list, the `null` contributes no elements.
+
 ### `xs: list`
 
 A list of values.
@@ -95,6 +98,28 @@ l = l.map(str => str.parse_grok($pattern))
   l: [
     null,
     { w: "world", n: 42, },
+  ],
+}
+```
+
+### Map a nullable list before spreading
+
+If the input list is `null`, <Fn>map</Fn> returns `null`, and list spread
+contributes no elements:
+
+```tql
+from {xs: null}
+ys = [
+  ...xs.map(x => x + 1),
+  0,
+]
+```
+
+```tql
+{
+  xs: null,
+  ys: [
+    0,
   ],
 }
 ```
