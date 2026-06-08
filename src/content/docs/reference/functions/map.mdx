@@ -104,8 +104,8 @@ l = l.map(str => str.parse_grok($pattern))
 
 ### Map a nullable list before spreading
 
-If the input field exists but contains `null`, <Fn>map</Fn> returns `null`, and
-list spread contributes no elements:
+If the input list is `null`, <Fn>map</Fn> returns `null`, and list spread
+contributes no elements:
 
 ```tql
 from {xs: null}
@@ -123,8 +123,6 @@ ys = [
   ],
 }
 ```
-
-Use optional access, for example `xs?`, when the input field might be missing.
 
 ### Incompatible types between elements
 

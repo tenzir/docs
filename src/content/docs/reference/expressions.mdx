@@ -424,8 +424,8 @@ Spreading `null` contributes no elements and emits no warning. Spreading any
 other non-list value emits a warning and contributes no elements.
 
 ```tql
-from {base: [1, 2]}
-extended = [...base, ...extra?, 3]
+from {base: [1, 2], extra: null}
+extended = [...base, ...extra, 3]
 ```
 
 ```tql
@@ -434,6 +434,7 @@ extended = [...base, ...extra?, 3]
     1,
     2,
   ],
+  extra: null,
   extended: [
     1,
     2,
@@ -441,6 +442,9 @@ extended = [...base, ...extra?, 3]
   ],
 }
 ```
+
+Use optional access, for example `...extra?`, when the list field might be
+missing.
 
 ### Records
 
