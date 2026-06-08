@@ -245,6 +245,12 @@ still inspect `System` and `EventData` after a match.
 
 ## Transpile a process rule to OCSF TQL
 
+You can also implement a Sigma detection in TQL directly, without going
+through the <Op>sigma</Op> operator. This keeps your events in their canonical
+shape — useful when you've normalized to a schema such as OCSF and don't want
+to rename fields back to Sigma's Windows-style selectors only to satisfy a
+rule.
+
 A recent upstream Sigma process-creation rule,
 `proc_creation_win_print_dump_sensitive_files.yml` (`Sensitive File Dump Via
 Print.EXE`, April 28, 2026), detects `print.exe` abuse for copying sensitive
