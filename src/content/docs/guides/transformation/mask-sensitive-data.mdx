@@ -61,9 +61,28 @@ Crypto-PAn is a keyed pseudonymization scheme, not a one-way function. Anyone
 with the seed can recover the original addresses with
 <Fn>decrypt_cryptopan</Fn>. Treat the seed like a private key: keep it in your
 secret store, and use <Fn>hash_sha256</Fn> instead if you need an irreversible
-transformation. The reversibility is useful when an authorized investigator
-needs to round-trip an event back to its original IPs.
+transformation.
 :::
+
+When an authorized investigator needs to round-trip an event back to its
+original IPs, pass the same seed to <Fn>decrypt_cryptopan</Fn>:
+
+```tql
+let $seed = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+from {
+  client_ip: decrypt_cryptopan(2.149.252.148, seed=$seed),
+  server_ip: decrypt_cryptopan(245.155.245.195, seed=$seed),
+  peer_ip: decrypt_cryptopan(2.149.252.239, seed=$seed),
+}
+```
+
+```tql
+{
+  client_ip: 192.168.1.100,
+  server_ip: 8.8.8.8,
+  peer_ip: 192.168.1.42,
+}
+```
 
 ## Hash sensitive fields
 
