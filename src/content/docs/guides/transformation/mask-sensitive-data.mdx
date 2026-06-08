@@ -35,7 +35,7 @@ the same subnet, which keeps flow analysis meaningful while removing the
 original IPs.
 
 ```tql
-let $seed = "deadbeef"
+let $seed = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
 from {
   client_ip: encrypt_cryptopan(192.168.1.100, seed=$seed),
   server_ip: encrypt_cryptopan(8.8.8.8, seed=$seed),
@@ -45,14 +45,14 @@ from {
 
 ```tql
 {
-  client_ip: 155.71.206.156,
-  server_ip: 23.185.199.244,
-  peer_ip: 155.71.206.201,
+  client_ip: 2.149.252.148,
+  server_ip: 245.155.245.195,
+  peer_ip: 2.149.252.239,
 }
 ```
 
 The two addresses originally in `192.168.1.0/24` still share a prefix
-(`155.71.206.0/24`) after anonymization, while `8.8.8.8` ends up in an
+(`2.149.252.0/24`) after anonymization, while `8.8.8.8` ends up in an
 unrelated range. Keep the seed in your secret store and inject it into the
 pipeline so the value never appears in pipeline definitions.
 
