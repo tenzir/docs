@@ -551,6 +551,10 @@ functions:
     description: 'Removes top-level fields from a record when their names match a regular expression.'
     example: 'record.drop_matching("^debug_")'
     path: 'reference/functions/drop_matching'
+  - name: 'drop_null_fields'
+    description: 'Removes fields whose value is null from a record.'
+    example: 'drop_null_fields({a: null, b: 1})'
+    path: 'reference/functions/drop_null_fields'
   - name: 'get'
     description: 'Gets a field from a record or an element from a list'
     example: 'xs.get(index, fallback)'
@@ -1719,6 +1723,14 @@ record.print_yaml()
 
 ```tql
 record.drop_matching("^debug_")
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="drop_null_fields" description="Removes fields whose value is null from a record." href="/reference/functions/drop_null_fields">
+
+```tql
+drop_null_fields({a: null, b: 1})
 ```
 
 </ReferenceCard>

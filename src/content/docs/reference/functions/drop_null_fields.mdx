@@ -1,0 +1,131 @@
+---
+title: drop_null_fields
+category: Record
+example: "drop_null_fields({a: null, b: 1})"
+---
+
+Returns a record with fields whose value is `null` removed.
+
+```tql
+drop_null_fields(x:record, field:field...) -> record
+```
+
+## Description
+
+The `drop_null_fields` function mirrors the <Op>drop_null_fields</Op> operator,
+but operates on a record expression rather than a top-level event. It is useful
+for building API request bodies inline, for example as the `body=` argument to
+<Op>from_http</Op>, where optional fields default to `null` and must be omitted
+rather than sent as JSON `null`.
+
+Without explicit field selectors, every field of `x` is considered, including
+nested fields inside records. With selectors, only the named fields (and any
+fields nested within them) are considered for removal; other null fields are
+preserved.
+
+Unlike `print_ndjson(strip_null_fields=true)`, the function never serializes
+the record, so `secret`-typed values flow through unchanged and reach the
+sink unredacted.
+
+### `x: record`
+
+The record from which to remove null fields.
+
+### `field: field... (optional)`
+
+A comma-separated list of field paths inside `x` to consider. When omitted,
+every field is considered.
+
+## Examples
+
+### Drop all null fields
+
+```tql
+from {
+  license: secret("alphamountain_license"),
+  version: 1,
+  mapping: null,
+}
+this = drop_null_fields(this)
+```
+
+```tql
+{
+  license: "***",
+  version: 1,
+}
+```
+
+### Build an HTTP request body inline
+
+This is the canonical use case: cleaning optional `null` fields out of a body
+record while preserving a `secret`-typed license field.
+
+```tql
+from_http "https://api.example.com/v1/lookup",
+  method="POST",
+  body=drop_null_fields({
+    license: secret("alphamountain_license"),
+    version: 1,
+    mapping: null,
+  })
+```
+
+The wire body sent to the API contains only `license` and `version`; `mapping`
+is omitted, and `license` retains its secret value.
+
+### Restrict the drop to specific fields
+
+```tql
+from {
+  a: null,
+  b: null,
+  c: null,
+  d: 1,
+}
+this = drop_null_fields(this, a, c)
+```
+
+```tql
+{
+  b: null,
+  d: 1,
+}
+```
+
+`b` stays in the result because it was not named in the selector list, even
+though it is `null`.
+
+### Recursive drop inside nested records
+
+```tql
+from {
+  metadata: {
+    created: "2024-01-01",
+    updated: null,
+  },
+  data: {
+    value: 42,
+    comment: null,
+  },
+}
+this = drop_null_fields(this)
+```
+
+```tql
+{
+  metadata: {
+    created: "2024-01-01",
+  },
+  data: {
+    value: 42,
+  },
+}
+```
+
+## See Also
+
+- <Op>drop_null_fields</Op>
+- <Fn>drop_matching</Fn>
+- <Fn>select_matching</Fn>
+- <Fn>has</Fn>
