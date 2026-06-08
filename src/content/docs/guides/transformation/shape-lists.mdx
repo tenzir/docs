@@ -84,25 +84,19 @@ expression evaluates to `null`, it contributes no elements, so an explicit
 
 ```tql
 from {
-  system_tags: ["imported", "reviewed"],
+  event: {},
 }
 labels = [
   "production",
-  ...custom_tags?,
-  ...system_tags?,
+  ...event.tags?,
 ]
 ```
 
 ```tql
 {
-  system_tags: [
-    "imported",
-    "reviewed",
-  ],
+  event: {},
   labels: [
     "production",
-    "imported",
-    "reviewed",
   ],
 }
 ```

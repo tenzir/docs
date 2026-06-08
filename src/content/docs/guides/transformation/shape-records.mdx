@@ -103,17 +103,17 @@ expression evaluates to `null`, it contributes no fields, so an explicit
 `else {}` fallback is not necessary:
 
 ```tql
-from {base: {id: 1, name: "Alice"}}
+from {account: {id: 1, name: "Alice"}}
 user = {
-  ...base,
-  ...profile?,
+  ...account,
+  ...account.profile?,
   active: true,
 }
 ```
 
 ```tql
 {
-  base: {
+  account: {
     id: 1,
     name: "Alice",
   },
