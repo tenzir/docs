@@ -12,20 +12,22 @@ drop_null_fields(x:record, field:field...) -> record
 
 ## Description
 
-The `drop_null_fields` function mirrors the <Op>drop_null_fields</Op> operator,
-but operates on a record expression rather than a top-level event. It is useful
-for building API request bodies inline, for example as the `body=` argument to
-<Op>from_http</Op>, where optional fields default to `null` and must be omitted
-rather than sent as JSON `null`.
-
-Without explicit field selectors, every field of `x` is considered, including
-nested fields inside records. With selectors, only the named fields (and any
-fields nested within them) are considered for removal; other null fields are
-preserved.
+The `drop_null_fields` function returns a copy of `x` with every field whose
+value is `null` removed. Without explicit selectors, every field is considered,
+including fields nested inside record-typed values. With selectors, only the
+named fields (and any fields nested within them) are considered for removal;
+other null fields are preserved.
 
 Unlike `print_ndjson(strip_null_fields=true)`, the function never serializes
-the record, so `secret`-typed values flow through unchanged and reach the
-sink unredacted.
+the record, so `secret`-typed values flow through unchanged and reach the sink
+unredacted.
+
+:::tip[Operator equivalent]
+The function mirrors the <Op>drop_null_fields</Op> operator, but operates on a
+record expression rather than the top-level event. Use the function when you
+need to clean fields inline — for example as the `body=` argument to
+<Op>from_http</Op>.
+:::
 
 ### `x: record`
 
@@ -42,37 +44,36 @@ every field is considered.
 
 ```tql
 from {
-  license: secret("alphamountain_license"),
-  version: 1,
-  mapping: null,
+  id: 42,
+  status: "active",
+  comment: null,
 }
 this = drop_null_fields(this)
 ```
 
 ```tql
 {
-  license: "***",
-  version: 1,
+  id: 42,
+  status: "active",
 }
 ```
 
 ### Build an HTTP request body inline
 
-This is the canonical use case: cleaning optional `null` fields out of a body
-record while preserving a `secret`-typed license field.
+A common use case is cleaning optional `null` fields out of an inline body
+record before sending it to an API that rejects JSON `null` values:
 
 ```tql
 from_http "https://api.example.com/v1/lookup",
   method="POST",
   body=drop_null_fields({
-    license: secret("alphamountain_license"),
     version: 1,
-    mapping: null,
+    query: "example",
+    options: null,
   })
 ```
 
-The wire body sent to the API contains only `license` and `version`; `mapping`
-is omitted, and `license` retains its secret value.
+The wire body contains only `version` and `query`; `options` is omitted.
 
 ### Restrict the drop to specific fields
 
