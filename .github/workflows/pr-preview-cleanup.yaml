@@ -126,6 +126,7 @@ jobs:
             fi
 
             echo "Remote changed while cleaning up preview; retrying"
+            sleep $((attempt * 2))
           done
 
       - name: Comment on PR
