@@ -42,6 +42,13 @@ jobs:
             echo "Missing preview metadata in dist/__preview.json"
             exit 1
           fi
+          # The artifact comes from an unprivileged pull_request build; reject
+          # malformed values before they reach privileged API calls and the
+          # deploy target folder.
+          if ! [[ "$number" =~ ^[0-9]+$ ]] || ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Malformed preview metadata in dist/__preview.json"
+            exit 1
+          fi
           {
             echo "number=$number"
             echo "sha=$sha"
