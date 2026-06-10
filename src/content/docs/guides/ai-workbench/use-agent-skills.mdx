@@ -28,6 +28,7 @@ Tenzir publishes the following skills:
 | `tenzir-asim` | Microsoft Sentinel ASIM schema and mapping guidance for schemas, fields, aliases, and roles |
 | `tenzir-cim`  | Splunk CIM data models, datasets, fields, tags, constraints, lookups, and mapping guidance  |
 | `tenzir-ecs`  | ECS fields, fieldsets, categorization values, custom fields, and OpenTelemetry alignment    |
+| `tenzir-leef` | IBM QRadar LEEF reference for headers, delimiters, predefined event attributes, and timestamps |
 | `tenzir-ocsf` | OCSF schema reference for event classes, objects, attributes, profiles, and extensions      |
 | `tenzir-udm`  | Google SecOps UDM schema and normalization guidance for fields, event types, and entities   |
 
@@ -153,6 +154,33 @@ records that serialize to ECS field paths.
 ```text
 Use the tenzir-ecs skill to choose event.category and event.type values for
 this authentication event.
+```
+
+### Use the LEEF skill
+
+Install the IBM QRadar LEEF skill when you want an agent to generate, parse, or
+map events in the Log Event Extended Format, build QRadar or JSA integrations,
+or look up predefined LEEF event attributes:
+
+```bash
+npx skills add tenzir/skills@tenzir-leef
+```
+
+The `tenzir-leef` skill is generated from the official IBM LEEF Version 2
+format guide. It documents the LEEF 1.0 and 2.0 headers, delimiter rules,
+all 45 predefined event attributes with types and limits, custom event key
+guidelines, and `devTime`/`devTimeFormat` timestamp patterns.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-leef skill to render these events as LEEF 2.0 messages for
+QRadar, using predefined attribute keys where possible.
+```
+
+```text
+Use the tenzir-leef skill to explain the LEEF 2.0 header fields and how to
+specify a custom attribute delimiter.
 ```
 
 ### Use the OCSF skill
