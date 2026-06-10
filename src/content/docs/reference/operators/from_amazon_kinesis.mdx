@@ -23,22 +23,22 @@ Kinesis data stream and emits one event per Kinesis record.
 
 The emitted events use the `tenzir.amazon_kinesis` schema with these fields:
 
-| Field                  | Type     | Description                                      |
-| ---------------------- | -------- | ------------------------------------------------ |
-| `message`              | `blob`   | The raw Kinesis record payload.                  |
-| `stream`               | `string` | The stream name.                                 |
-| `shard_id`             | `string` | The shard that contained the record.             |
-| `sequence_number`      | `string` | The Kinesis sequence number.                     |
-| `partition_key`        | `string` | The record partition key.                        |
-| `arrival_time`         | `time`   | The approximate time when Kinesis received it.   |
-| `encryption_type`      | `string` | The server-side encryption type, when available. |
-| `millis_behind_latest` | `int`    | The shard lag reported by Kinesis.               |
+| Field             | Type       | Description                                      |
+| ----------------- | ---------- | ------------------------------------------------ |
+| `message`         | `blob`     | The raw Kinesis record payload.                  |
+| `stream`          | `string`   | The stream name.                                 |
+| `shard_id`        | `string`   | The shard that contained the record.             |
+| `sequence_number` | `string`   | The Kinesis sequence number.                     |
+| `partition_key`   | `string`   | The record partition key.                        |
+| `arrival_time`    | `time`     | The approximate time when Kinesis received it.   |
+| `encryption_type` | `string`   | The server-side encryption type, when available. |
+| `behind_latest`   | `duration` | The shard lag reported by Kinesis.               |
 
 The `arrival_time` and `encryption_type` fields are optional because Kinesis
 only returns them when they are present on the record.
 
-The operator lists shards once during startup. If the stream gains new shards
-while the pipeline is running, restart the pipeline to discover them. Pipeline
+The operator lists shards during startup and discovers new shards when an
+existing shard closes, such as after a resharding operation. Pipeline
 snapshots store the next sequence number per shard, and restarts resume with
 `AFTER_SEQUENCE_NUMBER`. This gives at-least-once restart behavior.
 
