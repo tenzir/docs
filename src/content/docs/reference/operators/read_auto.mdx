@@ -17,6 +17,20 @@ asks every reader whether it can parse them. Use it when the input format is
 unknown at authoring time, but should still be one of Tenzir's structured
 formats.
 
+```txt
+input bytes
+    │
+    ▼
+probe the first bytes (up to max_probe_bytes)
+    │
+    ▼
+dry-run every reader's parser on the probe
+    │
+    ├─ exactly one best match ──▶ selected reader parses the stream
+    ├─ no capable reader ───────▶ fallback reader, or error
+    └─ tie in specificity ──────▶ error (ambiguous input)
+```
+
 Detection works in two layers:
 
 1. **Capability**: Every reader dry-runs its actual parser on the probe. For
