@@ -6,6 +6,11 @@ on:
   workflow_run:
     workflows: ["Build & Deploy"]
     types: [completed]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number whose preview should be removed"
+        required: true
 
 permissions:
   actions: read
@@ -15,19 +20,31 @@ jobs:
   cleanup:
     name: Clean up PR preview
     runs-on: ubuntu-latest
-    # Run if: PR closed directly, OR build completed for a closed PR
+    # Run if: PR closed directly, cleanup dispatched explicitly, OR build
+    # completed for a closed PR
     if: |
       github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request')
     steps:
       - name: Get PR info
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISPATCH_PR: ${{ inputs.pr }}
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
             echo "state=closed" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if ! [[ "$DISPATCH_PR" =~ ^[0-9]+$ ]]; then
+              echo "Invalid PR number: $DISPATCH_PR"
+              exit 1
+            fi
+            PR_NUMBER="$DISPATCH_PR"
           else
             # Extract PR number from workflow_run
             PR_NUMBER=$(echo '${{ toJson(github.event.workflow_run.pull_requests) }}' | jq -r '.[0].number // empty')
@@ -36,11 +53,12 @@ jobs:
               echo "skip=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            # Check if PR is closed
-            PR_STATE=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq '.state')
-            echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-            echo "state=$PR_STATE" >> "$GITHUB_OUTPUT"
           fi
+
+          # Check if PR is closed
+          PR_STATE=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq '.state')
+          echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "state=$PR_STATE" >> "$GITHUB_OUTPUT"
 
       - name: Check if cleanup needed
         id: check
@@ -69,24 +87,47 @@ jobs:
         run: |
           set -e
           if ! git clone --depth 1 --branch gh-pages \
-            https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git preview-repo; then
+            "https://x-access-token:${GH_TOKEN}@github.com/tenzir/docs-previews.git" preview-repo; then
             echo "Could not clone docs-previews repo, nothing to clean up"
             exit 0
           fi
           cd preview-repo
 
           PREVIEW_DIR="${{ steps.pr.outputs.number }}"
-          if [ -d "$PREVIEW_DIR" ]; then
+          if [ ! -d "$PREVIEW_DIR" ]; then
+            echo "Preview not found: $PREVIEW_DIR"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          for attempt in 1 2 3 4 5; do
+            git fetch origin gh-pages
+            git reset --hard origin/gh-pages
+
+            if [ ! -d "$PREVIEW_DIR" ]; then
+              echo "Preview already removed: $PREVIEW_DIR"
+              exit 0
+            fi
+
             rm -rf "$PREVIEW_DIR"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
             git add -A
             git commit -m "Remove preview for PR #${{ steps.pr.outputs.number }}"
-            git push
-            echo "Removed preview: $PREVIEW_DIR"
-          else
-            echo "Preview not found: $PREVIEW_DIR"
-          fi
+
+            if git push origin HEAD:gh-pages; then
+              echo "Removed preview: $PREVIEW_DIR"
+              exit 0
+            fi
+
+            if [ "$attempt" -eq 5 ]; then
+              echo "Could not push preview cleanup after $attempt attempts"
+              exit 1
+            fi
+
+            echo "Remote changed while cleaning up preview; retrying"
+            sleep $((attempt * 2))
+          done
 
       - name: Comment on PR
         if: steps.pr.outputs.skip != 'true' && steps.check.outputs.skip != 'true'

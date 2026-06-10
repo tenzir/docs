@@ -7,7 +7,7 @@ on:
       - completed
 
 permissions:
-  actions: read # needed for downloading artifacts from triggering workflow
+  actions: write # needed for downloading artifacts and dispatching cleanup
   pull-requests: write # needed for commenting on PRs
 
 jobs:
@@ -42,6 +42,13 @@ jobs:
             echo "Missing preview metadata in dist/__preview.json"
             exit 1
           fi
+          # The artifact comes from an unprivileged pull_request build; reject
+          # malformed values before they reach privileged API calls and the
+          # deploy target folder.
+          if ! [[ "$number" =~ ^[0-9]+$ ]] || ! [[ "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Malformed preview metadata in dist/__preview.json"
+            exit 1
+          fi
           {
             echo "number=$number"
             echo "sha=$sha"
@@ -49,7 +56,20 @@ jobs:
             echo "status_url=https://preview.docs.tenzir.com/$number/__preview.json"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Check PR state
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.preview.outputs.number }}
+        run: |
+          state=$(gh api "repos/${{ github.repository }}/pulls/$PR_NUMBER" --jq '.state')
+          echo "state=$state" >> "$GITHUB_OUTPUT"
+          if [[ "$state" != "open" ]]; then
+            echo "PR #$PR_NUMBER is $state; skipping preview deployment"
+          fi
+
       - name: Generate app token
+        if: steps.pr.outputs.state == 'open'
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
@@ -58,6 +78,7 @@ jobs:
           repositories: docs-previews
 
       - name: Comment PR as deploying
+        if: steps.pr.outputs.state == 'open'
         uses: actions/github-script@v7
         env:
           PR_NUMBER: ${{ steps.preview.outputs.number }}
@@ -98,6 +119,7 @@ jobs:
             }
 
       - name: Deploy PR Preview
+        if: steps.pr.outputs.state == 'open'
         id: deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -110,7 +132,7 @@ jobs:
 
       - name: Wait for preview readiness
         id: readiness
-        if: steps.deploy.conclusion == 'success'
+        if: steps.pr.outputs.state == 'open' && steps.deploy.conclusion == 'success'
         uses: actions/github-script@v7
         env:
           STATUS_URL: ${{ steps.preview.outputs.status_url }}
@@ -159,7 +181,7 @@ jobs:
 
       - name: Check if preview run is still current
         id: current
-        if: always()
+        if: always() && steps.pr.outputs.state == 'open'
         uses: actions/github-script@v7
         env:
           PR_NUMBER: ${{ steps.preview.outputs.number }}
@@ -174,17 +196,35 @@ jobs:
               pull_number: prNumber,
             });
             const currentSha = pr.head.sha;
-            const isCurrent = currentSha === expectedSha;
+            const isCurrent = currentSha === expectedSha && pr.state === 'open';
 
             core.setOutput('is_current', isCurrent ? 'true' : 'false');
-            if (!isCurrent) {
+            core.setOutput('pr_state', pr.state);
+            if (pr.state !== 'open') {
+              core.notice(
+                `PR #${prNumber} is ${pr.state}; skipping final preview status update.`
+              );
+            } else if (!isCurrent) {
               core.notice(
                 `Skipping final preview status update for superseded build ${expectedSha.slice(0, 7)}; PR head is ${currentSha.slice(0, 7)}.`
               );
             }
 
+      - name: Trigger cleanup for PR closed during deployment
+        if: >-
+          always() &&
+          steps.pr.outputs.state == 'open' &&
+          steps.deploy.conclusion == 'success' &&
+          steps.current.outputs.pr_state == 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.preview.outputs.number }}
+        run: |
+          echo "PR #$PR_NUMBER closed during deployment; dispatching preview cleanup"
+          gh workflow run pr-preview-cleanup.yaml --ref main -f pr="$PR_NUMBER"
+
       - name: Comment PR with preview status
-        if: always() && steps.current.outputs.is_current == 'true'
+        if: always() && steps.pr.outputs.state == 'open' && steps.current.outputs.is_current == 'true'
         uses: actions/github-script@v7
         env:
           PR_NUMBER: ${{ steps.preview.outputs.number }}
