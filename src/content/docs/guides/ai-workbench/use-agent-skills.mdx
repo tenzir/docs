@@ -28,6 +28,7 @@ Tenzir publishes the following skills:
 | `tenzir-asim` | Microsoft Sentinel ASIM schema and mapping guidance for schemas, fields, aliases, and roles |
 | `tenzir-cim`  | Splunk CIM data models, datasets, fields, tags, constraints, lookups, and mapping guidance  |
 | `tenzir-ecs`  | ECS fields, fieldsets, categorization values, custom fields, and OpenTelemetry alignment    |
+| `tenzir-edm`  | FortiSIEM Event Data Model reference for data models, event attributes, types, and names    |
 | `tenzir-leef` | IBM QRadar LEEF reference for headers, delimiters, predefined event attributes, and timestamps |
 | `tenzir-ocsf` | OCSF schema reference for event classes, objects, attributes, profiles, and extensions      |
 | `tenzir-udm`  | Google SecOps UDM schema and normalization guidance for fields, event types, and entities   |
@@ -154,6 +155,33 @@ records that serialize to ECS field paths.
 ```text
 Use the tenzir-ecs skill to choose event.category and event.type values for
 this authentication event.
+```
+
+### Use the EDM skill
+
+Install the FortiSIEM Event Data Model skill when you want an agent to choose
+FortiSIEM data models, inspect event attributes, or map events into FortiSIEM
+event attributes for built-in or custom parsers:
+
+```bash
+npx skills add tenzir/skills@tenzir-edm
+```
+
+The `tenzir-edm` skill is generated from the FortiSIEM 7.5.0 Event Data Model
+documentation. Ask the agent to choose the data model before it maps
+attributes, then populate the base event attributes first and use camelCase
+attribute names such as `eventType`, `srcIpAddr`, and `destIpAddr`.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-edm skill to map this firewall event to FortiSIEM network
+traffic event attributes.
+```
+
+```text
+Use the tenzir-edm skill to explain which attributes every FortiSIEM event
+carries.
 ```
 
 ### Use the LEEF skill
