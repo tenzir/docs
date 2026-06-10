@@ -4,6 +4,8 @@ category: Parsing
 example: 'read_auto fallback="lines"'
 ---
 
+import { Steps } from '@astrojs/starlight/components';
+
 Detects the input format of a byte stream and selects a matching reader.
 
 ```tql
@@ -17,19 +19,13 @@ asks every reader whether it can parse them. Use it when the input format is
 unknown at authoring time, but should still be one of Tenzir's structured
 formats.
 
-```txt
-input bytes
-    │
-    ▼
-probe the first bytes (up to max_probe_bytes)
-    │
-    ▼
-dry-run every reader's parser on the probe
-    │
-    ├─ exactly one best match ──▶ selected reader parses the stream
-    ├─ no capable reader ───────▶ fallback reader, or error
-    └─ tie in specificity ──────▶ error (ambiguous input)
-```
+<Steps>
+1. Probe the first bytes of the input, up to `max_probe_bytes`.
+2. Dry-run every reader's parser on the probe to find capable readers.
+3. Start the most specific capable reader. Without a capable reader, use the
+   `fallback` reader or fail; when two formats are equally specific, fail
+   with an ambiguity error.
+</Steps>
 
 Detection works in two layers:
 
