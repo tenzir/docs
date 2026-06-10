@@ -7,7 +7,7 @@ on:
       - completed
 
 permissions:
-  actions: read # needed for downloading artifacts from triggering workflow
+  actions: write # needed for downloading artifacts and dispatching cleanup
   pull-requests: write # needed for commenting on PRs
 
 jobs:
@@ -196,14 +196,32 @@ jobs:
               pull_number: prNumber,
             });
             const currentSha = pr.head.sha;
-            const isCurrent = currentSha === expectedSha;
+            const isCurrent = currentSha === expectedSha && pr.state === 'open';
 
             core.setOutput('is_current', isCurrent ? 'true' : 'false');
-            if (!isCurrent) {
+            core.setOutput('pr_state', pr.state);
+            if (pr.state !== 'open') {
+              core.notice(
+                `PR #${prNumber} is ${pr.state}; skipping final preview status update.`
+              );
+            } else if (!isCurrent) {
               core.notice(
                 `Skipping final preview status update for superseded build ${expectedSha.slice(0, 7)}; PR head is ${currentSha.slice(0, 7)}.`
               );
             }
+
+      - name: Trigger cleanup for PR closed during deployment
+        if: >-
+          always() &&
+          steps.pr.outputs.state == 'open' &&
+          steps.deploy.conclusion == 'success' &&
+          steps.current.outputs.pr_state == 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.preview.outputs.number }}
+        run: |
+          echo "PR #$PR_NUMBER closed during deployment; dispatching preview cleanup"
+          gh workflow run pr-preview-cleanup.yaml --ref main -f pr="$PR_NUMBER"
 
       - name: Comment PR with preview status
         if: always() && steps.pr.outputs.state == 'open' && steps.current.outputs.is_current == 'true'
