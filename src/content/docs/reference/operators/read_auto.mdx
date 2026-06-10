@@ -12,19 +12,47 @@ read_auto [fallback=string, max_probe_bytes=uint]
 
 ## Description
 
-The `read_auto` operator probes the first bytes of its input and starts the
-reader whose detector returns the best unique match. Use it when the input format
-is unknown at authoring time, but should still be one of Tenzir's structured
+The `read_auto` operator buffers the first bytes of its input as a probe and
+asks every reader whether it can parse them. Use it when the input format is
+unknown at authoring time, but should still be one of Tenzir's structured
 formats.
 
-By default, detection is strict. If no detector matches, or if multiple
-detectors match with the same score, `read_auto` emits an error instead of
-falling back to a generic text reader.
+Detection works in two layers:
+
+1. **Capability**: Every reader dry-runs its actual parser on the probe. For
+   example, YAML detection runs the YAML parser and requires a structured
+   document, and CSV detection tokenizes complete lines with the reader's
+   quoting rules and requires a stable number of fields. A reader only
+   becomes a candidate when it would accept the probed input.
+2. **Specificity**: When several readers are capable of parsing the same
+   bytes, the most specific format wins. Magic-byte formats such as PCAP or
+   Parquet rank above JSON dialects such as Suricata EVE or GELF, which rank
+   above generic NDJSON, which ranks above key-value, delimited, Syslog, and
+   YAML input. For example, a GELF stream is also valid NDJSON, but the GELF
+   reader wins because it describes the input more precisely.
+
+Detection is strict by default. If no reader is capable, or if two formats
+with equal specificity match the same probe, `read_auto` emits an error
+instead of guessing. A reader that needs more evidence delays the decision
+until more input arrives, the input ends, or the probe reaches
+`max_probe_bytes`. Once a single best candidate exists, `read_auto` starts
+that reader, replays the buffered bytes, and forwards the rest of the stream
+unchanged.
 
 The built-in detectors cover common JSON, delimited text, security log, and
-magic-byte formats, including NDJSON, JSON objects, JSON arrays of objects, CSV,
-TSV, SSV, key-value text, YAML, Syslog, CEF, LEEF, Zeek TSV, Suricata EVE JSON,
-Zeek JSON, GELF, PCAP, Feather, BITZ, and Parquet.
+magic-byte formats, including NDJSON, JSON objects, JSON arrays of objects,
+CSV, TSV, key-value text, YAML, Syslog, CEF, LEEF, Zeek TSV, Suricata EVE
+JSON, Zeek JSON, GELF, PCAP, Feather, BITZ, and Parquet. Formats that accept
+nearly arbitrary text never participate in detection: space-separated values
+look like prose, so select <Op>read_ssv</Op> explicitly, and Syslog messages
+without a `<PRI>` prefix look like free-form text, so they only match via
+`fallback`.
+
+The output uses the schema name that the selected reader would normally assign.
+For example, detected CSV input produces the same schema name as
+<Op>read_csv</Op>, and detected NDJSON input produces the same schema name as
+<Op>read_ndjson</Op>. Inspect `@name` to see the schema name. `read_auto` does
+not add a separate field with the detected format.
 
 Use `read_auto` for exploratory pipelines where you want to try sample data
 quickly, for file drops where names don't reliably encode the format, and for
