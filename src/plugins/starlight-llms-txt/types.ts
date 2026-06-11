@@ -30,6 +30,15 @@ export type SidebarItem =
 /** Plugin user options. */
 export interface StarlightLlmsTxtOptions {
   /**
+   * Generate the global LLM routes (`/llms.txt` and `/llms-full.txt`).
+   *
+   * Per-page Markdown routes remain controlled by `perPageMarkdown`.
+   *
+   * @default true
+   */
+  llmsTxt?: boolean;
+
+  /**
    * Provide a custom name for this project or software. This will be used in `llms.txt` to identify
    * what the documentation is for.
    *

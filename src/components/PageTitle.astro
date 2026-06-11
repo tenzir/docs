@@ -1,6 +1,6 @@
 ---
-import type { Props } from "@astrojs/starlight/props";
 import { pathWithBase } from "@utils/base";
+import { markdownPathForDocPath } from "@utils/llm-markdown-path";
 import { formatSlug, getDocsMap } from "@utils/page-title";
 import { getSearchWeight } from "../search-weights";
 
@@ -24,6 +24,16 @@ const { starlightRoute } = Astro.locals;
 const weightConfig = getSearchWeight(starlightRoute.id);
 const pagefindType = weightConfig?.metadata?.type;
 const pagefindWeight = weightConfig?.weight;
+// The per-page Markdown twin only exists for pages backed by the `docs`
+// content collection. Pages injected by other integrations (e.g. starlight-
+// openapi) have no `.md` route, so we hide the action buttons there.
+const hasMarkdownTwin = docsMap.has(starlightRoute.entry.id);
+const markdownUrl = pathWithBase(
+  markdownPathForDocPath(starlightRoute.entry.id),
+);
+const agentSkillsGuideUrl = pathWithBase(
+  "/guides/ai-workbench/use-agent-skills/",
+);
 
 // Build h1 attributes
 const h1Attrs: Record<string, any> = {
@@ -168,24 +178,685 @@ for (let i = 0; i < segments.length; i++) {
       </ol>
     </nav>
   )}
-  <h1 {...h1Attrs}>
-    {starlightRoute.entry.data.title}
-  </h1>
+  <div class="page-heading-row">
+    <h1 {...h1Attrs}>
+      {starlightRoute.entry.data.title}
+    </h1>
+    {hasMarkdownTwin && (
+    <div class="page-actions" data-page-actions>
+      <button
+        type="button"
+        class="copy-for-llm"
+        data-copy-for-llm
+        data-copy-label="copy for LLM"
+        data-markdown-url={markdownUrl}
+        aria-label="copy for LLM"
+        title="copy for LLM"
+        disabled
+      >
+        <svg
+          aria-hidden="true"
+          class="copy-for-llm__icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+        <span class="copy-for-llm__label" data-copy-for-llm-label>copy for LLM</span>
+        <span class="copy-for-llm__status" data-copy-for-llm-status aria-live="polite"></span>
+      </button>
+      <button
+        type="button"
+        class="page-actions__dropdown-trigger"
+        data-page-actions-toggle
+        aria-label="More page actions"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="page-actions-menu"
+      >
+        <svg
+          aria-hidden="true"
+          class="page-actions__chevron"
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </button>
+      <div
+        id="page-actions-menu"
+        class="page-actions__menu"
+        data-page-actions-menu
+        role="menu"
+        hidden
+      >
+        <a
+          class="page-actions__menu-item"
+          href={markdownUrl}
+          role="menuitem"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View page as markdown in a new tab"
+        >
+          <svg
+            aria-hidden="true"
+            class="page-actions__menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+            <path d="M10 9H8"></path>
+            <path d="M16 13H8"></path>
+            <path d="M16 17H8"></path>
+          </svg>
+          <span>View page as markdown</span>
+        </a>
+        <a
+          class="page-actions__menu-item"
+          href={agentSkillsGuideUrl}
+          role="menuitem"
+        >
+          <svg
+            aria-hidden="true"
+            class="page-actions__menu-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 8V4H8"></path>
+            <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+            <path d="M2 14h2"></path>
+            <path d="M20 14h2"></path>
+            <path d="M15 13v2"></path>
+            <path d="M9 13v2"></path>
+          </svg>
+          <span>Use in your agent</span>
+        </a>
+      </div>
+    </div>
+    )}
+  </div>
 </div>
+
+<script>
+  const copiedMarkdownByUrl = new Map<string, string>();
+  const markdownRequestsByUrl = new Map<string, Promise<string>>();
+
+  function fetchMarkdown(markdownUrl: string): Promise<string> {
+    const cachedMarkdown = copiedMarkdownByUrl.get(markdownUrl);
+    if (cachedMarkdown) {
+      return Promise.resolve(cachedMarkdown);
+    }
+
+    const pendingRequest = markdownRequestsByUrl.get(markdownUrl);
+    if (pendingRequest) {
+      return pendingRequest;
+    }
+
+    const request = fetch(markdownUrl, {
+      headers: { Accept: "text/plain" },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${markdownUrl}`);
+        }
+        return response.text();
+      })
+      .then((markdown) => {
+        copiedMarkdownByUrl.set(markdownUrl, markdown);
+        return markdown;
+      })
+      .finally(() => {
+        markdownRequestsByUrl.delete(markdownUrl);
+      });
+
+    markdownRequestsByUrl.set(markdownUrl, request);
+    return request;
+  }
+
+  async function copyTextToClipboard(text: string): Promise<void> {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.insetBlockStart = "-100vh";
+    document.body.append(textarea);
+    textarea.select();
+
+    try {
+      if (!document.execCommand("copy")) {
+        throw new Error("copy command failed");
+      }
+    } finally {
+      textarea.remove();
+    }
+  }
+
+  function canWriteClipboardItem(): boolean {
+    return (
+      window.isSecureContext &&
+      typeof ClipboardItem !== "undefined" &&
+      typeof navigator.clipboard?.write === "function"
+    );
+  }
+
+  function writeMarkdownWithClipboardItem(markdownUrl: string): Promise<void> {
+    const markdownBlob = fetchMarkdown(markdownUrl).then(
+      (markdown) => new Blob([markdown], { type: "text/plain" }),
+    );
+    const item = new ClipboardItem({ "text/plain": markdownBlob });
+    return navigator.clipboard.write([item]);
+  }
+
+  function setCopyButtonState(
+    button: HTMLButtonElement,
+    state: "idle" | "pending" | "success" | "error",
+    label: string,
+    status: string,
+  ) {
+    button.dataset.copyState = state;
+    button.disabled = state === "pending";
+
+    const labelElement = button.querySelector("[data-copy-for-llm-label]");
+    if (labelElement) {
+      labelElement.textContent = label;
+    }
+
+    const statusElement = button.querySelector("[data-copy-for-llm-status]");
+    if (statusElement) {
+      statusElement.textContent = status;
+    }
+  }
+
+  document.addEventListener("click", async (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const button = event.target.closest<HTMLButtonElement>(
+      "button[data-copy-for-llm]",
+    );
+    if (!button) {
+      return;
+    }
+
+    const markdownUrl = button.dataset.markdownUrl;
+    const idleLabel = button.dataset.copyLabel ?? "Copy for LLM";
+    if (!markdownUrl) {
+      return;
+    }
+
+    setCopyButtonState(button, "pending", "Copying", "");
+
+    try {
+      const cachedMarkdown = copiedMarkdownByUrl.get(markdownUrl);
+      if (cachedMarkdown) {
+        await copyTextToClipboard(cachedMarkdown);
+      } else if (canWriteClipboardItem()) {
+        await writeMarkdownWithClipboardItem(markdownUrl);
+      } else {
+        const markdown = await fetchMarkdown(markdownUrl);
+        await copyTextToClipboard(markdown);
+      }
+
+      setCopyButtonState(
+        button,
+        "success",
+        "Copied",
+        "Copied page Markdown to clipboard.",
+      );
+    } catch {
+      setCopyButtonState(
+        button,
+        "error",
+        "Failed",
+        "Could not copy page Markdown.",
+      );
+    } finally {
+      window.setTimeout(() => {
+        setCopyButtonState(button, "idle", idleLabel, "");
+      }, 2000);
+    }
+  });
+
+  // Enable the buttons on JS init without fetching. The SSR markup ships
+  // them disabled so non-JS readers see a no-op control. The pointerover
+  // and focusin listeners below prefetch on intent, and the click handler
+  // falls back to fetching inline if nothing is cached.
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    "button[data-copy-for-llm]",
+  )) {
+    const idleLabel = button.dataset.copyLabel ?? "Copy for LLM";
+    setCopyButtonState(button, "idle", idleLabel, "");
+  }
+
+  document.addEventListener("pointerover", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const button = event.target.closest<HTMLButtonElement>(
+      "button[data-copy-for-llm]",
+    );
+    const markdownUrl = button?.dataset.markdownUrl;
+    if (markdownUrl) {
+      fetchMarkdown(markdownUrl).catch(() => {});
+    }
+  });
+
+  document.addEventListener("focusin", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const button = event.target.closest<HTMLButtonElement>(
+      "button[data-copy-for-llm]",
+    );
+    const markdownUrl = button?.dataset.markdownUrl;
+    if (markdownUrl) {
+      fetchMarkdown(markdownUrl).catch(() => {});
+    }
+  });
+
+  function closePageActionsMenu(actions: HTMLElement) {
+    const toggle = actions.querySelector<HTMLButtonElement>(
+      "[data-page-actions-toggle]",
+    );
+    const menu = actions.querySelector<HTMLElement>("[data-page-actions-menu]");
+    if (!toggle || !menu) {
+      return;
+    }
+
+    toggle.setAttribute("aria-expanded", "false");
+    actions.dataset.menuState = "closed";
+    menu.hidden = true;
+  }
+
+  function openPageActionsMenu(actions: HTMLElement) {
+    const toggle = actions.querySelector<HTMLButtonElement>(
+      "[data-page-actions-toggle]",
+    );
+    const menu = actions.querySelector<HTMLElement>("[data-page-actions-menu]");
+    if (!toggle || !menu) {
+      return;
+    }
+
+    toggle.setAttribute("aria-expanded", "true");
+    actions.dataset.menuState = "open";
+    menu.hidden = false;
+  }
+
+  function closeOtherPageActionsMenus(actions: HTMLElement) {
+    for (const openActions of document.querySelectorAll<HTMLElement>(
+      '[data-page-actions][data-menu-state="open"]',
+    )) {
+      if (openActions !== actions) {
+        closePageActionsMenu(openActions);
+      }
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const toggle = event.target.closest<HTMLButtonElement>(
+      "[data-page-actions-toggle]",
+    );
+    if (toggle) {
+      const actions = toggle.closest<HTMLElement>("[data-page-actions]");
+      if (!actions) {
+        return;
+      }
+
+      const isOpen = toggle.getAttribute("aria-expanded") === "true";
+      closeOtherPageActionsMenus(actions);
+      if (isOpen) {
+        closePageActionsMenu(actions);
+      } else {
+        openPageActionsMenu(actions);
+      }
+      return;
+    }
+
+    const menu = event.target.closest<HTMLElement>("[data-page-actions-menu]");
+    for (const openActions of document.querySelectorAll<HTMLElement>(
+      '[data-page-actions][data-menu-state="open"]',
+    )) {
+      if (!menu || !openActions.contains(menu)) {
+        closePageActionsMenu(openActions);
+      }
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      const focusedActions =
+        document.activeElement instanceof Element
+          ? document.activeElement.closest<HTMLElement>("[data-page-actions]")
+          : null;
+
+      for (const openActions of document.querySelectorAll<HTMLElement>(
+        '[data-page-actions][data-menu-state="open"]',
+      )) {
+        closePageActionsMenu(openActions);
+      }
+
+      focusedActions
+        ?.querySelector<HTMLButtonElement>("[data-page-actions-toggle]")
+        ?.focus();
+      return;
+    }
+
+    if (event.key !== "ArrowDown") {
+      return;
+    }
+
+    const toggle = event.target.closest<HTMLButtonElement>(
+      "[data-page-actions-toggle]",
+    );
+    const actions = toggle?.closest<HTMLElement>("[data-page-actions]");
+    if (!actions) {
+      return;
+    }
+
+    event.preventDefault();
+    closeOtherPageActionsMenus(actions);
+    openPageActionsMenu(actions);
+    actions
+      .querySelector<HTMLElement>('[data-page-actions-menu] [role="menuitem"]')
+      ?.focus();
+  });
+</script>
 
 <style>
   .page-title-with-breadcrumbs {
     display: contents;
   }
 
+  .page-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tnz-space-4);
+    margin-top: var(--tnz-space-3);
+  }
+
   /* Page title h1 styles */
   h1 {
-    margin-top: var(--tnz-space-3);
+    flex: 1;
+    min-width: 0;
+    margin-top: 0;
     font-size: var(--sl-text-h1);
     line-height: var(--sl-line-height-headings);
     font-weight: var(--tnz-font-semibold);
     color: var(--sl-color-white);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
+  }
+
+  .page-actions {
+    flex: none;
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    height: var(--tnz-button-height-s);
+    border: 1px solid var(--tnz-neutral-600);
+    border-radius: var(--tnz-radius);
+    background-color: color-mix(in srgb, var(--tnz-neutral-700) 24%, transparent);
+    color: var(--tnz-neutral-400);
+    transition:
+      background-color var(--tnz-transition-base),
+      border-color var(--tnz-transition-base),
+      color var(--tnz-transition-base);
+  }
+
+  .page-actions:hover,
+  .page-actions:focus-within,
+  .page-actions[data-menu-state="open"] {
+    border-color: var(--tnz-neutral-500);
+    background-color: color-mix(in srgb, var(--tnz-neutral-600) 22%, transparent);
+    color: var(--tnz-neutral-200);
+  }
+
+  .page-actions[data-menu-state="open"] .copy-for-llm,
+  .page-actions[data-menu-state="open"] .page-actions__dropdown-trigger {
+    background-color: color-mix(in srgb, var(--tnz-neutral-600) 22%, transparent);
+    color: var(--tnz-neutral-200);
+  }
+
+  .copy-for-llm,
+  .page-actions__dropdown-trigger {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition:
+      background-color var(--tnz-transition-base),
+      color var(--tnz-transition-base);
+  }
+
+  .copy-for-llm {
+    width: 28px;
+    border-start-start-radius: calc(var(--tnz-radius) - 1px);
+    border-end-start-radius: calc(var(--tnz-radius) - 1px);
+    border-inline-end: 1px solid var(--tnz-neutral-600);
+  }
+
+  .page-actions__dropdown-trigger {
+    width: 28px;
+    border-start-end-radius: calc(var(--tnz-radius) - 1px);
+    border-end-end-radius: calc(var(--tnz-radius) - 1px);
+  }
+
+  .copy-for-llm:hover,
+  .copy-for-llm:focus-visible,
+  .page-actions__dropdown-trigger:hover,
+  .page-actions__dropdown-trigger:focus-visible,
+  .copy-for-llm:active,
+  .page-actions__dropdown-trigger:active,
+  .page-actions__dropdown-trigger[aria-expanded="true"] {
+    background-color: color-mix(in srgb, var(--tnz-neutral-600) 42%, transparent);
+    color: var(--tnz-neutral-50);
+  }
+
+  .copy-for-llm:focus-visible,
+  .page-actions__dropdown-trigger:focus-visible {
+    box-shadow:
+      0 0 0 1px var(--tnz-neutral-200),
+      0 0 0 4px var(--tnz-neutral-250);
+    outline: none;
+  }
+
+  .copy-for-llm:disabled {
+    cursor: progress;
+    opacity: 0.72;
+  }
+
+  .copy-for-llm[data-copy-state="success"] {
+    background-color: color-mix(in srgb, var(--tnz-green-500) 14%, transparent);
+    color: color-mix(in srgb, var(--tnz-green-200) 82%, var(--tnz-neutral-50));
+  }
+
+  .copy-for-llm[data-copy-state="error"] {
+    background-color: color-mix(in srgb, var(--tnz-red-500) 14%, transparent);
+    color: color-mix(in srgb, var(--tnz-red-200) 82%, var(--tnz-neutral-50));
+  }
+
+  .copy-for-llm__icon,
+  .page-actions__chevron,
+  .page-actions__menu-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+  }
+
+  .page-actions__chevron {
+    transition: transform var(--tnz-transition-base);
+  }
+
+  .page-actions__dropdown-trigger[aria-expanded="true"] .page-actions__chevron {
+    transform: rotate(180deg);
+  }
+
+  .copy-for-llm__label,
+  .copy-for-llm__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .page-actions__menu {
+    position: absolute;
+    z-index: var(--tnz-z-dropdown);
+    inset-block-start: calc(100% + var(--tnz-space-1));
+    inset-inline-end: 0;
+    min-width: 12.5rem;
+    padding: var(--tnz-space-1);
+    border: 1px solid var(--tnz-neutral-600);
+    border-radius: var(--tnz-radius);
+    background-color: var(--tnz-neutral-700);
+    box-shadow: 0 12px 28px rgb(0 0 0 / 0.28);
+  }
+
+  .page-actions__menu[hidden] {
+    display: none;
+  }
+
+  .page-actions__menu-item,
+  .page-actions__menu-item:link,
+  .page-actions__menu-item:visited {
+    display: flex;
+    align-items: center;
+    gap: var(--tnz-space-2);
+    min-height: var(--tnz-button-height-m);
+    padding: var(--tnz-space-1) var(--tnz-space-2);
+    border: 0;
+    border-radius: var(--tnz-radius-sm);
+    color: var(--tnz-neutral-200);
+    font-size: var(--tnz-text-sm);
+    line-height: var(--tnz-leading-sm);
+    font-weight: var(--tnz-font-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      background-color var(--tnz-transition-base),
+      color var(--tnz-transition-base);
+  }
+
+  .page-actions__menu-item:hover,
+  .page-actions__menu-item:focus-visible {
+    background-color: var(--tnz-neutral-600);
+    color: var(--tnz-neutral-50);
+    text-decoration: none;
+    outline: none;
+  }
+
+  :root[data-theme='light'] .page-actions {
+    border-color: var(--tnz-neutral-250);
+    background-color: var(--tnz-neutral-50);
+    color: var(--tnz-neutral-800);
+  }
+
+  :root[data-theme='light'] .page-actions:hover,
+  :root[data-theme='light'] .page-actions:focus-within,
+  :root[data-theme='light'] .page-actions[data-menu-state="open"] {
+    border-color: var(--tnz-neutral-300);
+    background-color: var(--tnz-neutral-100);
+    color: var(--tnz-neutral-800);
+  }
+
+  :root[data-theme='light'] .copy-for-llm {
+    border-inline-end-color: var(--tnz-neutral-250);
+  }
+
+  :root[data-theme='light'] .copy-for-llm:hover,
+  :root[data-theme='light'] .copy-for-llm:focus-visible,
+  :root[data-theme='light'] .page-actions__dropdown-trigger:hover,
+  :root[data-theme='light'] .page-actions__dropdown-trigger:focus-visible,
+  :root[data-theme='light'] .copy-for-llm:active,
+  :root[data-theme='light'] .page-actions__dropdown-trigger:active,
+  :root[data-theme='light'] .page-actions__dropdown-trigger[aria-expanded="true"] {
+    background-color: var(--tnz-neutral-200);
+    color: var(--tnz-neutral-800);
+  }
+
+  :root[data-theme='light'] .copy-for-llm[data-copy-state="success"] {
+    background-color: color-mix(in srgb, var(--tnz-green-500) 10%, var(--tnz-neutral-50));
+    color: var(--tnz-green-600);
+  }
+
+  :root[data-theme='light'] .copy-for-llm[data-copy-state="error"] {
+    background-color: color-mix(in srgb, var(--tnz-red-500) 10%, var(--tnz-neutral-50));
+    color: var(--tnz-red-600);
+  }
+
+  :root[data-theme='light'] .page-actions__menu {
+    border-color: var(--tnz-neutral-250);
+    background-color: var(--tnz-neutral-50);
+    box-shadow: 0 12px 28px rgb(14 16 23 / 0.12);
+  }
+
+  :root[data-theme='light'] .page-actions__menu-item,
+  :root[data-theme='light'] .page-actions__menu-item:link,
+  :root[data-theme='light'] .page-actions__menu-item:visited {
+    color: var(--tnz-neutral-700);
+  }
+
+  :root[data-theme='light'] .page-actions__menu-item:hover,
+  :root[data-theme='light'] .page-actions__menu-item:focus-visible {
+    background-color: var(--tnz-neutral-100);
+    color: var(--tnz-neutral-800);
   }
 
   /* Breadcrumb Component Styles */
@@ -294,8 +965,20 @@ for (let i = 0; i < segments.length; i++) {
   }
 
   @media (max-width: 50rem) {
-    h1 {
+    .page-heading-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--tnz-space-2);
       margin-top: var(--tnz-space-2);
+    }
+
+    .page-actions {
+      margin-top: 0;
+    }
+
+    .page-actions__menu {
+      inset-inline-start: 0;
+      inset-inline-end: auto;
     }
 
     .c-breadcrumbs {
