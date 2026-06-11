@@ -28,13 +28,18 @@ the operator skips that event and emits a warning.
 
 If you omit `partition_key`, the operator generates a random UUID for each
 record. A partition key expression must produce non-empty strings up to 256
-bytes. Kinesis record payloads plus their partition key must be at most 10 MiB.
-Events that exceed these limits are skipped with a warning.
+characters. Kinesis record payloads plus their partition key must fit the
+stream's configured maximum record size, which defaults to 1 MiB and can be
+raised to 10 MiB. The operator discovers the limit at startup via
+`kinesis:DescribeStreamSummary`; without that permission it falls back to the
+10 MiB API maximum and lets the service enforce the effective limit. Events
+that exceed these limits are skipped with a warning.
 
 The operator retries failed `PutRecords` entries with exponential backoff before
 emitting an error.
 
-The operator requires the `kinesis:PutRecords` AWS permission.
+The operator requires the `kinesis:PutRecords` AWS permission and uses
+`kinesis:DescribeStreamSummary` when available.
 
 ### `stream: string`
 
