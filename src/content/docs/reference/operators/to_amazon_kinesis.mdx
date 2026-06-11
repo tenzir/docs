@@ -75,7 +75,12 @@ Defaults to `1s`.
 
 ### `parallel = int (optional)`
 
-The number of parallel write slots.
+The maximum number of concurrent `PutRecords` requests.
+
+Values greater than one overlap request round trips and multiply write
+throughput accordingly, but concurrent requests can complete out of order. If
+you use a fixed `partition_key` and depend on strict ordering within a shard,
+keep the default.
 
 The value must be greater than zero.
 

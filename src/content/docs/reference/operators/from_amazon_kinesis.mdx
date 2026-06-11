@@ -19,7 +19,10 @@ from_amazon_kinesis stream:string, [start=string|time, count=int, exit=bool,
 ## Description
 
 The `from_amazon_kinesis` operator reads records from the existing shards of a
-Kinesis data stream and emits one event per Kinesis record.
+Kinesis data stream and emits one event per Kinesis record. All shards are
+read concurrently, so throughput scales with the shard count. Record order is
+preserved within a shard but interleaved across shards, matching the ordering
+guarantees of Kinesis itself.
 
 The emitted events use the `tenzir.amazon_kinesis` schema with these fields:
 
