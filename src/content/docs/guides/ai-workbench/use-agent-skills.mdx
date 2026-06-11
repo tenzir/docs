@@ -26,6 +26,7 @@ Tenzir publishes the following skills:
 | Skill         | Description                                                                                |
 | ------------- | ------------------------------------------------------------------------------------------ |
 | `tenzir-asim` | Microsoft Sentinel ASIM schema and mapping guidance for schemas, fields, aliases, and roles |
+| `tenzir-cef`  | ArcSight CEF reference for headers, the extension dictionary, the ESM event schema, and timestamps |
 | `tenzir-cim`  | Splunk CIM data models, datasets, fields, tags, constraints, lookups, and mapping guidance  |
 | `tenzir-ecs`  | ECS fields, fieldsets, categorization values, custom fields, and OpenTelemetry alignment    |
 | `tenzir-edm`  | FortiSIEM Event Data Model reference for data models, event attributes, types, and names    |
@@ -102,6 +103,35 @@ Sentinel ASIM NetworkSession record.
 ```text
 Use the tenzir-asim skill to explain the required and recommended
 fields for ASIM DNS events.
+```
+
+### Use the CEF skill
+
+Install the ArcSight CEF skill when you want an agent to generate, parse, or
+map events in the Common Event Format, build ArcSight SmartConnector
+integrations, or look up predefined CEF extension keys and the ESM event
+schema behind them:
+
+```bash
+npx skills add tenzir/skills@tenzir-cef
+```
+
+The `tenzir-cef` skill is generated from the official OpenText CEF
+Implementation Standard and the ArcSight ESM Console User's Guide. It
+documents the CEF header and escaping rules, all 174 predefined extension
+keys with types, lengths, and producer/consumer audience, the 479 ESM data
+fields across 18 schema groups, and the accepted date formats.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-cef skill to render these events as CEF messages, using
+predefined extension keys where possible.
+```
+
+```text
+Use the tenzir-cef skill to look up which ArcSight ESM field backs each
+CEF extension key in this event.
 ```
 
 ### Use the CIM skill
