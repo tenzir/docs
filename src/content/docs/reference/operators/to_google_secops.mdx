@@ -8,7 +8,7 @@ Sends raw logs, UDM events, or entities to a Google SecOps Chronicle instance.
 
 ```tql
 to_google_secops [mode=string,] project=string, region=string, instance=string,
-                 [service_credentials=string, log_type=string,
+                 [service_credentials=secret, log_type=string,
                  log_text=blob|string, log_entry_time=time,
                  collection_time=time, labels=record, forwarder=string,
                  hint=string, source_filename=string, namespace=string,
@@ -49,7 +49,7 @@ The SecOps location. This also selects the regional API host.
 
 The SecOps instance ID.
 
-### `service_credentials = string (optional)`
+### `service_credentials = secret (optional)`
 
 Full service-account JSON to use for Google Cloud OAuth2 authentication. Use a
 secret value for credentials in production.
