@@ -10,6 +10,24 @@ The examples use <Op>from_file</Op> with a [parsing
 subpipeline](/reference/programs#parsing-subpipelines) to illustrate each
 technique.
 
+## Auto-detect structured text
+
+Use <Op>read_auto</Op> when you don't know the text format yet, or when you want
+to prototype against sample files before choosing a concrete reader. It detects
+common structured text formats such as NDJSON, CSV, TSV, key-value text, YAML,
+Syslog, CEF, and LEEF from the first bytes of the stream:
+
+```tql
+from_file "sample.log" {
+  read_auto fallback="lines"
+}
+```
+
+With `fallback="lines"`, unsupported UTF-8 input still becomes one event per
+line. Keep the default `fallback="none"` when unknown formats should fail fast.
+After you know the exact format, switch to the concrete reader when you need
+format-specific options.
+
 ## Split on newlines
 
 Use <Op>read_lines</Op> to split a byte stream on newline characters. Given this
@@ -250,6 +268,7 @@ from_file "syslog.txt" {
 
 ## See also
 
+- <Op>read_auto</Op>
 - <Guide>parsing/parse-binary-data</Guide>
 - <Guide>parsing/parse-string-fields</Guide>
 - <Guide>collecting/read-and-watch-files</Guide>

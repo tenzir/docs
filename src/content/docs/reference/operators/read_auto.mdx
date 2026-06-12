@@ -1,0 +1,187 @@
+---
+title: read_auto
+category: Parsing
+example: 'read_auto fallback="lines"'
+---
+
+Detects the input format of a byte stream and selects a matching reader.
+
+```tql
+read_auto [fallback=string, max_probe_bytes=uint]
+```
+
+## Description
+
+The `read_auto` operator buffers the first bytes of its input as a probe and
+asks every reader whether it can parse them. Use it when the input format is
+unknown at authoring time, but should still be one of Tenzir's structured
+formats.
+
+1. Probe the first bytes of the input, up to `max_probe_bytes`.
+2. Dry-run every reader's parser on the probe to find capable readers.
+3. Start the most specific capable reader. Without a capable reader, use the
+   `fallback` reader or fail; when two formats are equally specific, fail
+   with an ambiguity error.
+
+Detection works in two layers:
+
+1. **Capability**: Every reader dry-runs its actual parser on the probe. For
+   example, YAML detection runs the YAML parser and requires a structured
+   document, and CSV detection tokenizes complete lines with the reader's
+   quoting rules and requires a stable number of fields. A reader only
+   becomes a candidate when it would accept the probed input.
+2. **Specificity**: When several readers are capable of parsing the same
+   bytes, the most specific format wins. Magic-byte formats such as PCAP or
+   Parquet rank above JSON dialects such as Suricata EVE or GELF, which rank
+   above generic NDJSON, which ranks above key-value, delimited, Syslog, and
+   YAML input. For example, a GELF stream is also valid NDJSON, but the GELF
+   reader wins because it describes the input more precisely.
+
+Detection is strict by default. If no reader is capable, or if two formats
+with equal specificity match the same probe, `read_auto` emits an error
+instead of guessing. A reader that needs more evidence delays the decision
+until more input arrives, the input ends, or the probe reaches
+`max_probe_bytes`. Once a single best candidate exists, `read_auto` starts
+that reader, replays the buffered bytes, and forwards the rest of the stream
+unchanged.
+
+The built-in detectors cover common JSON, delimited text, security log, and
+magic-byte formats, including NDJSON, JSON objects, JSON arrays of objects,
+CSV, TSV, key-value text, YAML, Syslog, CEF, LEEF, Zeek TSV, Suricata EVE
+JSON, Zeek JSON, GELF, PCAP, Feather, BITZ, and Parquet. Formats that accept
+nearly arbitrary text never participate in detection: space-separated values
+look like prose, so select <Op>read_ssv</Op> explicitly, and Syslog messages
+without a `<PRI>` prefix look like free-form text, so they only match via
+`fallback`.
+
+The output uses the schema name that the selected reader would normally assign.
+For example, detected CSV input produces the same schema name as
+<Op>read_csv</Op>, and detected NDJSON input produces the same schema name as
+<Op>read_ndjson</Op>. Inspect `@name` to see the schema name. `read_auto` does
+not add a separate field with the detected format.
+
+Use `read_auto` for exploratory pipelines where you want to try sample data
+quickly, for file drops where names don't reliably encode the format, and for
+multi-format ingestion endpoints. For example, <Op>accept_tcp</Op> can run
+`read_auto` per connection so one client sends NDJSON while another sends CSV,
+Syslog, or another supported format.
+
+Prefer a concrete reader when you already know the format or need reader-specific
+options such as `unflatten_separator` for <Op>read_ndjson</Op>. `read_auto`
+selects the reader once for each byte stream and expects the remaining bytes in
+that stream to use the same format.
+
+### `fallback = string (optional)`
+
+Controls what happens when no detector matches.
+
+Valid values are:
+
+- `"none"`: Emit an error. This is the default.
+- `"lines"`: Use <Op>read_lines</Op>. The input must be valid UTF-8.
+- `"all"`: Use <Op>read_all</Op>. `read_auto` uses the current probe to
+  choose between text and binary output: valid UTF-8 probe bytes select
+  `read_all`, while invalid probe bytes select `read_all binary=true`. If
+  binary input can start with a valid UTF-8 prefix longer than
+  `max_probe_bytes`, use a larger probe limit or <Op>read_all</Op> with
+  `binary=true` directly.
+
+`read_auto` uses a fallback only after the probe is final, either because the
+input ended or because the probe reached `max_probe_bytes`. For long-lived
+streams with unknown plain-text input, lower `max_probe_bytes` to reduce startup
+latency or use <Op>read_lines</Op> directly.
+
+### `max_probe_bytes = uint (optional)`
+
+The maximum number of bytes to inspect before forcing a detection decision.
+
+Defaults to `1Mi` bytes.
+
+## Examples
+
+### Detect JSON lines
+
+Given this input:
+
+```json title="events.ndjson"
+{"x":1}
+{"x":2}
+```
+
+Use `read_auto` where you would normally use a concrete reader:
+
+```tql
+from_file "events.ndjson" {
+  read_auto
+}
+```
+
+```tql
+{x: 1}
+{x: 2}
+```
+
+### Fall back to lines
+
+For arbitrary UTF-8 text, opt into line-based parsing explicitly:
+
+```txt title="messages.txt"
+hello
+world
+```
+
+```tql
+from_file "messages.txt" {
+  read_auto fallback="lines"
+}
+```
+
+```tql
+{line: "hello"}
+{line: "world"}
+```
+
+### Fall back to a single event
+
+Use `fallback="all"` when unknown input should become one event instead of one
+event per line:
+
+```tql
+from_file "payload.bin" {
+  read_auto fallback="all"
+}
+```
+
+If the input is binary, the resulting event contains a `blob` value in the
+`data` field.
+
+### Accept multiple formats over TCP
+
+Use `read_auto` in a network listener when the endpoint accepts producers with
+different formats:
+
+```tql
+accept_tcp "0.0.0.0:9000" {
+  read_auto fallback="lines"
+}
+```
+
+The detector runs separately for each connection. This makes the pattern useful
+for rapid prototyping, intake endpoints shared by several teams, and package
+pipelines that normalize data only after the parser has selected the input
+format.
+
+## See Also
+
+- <Op>accept_tcp</Op>
+- <Op>from_file</Op>
+- <Op>read_all</Op>
+- <Op>read_csv</Op>
+- <Op>read_json</Op>
+- <Op>read_lines</Op>
+- <Op>read_ndjson</Op>
+- <Op>read_syslog</Op>
+- <Op>read_yaml</Op>
+- <Guide>collecting/get-data-from-the-network</Guide>
+- <Guide>collecting/read-and-watch-files</Guide>
+- <Guide>parsing/parse-delimited-text</Guide>

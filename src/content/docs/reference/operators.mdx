@@ -539,6 +539,10 @@ operators:
     description: 'Parses an incoming bytes stream into a single event.'
     example: 'read_all binary=true'
     path: 'reference/operators/read_all'
+  - name: 'read_auto'
+    description: 'Detects the input format of a byte stream and selects a matching reader.'
+    example: 'read_auto fallback="lines"'
+    path: 'reference/operators/read_auto'
   - name: 'read_bitz'
     description: 'Parses bytes as *BITZ* format.'
     example: 'read_bitz'
@@ -2263,6 +2267,14 @@ package::remove "suricata-ocsf"
 
 ```tql
 read_all binary=true
+```
+
+</ReferenceCard>
+
+<ReferenceCard title="read_auto" description="Detects the input format of a byte stream and selects a matching reader." href="/reference/operators/read_auto">
+
+```tql
+read_auto fallback="lines"
 ```
 
 </ReferenceCard>
