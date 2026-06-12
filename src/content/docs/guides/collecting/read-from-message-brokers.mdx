@@ -4,8 +4,8 @@ title: Read from message brokers
 
 This guide shows you how to receive events from message brokers using TQL.
 You'll learn to subscribe to topics and queues from Apache Kafka (including
-Amazon MSK), NATS JetStream, AMQP-based brokers (like RabbitMQ), Amazon SQS,
-and Google Cloud Pub/Sub.
+Amazon MSK), Amazon Kinesis Data Streams, NATS JetStream, AMQP-based brokers
+(like RabbitMQ), Amazon SQS, and Google Cloud Pub/Sub.
 
 ## Apache Kafka
 
@@ -62,6 +62,23 @@ from_kafka "security-logs",
   options={"bootstrap.servers": "my-cluster.kafka.us-east-1.amazonaws.com:9098"},
   aws_iam={region: "us-east-1"}
 ```
+
+## Amazon Kinesis
+
+[Amazon Kinesis Data Streams](/integrations/amazon/kinesis) is a managed
+streaming service on AWS. Use `from_amazon_kinesis` to receive records from a
+stream.
+
+### Receive from a stream
+
+```tql
+from_amazon_kinesis "security-events", start="trim_horizon"
+this = string(message).parse_json()
+```
+
+The operator emits one event per Kinesis record. The raw payload is stored in
+the `message` field as a `blob`, together with stream, shard, sequence number,
+partition key, and lag metadata.
 
 ## NATS JetStream
 
@@ -158,5 +175,6 @@ content. Parse it to extract structured data.
 - <Integration>kafka</Integration>
 - <Integration>nats</Integration>
 - <Integration>amqp</Integration>
+- <Integration>amazon/kinesis</Integration>
 - <Integration>amazon/sqs</Integration>
 - <Integration>google/cloud-pubsub</Integration>

@@ -13,7 +13,8 @@ operators accept expressions for flexible serialization.
 
 ### Message brokers
 
-Send events to message brokers like [Kafka](/integrations/kafka) and
+Send events to message brokers like [Kafka](/integrations/kafka),
+[Amazon Kinesis Data Streams](/integrations/amazon/kinesis), and
 [NATS](/integrations/nats).
 
 Send to Kafka with automatic JSON formatting:
@@ -42,6 +43,13 @@ to_nats "alerts"
 
 The NATS server must have a JetStream stream that captures the subject you
 publish to.
+
+Send to Kinesis with the default NDJSON serialization:
+
+```tql
+subscribe "security-events"
+to_amazon_kinesis "security-events"
+```
 
 ### Analytics platforms
 
@@ -175,6 +183,7 @@ to_kafka f"events.{event_type}"
 
 - <Op>fork</Op>
 - <Op>to_kafka</Op>
+- <Op>to_amazon_kinesis</Op>
 - <Op>to_opensearch</Op>
 - <Op>to_splunk</Op>
 - <Op>to_tcp</Op>
