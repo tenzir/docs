@@ -23,10 +23,10 @@ from_amazon_kinesis "security-events", start="trim_horizon"
 this = string(message).parse_json()
 ```
 
-The source operator lists shards once during startup. If the stream gains new
-shards while a pipeline is running, restart the pipeline to discover them.
-Snapshots store per-shard sequence numbers and resume with at-least-once
-semantics.
+The source operator lists shards during startup and discovers new shards when
+an existing shard closes, such as after a resharding operation, so running
+pipelines follow reshards without a restart. Snapshots store per-shard
+sequence numbers and resume with at-least-once semantics.
 
 ## Configuration
 
