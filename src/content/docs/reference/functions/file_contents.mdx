@@ -26,10 +26,10 @@ Defaults to `false`.
 
 ## Examples
 
+### Read a text file
+
 ```tql
-let $secops_credentials = file_contents("/path/to/service-account.json")
-…
-to_google_secops service_credentials=$secops_credentials, …
+from {hostname: file_contents("/etc/hostname")}
 ```
 
 ## See Also
