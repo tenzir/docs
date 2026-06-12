@@ -21,21 +21,21 @@ to_google_secops [mode=string,] project=string, region=string, instance=string,
 The `to_google_secops` operator ingests telemetry via the Google SecOps Chronicle
 import APIs:
 
-- `mode="log"` sends raw logs to the [`logs.import` API][logs-import].
-- `mode="udm"` sends each input row as a UDM event to the [`events.import`
+- `mode="raw_log"` sends raw logs to the [`logs.import` API][logs-import].
+- `mode="udm_event"` sends each input row as a UDM event to the [`events.import`
   API][events-import].
-- `mode="entity"` sends each input row as an entity to the [`entities.import`
+- `mode="udm_entity"` sends each input row as an entity to the [`entities.import`
   API][entities-import].
 
 [logs-import]: https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.logTypes.logs/import
 [events-import]: https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.events/import
-[entities-import]: https://cloud.google.com/chronicle/docs/reference/rest/v1beta/projects.locations.instances.entities/import
+[entities-import]: https://cloud.google.com/chronicle/docs/reference/rest/v1/projects.locations.instances.entities/import
 
 ### `mode = string`
 
-Selects the ingestion mode. Must be `log`, `udm`, or `entity`.
+Selects the ingestion mode. Must be `raw_log`, `udm_event`, or `udm_entity`.
 
-Defaults to `log`.
+Defaults to `raw_log`.
 
 ### `project = string`
 
@@ -58,8 +58,8 @@ When omitted, the operator uses Google Application Default Credentials.
 
 ### `log_type = string`
 
-The raw log type or entity log type. Required when `mode="log"` or
-`mode="entity"`.
+The raw log type or entity log type. Required when `mode="raw_log"` or
+`mode="udm_entity"`.
 
 For raw logs, this selects the SecOps log type in the `logs.import` resource
 path. For entities, this sets the `logType` field in the `entities.import`
@@ -80,16 +80,16 @@ to the import APIs.
 The raw log text. String values must contain valid UTF-8. Blob and string values
 are base64-encoded before they are sent to SecOps.
 
-Required when `mode="log"`.
+Required when `mode="raw_log"`.
 
 ### `log_entry_time = time`
 
-The timestamp of the raw log entry. Required when `mode="log"`.
+The timestamp of the raw log entry. Required when `mode="raw_log"`.
 
 ### `collection_time = time`
 
 The time at which the raw log entry was collected. Google requires this to be
-after `log_entry_time`. Required when `mode="log"`.
+after `log_entry_time`. Required when `mode="raw_log"`.
 
 ### `labels = record (optional)`
 
@@ -105,31 +105,31 @@ labels={
 }
 ```
 
-Only valid when `mode="log"`.
+Only valid when `mode="raw_log"`.
 
 ### `forwarder = string (optional)`
 
 The SecOps forwarder name to attach to raw logs.
 
-Only valid when `mode="log"`.
+Only valid when `mode="raw_log"`.
 
 ### `hint = string (optional)`
 
 The parser hint to pass to the `logs.import` API.
 
-Only valid when `mode="log"`.
+Only valid when `mode="raw_log"`.
 
 ### `source_filename = string (optional)`
 
 The source filename to attach to raw logs.
 
-Only valid when `mode="log"`.
+Only valid when `mode="raw_log"`.
 
 ### `namespace = string (optional)`
 
 The environment namespace for raw logs.
 
-Only valid when `mode="log"`.
+Only valid when `mode="raw_log"`.
 
 ### `max_request_size = int (optional)`
 
@@ -162,7 +162,7 @@ Defaults to `50`.
 ```tql
 from {log: "31-Mar-2025 01:35:02.187 client 0.0.0.0#4238: query: tenzir.com IN A + (255.255.255.255)"}
 to_google_secops \
-  mode="log",
+  mode="raw_log",
   project="my-project",
   region="us",
   instance="my-secops-instance",
@@ -204,7 +204,7 @@ from {
   },
 }
 to_google_secops \
-  mode="udm",
+  mode="udm_event",
   project="my-project",
   region="us",
   instance="my-secops-instance",
@@ -231,7 +231,7 @@ from {
   },
 }
 to_google_secops \
-  mode="entity",
+  mode="udm_entity",
   project="my-project",
   region="us",
   instance="my-secops-instance",

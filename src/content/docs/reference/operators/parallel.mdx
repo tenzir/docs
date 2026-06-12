@@ -95,8 +95,10 @@ Send events to Google SecOps with 4 concurrent connections:
 ```tql
 subscribe "events"
 parallel 4 {
-  to_google_secops customer_id="…", private_key=secret("secops_key"),
-                   client_email="…", log_type="…", log_text=raw
+  to_google_secops project="…", region="us", instance="…",
+                   service_credentials=secret("secops_service_account"),
+                   log_type="…", log_text=raw,
+                   log_entry_time=ts, collection_time=now()
 }
 ```
 
