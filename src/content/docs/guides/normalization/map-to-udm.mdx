@@ -46,24 +46,22 @@ For a `NETWORK_CONNECTION` event, UDM expects these core sections:
 
 ## Write a small mapping
 
-The following example maps a parsed firewall connection event to UDM. It keeps
-the source data under `fw`, moves one-use fields into UDM, converts source
+The following example shows a package mapper that maps a parsed firewall
+connection event to UDM. It keeps all mapping work inside the `event` argument,
+puts the source data under `fw`, moves one-use fields into UDM, converts source
 strings to UDM enum values, and preserves unmapped residue in `additional`.
 
 ```tql
-from {
-  ts: 2024-01-15T10:30:45Z,
-  action: "allowed",
-  src_ip: "10.0.0.5",
-  src_port: 51544,
-  dst_ip: "203.0.113.10",
-  dst_port: 443,
-  proto: "tcp",
-  bytes_out: 1280,
-  bytes_in: 8192,
-}
+---
+args:
+  named:
+    - name: event
+      description: The field that holds the event to map.
+      type: field
+      default: this
+---
 
-this = {fw: this}
+$event = {...$event, fw: $event, udm: {}}
 
 let $ip_protocols = {
   tcp: "TCP",
@@ -80,37 +78,42 @@ let $actions = {
   blocked: "BLOCK",
 }
 
-udm.metadata = {
-  eventTimestamp: move fw.ts,
+$event.udm.metadata = {
+  eventTimestamp: move $event.fw.ts,
   eventType: "NETWORK_CONNECTION",
   vendorName: "Example Networks",
   productName: "Example Firewall",
-  productEventType: fw.action,
+  productEventType: $event.fw.action,
 }
 
-udm.principal = {
-  ip: [move fw.src_ip],
-  port: move fw.src_port,
+$event.udm.principal = {
+  ip: [move $event.fw.src_ip],
+  port: move $event.fw.src_port,
 }
 
-udm.target = {
-  ip: [move fw.dst_ip],
-  port: move fw.dst_port,
+$event.udm.target = {
+  ip: [move $event.fw.dst_ip],
+  port: move $event.fw.dst_port,
 }
 
-udm.network = {
-  ipProtocol: $ip_protocols[(move fw.proto).to_lower()]? else "UNKNOWN_IP_PROTOCOL",
-  sentBytes: move fw.bytes_out,
-  receivedBytes: move fw.bytes_in,
+$event.udm.network = {
+  ipProtocol: $ip_protocols[(move $event.fw.proto).to_lower()]? else "UNKNOWN_IP_PROTOCOL",
+  sentBytes: move $event.fw.bytes_out,
+  receivedBytes: move $event.fw.bytes_in,
 }
 
-udm.securityResult = [{
-  action: [$actions[fw.action.to_lower()]? else "UNKNOWN_ACTION"],
-  actionDetails: move fw.action,
+$event.udm.securityResult = [{
+  action: [$actions[$event.fw.action.to_lower()]? else "UNKNOWN_ACTION"],
+  actionDetails: move $event.fw.action,
 }]
 
-this = {...udm, additional: fw}
+$event = {...$event.udm, additional: $event.fw}
 ```
+
+A call with a firewall event such as `{ts: 2024-01-15T10:30:45Z, action:
+"allowed", src_ip: "10.0.0.5", src_port: 51544, dst_ip: "203.0.113.10",
+dst_port: 443, proto: "tcp", bytes_out: 1280, bytes_in: 8192}` produces a UDM
+event like this:
 
 ```tql
 {
@@ -154,7 +157,10 @@ this = {...udm, additional: fw}
 
 Use the same structure for larger mappings:
 
-- **Keep a source namespace**: Move the parsed event under a short namespace
+- **Use the event scope**: Package mappers accept a named `event` field
+  argument with `default: this`, create source and target namespaces with an
+  initial spread, and mutate only fields below `$event`.
+- **Keep a source namespace**: Keep the parsed event under a short namespace
   such as `fw`, `dns`, `edr`, or `event` before you create UDM fields.
 - **Set `metadata.eventType` early**: Let the UDM event type drive which
   participant nouns and protocol fields you populate.

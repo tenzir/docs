@@ -42,26 +42,23 @@ For a `NetworkSession` event, start with these core fields:
 
 ## Write a small mapping
 
-The following example maps a parsed firewall connection event to an ASIM
-`NetworkSession` record. It keeps the source data under `fw`, sets the ASIM
+The following example shows a package mapper that maps a parsed firewall
+connection event to an ASIM `NetworkSession` record. It keeps all mapping work
+inside the `event` argument, puts the source data under `fw`, sets the ASIM
 schema constants, normalizes the device action and result, maps source and
 destination fields, and preserves unmapped residue in `AdditionalFields`.
 
 ```tql
-from {
-  ts: 2024-01-15T10:30:45Z,
-  action: "allowed",
-  src_ip: "10.0.0.5",
-  src_port: 51544,
-  dst_ip: "203.0.113.10",
-  dst_port: 443,
-  proto: "tcp",
-  bytes_out: 1280,
-  bytes_in: 8192,
-  device: "edge-fw-01",
-}
+---
+args:
+  named:
+    - name: event
+      description: The field that holds the event to map.
+      type: field
+      default: this
+---
 
-this = {fw: this}
+$event = {...$event, fw: $event, asim: {}}
 
 let $actions = {
   allow: "Allow",
@@ -85,30 +82,35 @@ let $results = {
   dropped: "Failure",
 }
 
-asim.EventSchema = "NetworkSession"
-asim.EventSchemaVersion = "0.2.7"
-asim.EventType = "NetworkSession"
-asim.EventCount = 1
-asim.EventStartTime = fw.ts
-asim.EventEndTime = move fw.ts
-asim.EventVendor = "Example Networks"
-asim.EventProduct = "Example Firewall"
-asim.Dvc = fw.device
-asim.DvcHostname = move fw.device
-asim.DvcAction = $actions[fw.action.to_lower()]? else fw.action
-asim.EventResult = $results[fw.action.to_lower()]? else "NA"
-asim.DvcOriginalAction = move fw.action
-asim.SrcIpAddr = move fw.src_ip
-asim.SrcPortNumber = move fw.src_port
-asim.DstIpAddr = move fw.dst_ip
-asim.DstPortNumber = move fw.dst_port
-asim.NetworkProtocol = (move fw.proto).to_upper()
-asim.SrcBytes = move fw.bytes_out
-asim.DstBytes = move fw.bytes_in
-asim.NetworkBytes = asim.SrcBytes + asim.DstBytes
+$event.asim.EventSchema = "NetworkSession"
+$event.asim.EventSchemaVersion = "0.2.7"
+$event.asim.EventType = "NetworkSession"
+$event.asim.EventCount = 1
+$event.asim.EventStartTime = $event.fw.ts
+$event.asim.EventEndTime = move $event.fw.ts
+$event.asim.EventVendor = "Example Networks"
+$event.asim.EventProduct = "Example Firewall"
+$event.asim.Dvc = $event.fw.device
+$event.asim.DvcHostname = move $event.fw.device
+$event.asim.DvcAction = $actions[$event.fw.action.to_lower()]? else $event.fw.action
+$event.asim.EventResult = $results[$event.fw.action.to_lower()]? else "NA"
+$event.asim.DvcOriginalAction = move $event.fw.action
+$event.asim.SrcIpAddr = move $event.fw.src_ip
+$event.asim.SrcPortNumber = move $event.fw.src_port
+$event.asim.DstIpAddr = move $event.fw.dst_ip
+$event.asim.DstPortNumber = move $event.fw.dst_port
+$event.asim.NetworkProtocol = (move $event.fw.proto).to_upper()
+$event.asim.SrcBytes = move $event.fw.bytes_out
+$event.asim.DstBytes = move $event.fw.bytes_in
+$event.asim.NetworkBytes = $event.asim.SrcBytes + $event.asim.DstBytes
 
-this = {...asim, AdditionalFields: fw}
+$event = {...$event.asim, AdditionalFields: $event.fw}
 ```
+
+A call with a firewall event such as `{ts: 2024-01-15T10:30:45Z, action:
+"allowed", src_ip: "10.0.0.5", src_port: 51544, dst_ip: "203.0.113.10",
+dst_port: 443, proto: "tcp", bytes_out: 1280, bytes_in: 8192, device:
+"edge-fw-01"}` produces an ASIM event like this:
 
 ```tql
 {
@@ -141,7 +143,10 @@ this = {...asim, AdditionalFields: fw}
 
 Use the same structure for larger mappings:
 
-- **Keep a source namespace**: Move the parsed event under a short namespace
+- **Use the event scope**: Package mappers accept a named `event` field
+  argument with `default: this`, create source and target namespaces with an
+  initial spread, and mutate only fields below `$event`.
+- **Keep a source namespace**: Keep the parsed event under a short namespace
   such as `fw`, `dns`, `edr`, or `event` before you create ASIM fields.
 - **Set the schema fields early**: Let `EventSchema` and
   `EventSchemaVersion` drive which field records, constants, and conditional

@@ -42,17 +42,22 @@ A typical normalization pipeline follows this structure:
 // 1. Collect raw data
 from_kafka "raw-events"
 
-// 2. Parse into structured events
-this = message.parse_json()
+// 2. Parse into a structured event
+event = message.parse_json()
 
 // 3. Clean up values
-replace what="N/A", with=null
-replace what="-", with=null
+replace event, what="N/A", with=null
+replace event, what="-", with=null
 
 // 4. Map to target schema
-my_source::ocsf::map
+my_source::ocsf::map event=event
 
-// 5. Output normalized events
+// 5. Preserve the raw payload after mapping
+event.raw_data = move message
+event.raw_data_size = event.raw_data.length_bytes()
+this = event
+
+// 6. Output normalized events
 publish "normalized-events"
 ```
 

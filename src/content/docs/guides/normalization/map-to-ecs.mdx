@@ -39,26 +39,23 @@ For a firewall connection event, choose `event.kind: event`,
 
 ## Write a small mapping
 
-The following example maps a parsed firewall connection event to ECS. It keeps
-the source data under `fw`, sets ECS categorization fields, maps network
+The following example shows a package mapper that maps a parsed firewall
+connection event to ECS. It keeps all mapping work inside the `event` argument,
+puts the source data under `fw`, sets ECS categorization fields, maps network
 participants, normalizes the transport protocol, and preserves unmapped residue
 under a custom namespace.
 
 ```tql
-from {
-  ts: 2024-01-15T10:30:45Z,
-  action: "allowed",
-  src_ip: "10.0.0.5",
-  src_port: 51544,
-  dst_ip: "203.0.113.10",
-  dst_port: 443,
-  proto: "tcp",
-  bytes_out: 1280,
-  bytes_in: 8192,
-  device: "edge-fw-01",
-}
+---
+args:
+  named:
+    - name: event
+      description: The field that holds the event to map.
+      type: field
+      default: this
+---
 
-this = {fw: this}
+$event = {...$event, fw: $event, ecs: {}}
 
 let $event_types = {
   allow: ["connection", "allowed"],
@@ -71,26 +68,31 @@ let $event_types = {
   dropped: ["connection", "denied"],
 }
 
-ecs["@timestamp"] = move fw.ts
-ecs.ecs.version = "9.4.0"
-ecs.event.kind = "event"
-ecs.event.category = ["network"]
-ecs.event.type = $event_types[fw.action.to_lower()]? else ["connection"]
-ecs.event.action = (move fw.action).to_lower()
-ecs.source.ip = move fw.src_ip
-ecs.source.port = move fw.src_port
-ecs.source.bytes = move fw.bytes_out
-ecs.destination.ip = move fw.dst_ip
-ecs.destination.port = move fw.dst_port
-ecs.destination.bytes = move fw.bytes_in
-ecs.network.transport = (move fw.proto).to_lower()
-ecs.network.bytes = ecs.source.bytes + ecs.destination.bytes
-ecs.observer.hostname = move fw.device
-ecs.observer.vendor = "Example Networks"
-ecs.observer.product = "Example Firewall"
+$event.ecs["@timestamp"] = move $event.fw.ts
+$event.ecs.ecs.version = "9.4.0"
+$event.ecs.event.kind = "event"
+$event.ecs.event.category = ["network"]
+$event.ecs.event.type = $event_types[$event.fw.action.to_lower()]? else ["connection"]
+$event.ecs.event.action = (move $event.fw.action).to_lower()
+$event.ecs.source.ip = move $event.fw.src_ip
+$event.ecs.source.port = move $event.fw.src_port
+$event.ecs.source.bytes = move $event.fw.bytes_out
+$event.ecs.destination.ip = move $event.fw.dst_ip
+$event.ecs.destination.port = move $event.fw.dst_port
+$event.ecs.destination.bytes = move $event.fw.bytes_in
+$event.ecs.network.transport = (move $event.fw.proto).to_lower()
+$event.ecs.network.bytes = $event.ecs.source.bytes + $event.ecs.destination.bytes
+$event.ecs.observer.hostname = move $event.fw.device
+$event.ecs.observer.vendor = "Example Networks"
+$event.ecs.observer.product = "Example Firewall"
 
-this = {...ecs, example: {unmapped: fw}}
+$event = {...$event.ecs, example: {unmapped: $event.fw}}
 ```
+
+A call with a firewall event such as `{ts: 2024-01-15T10:30:45Z, action:
+"allowed", src_ip: "10.0.0.5", src_port: 51544, dst_ip: "203.0.113.10",
+dst_port: 443, proto: "tcp", bytes_out: 1280, bytes_in: 8192, device:
+"edge-fw-01"}` produces an ECS event like this:
 
 ```tql
 {
@@ -138,7 +140,10 @@ this = {...ecs, example: {unmapped: fw}}
 
 Use the same structure for larger mappings:
 
-- **Keep a source namespace**: Move the parsed event under a short namespace
+- **Use the event scope**: Package mappers accept a named `event` field
+  argument with `default: this`, create source and target namespaces with an
+  initial spread, and mutate only fields below `$event`.
+- **Keep a source namespace**: Keep the parsed event under a short namespace
   such as `fw`, `dns`, `edr`, or `event` before you create ECS fields.
 - **Populate required fields first**: Set `@timestamp` and `ecs.version` before
   you map event-specific fieldsets.
@@ -163,6 +168,12 @@ my_source::ecs::map
 to_elasticsearch "https://elasticsearch.example.com:9200",
   action="index",
   index="ecs-events"
+```
+
+If the parsed source event lives in a nested field, pass that field explicitly:
+
+```tql
+my_source::ecs::map event=parsed
 ```
 
 Use <Op>to_opensearch</Op> instead when the destination is OpenSearch.

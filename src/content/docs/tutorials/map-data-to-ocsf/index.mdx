@@ -577,6 +577,11 @@ ocsf::cast
 to_stdout
 ```
 
+Public mapping operators accept a named `event` field argument that defaults to
+`this`, so `zeek::ocsf::map` maps the current event in this pipeline. When a
+pipeline keeps the parsed source event in a field, call the mapper with
+`event=<field>` and add additional attributes after the mapper returns.
+
 All you have to do to get there is create a package with following directory
 structure:
 
@@ -607,8 +612,9 @@ hierarchy:
 </FileTree>
 
 Since operators fully compose, you can implement `zeek::ocsf::map` as one main
-mapper that performs source-specific cleanup, sets shared fields in the `ocsf`
-record, and dispatches to event-specific operators for each log type.
+mapper that performs source-specific cleanup, creates source and OCSF target
+namespaces inside `$event`, sets shared fields in `$event.ocsf`, and dispatches
+to event-specific operators for each log type.
 
 import mapTql from '/public/packages/zeek/operators/ocsf/map.tql?raw';
 
@@ -629,8 +635,8 @@ In this layout, you'd put the mapping operators in the following directories:
 
 </FileTree>
 
-The mapper keeps intermediate results under `ocsf` internally and returns a
-minimal OCSF event. Callers then run shared OCSF helpers such as
+The mapper keeps intermediate results under `$event.ocsf` internally and returns
+a minimal OCSF event. Callers then run shared OCSF helpers such as
 <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op> to expand and validate the final
 shape. This mirrors how larger package mappers handle cleanup, shared fields,
 fallback Base Event mapping, and event-specific mappings.

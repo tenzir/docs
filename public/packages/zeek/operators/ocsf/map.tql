@@ -1,8 +1,17 @@
+---
+args:
+  named:
+    - name: event
+      description: The field that holds the event to map.
+      type: field
+      default: this
+---
+
 // Keep the parsed source event around while event-specific operators move
 // fields into their OCSF homes.
-this = { zeek: this }
+$event = {...$event, zeek: $event, ocsf: {}}
 
-ocsf.metadata = {
+$event.ocsf.metadata = {
   product: {
     name: "Zeek",
     vendor_name: "Zeek",
@@ -11,22 +20,26 @@ ocsf.metadata = {
   version: "1.8.0",
 }
 
-ocsf.severity_id = 1
+$event.ocsf.severity_id = 1
 
 // Dispatch mappings based on schema name. This assumes that you've parsed the
 // input logs and added the appropriate @name based on the log type. The
 // read_zeek_tsv operator does this automatically. You could also dispatch based
 // on any other stable discriminator, such as _path or event_type.
-match @name {
+match $event.zeek._path? else @name {
+  "conn" => {
+    // Map "conn.log" events
+    zeek::ocsf::events::conn event=$event
+  }
   "zeek.conn" => {
     // Map "conn.log" events
-    zeek::ocsf::events::conn
+    zeek::ocsf::events::conn event=$event
   }
   _ => {
     // Base Event: unknown or unsupported Zeek log type
-    zeek::ocsf::base
+    zeek::ocsf::base event=$event
   }
 }
 
 // Return the mapped OCSF event from the operator.
-this = {...ocsf, unmapped: zeek}
+$event = {...$event.ocsf, unmapped: $event.zeek}
