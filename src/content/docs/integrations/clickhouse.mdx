@@ -101,7 +101,7 @@ to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time, tls=fal
 A URI works here as well:
 
 ```tql
-from "ocsf_network_activity.json"
+from_file "ocsf_network_activity.json"
 ocsf::cast encode_variants=true, null_fill=true
 to_clickhouse uri="clickhouse://default:secret@localhost:9000/default",
               table="ocsf_events",
