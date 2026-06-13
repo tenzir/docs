@@ -50,6 +50,8 @@ from_clickhouse uri="clickhouse://default:secret@localhost:9000/security",
                 tls=false
 ```
 
+You can also pass the connection details as separate arguments:
+
 ```tql
 from_clickhouse table="security.events",
                 host="localhost",
@@ -203,6 +205,8 @@ Use SQL mode for ClickHouse metadata queries:
 ```tql
 from_clickhouse sql="SHOW TABLES FROM ocsf", tls=false
 ```
+
+To inspect columns for a specific table, run `DESCRIBE TABLE`:
 
 ```tql
 from_clickhouse sql="DESCRIBE TABLE ocsf.Network_Activity", tls=false
