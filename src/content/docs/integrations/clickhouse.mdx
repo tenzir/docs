@@ -2,12 +2,14 @@
 title: ClickHouse
 ---
 
+import { Steps } from "@astrojs/starlight/components";
+
 [ClickHouse](https://clickhouse.com/clickhouse) is an open-source analytical
 database. It lets you run real-time analytics with SQL queries.
 
 ![ClickHouse integration](clickhouse.excalidraw)
 
-## How Tenzir Connects to ClickHouse
+## How Tenzir connects to ClickHouse
 
 Tenzir connects to ClickHouse over the network using the native ClickHouse TCP
 protocol using the official
@@ -24,66 +26,32 @@ ClickHouse URI or through explicit host and port settings. This means:
 - **Co-deployment**: For best performance and security, deploy Tenzir and
   ClickHouse in the same trusted network or use secure tunnels if needed.
 
-## Setting Up ClickHouse
+## Set up ClickHouse
 
-To get started with ClickHouse, follow the [official quick start
-guide](https://clickhouse.com/docs/getting-started/quick-start/oss):
+::::tip[Start with ClickHouse Cloud]
+For most new deployments, ClickHouse Cloud is the quickest and most
+cost-effective way to get started. You don't need to provision servers, tune a
+local deployment, or plan storage before you can send data from Tenzir.
+ClickHouse Cloud also includes managed operations such as scaling, upgrades,
+backups, and TLS-enabled connectivity, which reduces the setup work for a first
+integration. Sign up and create a service with the
+[ClickHouse Cloud quick start](https://clickhouse.com/docs/getting-started/quick-start/cloud).
+When your service is ready, connect Tenzir to it with the host, port, user,
+password, and TLS settings in the <Op>from_clickhouse</Op> and
+<Op>to_clickhouse</Op> operators.
+::::
 
-### Native Binary
+If you need a local or self-managed ClickHouse deployment, start with the
+[ClickHouse OSS quick start](https://clickhouse.com/docs/getting-started/quick-start/oss).
+Tenzir connects to a self-managed server the same way, using the host and port
+you configure in <Op>from_clickhouse</Op> and <Op>to_clickhouse</Op>.
 
-import { Steps } from "@astrojs/starlight/components";
+## Usage examples
 
-<Steps>
-
-1. Download the binary:
-
-   ```sh
-   curl https://clickhouse.com/ | sh
-   ```
-
-2. Start the server:
-
-   ```sh
-   ./clickhouse server
-   ```
-
-   This downloads the ClickHouse binary and starts the server. You can then
-   connect to ClickHouse at `localhost:9000` (native protocol) or
-   `localhost:8123` (HTTP interface).
-
-3. (Optionally) Start CLI client:
-
-   ```sh
-   ./clickhouse client
-   ```
-
-   With this client, you can now run SQL queries on your ClickHouse server.
-
-</Steps>
-
-### Docker
-
-<Steps>
-
-1. Run Docker:
-
-   ```sh
-   docker run -d --name clickhouse-server --ulimit nofile=262144:262144 \
-     -p 9000:9000 -p 8123:8123 clickhouse/clickhouse-server
-   ```
-
-</Steps>
-
----
-
-You can now connect to ClickHouse at `localhost:9000` (native protocol) or
-`localhost:8123` (HTTP interface).
-
-## Examples
-
-These examples assume that the ClickHouse server is running on the same host as
-Tenzir and that it allows non-TLS connections (hence using `tls=false` in the
-pipelines).
+For ClickHouse Cloud, use your service endpoint and credentials, and keep TLS
+enabled. These examples assume that the ClickHouse server is running on the same
+host as Tenzir and that it allows non-TLS connections, which is why the
+pipelines use `tls=false`.
 
 You can find out more about how to configure TLS in the
 <Op>from_clickhouse</Op> and <Op>to_clickhouse</Op> references and the
@@ -119,7 +87,7 @@ To inspect column metadata, query the table schema instead:
 from_clickhouse sql="DESCRIBE TABLE my_table", tls=false
 ```
 
-### 1. Easy Mode: Automatic table creation
+### 1. Easy mode: Automatic table creation
 
 Tenzir can automatically create tables in ClickHouse based on the incoming data
 schema. For example, to ingest OCSF network activity data:
@@ -145,10 +113,9 @@ When the URI includes a database and `table` is unqualified, Tenzir writes to
 that database. In `mode="create"` and `mode="create_append"`, Tenzir also
 creates the selected database if needed.
 
-When creating a table, the <Op>to_clickhouse</Op>
-operator uses the first event to determine the schema. You must take care that
-there are no untyped nulls in this event, as the operator cannot transmit
-those.
+When creating a table, the <Op>to_clickhouse</Op> operator uses the first event
+to determine the schema. You must take care that there are no untyped nulls in
+this event, as the operator cannot transmit those.
 
 In this example, we use the <Op>ocsf::cast</Op> operator, which will
 automatically align events with the correct OCSF schema, giving all fields the
@@ -156,7 +123,7 @@ correct types and adding all fields that should be in `ocsf.Network_Activity`.
 This ensures that we create a complete table without missing or incorrectly
 typed columns.
 
-You can now query the data in ClickHouse, e.g.:
+You can now query the data in ClickHouse, for example:
 
 ```sql
 SELECT median(traffic.bytes_in), median(traffic.bytes_out)
@@ -164,7 +131,7 @@ FROM ocsf.Network_Activity
 GROUP BY *
 ```
 
-### 2. Advanced: Explicit Table Creation
+### 2. Advanced: Explicit table creation
 
 For more control, you can create the table in ClickHouse first. Use this
 approach when you know the full schema of your table, but not all events contain
