@@ -141,6 +141,14 @@ $event = {...$event.ocsf, unmapped: $event.panos}
 - **Validate the result**: Run <Op>ocsf::derive</Op> and <Op>ocsf::cast</Op>
   after the mapper returns the OCSF event.
 
+:::note[Why use `$event`?]
+TQL has user-defined operators, but not user-defined functions yet. The explicit
+`event` field argument gives each mapping operator one mutable record scope that
+callers can pass explicitly when the parsed source event lives in a field. Keep
+all mapper state below `$event` until TQL has function-like abstractions for
+record-to-record mappings.
+:::
+
 :::note[Think in graphs]
 OCSF mapping is a bipartite graph transformation: source fields form one vertex
 set, OCSF attributes form another, and your mapping defines the edges. Edges can

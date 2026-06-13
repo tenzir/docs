@@ -553,6 +553,11 @@ publish "ocsf"
 The parser stays with the source operator, while `acme::ocsf::map` owns cleanup,
 shared OCSF setup, and dispatch.
 
+This explicit event scope is a package convention while TQL has user-defined
+operators but not user-defined functions. Passing `event` gives each mapper one
+mutable record scope, keeps internal helper operators from touching unrelated
+fields, and lets callers map a parsed record that lives in a field.
+
 ### Design principles
 
 When building operator hierarchies, follow these guidelines:
