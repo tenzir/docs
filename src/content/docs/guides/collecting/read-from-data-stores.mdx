@@ -133,7 +133,7 @@ from_clickhouse sql="SELECT host, severity, message FROM events",
                 password=secret("CLICKHOUSE_PASSWORD"),
                 tls=false
 where severity >= 3
-message = message.upper()
+message = message.to_upper()
 ```
 
 This lets you treat database rows like any other event stream in Tenzir.
