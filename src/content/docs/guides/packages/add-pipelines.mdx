@@ -34,6 +34,27 @@ only when the package should take action as soon as it is installed. Ship
 optional operational workflows as disabled templates unless automatic execution
 is the package's core behavior.
 
+Public mapping UDOs should default to mapping the current event, so
+`acme::ocsf::map` works when the source operator already emits parsed source
+events. If your pipeline keeps the parsed source event in a field, pass that
+field explicitly and add extra attributes after the mapper returns:
+
+```tql title="pipelines/fetch-raw-and-normalize.tql"
+every 1h {
+  from_http "https://api.example.com/events" {
+    read_lines
+  }
+}
+event = line.parse_json()
+acme::ocsf::map event=event
+event.raw_data = move line
+event.raw_data_size = event.raw_data.length_bytes()
+this = event
+ocsf::derive
+ocsf::cast
+publish "normalized-events"
+```
+
 ## Configure pipeline behavior
 
 Configure pipelines using YAML frontmatter at the beginning of the TQL file.

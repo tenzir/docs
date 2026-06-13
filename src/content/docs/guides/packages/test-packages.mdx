@@ -138,6 +138,23 @@ ocsf::derive
 ocsf::cast
 ```
 
+Public mapping UDOs use `event=this` by default, so this form maps the current
+record. If the test parses the source event into a field, pass the mapping scope
+explicitly and add raw payload attributes after the mapper returns:
+
+```tql title="tests/ocsf/auth-raw.tql"
+from_file env("TENZIR_INPUT") {
+  read_lines
+}
+event = line.parse_json()
+acme::ocsf::map event=event
+event.raw_data = move line
+event.raw_data_size = event.raw_data.length_bytes()
+this = event
+ocsf::derive
+ocsf::cast
+```
+
 Use <Op>ocsf::derive</Op> to populate sibling enum fields and
 <Op>ocsf::cast</Op> to validate the mapped event against the OCSF schema. This
 lets the mapper stay minimal while the baseline captures the comprehensive OCSF
