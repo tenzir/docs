@@ -1,0 +1,235 @@
+---
+title: Databricks
+---
+
+import { Steps } from "@astrojs/starlight/components";
+import Op from "@components/see-also/Op.astro";
+
+[Databricks](https://www.databricks.com/) is a unified analytics platform built
+on Apache Spark, offering a Lakehouse architecture that combines data lake
+flexibility with data warehouse performance. [Unity
+Catalog](https://docs.databricks.com/en/data-governance/unity-catalog/index.html)
+provides centralized governance for all data assets.
+
+![Databricks](databricks.excalidraw)
+
+Tenzir sends events to Databricks using the
+[`to_databricks`](/reference/operators/to_databricks) operator, which writes to
+managed Delta tables with full Unity Catalog governance.
+
+## Architecture
+
+The operator stages optimized Parquet files in a Unity Catalog Volume and
+commits them via `COPY INTO` using the SQL Statement API.
+
+| Step | Who              | Action                               | DBU Cost |
+| :--: | ---------------- | ------------------------------------ | :------: |
+|  ①   | Tenzir           | Write Parquet to staging             |    ❌    |
+|  ②   | Tenzir → SQL API | POST COPY INTO command               |    ❌    |
+|  ③   | SQL Warehouse    | Read staged files (via UC perms)     |    ✅    |
+|  ④   | SQL Warehouse    | Write to table + commit `_delta_log` |    ✅    |
+|  ⑤   | Tenzir           | Delete staging files _(not shown)_   |    ❌    |
+
+Key characteristics:
+
+- Produces fully managed Delta tables with complete Unity Catalog governance
+- Automatic schema evolution via `mergeSchema`
+- Idempotent commits (`COPY INTO` tracks processed files)
+- Data is queryable immediately after each commit
+
+:::tip[Cost optimization]
+Each `COPY INTO` execution consumes DBUs. With Serverless SQL Warehouses at
+~$0.07/DBU (list price), ingesting 1GB typically costs a few cents. Increase
+`flush_interval` and `file_size` to reduce commit frequency and cost.
+:::
+
+## Configuration
+
+### Authentication
+
+Tenzir uses OAuth machine-to-machine (M2M) authentication with a Databricks
+service principal. Use a [secret store](/explanations/secrets) to manage
+credentials securely.
+
+<Steps>
+
+1. **Create a service principal**
+
+   Navigate to **Account Console → User management → Service principals** and
+   create a new service principal. Note the Application (client) ID.
+
+2. **Generate an OAuth secret**
+
+   In the service principal's **Secrets** tab, generate a new secret. Copy the
+   secret immediately—it's only shown once.
+
+3. **Grant Unity Catalog permissions**
+
+   ```sql
+   -- Catalog access
+   GRANT USE CATALOG ON CATALOG my_catalog TO `my-service-principal`;
+
+   -- Schema access and table creation
+   GRANT USE SCHEMA ON SCHEMA my_catalog.my_schema TO `my-service-principal`;
+   GRANT CREATE TABLE ON SCHEMA my_catalog.my_schema TO `my-service-principal`;
+
+   -- Staging volume access
+   GRANT READ VOLUME, WRITE VOLUME
+     ON VOLUME my_catalog.my_schema.staging
+     TO `my-service-principal`;
+   ```
+
+4. **Configure a SQL Warehouse**
+
+   Create or identify a SQL Warehouse. Serverless warehouses are recommended
+   for ingestion due to fast startup and automatic scaling. Note the warehouse
+   ID from the connection details.
+
+</Steps>
+
+### Staging Volume Setup
+
+Create a Unity Catalog Volume to stage Parquet files:
+
+```sql
+CREATE VOLUME IF NOT EXISTS my_catalog.my_schema.tenzir_staging;
+```
+
+The operator writes files to this volume and deletes them after successful
+`COPY INTO` commits.
+
+## Partitioning
+
+Delta tables use Hive-style partitioning, creating a directory structure like
+`day=2025-01-15/class_uid=4001/`. The `partition_by` parameter accepts a list
+of column names—columns must exist in the events being written.
+
+To partition by derived values (e.g., daily buckets from a timestamp), add the
+partition column to your events before writing:
+
+```tql
+subscribe "events"
+day = time.round(1d)
+to_databricks
+  ...
+  partition_by=[day, class_uid]
+```
+
+If the target table already exists, the operator queries Unity Catalog for the
+existing partition scheme and aligns staging files accordingly. The
+`partition_by` parameter is ignored for existing tables since partition columns
+are immutable after table creation.
+
+## Write-Time Optimizations
+
+Tenzir applies optimizations that produce query-efficient files:
+
+- **Partition-aligned files**: Each output file contains data for exactly one
+  partition value, enabling partition pruning—queries filtering on partition
+  columns skip irrelevant directories without opening files.
+- **Sorted rows**: Tight min/max statistics enable aggressive data skipping.
+- **1GB file targets**: Optimal size for scan efficiency, reduces need for `OPTIMIZE`.
+- **Zstd compression**: High compression ratio with fast decompression.
+
+## Examples
+
+### Basic ingestion to a bronze table
+
+```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
+from_file "/var/log/app/events.json"
+to_databricks
+  workspace="https://adb-1234567890.azuredatabricks.net",
+  catalog="analytics",
+  schema="bronze",
+  table="app_events",
+  client_id=$client_id,
+  client_secret=$client_secret,
+  warehouse_id="abc123def456"
+```
+
+### OCSF security events with partitioning
+
+```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
+subscribe "ocsf"
+day = time.round(1d)
+to_databricks
+  workspace="https://dbc-a1b2c3d4-e5f6.cloud.databricks.com",
+  catalog="security",
+  schema="silver",
+  table="security_events",
+  client_id=$client_id,
+  client_secret=$client_secret,
+  warehouse_id="abc123def456",
+  partition_by=[day, class_uid],
+  sort_by=[src_endpoint.ip, dst_endpoint.ip]
+```
+
+### High-volume network telemetry
+
+Optimize for cost with larger batches and files:
+
+```tql
+let $client_id = secret("databricks-client-id")
+let $client_secret = secret("databricks-client-secret")
+
+subscribe "netflow"
+day = time.round(1d)
+to_databricks
+  workspace="https://1234567890123456.7.gcp.databricks.com",
+  catalog="network",
+  schema="bronze",
+  table="flows",
+  client_id=$client_id,
+  client_secret=$client_secret,
+  warehouse_id="abc123def456",
+  partition_by=[day],
+  sort_by=[src_ip, dst_ip],
+  flush_interval=15m,
+  file_size=1Gi
+```
+
+## Comparison with Other Approaches
+
+### vs. Cribl Stream
+
+[Cribl Stream](https://docs.cribl.io/stream/destinations-databricks/) writes
+files to Unity Catalog Volumes but does not commit them to Delta tables.
+Customers must separately configure Autoloader or run `COPY INTO` to make data
+queryable.
+
+Tenzir's [`to_databricks`](/reference/operators/to_databricks) commits directly
+to managed Delta tables—data is queryable immediately after each flush with no
+additional setup required.
+
+### vs. Databricks Autoloader
+
+[Autoloader](https://docs.databricks.com/en/ingestion/auto-loader/index.html)
+monitors cloud storage for new files and incrementally loads them. It requires
+files to already exist in cloud storage, making it a "pull" model.
+
+Tenzir's [`to_databricks`](/reference/operators/to_databricks) is a "push"
+model—data flows directly from pipelines to Databricks without intermediate
+storage management. Use Autoloader when data already lands in cloud storage from
+other sources.
+
+### vs. Delta Live Tables (DLT)
+
+DLT provides managed ETL pipelines within Databricks. Tenzir complements DLT
+by handling data collection and initial ingestion, while DLT handles
+downstream transformations within the lakehouse.
+
+### vs. Kafka + Databricks Connector
+
+The Kafka connector requires managing Kafka infrastructure. Tenzir can ingest
+directly from sources, eliminating the intermediate message broker for
+simpler architectures.
+
+## See Also
+
+- <Op>to_databricks</Op>

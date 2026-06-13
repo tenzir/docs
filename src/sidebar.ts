@@ -403,6 +403,7 @@ export const integrations = [
     "Data Tools",
     [
       "integrations/clickhouse",
+      "integrations/databricks",
       "integrations/elasticsearch",
       "integrations/mysql",
       "integrations/opensearch",
