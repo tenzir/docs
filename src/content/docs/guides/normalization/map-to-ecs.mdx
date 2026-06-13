@@ -170,10 +170,15 @@ to_elasticsearch "https://elasticsearch.example.com:9200",
   index="ecs-events"
 ```
 
-If the parsed source event lives in a nested field, pass that field explicitly:
+If the parsed source event lives in a nested field, pass that field explicitly
+and promote the mapped ECS document before indexing:
 
 ```tql
 my_source::ecs::map event=parsed
+this = parsed
+to_elasticsearch "https://elasticsearch.example.com:9200",
+  action="index",
+  index="ecs-events"
 ```
 
 Use <Op>to_opensearch</Op> instead when the destination is OpenSearch.

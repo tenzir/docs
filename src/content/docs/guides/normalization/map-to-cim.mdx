@@ -164,10 +164,18 @@ to_splunk "https://splunk.example.com:8088",
   sourcetype=sourcetype
 ```
 
-If the parsed source event lives in a nested field, pass that field explicitly:
+If the parsed source event lives in a nested field, pass that field explicitly
+and promote the mapped CIM event before the sink reads top-level metadata:
 
 ```tql
 my_source::cim::map event=parsed
+this = parsed
+to_splunk "https://splunk.example.com:8088",
+  hec_token=secret("splunk-hec-token"),
+  time=_time,
+  host=host,
+  source=source,
+  sourcetype=sourcetype
 ```
 
 Use the `index` option when the destination index differs per event.
