@@ -45,6 +45,12 @@ ClickHouse uses the current database selected by the URI or server defaults.
 Use this mode when you want to read a whole table and preserve named tuple
 fields from the table schema.
 
+:::note
+ClickHouse omits `ALIAS` and `MATERIALIZED` columns from `SELECT *`. The
+`table` option therefore does not include such columns. To read them, use `sql`
+with an explicit column list.
+:::
+
 Use exactly one of `table` or `sql`.
 
 ### `sql = string`
