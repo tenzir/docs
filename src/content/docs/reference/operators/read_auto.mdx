@@ -26,10 +26,11 @@ formats.
 Detection works in two layers:
 
 1. **Capability**: Every reader dry-runs its actual parser on the probe. For
-   example, YAML detection runs the YAML parser and requires a structured
-   document, and CSV detection tokenizes complete lines with the reader's
-   quoting rules and requires a stable number of fields. A reader only
-   becomes a candidate when it would accept the probed input.
+   example, YAML detection runs the YAML parser and requires a map document
+   that <Op>read_yaml</Op> would turn into an event, and CSV detection
+   tokenizes complete lines with the reader's quoting rules and requires a
+   stable number of fields. A reader only becomes a candidate when it would
+   accept the probed input.
 2. **Specificity**: When several readers are capable of parsing the same
    bytes, the most specific format wins. Magic-byte formats such as PCAP or
    Parquet rank above JSON dialects such as Suricata EVE or GELF, which rank
