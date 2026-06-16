@@ -1,0 +1,80 @@
+---
+title: Configure authentications
+---
+
+This guide shows you how to configure named HTTP authentication recipes in the
+Tenzir Platform so that pipeline operators like <Op>from_http</Op> and
+<Op>to_http</Op> can authenticate outbound requests by name. Each authentication
+combines a non-secret config (client IDs, token URLs, scopes, headers) with
+references to one or more workspace secrets, which the connected Tenzir Nodes
+resolve at runtime.
+
+Read more about how the secret values are stored and resolved on the
+[Secrets explanations page](/explanations/secrets).
+
+## Add an authentication
+
+Open the workspace settings by clicking the gear icon in the workspace
+selector, then switch to the **Authentications** tab.
+
+![Authentications list](authentications.png)
+
+Click **Add authentication** and pick one of the supported strategies:
+
+| Strategy                       | Public config                            | Secret reference |
+| ------------------------------ | ---------------------------------------- | ---------------- |
+| **OAuth · client credentials** | client ID, token URL, scopes, audience   | client secret    |
+| **Basic auth**                 | username                                 | password         |
+| **API key**                    | header name (defaults to `X-Api-Key`)    | API key value    |
+| **Bearer token**               | _(none)_                                 | token            |
+
+The secret field is selected from the workspace's secret store rather than
+typed in. The picker lists existing secrets, plus an inline
+**+ Create a new secret…** affordance that opens the secret modal and auto-
+binds the new entry on save.
+
+![Selecting or creating a workspace secret](authentications-picker.png)
+
+## Use an authentication in a pipeline
+
+Once the authentication is saved, reference it by name from a pipeline operator:
+
+```tql
+from_http "https://api.example.com/v1/data", auth="microsoft-read"
+```
+
+When the operator runs, the connected node fetches the authentication from the
+platform, resolves the referenced secret through the same encrypted channel it
+uses for stand-alone secrets, and applies the strategy-specific headers
+(`Authorization: Bearer …`, `Authorization: Basic …`, custom header for API
+keys, or an OAuth token-fetch loop for client credentials).
+
+## Edit or rotate an authentication
+
+In edit mode only the secret reference is mutable. The non-secret fields and
+the strategy are locked because nodes cache them per `(workspace, name)` until
+they restart, so changing them would silently desync the node from the
+platform's view of the authentication.
+
+Rotating a credential therefore has two safe shapes:
+
+- **Replace the secret value in place.** Update the referenced secret in
+  **Settings → Secrets** (same name, new value). Nodes pick up the new value on
+  the next pipeline run — no auth edit needed.
+- **Rebind the authentication to a different secret.** Open the authentication
+  in edit mode and pick a different workspace secret in the picker.
+
+## Recover from a missing secret
+
+If you delete a secret that an authentication still references, the
+authentication is not removed automatically. The list row is flagged with a
+**missing secret** warning, and the picker in edit mode reflects the same
+state. Resolve it by binding the authentication to an existing secret or by
+creating a new secret inline.
+
+## See Also
+
+- <Op>from_http</Op>
+- <Op>to_http</Op>
+- <Explanation>secrets</Explanation>
+- <Guide>platform-setup/configure-secret-store</Guide>

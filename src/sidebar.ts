@@ -56,6 +56,7 @@ export const guides = [
           "guides/platform-setup/configure-database",
           "guides/platform-setup/configure-blob-storage",
           "guides/platform-setup/configure-secret-store",
+          "guides/platform-setup/configure-authentications",
           "guides/platform-setup/run-the-platform",
         ],
       },
