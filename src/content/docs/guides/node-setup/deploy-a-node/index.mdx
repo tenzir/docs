@@ -545,6 +545,20 @@ To delete the persistent state as well, remove the namespace:
 kubectl delete namespace tenzir
 ```
 
+### Verify the chart signature
+
+The chart is signed with [Cosign](https://docs.sigstore.dev/cosign/overview/)
+keyless via the GitHub Actions OIDC token, the same scheme used for the
+[`tenzir` container image](#verify-container-image-signatures). Verify a
+specific version with:
+
+```bash
+cosign verify \
+  --certificate-identity-regexp="https://github.com/tenzir/helm-charts/.*" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  ghcr.io/tenzir/charts/tenzir-node:v0.1.0
+```
+
 ## macOS
 
 Looking for a native macOS package? We're not quite there yet—but you can still
