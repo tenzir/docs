@@ -15,11 +15,8 @@ Read more about how the secret values are stored and resolved on the
 ## Add an authentication
 
 Open the workspace settings by clicking the gear icon in the workspace
-selector, then switch to the **Authentications** tab.
-
-![Authentications list](authentications.png)
-
-Click **Add authentication** and pick one of the supported strategies:
+selector, then switch to the **Authentications** tab and click
+**Add authentication**. Pick one of the supported strategies:
 
 | Strategy                       | Public config                            | Secret reference |
 | ------------------------------ | ---------------------------------------- | ---------------- |
@@ -33,14 +30,12 @@ typed in. The picker lists existing secrets, plus an inline
 **+ Create a new secret…** affordance that opens the secret modal and auto-
 binds the new entry on save.
 
-![Selecting or creating a workspace secret](authentications-picker.png)
-
 ## Use an authentication in a pipeline
 
 Once the authentication is saved, reference it by name from a pipeline operator:
 
 ```tql
-from_http "https://api.example.com/v1/data", auth="microsoft-read"
+from_http "https://api.example.com/v1/data", auth="events-read"
 ```
 
 When the operator runs, the connected node fetches the authentication from the
