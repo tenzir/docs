@@ -27,6 +27,24 @@ pipeline to convert incoming bytes to events. Inside the nested pipeline,
 `$peer.ip` and `$peer.port` identify the connecting client. Set
 `resolve_hostnames=true` to also expose `$peer.hostname` from reverse DNS.
 
+### Accept multiple input formats
+
+Use <Op>read_auto</Op> when a TCP endpoint receives data from producers that
+don't all use the same format:
+
+```tql
+accept_tcp "0.0.0.0:9000" {
+  read_auto fallback="lines", max_probe_bytes=16Ki
+}
+```
+
+The detector runs once per connection, so one client can send NDJSON while
+another sends CSV, Syslog, or another supported format. This pattern is useful
+for rapid prototyping, shared intake endpoints, and package pipelines where you
+want to normalize different producer formats after parsing.
+If most clients send long-lived plain-text streams, use <Op>read_lines</Op>
+directly instead of waiting for <Op>read_auto</Op> to finish probing.
+
 ### Connect to a remote server
 
 Use <Op>from_tcp</Op> to connect to an existing server:
@@ -223,6 +241,10 @@ select
 
 ## See also
 
+- <Op>accept_tcp</Op>
+- <Op>accept_udp</Op>
+- <Op>from_nic</Op>
+- <Op>read_auto</Op>
 - <Integration>tcp</Integration>
 - <Integration>udp</Integration>
 - <Integration>nic</Integration>
