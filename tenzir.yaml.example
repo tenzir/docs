@@ -439,31 +439,30 @@ tenzir:
 
   # Named authentication recipes that the `from_http` and `to_http` operators
   # can reference via `auth="<name>"`. Each entry must carry a `name` and a
-  # `strategy`; the remaining keys are strategy-specific. Sensitive fields
-  # accept either an inline string or a `secret("KEY")` reference to
-  # `tenzir.secrets` or to the platform's secret store. When the name is not
-  # found in this list, the node falls back to the Tenzir Platform's
-  # authentication store.
+  # `strategy`; the remaining keys are strategy-specific. Sensitive values are
+  # written as literal strings in this file and are treated as secrets in
+  # memory. When the name is not found in this list, the node falls back to the
+  # Tenzir Platform's authentication store.
   auth:
-    # - name: my-oauth
+    # - name: events-oauth
     #   strategy: oauth-client-credentials
-    #   client_id: <client-id>
-    #   client_secret: secret("MY_OAUTH_CLIENT_SECRET")
+    #   client_id: client-id-9b4f
+    #   client_secret: rA8nXg9LxQ4kP2hT
     #   token_url: https://auth.example.com/oauth/token
     #   scopes: [events.read]
     #   grant_type: client_credentials
     #   audience: https://api.example.com
-    # - name: my-basic
+    # - name: events-basic
     #   strategy: basic
-    #   username: <username>
-    #   password: secret("MY_BASIC_PASSWORD")
-    # - name: my-api-key
+    #   username: events-bot
+    #   password: hunter2
+    # - name: events-api-key
     #   strategy: api-key
     #   header_name: X-Api-Key
-    #   api_key: secret("MY_API_KEY")
-    # - name: my-bearer
+    #   api_key: a1b2c3d4e5f60718
+    # - name: events-bearer
     #   strategy: bearer-static
-    #   token: secret("MY_BEARER_TOKEN")
+    #   token: eyJhbGciOiJIUzI1NiJ9.payload.sig
 
   # Configure the interval for experimental trimming of unused memory.
   malloc-trim-interval: 10min
