@@ -441,8 +441,8 @@ tenzir:
   # can reference via `auth="<name>"`. Each entry must carry a `name` and a
   # `strategy`; the remaining keys are strategy-specific. Sensitive values are
   # written as literal strings in this file and are treated as secrets in
-  # memory. When the name is not found in this list, the node falls back to the
-  # Tenzir Platform's authentication store.
+  # memory. The node resolves a name against this list first and then against
+  # the connected Tenzir Platform's authentication store; the first match wins.
   auth:
     # - name: events-oauth
     #   strategy: oauth-client-credentials

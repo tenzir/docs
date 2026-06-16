@@ -51,11 +51,12 @@ operator:
 from_http "https://api.example.com/v1/data", auth="events-read"
 ```
 
-When the operator runs, the node first checks its local
-[`tenzir.auth`](/reference/node/configuration) entries for a matching name. If
-none matches, it asks the connected platform, resolves the referenced secret
-through the same encrypted channel it uses for standalone secrets, and applies
-the strategy-specific headers (`Authorization: Bearer …`,
+When the operator runs, the node resolves the name in two places, in order:
+first under [`tenzir.auth`](/reference/node/configuration) in the local
+`tenzir.yaml`, then in the connected platform's authentication store. The
+first match wins. The node resolves the referenced secret through the same
+encrypted channel it uses for standalone secrets, then applies the
+strategy-specific headers (`Authorization: Bearer …`,
 `Authorization: Basic …`, a custom header for API keys, or an OAuth token-fetch
 loop for client credentials).
 

@@ -7,11 +7,11 @@ hardcoding tokens or API keys directly in the pipeline.
 ### `auth = string (optional)`
 
 Name of a configured authentication that the node applies to the request. The
-operator looks the name up first under
-[`tenzir.auth`](/reference/node/configuration) in the node's local
-`tenzir.yaml`, and falls back to the connected Tenzir Platform's
-[authentication store](/guides/platform-management/configure-authentications) when
-no local entry matches.
+node resolves the name in two places, in order: first under
+[`tenzir.auth`](/reference/node/configuration) in the local `tenzir.yaml`,
+then in the connected Tenzir Platform's
+[authentication store](/guides/platform-management/configure-authentications).
+The first match wins.
 
 ```tql
 from_http "https://api.example.com/v1/data", auth="events-read"
