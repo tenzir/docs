@@ -437,6 +437,34 @@ tenzir:
   secrets:
     # my-secret-name: my-secret-value
 
+  # Named authentication recipes that the `from_http` and `to_http` operators
+  # can reference via `auth="<name>"`. Each entry must carry a `name` and a
+  # `strategy`; the remaining keys are strategy-specific. Sensitive fields
+  # accept either an inline string or a `secret("KEY")` reference to
+  # `tenzir.secrets` or to the platform's secret store. When the name is not
+  # found in this list, the node falls back to the Tenzir Platform's
+  # authentication store.
+  auth:
+    # - name: my-oauth
+    #   strategy: oauth-client-credentials
+    #   client_id: <client-id>
+    #   client_secret: secret("MY_OAUTH_CLIENT_SECRET")
+    #   token_url: https://auth.example.com/oauth/token
+    #   scopes: [events.read]
+    #   grant_type: client_credentials
+    #   audience: https://api.example.com
+    # - name: my-basic
+    #   strategy: basic
+    #   username: <username>
+    #   password: secret("MY_BASIC_PASSWORD")
+    # - name: my-api-key
+    #   strategy: api-key
+    #   header_name: X-Api-Key
+    #   api_key: secret("MY_API_KEY")
+    # - name: my-bearer
+    #   strategy: bearer-static
+    #   token: secret("MY_BEARER_TOKEN")
+
   # Configure the interval for experimental trimming of unused memory.
   malloc-trim-interval: 10min
 
