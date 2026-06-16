@@ -1,0 +1,160 @@
+---
+title: Helm chart
+---
+
+This page explains the shape of the Tenzir Helm chart, how it triggers
+per-node rollouts, and which options you have for ports, network policy, and
+container hardening. For installation and update steps, see
+<Guide>node-setup/deploy-a-node#kubernetes</Guide>. For the full values
+reference, see the
+[`charts/tenzir-node/README.md`](https://github.com/tenzir/helm-charts/blob/main/charts/tenzir-node/README.md)
+in the [`tenzir/helm-charts`](https://github.com/tenzir/helm-charts)
+repository.
+
+## One StatefulSet per node
+
+The chart's central abstraction is the `nodes` list in `values.yaml`. Each
+entry renders as a self-contained set of Kubernetes resources:
+
+- A `StatefulSet` with one replica, running `tenzir-node` with a per-node
+  `tenzir.yaml`.
+- A ClusterIP `Service` and a headless `Service` for in-cluster traffic.
+- A `ConfigMap` that holds the rendered `tenzir.yaml`.
+- A `Secret` with the node's `TENZIR_TOKEN`, unless you reference an
+  existing one.
+- A `PersistentVolumeClaim` for `/var/lib/tenzir`, created from a
+  `volumeClaimTemplate`.
+
+Each `nodes` entry has an independent identity. The token is unique to one
+provisioned platform node, the persistent state belongs to that node alone,
+and pods never share volumes.
+
+## How the chart triggers per-node rollouts
+
+Tenzir's node configuration lives in a `ConfigMap`, but Kubernetes does not
+restart a StatefulSet's pod when its `ConfigMap` changes. The chart bridges
+that gap with a checksum annotation on the pod template.
+
+For every node, the chart computes the SHA-256 of the rendered `tenzir.yaml`
+and writes it to the pod template's `checksum/config` annotation. When you
+`helm upgrade` after editing the values, the chart re-renders, the checksum
+changes for affected nodes only, and the StatefulSet controller rolls the
+pods whose annotation moved. Nodes whose configuration did not change keep
+running.
+
+This is why a `helm upgrade` that adjusts `nodes[1].config` rolls only the
+second node's pod and leaves the others untouched.
+
+## Expose node ports
+
+Every node always exposes the node-to-node port (`5158` by default) on its
+main and headless `Service`. The chart provides two patterns for additional
+listener ports.
+
+### One node owns the port
+
+Use `nodes[].extraPorts` when a specific node listens on a specific port:
+
+```yaml
+nodes:
+  - name: collector
+    token:
+      existingSecret: tenzir-collector-token
+    extraPorts:
+      - name: http
+        containerPort: 8080
+```
+
+The chart opens the container port on the pod and adds the port to that
+node's main `Service`. Set `serviceType: LoadBalancer` on an entry to publish
+the port through a dedicated `Service` of that type instead.
+
+### A fleet of nodes shares the port
+
+Use `sharedServices` when multiple nodes accept the same kind of traffic and
+you want kube-proxy to load-balance across them:
+
+```yaml
+nodes:
+  - name: ingester-a
+    token: { existingSecret: tenzir-ingester-a-token }
+  - name: ingester-b
+    token: { existingSecret: tenzir-ingester-b-token }
+
+sharedServices:
+  - name: http-ingest
+    port: 8080
+    type: LoadBalancer
+```
+
+The chart opens the container port on every selected node's pod and creates
+a single `Service` whose selector matches all of them. Each selected node
+must run a pipeline that actually listens on the port, for example through
+`accept_http` declared under `tenzir.pipelines`.
+
+## Restrict ingress with a NetworkPolicy
+
+Set `networkPolicy.enabled: true` to render a `NetworkPolicy` that selects
+every node pod in the release. By default the policy allows ingress from any
+pod in the same namespace. Add explicit rules to grant access from other
+namespaces or specific pods:
+
+```yaml
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - port: 5158
+          protocol: TCP
+```
+
+Set `allowSameNamespace: false` to drop the default same-namespace rule and
+rely entirely on the entries in `ingress`.
+
+## Harden the deployment
+
+The chart's default container `securityContext` clears most of Trivy's
+container-hardening rules at HIGH severity:
+
+- `runAsNonRoot: true` with `runAsUser: 999` and `runAsGroup: 999` to match
+  the image's `tenzir` user.
+- `seccompProfile: { type: RuntimeDefault }`.
+- `allowPrivilegeEscalation: false`.
+- `capabilities.drop: [ALL]`.
+- `readOnlyRootFilesystem: true` with an `emptyDir` mounted at `/tmp` for
+  writable temp files. `/var/lib/tenzir` stays writable through the PVC.
+
+These defaults work for the standard set of Tenzir operators. Two edge cases
+need attention:
+
+- **Privileged listener ports.** When a pipeline binds a port below 1024
+  (for example `accept_tcp "0.0.0.0:514"` for Syslog), the listener needs
+  `CAP_NET_BIND_SERVICE` only if the cluster keeps the kernel default
+  `net.ipv4.ip_unprivileged_port_start = 1024`. Most modern distributions
+  (Docker Desktop, kind, k3s, and many managed offerings) ship with the
+  value set to `0`, which makes every port unprivileged and removes the
+  need for the capability. Check the value from a pod with
+  `cat /proc/sys/net/ipv4/ip_unprivileged_port_start`. If you need the
+  capability, add it back:
+
+  ```yaml
+  containerSecurityContext:
+    capabilities:
+      add: [NET_BIND_SERVICE]
+  ```
+
+- **Writes outside `/tmp` and `/var/lib/tenzir`.** With
+  `readOnlyRootFilesystem: true`, any pipeline that calls `to_file` against
+  a path outside the two writable mounts fails with a clean `IOError`
+  without crashing the node. Mount additional writable paths through
+  `extraVolumes` and `extraVolumeMounts` when you need them.
+
+## See also
+
+- <Guide>node-setup/deploy-a-node#kubernetes</Guide>
+- <Guide>node-setup/provision-a-node</Guide>
+- <Guide>node-setup/configure-a-node</Guide>

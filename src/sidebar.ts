@@ -264,6 +264,7 @@ export const explanations = [
       "explanations/deployment",
       "explanations/pipeline",
       "explanations/node",
+      "explanations/node/helm-chart",
       "explanations/platform",
       "explanations/language",
     ],
