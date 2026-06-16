@@ -22,6 +22,19 @@ without restarting the node. The strategy-specific public fields (such as
 `client_id` or `token_url`) are cached per `(workspace, name)` until the node
 restarts.
 
+`auth` writes the resulting headers after `headers`, so when both set the same
+header, the `auth` value wins. For example, this request sends
+`Authorization: Bearer <token-from-auth>`, not `Bearer foo`:
+
+```tql
+from_http "https://api.example.com/v1/data",
+  headers={Authorization: "Bearer foo"},
+  auth="events-bearer"
+```
+
+This is true for every strategy, since each one ends up setting the
+`Authorization` header (or the API key's custom header) after `headers` runs.
+
 ### `timeout = duration (optional)`
 
 Timeout for the overall request.
