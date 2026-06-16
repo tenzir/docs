@@ -39,11 +39,12 @@ operator:
 from_http "https://api.example.com/v1/data", auth="events-read"
 ```
 
-When the operator runs, the connected node fetches the authentication from the
-platform, resolves the referenced secret through the same encrypted channel it
-uses for standalone secrets, and applies the strategy-specific headers
-(`Authorization: Bearer …`, `Authorization: Basic …`, a custom header for API
-keys, or an OAuth token-fetch loop for client credentials).
+When the operator runs, the node first checks its local `tenzir.auth`
+configuration for an entry with that name. If none matches, it asks the
+connected platform, resolves the referenced secret through the same encrypted
+channel it uses for standalone secrets, and applies the strategy-specific
+headers (`Authorization: Bearer …`, `Authorization: Basic …`, a custom header
+for API keys, or an OAuth token-fetch loop for client credentials).
 
 ## Edit or rotate an authentication
 
