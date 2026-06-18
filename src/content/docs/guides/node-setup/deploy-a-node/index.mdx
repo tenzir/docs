@@ -453,16 +453,20 @@ now up and running.
 
 ## Kubernetes
 
-Deploy one or more static nodes on a Kubernetes cluster with the Tenzir Helm
-chart. Each entry in the chart's `nodes` list renders as its own StatefulSet
-with a persistent volume and a Kubernetes Service. See the
-<Explanation>node/helm-chart</Explanation> page for the full option surface.
+Deploy one or more `tenzir-node` instances on a Kubernetes cluster with the
+Tenzir Helm chart. The chart deploys nodes only — it does not deploy the
+Tenzir Platform. Each node connects out to a Platform you have already
+provisioned, either cloud-hosted at `app.tenzir.com` or self-hosted through
+the Sovereign Edition. Each entry in the chart's `nodes` list renders as
+its own `StatefulSet` with a persistent volume and a Kubernetes `Service`.
+See <Reference>node/helm-chart</Reference> for the full option surface.
 
-The chart ships as an OCI artifact at `oci://ghcr.io/tenzir/charts/tenzir-node`.
-You need Kubernetes 1.27 or later and Helm 3.8 or later.
+The chart is distributed as an OCI artifact at
+`oci://ghcr.io/tenzir/charts/tenzir-node`. You need Kubernetes 1.27 or
+later and Helm 3.8 or later.
 
-After [provisioning a node](/guides/node-setup/provision-a-node), proceed as
-follows.
+After [provisioning a node](/guides/node-setup/provision-a-node) in your
+Platform workspace, proceed as follows.
 
 <Steps>
 
@@ -528,7 +532,8 @@ helm upgrade tenzir-node oci://ghcr.io/tenzir/charts/tenzir-node \
 ```
 
 The chart only restarts nodes whose configuration changed. See
-<Explanation>node/helm-chart</Explanation> for how it decides.
+<Reference>node/helm-chart#per-node-configuration</Reference> for how the
+chart's checksum annotation decides.
 
 ### Stop a node
 

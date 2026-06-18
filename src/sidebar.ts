@@ -264,7 +264,6 @@ export const explanations = [
       "explanations/deployment",
       "explanations/pipeline",
       "explanations/node",
-      "explanations/node/helm-chart",
       "explanations/platform",
       "explanations/language",
     ],
@@ -302,7 +301,11 @@ export const reference = [
       {
         label: "Node",
         collapsed: true,
-        items: ["reference/node/configuration", nodeAPISidebarGroup],
+        items: [
+          "reference/node/configuration",
+          "reference/node/helm-chart",
+          nodeAPISidebarGroup,
+        ],
       },
       {
         label: "Platform",
