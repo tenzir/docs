@@ -226,6 +226,8 @@ the latest release, including release candidates.
 By default, `release create` also updates common package-manager version files
 (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) when present
 in the changelog root or, for `changelog/` projects, in the parent directory.
+When `package.json` has a sibling `package-lock.json`, the lockfile's root
+package version metadata is updated as part of the same release step.
 For advanced repositories with custom release scripts, disable built-in bumps in
 `config.yaml`:
 
