@@ -158,7 +158,7 @@ connections:
 ```yaml title="<configdir>/tenzir/tenzir.yaml"
 tenzir:
   tls:
-    min-version: "1.2"
+    tls-min-version: "1.2"
 ```
 
 Valid values are `"1.0"`, `"1.1"`, `"1.2"`, and `"1.3"`. We recommend using
@@ -176,7 +176,7 @@ You can specify which cipher suites to use for TLS connections:
 ```yaml title="<configdir>/tenzir/tenzir.yaml"
 tenzir:
   tls:
-    ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
+    tls-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384"
 ```
 
 The cipher list format follows OpenSSL cipher list syntax. See the [OpenSSL
@@ -284,7 +284,7 @@ tls-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
 
 These options only affect the connection from the node to the Tenzir Platform.
 If not specified, the settings fall back to the node-level
-`tenzir.tls.min-version` and `tenzir.tls.ciphers` settings.
+`tenzir.tls.tls-min-version` and `tenzir.tls.tls-ciphers` settings.
 
 ### List plugins
 
