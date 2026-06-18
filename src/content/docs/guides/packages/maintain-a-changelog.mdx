@@ -228,6 +228,8 @@ By default, `release create` also updates common package-manager version files
 in the changelog root or, for `changelog/` projects, in the parent directory.
 When `package.json` has a sibling `package-lock.json`, the lockfile's root
 package version metadata is updated as part of the same release step.
+When `pyproject.toml` has a sibling `uv.lock`, `release create` runs `uv lock`
+after updating the manifest so uv regenerates the lockfile metadata.
 For advanced repositories with custom release scripts, disable built-in bumps in
 `config.yaml`:
 
