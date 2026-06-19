@@ -64,8 +64,8 @@ tenzir:
       max-partition-size: 8Mi
 
 nodes:
-  - name: collector-a
-    token: { existingSecret: tenzir-collector-a-token }
+  - name: node-a
+    token: { existingSecret: tenzir-node-a-token }
     config:
       tenzir:
         pipelines:
@@ -84,8 +84,8 @@ when that annotation moves.
 
 ```yaml
 nodes:
-  - name: collector
-    token: { existingSecret: tenzir-collector-token }
+  - name: node-a
+    token: { existingSecret: tenzir-node-a-token }
     extraPorts:
       - name: http
         containerPort: 8080
