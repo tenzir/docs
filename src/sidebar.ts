@@ -301,7 +301,11 @@ export const reference = [
       {
         label: "Node",
         collapsed: true,
-        items: ["reference/node/configuration", nodeAPISidebarGroup],
+        items: [
+          "reference/node/configuration",
+          "reference/node/helm-chart",
+          nodeAPISidebarGroup,
+        ],
       },
       {
         label: "Platform",

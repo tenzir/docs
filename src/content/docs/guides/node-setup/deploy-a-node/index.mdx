@@ -451,6 +451,119 @@ Docker Compose file.
 Once you've completed the configuration, click the _Create_ button. Your node is
 now up and running.
 
+## Kubernetes
+
+Deploy one or more `tenzir-node` instances on a Kubernetes cluster with the
+Tenzir Helm chart. The chart deploys nodes only — it does not deploy the
+Tenzir Platform. Each node connects out to a Platform you have already
+provisioned, either cloud-hosted at `app.tenzir.com` or self-hosted through
+the Sovereign Edition. Each entry in the chart's `nodes` list renders as
+its own `StatefulSet` with a persistent volume and a Kubernetes `Service`.
+See <Reference>node/helm-chart</Reference> for the full option surface.
+
+The chart is distributed as an OCI artifact at
+`oci://ghcr.io/tenzir/charts/tenzir-node`. You need Kubernetes 1.27 or
+later and Helm 3.8 or later.
+
+After [provisioning a node](/guides/node-setup/provision-a-node) in your
+Platform workspace, proceed as follows.
+
+<Steps>
+
+1. Create a namespace and store the node's token in a Kubernetes Secret:
+
+   ```bash
+   kubectl create namespace tenzir
+   kubectl -n tenzir create secret generic tenzir-node-token \
+     --from-literal=TENZIR_TOKEN=tnz_...
+   ```
+
+2. Create a values file that references the Secret:
+
+   ```yaml title="values.yaml"
+   nodes:
+     - name: default
+       token:
+         existingSecret: tenzir-node-token
+   ```
+
+3. Install the chart:
+
+   ```bash
+   helm install tenzir-node oci://ghcr.io/tenzir/charts/tenzir-node \
+     --version 0.1.0 \
+     --namespace tenzir \
+     -f values.yaml
+   ```
+
+4. Verify the deployment:
+
+   ```bash
+   helm test tenzir-node -n tenzir
+   ```
+
+</Steps>
+
+### Pin the image
+
+The chart defaults to `image.tag: latest`, which always pulls the newest
+Tenzir release. For production deployments, override the tag with a specific
+version so upgrades become explicit, reviewable changes:
+
+```yaml title="values.yaml"
+image:
+  tag: v6.2.0
+```
+
+See the [Tenzir changelog](/changelog/tenzir/) for the list of available
+releases. Bumping the tag and re-running `helm upgrade` becomes your
+version-bump workflow. To roll back, set the previous tag and `helm upgrade`
+again.
+
+### Update a node
+
+Edit your values file and apply the change:
+
+```bash
+helm upgrade tenzir-node oci://ghcr.io/tenzir/charts/tenzir-node \
+  --version 0.1.0 \
+  --namespace tenzir \
+  -f values.yaml
+```
+
+The chart only restarts nodes whose configuration changed. See
+<Reference>node/helm-chart#change-the-node-configuration</Reference> for
+how the chart's checksum annotation decides.
+
+### Stop a node
+
+Remove the release. The persistent volumes survive so you can reinstall
+against the same state later:
+
+```bash
+helm uninstall tenzir-node -n tenzir
+```
+
+To delete the persistent state as well, remove the namespace:
+
+```bash
+kubectl delete namespace tenzir
+```
+
+### Verify the chart signature
+
+The chart is signed with [Cosign](https://docs.sigstore.dev/cosign/overview/)
+keyless via the GitHub Actions OIDC token, the same scheme used for the
+[`tenzir` container image](#verify-container-image-signatures). Verify a
+specific version with:
+
+```bash
+cosign verify \
+  --certificate-identity-regexp="https://github.com/tenzir/helm-charts/.*" \
+  --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+  ghcr.io/tenzir/charts/tenzir-node:0.1.0
+```
+
 ## macOS
 
 Looking for a native macOS package? We're not quite there yet—but you can still

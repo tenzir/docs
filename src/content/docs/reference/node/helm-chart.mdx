@@ -1,0 +1,191 @@
+---
+title: Helm chart
+---
+
+The Tenzir Helm chart deploys one or more `tenzir-node` instances on a
+Kubernetes cluster. It deploys nodes only — it does not deploy the Tenzir
+Platform. Nodes installed through the chart connect to a Platform you have
+already provisioned, either cloud-hosted at `app.tenzir.com` or self-hosted
+through the Sovereign Edition.
+
+| | |
+|---|---|
+| OCI registry | `oci://ghcr.io/tenzir/charts/tenzir-node` |
+| Source | [`tenzir/helm-charts/charts/tenzir-node`](https://github.com/tenzir/helm-charts/tree/main/charts/tenzir-node) |
+| Values reference | [README → Values](https://github.com/tenzir/helm-charts/tree/main/charts/tenzir-node#values) |
+| Installation walkthrough | <Guide>node-setup/deploy-a-node#kubernetes</Guide> |
+
+## Resources rendered
+
+Per entry in `nodes`:
+
+| Resource | When |
+|---|---|
+| `StatefulSet` (1 replica) | always |
+| `Service` (ClusterIP, port 5158) | always |
+| `Service` (headless, port 5158) | always |
+| `ConfigMap` (rendered `tenzir.yaml`) | always |
+| `Secret` (carries `TENZIR_TOKEN`) | `nodes[].token.value` is set |
+| `PersistentVolumeClaim` (`/var/lib/tenzir`) | `persistence.enabled: true` |
+| `Pod` (`helm test` hook) | `helm test` runs |
+
+Once per release:
+
+| Resource | When |
+|---|---|
+| `ServiceAccount` | `serviceAccount.create: true` |
+| `NetworkPolicy` | `networkPolicy.enabled: true` |
+| `PodDisruptionBudget` | `podDisruptionBudget.minAvailable` or `.maxUnavailable` is set |
+| `Service` (one per shared entry) | `sharedServices[]` |
+
+## Connect a node to the Platform
+
+```yaml
+tenzir:
+  config:
+    tenzir:
+      platform-control-endpoint: wss://ws.tenzir.app/production
+```
+
+## Change the node configuration
+
+The chart composes each node's `tenzir.yaml` from three layers, merged in
+order:
+
+1. Chart defaults: `tenzir.endpoint: 0.0.0.0:5158`,
+   `tenzir.file-verbosity: quiet`, `tenzir.console-sink: stderr`.
+2. The global `tenzir.config` overlay (applied to every node).
+3. The per-node `nodes[].config` overlay (applied to one node).
+
+```yaml
+tenzir:
+  config:
+    tenzir:
+      max-partition-size: 8Mi
+
+nodes:
+  - name: node-a
+    token: { existingSecret: tenzir-node-a-token }
+    config:
+      tenzir:
+        pipelines:
+          ingest-http:
+            definition: |
+              accept_http "0.0.0.0:8080" { read_json }
+              import
+```
+
+`helm upgrade` only restarts pods whose merged `tenzir.yaml` changed. The
+chart writes a SHA-256 of the merged file to each pod template's
+`checksum/config` annotation, and the StatefulSet controller rolls pods
+when that annotation moves.
+
+## Expose a port on one node
+
+```yaml
+nodes:
+  - name: node-a
+    token: { existingSecret: tenzir-node-a-token }
+    extraPorts:
+      - name: http
+        containerPort: 8080
+      - name: syslog
+        containerPort: 514
+        serviceType: LoadBalancer
+```
+
+- Without `serviceType`, the port is added to the node's main `Service`.
+- With `serviceType` (`LoadBalancer`, `NodePort`, `ClusterIP`), the chart
+  emits a dedicated `Service` of that type for the port.
+
+## Expose a port load-balanced across many nodes
+
+```yaml
+nodes:
+  - name: ingester-a
+    token: { existingSecret: tenzir-ingester-a-token }
+  - name: ingester-b
+    token: { existingSecret: tenzir-ingester-b-token }
+
+sharedServices:
+  - name: http-ingest
+    port: 8080
+    type: LoadBalancer
+```
+
+The chart opens the container port on every selected pod and creates one
+`Service` whose selector spans all of them. kube-proxy load-balances across
+the endpoints. Each selected node must run a pipeline that actually listens
+on the port.
+
+## Restrict ingress with a NetworkPolicy
+
+```yaml
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: observability
+      ports:
+        - port: 5158
+          protocol: TCP
+```
+
+- Default when `enabled: true`: allow ingress from any pod in the same
+  namespace.
+- `allowSameNamespace: false` drops the default rule and uses only the
+  entries in `ingress`.
+
+## Container hardening defaults
+
+| Setting | Value |
+|---|---|
+| `runAsNonRoot` | `true` |
+| `runAsUser` / `runAsGroup` | `999` (matches the image's `tenzir` user) |
+| `seccompProfile.type` | `RuntimeDefault` |
+| `allowPrivilegeEscalation` | `false` |
+| `capabilities.drop` | `[ALL]` |
+| `readOnlyRootFilesystem` | `true` (with an `emptyDir` mounted at `/tmp`) |
+
+Writable paths in the pod: `/var/lib/tenzir` (PVC) and `/tmp`
+(`emptyDir`). Pipelines that `to_file` outside those fail with a clean
+`IOError`; the node keeps running.
+
+### `CAP_NET_BIND_SERVICE`
+
+Whether a pipeline can bind a port below 1024 depends on the cluster's
+`net.ipv4.ip_unprivileged_port_start` sysctl, not the chart's capabilities
+list:
+
+- `0` (Docker Desktop, kind, k3s, most managed distributions): every port
+  is unprivileged; no capability needed.
+- `1024` (kernel legacy default): binding below 1024 needs the capability.
+
+Check with `cat /proc/sys/net/ipv4/ip_unprivileged_port_start` from a pod.
+If the value is `1024`, add the capability back:
+
+```yaml
+containerSecurityContext:
+  capabilities:
+    add: [NET_BIND_SERVICE]
+```
+
+## Pin the image version
+
+The chart defaults to `image.tag: latest`. Override for reproducible
+deployments:
+
+```yaml
+image:
+  tag: v6.2.0
+```
+
+See the [Tenzir changelog](/changelog/tenzir/) for available releases.
+
+## See also
+
+- <Guide>node-setup/deploy-a-node#kubernetes</Guide>
+- <Guide>node-setup/provision-a-node</Guide>
+- <Reference>node/configuration</Reference>
