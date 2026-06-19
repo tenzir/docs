@@ -29,13 +29,24 @@ function absolutizeInternalLinks(baseUrl: string) {
   const skipExtensions =
     /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
   const nonMarkdownPaths = getNonMarkdownPaths();
+  // Rendered hrefs are already prefixed with the configured base (via
+  // `rehypeBaseLinks`), and `baseUrl` also carries that base. Strip the base
+  // from each href before reassembling so the base is not duplicated.
+  const basePrefix = (starlightLlmsTxtContext.base || "/").replace(/\/+$/, "");
 
   return function rewriteLinks() {
     return (tree: unknown) => {
       const links = selectAll("a", tree as Parameters<typeof selectAll>[1]);
       for (const link of links) {
-        const href = link.properties?.href;
-        if (typeof href !== "string") continue;
+        const rawHref = link.properties?.href;
+        if (typeof rawHref !== "string") continue;
+        // Strip the configured base so paths are base-relative; `baseUrl`
+        // re-adds it. No-op when no base is configured.
+        const href =
+          basePrefix &&
+          (rawHref === basePrefix || rawHref.startsWith(`${basePrefix}/`))
+            ? rawHref.slice(basePrefix.length) || "/"
+            : rawHref;
         // Only transform internal links (starting with /); skip anchor-only.
         if (!href.startsWith("/") || href.startsWith("/#")) continue;
 
