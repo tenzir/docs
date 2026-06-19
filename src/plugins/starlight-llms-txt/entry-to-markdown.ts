@@ -26,8 +26,12 @@ const astroContainer = await experimental_AstroContainer.create({
  * context to resolve a root-relative path against.
  */
 function absolutizeInternalLinks(baseUrl: string) {
-  const skipExtensions =
-    /\.(md|txt|xml|json|yaml|yml|html|png|jpg|jpeg|gif|svg|pdf|zip|tar|gz)$/i;
+  // A path whose final segment carries a file extension is a served asset
+  // (for example `/packages/zeek/tests/inputs/conn.log` or a public `.tql`
+  // file), not a docs route with a Markdown twin. Require a letter in the
+  // extension so version-numbered slugs such as `.../v5.10.0` are not
+  // mistaken for files.
+  const hasFileExtension = /\.[^/.]*[a-z][^/.]*$/i;
   const nonMarkdownPaths = getNonMarkdownPaths();
   // Rendered hrefs are already prefixed with the configured base (via
   // `rehypeBaseLinks`), and `baseUrl` also carries that base. Strip the base
@@ -60,7 +64,7 @@ function absolutizeInternalLinks(baseUrl: string) {
             pathPart === `${r}/` ||
             pathPart.startsWith(`${r}/`),
         );
-        if (isNonMarkdown || skipExtensions.test(pathPart)) {
+        if (isNonMarkdown || hasFileExtension.test(pathPart)) {
           link.properties.href = `${baseUrl}${href}`;
           continue;
         }
