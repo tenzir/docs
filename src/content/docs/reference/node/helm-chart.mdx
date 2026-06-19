@@ -8,57 +8,37 @@ Platform. Nodes installed through the chart connect to a Platform you have
 already provisioned, either cloud-hosted at `app.tenzir.com` or self-hosted
 through the Sovereign Edition.
 
-The chart is distributed as an OCI artifact at
-`oci://ghcr.io/tenzir/charts/tenzir-node`. The source and the full values
-reference live in
-[`tenzir/helm-charts`](https://github.com/tenzir/helm-charts/tree/main/charts/tenzir-node).
-For step-by-step installation, see
-<Guide>node-setup/deploy-a-node#kubernetes</Guide>.
+| | |
+|---|---|
+| OCI registry | `oci://ghcr.io/tenzir/charts/tenzir-node` |
+| Source | [`tenzir/helm-charts/charts/tenzir-node`](https://github.com/tenzir/helm-charts/tree/main/charts/tenzir-node) |
+| Values reference | [README → Values](https://github.com/tenzir/helm-charts/tree/main/charts/tenzir-node#values) |
+| Installation walkthrough | <Guide>node-setup/deploy-a-node#kubernetes</Guide> |
 
-## Resources rendered per node
+## Resources rendered
 
-Each entry in the chart's `nodes` list renders an independent set of
-Kubernetes resources for one Tenzir Node:
+Per entry in `nodes`:
 
-- A `StatefulSet` with one replica running `tenzir-node`.
-- A ClusterIP `Service` and a headless `Service` on port `5158`.
-- A `ConfigMap` holding the rendered `tenzir.yaml`.
-- A `Secret` containing the node's `TENZIR_TOKEN`, unless you reference an
-  existing one with `nodes[].token.existingSecret`.
-- A `PersistentVolumeClaim` for `/var/lib/tenzir` when
-  `persistence.enabled: true`.
-- A test `Pod` (a `helm test` hook) that calls `tenzir api "/ping"`.
+| Resource | When |
+|---|---|
+| `StatefulSet` (1 replica) | always |
+| `Service` (ClusterIP, port 5158) | always |
+| `Service` (headless, port 5158) | always |
+| `ConfigMap` (rendered `tenzir.yaml`) | always |
+| `Secret` (carries `TENZIR_TOKEN`) | `nodes[].token.value` is set |
+| `PersistentVolumeClaim` (`/var/lib/tenzir`) | `persistence.enabled: true` |
+| `Pod` (`helm test` hook) | `helm test` runs |
 
-Each entry has an independent identity. The token corresponds to one node
-provisioned in your Tenzir Platform workspace, the persistent state belongs
-to that node alone, and pods never share volumes.
+Once per release:
 
-Cluster-wide resources rendered once per release:
+| Resource | When |
+|---|---|
+| `ServiceAccount` | `serviceAccount.create: true` |
+| `NetworkPolicy` | `networkPolicy.enabled: true` |
+| `PodDisruptionBudget` | `podDisruptionBudget.minAvailable` or `.maxUnavailable` is set |
+| `Service` (one per shared entry) | `sharedServices[]` |
 
-- A `ServiceAccount` when `serviceAccount.create: true`.
-- A `NetworkPolicy` when `networkPolicy.enabled: true`.
-- A `PodDisruptionBudget` when `podDisruptionBudget.minAvailable` or
-  `.maxUnavailable` is set.
-- One `Service` per `sharedServices[]` entry.
-
-## Per-node configuration
-
-The chart composes each node's `tenzir.yaml` from three layers, merged in
-order:
-
-1. Built-in chart defaults: `tenzir.endpoint: 0.0.0.0:5158`,
-   `tenzir.file-verbosity: quiet`, `tenzir.console-sink: stderr`.
-2. The global `tenzir.config` overlay (shared across every node in the
-   release).
-3. The per-node `nodes[].config` overlay (specific to one node).
-
-A `checksum/config` annotation on each pod template, derived from the
-merged YAML, ensures that `helm upgrade` only rolls the pods whose
-configuration actually changed. Nodes whose merged YAML is unchanged keep
-running through the upgrade.
-
-To connect nodes to the Tenzir Platform, set the platform endpoint in the
-global overlay:
+## Connect a node to the Platform
 
 ```yaml
 tenzir:
@@ -67,35 +47,58 @@ tenzir:
       platform-control-endpoint: wss://ws.tenzir.app/production
 ```
 
-## Expose listener ports
+## Change the node configuration
 
-Every node always exposes the node-to-node port (`5158` by default) on its
-own main and headless `Service`. The chart provides two patterns for
-additional listener ports.
+The chart composes each node's `tenzir.yaml` from three layers, merged in
+order:
 
-### One node owns the port
+1. Chart defaults: `tenzir.endpoint: 0.0.0.0:5158`,
+   `tenzir.file-verbosity: quiet`, `tenzir.console-sink: stderr`.
+2. The global `tenzir.config` overlay (applied to every node).
+3. The per-node `nodes[].config` overlay (applied to one node).
 
-Use `nodes[].extraPorts` when a specific node listens on a specific port:
+```yaml
+tenzir:
+  config:
+    tenzir:
+      max-partition-size: 8Mi
+
+nodes:
+  - name: collector-a
+    token: { existingSecret: tenzir-collector-a-token }
+    config:
+      tenzir:
+        pipelines:
+          ingest-http:
+            definition: |
+              accept_http "0.0.0.0:8080" { read_json }
+              import
+```
+
+`helm upgrade` only restarts pods whose merged `tenzir.yaml` changed. The
+chart writes a SHA-256 of the merged file to each pod template's
+`checksum/config` annotation, and the StatefulSet controller rolls pods
+when that annotation moves.
+
+## Expose a port on one node
 
 ```yaml
 nodes:
   - name: collector
-    token:
-      existingSecret: tenzir-collector-token
+    token: { existingSecret: tenzir-collector-token }
     extraPorts:
       - name: http
         containerPort: 8080
+      - name: syslog
+        containerPort: 514
+        serviceType: LoadBalancer
 ```
 
-The chart opens the container port on that node's pod and adds the port to
-that node's main `Service`. Set `serviceType: LoadBalancer` (or
-`NodePort`) on an entry to publish the port through a dedicated `Service`
-of that type instead.
+- Without `serviceType`, the port is added to the node's main `Service`.
+- With `serviceType` (`LoadBalancer`, `NodePort`, `ClusterIP`), the chart
+  emits a dedicated `Service` of that type for the port.
 
-### A fleet of nodes shares the port
-
-Use `sharedServices` when several nodes accept the same traffic and you
-want kube-proxy to load-balance across them:
+## Expose a port load-balanced across many nodes
 
 ```yaml
 nodes:
@@ -110,17 +113,12 @@ sharedServices:
     type: LoadBalancer
 ```
 
-The chart opens the container port on every selected node's pod and
-creates a single `Service` whose selector spans all of them. Each selected
-node must run a pipeline that actually listens on the port — for example,
-`accept_http` declared under `tenzir.pipelines` in `nodes[].config`.
+The chart opens the container port on every selected pod and creates one
+`Service` whose selector spans all of them. kube-proxy load-balances across
+the endpoints. Each selected node must run a pipeline that actually listens
+on the port.
 
 ## Restrict ingress with a NetworkPolicy
-
-Set `networkPolicy.enabled: true` to render a `NetworkPolicy` that selects
-every node pod in the release. By default the policy allows ingress from
-any pod in the same namespace. Add explicit rules to grant access from
-other namespaces or specific pods:
 
 ```yaml
 networkPolicy:
@@ -135,45 +133,56 @@ networkPolicy:
           protocol: TCP
 ```
 
-Set `allowSameNamespace: false` to drop the default same-namespace rule
-and rely entirely on the entries in `ingress`.
+- Default when `enabled: true`: allow ingress from any pod in the same
+  namespace.
+- `allowSameNamespace: false` drops the default rule and uses only the
+  entries in `ingress`.
 
-## Container hardening
+## Container hardening defaults
 
-The chart's default container `securityContext` clears most of Trivy's
-container-hardening rules at HIGH severity:
+| Setting | Value |
+|---|---|
+| `runAsNonRoot` | `true` |
+| `runAsUser` / `runAsGroup` | `999` (matches the image's `tenzir` user) |
+| `seccompProfile.type` | `RuntimeDefault` |
+| `allowPrivilegeEscalation` | `false` |
+| `capabilities.drop` | `[ALL]` |
+| `readOnlyRootFilesystem` | `true` (with an `emptyDir` mounted at `/tmp`) |
 
-- `runAsNonRoot: true` with `runAsUser: 999` and `runAsGroup: 999` to
-  match the image's `tenzir` user.
-- `seccompProfile: { type: RuntimeDefault }`.
-- `allowPrivilegeEscalation: false`.
-- `capabilities.drop: [ALL]`.
-- `readOnlyRootFilesystem: true` with an `emptyDir` mounted at `/tmp` for
-  writable temp files. `/var/lib/tenzir` stays writable through the PVC.
+Writable paths in the pod: `/var/lib/tenzir` (PVC) and `/tmp`
+(`emptyDir`). Pipelines that `to_file` outside those fail with a clean
+`IOError`; the node keeps running.
 
-Two edge cases need attention:
+### `CAP_NET_BIND_SERVICE`
 
-- **Privileged listener ports.** When a pipeline binds a port below 1024
-  (for example `accept_tcp "0.0.0.0:514"` for Syslog), the listener needs
-  `CAP_NET_BIND_SERVICE` only if the cluster keeps the kernel default
-  `net.ipv4.ip_unprivileged_port_start = 1024`. Most modern distributions
-  (Docker Desktop, kind, k3s, and many managed offerings) ship with the
-  value set to `0`, which makes every port unprivileged and removes the
-  need for the capability. Check the value from a pod with
-  `cat /proc/sys/net/ipv4/ip_unprivileged_port_start`. If you need the
-  capability, add it back:
+Whether a pipeline can bind a port below 1024 depends on the cluster's
+`net.ipv4.ip_unprivileged_port_start` sysctl, not the chart's capabilities
+list:
 
-  ```yaml
-  containerSecurityContext:
-    capabilities:
-      add: [NET_BIND_SERVICE]
-  ```
+- `0` (Docker Desktop, kind, k3s, most managed distributions): every port
+  is unprivileged; no capability needed.
+- `1024` (kernel legacy default): binding below 1024 needs the capability.
 
-- **Writes outside `/tmp` and `/var/lib/tenzir`.** With
-  `readOnlyRootFilesystem: true`, any pipeline that calls `to_file`
-  against a path outside the two writable mounts fails with a clean
-  `IOError` without crashing the node. Mount additional writable paths
-  through `extraVolumes` and `extraVolumeMounts` when you need them.
+Check with `cat /proc/sys/net/ipv4/ip_unprivileged_port_start` from a pod.
+If the value is `1024`, add the capability back:
+
+```yaml
+containerSecurityContext:
+  capabilities:
+    add: [NET_BIND_SERVICE]
+```
+
+## Pin the image version
+
+The chart defaults to `image.tag: latest`. Override for reproducible
+deployments:
+
+```yaml
+image:
+  tag: v6.2.0
+```
+
+See the [Tenzir changelog](/changelog/tenzir/) for available releases.
 
 ## See also
 
