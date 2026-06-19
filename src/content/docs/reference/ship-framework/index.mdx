@@ -859,12 +859,15 @@ In auto mode, files without a static version field are skipped gracefully:
 
 - **pyproject.toml**: Updates `[project].version`. Falls back to
   `[tool.poetry].version` when `[project]` has `dynamic = ["version"]` or is
-  absent. Skips files where neither section has a static version.
+  absent. Skips files where neither section has a static version. When a
+  sibling `uv.lock` exists, runs `uv lock` after updating the manifest so uv
+  regenerates the lockfile metadata.
 - **Cargo.toml**: Updates `[package].version`. Falls back to
   `[workspace.package].version` for workspace root manifests. Skips files
   where neither section has a version field.
 - **package.json**: Updates the top-level `version` field. Skips files without
-  one.
+  one. When a sibling `package-lock.json` exists, updates the lockfile's root
+  package version metadata to match.
 - **project.toml**: Same behavior as `pyproject.toml`.
 
 #### Explicit version files
@@ -1171,6 +1174,10 @@ When `modules` is configured, `tenzir-ship validate` checks:
   CLI must parse every detected/configured version file. Use supported files
   (`package.json`, `pyproject.toml`, `project.toml`, `Cargo.toml`) or set
   `release.version_bump_mode: off` and handle updates in your workflow script.
+  When `package.json` has a sibling `package-lock.json`, tenzir-ship also parses
+  the lockfile to keep root package version metadata in sync.
+  When `pyproject.toml` has a sibling `uv.lock`, tenzir-ship requires `uv` on
+  `PATH` and runs `uv lock` after updating the manifest.
 
 ## Further reading
 
