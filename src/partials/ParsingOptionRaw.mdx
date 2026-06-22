@@ -3,3 +3,8 @@
 Use only the raw types that are native to the parsed format. Fields that have a
 type specified in the chosen `schema` will still be parsed according to the
 schema.
+
+By default the parser infers richer types from values, which can change them: a
+zero-padded numeric identifier such as `0001133664` becomes the number
+`1133664`, losing its leading zeros. Set `raw=true` to keep such fields as text
+so they survive verbatim.

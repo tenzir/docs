@@ -1,0 +1,348 @@
+---
+title: Reassemble multi-segment messages
+---
+
+This guide shows you how to reassemble a single logical message that a source
+split across several transport messages. You'll start with a simple windowed
+gather, then handle the wrinkles real streams add: segments that straddle a
+window boundary, arrive out of order, duplicate, or go missing.
+
+## The problem
+
+Many log sources cap the size of a single transport message. When an event
+exceeds that cap, the source splits it into several smaller messages that share
+an identifier and carry a segment counter. Cisco Identity Services Engine (ISE),
+for example, does this with its syslog. The receiver sees a burst of partial
+messages that mean nothing on their own, so you have to put them back together
+before you can parse the event.
+
+A segmented message typically frames each part with a shared id, the total number
+of segments, and this segment's number, followed by the payload:
+
+```text
+f47ac10b-58cc 3 0 first part of the body
+f47ac10b-58cc 3 1 second part
+f47ac10b-58cc 3 2 third part
+```
+
+This mirrors how Cisco ISE frames its syslog segments.
+
+:::tip[See it in practice]
+The Tenzir Library's [Cisco package](https://github.com/tenzir/library/tree/main/cisco)
+applies the whole pattern in this guide to Cisco ISE syslog, as the
+`cisco::ise::reassemble` and `cisco::ise::parse` operators.
+:::
+
+## Frame each segment
+
+Start by extracting the framing fields from every message. A <Fn>parse_grok</Fn>
+pattern pulls the shared id, the segment total, the segment number, and the
+payload that follows:
+
+```tql
+let $header = r"^(?<message_id>[\w-]+)\s+(?<segment_total>\d+)\s+(?<segment_number>\d+)\s+(?<payload>.*)$"
+
+from {content: "f47ac10b-58cc 3 0 first part of the body"},
+     {content: "f47ac10b-58cc 3 1 second part"}
+segment = content.parse_grok($header)
+```
+
+```tql
+{
+  content: "f47ac10b-58cc 3 0 first part of the body",
+  segment: {
+    message_id: "f47ac10b-58cc",
+    segment_total: 3,
+    segment_number: 0,
+    payload: "first part of the body",
+  },
+}
+{
+  content: "f47ac10b-58cc 3 1 second part",
+  segment: {
+    message_id: "f47ac10b-58cc",
+    segment_total: 3,
+    segment_number: 1,
+    payload: "second part",
+  },
+}
+```
+
+:::note[Numeric identifiers]
+If your ids are numeric and zero-padded, or your payloads carry values that must
+survive verbatim (both true for Cisco ISE), pass `raw=true` on <Fn>parse_grok</Fn>
+so type inference doesn't rewrite them (see the `raw` option). Then cast the
+segment number and total back with `int()` right after framing, since the header
+check (`segment_number == 0`), the sort, and the completeness count (which
+compares and subtracts `segment_total`) all need them numeric.
+:::
+
+## Gather the segments
+
+Start simple. Bound the segments of one message in an event-time <Op>window</Op>,
+order them by number, and join their payloads. Key the aggregation by `message_id`
+so each message reassembles on its own. The examples that follow take the framing
+fields at the top level, so assign them out of the parsed `segment` record first.
+
+```tql
+let $span = 10s
+
+from {message_id: "f47ac10b", segment_number: 2, ts: 2024-01-01T10:00:00, payload: "c=3"},
+     {message_id: "f47ac10b", segment_number: 0, ts: 2024-01-01T10:00:00, payload: "a=1,"},
+     {message_id: "f47ac10b", segment_number: 1, ts: 2024-01-01T10:00:00, payload: "b=2,"}
+window size=$span, on=ts, idle_timeout=$span {
+  sort segment_number
+  summarize message_id, payloads=collect(payload)
+}
+message = (move payloads).join("")
+```
+
+```tql
+{
+  message_id: "f47ac10b",
+  message: "a=1,b=2,c=3",
+}
+```
+
+The fragments arrived out of order and still reassemble: <Op>window</Op> gathers
+the segments in a `span`-wide slice of event time, <Op>sort</Op> orders them, and
+<Fn>collect</Fn> with `join("")` rebuilds the body. `join("")` concatenates the
+chunks verbatim; add a separator only if your source strips a delimiter when it
+splits a message.
+
+This works as long as a message's segments land in the same window. They often
+don't, which the next sections fix one problem at a time.
+
+## Keep segments across window boundaries
+
+A single fixed window splits a message whose segments fall on opposite sides of a
+boundary. Move one segment across the 10-second mark and the simple gather splits
+it into two incomplete pieces instead of one message.
+
+Switch to **hopping windows** (`size=$span * 3, every=$span`): consecutive windows
+overlap, so any two segments within `span` of each other share one, even across a
+boundary. Add `tolerance=$span` so a segment arriving slightly out of order in
+event time still lands in its window. Overlap means a message now appears in
+several windows, so an emit guard keeps exactly one copy:
+
+```tql
+let $span = 10s
+
+from {message_id: "f47ac10b", segment_number: 2, ts: 2024-01-01T10:00:31, payload: "c=3"},
+     {message_id: "f47ac10b", segment_number: 0, ts: 2024-01-01T10:00:29, payload: "a=1,"},
+     {message_id: "f47ac10b", segment_number: 1, ts: 2024-01-01T10:00:29, payload: "b=2,"}
+// Record each segment's fixed window; only segment 0 carries the header.
+segment_window_start = floor(ts, $span)
+header_window_start = segment_window_start if segment_number == 0 else null
+window size=$span * 3, every=$span, on=ts, idle_timeout=$span, tolerance=$span {
+  sort segment_number
+  summarize \
+    message_id,
+    first_segment_window_start=min(segment_window_start),
+    header_window_start=first(header_window_start),
+    payloads=collect(payload)
+  // Emit each message once, from the window centered on segment 0's bucket, so
+  // continuations on either side of a boundary are included. A header-less run
+  // of continuations emits from the window before its first segment.
+  emit_window_start = (header_window_start - $span) if header_window_start != null else (first_segment_window_start - $span)
+  where $window.start == emit_window_start
+  drop \
+    first_segment_window_start,
+    header_window_start,
+    emit_window_start
+}
+message = (move payloads).join("")
+```
+
+```tql
+{
+  message_id: "f47ac10b",
+  message: "a=1,b=2,c=3",
+}
+```
+
+Now segment 0 sits just before the boundary and segment 2 just after it, yet they
+reassemble into one body.
+
+:::note[Why the emit guard]
+Overlapping windows place each message in several windows, so without a guard it
+would be emitted several times. The guard keeps the single window centered on
+segment 0's bucket, which reaches a `span` to either side, so continuations before
+or after the header are both included. A header-less run of continuations emits
+from the window before its first segment instead.
+:::
+
+:::tip[One window is enough when segments share a timestamp]
+The hopping machinery only matters when a segment's `on` value can differ between
+segments of the same message, such as a per-segment syslog receipt time. If the
+message body carries its own timestamp that is identical for every segment (often
+distinct from the syslog timestamp), window on that field instead: all segments
+fall in one window, and a plain `window size=$span` reassembles them without the
+hopping machinery.
+:::
+
+## Drop duplicate segments
+
+A segment can arrive more than once. Add <Op>deduplicate</Op> inside the window,
+right after `sort`, keyed by message and segment number, so a segment redelivered
+into the same window contributes its payload only once:
+
+```tql
+window size=$span * 3, every=$span, on=ts, idle_timeout=$span, tolerance=$span {
+  sort segment_number
+  deduplicate message_id, segment_number
+  // ...summarize and emit guard as before...
+}
+```
+
+A copy that lands in a *different* window is not caught here; see
+[Limitations and trade-offs](#limitations-and-trade-offs).
+
+## Report completeness
+
+Rather than drop a message that lost a segment, count how many distinct segments
+arrived and flag the result, so downstream stages can handle a partial message
+instead of losing it. First produce the framed total as a scalar and collect the
+segment numbers in the window's `summarize`:
+
+```tql
+window size=$span * 3, every=$span, on=ts, idle_timeout=$span, tolerance=$span {
+  // ...sort, deduplicate, emit guard as before...
+  summarize \
+    message_id,
+    segment_total=first(segment_total),
+    segment_numbers=collect(segment_number),
+    first_segment_window_start=min(segment_window_start),
+    header_window_start=first(header_window_start),
+    payloads=collect(payload)
+}
+```
+
+Then compare after the window:
+
+```tql
+received = segment_numbers.distinct().where(n => n >= 0 and n < segment_total).length()
+reassembly_complete = received == segment_total
+missing_segments = segment_total - received
+```
+
+A message that lost a segment then flows on marked `reassembly_complete: false`
+with a `missing_segments` count, instead of disappearing.
+
+## Preserve surrounding fields
+
+<Op>window</Op> and <Op>summarize</Op> emit only the fields named in the
+`summarize` and drop everything else on the event, such as the host, the syslog
+facility, or any shipper metadata. Carry each field you want to keep through the
+window with <Fn>first</Fn>:
+
+```tql
+summarize \
+  message_id,
+  host=first(host),
+  first_segment_window_start=min(segment_window_start),
+  header_window_start=first(header_window_start),
+  payloads=collect(payload)
+```
+
+To keep many fields at once without naming each, snapshot them into a record
+before the window and restore it afterward, which is what `cisco::ise::reassemble`
+does:
+
+```tql
+context = {...this}
+// ...the window, with `context=first(context)` in its summarize...
+this = {...context, message: payloads.join("")}
+```
+
+## Test with simulated timing
+
+To exercise reassembly like a live feed, replay a fixture with <Op>delay</Op>,
+which sleeps between events in proportion to a timestamp field. Give each segment
+a `send` time so the segments arrive out of order and spread over real wall-clock
+time. Here two messages arrive interleaved over several seconds, each reassembled
+within a ten-second span:
+
+```tql
+let $span = 10s
+
+from {message_id: "f47ac10b", segment_number: 1, ts: 2024-01-01T10:00:00, send: 2024-01-01T10:00:00.0, payload: "llo"},
+     {message_id: "f47ac10b", segment_number: 0, ts: 2024-01-01T10:00:00, send: 2024-01-01T10:00:01.0, payload: "he"},
+     {message_id: "9c5b4d2e", segment_number: 0, ts: 2024-01-01T10:00:20, send: 2024-01-01T10:00:03.0, payload: "wor"},
+     {message_id: "9c5b4d2e", segment_number: 1, ts: 2024-01-01T10:00:20, send: 2024-01-01T10:00:04.0, payload: "ld"}
+delay send
+segment_window_start = floor(ts, $span)
+header_window_start = segment_window_start if segment_number == 0 else null
+window size=$span * 3, every=$span, on=ts, idle_timeout=$span, tolerance=$span {
+  sort segment_number
+  summarize \
+    message_id,
+    first_segment_window_start=min(segment_window_start),
+    header_window_start=first(header_window_start),
+    payloads=collect(payload)
+  emit_window_start = (header_window_start - $span) if header_window_start != null else (first_segment_window_start - $span)
+  where $window.start == emit_window_start
+  drop \
+    first_segment_window_start,
+    header_window_start,
+    emit_window_start
+}
+message = (move payloads).join("")
+select message_id, message
+sort message_id
+```
+
+```tql
+{
+  message_id: "9c5b4d2e",
+  message: "world",
+}
+{
+  message_id: "f47ac10b",
+  message: "hello",
+}
+```
+
+Each message comes out whole even though its segments arrive out of order and
+seconds apart. What matters is the spread of one message's own segments, not their
+arrival order or the real-time gaps in the stream. Remove `delay` to replay the
+fixture instantly as a deterministic test.
+
+## Limitations and trade-offs
+
+This pattern is best-effort, not exact. It handles the common path, but real
+streams surface edge cases, and each one you choose to handle makes the pipeline
+more complex. Which cases matter depends on your source, so replay the ones that
+apply with the `delay` fixture from [Test with simulated
+timing](#test-with-simulated-timing), then decide what to handle and what to
+accept:
+
+- **Out-of-order event time.** `window` clocks on the largest `on` value seen, so
+  a segment stamped later but arriving first can push earlier segments past their
+  window. `tolerance` buys slack; beyond it, late segments are dropped.
+- **Far-apart segments.** `span` is the bound: a message whose segments arrive
+  more than `span` apart comes out as separate, incomplete pieces.
+- **Duplicate redelivery.** Duplicates within one window dedupe cleanly, but a
+  copy redelivered into a different window can still produce a duplicate or
+  incomplete emission. Filter downstream if that matters.
+- **Reused identifiers.** A reused single-segment id is disambiguated by its
+  payload; reused multi-segment ids are not reliably solvable, because a
+  continuation does not say which header it belongs to.
+
+Handling every case perfectly adds real complexity, so cover what your source
+actually produces, test it, and treat the rest as known limitations.
+
+## See also
+
+- <Op>window</Op>
+- <Op>summarize</Op>
+- <Op>sort</Op>
+- <Op>deduplicate</Op>
+- <Op>delay</Op>
+- <Fn>collect</Fn>
+- <Fn>parse_grok</Fn>
+- <Guide>parsing/parse-string-fields</Guide>
+- <Guide>transformation/work-with-time</Guide>
+- <Guide>analytics/aggregate-event-streams</Guide>
+- <Tutorial>learn-idiomatic-tql</Tutorial>
+- <Integration>syslog</Integration>
