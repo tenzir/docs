@@ -123,24 +123,6 @@ Tenzir maps ClickHouse types to Tenzir types as follows:
 `Map(...)` is not currently supported. Cast unsupported columns in `sql` or
 omit them from the query result.
 
-## Predicate Pushdown
-Tenzir has Predicate Pushdown, allowing `where` filters to be pushed up a pipeline
-and into the `from_clickhouse` operator. Where possible, `from_clickhouse` will
-also push this predicate into the query send to the ClickHouse server to reduce
-transfer and compute cost:
-
-```tql
-from_clickhouse table="db.table", host="localhost"
-where i > 42
-```
-is equivalent to
-```tql
-from_clickhouse sql="select * from db.table where i > 42", host="localhost"
-```
-
-Pushdown is only performed in `table` mode. When you provide an `sql` statement,
-you should consider filtering in the statement itself.
-
 ## Examples
 
 ### Read all rows from a table
