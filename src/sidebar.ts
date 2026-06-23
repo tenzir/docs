@@ -67,6 +67,7 @@ export const guides = [
           "guides/platform-management/manage-organization-members",
           "guides/platform-management/manage-organization-workspaces",
           "guides/platform-management/configure-workspaces",
+          "guides/platform-management/configure-authentications",
           "guides/platform-management/configure-dashboards",
           "guides/platform-management/use-ephemeral-nodes",
         ],

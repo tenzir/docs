@@ -437,6 +437,36 @@ tenzir:
   secrets:
     # my-secret-name: my-secret-value
 
+  # Named authentication recipes that the `from_http` and `to_http` operators
+  # can reference via `auth="<name>"`. Each entry must carry a `name` and a
+  # `strategy`; the remaining keys are strategy-specific. The node resolves a
+  # name against this list first and then against the connected Tenzir
+  # Platform's authentication store; the first match wins.
+  #
+  # Sensitive values are written as literal strings here. Protect this config
+  # the same way you'd protect any credentials file (file mode 0600, owned by
+  # the node user). Platform-managed authentications keep credentials off
+  # disk entirely.
+  auth:
+    # - name: events-oauth
+    #   strategy: oauth-client-credentials      # or just "oauth"
+    #   client_id: client-id-9b4f
+    #   client_secret: rA8nXg9LxQ4kP2hT
+    #   token_url: https://auth.example.com/oauth/token
+    #   scopes: [events.read]
+    #   audience: https://api.example.com       # optional; required if scopes is empty
+    # - name: events-basic
+    #   strategy: basic
+    #   username: events-bot
+    #   password: hunter2
+    # - name: events-api-key
+    #   strategy: api-key
+    #   header_name: X-Api-Key                  # optional; this is the default
+    #   api_key: a1b2c3d4e5f60718
+    # - name: events-bearer
+    #   strategy: bearer-static
+    #   token: eyJhbGciOiJIUzI1NiJ9.payload.sig
+
   # Configure the interval for experimental trimming of unused memory.
   malloc-trim-interval: 10min
 
