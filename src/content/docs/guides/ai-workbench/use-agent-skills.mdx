@@ -88,6 +88,33 @@ Append `@<skill-name>` to install a specific skill from the available skills:
 npx skills add tenzir/skills@<skill-name>
 ```
 
+### Use the docs skill
+
+Install the Tenzir documentation skill when you want an agent to answer
+questions about TQL, write or debug pipelines, look up operators and functions,
+or help with parsing, transformation, enrichment, integrations, deployment, and
+configuration:
+
+```bash
+npx skills add tenzir/skills@tenzir-docs
+```
+
+The `tenzir-docs` skill packages the entire Tenzir documentation with
+progressive disclosure, so the agent loads a condensed overview first and drills
+into individual operator, function, and guide pages only when needed.
+
+Tell the agent which context you want:
+
+```text
+Use the tenzir-docs skill to show me how to read Suricata EVE JSON from a file
+and aggregate the alerts by signature.
+```
+
+```text
+Use the tenzir-docs skill to explain the difference between the summarize and
+top operators.
+```
+
 ### Use the ASIM skill
 
 Install the Microsoft Sentinel ASIM schema skill when you want an agent to help
@@ -381,13 +408,4 @@ Remove all installed Tenzir skills:
 
 ```bash
 npx skills remove --all
-```
-
-## Discover more skills
-
-Browse the community skill directory at [skills.sh](https://skills.sh) or
-search from the command line:
-
-```bash
-npx skills find
 ```

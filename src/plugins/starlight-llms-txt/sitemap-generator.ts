@@ -10,8 +10,9 @@ import {
   reference,
   tutorials,
 } from "../../sidebar";
+import { markdownUrlForDocPath } from "../../utils/llm-markdown-path";
 // Changelog topics
-import { changelogTopics } from "../../sidebar-changelog.generated";
+import { changelogTopics } from "./changelog-topics";
 import { entryToSimpleMarkdown } from "./entry-to-markdown";
 import { extractDescription } from "./excerpt-utils";
 import type { SidebarItem } from "./types";
@@ -119,7 +120,7 @@ async function resolveDocEntry(
     title: doc.data.title,
     description: extractDescription(markdown),
     headings: isReferenceOnly ? [] : extractHeadings(markdown),
-    url: `${baseUrl}/${docPath}.md`,
+    url: markdownUrlForDocPath(baseUrl, doc.id),
   };
 }
 
@@ -331,7 +332,7 @@ function formatChangelogSection(baseUrl: string): string {
   const projects = changelogTopics.filter((t) => t.label !== "Timeline");
 
   for (const project of projects) {
-    output += `- [${project.label}](${baseUrl}/${project.link}.md)\n`;
+    output += `- [${project.label}](${markdownUrlForDocPath(baseUrl, project.link)})\n`;
   }
 
   output += "\n";
