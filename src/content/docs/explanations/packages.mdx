@@ -36,6 +36,7 @@ A package is a directory with the following structure:
   - pipelines/ Fully deployable pipelines
   - tests/ Integration tests
     - inputs/ Sample data for tests
+  - constants.tql Package-level constants
   - package.yaml Package manifest
 
 </FileTree>
@@ -76,6 +77,14 @@ remains predictable.
 **Contexts** defined in the manifest provide stateful enrichment capabilities.
 The node creates these contexts when you install the package, making them
 available for lookup and enrichment operations.
+
+### Constants
+
+**Constants** in the `constants.tql` file are package-level `let` bindings that
+Tenzir evaluates once when it loads the package. Reference them as `pkg::$name`
+from the package's own operators and pipelines or from any external pipeline.
+Use them to share lookup tables, enumerations, and fixed thresholds that would
+otherwise be duplicated across files.
 
 ### Examples
 
@@ -134,7 +143,7 @@ straightforward, and good test coverage enables confident iteration.
 ## Package lifecycle
 
 1. **Create**: Set up the package structure and manifest
-2. **Develop**: Add operators, pipelines, contexts, and examples
+2. **Develop**: Add operators, pipelines, contexts, constants, and examples
 3. **Test**: Validate behavior with the Test Framework
 4. **Install**: Deploy locally or through the Tenzir Library
 5. **Maintain**: Update the changelog and publish releases
@@ -146,5 +155,6 @@ straightforward, and good test coverage enables confident iteration.
 - <Guide>packages/add-operators</Guide>
 - <Guide>packages/add-pipelines</Guide>
 - <Guide>packages/add-contexts</Guide>
+- <Guide>packages/add-constants</Guide>
 - <Guide>packages/maintain-a-changelog</Guide>
 - <Tutorial>write-a-package</Tutorial>

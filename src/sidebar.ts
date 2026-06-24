@@ -198,6 +198,7 @@ export const guides = [
           "guides/packages/add-operators",
           "guides/packages/add-pipelines",
           "guides/packages/add-contexts",
+          "guides/packages/add-constants",
           "guides/packages/configure-inputs",
           "guides/packages/maintain-a-changelog",
           "guides/packages/publish-a-package",
