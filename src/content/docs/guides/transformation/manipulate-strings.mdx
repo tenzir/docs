@@ -214,6 +214,43 @@ Pattern matching functions:
 - <Fn>starts_with</Fn> - Check string prefix
 - <Fn>ends_with</Fn> - Check string suffix
 
+## Match case-insensitively
+
+Many string functions accept an `ignore_case` argument so you can match without
+first normalizing case with <Fn>to_lower</Fn>. Comparison uses full Unicode case
+folding, so it handles cases like the German `ß` folding to `ss`:
+
+```tql
+from {method: "Get", host: "Example.COM", street: "STRASSE"}
+is_get = method.starts_with("get", ignore_case=true)
+same_host = equals(host, "example.com", ignore_case=true)
+has_strasse = street.contains("straße", ignore_case=true)
+```
+
+```tql
+{
+  method: "Get",
+  host: "Example.COM",
+  street: "STRASSE",
+  is_get: true,
+  same_host: true,
+  has_strasse: true,
+}
+```
+
+Functions that support `ignore_case`:
+
+- <Fn>starts_with</Fn> - Check string prefix
+- <Fn>ends_with</Fn> - Check string suffix
+- <Fn>contains</Fn> - Search for a substring
+- <Fn>equals</Fn> - Compare two strings for equality
+- <Fn>replace</Fn> - Replace a literal substring
+- <Fn>split</Fn> - Split on a literal delimiter
+
+The argument defaults to `false`, preserving case-sensitive matching. For regex
+functions such as <Fn>match_regex</Fn>, <Fn>replace_regex</Fn>, and
+<Fn>split_regex</Fn>, use the inline `(?i)` flag instead.
+
 ## Validate string content
 
 Check what type of characters a string contains:
