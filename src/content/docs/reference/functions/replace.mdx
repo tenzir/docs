@@ -4,10 +4,10 @@ category: String/Transformation
 example: '"hello".replace("o", "a")'
 ---
 
-Replaces characters within a string.
+Replaces literal substrings within a string.
 
 ```tql
-replace(x:string, pattern:string, replacement:string, [max=int]) -> string
+replace(x:string, pattern:string, replacement:string, [max=int], [ignore_case=bool]) -> string
 ```
 
 ## Description
@@ -15,6 +15,9 @@ replace(x:string, pattern:string, replacement:string, [max=int]) -> string
 The `replace` function returns a new string where occurrences of `pattern` in `x`
 are replaced with `replacement`, up to `max` times. If `max` is omitted, all
 occurrences are replaced.
+
+Set `ignore_case=true` to match using full Unicode case folding instead of
+case-sensitive matching.
 
 ### `x: string`
 
@@ -33,6 +36,12 @@ The replacement value for `pattern`.
 The maximum number of replacements to perform.
 
 If the option is not set, all occurrences are replaced.
+
+### `ignore_case: bool` (optional)
+
+If `true`, matches the literal `pattern` using full Unicode case folding.
+
+Defaults to `false`.
 
 ## Examples
 
@@ -54,6 +63,22 @@ from {x: "hello".replace("l", "r", max=1)}
 
 ```tql
 {x: "herlo"}
+```
+
+### Replace case-insensitively
+
+```tql
+from {
+  ascii: "Connection ERROR".replace("error", "warning", ignore_case=true),
+  unicode: "Fußstraße".replace("STRASSE", "weg", ignore_case=true),
+}
+```
+
+```tql
+{
+  ascii: "Connection warning",
+  unicode: "Fußweg",
+}
 ```
 
 ## See Also
