@@ -1,0 +1,55 @@
+---
+const latestDocsUrl = "https://docs.tenzir.com/";
+const migrationGuideUrl = "https://docs.tenzir.com/guides/tenzir-v6-migration/";
+---
+
+<div class="sl-banner legacy-docs-banner" data-pagefind-ignore>
+  <strong>Legacy docs for Tenzir v5.x.</strong>
+  <span>
+    For the latest Tenzir v6 series, visit
+    <a href={latestDocsUrl}>docs.tenzir.com</a>.
+  </span>
+  <span>
+    Migrating from v5? Read the
+    <a href={migrationGuideUrl}>Tenzir v6 migration guide</a>.
+  </span>
+</div>
+
+<style>
+  @layer starlight.core {
+    .legacy-docs-banner {
+      --__sl-banner-text: var(--tnz-neutral-800);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem var(--sl-nav-pad-x);
+      background: linear-gradient(
+        90deg,
+        var(--tnz-yellow-400),
+        var(--tnz-yellow-300)
+      );
+      color: var(--__sl-banner-text);
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      line-height: var(--sl-line-height-headings);
+      text-align: center;
+      text-wrap: balance;
+      box-shadow: var(--sl-shadow-md);
+    }
+
+    .legacy-docs-banner strong {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .legacy-docs-banner a {
+      color: var(--__sl-banner-text);
+      font-weight: 800;
+      text-decoration: underline;
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 0.15em;
+    }
+  }
+</style>
