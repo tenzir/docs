@@ -73,6 +73,27 @@ With this input, the parser will produce the following output, with the schema n
 }
 ```
 
+RFC 3164 timestamps don't include a year or timezone, so `read_syslog` keeps the
+timestamp as a string. Use <Fn>parse_time</Fn> with `reference` to convert it to
+a timestamp:
+
+```tql title="Pipeline"
+from_file "syslog.txt" {
+  read_syslog
+}
+timestamp = timestamp.parse_time("%b %e %H:%M:%S", reference=now())
+```
+
+If you know the sender's timezone, add the UTC offset to the string and include
+`%z` in the format:
+
+```tql
+timestamp = (timestamp + " +0400").parse_time(
+  "%b %e %H:%M:%S %z",
+  reference=now(),
+)
+```
+
 Some RFC 3164 emitters prepend structured-data blocks to the message content
 using syntax similar to RFC 5424. When the parser detects valid structured data
 at the start of the content field, it extracts the key-value pairs into a
