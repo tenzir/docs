@@ -110,9 +110,9 @@ with typed nulls.
 
 ```tql
 from_file "ocsf_network_activity.json"
-ocsf::cast encode_variants=true, null_fill=true
+ocsf::cast null_fill=true
 to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}",
-              primary=time, json=unmapped
+              primary=time, json=unmapped,
               tls=false
 ```
 
@@ -123,7 +123,7 @@ fields explicit types before the table is created.
 
 Using `json=unmapped` here allows sending the OCSF `unmapped` field as ClickHouse
 JSON, retaining structural properties without having to rely on <Op>ocsf::cast</Op>
-to `encode_variants` (turning the field into a `string`)
+to `encode_variants` (turning the field into a `string`).
 
 After the data lands, query it directly in ClickHouse:
 

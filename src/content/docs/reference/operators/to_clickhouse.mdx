@@ -9,7 +9,7 @@ Sends events to a ClickHouse table.
 ```tql
 to_clickhouse table=string,
               [uri=string | (host=string, port=int, user=string, password=string)],
-              [mode=string, primary=field, tls=bool|record]
+              [mode=string, primary=field, json=field|[field], tls=bool|record]
 ```
 
 ## Description
@@ -91,7 +91,9 @@ well as for `mode = "create_append"` if the table does not yet exist.
 
 When using `mode = "create"` or `mode = "create_append"`, columns listed in the
 `json` argument will be created as the ClickHouse `JSON` type rather than being
-inferred from the first event.
+inferred from the first event. A listed field is created as a `JSON` column even
+if it is absent from that event. Because `json` only affects table creation,
+combining it with `mode = "append"` is an error.
 
 This is useful when sending heterogeneous data, such as for OCSF `unmapped`.
 
@@ -132,7 +134,7 @@ Otherwise the event will be dropped.
 
 <Op>to_clickhouse</Op> can also write records to the ClickHouse JSON type for
 columns that already have this type in the table. By default, <Op>to_clickhouse</Op>
-will not create JSON columns on its own. Use the explicit [json][#json] option
+will not create JSON columns on its own. Use the explicit `json` option
 or create the table on the server ahead of time.
 
 ### Table Creation
