@@ -87,6 +87,14 @@ Defaults to `"create_append"`.
 The primary key to use when creating a table. Required for `mode = "create"` as
 well as for `mode = "create_append"` if the table does not yet exist.
 
+### `json = field|[field] (optional)`
+
+When using `mode = "create"` or `mode = "create_append"`, columns listed in the
+`json` argument will be created as the ClickHouse `JSON` type rather than being
+inferred from the first event.
+
+This is useful when sending heterogeneous data, such as for OCSF `unmapped`.
+
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="true" />
@@ -113,10 +121,19 @@ translation from Tenzir's types to ClickHouse:
 | `list<T>`  | `Array(T)`                     |                                                                                                       |
 | `blob`     | `Array(UInt8)`                 | Blobs that are `null` will be represented by an empty array                                           |
 
+### Nullable
+
 Tenzir also supports `Nullable` versions of the above types (or their nested types).
 If a `list` itself is `null`, it will be represented by an empty `Array`.
 If a `record` is `null`, all elements of the `Tuple` will be null, if possible.
 Otherwise the event will be dropped.
+
+### Clickhouse JSON
+
+<Op>to_clickhouse</Op> can also write records to the ClickHouse JSON type for
+columns that already have this type in the table. By default, <Op>to_clickhouse</Op>
+will not create JSON columns on its own. Use the explicit [json][#json] option
+or create the table on the server ahead of time.
 
 ### Table Creation
 
@@ -194,14 +211,16 @@ This writes to `security.alerts`.
 
 When sending OCSF data to ClickHouse, it is important to ensure that a consistent
 schema is sent. For this, we can use <Op>ocsf::cast</Op>.
-This allows us to encode the `unmapped` field as JSON and fill any missing fields
-with `null`, ensuring a single schema.
+This allows us fill any missing fields with `null`, ensuring a single schema.
 
 ```tql
 subscribe "ocsf"
-ocsf::cast encode_variants=true, null_fill=true
-to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time
+ocsf::cast null_fill=true
+to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time, json=unmapped
 ```
+
+Another alternative would be to directly turn the `unmapped` field into a `string`
+by using `ocsf::cast null_fill=true, encode_variants=true`.
 
 ### Create a new table with multiple fields
 
