@@ -10,7 +10,7 @@ Writes events to one or multiple files on a filesystem.
 
 ```tql
 to_file url:string, [max_size=int, timeout=duration,
-        partition_by=list<field>, append=bool] { … }
+        partition_by=list<field>, append=bool, real_time=bool] { … }
 ```
 
 ## Description
@@ -44,6 +44,18 @@ If `true`, existing files are opened for appending instead of truncated.
 Useful for accumulating output across pipeline runs into a stable path.
 When combined with a `{uuid}` placeholder the flag is a no-op, since every
 rotation already targets a fresh filename.
+
+Defaults to `false`.
+
+### `real_time = bool (optional)`
+
+By default, `to_file` buffers writes and coalesces them into larger, less
+frequent operations for higher throughput. Buffered data is always flushed when
+a file rotates, when the pipeline checkpoints, and when it closes.
+
+Set `real_time=true` to write every batch straight through to the file as soon
+as it arrives, without buffering. This trades throughput for latency and is
+useful when another process tails the file or consumes it in near real time.
 
 Defaults to `false`.
 
@@ -95,6 +107,15 @@ to_file "/tmp/logs/events_{uuid}.json", max_size=10M {
 
 ```tql
 to_file "/tmp/logs/events_{uuid}.json", timeout=1min {
+  write_ndjson
+}
+```
+
+### Write events without buffering
+
+```tql
+from {msg: "hello"}, {msg: "world"}
+to_file "/tmp/out.json", real_time=true {
   write_ndjson
 }
 ```
