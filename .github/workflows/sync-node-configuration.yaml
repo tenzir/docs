@@ -1,0 +1,62 @@
+name: Sync Node Configuration
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Git ref in tenzir/tenzir to sync from
+        required: false
+        default: main
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync Node Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TENZIR_GITHUB_APP_ID }}
+          private-key: ${{ secrets.TENZIR_GITHUB_APP_PRIVATE_KEY }}
+          owner: tenzir
+          repositories: |
+            docs
+            tenzir
+
+      - name: Checkout docs
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Clone source repository
+        id: clone
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          git init /tmp/source
+          git -C /tmp/source remote add origin \
+            "https://x-access-token:${GH_TOKEN}@github.com/tenzir/tenzir.git"
+          git -C /tmp/source fetch --depth 1 origin "$SOURCE_REF"
+          git -C /tmp/source checkout --detach FETCH_HEAD
+          echo "sha=$(git -C /tmp/source rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Sync node configuration
+        run: git -C /tmp/source show FETCH_HEAD:tenzir.yaml.example > tenzir.yaml.example
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tenzir.yaml.example
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync node configuration from tenzir/tenzir@${{ steps.clone.outputs.sha }}"
+            git push
+          else
+            echo "No changes to node configuration"
+          fi
