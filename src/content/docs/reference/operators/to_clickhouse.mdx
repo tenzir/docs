@@ -89,11 +89,11 @@ well as for `mode = "create_append"` if the table does not yet exist.
 
 ### `json = field|[field] (optional)`
 
-When using `mode = "create"` or `mode = "create_append"`, columns listed in the
-`json` argument will be created as the ClickHouse `JSON` type rather than being
-inferred from the first event. A listed field is created as a `JSON` column even
-if it is absent from that event. Because `json` only affects table creation,
-combining it with `mode = "append"` is an error.
+When using `mode = "create"` or `mode = "create_append"`, the operator creates
+the columns listed in the `json` argument as the ClickHouse `JSON` type instead
+of inferring them from the first event. The operator creates a listed field as a
+`JSON` column even when the event omits it. Because `json` only affects table
+creation, combining it with `mode = "append"` is an error.
 
 This is useful when sending heterogeneous data, such as for OCSF `unmapped`.
 
@@ -212,17 +212,14 @@ This writes to `security.alerts`.
 ### Send OCSF data to ClickHouse
 
 When sending OCSF data to ClickHouse, it is important to ensure that a consistent
-schema is sent. For this, we can use <Op>ocsf::cast</Op>.
-This allows us fill any missing fields with `null`, ensuring a single schema.
+schema is sent. For this, we can use <Op>ocsf::cast</Op>. This fills any missing
+fields with `null`, ensuring a single schema.
 
 ```tql
 subscribe "ocsf"
 ocsf::cast null_fill=true
 to_clickhouse table=f"ocsf.{class_name.replace(" ","_")}", primary=time, json=unmapped
 ```
-
-Another alternative would be to directly turn the `unmapped` field into a `string`
-by using `ocsf::cast null_fill=true, encode_variants=true`.
 
 ### Create a new table with multiple fields
 

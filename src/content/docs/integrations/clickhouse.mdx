@@ -121,9 +121,9 @@ to determine the schema. Make sure the first event doesn't contain untyped nulls
 or empty records. <Op>ocsf::cast</Op> helps because it gives expected OCSF
 fields explicit types before the table is created.
 
-Using `json=unmapped` here allows sending the OCSF `unmapped` field as ClickHouse
-JSON, retaining structural properties without having to rely on <Op>ocsf::cast</Op>
-to `encode_variants` (turning the field into a `string`).
+The `json=unmapped` option creates the OCSF `unmapped` field as a ClickHouse
+`JSON` column, preserving its nested structure so you can query into its fields
+directly.
 
 After the data lands, query it directly in ClickHouse:
 
