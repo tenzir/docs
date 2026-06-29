@@ -1,13 +1,17 @@
-# Worktrunk project configuration
-# https://worktrunk.dev/reference/hook
+[aliases]
+bootstrap = "bun run lefthook:install"
+setup = "wt hook pre-start --yes"
+run = "wt step tether -- bun run dev -- --port {{ (repo ~ '-' ~ branch) | hash_port }}"
 
-# Prepare new worktrees before follow-up commands run.
-[[pre-start]]
+[pre-start]
+copy = "wt step copy-ignored"
 deps = "bun install"
 
-[[pre-start]]
-lefthook = "bun run lefthook:install"
+[post-start]
+docs = "wt -y run"
 
-# Gate Worktrunk merges with the same harness used by Git pre-push and CI.
-[[pre-merge]]
+[pre-merge]
 lint = "bun run lint"
+
+[list]
+url = "http://localhost:{{ (repo ~ '-' ~ branch) | hash_port }}"
