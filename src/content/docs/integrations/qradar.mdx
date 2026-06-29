@@ -31,6 +31,16 @@ See the IBM documentation for the [LEEF overview][leef-overview],
 parameters][universal-leef-syslog], [TLS Syslog protocol
 configuration][tls-syslog], and [log source setup][log-source].
 
+## LEEF mapping
+
+LEEF has fixed header fields and a small set of predefined event attributes. For
+agent-assisted work, follow
+<Guide>ai-workbench/use-agent-skills#use-the-leef-skill</Guide> to install the
+`tenzir-leef` skill. The skill helps choose LEEF 1.0 or 2.0, pick delimiters,
+use predefined attributes such as `src`, `dst`, `srcPort`, `dstPort`,
+`usrName`, `sev`, and `msg`, and format `devTime` and `devTimeFormat` values
+before you build messages with <Fn>print_leef</Fn>.
+
 ## Send events to QRadar over Syslog
 
 QRadar can parse LEEF messages that arrive through a Universal LEEF Syslog log
@@ -215,6 +225,7 @@ parameters, and result pagination behavior in your deployment.
 - <Op>write_syslog</Op>
 - <Fn>encode_url</Fn>
 - <Fn>print_leef</Fn>
+- <Guide>ai-workbench/use-agent-skills#use-the-leef-skill</Guide>
 - <Integration>file</Integration>
 - <Integration>http</Integration>
 - <Integration>syslog</Integration>
