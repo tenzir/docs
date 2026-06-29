@@ -35,6 +35,25 @@ enable this feature, which is disabled by default.
 Learn more about [pipeline subprocesses](/explanations/node#pipeline-subprocesses)
 and their trade-offs.
 
+## Route outbound traffic through an HTTP proxy
+
+Configure `tenzir.http-proxy` and `tenzir.https-proxy` when outbound operators
+must reach external services through a proxy:
+
+```yaml title="<configdir>/tenzir/tenzir.yaml"
+tenzir:
+  http-proxy: http://proxy.example.com:3128
+  https-proxy: http://proxy.example.com:3128
+  no-proxy: .internal,10.0.0.0/8
+```
+
+The proxy URL must include an explicit port. Use `tenzir.no-proxy` to bypass
+the proxy for internal hosts or IP ranges.
+
+See <Explanation>configuration#outbound-proxy-configuration</Explanation> for
+the full precedence rules, environment variable fallbacks, and how proxy
+settings apply.
+
 ## Configure the platform TLS connection
 
 By default, the platform connection uses TLS and picks up the settings from the

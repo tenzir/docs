@@ -135,6 +135,59 @@ Sometimes, users may wish to run Tenzir without side effects, e.g., when
 wrapping Tenzir in their own scripts. Run with `--bare-mode` to disable looking
 at all system- and user-specified configuration paths.
 
+## Outbound Proxy Configuration
+
+Tenzir can route outbound HTTP, HTTPS, and gRPC traffic through an HTTP proxy.
+Configure `tenzir.http-proxy` for `http://` targets and `tenzir.https-proxy`
+for `https://` and gRPC targets:
+
+```yaml title="<configdir>/tenzir/tenzir.yaml"
+tenzir:
+  http-proxy: http://proxy.example.com:3128
+  https-proxy: http://user:password@proxy.example.com:3128
+  no-proxy: .internal,10.0.0.0/8
+```
+
+Proxy URLs must include an explicit port. They may use `http://` or
+`https://`; for gRPC-backed clients, use an `http://` proxy URL because gRPC
+Core rejects `https://` proxy URLs.
+
+If your deployment sets gRPC-specific environment variables such as
+`grpc_proxy` or `no_grpc_proxy`, gRPC Core may prefer those over the standard
+proxy environment variables that Tenzir mirrors from its configuration.
+
+If the Tenzir settings are unset, Tenzir falls back to the corresponding
+environment variables:
+
+- `tenzir.http-proxy`: `TENZIR_HTTP_PROXY`, `HTTP_PROXY`, then `http_proxy`
+- `tenzir.https-proxy`: `TENZIR_HTTPS_PROXY`, `HTTPS_PROXY`, then
+  `https_proxy`
+- `tenzir.no-proxy`: `TENZIR_NO_PROXY`, `NO_PROXY`, then `no_proxy`
+
+Only the generic proxy variables have lowercase aliases; the `TENZIR_*`
+variables are uppercase-only.
+
+Empty proxy environment variables are ignored, except that an explicitly empty
+`tenzir.no-proxy` or `TENZIR_NO_PROXY` disables fallback to the generic
+`NO_PROXY` and `no_proxy` environment variables.
+
+The `tenzir.no-proxy` setting accepts comma-separated entries with the same
+matching behavior as libcurl's `NO_PROXY`: host and domain entries match on
+label boundaries, `*` matches every host, and CIDR entries match IP literals.
+Loopback destinations such as `localhost`, `127.0.0.1`, and `::1` always bypass
+the proxy.
+
+At startup, Tenzir also mirrors the resolved proxy settings into the standard
+proxy environment variables, so outbound integrations follow the same
+configuration.
+
+For normal `s3://bucket/...` URLs, `from_s3` and `to_s3` select the proxy from
+the S3 request scheme rather than matching `no-proxy` against the URI host,
+because that host is the bucket name and not the actual service endpoint. When
+`endpoint_override` is set, Tenzir can apply `no-proxy` to the override host.
+Google Cloud Storage and Azure Blob Storage apply `no-proxy` to the real service
+endpoint host.
+
 ## TLS Configuration
 
 Tenzir provides node-level TLS configuration that applies to all operators and

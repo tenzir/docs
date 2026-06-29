@@ -51,12 +51,16 @@ tenzir:
   # everything; CIDR entries match IP-literal hosts only; `localhost` and
   # IPv4/IPv6 loopback addresses always bypass.
   # Falls back to `TENZIR_NO_PROXY`, `NO_PROXY`, or `no_proxy` from the
-  # environment when unset, in that order.
+  # environment when unset, in that order. An explicitly empty
+  # `TENZIR_NO_PROXY` or configured `no-proxy` value disables fallback to the
+  # generic `NO_PROXY` / `no_proxy` environment variables.
+  # Lowercase aliases exist only for the generic proxy variables; the
+  # `TENZIR_*` names are uppercase-only.
   #
-  # Note on cloud schemes: `from_s3` / `to_s3` apply the proxy to
-  # every request because the `s3://bucket/...` URI host is the
-  # bucket name rather than the real S3 endpoint, so a `no-proxy`
-  # match against the URI host would not reflect user intent.
+  # Note on cloud schemes: for normal `s3://bucket/...` URLs, `from_s3` /
+  # `to_s3` select the proxy from the request scheme because the URI host is
+  # the bucket name rather than the real S3 endpoint. When `endpoint_override`
+  # is set, Tenzir can apply `no-proxy` to the override host.
   # `from_google_cloud_storage` and `from_azure_blob_storage` route
   # through libcurl-backed SDKs that pick up the proxy from the
   # `HTTPS_PROXY` / `NO_PROXY` environment mirror and therefore *do*
