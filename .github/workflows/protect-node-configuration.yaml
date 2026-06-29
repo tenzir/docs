@@ -1,0 +1,19 @@
+name: Protect Node Configuration
+
+on:
+  pull_request:
+    paths:
+      - tenzir.yaml.example
+
+permissions: {}
+
+jobs:
+  protect:
+    name: Protect Node Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject direct edits
+        run: |
+          echo "::error::Do not edit tenzir.yaml.example in tenzir/docs directly."
+          echo "::error::Change tenzir.yaml.example in tenzir/tenzir instead; it syncs here after landing on main."
+          exit 1
