@@ -45,6 +45,10 @@ nested `AGENTS.md` files. Read the relevant reference before you edit that area.
 By default, use `bun run dev` to start a development server in the background
 for live preview during development.
 
+Do not edit `tenzir.yaml.example` directly in this repository. The file is
+synced from `tenzir/tenzir`. Make changes in the source repository instead.
+They will sync here automatically after landing on `main`.
+
 Only use `bun run build` when you actually need to inspect build artifacts.
 Output goes to `dist/`.
 
