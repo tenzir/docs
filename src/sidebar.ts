@@ -423,6 +423,7 @@ export const integrations = [
       "integrations/arcsight",
       "integrations/crowdstrike",
       "integrations/graylog",
+      "integrations/qradar",
       "integrations/sentinelone-data-lake",
       "integrations/suricata",
       "integrations/velociraptor",
