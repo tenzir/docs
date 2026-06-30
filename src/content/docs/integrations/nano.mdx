@@ -1,0 +1,106 @@
+---
+title: Nano
+---
+
+[Nano](https://nano.rs) is a cloud-native SIEM that stores security telemetry in
+ClickHouse. Tenzir ships OCSF events into nano over the native ClickHouse
+protocol with <Op>to_clickhouse</Op>, writing each event in nano's
+`{event, source_type}` wire shape into the `nanosiem.ocsf_logs_native_raw`
+ingest table.
+
+:::tip[Bundled Tenzir node]
+Nano can bundle a Tenzir node for you: its installer's "OCSF + Tenzir" option
+stands up a Tenzir node with this sink pre-wired, leaving you to own the source
+and the OCSF mapping in between. For worked source mappings (Sysmon, Windows
+Event Logs, Apache, CloudTrail, proxy), see nano's [direct OCSF ingestion
+guide](https://nano.rs/docs/ocsf/integrations/direct-ocsf).
+:::
+
+{/*DIAGRAM: insert the nano.excalidraw image reference here once the asset is provided.*/}
+
+## Write OCSF events to nano
+
+Nano accepts a single wire shape: a record with two fields.
+
+| Field | Type | Notes |
+| :--- | :--- | :--- |
+| `event` | `record` | The full OCSF 1.8.0 event. Must carry `class_uid` and `time` (epoch milliseconds). Fields with no OCSF home go under `event.unmapped`. |
+| `source_type` | `string` | Lowercase per-feed identifier, such as `windows_sysmon`. A missing or uppercase value lands rows as `unknown`. |
+
+If you already have a stream of OCSF events in Tenzir, forwarding it to nano is
+two steps: wrap each event in this shape, then write it to
+`nanosiem.ocsf_logs_native_raw` with <Op>to_clickhouse</Op>.
+
+```tql
+subscribe "ocsf"
+this = { event: this, source_type: "suricata" }
+to_clickhouse table="nanosiem.ocsf_logs_native_raw",
+              host="clickhouse", port=9000,
+              user="nanosiem_ingest",
+              password=secret("NANO_INGEST_PASSWORD"),
+              tls=false, mode="append"
+```
+
+The `this = { event: this, source_type: ... }` assignment is the heart of the
+integration: it nests the entire OCSF record under `event` and adds a sibling
+`source_type` that names the feed. Nano stores that envelope, then derives the
+queryable `nanosiem.ocsf_logs` table from this entrypoint through a
+materialized-view chain, so you only ever write the entrypoint, never
+`nanosiem.ocsf_logs` directly.
+
+Sink arguments:
+
+- `table` is `nanosiem.ocsf_logs_native_raw`, nano's entrypoint for native
+  ingestion.
+- `user` and `password` are nano's INSERT-only
+  [ingest credential](https://nano.rs/docs/ocsf/integrations/direct-ocsf)
+  (`nanosiem_ingest`).
+- `mode="append"` writes into the existing table. The `json=` option is for
+  table creation only and errors in `append` mode.
+- `tls=false` matches a Tenzir node colocated with nano on a plaintext network.
+  For a remote cluster, omit it (TLS is the default) and use port `9440`.
+
+Where the OCSF stream comes from is up to you. When the input is raw logs rather
+than OCSF, [map it to OCSF](/guides/normalization/map-to-ocsf) 1.8.0 first;
+nano's [direct OCSF ingestion guide](https://nano.rs/docs/ocsf/integrations/direct-ocsf)
+has per-source mappings.
+
+:::caution[Use the native entrypoint]
+Write to `nanosiem.ocsf_logs_native_raw`, not `nanosiem.ocsf_logs_raw`. This is a
+limitation in <Op>to_clickhouse</Op>, not in ClickHouse or your data: on
+`append`, the operator reads the target table's schema and validates every
+column type before it writes any rows, and its type mapping does not recognize
+two types that `ocsf_logs_raw` uses. It expects a plain `String` but finds
+`LowCardinality(String)`, and a bare `DateTime64` but finds a timezone-qualified
+one (`DateTime64(3, 'UTC')`). Either mismatch raises `unsupported ClickHouse
+type`, so the pipeline fails immediately and never inserts a row, even though it
+would only write the `event` and `source_type` columns.
+
+The native entrypoint avoids this by exposing only `event` (JSON) and a plain
+`source_type` (String). A materialized view forwards from there into
+`ocsf_logs_raw` and on into `nanosiem.ocsf_logs`.
+:::
+
+## Read events back from nano
+
+Nano exposes a native ClickHouse endpoint, so Tenzir can read stored events back
+with <Op>from_clickhouse</Op> using a read-capable credential. Query the
+flattened `nanosiem.ocsf_logs` table, whose OCSF paths are dotted columns such as
+`src_endpoint.ip`:
+
+```tql
+from_clickhouse host="clickhouse", port=9000,
+                user="nanosiem",
+                password=secret("NANO_PASSWORD"),
+                sql="SELECT time, class_uid, `src_endpoint.ip`, message FROM nanosiem.ocsf_logs WHERE severity_id >= 3 ORDER BY time DESC"
+publish "nano-findings"
+```
+
+## See Also
+
+- <Op>from_clickhouse</Op>
+- <Op>subscribe</Op>
+- <Op>to_clickhouse</Op>
+- <Guide>normalization/map-to-ocsf</Guide>
+- <Guide>routing/send-to-destinations</Guide>
+- <Integration>clickhouse</Integration>
