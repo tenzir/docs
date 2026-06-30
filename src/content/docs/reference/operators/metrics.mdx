@@ -642,7 +642,7 @@ TCP connection.
   hidden: bool, // Indicates whether the corresponding pipeline is hidden from the list of managed pipelines.
   timestamp: time, // The time at which this metric was recorded.
   operator_id: uint64, // The ID of the operator owning the TCP connection.
-  handle: string, // The native handle of the connection (on Unix, the file descriptor).
+  handle: string, // An identifier for the connection (for example, the peer address).
   reads: uint64, // The number of attempted reads since the last metric.
   writes: uint64, // The number of attempted writes since the last metric.
   bytes_read: uint64, // The number of bytes received since the last metrics.
@@ -652,7 +652,9 @@ TCP connection.
 
 ### `tenzir.metrics.throttle`
 
-Contains metrics for the `throttle` operator, emitted once every second.
+Contains metrics for the `throttle` operator. Emitted once per second only while
+the operator is dropping events — that is, when it is configured with `drop=true`
+and the rate limit is being exceeded.
 
 ```tql
 {
