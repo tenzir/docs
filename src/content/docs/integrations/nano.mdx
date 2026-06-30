@@ -92,6 +92,7 @@ flattened `nanosiem.ocsf_logs` table, whose OCSF paths are dotted columns such a
 from_clickhouse host="clickhouse", port=9000,
                 user="nanosiem",
                 password=secret("NANO_PASSWORD"),
+                tls=false,
                 sql="SELECT time, class_uid, `src_endpoint.ip`, message FROM nanosiem.ocsf_logs WHERE severity_id >= 3 ORDER BY time DESC"
 publish "nano-findings"
 ```
