@@ -73,25 +73,27 @@ to <Op>to_prometheus</Op>.
 }
 ```
 
+:::caution[Limited to node health metrics]
+Only the periodic node health metrics carry a Prometheus shape: `tenzir.metrics.cpu`,
+`tenzir.metrics.disk`, `tenzir.metrics.memory`, `tenzir.metrics.process`, and
+`tenzir.metrics.caf`. All other metrics — including `pipeline`, the
+operator-scoped metrics (`import`, `export`, `publish`, `subscribe`,
+`subscribe_buffer`, `tcp`, `throttle`, `enrich`, `lookup`), `operator_profile`,
+`api`, `actor`, `ingest`, `rebuild`, and `platform` — are omitted from the
+Prometheus shape. The operator emits a warning for each omitted schema.
+:::
+
 The Prometheus shape recursively flattens numeric metric fields into individual
 records. Duration values are converted to seconds and emitted with a `_seconds`
 metric suffix.
 
-Only selected low-cardinality dimensions become labels. Tenzir omits
-high-cardinality metadata such as `schema_id`, request IDs, and native handles.
-When multiple raw metrics differ only in omitted metadata, Tenzir aggregates
-their values into one Prometheus-shaped sample.
+Only selected low-cardinality dimensions become labels:
 
-The Prometheus shape emits the following labels:
-
-- API metrics: `method`, `path`, and `status_code`.
-- Actor metrics: `name`.
-- CAF actor-list metrics: `name`.
 - Disk metrics: `path`.
-- Operator-scoped metrics: `pipeline_id` and `operator_id`.
-- Pipeline metrics: `pipeline_id`.
-- Schema-scoped import, export, ingest, publish, and subscribe metrics:
-  `schema`.
+- Memory metrics: `name` (for the per-actor allocator statistics).
+- CAF metrics: `name`.
+
+CPU and process metrics carry no labels.
 
 ## Schemas
 
