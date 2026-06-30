@@ -9,7 +9,8 @@ Sends events to a ClickHouse table.
 ```tql
 to_clickhouse table=string,
               [uri=string | (host=string, port=int, user=string, password=string)],
-              [mode=string, primary=field, json=field|[field], tls=bool|record]
+              [mode=string, primary=field, json=field|[field],
+               low_cardinality=field|[field], tls=bool|record]
 ```
 
 ## Description
@@ -96,6 +97,25 @@ of inferring them from the first event. The operator creates a listed field as a
 creation, combining it with `mode = "append"` is an error.
 
 This is useful when sending heterogeneous data, such as for OCSF `unmapped`.
+
+### `low_cardinality = field|[field] (optional)`
+
+When using `mode = "create"` or `mode = "create_append"`, the operator creates
+the columns listed in the `low_cardinality` argument as
+`LowCardinality(String)` instead of plain `String`. This is a ClickHouse storage
+optimization for columns with few distinct values.
+
+Unlike `json`, the inner type is inferred from the data, so every listed field
+must be present in the first event that creates the table — otherwise the
+operator raises an error. `low_cardinality` is only supported for `string`
+columns. Because it only affects table creation, combining it with
+`mode = "append"` is an error.
+
+```tql
+from {id: 0, name: "alpha"}
+to_clickhouse table="events", primary=id, mode="create", low_cardinality=name
+// creates `name` as LowCardinality(Nullable(String))
+```
 
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
