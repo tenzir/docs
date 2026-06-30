@@ -9,7 +9,8 @@ Sends events to a ClickHouse table.
 ```tql
 to_clickhouse table=string,
               [uri=string | (host=string, port=int, user=string, password=string)],
-              [mode=string, primary=field, json=field|[field], tls=bool|record]
+              [mode=string, primary=field, json=field|[field],
+               low_cardinality=field|[field], tls=bool|record]
 ```
 
 ## Description
@@ -97,6 +98,25 @@ creation, combining it with `mode = "append"` is an error.
 
 This is useful when sending heterogeneous data, such as for OCSF `unmapped`.
 
+### `low_cardinality = field|[field] (optional)`
+
+When using `mode = "create"` or `mode = "create_append"`, the operator creates
+the columns listed in the `low_cardinality` argument as
+`LowCardinality(String)` instead of plain `String`. This is a ClickHouse storage
+optimization for columns with few distinct values.
+
+Unlike `json`, the inner type is inferred from the data, so every listed field
+must be present in the first event that creates the table — otherwise the
+operator raises an error. `low_cardinality` is only supported for `string`
+columns. Because it only affects table creation, combining it with
+`mode = "append"` is an error.
+
+```tql
+from {id: 0, name: "alpha"}
+to_clickhouse table="events", primary=id, mode="create", low_cardinality=name
+// creates `name` as LowCardinality(Nullable(String))
+```
+
 import TLSOptions from '@partials/operators/TLSOptions.mdx';
 
 <TLSOptions tls_default="true" />
@@ -112,6 +132,7 @@ translation from Tenzir's types to ClickHouse:
 | Tenzir     | ClickHouse                     | Comment                                                                                               |
 | :--------- | :----------------------------- | :---------------------------------------------------------------------------------------------------- |
 | `bool`     | `Bool`                         |                                                                                                       |
+| `string`   | `String`                       |                                                                                                       |
 | `int64`    | `Int64`                        |                                                                                                       |
 | `uint64`   | `UInt64`                       |                                                                                                       |
 | `double`   | `Float64`                      |                                                                                                       |
@@ -129,6 +150,24 @@ Tenzir also supports `Nullable` versions of the above types (or their nested typ
 If a `list` itself is `null`, it will be represented by an empty `Array`.
 If a `record` is `null`, all elements of the `Tuple` will be null, if possible.
 Otherwise the event will be dropped.
+
+### Appending to existing columns
+
+When appending to a table that already exists, its columns may use ClickHouse
+types that <Op>to_clickhouse</Op> would not create on its own. In addition to
+the types above, the operator writes to:
+
+- `LowCardinality(T)` columns by sending the plain `T` value, for example a
+  `string` into a `LowCardinality(String)` column. ClickHouse adds the
+  `LowCardinality` wrapper on insert.
+- `DateTime64(N)` and `DateTime64(N, 'tz')` columns of any precision `N` and
+  timezone. Tenzir `time` values are truncated to the column's precision, so
+  digits finer than `N` are dropped. Tenzir creates `time` columns as
+  `DateTime64(9)`, but you can append to a coarser column such as
+  `DateTime64(3, 'UTC')`.
+
+Both also apply within nested `Tuple` and `Array` columns and in their
+`Nullable` forms, such as `LowCardinality(Nullable(String))`.
 
 ### Clickhouse JSON
 
