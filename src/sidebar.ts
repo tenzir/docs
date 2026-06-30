@@ -104,6 +104,7 @@ export const guides = [
           "guides/parsing/parse-delimited-text",
           "guides/parsing/parse-binary-data",
           "guides/parsing/parse-string-fields",
+          "guides/parsing/reassemble-multi-segment-messages",
         ],
       },
       {
