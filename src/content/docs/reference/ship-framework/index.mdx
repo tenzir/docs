@@ -604,7 +604,9 @@ tenzir-ship validate
 ```
 
 The validator reports missing metadata, unused entries, duplicate entry IDs, and
-configuration drift across repositories. When modules are configured, validation
+configuration drift across repositories. It also rejects entries that carry
+`prs` metadata when the config sets `omit_pr: true`, or `authors` metadata when
+the config sets `omit_author: true`. When modules are configured, validation
 runs against the parent project and all discovered modules. Issues from modules
 are prefixed with the module ID.
 
@@ -897,9 +899,12 @@ version fields in manifest files.
 
 The `omit_pr` and `omit_author` options suppress PR numbers and author
 attribution in generated entries. When enabled, the CLI skips auto-detection and
-ignores any `--pr`, `--author`, or `--co-author` flags (with a warning). Use
-these options for projects that don't use GitHub pull requests or prefer
-anonymous changelog entries.
+ignores any `--pr`, `--author`, or `--co-author` flags (with a warning). The
+`validate` command additionally reports an error for entries that carry `prs`
+or `authors` metadata despite the corresponding option being set, catching
+entries written to disk without the `add` command. Use these options for
+projects that don't use GitHub pull requests or prefer anonymous changelog
+entries.
 
 The first invocation of `tenzir-ship add` scaffolds a `changelog/`
 subdirectory with `config.yaml`, inferring defaults from the parent directory
