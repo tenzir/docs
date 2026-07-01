@@ -65,9 +65,9 @@ allowed format specifiers are the same as for `strptime(3)`:
 
 ### `reference = time (optional)`
 
-An optional timestamp that provides date context for supported formats that
-don't include a complete date. Parsed date fields win, and missing time fields
-don't come from `reference`.
+An optional timestamp that provides date context for formats whose year is
+missing. Parsed date fields win, and missing time fields don't come from
+`reference`.
 
 If the input contains a month and day but no year, `parse_time` chooses the
 year that places the parsed timestamp closest to the reference time.
@@ -75,9 +75,7 @@ year that places the parsed timestamp closest to the reference time.
 If the input contains no date fields, `parse_time` uses the date from
 `reference`.
 
-`reference` doesn't fill only a missing month or only a missing day. It also
-doesn't resolve week-based dates such as formats using `%U`, `%V`, or `%W`
-without a year. In these cases, `parse_time` returns null and emits a warning.
+Other incomplete date formats return null and emit a warning.
 
 If `reference` is null and a date field is missing, `parse_time` returns null
 and emits a warning. If `format` includes a complete date, `parse_time` emits a
