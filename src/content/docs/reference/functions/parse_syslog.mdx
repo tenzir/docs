@@ -200,6 +200,62 @@ output = input.parse_syslog()
 If the leading brackets don't contain valid structured data, the parser leaves
 the content intact and omits the `structured_data` field.
 
+### Parse an RFC 3164 timestamp
+
+RFC 3164/BSD syslog timestamps don't include a year or timezone, so
+`parse_syslog` keeps the timestamp as a string. Use <Fn>parse_time</Fn> with a
+`reference` timestamp to choose the closest year. For live ingestion, use
+`now()`:
+
+```tql
+from {
+  input: "<34>May  5 18:16:21 mymachine PROGRAM: Freeform message",
+}
+event = input.parse_syslog()
+event.timestamp = event.timestamp.parse_time(
+  "%b %e %H:%M:%S",
+  reference=now(),
+)
+```
+
+For historic data, pass a fixed reference to make the result deterministic:
+
+```tql
+from {
+  input: "<34>May  5 18:16:21 mymachine PROGRAM: Freeform message",
+}
+event = input.parse_syslog()
+event.timestamp = event.timestamp.parse_time(
+  "%b %e %H:%M:%S",
+  reference=2026-05-05T00:00:00Z,
+)
+```
+
+```tql
+{
+  input: "<34>May  5 18:16:21 mymachine PROGRAM: Freeform message",
+  event: {
+    facility: 4,
+    severity: 2,
+    timestamp: 2026-05-05T18:16:21Z,
+    hostname: "mymachine",
+    app_name: "PROGRAM",
+    process_id: null,
+    content: "Freeform message",
+  },
+}
+```
+
+If you know the sender's timezone, add the UTC offset to the string and include
+`%z` in the format:
+
+```tql
+event.timestamp = (event.timestamp + " -1000").parse_time(
+  "%b %e %H:%M:%S %z",
+  reference=2026-05-06T00:00:00Z,
+)
+```
+
 ## See Also
 
 - <Op>read_syslog</Op>
