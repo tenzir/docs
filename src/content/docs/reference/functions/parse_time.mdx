@@ -72,10 +72,14 @@ missing. Parsed date fields win, and missing time fields don't come from
 If the input contains a month and day but no year, `parse_time` chooses the
 year that places the parsed timestamp closest to the reference time.
 
-If the input contains no date fields, `parse_time` uses the date from
-`reference`.
+If the input contains no date fields, `parse_time` chooses the date that
+places the parsed time of day closest to the reference time. Times shortly
+before or after midnight resolve to the adjacent day.
 
-Other incomplete date formats return null and emit a warning.
+Other incomplete date formats, including dates built from week numbers such as
+`%G %V %u`, return null and emit a warning. ISO week fields next to a complete
+calendar date need no filling, so `parse_time` parses the date and ignores
+`reference`.
 
 If `reference` is null and a date field is missing, `parse_time` returns null
 and emits a warning. If `format` includes a complete date, `parse_time` emits a
@@ -141,6 +145,26 @@ timestamp = (bsd_time + " +0400").parse_time(
 
 ```tql
 {timestamp: 2026-05-05T14:16:21Z}
+```
+
+### Parse a time without a date
+
+Formats without date fields take their date from `reference`, choosing the day
+that places the time of day closest to it. Here the reference is two seconds
+past midnight, so the timestamp resolves to the previous day:
+
+```tql
+from {
+  timestamp: "23:59:58",
+}
+timestamp = timestamp.parse_time(
+  "%H:%M:%S",
+  reference=2026-06-24T00:00:02Z,
+)
+```
+
+```tql
+{timestamp: 2026-06-23T23:59:58Z}
 ```
 
 ## See Also
