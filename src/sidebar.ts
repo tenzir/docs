@@ -424,6 +424,7 @@ export const integrations = [
       "integrations/arcsight",
       "integrations/crowdstrike",
       "integrations/graylog",
+      "integrations/nano",
       "integrations/qradar",
       "integrations/sentinelone-data-lake",
       "integrations/suricata",

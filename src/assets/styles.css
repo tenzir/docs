@@ -2039,15 +2039,29 @@ starlight-tabs [role="tabpanel"] > :last-child {
   padding-inline: 0.2em;
 }
 
-/* Semantic-link list items use the icon as their marker without affecting
-   neighboring plain-text bullets in mixed lists. */
-ul:has(> li > .semantic-link) > li:has(> .semantic-link) {
+/* See Also list items use the icon as their marker without affecting inline
+   semantic links in ordinary prose lists. */
+.sl-markdown-content
+  :is(
+    .sl-heading-wrapper:has(> :is(h2, h3, h4, h5, h6)[id^="see-also"]),
+    :is(h2, h3, h4, h5, h6)[id^="see-also"]
+  )
+  + ul
+  > li:has(> .semantic-link) {
   position: relative;
   list-style: none;
   line-height: 1.75;
 }
 
-ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .inline-icon {
+.sl-markdown-content
+  :is(
+    .sl-heading-wrapper:has(> :is(h2, h3, h4, h5, h6)[id^="see-also"]),
+    :is(h2, h3, h4, h5, h6)[id^="see-also"]
+  )
+  + ul
+  > li:has(> .semantic-link)
+  > .semantic-link
+  > .inline-icon {
   display: inline;
   position: absolute;
   left: -1.25em;
@@ -2056,19 +2070,40 @@ ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .inl
 }
 
 :root[data-theme="dark"]
-  ul:has(> li > .semantic-link)
+  .sl-markdown-content
+  :is(
+    .sl-heading-wrapper:has(> :is(h2, h3, h4, h5, h6)[id^="see-also"]),
+    :is(h2, h3, h4, h5, h6)[id^="see-also"]
+  )
+  + ul
   > li:has(> .semantic-link)
   > .semantic-link
   > .inline-icon {
   color: var(--tnz-neutral-500);
 }
 
-ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > svg.inline-icon {
+.sl-markdown-content
+  :is(
+    .sl-heading-wrapper:has(> :is(h2, h3, h4, h5, h6)[id^="see-also"]),
+    :is(h2, h3, h4, h5, h6)[id^="see-also"]
+  )
+  + ul
+  > li:has(> .semantic-link)
+  > .semantic-link
+  > svg.inline-icon {
   width: 14px;
   height: 14px;
 }
 
-ul:has(> li > .semantic-link) > li:has(> .semantic-link) > .semantic-link > .fn-icon {
+.sl-markdown-content
+  :is(
+    .sl-heading-wrapper:has(> :is(h2, h3, h4, h5, h6)[id^="see-also"]),
+    :is(h2, h3, h4, h5, h6)[id^="see-also"]
+  )
+  + ul
+  > li:has(> .semantic-link)
+  > .semantic-link
+  > .fn-icon {
   font-family: var(--tnz-font-mono);
   font-size: 12px;
   font-weight: 700;
