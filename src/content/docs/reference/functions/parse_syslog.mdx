@@ -221,6 +221,10 @@ event.timestamp = event.timestamp.parse_time(
 For historic data, pass a fixed reference to make the result deterministic:
 
 ```tql
+from {
+  input: "<34>May  5 18:16:21 mymachine PROGRAM: Freeform message",
+}
+event = input.parse_syslog()
 event.timestamp = event.timestamp.parse_time(
   "%b %e %H:%M:%S",
   reference=2026-05-05T00:00:00Z,
