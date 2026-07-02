@@ -88,13 +88,6 @@ export const searchWeights: SearchWeightConfig[] = [
     weight: 3.0,
     metadata: { type: "Explanation" },
   },
-
-  // Changelog pages - lowest priority
-  {
-    pattern: "changelog/",
-    weight: 1.0,
-    metadata: { type: "Changelog" },
-  },
 ];
 
 /**

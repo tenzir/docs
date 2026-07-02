@@ -60,9 +60,7 @@ const siteNavigation = [
   },
   {
     label: "Changelog",
-    dropdown: true,
-    paths: ["/changelog", "/changelog/**"],
-    childrenFrom: "changelogProjects",
+    link: "https://tenzir.com/changelog",
   },
 ];
 
@@ -113,7 +111,7 @@ export default defineConfig({
             rel: "alternate",
             type: "application/atom+xml",
             title: "Tenzir Changelog",
-            href: "/changelog/feed.xml",
+            href: "https://tenzir.com/changelog/feed.xml",
           },
         },
       ],

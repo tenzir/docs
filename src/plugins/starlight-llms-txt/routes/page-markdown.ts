@@ -20,7 +20,6 @@ import {
   markdownUrlForDocPath,
   normalizeDocPathForMarkdown,
 } from "../../../utils/llm-markdown-path";
-import { changelogTopics } from "../changelog-topics";
 import { entryToSimpleMarkdown } from "../entry-to-markdown";
 import type { SidebarItem } from "../types";
 import { ensureTrailingSlash, isDefaultLocale } from "../utils";
@@ -71,17 +70,6 @@ function extractChildLinks(docId: string, baseUrl: string): ChildLink[] | null {
         return null;
       })
       .filter((link): link is ChildLink => link !== null);
-  }
-
-  // Check for changelog section
-  if (docId === "changelog" || docId === "changelog/index") {
-    const projects = changelogTopics.filter(
-      (t) => t.label !== "Timeline" && t.link,
-    );
-    return projects.map((t) => ({
-      title: t.label,
-      url: childUrl(t.link),
-    }));
   }
 
   // For nested pages, look for matching parent in sidebar

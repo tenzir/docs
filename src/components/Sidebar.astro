@@ -3,7 +3,6 @@ import MobileMenuFooter from "virtual:starlight/components/MobileMenuFooter";
 import { Badge } from "@astrojs/starlight/components";
 import SidebarPersister from "@astrojs/starlight/components/SidebarPersister.astro";
 import { pathWithBase } from "@utils/base";
-import changelogProjects from "../changelog-projects.json";
 import { getIconComponent } from "../utils/icon-registry";
 import SidebarSublist from "./SidebarSublist.astro";
 import TopicDropdown from "./TopicDropdown.astro";
@@ -12,21 +11,12 @@ const { activePrimarySection, sectionSwitcherSections } =
   Astro.locals.siteNavigation;
 const { sidebar } = Astro.locals.starlightRoute;
 
-const getSectionColor = (link: string | undefined): string | undefined => {
-  if (!link) return undefined;
-  const normalized = link.replace(/^\/|\/$/g, "");
-  if (!normalized.startsWith("changelog/")) return undefined;
-  const projectId = normalized.slice("changelog/".length);
-  return changelogProjects[projectId as keyof typeof changelogProjects]?.color;
-};
-
 const useDropdown = !!activePrimarySection?.dropdown;
 const dropdownItems = useDropdown
   ? sectionSwitcherSections.map((section) => ({
       label: section.label,
       link: section.link,
       icon: typeof section.icon === "string" ? section.icon : undefined,
-      color: getSectionColor(section.link),
       isCurrent: section.isCurrent,
     }))
   : [];
@@ -44,7 +34,7 @@ const dropdownItems = useDropdown
           <li>
             <a href={pathWithBase(section.link)} class:list={{ 'starlight-sidebar-topics-current': section.isCurrent }}>
               {IconComponent && (
-                <div class="starlight-sidebar-topics-icon" data-color={getSectionColor(section.link)}>
+                <div class="starlight-sidebar-topics-icon">
                   <IconComponent />
                 </div>
               )}

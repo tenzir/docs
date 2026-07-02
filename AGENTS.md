@@ -72,14 +72,12 @@ explicit file list, pass NUL-separated paths on standard input to
 
 Some content is auto-generated and excluded from linting:
 
-- **Changelog**: Run `bun run generate:changelog` to fetch from `tenzir/news` repo.
-  The generator only publishes projects listed in `src/changelog-projects.json`,
-  which is the authoritative source for changelog project inclusion, ordering,
-  and metadata. Generated files: `src/content/docs/changelog/`,
-  `src/changelog-landing.generated.ts`, `src/sidebar-changelog.generated.ts`,
-  and `src/unified-timeline-data.generated.ts`. The tracked
-  `src/content/docs/changelog/index.mdx` page is a stable shell and should not
-  change during local builds.
+- **Changelog redirects**: The changelog lives at
+  <https://tenzir.com/changelog>. Run `bun run generate:changelog` to emit
+  redirect stubs and farewell Atom feeds into `public/changelog/` so old
+  docs.tenzir.com changelog URLs forward to tenzir.com. The script derives
+  the URLs from the `tenzir/news` repo (cloned into the gitignored `.news/`
+  directory).
 - **Excalidraw Diagrams**: `bun run dev` and `bun run build` refresh generated
   SVGs automatically. Use `bun run generate:excalidraw` only when you need a
   manual refresh. In markdown, reference diagrams as `![alt](foo.excalidraw)`.

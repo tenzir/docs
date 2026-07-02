@@ -11,8 +11,6 @@ import {
   tutorials,
 } from "../../sidebar";
 import { markdownUrlForDocPath } from "../../utils/llm-markdown-path";
-// Changelog topics
-import { changelogTopics } from "./changelog-topics";
 import { entryToSimpleMarkdown } from "./entry-to-markdown";
 import { extractDescription } from "./excerpt-utils";
 import type { SidebarItem } from "./types";
@@ -30,7 +28,6 @@ Start here to build understanding of a particular topic.`,
 Start here when you need detailed information about building blocks.`,
   integrations: `Turn-key packages and native connectors for security tools.
 Start here to connect Tenzir with Splunk, Elastic, CrowdStrike, etc.`,
-  changelog: `Release notes and version history for all Tenzir projects.`,
 };
 
 /**
@@ -322,24 +319,6 @@ function formatSection(
 }
 
 /**
- * Format changelog section with shallow depth (project links only).
- */
-function formatChangelogSection(baseUrl: string): string {
-  let output = `## [Changelog](${baseUrl}/changelog.md)\n\n`;
-  output += `${SECTION_DESCRIPTIONS.changelog}\n\n`;
-
-  // Extract main project topics (skip Timeline)
-  const projects = changelogTopics.filter((t) => t.label !== "Timeline");
-
-  for (const project of projects) {
-    output += `- [${project.label}](${markdownUrlForDocPath(baseUrl, project.link)})\n`;
-  }
-
-  output += "\n";
-  return output;
-}
-
-/**
  * Generate the sitemap markdown content.
  */
 export async function generateSitemap(context: APIContext): Promise<string> {
@@ -420,9 +399,6 @@ and manage them via the Tenzir Platform.`);
 
     segments.push(sectionOutput.trim());
   }
-
-  // Add changelog section
-  segments.push(formatChangelogSection(baseUrl).trim());
 
   return `${segments.join("\n\n")}\n`;
 }

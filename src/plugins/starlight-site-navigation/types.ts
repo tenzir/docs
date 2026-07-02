@@ -19,7 +19,6 @@ export interface SiteNavigationUserSectionConfig {
   paths?: string[];
   dropdown?: boolean;
   children?: SiteNavigationUserSectionConfig[];
-  childrenFrom?: "changelogProjects";
 }
 
 export interface SiteNavigationSectionConfig {

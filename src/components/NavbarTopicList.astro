@@ -1,5 +1,5 @@
 ---
-import { pathWithBase } from "@utils/base";
+import { hrefWithBase } from "@utils/base";
 
 const { primarySections } = Astro.locals.siteNavigation;
 ---
@@ -11,7 +11,7 @@ const { primarySections } = Astro.locals.siteNavigation;
       primarySections.map((section) => (
       <li>
         <a
-          href={pathWithBase(section.link)}
+          href={hrefWithBase(section.link)}
           aria-current={section.isActive ? 'page' : undefined}
           >
           {section.label}
