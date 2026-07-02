@@ -4,17 +4,19 @@ category: Filter
 example: 'assert_throughput 1000, within=1s'
 ---
 
-Emits a warning if the pipeline does not have the expected throughput
+Emits a warning if the pipeline is outside the expected throughput range
 
 ```tql
-assert_throughput min_events:int, within=duration, [retries=int]
+assert_throughput min_events:int, within=duration,
+                  [max_events=int], [retries=int]
 ```
 
 ## Description
 
 The `assert_throughput` operator checks a pipeline's throughput, emitting a
-warning if the minimum specified throughput is unmet, and optionally an error if
-the number of retries is exceeded.
+warning if the minimum specified throughput is unmet or if the optional
+`max_events` threshold is exceeded. It optionally emits an error if the number
+of retries is exceeded.
 
 ## Examples
 
@@ -24,6 +26,14 @@ the number of retries is exceeded.
 accept_udp "0.0.0.0:514"
 this = data.parse_syslog()
 assert_throughput 1k, within=1s, retries=30
+```
+
+### Require between 1,000 and 5,000 events per second
+
+```tql
+accept_udp "0.0.0.0:514"
+this = data.parse_syslog()
+assert_throughput 1k, within=1s, max_events=5k
 ```
 
 ## See Also
