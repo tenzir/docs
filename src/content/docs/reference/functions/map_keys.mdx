@@ -1,0 +1,64 @@
+---
+title: map_keys
+category: Record
+example: 'record.map_keys(key => key.to_lower())'
+---
+
+Renames the top-level fields of a record by applying a lambda to each field name.
+
+```tql
+map_keys(x:record, function:string => string) -> record
+```
+
+## Description
+
+The `map_keys` function returns a record with the same field values as `x`, but
+with field names produced by `function`.
+
+The function applies only to top-level fields. To rename fields in a nested
+record, call `map_keys` on that nested record.
+
+The lambda receives each field name as a string. If the lambda returns `null` or
+a non-string value for a field, `map_keys` emits a warning and keeps that field's
+original name. If the mapped field names conflict, `map_keys` emits a warning and
+leaves the record unchanged.
+
+### `x: record`
+
+The record whose field names you want to rename.
+
+### `function: string => string`
+
+A unary lambda that maps each field name to a new field name.
+
+## Examples
+
+### Lowercase record field names
+
+```tql
+from {
+  request: {
+    "Cache-Control": "no-cache, no-store",
+    Pragma: "no-cache",
+    Host: "domain.gent",
+  },
+}
+request = request.map_keys(key => key.to_lower())
+```
+
+```tql
+{
+  request: {
+    "cache-control": "no-cache, no-store",
+    pragma: "no-cache",
+    host: "domain.gent",
+  },
+}
+```
+
+## See Also
+
+- <Fn>drop_matching</Fn>
+- <Fn>keys</Fn>
+- <Fn>select_matching</Fn>
+- <Guide>transformation/shape-records</Guide>
